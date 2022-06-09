@@ -222,6 +222,17 @@ ocean/api
    imp_res
 ```
 
+### job
+```{eval-rst}
+.. currentmodule:: polaris.job
+
+.. autosummary::
+   :toctree: generated/
+
+   write_job_script
+   get_slurm_options
+```
+
 ### logging
 
 ```{eval-rst}
