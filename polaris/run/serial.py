@@ -13,6 +13,7 @@ from polaris.logging import log_function_call, log_method_call
 from polaris.parallel import (
     check_parallel_system,
     get_available_cores_and_nodes,
+    run_command,
     set_cores_per_node,
 )
 
@@ -414,7 +415,6 @@ def _run_step(test_case, step, new_log_file):
     config = test_case.config
     cwd = os.getcwd()
     available_cores, _, _ = get_available_cores_and_nodes(config)
-    step.constrain_resources(available_cores)
 
     missing_files = list()
     for input_file in step.inputs:
@@ -440,6 +440,11 @@ def _run_step(test_case, step, new_log_file):
         step.logger = step_logger
         os.chdir(step.work_dir)
 
+        step_logger.info('')
+        log_method_call(method=step.constrain_resources, logger=step_logger)
+        step_logger.info('')
+        step.constrain_resources(available_cores)
+
         # runtime_setup() will perform small tasks that require knowing the
         # resources of the task before the step runs (such as creating
         # graph partitions)
@@ -448,10 +453,14 @@ def _run_step(test_case, step, new_log_file):
         step_logger.info('')
         step.runtime_setup()
 
-        step_logger.info('')
-        log_method_call(method=step.run, logger=step_logger)
-        step_logger.info('')
-        step.run()
+        if step.args is not None:
+            run_command(step.args, step.cpus_per_task, step.ntasks,
+                        step.openmp_threads, step.config, step.logger)
+        else:
+            step_logger.info('')
+            log_method_call(method=step.run, logger=step_logger)
+            step_logger.info('')
+            step.run()
 
     missing_files = list()
     for output_file in step.outputs:
