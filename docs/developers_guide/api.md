@@ -146,7 +146,6 @@ ocean/api
    Step.run
    Step.add_input_file
    Step.add_output_file
-   Step.add_model_as_input
    Step.add_namelist_file
    Step.add_namelist_options
    Step.update_namelist_at_runtime
@@ -225,6 +224,12 @@ ocean/api
 
 .. autosummary::
    :toctree: generated/
+   
+   ModelStep
+   ModelStep.setup
+   ModelStep.set_model_resources
+   ModelStep.runtime_setup
+   ModelStep.process_inputs_and_outputs
 
    run_model
    partition

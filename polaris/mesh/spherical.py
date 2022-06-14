@@ -15,7 +15,7 @@ from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
 
-from polaris.model import make_graph_file
+from polaris.model_step import make_graph_file
 from polaris.step import Step
 
 
