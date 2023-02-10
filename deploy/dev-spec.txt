@@ -1,0 +1,12 @@
+# Development
+pip
+pytest
+isort
+flake8
+mypy
+pre-commit
+
+# Documentation
+sphinx
+sphinx_rtd_theme
+myst-parser
