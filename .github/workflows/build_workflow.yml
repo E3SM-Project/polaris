@@ -1,0 +1,43 @@
+name: CI/CD Build Workflow
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+  workflow_dispatch:
+
+env:
+  CANCEL_OTHERS: true
+  PATHS_IGNORE: '["**/README.md", "**/docs/**"]'
+
+jobs:
+  pre-commit-hooks:
+    name: lint with pre-commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: ${{ env.CANCEL_OTHERS }}
+          paths_ignore: ${{ env.PATHS_IGNORE }}
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Checkout Code Repository
+        uses: actions/checkout@v3
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        # Run all pre-commit hooks on all the files.
+        # Getting only staged files can be tricky in case a new PR is opened
+        # since the action is run on a branch in detached head state
+        name: Install and Run Pre-commit
+        uses: pre-commit/action@v3.0.0
