@@ -98,7 +98,8 @@ jobs:
           python -m pip install sphinx-multiversion
           python -m pip install .
 
-      - name: Build Sphinx Docs
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Build Sphinx Docs
         run: |
           # sphinx-multiversion expects at least a "main" branch
           git branch main
