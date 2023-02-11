@@ -95,6 +95,12 @@ jobs:
         run: |
           mamba install --file deploy/dev-spec.txt
           python -m pip install .
+
+      - name: Build Sphinx Docs
+        run: |
+          cd docs
+          sphinx-multiversion . _build/html
+
       # - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
       #   name: Run Tests
       #   env:

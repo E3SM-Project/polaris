@@ -41,6 +41,8 @@ language = "en"
 # ones.
 extensions = [
     "myst_parser",
+    "sphinx_rtd_theme",
+    "sphinx_multiversion",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
@@ -124,6 +126,6 @@ html_title = ""
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
 
-# -- LaTeX output -------------------------------------------------
-
-latex_engine = "xelatex"
+smv_tag_whitelist = r"^v\d+\.\d+.\d+$"  # Include tags like "tags/v2.5.0"
+smv_branch_whitelist = "main"
+smv_remote_whitelist = r"^(origin|upstream)$"  # Use branches from origin
