@@ -41,3 +41,72 @@ jobs:
         # since the action is run on a branch in detached head state
         name: Install and Run Pre-commit
         uses: pre-commit/action@v3.0.0
+
+  build:
+    name: test polaris - python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: ${{ env.CANCEL_OTHERS }}
+          paths_ignore: ${{ env.PATHS_IGNORE }}
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        uses: actions/checkout@v3
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Cache Conda
+        uses: actions/cache@v3
+        env:
+          # Increase this value to reset cache if dev-spec.txt has not changed in the workflow
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key:
+            ${{ runner.os }}-${{ matrix.python-version }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('deploy/dev-spec.txt') }}
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Set up Conda Environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: "polaris_ci"
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          use-mamba: true
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: strict
+          auto-update-conda: true
+          # IMPORTANT: This needs to be set for caching to work properly!
+          use-only-tar-bz2: true
+          python-version: ${{ matrix.python-version }}
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Install polaris
+        run: |
+          mamba install --file deploy/dev-spec.txt
+          # not yet available on conda-forge
+          python -m pip install sphinx-multiversion
+          python -m pip install .
+
+      - name: Build Sphinx Docs
+        run: |
+          # sphinx-multiversion expects at least a "main" branch
+          git branch main
+          cd docs
+          sphinx-multiversion . _build/html
+
+      # - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+      #   name: Run Tests
+      #   env:
+      #     CHECK_IMAGES: False
+      #   run: pytest --pyargs polaris
