@@ -94,10 +94,14 @@ jobs:
         name: Install polaris
         run: |
           mamba install --file deploy/dev-spec.txt
+          # not yet available on conda-forge
+          python -m pip install sphinx-multiversion
           python -m pip install .
 
       - name: Build Sphinx Docs
         run: |
+          # sphinx-multiversion expects at least a "main" branch
+          git branch main
           cd docs
           sphinx-multiversion . _build/html
 
