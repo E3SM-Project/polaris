@@ -34,14 +34,20 @@ def get_config(config_file, machine):
     config.read(default_config)
 
     if machine is not None:
-        if not machine.startswith('conda'):
-            machine_config = \
-                str(importlib.resources.files('mache.machines') /
-                    f'{machine}.cfg')
+        machine_config = \
+            str(importlib.resources.files('mache.machines') /
+                f'{machine}.cfg')
+        # it's okay if a given machine isn't part of mache
+        if os.path.exists(machine_config):
             config.read(machine_config)
 
         machine_config = os.path.join(here, '..', 'polaris', 'machines',
                                       f'{machine}.cfg')
+        if not os.path.exists(machine_config):
+            raise FileNotFoundError(
+                f'Could not find a config file for this machine at '
+                f'polaris/machines/{machine}.cfg')
+
         config.read(machine_config)
 
     if config_file is not None:
