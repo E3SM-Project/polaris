@@ -1,0 +1,12 @@
+echo Loading conda environment
+source {{ conda_base }}/etc/profile.d/conda.sh
+source {{ conda_base }}/etc/profile.d/mamba.sh
+mamba activate {{ polaris_env }}
+echo Done.
+echo
+
+{{ update_polaris }}
+
+{{ spack }}
+
+{{ env_vars }}

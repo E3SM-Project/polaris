@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+import os
+import sys
+from configparser import ConfigParser
+
+from deploy.shared import (
+    check_call,
+    get_conda_base,
+    get_logger,
+    install_mambaforge,
+    parse_args,
+)
+
+
+def get_config(config_file):
+    # we can't load polaris so we find the config files
+    here = os.path.abspath(os.path.dirname(__file__))
+    default_config = os.path.join(here, 'deploy/default.cfg')
+    config = ConfigParser()
+    config.read(default_config)
+
+    if config_file is not None:
+        config.read(config_file)
+
+    return config
+
+
+def bootstrap(activate_install_env, source_path, local_conda_build):
+
+    print('Creating the polaris conda environment\n')
+    bootstrap_command = f'{source_path}/deploy/bootstrap.py'
+    command = f'{activate_install_env} && ' \
+              f'{bootstrap_command} {" ".join(sys.argv[1:])}'
+    if local_conda_build is not None:
+        command = f'{command} --local_conda_build {local_conda_build}'
+    check_call(command)
+
+
+def setup_install_env(env_name, activate_base, use_local, logger, recreate,
+                      conda_base, mache):
+    env_path = os.path.join(conda_base, 'envs', env_name)
+    if use_local:
+        channels = '--use-local'
+    else:
+        channels = ''
+    packages = f'progressbar2 jinja2 {mache}'
+    if recreate or not os.path.exists(env_path):
+        print('Setting up a conda environment for installing polaris\n')
+        commands = f'{activate_base} && ' \
+                   f'mamba create -y -n {env_name} {channels} {packages}'
+    else:
+        print('Updating conda environment for installing polaris\n')
+        commands = f'{activate_base} && ' \
+                   f'mamba install -y -n {env_name} {channels} {packages}'
+
+    check_call(commands, logger=logger)
+
+
+def main():
+    args = parse_args(bootstrap=False)
+    source_path = os.getcwd()
+
+    if args.tmpdir is not None:
+        try:
+            os.makedirs(args.tmpdir)
+        except FileExistsError:
+            pass
+
+    config = get_config(args.config_file)
+
+    conda_base = get_conda_base(args.conda_base, config, warn=True)
+    conda_base = os.path.abspath(conda_base)
+
+    env_name = 'polaris_bootstrap'
+
+    source_activation_scripts = \
+        f'source {conda_base}/etc/profile.d/conda.sh && ' \
+        f'source {conda_base}/etc/profile.d/mamba.sh'
+
+    activate_base = f'{source_activation_scripts} && conda activate'
+
+    activate_install_env = \
+        f'{source_activation_scripts} && ' \
+        f'conda activate {env_name}'
+    try:
+        os.makedirs('deploy_tmp/logs')
+    except OSError:
+        pass
+
+    if args.verbose:
+        logger = None
+    else:
+        logger = get_logger(log_filename='deploy_tmp/logs/prebootstrap.log',
+                            name=__name__)
+
+    # install mambaforge if needed
+    install_mambaforge(conda_base, activate_base, logger)
+
+    local_mache = args.mache_fork is not None and args.mache_branch is not None
+    if local_mache:
+        mache = ''
+    else:
+        mache_version = config.get('deploy', 'mache')
+        mache = f'"mache={mache_version}"'
+
+    setup_install_env(env_name, activate_base, args.use_local, logger,
+                      args.recreate, conda_base, mache)
+
+    if local_mache:
+        print('Clone and install local mache\n')
+        commands = f'{activate_install_env} && ' \
+                   f'rm -rf deploy_tmp/build_mache && ' \
+                   f'mkdir -p deploy_tmp/build_mache && ' \
+                   f'cd deploy_tmp/build_mache && ' \
+                   f'git clone -b {args.mache_branch} ' \
+                   f'git@github.com:{args.mache_fork}.git mache && ' \
+                   f'cd mache && ' \
+                   f'python -m pip install .'
+
+        check_call(commands, logger=logger)
+
+    env_type = config.get('deploy', 'env_type')
+    if env_type not in ['dev', 'test_release', 'release']:
+        raise ValueError(f'Unexpected env_type: {env_type}')
+
+    if env_type == 'test_release' and args.use_local:
+        local_conda_build = os.path.abspath(f'{conda_base}/conda-bld')
+    else:
+        local_conda_build = None
+
+    bootstrap(activate_install_env, source_path, local_conda_build)
+
+
+if __name__ == '__main__':
+    main()
