@@ -1,0 +1,72 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+
+# Base
+python>=3.8
+cartopy
+cartopy_offlinedata
+cmocean
+esmf={{ esmf }}={{ mpi_prefix }}_*
+ffmpeg
+geometric_features={{ geometric_features }}
+git
+ipython
+jigsaw={{ jigsaw }}
+jigsawpy={{ jigsawpy }}
+jupyter
+lxml
+{% if include_mache %}
+mache={{ mache }}
+{% endif %}
+matplotlib-base
+metis
+mpas_tools={{ mpas_tools }}
+nco
+netcdf4=*=nompi_*
+numpy
+{% if supports_otps %}
+otps={{ otps }}
+{% endif %}
+progressbar2
+pyamg>=4.2.2
+pyproj
+pyremap>=0.0.13,<0.1.0
+requests
+scipy>=1.8.0
+shapely>=2.0,<3.0
+xarray
+
+# Linting and testing
+pip
+pytest
+isort
+flake8
+mypy
+pre-commit
+
+# Development
+{% if mpi != "nompi" %}
+c-compiler
+cmake
+cxx-compiler
+fortran-compiler
+libnetcdf={{ netcdf_c }}={{ mpi_prefix }}_*
+netcdf-fortran={{ netcdf_fortran }}={{ mpi_prefix }}_*
+libpnetcdf={{ pnetcdf }}={{ mpi_prefix }}_*
+scorpio={{ scorpio }}={{ mpi_prefix }}_*
+m4
+make
+{{ mpi }}
+{{ openmp }}
+{% endif %}
+
+# CF-compliance
+cfchecker
+udunits2
+
+# Documentation
+sphinx
+sphinx_rtd_theme
+myst-parser
+# not yet available on conda-forge
+# sphinx-multiversion

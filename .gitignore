@@ -13,6 +13,9 @@ docs/_build/
 # PyCharm
 .idea/
 
+# deployment temp files
+/deploy_tmp/
+
 # local config files
 /*.cfg
 
