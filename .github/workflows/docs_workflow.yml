@@ -23,12 +23,12 @@ jobs:
       - name: Cache Conda
         uses: actions/cache@v3
         env:
-          # Increase this value to reset cache if deploy/dev-spec.txt has not changed in the workflow
+          # Increase this value to reset cache if deploy/conda-dev-spec.template has not changed in the workflow
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('deploy/dev-spec.txt') }}
+            hashFiles('configure_polaris_envs.py,deploy/*') }}
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Set up Conda Environment
@@ -39,27 +39,31 @@ jobs:
           miniforge-version: latest
           use-mamba: true
           mamba-version: "*"
-          channels: conda-forge,defaults
+          channels: conda-forge,e3sm/label/polaris,defaults
           channel-priority: strict
           auto-update-conda: true
-          # IMPORTANT: This needs to be set for caching to work properly!
-          use-only-tar-bz2: true
           python-version: ${{ matrix.python-version }}
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Install polaris
         run: |
-          mamba install --file deploy/dev-spec.txt
+          ./configure_polaris_envs.py \
+            --conda_env_only \
+            --env_name polaris_test \
+            --verbose \
+            --python=${{ matrix.python-version }}
+          source load_polaris_test.sh
           # not yet available on conda-forge
           python -m pip install sphinx-multiversion
-          python -m pip install .
 
       - name: Build Sphinx Docs
         run: |
+          source load_polaris_test.sh
           cd docs
           sphinx-multiversion . _build/html
       - name: Copy Docs and Commit
         run: |
+          source load_polaris_test.sh
           cd docs
           # gh-pages branch must already exist
           git clone https://github.com/E3SM-Project/polaris.git --branch gh-pages --single-branch gh-pages
