@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from polaris import list, setup
+from polaris import list, setup, suite
 from polaris.version import __version__
 
 
@@ -20,7 +20,6 @@ polaris <command> [<args>]
 The available polaris commands are:
     list    List the available test cases
     setup   Set up a test case
-    clean   Clean up a test case
     suite   Manage a regression test suite
     run     Run a suite, test case or step
 
@@ -41,7 +40,8 @@ The available polaris commands are:
     args = parser.parse_args(sys.argv[1:2])
 
     commands = {'list': list.main,
-                'setup': setup.main}
+                'setup': setup.main,
+                'suite': suite.main}
 
     if args.command not in commands:
         print('Unrecognized command {}'.format(args.command))
