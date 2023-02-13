@@ -1,9 +1,8 @@
 from typing import List
 
 from polaris.component import Component
-
 # import new components here
-# from polaris.ocean import Ocean
+from polaris.ocean import Ocean
 
 
 def get_components():
@@ -17,6 +16,6 @@ def get_components():
     """
     # add new components here
     components: List[Component] = [
-        # Ocean(),
+        Ocean(),
     ]
     return components
