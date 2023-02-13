@@ -1,6 +1,5 @@
 from polaris.component import Component
-
-# from polaris.ocean.tests.global_convergence import GlobalConvergence
+from polaris.ocean.tests.global_convergence import GlobalConvergence
 
 
 class Ocean(Component):
@@ -14,7 +13,7 @@ class Ocean(Component):
         """
         super().__init__(name='ocean')
 
-        # self.add_test_group(GlobalConvergence(component=self))
+        self.add_test_group(GlobalConvergence(component=self))
 
     def configure(self, config):
         """
