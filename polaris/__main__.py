@@ -3,6 +3,7 @@
 import argparse
 import sys
 
+import polaris.run.serial as run_serial
 from polaris import list, setup, suite
 from polaris.version import __version__
 
@@ -21,7 +22,7 @@ The available polaris commands are:
     list    List the available test cases
     setup   Set up a test case
     suite   Manage a regression test suite
-    run     Run a suite, test case or step
+    serial  Run a suite, test case or step in task serial
 
  To get help on an individual command, run:
 
@@ -41,10 +42,11 @@ The available polaris commands are:
 
     commands = {'list': list.main,
                 'setup': setup.main,
-                'suite': suite.main}
+                'suite': suite.main,
+                'serial': run_serial.main}
 
     if args.command not in commands:
-        print('Unrecognized command {}'.format(args.command))
+        print(f'Unrecognized command {args.command}')
         parser.print_help()
         exit(1)
 
