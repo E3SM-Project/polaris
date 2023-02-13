@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from polaris import list
+from polaris import list, setup
 from polaris.version import __version__
 
 
@@ -40,7 +40,8 @@ The available polaris commands are:
 
     args = parser.parse_args(sys.argv[1:2])
 
-    commands = {'list': list.main}
+    commands = {'list': list.main,
+                'setup': setup.main}
 
     if args.command not in commands:
         print('Unrecognized command {}'.format(args.command))
