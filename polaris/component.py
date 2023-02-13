@@ -49,6 +49,17 @@ class Component:
         """
         self.test_groups[test_group.name] = test_group
 
+    def configure(self, config):
+        """
+        Configure the component
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            config options to modify
+        """
+        pass
+
     def _read_cached_files(self):
         """ Read in the dictionary of cached files from cached_files.json """
 
