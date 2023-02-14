@@ -71,5 +71,4 @@ udunits2
 sphinx
 sphinx_rtd_theme
 myst-parser
-# not yet available on conda-forge
-# sphinx-multiversion
+sphinx-multiversion
