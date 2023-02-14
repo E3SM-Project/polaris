@@ -12,7 +12,7 @@ Supported models include:
 
 ## Documentation
 
-The latest compass documentation can be found here:
+The latest Polaris documentation can be found here:
 
 [http://e3sm-project.github.io/polaris/main/](http://e3sm-project.github.io/polaris/main/)
 
