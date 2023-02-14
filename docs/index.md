@@ -10,7 +10,7 @@ specific tags of the MPAS components.
 Many polaris test cases are idealized, and are used for things like
 performing convergence tests or regression tests on particular parts of the
 model code.  Many other polaris test cases, such as those under the
-[global_ocean](ocean/global_ocean) and [greenland](landice/greenland) test 
+{ref}`ocean-global-ocean` and {ref}`landice-greenland` test 
 groups, are "realistic" in the sense that they use data sets from observations 
 to create  create global and regional meshes,  initial conditions, and boundary
 conditions.
@@ -34,6 +34,16 @@ is that polaris begins with default values for all these config options
 for a given version of the component, modifying only those options where the 
 default is not  appropriate. In this way, polaris requires little alteration 
 as the model components themselves evolves and new functionality is added.
+
+```{toctree}
+:caption: User's guide
+:maxdepth: 2
+
+users_guide/quick_start
+users_guide/test_cases
+users_guide/config_files
+users_guide/test_suites
+```
 
 ```{toctree}
 :caption: Glossary
