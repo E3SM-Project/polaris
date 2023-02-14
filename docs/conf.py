@@ -108,7 +108,11 @@ nitpick_ignore = [
 
 # -- MyST settings ---------------------------------------------------
 
-myst_enable_extensions = []
+myst_enable_extensions = [
+    'colon_fence',
+    'deflist',
+    'dollarmath'
+]
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
 myst_footnote_transition = True

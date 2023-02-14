@@ -35,6 +35,13 @@ for a given version of the component, modifying only those options where the
 default is not  appropriate. In this way, polaris requires little alteration 
 as the model components themselves evolves and new functionality is added.
 
+```{toctree}
+:caption: Glossary
+:maxdepth: 2
+
+glossary
+```
+
 # Compass
 
 The ``compass`` package is the predecessor of polaris. Documentation for 
