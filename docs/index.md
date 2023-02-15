@@ -46,6 +46,22 @@ users_guide/test_suites
 ```
 
 ```{toctree}
+:caption: Developer's guide
+:maxdepth: 2
+
+developers_guide/quick_start
+developers_guide/overview
+developers_guide/command_line
+developers_guide/organization
+developers_guide/framework
+developers_guide/troubleshooting
+developers_guide/docs
+developers_guide/building_docs
+
+design_docs/index
+```
+
+```{toctree}
 :caption: Glossary
 :maxdepth: 2
 
