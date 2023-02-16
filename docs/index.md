@@ -54,6 +54,7 @@ developers_guide/quick_start
 developers_guide/overview
 developers_guide/command_line
 developers_guide/organization
+developers_guide/ocean/index
 developers_guide/framework
 developers_guide/machines/index
 developers_guide/troubleshooting
