@@ -24,4 +24,4 @@ html-strict:
 	@$(SPHINXBUILD) -b html -nW --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
 
 clean:
-	rm -r $(BUILDDIR)
+	rm -rf $(BUILDDIR) developers_guide/generated/ developers_guide/*/generated/

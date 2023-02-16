@@ -60,6 +60,7 @@ developers_guide/machines/index
 developers_guide/troubleshooting
 developers_guide/docs
 developers_guide/building_docs
+developers_guide/api
 
 design_docs/index
 ```

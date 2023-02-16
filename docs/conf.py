@@ -78,34 +78,6 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
 }
 
-# -- Autodoc settings ---------------------------------------------------
-
-autodoc_member_order = "bysource"
-nitpicky = True
-nitpick_ignore = [
-    ("py:class", "docutils.nodes.document"),
-    ("py:class", "docutils.nodes.docinfo"),
-    ("py:class", "docutils.nodes.Element"),
-    ("py:class", "docutils.nodes.Node"),
-    ("py:class", "docutils.nodes.field_list"),
-    ("py:class", "docutils.nodes.problematic"),
-    ("py:class", "docutils.nodes.pending"),
-    ("py:class", "docutils.nodes.system_message"),
-    ("py:class", "docutils.statemachine.StringList"),
-    ("py:class", "docutils.parsers.rst.directives.misc.Include"),
-    ("py:class", "docutils.parsers.rst.Parser"),
-    ("py:class", "docutils.utils.Reporter"),
-    ("py:class", "nodes.Element"),
-    ("py:class", "nodes.Node"),
-    ("py:class", "nodes.system_message"),
-    ("py:class", "Directive"),
-    ("py:class", "Include"),
-    ("py:class", "StringList"),
-    ("py:class", "DocutilsRenderer"),
-    ("py:class", "MockStateMachine"),
-    ("py:exc", "MarkupError"),
-]
-
 # -- MyST settings ---------------------------------------------------
 
 myst_enable_extensions = [
