@@ -9,6 +9,7 @@ from polaris.ocean.tests.global_convergence.cosine_bell.analysis import (
 from polaris.ocean.tests.global_convergence.cosine_bell.forward import Forward
 from polaris.ocean.tests.global_convergence.cosine_bell.init import Init
 from polaris.testcase import TestCase
+from polaris.validate import compare_variables
 
 
 class CosineBell(TestCase):
@@ -156,3 +157,16 @@ class CosineBell(TestCase):
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions,
                                icosahedral=self.icosahedral))
+
+    def validate(self):
+        """
+        Validate variables against a baseline
+        """
+        for resolution in self.resolutions:
+            if self.icosahedral:
+                mesh_name = f'Icos{resolution}'
+            else:
+                mesh_name = f'QU{resolution}'
+            compare_variables(test_case=self,
+                              variables=['normalVelocity', 'tracer1'],
+                              filename1=f'{mesh_name}/forward/output.nc')
