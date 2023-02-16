@@ -43,6 +43,7 @@ users_guide/quick_start
 users_guide/test_cases
 users_guide/config_files
 users_guide/test_suites
+users_guide/machines/index
 ```
 
 ```{toctree}
@@ -54,6 +55,7 @@ developers_guide/overview
 developers_guide/command_line
 developers_guide/organization
 developers_guide/framework
+developers_guide/machines/index
 developers_guide/troubleshooting
 developers_guide/docs
 developers_guide/building_docs
