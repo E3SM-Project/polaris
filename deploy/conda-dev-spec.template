@@ -72,3 +72,4 @@ sphinx
 sphinx_rtd_theme
 myst-parser
 sphinx-multiversion
+rst-to-myst
