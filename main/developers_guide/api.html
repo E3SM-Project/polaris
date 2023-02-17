@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API reference</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ocean" href="ocean/api.html" />
+    <link rel="prev" title="Building the Documentation" href="building_docs.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.1.0-alpha.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#components">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ocean/api.html">ocean</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#polaris-framework">polaris framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-line-interface">Command-line interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.__main__.main.html">polaris.__main__.main</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#list">list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup">setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suite">suite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run">run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#component">component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testgroup">testgroup</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testcase">testcase</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.TestCase.html">polaris.TestCase</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.TestCase.configure.html">polaris.TestCase.configure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.TestCase.validate.html">polaris.TestCase.validate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.TestCase.add_step.html">polaris.TestCase.add_step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#step">step</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.html">polaris.Step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.set_resources.html">polaris.Step.set_resources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.constrain_resources.html">polaris.Step.constrain_resources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.setup.html">polaris.Step.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.runtime_setup.html">polaris.Step.runtime_setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.run.html">polaris.Step.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_input_file.html">polaris.Step.add_input_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_output_file.html">polaris.Step.add_output_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_model_as_input.html">polaris.Step.add_model_as_input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_namelist_file.html">polaris.Step.add_namelist_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_namelist_options.html">polaris.Step.add_namelist_options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.update_namelist_at_runtime.html">polaris.Step.update_namelist_at_runtime</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.update_namelist_pio.html">polaris.Step.update_namelist_pio</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.add_streams_file.html">polaris.Step.add_streams_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.Step.update_streams_at_runtime.html">polaris.Step.update_streams_at_runtime</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#config">config</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html">polaris.config.PolarisConfigParser</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#io">io</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.download.html">polaris.io.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.symlink.html">polaris.io.symlink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.package_path.html">polaris.io.package_path</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#logging">logging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.logging.log_method_call.html">polaris.logging.log_method_call</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh">mesh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html">polaris.mesh.spherical.SphericalBaseStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html">polaris.mesh.spherical.SphericalBaseStep.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.run.html">polaris.mesh.spherical.SphericalBaseStep.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html">polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html">polaris.mesh.QuasiUniformSphericalMeshStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html">polaris.mesh.QuasiUniformSphericalMeshStep.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html">polaris.mesh.QuasiUniformSphericalMeshStep.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html">polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html">polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html">polaris.mesh.IcosahedralMeshStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html">polaris.mesh.IcosahedralMeshStep.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.run.html">polaris.mesh.IcosahedralMeshStep.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html">polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html">polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html">polaris.mesh.IcosahedralMeshStep.get_subdivisions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html">polaris.mesh.IcosahedralMeshStep.get_cell_width</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#model">model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.model.run_model.html">polaris.model.run_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.model.partition.html">polaris.model.partition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.model.make_graph_file.html">polaris.model.make_graph_file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.components.get_components.html">polaris.components.get_components</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel">parallel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.get_available_cores_and_nodes.html">polaris.parallel.get_available_cores_and_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.check_parallel_system.html">polaris.parallel.check_parallel_system</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.set_cores_per_node.html">polaris.parallel.set_cores_per_node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.run_command.html">polaris.parallel.run_command</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#provenance">provenance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.write.html">polaris.provenance.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_variables.html">polaris.validate.compare_variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_timers.html">polaris.validate.compare_timers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developers_guide/api.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="api-reference">
+<span id="dev-api"></span><h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<p>This page provides an auto-generated summary of the polaris API. For more
+details and examples, refer to the relevant sections in the main part of the
+documentation.</p>
+<section id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ocean/api.html">ocean</a></li>
+</ul>
+</div>
+</section>
+<section id="polaris-framework">
+<h2>polaris framework<a class="headerlink" href="#polaris-framework" title="Permalink to this heading"></a></h2>
+<section id="command-line-interface">
+<h3>Command-line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.__main__.main.html#polaris.__main__.main" title="polaris.__main__.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__main__.main</span></code></a>()</p></td>
+<td><p>Entry point for the main script <code class="docutils literal notranslate"><span class="pre">polaris</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<section id="list">
+<h4>list<a class="headerlink" href="#list" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_cases</span></code></a>([test_expr, number, verbose])</p></td>
+<td><p>List the available test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_machines</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.list.list_suites.html#polaris.list.list_suites" title="polaris.list.list_suites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_suites</span></code></a>([components, verbose])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="setup">
+<h4>setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.setup.setup_cases.html#polaris.setup.setup_cases" title="polaris.setup.setup_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_cases</span></code></a>(work_dir[, tests, numbers, ...])</p></td>
+<td><p>Set up one or more test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.setup.setup_case.html#polaris.setup.setup_case" title="polaris.setup.setup_case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_case</span></code></a>(path, test_case, config_file, ...)</p></td>
+<td><p>Set up one or more test cases</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="suite">
+<h4>suite<a class="headerlink" href="#suite" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_suite</span></code></a>(component, suite_name, work_dir)</p></td>
+<td><p>Set up a test suite</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="run">
+<h4>run<a class="headerlink" href="#run" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_tests</span></code></a>(suite_name[, quiet, is_test_case, ...])</p></td>
+<td><p>Run the given test suite or test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_single_step</span></code></a>([step_is_subprocess])</p></td>
+<td><p>Used by the framework to run a step when <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> gets called in the step's work directory</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="base-classes">
+<h3>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this heading"></a></h3>
+<section id="component">
+<h4>component<a class="headerlink" href="#component" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component</span></code></a>(name)</p></td>
+<td><p>The base class for housing all the tests for a given component, such as ocean, landice, or seaice</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.add_test_group.html#polaris.Component.add_test_group" title="polaris.Component.add_test_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_test_group</span></code></a>(test_group)</p></td>
+<td><p>Add a test group to the component</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="testgroup">
+<h4>testgroup<a class="headerlink" href="#testgroup" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup</span></code></a>(component, name)</p></td>
+<td><p>The base class for test groups, which are collections of test cases with a common purpose (e.g.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestGroup.add_test_case.html#polaris.TestGroup.add_test_case" title="polaris.TestGroup.add_test_case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup.add_test_case</span></code></a>(test_case)</p></td>
+<td><p>Add a test case to the test group</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="testcase">
+<h3>testcase<a class="headerlink" href="#testcase" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase</span></code></a>(test_group, name[, subdir])</p></td>
+<td><p>The base class for test cases---such as a decomposition, threading or restart test---that are made up of one or more steps</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestCase.configure.html#polaris.TestCase.configure" title="polaris.TestCase.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this test case.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestCase.validate.html#polaris.TestCase.validate" title="polaris.TestCase.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.validate</span></code></a>()</p></td>
+<td><p>Test cases can override this method to perform validation of variables and timers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.add_step</span></code></a>(step[, run_by_default])</p></td>
+<td><p>Add a step to the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step">
+<h3>step<a class="headerlink" href="#step" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step</span></code></a>(test_case, name[, subdir, ...])</p></td>
+<td><p>The base class for a step of a test cases, such as setting up a mesh, creating an initial condition, or running the component forward in time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_resources</span></code></a>([cpus_per_task, ...])</p></td>
+<td><p>Update the resources for the subtask.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.constrain_resources</span></code></a>(available_cores)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.setup</span></code></a>()</p></td>
+<td><p>Set up the test case in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.runtime_setup</span></code></a>()</p></td>
+<td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.run</span></code></a>()</p></td>
+<td><p>Run the step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_input_file</span></code></a>([filename, target, ...])</p></td>
+<td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename)</p></td>
+<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_model_as_input.html#polaris.Step.add_model_as_input" title="polaris.Step.add_model_as_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_model_as_input</span></code></a>()</p></td>
+<td><p>make a link to the model executable and add it to the inputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_namelist_file</span></code></a>(package, namelist[, ...])</p></td>
+<td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_namelist_options</span></code></a>(options[, ...])</p></td>
+<td><p>Add the namelist replacements to be parsed when generating a namelist file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.update_namelist_at_runtime.html#polaris.Step.update_namelist_at_runtime" title="polaris.Step.update_namelist_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.update_namelist_at_runtime</span></code></a>(options[, ...])</p></td>
+<td><p>Update an existing namelist file with additional options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.update_namelist_pio.html#polaris.Step.update_namelist_pio" title="polaris.Step.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.update_namelist_pio</span></code></a>([out_name])</p></td>
+<td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_streams_file</span></code></a>(package, streams[, ...])</p></td>
+<td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.update_streams_at_runtime.html#polaris.Step.update_streams_at_runtime" title="polaris.Step.update_streams_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.update_streams_at_runtime</span></code></a>(package, ...)</p></td>
+<td><p>Update the streams files during the run phase of this step using the given template and replacements.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="config">
+<h3>config<a class="headerlink" href="#config" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code></a>()</p></td>
+<td><p>A &quot;meta&quot; config parser that keeps a dictionary of config parsers and their sources to combine when needed.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="io">
+<h3>io<a class="headerlink" href="#io" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.io.download.html#polaris.io.download" title="polaris.io.download"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download</span></code></a>(url, dest_path, config[, exceptions])</p></td>
+<td><p>Download a file from a URL to the given path or path name</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.io.symlink.html#polaris.io.symlink" title="polaris.io.symlink"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symlink</span></code></a>(target, link_name[, overwrite])</p></td>
+<td><p>From <a class="reference external" href="https://stackoverflow.com/a/55742015/7728169">https://stackoverflow.com/a/55742015/7728169</a> Create a symbolic link named link_name pointing to target.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.io.package_path.html#polaris.io.package_path" title="polaris.io.package_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">package_path</span></code></a>(package, resource)</p></td>
+<td><p>A replacement for deprecated <code class="docutils literal notranslate"><span class="pre">importlib.resources.path()</span></code>: <a class="reference external" href="https://github.com/python/importlib_resources/blob/7e9020a1b84726fdc6ba71ee2893119d1ee61e02/importlib_resources/_legacy.py">https://github.com/python/importlib_resources/blob/7e9020a1b84726fdc6ba71ee2893119d1ee61e02/importlib_resources/_legacy.py</a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="logging">
+<h3>logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.logging.log_method_call.html#polaris.logging.log_method_call" title="polaris.logging.log_method_call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_method_call</span></code></a>(method, logger)</p></td>
+<td><p>Log the module path and file path of a call to a method, e.g..</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mesh">
+<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(test_case, name, ...)</p></td>
+<td><p>A base class for steps that create a JIGSAW spherical mesh</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.spherical.SphericalBaseStep.setup" title="polaris.mesh.spherical.SphericalBaseStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.setup</span></code></a>()</p></td>
+<td><p>Add output files</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.run.html#polaris.mesh.spherical.SphericalBaseStep.run" title="polaris.mesh.spherical.SphericalBaseStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.run</span></code></a>()</p></td>
+<td><p>Finish up the step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.save_and_plot_cell_width</span></code></a>(...)</p></td>
+<td><p>Save the cell width field on a lon/lat grid to <code class="docutils literal notranslate"><span class="pre">self.cell_width_filename</span></code> and plot</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(test_case[, ...])</p></td>
+<td><p>A step for creating a quasi-uniform JIGSAW mesh with a constant approximate cell width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup" title="polaris.mesh.QuasiUniformSphericalMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.setup</span></code></a>()</p></td>
+<td><p>Add JIGSAW options based on config options</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run" title="polaris.mesh.QuasiUniformSphericalMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.build_cell_width_lat_lon</span></code></a>()</p></td>
+<td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
+<td><p>Build the JIGSAW mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(test_case[, name, ...])</p></td>
+<td><p>A step for creating an icosahedral JIGSAW mesh</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup" title="polaris.mesh.IcosahedralMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.setup</span></code></a>()</p></td>
+<td><p>Add JIGSAW options based on config options</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run" title="polaris.mesh.IcosahedralMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
+<td><p>Make the JIGSAW mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon" title="polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon</span></code></a>()</p></td>
+<td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions" title="polaris.mesh.IcosahedralMeshStep.get_subdivisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_subdivisions</span></code></a>(cell_width)</p></td>
+<td><p>Find the number of subdivisions of an icosahedron to achieve a resolution as close as possible to <code class="docutils literal notranslate"><span class="pre">cell_width</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width" title="polaris.mesh.IcosahedralMeshStep.get_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_cell_width</span></code></a>(subdivisions)</p></td>
+<td><p>Get the approximate cell width for an icosahedral mesh given either a number of subdivisions of the icosahedron.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="model">
+<h3>model<a class="headerlink" href="#model" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_model</span></code></a>(step[, update_pio, ...])</p></td>
+<td><p>Run the model after determining the number of tasks and threads</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.model.partition.html#polaris.model.partition" title="polaris.model.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>(ntasks, config, logger[, graph_file])</p></td>
+<td><p>Partition the domain for the requested number of tasks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.model.make_graph_file.html#polaris.model.make_graph_file" title="polaris.model.make_graph_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_graph_file</span></code></a>(mesh_filename[, ...])</p></td>
+<td><p>Make a graph file from the MPAS mesh for use in the Metis graph partitioning software</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id1">
+<h3>components<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.components.get_components.html#polaris.components.get_components" title="polaris.components.get_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_components</span></code></a>()</p></td>
+<td><p>Get a list of components, which in turn contain lists of test groups</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="parallel">
+<h3>parallel<a class="headerlink" href="#parallel" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.get_available_cores_and_nodes.html#polaris.parallel.get_available_cores_and_nodes" title="polaris.parallel.get_available_cores_and_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_cores_and_nodes</span></code></a>(config)</p></td>
+<td><p>Get the number of total cores and nodes available for running steps</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.check_parallel_system.html#polaris.parallel.check_parallel_system" title="polaris.parallel.check_parallel_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_parallel_system</span></code></a>(config)</p></td>
+<td><p>Check whether we are in an appropriate state for the given queuing system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.set_cores_per_node.html#polaris.parallel.set_cores_per_node" title="polaris.parallel.set_cores_per_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cores_per_node</span></code></a>(config)</p></td>
+<td><p>If the system has Slurm, find out the <code class="docutils literal notranslate"><span class="pre">cpus_per_node</span></code> and set the config option accordingly.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.run_command.html#polaris.parallel.run_command" title="polaris.parallel.run_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_command</span></code></a>(args, cpus_per_task, ntasks, ...)</p></td>
+<td><p>Run a subprocess with the given command-line arguments and resources</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="provenance">
+<h3>provenance<a class="headerlink" href="#provenance" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(work_dir, test_cases[, config])</p></td>
+<td><p>Write a file with provenance, such as the git version, conda packages, command, and test cases, to the work directory</p></td>
+</tr>
+</tbody>
+</table>
+<p>###validate</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_variables</span></code></a>(test_case, variables, ...)</p></td>
+<td><p>Compare variables between files in the current test case and/or with the baseline results.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_timers</span></code></a>(test_case, timers, rundir1[, ...])</p></td>
+<td><p>Compare variables between files in the current test case and/or with the baseline results.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="building_docs.html" class="btn btn-neutral float-left" title="Building the Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ocean/api.html" class="btn btn-neutral float-right" title="ocean" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="api.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

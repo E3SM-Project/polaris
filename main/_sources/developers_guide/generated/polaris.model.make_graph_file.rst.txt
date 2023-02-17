@@ -1,0 +1,6 @@
+﻿polaris.model.make\_graph\_file
+===============================
+
+.. currentmodule:: polaris.model
+
+.. autofunction:: make_graph_file

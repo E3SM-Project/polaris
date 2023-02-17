@@ -1,0 +1,6 @@
+﻿polaris.Step.update\_streams\_at\_runtime
+=========================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.update_streams_at_runtime

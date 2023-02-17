@@ -1,0 +1,6 @@
+﻿polaris.io.package\_path
+========================
+
+.. currentmodule:: polaris.io
+
+.. autofunction:: package_path

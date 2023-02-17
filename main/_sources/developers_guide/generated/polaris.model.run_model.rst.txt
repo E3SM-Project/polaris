@@ -1,0 +1,6 @@
+﻿polaris.model.run\_model
+========================
+
+.. currentmodule:: polaris.model
+
+.. autofunction:: run_model

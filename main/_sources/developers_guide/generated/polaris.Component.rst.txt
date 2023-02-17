@@ -1,0 +1,24 @@
+﻿polaris.Component
+=================
+
+.. currentmodule:: polaris
+
+.. autoclass:: Component
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Component.__init__
+      ~Component.add_test_group
+      ~Component.configure
+   
+   
+
+   
+   
+   

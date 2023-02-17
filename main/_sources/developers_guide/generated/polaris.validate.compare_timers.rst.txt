@@ -1,0 +1,6 @@
+﻿polaris.validate.compare\_timers
+================================
+
+.. currentmodule:: polaris.validate
+
+.. autofunction:: compare_timers

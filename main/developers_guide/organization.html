@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Framework" href="framework.html" />
+    <link rel="next" title="Ocean component" href="ocean/index.html" />
     <link rel="prev" title="Command-line interface" href="command_line.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
 <ul class="current">
@@ -104,10 +105,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-suites">Test Suites</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -150,7 +154,7 @@ cases (orange) and steps (red) in the <code class="docutils literal notranslate"
 <span id="dev-organization"></span><h1>Organization of Tests<a class="headerlink" href="#organization-of-tests" title="Permalink to this heading"></a></h1>
 <p>Here, we describe how tests in polaris are organized, both in the package
 itself and in the work directories where they get set up and run.  At the base
-level are components (<span class="xref std std-ref">dev-landice</span> or <span class="xref std std-ref">dev-ocean</span>).  Each component
+level are components (<span class="xref std std-ref">dev-landice</span> or <a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a>).  Each component
 has collection of test groups, which has a collection of test cases, each of
 which contains a sequence of steps.</p>
 <section id="directory-structure">
@@ -193,9 +197,9 @@ OMEGA.</p>
 <p>From a developer’s perspective, a component is a package within polaris
 that has four major pieces:</p>
 <ol class="arabic simple">
-<li><p>A class that descends from the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code> base class.
+<li><p>A class that descends from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class.
 The class is defined in <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> and its <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method
-calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.add_test_group()</span></code> method to add each
+calls the <a class="reference internal" href="generated/polaris.Component.add_test_group.html#polaris.Component.add_test_group" title="polaris.Component.add_test_group"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.add_test_group()</span></code></a> method to add each
 test group to the component.</p></li>
 <li><p>A <code class="docutils literal notranslate"><span class="pre">tests</span></code> package, which contains packages for each
 test group, each of which contains various packages and modules for
@@ -209,10 +213,10 @@ namelists, streams files, etc.) that is expected to be used only by modules
 and packages within the core, not by other cores or the main polaris
 <a class="reference internal" href="framework.html#dev-framework"><span class="std std-ref">Framework</span></a>.</p>
 <p>The constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) for a child class of
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code> simply calls the parent class’ version
+<a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> simply calls the parent class’ version
 of the constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the MPAS
 core.  Then, it creates objects for each test group and adds them to itself, as
-in this example from <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean</span></code>:</p>
+in this example from <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.component</span> <span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_ocean</span> <span class="kn">import</span> <span class="n">GlobalOcean</span>
@@ -347,11 +351,11 @@ typically go into a section with the same name as the test group, as in the
 example above.  Config options that are specific to a particular step might
 go into a section with another name, like the <code class="docutils literal notranslate"><span class="pre">[dome_viz]</span></code> section above.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file for the test group must define a class for the
-test group that descends from <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code>. The constructor
+test group that descends from <a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>. The constructor
 of that class (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>) first calls the base class’ constructor with the
-parent <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code> object and the name of the test group.
+parent <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> object and the name of the test group.
 Then, it constructs objects for each test case in the group and adds them to
-itself by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestGroup.add_test_case()</span></code>.  Each test case
+itself by calling <a class="reference internal" href="generated/polaris.TestGroup.add_test_case.html#polaris.TestGroup.add_test_case" title="polaris.TestGroup.add_test_case"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestGroup.add_test_case()</span></code></a>.  Each test case
 gets passed the <code class="docutils literal notranslate"><span class="pre">self</span></code> object as its test group, allowing the test case to
 determine both which component and which test group it belongs to. As an
 example, the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.Dome</span></code> class looks like this:</p>
@@ -443,17 +447,17 @@ steps one at a time).</p>
 <p>A test case can be a module but is usually a python package so it can
 incorporate modules for its steps and/or config files, namelists, and streams
 files.  The test case must include a class that descends from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code>.  In addition to a constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>),
+<a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a>.  In addition to a constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>),
 the class will often override the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> and <code class="docutils literal notranslate"><span class="pre">validate()</span></code> methods of
 the base class, as described below.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code> is deprecated; behaviors
+<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in <a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a> is deprecated; behaviors
 at runtime can instead be handled by individual steps by overriding the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code> and
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code> methods.  Details about these methods
+<a class="reference internal" href="generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code></a> and
+<a class="reference internal" href="generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code></a> methods.  Details about these methods
 are described further in <a class="reference internal" href="#dev-steps"><span class="std std-ref">Steps</span></a>.</p>
 <section id="testcase-attributes">
 <span id="dev-test-case-class"></span><h3>TestCase attributes<a class="headerlink" href="#testcase-attributes" title="Permalink to this heading"></a></h3>
-<p>The base class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code> has a large number of attributes
+<p>The base class <a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a> has a large number of attributes
 that are useful at different stages (init, configuration and run) of the test
 case.</p>
 <p>Some attributes are available after calling the base class’ constructor
@@ -476,7 +480,7 @@ case:</p>
 <dl class="simple myst">
 <dt><code class="docutils literal notranslate"><span class="pre">self.steps</span></code></dt><dd><p>A dictionary of steps in the test case with step names as keys</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.steps_to_run</span></code></dt><dd><p>A list of the steps to run when <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code>
+<dt><code class="docutils literal notranslate"><span class="pre">self.steps_to_run</span></code></dt><dd><p>A list of the steps to run when <a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a>
 gets called.  This list includes all steps by default but can be replaced
 with a list of only those tests that should run by default if some steps
 are optional and should be run manually by the user.</p>
@@ -500,7 +504,7 @@ of <code class="docutils literal notranslate"><span class="pre">base_work_dir</s
 <p>These can be used to make further alterations to the config options or to add
 symlinks files in the test case’s work directory.</p>
 <p>Finally, one attribute is available only when the
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code> function gets called by the
+<a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a> function gets called by the
 framework:</p>
 <dl class="simple myst">
 <dt><code class="docutils literal notranslate"><span class="pre">self.logger</span></code></dt><dd><p>A logger for output from the test case.  This gets accessed by other
@@ -570,7 +574,7 @@ mesh type and the velocity solver an attributes:</p>
 <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the test case, the test group it
 will belong to, and the subdirectory (if different from the name of the test
 case).  Then, it should create an object for each step and add them to itself
-using call <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code>.</p>
+using call <a class="reference internal" href="generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.</p>
 <p>It is important that <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> doesn’t perform any time-consuming
 calculations, download files, or otherwise use significant resources because
 objects get constructed (and all constructors get called) quite often for every
@@ -581,11 +585,11 @@ these methods only keep track of a “recipe” for downloading files or
 constructing namelist and streams files, they don’t actually do the work
 associated with these steps until the point where the step is being set up in</p>
 <ul class="simple">
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>As an example, here is the constructor from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code>:</p>
@@ -667,7 +671,7 @@ full use of <a class="reference internal" href="overview.html#dev-code-sharing">
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code>, and
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code>
 – so it can create objects for each and add them to itself with
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
+<a class="reference internal" href="generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
 steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>.</p>
 <p>By default, the test case will go into a subdirectory with the same name as the
 test case (<code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> in this case).  However, polaris is flexible
@@ -690,7 +694,7 @@ but these could be any unique names.</p>
 </section>
 <section id="configure">
 <span id="dev-test-case-configure"></span><h3>configure()<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h3>
-<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.configure()</span></code> method can be overridden by a
+<p>The <a class="reference internal" href="generated/polaris.TestCase.configure.html#polaris.TestCase.configure" title="polaris.TestCase.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.configure()</span></code></a> method can be overridden by a
 child class to set config options or build them up from defaults stored in
 config files within the test case or its test group. The <code class="docutils literal notranslate"><span class="pre">self.config</span></code>
 attribute that is modified in this function will be written to a config file
@@ -747,15 +751,15 @@ in their own <code class="docutils literal notranslate"><span class="pre">setup(
 <section id="run">
 <span id="dev-test-case-run"></span><h3>run()<a class="headerlink" href="#run" title="Permalink to this heading"></a></h3>
 <p>The functionality of <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.run()</span></code> has been moved to the
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code> function.  The <code class="docutils literal notranslate"><span class="pre">run</span></code> method is now
+<a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a> function.  The <code class="docutils literal notranslate"><span class="pre">run</span></code> method is now
 deprecated and should not be used to modify runtime processes;
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code> and
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code> should be used instead.  These methods
+<a class="reference internal" href="generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code></a> and
+<a class="reference internal" href="generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code></a> should be used instead.  These methods
 are further explained in <a class="reference internal" href="#dev-steps"><span class="std std-ref">Steps</span></a>.</p>
 </section>
 <section id="validate">
 <span id="dev-test-case-validate"></span><h3>validate()<a class="headerlink" href="#validate" title="Permalink to this heading"></a></h3>
-<p>The base class’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.validate()</span></code> can be overridden to
+<p>The base class’s <a class="reference internal" href="generated/polaris.TestCase.validate.html#polaris.TestCase.validate" title="polaris.TestCase.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.validate()</span></code></a> can be overridden to
 perform <a class="reference internal" href="framework.html#dev-validation"><span class="std std-ref">Validation</span></a> of variables in output files from a step and/or
 timers from the E3SM component.</p>
 <p>In  <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.init.Init.validate()</span></code>, we see
@@ -803,13 +807,13 @@ Typically, a user will run all steps in a test case but certain test cases may
 prefer to have steps that are not run by default (e.g. a long forward
 simulation or optional visualization) but which are available for a user to
 manually alter and then run on their own.</p>
-<p>A step is defined by a class that descends from <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code>.
+<p>A step is defined by a class that descends from <a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.
 The child class must override the constructor and the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code> method, and will sometimes also wish to override
-the <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code> method, described below.</p>
+<a class="reference internal" href="generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code></a> method, and will sometimes also wish to override
+the <a class="reference internal" href="generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method, described below.</p>
 <section id="step-attributes">
 <span id="dev-step-attributes"></span><h3>Step attributes<a class="headerlink" href="#step-attributes" title="Permalink to this heading"></a></h3>
-<p>As was the case for test cases, the base class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code> has a
+<p>As was the case for test cases, the base class <a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
 large number of attributes that are useful at different stages (init, setup and
 run) of the step.</p>
 <p>Some attributes are available after calling the base class’ constructor
@@ -974,11 +978,11 @@ set up, or cleaned up, and also when test suites are set up or cleaned up.
 However, it is okay to add input, output, streams and namelist files to
 the step by calling any of the following methods:</p>
 <ul class="simple">
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>Each of these functions just caches information about the the inputs, outputs,
 namelists or streams files to be read later if the test case in question gets
@@ -1082,7 +1086,7 @@ running the step, in case the user has modified these in the config options.
 These performance-related attributes affect how the step runs and must be set
 prior to runtime, whereas other options can be set within <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> is called within
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code>, but can be overridden if desired.
+<a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a>, but can be overridden if desired.
 The typical reason to override this function would be to get config options for
 <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, etc. and set the corresponding
 attributes.  Another reason might be to set these attributes using an algorithm
@@ -1097,14 +1101,14 @@ as part of a call to <a class="reference internal" href="command_line.html#dev-p
 As in <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>, you can add input, output, streams and namelist
 files to the step by calling any of the following methods:</p>
 <ul class="simple">
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>If you are running the E3SM component, you should call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code> to create a symlink to the
+<a class="reference internal" href="generated/polaris.Step.add_model_as_input.html#polaris.Step.add_model_as_input" title="polaris.Step.add_model_as_input"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code></a> to create a symlink to the
 E3SM component’s executable.  This can be done in the constructor or the
 <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method.</p>
 <p>Set up should not do any major computations or any time-consuming operations
@@ -1296,7 +1300,7 @@ like this:</p>
     <span class="n">run_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>the <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code> function takes care of updating the
+<p>the <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a> function takes care of updating the
 namelist options for the test case to make sure the PIO tasks and stride are
 consistent with the requested number of MPI tasks, creates a graph partition
 for the requested number of tasks, and runs the model.</p>
@@ -1320,8 +1324,8 @@ will be sure to generate them.</p>
 <p>The inputs and outputs need to be defined during init of either the step or
 the test case, or in the step’s <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method because they are needed
 before <a class="reference internal" href="#dev-step-run"><span class="std std-ref">run()</span></a> is called (to determine which steps depend on which
-other steps).  Inputs are added with <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code>
-and outputs with <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code>.  Inputs may be
+other steps).  Inputs are added with <a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>
+and outputs with <a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  Inputs may be
 symbolic links to files in polaris, from the various databases on the
 <a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/">LCRC server</a>,
 downloaded from another source, or from another step.</p>
@@ -1346,16 +1350,16 @@ previous step.  For now, the outputs of this step are not used by any other
 steps so it is safe to simply omit them, but this could become problematic in
 the future if new steps are added that depend on
 <span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span>.</p>
-<p><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code> includes several methods for adding input, output,
+<p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> includes several methods for adding input, output,
 namelist and streams files:</p>
 <section id="input-files">
 <span id="dev-step-input"></span><h4>Input files<a class="headerlink" href="#input-files" title="Permalink to this heading"></a></h4>
 <p>Typically, a step will add input files with
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code> during init or in its <code class="docutils literal notranslate"><span class="pre">setup()</span></code>
+<a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> during init or in its <code class="docutils literal notranslate"><span class="pre">setup()</span></code>
 method.  It is also possible to add inputs in the test case’s
 <a class="reference internal" href="#dev-test-case-init"><span class="std std-ref">constructor</span></a>.</p>
 <p>It is possible to simply supply the path to an input file as <code class="docutils literal notranslate"><span class="pre">filename</span></code>
-without any other arguments to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code>.  In
+without any other arguments to <a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>.  In
 this case, the file name is either an absolute path or a relative path with
 respect to the step’s work directory:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
@@ -1388,7 +1392,7 @@ you to refer to a short, local name for the file rather than its full path:</p>
        <span class="o">...</span>
 </pre></div>
 </div>
-<p>A symlink is not actually created when <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code>
+<p>A symlink is not actually created when <a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>
 is called.  This will not happen until the step gets set up, after calling its
 <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.</p>
 <p>Sometimes you want to create a symlink to an input file in the work directory,
@@ -1446,7 +1450,7 @@ a location where they can be shared between users and reused over time.  These
 “databases” are subdirectories of the core’s database root on the
 <a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/">LCRC server</a>.</p>
 <p>To add an input file from a database, call
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code> with the <code class="docutils literal notranslate"><span class="pre">database</span></code> argument:</p>
+<a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> with the <code class="docutils literal notranslate"><span class="pre">database</span></code> argument:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
     <span class="n">target</span><span class="o">=</span><span class="s1">&#39;BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc&#39;</span><span class="p">,</span>
@@ -1461,7 +1465,7 @@ slated for later downloaded from the
 The file will be stored in the subdirectory <code class="docutils literal notranslate"><span class="pre">ocean/bathymetry_database</span></code>
 of the path in the <code class="docutils literal notranslate"><span class="pre">database_root</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">paths</span></code> section of
 the config file.  The <code class="docutils literal notranslate"><span class="pre">database_root</span></code> option is set either by selecting one
-of the <span class="xref std std-ref">supported-machines</span> or in the user’s config file.</p>
+of the <a class="reference internal" href="../users_guide/machines/index.html#supported-machines"><span class="std std-ref">Supported Machines</span></a> or in the user’s config file.</p>
 <p>You can also specify the <code class="docutils literal notranslate"><span class="pre">database_component</span></code> parameter to choose to get
 files from a database belonging to another component, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;icePresent_QU60km_polar.nc&#39;</span><span class="p">,</span>
@@ -1504,7 +1508,7 @@ don’t depend on each other.  Adding an output file is pretty straightforward:<
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_file.nc&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code> can be called in a step’s
+<p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> can be called in a step’s
 <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>: or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method or (less commonly)
 in the test case’s <a class="reference internal" href="#dev-test-case-init"><span class="std std-ref">constructor</span></a>.</p>
 <p>The relative path in <code class="docutils literal notranslate"><span class="pre">filename</span></code> is with respect to the step’s work directory,
@@ -1585,16 +1589,16 @@ that are used to replace default namelist options and streams definitions
 before the E3SM component gets run.  Namelist and streams files within the
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix <code class="docutils literal notranslate"><span class="pre">namelist.</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.</span></code>,
 respectively, to ensure that they are included when we build the package.</p>
-<p>You can make calls to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>  and
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code> as described below to indicate how
+<p>You can make calls to <a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a>,
+<a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a>  and
+<a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a> as described below to indicate how
 name list and streams file should be built up by modifying the defaults for the
 E3SM component.  The namelists and streams files themselves are generated
 automatically as part of setting up the test case.</p>
 <section id="adding-a-namelist-file">
 <span id="dev-step-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Permalink to this heading"></a></h4>
 <p>Typically, a step that runs the E3SM component will include one or more calls to
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
+<a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
 or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this method simply adds the file to
 a list that will be parsed if and when the step gets set up.  (This way, it is
 safe to add namelist files to a step in init even if that test case will never
@@ -1614,7 +1618,7 @@ config_cvmix_background_viscosity = 1.0e-4
 which specific namelist within the file each belongs to.</p>
 <p>A typical namelist file is added by passing a package where the namelist file
 is located and the name of the input namelist file within that package
-as arguments to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code>:</p>
+as arguments to <a class="reference internal" href="generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file" title="polaris.Step.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1635,7 +1639,7 @@ the code, rather than a namelist file.  This is appropriate when there are only
 1 or 2 options to replace (so creating a file seems like overkill) or when the
 namelist options rely on values that are determined by the code (e.g. different
 values for different resolutions).  Simply create a dictionary of replacements
-and call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code> either at init or
+and call <a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a> either at init or
 in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are parsed, along
 with replacements from files, in the order they are added.  Thus, you could
 add replacements from a namelist file for the test group, test case, or step,
@@ -1666,7 +1670,7 @@ convert a numerical value to a string.</p>
 been generated as part of setting up.  This typically happens within a step’s
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for options that cannot be known beforehand, particularly
 options related to the number of MPI tasks, CPUs per task, and OpenMP threads.
-In such cases, call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.update_namelist_at_runtime()</span></code>:</p>
+In such cases, call <a class="reference internal" href="generated/polaris.Step.update_namelist_at_runtime.html#polaris.Step.update_namelist_at_runtime" title="polaris.Step.update_namelist_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.update_namelist_at_runtime()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pio_num_iotasks</span><span class="p">),</span>
@@ -1682,7 +1686,7 @@ In such cases, call <code class="xref py py-meth docutils literal notranslate"><
 streams files are XML documents, requiring some slightly more sophisticated
 parsing.</p>
 <p>Typically, a step that runs the E3SM component will include one or more calls
-to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
+to <a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
 or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function simply adds the file to
 a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed if an when
 the step gets set up.  (This way, it is safe to add streams files to a step at
@@ -1724,7 +1728,7 @@ remove contents from the defaults, just keep the default contents or replace
 them all.  (Past experience has shown that such a feature would be
 confusing and difficult to keep synchronized with the E3SM code.)</p>
 <p>A typical streams file is added by calling
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> with a package where the streams
+<a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a> with a package where the streams
 file is located and the name of the input streams file within that package:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
@@ -1738,9 +1742,9 @@ mode, this can also be specified.</p>
 <section id="adding-a-template-streams-file">
 <span id="dev-step-add-streams-file-template"></span><h4>Adding a template streams file<a class="headerlink" href="#adding-a-template-streams-file" title="Permalink to this heading"></a></h4>
 <p>The main difference between namelists and streams files is that there is no
-direct equivalent for streams of <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>.
+direct equivalent for streams of <a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a>.
 It is simply too confusing to try to define streams within the code.</p>
-<p>Instead, <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> includes a keyword
+<p>Instead, <a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a> includes a keyword
 argument <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code>.  If you provide a dictionary of
 replacements to this argument, the input streams file will be treated as a
 <a class="reference external" href="https://jinja.palletsprojects.com/">Jinja2 template</a> that is rendered
@@ -1779,9 +1783,9 @@ we are creating a series of steps that will be used to perform dynamic
 adjustment of the ocean model, each of which might have different durations and
 restart intervals.  Rather than creating a streams file for each step of the
 spin up, we reuse the same template with just a few appropriate replacements.
-Thus, calls to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> with
+Thus, calls to <a class="reference internal" href="generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file" title="polaris.Step.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></a> with
 <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code> are qualitatively similar to namelist calls to
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>.</p>
+<a class="reference internal" href="generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options" title="polaris.Step.add_namelist_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></a>.</p>
 </section>
 <section id="updating-a-streams-file-at-runtime">
 <span id="dev-step-update-streams"></span><h4>Updating a streams file at runtime<a class="headerlink" href="#updating-a-streams-file-at-runtime" title="Permalink to this heading"></a></h4>
@@ -1789,7 +1793,7 @@ Thus, calls to <code class="xref py py-meth docutils literal notranslate"><span 
 after it has already been generated as part of setting up.  This typically
 happens within a step’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for properties of the stream that
 may be affected by config options that a user may have changed.  In such
-cases, call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.update_streams_at_runtime()</span></code>.  In this
+cases, call <a class="reference internal" href="generated/polaris.Step.update_streams_at_runtime.html#polaris.Step.update_streams_at_runtime" title="polaris.Step.update_streams_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.update_streams_at_runtime()</span></code></a>.  In this
 fairly complicated example, the duration of the run in hours is a config option
 that we turn into a string.  A dictionary of replacements together with a
 template streams file, as described above, are used to update the streams file
@@ -1845,7 +1849,7 @@ line starting with <code class="docutils literal notranslate"><span class="pre">
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="command_line.html" class="btn btn-neutral float-left" title="Command-line interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="framework.html" class="btn btn-neutral float-right" title="Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ocean/index.html" class="btn btn-neutral float-right" title="Ocean component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

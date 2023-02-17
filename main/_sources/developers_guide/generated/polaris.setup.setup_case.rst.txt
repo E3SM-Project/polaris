@@ -1,0 +1,6 @@
+﻿polaris.setup.setup\_case
+=========================
+
+.. currentmodule:: polaris.setup
+
+.. autofunction:: setup_case

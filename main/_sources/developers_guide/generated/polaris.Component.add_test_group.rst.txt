@@ -1,0 +1,6 @@
+﻿polaris.Component.add\_test\_group
+==================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.add_test_group

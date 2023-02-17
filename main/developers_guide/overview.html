@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
 <ul class="current">
@@ -77,10 +78,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -177,7 +181,7 @@ file can be empty or it can have code in it.  If it has functions or classes
 inside of it, they act like they’re directly in the package.  As an example,
 the polaris file
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>
-has a class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code> that looks like this (with the
+has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code></a> that looks like this (with the
 <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">docstrings</a> stripped out):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -221,7 +225,7 @@ purposes of the <code class="docutils literal notranslate"><span class="pre">pol
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is a module (except maybe the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, not sure
 about those…).</p>
 <p>As an example, the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package contains a module <code class="docutils literal notranslate"><span class="pre">list.py</span></code>.
-There’s a function <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code> in that module:</p>
+There’s a function <a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a> in that module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">list_machines</span><span class="p">():</span>
     <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
@@ -269,10 +273,10 @@ clumsy set of functions and
 that was equally complex but harder to understand and document than classes.</p>
 <p>The outcome of this experience is that we have used classes to define
 components, test groups, test cases and steps.  Each component will “descend”
-from the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code> base class; each test groups descends
-from <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code>; each test case descends from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code>; and each steps descends from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code>.  These base classes contain functionality that can
+from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each test groups descends
+from <a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>; each test case descends from
+<a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a>; and each steps descends from
+<a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  These base classes contain functionality that can
 be shared with the “child” classes that descend from them and also define
 a few “methods” (functions that belong to a class) that the child class is
 meant to “override” (replace with their own version of the function, or augment
@@ -307,7 +311,7 @@ and creating symlinks; <code class="docutils literal notranslate"><span class="p
 variables are bit-for-bit identical between steps or when compared with a
 baseline, and to compare timers with a baseline; and the
 <code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module contains a function<br />
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_cores_and_nodes()</span></code> that can find out
+<a class="reference internal" href="generated/polaris.parallel.get_available_cores_and_nodes.html#polaris.parallel.get_available_cores_and_nodes" title="polaris.parallel.get_available_cores_and_nodes"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_cores_and_nodes()</span></code></a> that can find out
 the number of total cores and nodes available for running steps.</p>
 </section>
 <section id="within-a-component">
@@ -315,7 +319,7 @@ the number of total cores and nodes available for running steps.</p>
 <p>A component in polaris could, theoretically, build out functionality as
 complex as in the E3SM components themselves.  This has already been
 accomplished for several of the idealized test cases included in polaris. As an
-example, the shared functionality in the <span class="xref std std-ref">dev-ocean</span> is described in
+example, the shared functionality in the <a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> is described in
 <span class="xref std std-ref">dev-ocean-framework</span>.</p>
 </section>
 <section id="within-a-test-group">

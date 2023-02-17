@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Overview" href="overview.html" />
-    <link rel="prev" title="Test Suites" href="../users_guide/test_suites.html" />
+    <link rel="prev" title="Perlmutter" href="../users_guide/machines/perlmutter.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
 <ul class="current">
@@ -81,10 +82,13 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -156,7 +160,7 @@ out a new branch or create a new worktree with <code class="docutils literal not
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> is installed into the conda environment in “editable” mode.  You
 <em>will</em> need to run the command if you add new code files or data files to the
 package because these don’t get added automatically.</p>
-<p>Whether you are on one of the <span class="xref std std-ref">dev-supported-machines</span> or an “unknown”
+<p>Whether you are on one of the <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> or an “unknown”
 machine, you will need to specify a path where
 <a class="reference external" href="https://github.com/conda-forge/miniforge#mambaforge">Mambaforge</a> either has
 already been installed or an empty directory where the script can install it.
@@ -183,7 +187,7 @@ you if you don’t already have it installed.</p>
 </div>
 <section id="supported-machines">
 <h3>Supported machines<a class="headerlink" href="#supported-machines" title="Permalink to this heading"></a></h3>
-<p>If you are on one of the <span class="xref std std-ref">dev-supported-machines</span>, run:</p>
+<p>If you are on one of the <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a>, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;base_path_to_install_or_update_conda&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>-c<span class="w"> </span>&lt;compiler&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--mpi<span class="w"> </span>&lt;mpi&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>-m<span class="w"> </span>&lt;machine&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with_albany<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>--with_netlib_lapack<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with_petsc<span class="o">]</span>
@@ -194,7 +198,7 @@ This is the location where you would like to install Mambaforge or where it is
 already installed. If you have limited space in your home directory, you may
 want to give another path.  If you already have it installed, that path will
 be used to add (or update) the polaris test environment.</p>
-<p>See the machine under <span class="xref std std-ref">dev-supported-machines</span> for a list of available
+<p>See the machine under <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> for a list of available
 compilers to pass to <code class="docutils literal notranslate"><span class="pre">-c</span></code>.  If you don’t supply a compiler, you will get
 the default one for that machine. Typically, you will want the  default MPI
 flavor that polaris has defined for each compiler, so you should
@@ -238,7 +242,7 @@ If you already have it installed, that path will be used to add (or update) the
 polaris test environment.</p>
 <p>We only support one set of compilers for Mac and Linux (<code class="docutils literal notranslate"><span class="pre">gnu</span></code> for Linux and
 <code class="docutils literal notranslate"><span class="pre">clang</span></code> with <code class="docutils literal notranslate"><span class="pre">gfortran</span></code> for Mac), so there is no need to specify them.
-See <span class="xref std std-ref">dev-other-machines</span> for more details.</p>
+See <a class="reference internal" href="machines/index.html#dev-other-machines"><span class="std std-ref">Other Machines</span></a> for more details.</p>
 <p>In addition, unknown machines require a config file to be specified when setting
 up the polaris test environment.  A config file can be specified using
 <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;filename&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> is an absolute or relative path to the
@@ -440,7 +444,7 @@ make<span class="w"> </span><span class="nv">ALBANY</span><span class="o">=</spa
 </pre></div>
 </div>
 <p>For MPAS-Ocean and MALI both, see the last column of the table in
-<span class="xref std std-ref">dev-supported-machines</span> for the right <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for
+<a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> for the right <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for
 each machine and compiler.</p>
 <p>Instructions for building OMEGA will be added as development proceeds.</p>
 </section>
@@ -586,7 +590,7 @@ git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../users_guide/test_suites.html" class="btn btn-neutral float-left" title="Test Suites" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../users_guide/machines/perlmutter.html" class="btn btn-neutral float-left" title="Perlmutter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

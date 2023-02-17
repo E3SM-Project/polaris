@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
-    <link rel="prev" title="Organization of Tests" href="organization.html" />
+    <link rel="next" title="Machines" href="machines/index.html" />
+    <link rel="prev" title="global_convergence" href="ocean/test_groups/global_convergence.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
 <ul class="current">
@@ -61,6 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Framework</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#list-module">list module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup-module">setup module</a></li>
@@ -100,9 +102,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#provenance">Provenance</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -145,14 +149,14 @@ namelists and streams files, setting up and running the E3SM component, and
 verifying the output by comparing steps with one another or against a baseline.</p>
 <section id="list-module">
 <span id="dev-list"></span><h2>list module<a class="headerlink" href="#list-module" title="Permalink to this heading"></a></h2>
-<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_cases()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code>
-and <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_suites()</span></code> functions are used by the
+<p>The <a class="reference internal" href="generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_cases()</span></code></a>, <a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a>
+and <a class="reference internal" href="generated/polaris.list.list_suites.html#polaris.list.list_suites" title="polaris.list.list_suites"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_suites()</span></code></a> functions are used by the
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> command to list test cases, supported machines and test
 suites, respectively.  These functions are not currently used anywhere else
 in polaris.</p>
 <section id="setup-module">
 <span id="dev-setup"></span><h3>setup module<a class="headerlink" href="#setup-module" title="Permalink to this heading"></a></h3>
-<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_cases()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_case()</span></code>
+<p>The <a class="reference internal" href="generated/polaris.setup.setup_cases.html#polaris.setup.setup_cases" title="polaris.setup.setup_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_cases()</span></code></a> and <a class="reference internal" href="generated/polaris.setup.setup_case.html#polaris.setup.setup_case" title="polaris.setup.setup_case"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_case()</span></code></a>
 functions are used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> to set up a list
 of test cases and a single test case, respectively, in a work directory.
 Subdirectories will be created for each test case and its steps; input,
@@ -175,7 +179,7 @@ subdirectory in the work directory.</p>
 </section>
 <section id="suite-module">
 <span id="dev-suite"></span><h3>suite module<a class="headerlink" href="#suite-module" title="Permalink to this heading"></a></h3>
-<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.setup_suite()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.clean_suite()</span></code>
+<p>The <a class="reference internal" href="generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.setup_suite()</span></code></a> and <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.clean_suite()</span></code>
 functions are used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> to set up or clean up a test suite in a
 work directory.  Setting up a test suite includes setting up the test cases
 (see <a class="reference internal" href="#dev-setup"><span class="std std-ref">setup module</span></a>), writing out a <a class="reference internal" href="#dev-provenance"><span class="std std-ref">Provenance</span></a> file, and saving
@@ -193,8 +197,8 @@ suite will fail.</p>
 </section>
 <section id="run-serial-module">
 <span id="dev-run"></span><h3>run.serial module<a class="headerlink" href="#run-serial-module" title="Permalink to this heading"></a></h3>
-<p>The function <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code> is used to run a
-test suite or test case and <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code> is
+<p>The function <a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a> is used to run a
+test suite or test case and <a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> is
 used to run a single step using <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.  <code class="docutils literal notranslate"><span class="pre">run_tests()</span></code> performs
 setup operations like creating a log file and figuring out the number of tasks
 and CPUs per task for each step, then it calls each step’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p>
@@ -204,7 +208,7 @@ steps run from their respective subdirectories with a <code class="docutils lite
 <code class="docutils literal notranslate"><span class="pre">step.pickle</span></code> file in them. Both of these functions reads the local pickle
 file to retrieve information about the test suite, test case and/or step that
 was stored during setup.</p>
-<p>If <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code> is used for a test suite, it will
+<p>If <a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a> is used for a test suite, it will
 run each test case in the test suite in the order that they are given in the
 text file defining the suite (<code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/suites/&lt;suite_name&gt;.txt</span></code>).
 Output from test cases and their steps are stored in log files in the
@@ -237,13 +241,13 @@ and debugging.</p>
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html">MPAS-Tools config parser</a>.
 Here, we include some specific details relevant to using the
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vstable)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a> in polaris.</p>
-<p>Here, we provide the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code> that has
+<p>Here, we provide the <a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> that has
 almost the same functionality but also ensures that certain relative paths are
 converted automatically to absolute paths.</p>
 <p>The <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools vstable)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many test cases as well as
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_case()</span></code>. Here is a typical example from
+<a class="reference internal" href="generated/polaris.setup.setup_case.html#polaris.setup.setup_case" title="polaris.setup.setup_case"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_case()</span></code></a>. Here is a typical example from
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -347,13 +351,13 @@ from <code class="docutils literal notranslate"><span class="pre">mpas_tools</sp
 <section id="io">
 <span id="dev-io"></span><h2>IO<a class="headerlink" href="#io" title="Permalink to this heading"></a></h2>
 <p>A lot of I/O related tasks are handled internally in the step class
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code>.  Some of the lower level functions can be called
+<a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  Some of the lower level functions can be called
 directly if need be.</p>
 <section id="symlinks">
 <span id="dev-io-symlink"></span><h3>Symlinks<a class="headerlink" href="#symlinks" title="Permalink to this heading"></a></h3>
 <p>You can create your own symlinks that aren’t input files (e.g. for a
 README file that the user might want to have available) using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.symlink()</span></code>:</p>
+<a class="reference internal" href="generated/polaris.io.symlink.html#polaris.io.symlink" title="polaris.io.symlink"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.symlink()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">path</span>
 
 <span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span>
@@ -377,8 +381,8 @@ know if the test case will be set up at all (or in what work directory) during
 <section id="download">
 <span id="dev-io-download"></span><h3>Download<a class="headerlink" href="#download" title="Permalink to this heading"></a></h3>
 <p>You can download files more directly if you need to using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.download()</span></code>, though we recommend using
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code> whenever possible because it is more
+<a class="reference internal" href="generated/polaris.io.download.html#polaris.io.download" title="polaris.io.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.download()</span></code></a>, though we recommend using
+<a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> whenever possible because it is more
 flexible and takes care of more of the details of symlinking the local file
 and adding it as an input to the step.  No current test cases use
 <code class="docutils literal notranslate"><span class="pre">download()</span></code> directly, but an example might look like this:</p>
@@ -417,17 +421,17 @@ bathymetry database.</p>
 <section id="spherical-meshes">
 <span id="dev-spherical-meshes"></span><h3>Spherical Meshes<a class="headerlink" href="#spherical-meshes" title="Permalink to this heading"></a></h3>
 <p>Test cases that use global, spherical meshes can add either
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code> or
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code> in order to creating a base mesh,
+<a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> or
+<a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a> in order to creating a base mesh,
 using <a class="reference external" href="https://github.com/dengwirda/jigsaw">JIGSAW</a>.  Alternatively, they can
-use <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code> as the base class
+use <a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> as the base class
 for creating a more complex mesh by overriding the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon()</span></code>
+<a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon()</span></code></a>
 method.</p>
 <p>A developer can also customize the options data structure passed on to JIGSAW
 either by modifying the <code class="docutils literal notranslate"><span class="pre">opts</span></code> attribute of either of these classes or by
-overriding the <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh()</span></code>
-or <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh()</span></code>
+overriding the <a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh()</span></code></a>
+or <a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh()</span></code></a>
 methods.</p>
 <p>Icosahedral meshes will be significantly more uniform and smooth in cell size
 than quasi-uniform spherical meshes.  On the other hand, icosahedral meshes are
@@ -512,9 +516,9 @@ with a given number of subdivisions:</p>
 <section id="running-an-e3sm-component">
 <h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Permalink to this heading"></a></h3>
 <p>Steps that run a standalone build of an E3SM component should call the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code> method from
+<a class="reference internal" href="generated/polaris.Step.add_model_as_input.html#polaris.Step.add_model_as_input" title="polaris.Step.add_model_as_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code></a> method from
 their <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method.</p>
-<p>To run the E3SM component, call <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code>.  By
+<p>To run the E3SM component, call <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.  By
 default, this function first updates the namelist options associated with the
 <a class="reference external" href="https://ncar.github.io/ParallelIO/">PIO library</a> and partitions the mesh
 across MPI tasks, as we will discuss in a moment, before running the model.
@@ -527,17 +531,17 @@ can ensure that the required resources are available.</p>
 </section>
 <section id="partitioning-the-mesh">
 <h3>Partitioning the mesh<a class="headerlink" href="#partitioning-the-mesh" title="Permalink to this heading"></a></h3>
-<p>The function <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code> calls the graph partitioning
+<p>The function <a class="reference internal" href="generated/polaris.model.partition.html#polaris.model.partition" title="polaris.model.partition"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code></a> calls the graph partitioning
 executable (<a class="reference external" href="https://arc.vt.edu/userguide/metis/">gpmetis</a> by default) to
 divide up the MPAS mesh across MPI tasks.  If you call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code> with <code class="docutils literal notranslate"><span class="pre">partition_graph=True</span></code> (the default),
+<a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">partition_graph=True</span></code> (the default),
 this function is called automatically.</p>
 <p>In some circumstances, a step may need to partition the mesh separately from
 running the model.  Typically, this applies to cases where the model is run
 multiple times with the same partition and we don’t want to waste time
 creating the same partition over and over.  For such cases, you can call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code> and then provide <code class="docutils literal notranslate"><span class="pre">partition_graph=False</span></code>
-to later calls to <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code>.</p>
+<a class="reference internal" href="generated/polaris.model.partition.html#polaris.model.partition" title="polaris.model.partition"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code></a> and then provide <code class="docutils literal notranslate"><span class="pre">partition_graph=False</span></code>
+to later calls to <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.</p>
 </section>
 <section id="updating-pio-namelist-options">
 <h3>Updating PIO namelist options<a class="headerlink" href="#updating-pio-namelist-options" title="Permalink to this heading"></a></h3>
@@ -549,7 +553,7 @@ configuration than when there is 1 PIO task per core, the MPAS default.  When
 running with PIO v2, we have found little performance difference between the
 MPAS default and the polaris default of one task per node, so we feel this
 is a safe default.</p>
-<p>By default, this function is called within <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code>.
+<p>By default, this function is called within <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.
 If the same namelist file is used for multiple model runs, it may be useful to
 update the number of PIO tasks only once.  In this case, use
 <code class="docutils literal notranslate"><span class="pre">update_pio=False</span></code> when calling <code class="docutils literal notranslate"><span class="pre">run_model()</span></code>, then call
@@ -564,7 +568,7 @@ use <code class="docutils literal notranslate"><span class="pre">update_pio=Fals
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_conversion.html#cell-culler">MPAS-Tools cell culler</a>
 can produce a graph file as part of the process of culling cells from an
 MPAS mesh.  In test cases that do not require cells to be culled, you can
-call <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.make_graph_file()</span></code> to produce a graph file from
+call <a class="reference internal" href="generated/polaris.model.make_graph_file.html#polaris.model.make_graph_file" title="polaris.model.make_graph_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.make_graph_file()</span></code></a> to produce a graph file from
 an MPAS mesh file.  Optionally, you can provide the name of an MPAS field on
 cells in the mesh file that gives different weight to different cells
 (<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
@@ -577,7 +581,7 @@ This validation is a critical part of running test suites and comparing them
 to baselines.</p>
 <section id="validating-variables">
 <h3>Validating variables<a class="headerlink" href="#validating-variables" title="Permalink to this heading"></a></h3>
-<p>The function <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code> can be used to
+<p>The function <a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> can be used to
 compare variables in a file with a given relative path (<code class="docutils literal notranslate"><span class="pre">filename1</span></code>) with
 the same variables in another file (<code class="docutils literal notranslate"><span class="pre">filename2</span></code>) and/or against a baseline.</p>
 <p>As a simple example:</p>
@@ -724,7 +728,7 @@ normalVelocity       Time index: 0, 1, 2
 <p>By default, the function checks to make sure <code class="docutils literal notranslate"><span class="pre">filename1</span></code> and, if provided,
 <code class="docutils literal notranslate"><span class="pre">filename2</span></code> are output from one of the steps in the test case.  In general,
 validation should be performed on outputs of the steps in this test case that
-are explicitly added with <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code>.  This
+are explicitly added with <a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  This
 check can be disabled by setting <code class="docutils literal notranslate"><span class="pre">check_outputs=False</span></code>.</p>
 </section>
 <section id="norms">
@@ -738,9 +742,9 @@ and <code class="docutils literal notranslate"><span class="pre">filename2</span
 norms).  If you do want certain norms checked, you can pass their value as
 <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <p>If you want different nonzero norm values for different variables,
-the easiest solution is to call <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code>
+the easiest solution is to call <a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a>
 separately for each variable and  with different norm values specified.
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code> can safely be called multiple
+<a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> can safely be called multiple
 times without clobbering a previous result.  When you specify a nonzero norm,
 you may want polaris to print the norm values it is using for comparison
 when the results are printed.  To do so, use the optional <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>
@@ -752,7 +756,7 @@ argument.</p>
 no errors are raised, meaning that the user must manually look at the
 comparison and make a judgment call about whether any changes in timing are
 large enough to indicate performance problems.</p>
-<p>Calls to <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_timers()</span></code> include a list of MPAS
+<p>Calls to <a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_timers()</span></code></a> include a list of MPAS
 timers to compare and at least 1 directory where MPAS has been run and timers
 for the run are available.</p>
 <p>Here is a typical call:</p>
@@ -773,7 +777,7 @@ for the run are available.</p>
 <section id="provenance">
 <span id="dev-provenance"></span><h2>Provenance<a class="headerlink" href="#provenance" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.provenance</span></code> module defines a function
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.write()</span></code> for creating a file in the base work
+<a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.write()</span></code></a> for creating a file in the base work
 directory with provenance, such as the git version, conda packages, polaris
 commands, and test cases.</p>
 </section>
@@ -783,8 +787,8 @@ commands, and test cases.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="organization.html" class="btn btn-neutral float-left" title="Organization of Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ocean/test_groups/global_convergence.html" class="btn btn-neutral float-left" title="global_convergence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machines/index.html" class="btn btn-neutral float-right" title="Machines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

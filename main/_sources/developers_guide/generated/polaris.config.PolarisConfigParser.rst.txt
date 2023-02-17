@@ -1,0 +1,38 @@
+﻿polaris.config.PolarisConfigParser
+==================================
+
+.. currentmodule:: polaris.config
+
+.. autoclass:: PolarisConfigParser
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PolarisConfigParser.__init__
+      ~PolarisConfigParser.add_from_file
+      ~PolarisConfigParser.add_from_package
+      ~PolarisConfigParser.add_user_config
+      ~PolarisConfigParser.combine
+      ~PolarisConfigParser.copy
+      ~PolarisConfigParser.get
+      ~PolarisConfigParser.getboolean
+      ~PolarisConfigParser.getexpression
+      ~PolarisConfigParser.getfloat
+      ~PolarisConfigParser.getint
+      ~PolarisConfigParser.getlist
+      ~PolarisConfigParser.has_option
+      ~PolarisConfigParser.has_section
+      ~PolarisConfigParser.list_files
+      ~PolarisConfigParser.set
+      ~PolarisConfigParser.write
+   
+   
+
+   
+   
+   
