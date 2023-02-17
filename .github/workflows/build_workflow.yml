@@ -97,8 +97,6 @@ jobs:
             --verbose \
             --python=${{ matrix.python-version }}
           source load_polaris_test.sh
-          # not yet available on conda-forge
-          python -m pip install sphinx-multiversion
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs

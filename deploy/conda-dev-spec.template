@@ -36,6 +36,9 @@ scipy>=1.8.0
 shapely>=2.0,<3.0
 xarray
 
+# Static typing
+types-requests
+
 # Linting and testing
 pip
 pytest
@@ -68,5 +71,4 @@ udunits2
 sphinx
 sphinx_rtd_theme
 myst-parser
-# not yet available on conda-forge
-# sphinx-multiversion
+sphinx-multiversion
