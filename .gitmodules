@@ -4,3 +4,6 @@
 [submodule "e3sm_submodules/MALI-Dev"]
 	path = e3sm_submodules/MALI-Dev
 	url = git@github.com:MALI-Dev/E3SM.git
+[submodule "e3sm_submodules/Omega"]
+	path = e3sm_submodules/Omega
+	url = git@github.com:E3SM-Project/Omega.git
