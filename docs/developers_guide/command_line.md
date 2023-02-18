@@ -119,8 +119,10 @@ You can supply the directory where you have built the MPAS component with the
 `-p` or `--component_path` flag.  This can be a relative or absolute path.  The
 default for the `landice` component is 
 `e3sm_submodules/MALI-Dev/components/mpas-albany-landice`
-and the default for the `ocean` component is
-`e3sm_submodules/E3SM-Project/components/mpas-ocean`.
+and the default for the `ocean` component depends on whether you are using
+MPAS-Ocean or OMEGA.  For MPAS-Ocean, it is
+`e3sm_submodules/E3SM-Project/components/mpas-ocean`.  For OMEGA, it is
+`e3sm_submodules/Omega/components/omega`
 
 You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
