@@ -553,7 +553,8 @@ any branch, which is specified by the last <code class="docutils literal notrans
 that the submodule points to is compatible with polaris.  It is also the
 default location for finding the E3SM component so you don’t need to specify
 the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag at the command line or put the E3SM component path path in
-your config file (if you even need a config file at all):</p>
+your config file (if you even need a config file at all).  Here is an
+example for MPAS-Ocean:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
@@ -562,7 +563,7 @@ make<span class="w"> </span>gfortran
 </div>
 </li>
 <li><p>Other E3SM directory (advanced): Create your own clone of the
-<code class="docutils literal notranslate"><span class="pre">E3SM-Project/E3SM</span></code>, <code class="docutils literal notranslate"><span class="pre">E3SM-Project/OMEGA</span></code> or <code class="docutils literal notranslate"><span class="pre">MALI-Dev/E3SM</span></code> repository
+<code class="docutils literal notranslate"><span class="pre">E3SM-Project/E3SM</span></code>, <code class="docutils literal notranslate"><span class="pre">E3SM-Project/Omega</span></code> or <code class="docutils literal notranslate"><span class="pre">MALI-Dev/E3SM</span></code> repository
 elsewhere on disk. Either make a config file that specifies the absolute
 path to the path where the <code class="docutils literal notranslate"><span class="pre">ocean_model</span></code> or <code class="docutils literal notranslate"><span class="pre">landice_model</span></code> executable
 is found, or specify this path on the command line with <code class="docutils literal notranslate"><span class="pre">-p</span></code>.  You are

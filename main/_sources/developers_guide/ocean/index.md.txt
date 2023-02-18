@@ -71,11 +71,11 @@ branch but the plan is to update the submodule frequently.  The current version
 of the submodule should always be guaranteed to be compatible with the
 corresponding version of polaris.
 
-Similarly, the `e3sm_submodules/E3SM-Omega` submodule is where you can find
-a verison of OMEGA that is compatible with pthe current polaris.  The model
+Similarly, the `e3sm_submodules/Omega` submodule is where you can find
+a verison of OMEGA that is compatible with the current polaris.  The model
 can be built from the `components/omega` directory.  The  submodule may not 
-point to the latest MPAS-Ocean code in on the `E3SM-Omega`
-[develop](https://github.com/E3SM-Omega/E3SM/tree/develop)
+point to the latest OMEGA code in on the `Omega`
+[develop](https://github.com/E3SM-Project/Omega/tree/develop)
 branch but, again, the plan is to update the submodule frequently and to
 maintain compatibility of the submodule with polaris.
 
@@ -88,7 +88,7 @@ git submodule update --init --recursive
 
 in the base directory of your local clone of the polaris repo.  Then, you can
 `cd` into the component's directory (e.g. 
-`e3sm_submodules/E3SM-Project/components/mpas-ocean` and build the code as
+`e3sm_submodules/E3SM-Project/components/mpas-ocean`) and build the code as
 appropriate for whichever of the {ref}`machines` you are using.
 
 ```{toctree}

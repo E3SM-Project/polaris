@@ -201,8 +201,10 @@ above for how to list the supported machines.</p>
 <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--component_path</span></code> flag.  This can be a relative or absolute path.  The
 default for the <code class="docutils literal notranslate"><span class="pre">landice</span></code> component is
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev/components/mpas-albany-landice</span></code>
-and the default for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component is
-<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project/components/mpas-ocean</span></code>.</p>
+and the default for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component depends on whether you are using
+MPAS-Ocean or OMEGA.  For MPAS-Ocean, it is
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project/components/mpas-ocean</span></code>.  For OMEGA, it is
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega/components/omega</span></code></p>
 <p>You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
 more (see <a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a> and <a class="reference internal" href="../users_guide/quick_start.html#setup-overview"><span class="std std-ref">Setting up test cases</span></a>).  Point to your config
