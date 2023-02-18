@@ -529,7 +529,8 @@ There are two ways to build the E3SM component in standalone mode:
    that the submodule points to is compatible with polaris.  It is also the 
    default location for finding the E3SM component so you don't need to specify
    the `-p` flag at the command line or put the E3SM component path path in 
-   your config file (if you even need a config file at all):
+   your config file (if you even need a config file at all).  Here is an
+   example for MPAS-Ocean:
 
    ```bash
    source ./load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh
@@ -539,7 +540,7 @@ There are two ways to build the E3SM component in standalone mode:
    ```
 
 2. Other E3SM directory (advanced): Create your own clone of the
-   `E3SM-Project/E3SM`, `E3SM-Project/OMEGA` or `MALI-Dev/E3SM` repository 
+   `E3SM-Project/E3SM`, `E3SM-Project/Omega` or `MALI-Dev/E3SM` repository 
    elsewhere on disk. Either make a config file that specifies the absolute
    path to the path where the `ocean_model` or `landice_model` executable
    is found, or specify this path on the command line with `-p`.  You are

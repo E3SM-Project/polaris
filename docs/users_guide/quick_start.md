@@ -127,7 +127,7 @@ components.
 
 Typically, for MPAS-Ocean, you will clone
 [E3SM](https://github.com/E3SM-Project/E3SM), for OMEGA, you will clone
-[OMEGA](https://github.com/E3SM-Project/OMEGA), and for MALI, you will clone
+[OMEGA](https://github.com/E3SM-Project/Omega), and for MALI, you will clone
 [MALI-Dev](https://github.com/MALI-Dev/E3SM).
 
 To build MPAS-Ocean, first source the appropriate load script (see
