@@ -69,10 +69,6 @@ class CosineBell(TestCase):
             init_options[f'config_cosine_bell_{option}'] = \
                 config.get('cosine_bell', option)
 
-        for step in self.steps.values():
-            if 'init' in step.name:
-                step.add_namelist_options(options=init_options, mode='init')
-
         self.update_cores()
 
     def update_cores(self):
