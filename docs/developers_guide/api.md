@@ -78,6 +78,18 @@ ocean/api
 
 ```
 
+#### cache
+
+```{eval-rst}
+.. currentmodule:: polaris.cache
+
+.. autosummary::
+   :toctree: generated/
+
+   update_cache
+
+```
+
 ### Base Classes
 
 #### component
