@@ -149,9 +149,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;QU</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_namelist.ocean&#39;</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/init/namelist.ocean&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">,</span>
                 <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/init/initial_state.nc&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
