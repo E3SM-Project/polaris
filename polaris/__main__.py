@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import sys
 
 import polaris.run.serial as run_serial
-from polaris import list, setup, suite
+from polaris import cache, list, setup, suite
 from polaris.version import __version__
 
 
@@ -44,6 +45,13 @@ The available polaris commands are:
                 'setup': setup.main,
                 'suite': suite.main,
                 'serial': run_serial.main}
+
+    # only allow the "polaris cache" command if we're on Anvil or Chrysalis
+    allow_cache = ('POLARIS_MACHINE' in os.environ and
+                   os.environ['POLARIS_MACHINE'] in ['anvil', 'chrysalis'])
+
+    if allow_cache:
+        commands['cache'] = cache.main
 
     if args.command not in commands:
         print(f'Unrecognized command {args.command}')
