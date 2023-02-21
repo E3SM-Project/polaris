@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean conponent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
@@ -676,14 +677,13 @@ steps will be available in <code class="docutils literal notranslate"><span clas
 <p>By default, the test case will go into a subdirectory with the same name as the
 test case (<code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> in this case).  However, polaris is flexible
 about the subdirectory structure and the names of the subdirectories.  This
-flexibility was an important requirement in moving away from
-<span class="xref std std-ref">legacy-polaris</span>.  Each test case and step must end up in a unique
-directory, so it may be important that the name and subdirectory of each test
-case or step depends in some way on the arguments passed the constructor.  In
-the example above, the resolution is an argument to the constructor, which is
-then saved as an attribute (<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>) and also used to define a
-unique subdirectory each resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe_test</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe_test</span></code> and
-<code class="docutils literal notranslate"><span class="pre">10km/rpe_test</span></code>.</p>
+flexibility was an important requirement in polaris’ design.  Each test case
+and step must end up in a unique  directory, so it may be important that the
+name and subdirectory of each test  case or step depends in some way on the
+arguments passed the constructor.  In  the example above, the resolution is an
+argument to the constructor, which is  then saved as an attribute
+(<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>) and also used to define a unique subdirectory each
+resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe_test</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe_test</span></code> and <code class="docutils literal notranslate"><span class="pre">10km/rpe_test</span></code>.</p>
 <p>The same <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step is included in the test case 5 times with a different
 viscosity parameter <code class="docutils literal notranslate"><span class="pre">nu</span></code> for each.  The value of
 <code class="docutils literal notranslate"><span class="pre">nu</span></code> is passed to the step’s constructor, along with
