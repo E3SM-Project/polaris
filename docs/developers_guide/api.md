@@ -92,7 +92,7 @@ ocean/api
 
 ### Base Classes
 
-#### component
+#### Component
 
 ```{eval-rst}
 .. currentmodule:: polaris
@@ -104,7 +104,7 @@ ocean/api
    Component.add_test_group
 ```
 
-#### testgroup
+#### TestGroup
 
 ```{eval-rst}
 .. currentmodule:: polaris
@@ -116,7 +116,7 @@ ocean/api
    TestGroup.add_test_case
 ```
 
-### testcase
+#### TestCase
 
 ```{eval-rst}
 .. currentmodule:: polaris
@@ -130,7 +130,7 @@ ocean/api
    TestCase.add_step
 ```
 
-### step
+#### Step
 
 ```{eval-rst}
 .. currentmodule:: polaris
@@ -146,13 +146,29 @@ ocean/api
    Step.run
    Step.add_input_file
    Step.add_output_file
-   Step.add_model_as_input
-   Step.add_namelist_file
-   Step.add_namelist_options
-   Step.update_namelist_at_runtime
-   Step.update_namelist_pio
-   Step.add_streams_file
-   Step.update_streams_at_runtime
+```
+
+
+#### ModelStep
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+   
+   ModelStep
+   ModelStep.setup
+   ModelStep.set_model_resources
+   ModelStep.add_namelist_file
+   ModelStep.add_namelist_options
+   ModelStep.update_namelist_at_runtime
+   ModelStep.update_namelist_pio
+   ModelStep.add_streams_file
+   ModelStep.update_streams_at_runtime
+   ModelStep.runtime_setup
+   ModelStep.process_inputs_and_outputs
+   ModelStep.partition
 ```
 
 ### config
@@ -218,18 +234,17 @@ ocean/api
    IcosahedralMeshStep.get_cell_width
 ```
 
-### model
+### model_step
 
 ```{eval-rst}
-.. currentmodule:: polaris.model
+.. currentmodule:: polaris.model_step
 
 .. autosummary::
    :toctree: generated/
-
-   run_model
-   partition
+   
    make_graph_file
 ```
+
 
 ### components
 
@@ -268,7 +283,7 @@ ocean/api
 ```
 
 
-###validate
+### validate
 
 ```{eval-rst}
 .. currentmodule:: polaris.validate

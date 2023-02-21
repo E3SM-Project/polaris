@@ -915,7 +915,7 @@ As an example,
 mesh type as an attribute:
 
 ```python
-from polaris.model import make_graph_file
+from polaris.model_step import make_graph_file
 from polaris.step import Step
 
 
@@ -991,10 +991,10 @@ The following is from
 {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward()`:
 
 ```python
-from polaris.step import Step
+from polaris.model_step import ModelStep
 
 
-class Forward(Step):
+class Forward(ModelStep):
     """
     A step for performing forward MPAS-Ocean runs as part of baroclinic
     channel test cases.
@@ -1168,9 +1168,9 @@ Okay, we're ready to define how the step will run!
 
 The contents of `run()` can vary quite a lot between steps.
 
-In the `baroclinic_channel` test group, the `run()` function for
+In the `baroclinic_channel` test group, the `run()` method for
 the `initial_state` step,
-{py:func}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()`,
+{py:meth}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()`,
 is quite involved:
 
 ```python
@@ -1310,25 +1310,12 @@ is periodic in x (but not y), then adds a vertical grid and an initial
 condition to an {py:class}`xarray.Dataset`, which is then written out to
 the file `ocean.nc`.
 
-In the example step we've been using,
-{py:func}`polaris.ocean.tests.baroclinic_channel.forward.Forward.run()` looks
-like this:
-
-```python
-from polaris.model import run_model
-
-
-def run(self):
-    """
-    Run this step of the test case
-    """
-    run_model(self)
-```
-
-the {py:func}`polaris.model.run_model()` function takes care of updating the
-namelist options for the test case to make sure the PIO tasks and stride are
-consistent with the requested number of MPI tasks, creates a graph partition
-for the requested number of tasks, and runs the model.
+In the example `Forward` step we've been using, there is no run method at all
+because we let its superclass `ModelStep` define an `args` attribute instead.
+Rather than call the `run()` method, the command given by these arguments
+will be run on the commandline.  This is capability important for supporting 
+task parallelism, since each such command may need to run with its own set of
+MPI, threading and memory resources.
 
 To get a feel for different types of `run()` methods, it may be best to
 explore different steps.

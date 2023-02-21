@@ -1,13 +1,12 @@
 import time
 
-from polaris.model import run_model
-from polaris.step import Step
+from polaris import ModelStep
 
 
-class Forward(Step):
+class Forward(ModelStep):
     """
-    A step for performing forward MPAS-Ocean runs as part of the cosine bell
-    test case
+    A step for performing forward ocean component runs as part of the cosine
+    bell test case
 
     Attributes
     ----------
@@ -35,7 +34,8 @@ class Forward(Step):
         """
         super().__init__(test_case=test_case,
                          name=f'{mesh_name}_forward',
-                         subdir=f'{mesh_name}/forward')
+                         subdir=f'{mesh_name}/forward',
+                         openmp_threads=1)
 
         self.resolution = resolution
         self.mesh_name = mesh_name
@@ -55,14 +55,13 @@ class Forward(Step):
         self.add_input_file(filename='graph.info',
                             target='../mesh/graph.info')
 
-        self.add_model_as_input()
-
         self.add_output_file(filename='output.nc')
 
     def setup(self):
         """
         Set namelist options base on config options
         """
+        super().setup()
         dt = self.get_dt()
         self.add_namelist_options({'config_dt': dt})
         self._get_resources()
@@ -74,17 +73,17 @@ class Forward(Step):
         self._get_resources()
         super().constrain_resources(available_cores)
 
-    def run(self):
+    def runtime_setup(self):
         """
-        Run this step of the testcase
+        Update the resources and time step in case the user has update config
+        options
         """
+        super().runtime_setup()
 
         # update dt in case the user has changed dt_per_km
         dt = self.get_dt()
         self.update_namelist_at_runtime(options={'config_dt': dt},
                                         out_name='namelist.ocean')
-
-        run_model(self)
 
     def get_dt(self):
         """
