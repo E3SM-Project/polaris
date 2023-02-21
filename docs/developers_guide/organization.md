@@ -602,14 +602,13 @@ steps will be available in `self.steps`.
 By default, the test case will go into a subdirectory with the same name as the
 test case (`rpe_test` in this case).  However, polaris is flexible
 about the subdirectory structure and the names of the subdirectories.  This
-flexibility was an important requirement in moving away from
-{ref}`legacy-polaris`.  Each test case and step must end up in a unique
-directory, so it may be important that the name and subdirectory of each test
-case or step depends in some way on the arguments passed the constructor.  In
-the example above, the resolution is an argument to the constructor, which is
-then saved as an attribute (`self.resolution`) and also used to define a
-unique subdirectory each resolution: `1km/rpe_test`, `4km/rpe_test` and
-`10km/rpe_test`.
+flexibility was an important requirement in polaris' design.  Each test case 
+and step must end up in a unique  directory, so it may be important that the 
+name and subdirectory of each test  case or step depends in some way on the 
+arguments passed the constructor.  In  the example above, the resolution is an 
+argument to the constructor, which is  then saved as an attribute 
+(`self.resolution`) and also used to define a unique subdirectory each 
+resolution: `1km/rpe_test`, `4km/rpe_test` and `10km/rpe_test`.
 
 The same `Forward` step is included in the test case 5 times with a different
 viscosity parameter `nu` for each.  The value of

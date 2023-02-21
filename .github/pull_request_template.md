@@ -11,7 +11,7 @@ Checklist
 * [ ] User's Guide has been updated
 * [ ] Developer's Guide has been updated
 * [ ] API documentation in the Developer's Guide (`api.md`) has any new or modified class, method and/or functions listed
-* [ ] Documentation has been [built locally](https://e3sm-project.github.io/polaris/latest/developers_guide/building_docs.html) and changes look as expected
+* [ ] Documentation has been [built locally](https://e3sm-project.github.io/polaris/main/developers_guide/building_docs.html) and changes look as expected
 * [ ] `Testing` comment in the PR documents testing used to verify the changes
 * [ ] New tests have been added to a test suite
 
