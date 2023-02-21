@@ -1,6 +1,0 @@
-﻿polaris.Step.add\_namelist\_file
-================================
-
-.. currentmodule:: polaris
-
-.. automethod:: Step.add_namelist_file

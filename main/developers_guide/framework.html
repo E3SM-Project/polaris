@@ -515,52 +515,54 @@ with a given number of subdivisions:</p>
 <span id="dev-model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this heading"></a></h2>
 <section id="running-an-e3sm-component">
 <h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Permalink to this heading"></a></h3>
-<p>Steps that run a standalone build of an E3SM component should call the
-<a class="reference internal" href="generated/polaris.Step.add_model_as_input.html#polaris.Step.add_model_as_input" title="polaris.Step.add_model_as_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code></a> method from
-their <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method.</p>
-<p>To run the E3SM component, call <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.  By
-default, this function first updates the namelist options associated with the
-<a class="reference external" href="https://ncar.github.io/ParallelIO/">PIO library</a> and partitions the mesh
-across MPI tasks, as we will discuss in a moment, before running the model.
-You can provide non-default names for the graph, namelist and streams files.
-The number of cores and threads is determined from the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>,
-<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task`</span></code> and <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code>
-attributes of the step object, set in its constructor or <a class="reference internal" href="organization.html#dev-step-setup"><span class="std std-ref">setup()</span></a>
-method (i.e. before calling <a class="reference internal" href="organization.html#dev-step-run"><span class="std std-ref">run()</span></a>) so that the polaris framework
-can ensure that the required resources are available.</p>
+<p>Steps that run a standalone build of an E3SM component should descend from the
+<a class="reference internal" href="generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a> class.</p>
+<p>By default (if the attribute <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">True</span></code>), at runtime, the namelist
+options associated with the <a class="reference external" href="https://ncar.github.io/ParallelIO/">PIO library</a>
+will automatically be set.  If the <code class="docutils literal notranslate"><span class="pre">make_graph</span> <span class="pre">=</span> <span class="pre">True</span></code>, the mesh will be
+partitioned across MPI tasks at runtime.</p>
+<p>During construction or by setting attributes directly, you can can provide
+non-default names for the graph, namelist and streams files.  At construction
+or with the <a class="reference internal" href="generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources" title="polaris.ModelStep.set_model_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.set_model_resources()</span></code></a>
+method,  you can set number of tasks, threads, etc. determined from the
+<code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task`</span></code> and
+<code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.  These resources need to be set at construction or
+in the  <a class="reference internal" href="organization.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method (i.e. before calling <a class="reference internal" href="organization.html#dev-step-run"><span class="std std-ref">run()</span></a>)
+so that  the polaris framework  can ensure that the required resources are
+available.</p>
 </section>
 <section id="partitioning-the-mesh">
 <h3>Partitioning the mesh<a class="headerlink" href="#partitioning-the-mesh" title="Permalink to this heading"></a></h3>
-<p>The function <a class="reference internal" href="generated/polaris.model.partition.html#polaris.model.partition" title="polaris.model.partition"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code></a> calls the graph partitioning
-executable (<a class="reference external" href="https://arc.vt.edu/userguide/metis/">gpmetis</a> by default) to
-divide up the MPAS mesh across MPI tasks.  If you call
-<a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">partition_graph=True</span></code> (the default),
-this function is called automatically.</p>
+<p>The method <a class="reference internal" href="generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.partition()</span></code></a> calls the graph
+partitioning  executable (<a class="reference external" href="https://arc.vt.edu/userguide/metis/">gpmetis</a> by
+default) to  divide up the MPAS mesh across MPI tasks.  If you create a
+<code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> with <code class="docutils literal notranslate"><span class="pre">partition_graph=True</span></code> (the default), this method is called
+automatically.</p>
 <p>In some circumstances, a step may need to partition the mesh separately from
 running the model.  Typically, this applies to cases where the model is run
 multiple times with the same partition and we don’t want to waste time
-creating the same partition over and over.  For such cases, you can call
-<a class="reference internal" href="generated/polaris.model.partition.html#polaris.model.partition" title="polaris.model.partition"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.partition()</span></code></a> and then provide <code class="docutils literal notranslate"><span class="pre">partition_graph=False</span></code>
-to later calls to <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.</p>
+creating the same partition over and over.  For such cases, you can
+provide <code class="docutils literal notranslate"><span class="pre">partition_graph=False</span></code> and then call
+<a class="reference internal" href="generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.partition()</span></code></a> manually where appropriate.</p>
 </section>
 <section id="updating-pio-namelist-options">
 <h3>Updating PIO namelist options<a class="headerlink" href="#updating-pio-namelist-options" title="Permalink to this heading"></a></h3>
-<p>You can use <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.update_namelist_pio()</span></code> to automatically set
-the MPAS namelist options <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and <code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code>
-such that there is 1 PIO task per node of the MPAS run.  This is particularly
-useful for PIO v1, which we have found performs much better in this
-configuration than when there is 1 PIO task per core, the MPAS default.  When
-running with PIO v2, we have found little performance difference between the
-MPAS default and the polaris default of one task per node, so we feel this
-is a safe default.</p>
-<p>By default, this function is called within <a class="reference internal" href="generated/polaris.model.run_model.html#polaris.model.run_model" title="polaris.model.run_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.run_model()</span></code></a>.
-If the same namelist file is used for multiple model runs, it may be useful to
-update the number of PIO tasks only once.  In this case, use
-<code class="docutils literal notranslate"><span class="pre">update_pio=False</span></code> when calling <code class="docutils literal notranslate"><span class="pre">run_model()</span></code>, then call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.update_namelist_pio()</span></code> yourself.</p>
+<p>You can use <a class="reference internal" href="generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_pio()</span></code></a> to
+automatically set  the MPAS namelist options <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and
+<code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> such that there is 1 PIO task per node of the MPAS run.<br />
+This is particularly useful for PIO v1, which we have found performs much
+better in this  configuration than when there is 1 PIO task per core, the MPAS
+default.  When running with PIO v2, we have found little performance difference
+between the MPAS default and the polaris default of one task per node, so we
+feel this is a safe default.</p>
+<p>By default, this function is called in
+<a class="reference internal" href="generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.runtime_setup()</span></code></a>.  If the same namelist
+file is used for multiple model runs, it may be useful to update the number of
+PIO tasks only once.  In this case, set the attribute <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">False</span></code> and
+<a class="reference internal" href="generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_pio()</span></code></a> yourself.</p>
 <p>If you wish to use the MPAS default behavior of 1 PIO task per core, or wish to
 set <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and <code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> yourself, simply
-use <code class="docutils literal notranslate"><span class="pre">update_pio=False</span></code> when calling <code class="docutils literal notranslate"><span class="pre">run_model()</span></code>.</p>
+set <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">False</span></code>.</p>
 </section>
 <section id="making-a-graph-file">
 <h3>Making a graph file<a class="headerlink" href="#making-a-graph-file" title="Permalink to this heading"></a></h3>
@@ -568,9 +570,9 @@ use <code class="docutils literal notranslate"><span class="pre">update_pio=Fals
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_conversion.html#cell-culler">MPAS-Tools cell culler</a>
 can produce a graph file as part of the process of culling cells from an
 MPAS mesh.  In test cases that do not require cells to be culled, you can
-call <a class="reference internal" href="generated/polaris.model.make_graph_file.html#polaris.model.make_graph_file" title="polaris.model.make_graph_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.make_graph_file()</span></code></a> to produce a graph file from
-an MPAS mesh file.  Optionally, you can provide the name of an MPAS field on
-cells in the mesh file that gives different weight to different cells
+call <a class="reference internal" href="generated/polaris.model_step.make_graph_file.html#polaris.model_step.make_graph_file" title="polaris.model_step.make_graph_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model_step.make_graph_file()</span></code></a> to produce a graph file
+from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
+on cells in the mesh file that gives different weight to different cells
 (<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
 </section>
 </section>

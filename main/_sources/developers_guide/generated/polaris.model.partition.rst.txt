@@ -1,6 +1,0 @@
-﻿polaris.model.partition
-=======================
-
-.. currentmodule:: polaris.model
-
-.. autofunction:: partition

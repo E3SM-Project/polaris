@@ -1,6 +1,0 @@
-﻿polaris.Step.update\_namelist\_pio
-==================================
-
-.. currentmodule:: polaris
-
-.. automethod:: Step.update_namelist_pio

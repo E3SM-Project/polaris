@@ -1,6 +1,0 @@
-﻿polaris.Step.add\_streams\_file
-===============================
-
-.. currentmodule:: polaris
-
-.. automethod:: Step.add_streams_file

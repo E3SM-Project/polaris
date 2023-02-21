@@ -1,6 +1,0 @@
-﻿polaris.Step.add\_model\_as\_input
-==================================
-
-.. currentmodule:: polaris
-
-.. automethod:: Step.add_model_as_input

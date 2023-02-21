@@ -104,13 +104,9 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">stat</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">progressbar</span>
-<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
 <span class="kn">from</span> <span class="nn">mache</span> <span class="kn">import</span> <span class="n">MachineInfo</span>
 
-<span class="kn">import</span> <span class="nn">polaris.namelist</span>
-<span class="kn">import</span> <span class="nn">polaris.streams</span>
 <span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">download</span><span class="p">,</span> <span class="n">package_path</span><span class="p">,</span> <span class="n">symlink</span>
 
@@ -237,6 +233,9 @@
 <span class="sd">        subprocess if there is not a good way to redirect output to a log</span>
 <span class="sd">        file (e.g. if the step calls external code that, in turn, calls</span>
 <span class="sd">        additional subprocesses).</span>
+
+<span class="sd">    args : {list of str, None}</span>
+<span class="sd">        A list of command-line arguments to call in parallel</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Step.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -324,6 +323,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># these will be set later during setup, dummy placeholders for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
@@ -528,218 +528,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Step.add_model_as_input"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_model_as_input.html#polaris.Step.add_model_as_input">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_as_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        make a link to the model executable and add it to the inputs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&lt;&lt;&lt;model&gt;&gt;&gt;&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Step.add_namelist_file"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_namelist_file.html#polaris.Step.add_namelist_file">[docs]</a>    <span class="k">def</span> <span class="nf">add_namelist_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">namelist</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a file with updates to namelist options to the step to be parsed</span>
-<span class="sd">        when generating a complete namelist file if and when the step gets set</span>
-<span class="sd">        up.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        package : Package</span>
-<span class="sd">            The package name or module object that contains ``namelist``</span>
-
-<span class="sd">        namelist : str</span>
-<span class="sd">            The name of the namelist replacements file to read from</span>
-
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the namelist file to write out, ``namelist.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-
-<span class="sd">        mode : {&#39;init&#39;, &#39;forward&#39;}, optional</span>
-<span class="sd">            The mode that the model will run in</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-        <span class="n">namelist_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span>
-
-        <span class="n">namelist_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">namelist</span><span class="o">=</span><span class="n">namelist</span><span class="p">,</span>
-                                  <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="Step.add_namelist_options"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_namelist_options.html#polaris.Step.add_namelist_options">[docs]</a>    <span class="k">def</span> <span class="nf">add_namelist_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add the namelist replacements to be parsed when generating a namelist</span>
-<span class="sd">        file if and when the step gets set up.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        options : dict</span>
-<span class="sd">            A dictionary of options and value to replace namelist options with</span>
-<span class="sd">            new values</span>
-
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the namelist file to write out, ``namelist.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-
-<span class="sd">        mode : {&#39;init&#39;, &#39;forward&#39;}, optional</span>
-<span class="sd">            The mode that the model will run in</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-        <span class="n">namelist_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span>
-
-        <span class="n">namelist_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="Step.update_namelist_at_runtime"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.update_namelist_at_runtime.html#polaris.Step.update_namelist_at_runtime">[docs]</a>    <span class="k">def</span> <span class="nf">update_namelist_at_runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update an existing namelist file with additional options.  This would</span>
-<span class="sd">        typically be used for namelist options that are only known at runtime,</span>
-<span class="sd">        not during setup, typically those related to the number of nodes and</span>
-<span class="sd">        cores.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        options : dict</span>
-<span class="sd">            A dictionary of options and value to replace namelist options with</span>
-<span class="sd">            new values</span>
-
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the namelist file to write out, ``namelist.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: replacing namelist options in </span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">out_name</span><span class="p">)</span>
-
-        <span class="n">namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-
-        <span class="n">namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
-
-        <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Step.update_namelist_pio"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.update_namelist_pio.html#polaris.Step.update_namelist_pio">[docs]</a>    <span class="k">def</span> <span class="nf">update_namelist_pio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Modify the namelist so the number of PIO tasks and the stride between</span>
-<span class="sd">        them consistent with the number of nodes and cores (one PIO task per</span>
-<span class="sd">        node).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the namelist file to write out, ``namelist.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="n">cores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
-
-        <span class="c1"># update PIO tasks based on the machine settings and the available</span>
-        <span class="c1"># number or cores</span>
-        <span class="n">pio_num_iotasks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
-        <span class="n">pio_stride</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">//</span> <span class="n">pio_num_iotasks</span>
-        <span class="k">if</span> <span class="n">pio_stride</span> <span class="o">&gt;</span> <span class="n">cores_per_node</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Not enough nodes for the number of cores.  &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;cores: </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1">, cores per node: &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pio_num_iotasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;config_pio_stride&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pio_stride</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_at_runtime</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-                                        <span class="n">out_name</span><span class="o">=</span><span class="n">out_name</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Step.add_streams_file"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_streams_file.html#polaris.Step.add_streams_file">[docs]</a>    <span class="k">def</span> <span class="nf">add_streams_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a streams file to the step to be parsed when generating a complete</span>
-<span class="sd">        streams file if and when the step gets set up.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        package : Package</span>
-<span class="sd">            The package name or module object that contains the streams file</span>
-
-<span class="sd">        streams : str</span>
-<span class="sd">            The name of the streams file to read from</span>
-
-<span class="sd">        template_replacements : dict, optional</span>
-<span class="sd">            A dictionary of replacements, in which case ``streams`` must be a</span>
-<span class="sd">            Jinja2 template to be rendered with these replacements</span>
-
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the streams file to write out, ``streams.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-
-<span class="sd">        mode : {&#39;init&#39;, &#39;forward&#39;}, optional</span>
-<span class="sd">            The mode that the model will run in</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;streams.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="nb">dict</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="n">streams</span><span class="p">,</span>
-                 <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="Step.update_streams_at_runtime"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.update_streams_at_runtime.html#polaris.Step.update_streams_at_runtime">[docs]</a>    <span class="k">def</span> <span class="nf">update_streams_at_runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span>
-                                  <span class="n">template_replacements</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update the streams files during the run phase of this step using the</span>
-<span class="sd">        given template and replacements.  This may be useful for updating</span>
-<span class="sd">        streams based on config options that a user may have changed before</span>
-<span class="sd">        running the step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        package : Package</span>
-<span class="sd">            The package name or module object that contains the streams file</span>
-
-<span class="sd">        streams : str</span>
-<span class="sd">            The name of a Jinja2 template to be rendered with replacements</span>
-
-<span class="sd">        template_replacements : dict</span>
-<span class="sd">            A dictionary of replacements</span>
-
-<span class="sd">        out_name : str, optional</span>
-<span class="sd">            The name of the streams file to write out, ``streams.&lt;core&gt;`` by</span>
-<span class="sd">            default</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;streams.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-        <span class="k">if</span> <span class="n">template_replacements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: updating streams in </span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1"> using the &#39;</span>
-                  <span class="sa">f</span><span class="s1">&#39;following template and replacements:&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">streams</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">template_replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">out_name</span><span class="p">)</span>
-
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span>
-                                    <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">)</span>
-        <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
-
     <span class="k">def</span> <span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the inputs to and outputs from a step added with</span>
@@ -790,9 +578,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span> <span class="k">for</span>
                         <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_namelists</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_streams</span><span class="p">()</span>
-
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_process_input</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">step_dir</span><span class="p">):</span>
         <span class="n">database_subdir</span> <span class="o">=</span> <span class="kc">None</span>
@@ -804,9 +589,6 @@
         <span class="n">work_dir_target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;work_dir_target&#39;</span><span class="p">]</span>
         <span class="n">package</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">]</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;model&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-            <span class="n">filename</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">Step</span><span class="o">.</span><span class="n">_process_model</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -859,127 +641,6 @@
             <span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
 
         <span class="k">return</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">database_subdir</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_process_model</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">copy_executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
-            <span class="c1"># make a copy of the model executable, then link to that</span>
-            <span class="n">mpas_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_model&#39;</span><span class="p">))</span>
-            <span class="n">mpas_workdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">mpas_subdir</span><span class="p">)</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mpas_workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">mpas_workdir</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
-                <span class="k">pass</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
-                <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">filename</span><span class="p">,</span> <span class="n">target</span>
-
-    <span class="k">def</span> <span class="nf">_generate_namelists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Writes out a namelist file in the work directory with new values given</span>
-<span class="sd">        by parsing the files and dictionaries in the step&#39;s ``namelist_data``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
-            <span class="c1"># no need for namelists</span>
-            <span class="k">return</span>
-
-        <span class="n">step_work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="k">for</span> <span class="n">out_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">:</span>
-
-            <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-            <span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
-
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">mode</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s1">&#39;options&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
-                    <span class="c1"># this is a dictionary of replacement namelist options</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span>
-                        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;namelist&#39;</span><span class="p">])</span>
-                <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-
-            <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;namelists&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
-            <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-            <span class="n">namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
-
-            <span class="n">namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
-
-            <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_generate_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Writes out a streams file in the work directory with new values given</span>
-<span class="sd">        by parsing the files and dictionaries in the step&#39;s ``streams_data``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
-            <span class="c1"># no need for streams</span>
-            <span class="k">return</span>
-
-        <span class="n">step_work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="k">for</span> <span class="n">out_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">:</span>
-
-            <span class="c1"># generate the streams file</span>
-            <span class="n">tree</span> <span class="o">=</span> <span class="kc">None</span>
-
-            <span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
-
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">[</span><span class="n">out_name</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">mode</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span>
-
-                <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-                    <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
-                    <span class="n">streams_filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;streams&#39;</span><span class="p">],</span>
-                    <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span> <span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No streams were added to the streams file.&#39;</span><span class="p">)</span>
-
-            <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
-            <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1">&#39;</span>
-
-            <span class="n">defaults_tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
-
-            <span class="n">defaults</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">defaults_tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
-            <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
-
-            <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
-                <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">update_defaults</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span>
-
-            <span class="c1"># remove any streams that aren&#39;t requested</span>
-            <span class="k">for</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">:</span>
-                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">default</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span>
-                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                    <span class="n">defaults</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
-
-            <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">defaults_tree</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fix_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">databases</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
