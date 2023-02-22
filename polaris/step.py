@@ -88,16 +88,6 @@ class Step:
         cached) and available as inputs to other test cases and steps.  These
         files must exist after the test has run or an exception will be raised
 
-    namelist_data : dict
-        a dictionary used internally to keep track of updates to the default
-        namelist options from calls to
-        :py:meth:`polaris.Step.add_namelist_file`
-        and :py:meth:`polaris.Step.add_namelist_options`
-
-    streams_data : dict
-        a dictionary used internally to keep track of updates to the default
-        streams from calls to :py:meth:`polaris.Step.add_streams_file`
-
     config : polaris.config.PolarisConfigParser
         Configuration options for this test case, a combination of the defaults
         for the machine, core and configuration
@@ -221,8 +211,6 @@ class Step:
         self.input_data = list()
         self.inputs = list()
         self.outputs = list()
-        self.namelist_data = dict()
-        self.streams_data = dict()
         self.args = None
 
         # these will be set later during setup, dummy placeholders for now
@@ -435,8 +423,6 @@ class Step:
         :py:meth:`polaris.Step.add_output_file`.  This includes downloading
         files, making symlinks, and converting relative paths to absolute
         paths.
-
-        Also generates namelist and streams files
        """
         component = self.component.name
         step_dir = self.work_dir

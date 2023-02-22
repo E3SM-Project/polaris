@@ -15,7 +15,6 @@ class ModelStep(Step):
     """
     Attributes
     ----------
-
     namelist : str
         The name of the namelist file
 
@@ -42,6 +41,15 @@ class ModelStep(Step):
     graph_filename : str
         The name of the graph file to partition
 
+    namelist_data : dict
+        a dictionary used internally to keep track of updates to the default
+        namelist options from calls to
+        :py:meth:`polaris.Step.add_namelist_file`
+        and :py:meth:`polaris.Step.add_namelist_options`
+
+    streams_data : dict
+        a dictionary used internally to keep track of updates to the default
+        streams from calls to :py:meth:`polaris.Step.add_streams_file`
     """
     def __init__(self, test_case, name, subdir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
@@ -133,6 +141,9 @@ class ModelStep(Step):
         self.graph_filename = graph_filename
 
         self.add_input_file(filename='<<<model>>>')
+
+        self.namelist_data = dict()
+        self.streams_data = dict()
 
     def setup(self):
         """ Setup the command-line arguments """
@@ -367,6 +378,8 @@ class ModelStep(Step):
     def process_inputs_and_outputs(self):
         """
         Process the model as an input, then call the parent class' version
+
+        Also generates namelist and streams files
         """
         for entry in self.input_data:
             filename = entry['filename']
