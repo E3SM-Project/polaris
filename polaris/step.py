@@ -466,7 +466,7 @@ class Step:
         self.dependencies[name] = step
         step.is_dependency = True
 
-    def process_inputs_and_outputs(self):
+    def process_inputs_and_outputs(self):  # noqa: C901
         """
         Process the inputs to and outputs from a step added with
         :py:meth:`polaris.Step.add_input_file` and
