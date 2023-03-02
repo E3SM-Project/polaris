@@ -41,21 +41,28 @@ class ModelStep(Step):
     graph_filename : str
         The name of the graph file to partition
 
-    namelist_data : dict
-        a dictionary used internally to keep track of updates to the default
+    namelist_data : list
+        a list used internally to keep track of updates to the default
         namelist options from calls to
-        :py:meth:`polaris.Step.add_namelist_file`
-        and :py:meth:`polaris.Step.add_namelist_options`
+        :py:meth:`polaris.ModelStep.add_namelist_file`
+        and :py:meth:`polaris.ModelStep.add_namelist_options`
 
-    streams_data : dict
-        a dictionary used internally to keep track of updates to the default
-        streams from calls to :py:meth:`polaris.Step.add_streams_file`
+    streams_data : list
+        a list used internally to keep track of updates to the default
+        streams from calls to :py:meth:`polaris.ModelStep.add_streams_file`
+
+    make_namelist : bool
+        Whether to create one or more namelist files
+
+    make_streams : bool
+        Whether to create one or more streams file
     """
     def __init__(self, test_case, name, subdir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, namelist=None, streams=None, update_pio=True,
                  make_graph=False, mesh_filename=None, partition_graph=True,
-                 graph_filename='graph.info'):
+                 graph_filename='graph.info', make_namelist=True,
+                 make_streams=True):
         """
         Make a step for running the model
 
@@ -118,6 +125,12 @@ class ModelStep(Step):
 
         graph_filename : str, optional
             The name of the graph file to partition
+
+        make_namelist : bool, optional
+            Whether to create one or more namelist files
+
+        make_streams : bool, optional
+            Whether to create one or more streams file
         """
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          cpus_per_task=openmp_threads,
@@ -140,10 +153,13 @@ class ModelStep(Step):
         self.partition_graph = partition_graph
         self.graph_filename = graph_filename
 
+        self.make_namelist = make_namelist
+        self.make_streams = make_streams
+
         self.add_input_file(filename='<<<model>>>')
 
-        self.namelist_data = dict()
-        self.streams_data = dict()
+        self.namelist_data = list()
+        self.streams_data = list()
 
     def setup(self):
         """ Setup the command-line arguments """
@@ -187,7 +203,7 @@ class ModelStep(Step):
                            min_tasks=min_tasks, openmp_threads=openmp_threads,
                            max_memory=max_memory)
 
-    def add_namelist_file(self, package, namelist, out_name=None):
+    def add_namelist_file(self, package, namelist):
         """
         Add a file with updates to namelist options to the step to be parsed
         when generating a complete namelist file if and when the step gets set
@@ -200,22 +216,10 @@ class ModelStep(Step):
 
         namelist : str
             The name of the namelist replacements file to read from
-
-        out_name : str, optional
-            The name of the namelist file to write out, ``namelist.<core>`` by
-            default
         """
-        if out_name is None:
-            out_name = f'namelist.{self.component.name}'
+        self.namelist_data.append(dict(package=package, namelist=namelist))
 
-        if out_name not in self.namelist_data:
-            self.namelist_data[out_name] = list()
-
-        namelist_list = self.namelist_data[out_name]
-
-        namelist_list.append(dict(package=package, namelist=namelist))
-
-    def add_namelist_options(self, options, out_name=None):
+    def add_namelist_options(self, options):
         """
         Add the namelist replacements to be parsed when generating a namelist
         file if and when the step gets set up.
@@ -225,22 +229,10 @@ class ModelStep(Step):
         options : dict
             A dictionary of options and value to replace namelist options with
             new values
-
-        out_name : str, optional
-            The name of the namelist file to write out, ``namelist.<core>`` by
-            default
         """
-        if out_name is None:
-            out_name = f'namelist.{self.component.name}'
+        self.namelist_data.append(dict(options=options))
 
-        if out_name not in self.namelist_data:
-            self.namelist_data[out_name] = list()
-
-        namelist_list = self.namelist_data[out_name]
-
-        namelist_list.append(dict(options=options))
-
-    def update_namelist_at_runtime(self, options, out_name=None):
+    def update_namelist_at_runtime(self, options):
         """
         Update an existing namelist file with additional options.  This would
         typically be used for namelist options that are only known at runtime,
@@ -252,20 +244,13 @@ class ModelStep(Step):
         options : dict
             A dictionary of options and value to replace namelist options with
             new values
-
-        out_name : str, optional
-            The name of the namelist file to write out, ``namelist.<core>`` by
-            default
         """
 
-        if out_name is None:
-            out_name = f'namelist.{self.component.name}'
-
-        print(f'Warning: replacing namelist options in {out_name}')
+        print(f'Warning: replacing namelist options in {self.namelist}')
         for key, value in options.items():
             print(f'{key} = {value}')
 
-        filename = os.path.join(self.work_dir, out_name)
+        filename = os.path.join(self.work_dir, self.namelist)
 
         namelist = polaris.namelist.ingest(filename)
 
@@ -273,8 +258,7 @@ class ModelStep(Step):
 
         polaris.namelist.write(namelist, filename)
 
-    def add_streams_file(self, package, streams, template_replacements=None,
-                         out_name=None):
+    def add_streams_file(self, package, streams, template_replacements=None):
         """
         Add a streams file to the step to be parsed when generating a complete
         streams file if and when the step gets set up.
@@ -290,23 +274,13 @@ class ModelStep(Step):
         template_replacements : dict, optional
             A dictionary of replacements, in which case ``streams`` must be a
             Jinja2 template to be rendered with these replacements
-
-        out_name : str, optional
-            The name of the streams file to write out, ``streams.<core>`` by
-            default
         """
-        if out_name is None:
-            out_name = f'streams.{self.component.name}'
-
-        if out_name not in self.streams_data:
-            self.streams_data[out_name] = list()
-
-        self.streams_data[out_name].append(
+        self.streams_data.append(
             dict(package=package, streams=streams,
                  replacements=template_replacements))
 
     def update_streams_at_runtime(self, package, streams,
-                                  template_replacements, out_name=None):
+                                  template_replacements):
         """
         Update the streams files during the run phase of this step using the
         given template and replacements.  This may be useful for updating
@@ -323,23 +297,15 @@ class ModelStep(Step):
 
         template_replacements : dict
             A dictionary of replacements
-
-        out_name : str, optional
-            The name of the streams file to write out, ``streams.<core>`` by
-            default
         """
-
-        if out_name is None:
-            out_name = f'streams.{self.component.name}'
-
         if template_replacements is not None:
-            print(f'Warning: updating streams in {out_name} using the '
+            print(f'Warning: updating streams in {self.streams} using the '
                   f'following template and replacements:')
             print(f'{package} {streams}')
             for key, value in template_replacements.items():
                 print(f'{key} = {value}')
 
-        filename = os.path.join(self.work_dir, out_name)
+        filename = os.path.join(self.work_dir, self.streams)
 
         tree = etree.parse(filename)
         tree = polaris.streams.read(package, streams, tree=tree,
@@ -352,10 +318,8 @@ class ModelStep(Step):
         (if any of these are requested)
         """
 
-        namelist = self.namelist
-
-        if self.update_pio:
-            self.update_namelist_pio(namelist)
+        if self.make_namelist and self.update_pio:
+            self.update_namelist_pio()
 
         if self.make_graph:
             make_graph_file(mesh_filename=self.mesh_filename,
@@ -382,27 +346,20 @@ class ModelStep(Step):
 
         super().process_inputs_and_outputs()
 
-        self._generate_namelists()
-        self._generate_streams()
+        if self.make_namelist and not self.cached:
+            self._generate_namelists()
+        if self.make_streams and not self.cached:
+            self._generate_streams()
 
-    def update_namelist_pio(self, out_name=None):
+    def update_namelist_pio(self):
         """
         Modify the namelist so the number of PIO tasks and the stride between
         them consistent with the number of nodes and cores (one PIO task per
         node).
-
-        Parameters
-        ----------
-        out_name : str, optional
-            The name of the namelist file to write out, ``namelist.<core>`` by
-            default
         """
         config = self.config
 
         cores = self.ntasks * self.cpus_per_task
-
-        if out_name is None:
-            out_name = f'namelist.{self.component.name}'
 
         cores_per_node = config.getint('parallel', 'cores_per_node')
 
@@ -418,8 +375,7 @@ class ModelStep(Step):
         replacements = {'config_pio_num_iotasks': f'{pio_num_iotasks}',
                         'config_pio_stride': f'{pio_stride}'}
 
-        self.update_namelist_at_runtime(options=replacements,
-                                        out_name=out_name)
+        self.update_namelist_at_runtime(options=replacements)
 
     def partition(self, graph_file='graph.info'):
         """
@@ -467,83 +423,71 @@ class ModelStep(Step):
         by parsing the files and dictionaries in the step's ``namelist_data``.
         """
 
-        if self.cached:
-            # no need for namelists
-            return
-
         step_work_dir = self.work_dir
         config = self.config
 
-        for out_name in self.namelist_data:
+        replacements = dict()
 
-            replacements = dict()
+        for entry in self.namelist_data:
+            if 'options' in entry:
+                # this is a dictionary of replacement namelist options
+                options = entry['options']
+            else:
+                options = polaris.namelist.parse_replacements(
+                    entry['package'], entry['namelist'])
+            replacements.update(options)
 
-            for entry in self.namelist_data[out_name]:
-                if 'options' in entry:
-                    # this is a dictionary of replacement namelist options
-                    options = entry['options']
-                else:
-                    options = polaris.namelist.parse_replacements(
-                        entry['package'], entry['namelist'])
-                replacements.update(options)
+        defaults_filename = config.get('namelists', 'forward')
+        out_filename = f'{step_work_dir}/{self.namelist}'
 
-            defaults_filename = config.get('namelists', 'forward')
-            out_filename = f'{step_work_dir}/{out_name}'
+        namelist = polaris.namelist.ingest(defaults_filename)
 
-            namelist = polaris.namelist.ingest(defaults_filename)
+        namelist = polaris.namelist.replace(namelist, replacements)
 
-            namelist = polaris.namelist.replace(namelist, replacements)
-
-            polaris.namelist.write(namelist, out_filename)
+        polaris.namelist.write(namelist, out_filename)
 
     def _generate_streams(self):
         """
         Writes out a streams file in the work directory with new values given
         by parsing the files and dictionaries in the step's ``streams_data``.
         """
-        if self.cached:
-            # no need for streams
-            return
-
         step_work_dir = self.work_dir
         config = self.config
 
-        for out_name in self.streams_data:
+        # generate the streams file
+        tree = None
 
-            # generate the streams file
-            tree = None
+        for entry in self.streams_data:
+            tree = polaris.streams.read(
+                package=entry['package'],
+                streams_filename=entry['streams'],
+                replacements=entry['replacements'], tree=tree)
 
-            for entry in self.streams_data[out_name]:
-                tree = polaris.streams.read(
-                    package=entry['package'],
-                    streams_filename=entry['streams'],
-                    replacements=entry['replacements'], tree=tree)
+        if tree is None:
+            raise ValueError('No streams were added to the streams file.')
 
-            if tree is None:
-                raise ValueError('No streams were added to the streams file.')
+        defaults_filename = config.get('streams', 'forward')
+        out_filename = f'{step_work_dir}/{self.streams}'
 
-            defaults_filename = config.get('streams', 'forward')
-            out_filename = f'{step_work_dir}/{out_name}'
+        defaults_tree = etree.parse(defaults_filename)
 
-            defaults_tree = etree.parse(defaults_filename)
+        defaults = next(defaults_tree.iter('streams'))
+        streams = next(tree.iter('streams'))
 
-            defaults = next(defaults_tree.iter('streams'))
-            streams = next(tree.iter('streams'))
+        for stream in streams:
+            polaris.streams.update_defaults(stream, defaults)
 
+        # remove any streams that aren't requested
+        for default in defaults:
+            found = False
             for stream in streams:
-                polaris.streams.update_defaults(stream, defaults)
+                if stream.attrib['name'] == default.attrib['name']:
+                    found = True
+                    break
+            if not found:
+                defaults.remove(default)
 
-            # remove any streams that aren't requested
-            for default in defaults:
-                found = False
-                for stream in streams:
-                    if stream.attrib['name'] == default.attrib['name']:
-                        found = True
-                        break
-                if not found:
-                    defaults.remove(default)
-
-            polaris.streams.write(defaults_tree, out_filename)
+        polaris.streams.write(defaults_tree, out_filename)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',
