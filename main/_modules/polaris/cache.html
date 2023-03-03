@@ -35,7 +35,7 @@
             Polaris
           </a>
               <div class="version">
-                0.1.0-alpha.1
+                0.1.0-alpha.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -106,11 +106,11 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 
 
 <div class="viewcode-block" id="update_cache"><a class="viewcode-back" href="../../developers_guide/generated/polaris.cache.update_cache.html#polaris.cache.update_cache">[docs]</a><span class="k">def</span> <span class="nf">update_cache</span><span class="p">(</span><span class="n">step_paths</span><span class="p">,</span> <span class="n">date_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -173,9 +173,9 @@
             <span class="c1"># we don&#39;t have a local version of the file yet, let&#39;s see if</span>
             <span class="c1"># there&#39;s a remote one for this component</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="s1">&#39;cached_files.json&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">path</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
-                        <span class="n">cached_files</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+                <span class="n">pkg_file</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;cached_files.json&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">pkg_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
+                    <span class="n">cached_files</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
                 <span class="c1"># no cached files yet for this core</span>
                 <span class="n">cached_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>

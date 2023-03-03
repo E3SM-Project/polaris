@@ -35,7 +35,7 @@
             Polaris
           </a>
               <div class="version">
-                0.1.0-alpha.1
+                0.1.0-alpha.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -101,9 +101,9 @@
   <h1>Source code for polaris.suite</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 <span class="kn">from</span> <span class="nn">polaris.setup</span> <span class="kn">import</span> <span class="n">setup_cases</span>
 
 
@@ -145,8 +145,9 @@
 <span class="sd">    copy_executable : bool, optional</span>
 <span class="sd">        Whether to copy the MPAS executable to the work directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.suites&#39;</span><span class="p">,</span>
-                               <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.txt&#39;</span><span class="p">)</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.suites&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
 
     <span class="n">tests</span><span class="p">,</span> <span class="n">cached</span> <span class="o">=</span> <span class="n">_parse_suite</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 

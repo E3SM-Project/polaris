@@ -35,7 +35,7 @@
             Polaris
           </a>
               <div class="version">
-                0.1.0-alpha.1
+                0.1.0-alpha.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -103,10 +103,9 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
-<span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">contents</span>
 
 <span class="kn">from</span> <span class="nn">polaris.components</span> <span class="kn">import</span> <span class="n">get_components</span>
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 
 
 <div class="viewcode-block" id="list_cases"><a class="viewcode-back" href="../../developers_guide/generated/polaris.list.list_cases.html#polaris.list.list_cases">[docs]</a><span class="k">def</span> <span class="nf">list_cases</span><span class="p">(</span><span class="n">test_expr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -179,7 +178,11 @@
 
 
 <div class="viewcode-block" id="list_machines"><a class="viewcode-back" href="../../developers_guide/generated/polaris.list.list_machines.html#polaris.list.list_machines">[docs]</a><span class="k">def</span> <span class="nf">list_machines</span><span class="p">():</span>
-    <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">))</span>
+    <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span>
+         <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span>
+         <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">machine_configs</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.cfg&#39;</span><span class="p">):</span>
@@ -191,8 +194,11 @@
         <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">get_components</span><span class="p">()]</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Suites:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.suites&#39;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">suites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.suites&#39;</span><span class="p">))</span>
+            <span class="n">suites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span>
+                             <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span>
+                             <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">for</span> <span class="n">suite</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">suites</span><span class="p">):</span>
@@ -200,8 +206,7 @@
             <span class="k">if</span> <span class="n">suite</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  -c </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1"> -t </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">suite</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">components</span><span class="si">}</span><span class="s1">.suites&#39;</span><span class="p">,</span> <span class="n">suite</span><span class="p">)</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
                     <span class="n">tests</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
                     <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
                         <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
