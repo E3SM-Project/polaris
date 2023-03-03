@@ -1,10 +1,11 @@
 import json
-from importlib import resources
 
 import numpy
 import numpy as np
 from netCDF4 import Dataset
 from scipy.optimize import root_scalar
+
+from polaris.io import imp_res
 
 
 def generate_1d_grid(config):
@@ -129,8 +130,9 @@ def _generate_uniform(vert_levels):
 def _read_json(grid_type):
     """ Read the grid interfaces from a json file """
 
-    filename = '{grid_type}.json'
-    with resources.open_text("polaris.ocean.vertical", filename) as data_file:
+    package = 'polaris.ocean.vertical'
+    filename = f'{grid_type}.json'
+    with imp_res.files(package).joinpath(filename).open('r') as data_file:
         data = json.load(data_file)
         interfaces = numpy.array(data)
 

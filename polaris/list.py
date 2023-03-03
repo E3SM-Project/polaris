@@ -2,10 +2,9 @@ import argparse
 import os
 import re
 import sys
-from importlib import resources
-from importlib.resources import contents
 
 from polaris.components import get_components
+from polaris.io import imp_res
 
 
 def list_cases(test_expr=None, number=None, verbose=False):
@@ -78,7 +77,11 @@ def list_cases(test_expr=None, number=None, verbose=False):
 
 
 def list_machines():
-    machine_configs = sorted(contents('polaris.machines'))
+    machine_configs = sorted(
+        [resource.name for resource in
+         imp_res.files('polaris.machines').iterdir() if
+         resource.is_file()])
+
     print('Machines:')
     for config in machine_configs:
         if config.endswith('.cfg'):
@@ -90,8 +93,11 @@ def list_suites(components=None, verbose=False):
         components = [component.name for component in get_components()]
     print('Suites:')
     for component in components:
+        package = f'polaris.{component}.suites'
         try:
-            suites = sorted(contents(f'polaris.{component}.suites'))
+            suites = sorted([resource.name for resource in
+                             imp_res.files(package).iterdir() if
+                             resource.is_file()])
         except FileNotFoundError:
             continue
         for suite in sorted(suites):
@@ -99,8 +105,7 @@ def list_suites(components=None, verbose=False):
             if suite.endswith('.txt'):
                 print(f'  -c {component} -t {os.path.splitext(suite)[0]}')
                 if verbose:
-                    text = resources.read_text(
-                        f'polaris.{components}.suites', suite)
+                    text = imp_res.files(package).joinpath(suite).read_text()
                     tests = list()
                     for test in text.split('\n'):
                         test = test.strip()

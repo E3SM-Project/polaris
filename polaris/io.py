@@ -1,7 +1,14 @@
-import importlib.resources
 import os
+import sys
 import tempfile
+from typing import TYPE_CHECKING  # noqa: F401
 from urllib.parse import urlparse
+
+if TYPE_CHECKING or sys.version_info >= (3, 9, 0):
+    import importlib.resources as imp_res  # noqa: F401
+else:
+    # python <= 3.8
+    import importlib_resources as imp_res  # noqa: F401
 
 import progressbar
 import requests
@@ -188,26 +195,6 @@ def symlink(target, link_name, overwrite=True):
         if os.path.islink(temp_link_name):
             os.remove(temp_link_name)
         raise
-
-
-def package_path(package, resource):
-    """
-    A replacement for deprecated ``importlib.resources.path()``:
-    https://github.com/python/importlib_resources/blob/7e9020a1b84726fdc6ba71ee2893119d1ee61e02/importlib_resources/_legacy.py
-
-    Parameters
-    ----------
-    package : Package
-        The python package for the resource
-    resource : Resource
-        The file within the package
-    """
-    parent, file_name = os.path.split(str(resource))
-    if parent:
-        raise ValueError(f'{resource!r} must be only a file name')
-
-    return importlib.resources.as_file(
-        importlib.resources.files(package) / file_name)
 
 
 # From https://stackoverflow.com/a/1094933/7728169

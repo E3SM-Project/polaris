@@ -1,8 +1,8 @@
 import argparse
 import sys
-from importlib import resources
 from typing import List
 
+from polaris.io import imp_res
 from polaris.setup import setup_cases
 
 
@@ -44,8 +44,9 @@ def setup_suite(component, suite_name, work_dir, config_file=None,
     copy_executable : bool, optional
         Whether to copy the MPAS executable to the work directory
     """
-    text = resources.read_text(f'polaris.{component}.suites',
-                               f'{suite_name}.txt')
+
+    text = imp_res.files(f'polaris.{component}.suites').joinpath(
+        f'{suite_name}.txt').read_text()
 
     tests, cached = _parse_suite(text)
 
