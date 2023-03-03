@@ -5,11 +5,11 @@ import pickle
 import shutil
 import sys
 from datetime import datetime
-from importlib import resources
 from typing import Dict, List
 
 from polaris import Step
 from polaris.config import PolarisConfigParser
+from polaris.io import imp_res
 
 
 def update_cache(step_paths, date_string=None, dry_run=False):
@@ -72,9 +72,9 @@ def update_cache(step_paths, date_string=None, dry_run=False):
             # we don't have a local version of the file yet, let's see if
             # there's a remote one for this component
             try:
-                with resources.path(package, 'cached_files.json') as path:
-                    with open(path) as data_file:
-                        cached_files = json.load(data_file)
+                pkg_file = imp_res.files(package).joinpath('cached_files.json')
+                with pkg_file.open('r') as data_file:
+                    cached_files = json.load(data_file)
             except FileNotFoundError:
                 # no cached files yet for this core
                 cached_files = dict()

@@ -1,8 +1,9 @@
 from copy import deepcopy
-from importlib import resources
 
 from jinja2 import Template
 from lxml import etree
+
+from polaris.io import imp_res
 
 
 def read(package, streams_filename, tree=None, replacements=None):
@@ -30,10 +31,9 @@ def read(package, streams_filename, tree=None, replacements=None):
         A tree of XML data describing MPAS i/o streams with the content from
         the given streams file
     """
-    if replacements is None:
-        text = resources.read_text(package, streams_filename)
-    else:
-        template = Template(resources.read_text(package, streams_filename))
+    text = imp_res.files(package).joinpath(streams_filename).read_text()
+    if replacements is not None:
+        template = Template(text)
         text = template.render(**replacements)
 
     new_tree = etree.fromstring(text)

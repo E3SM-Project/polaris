@@ -1,8 +1,9 @@
 import os
-from importlib import resources
 
 import numpy as np
 from jinja2 import Template
+
+from polaris.io import imp_res
 
 
 def write_job_script(config, machine, target_cores, min_cores, work_dir,
@@ -82,8 +83,8 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
             job_name = f'polaris_{suite}'
     wall_time = config.get('job', 'wall_time')
 
-    template = Template(resources.read_text(
-        'polaris.job', 'job_script.template'))
+    template = Template(imp_res.files('polaris.job').joinpath(
+        'job_script.template').read_text())
 
     text = template.render(job_name=job_name, account=account,
                            nodes=f'{nodes}', wall_time=wall_time, qos=qos,

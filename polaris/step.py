@@ -8,7 +8,7 @@ import progressbar
 from mache import MachineInfo
 
 from polaris.config import PolarisConfigParser
-from polaris.io import download, package_path, symlink
+from polaris.io import download, imp_res, symlink
 
 
 class Step:
@@ -493,8 +493,8 @@ class Step:
         if package is not None:
             if target is None:
                 target = filename
-            with package_path(package, target) as path:
-                target = str(path)
+            target = str(imp_res.as_file(
+                imp_res.files(package).joinpath(target)))
 
         if work_dir_target is not None:
             target = os.path.join(base_work_dir, work_dir_target)

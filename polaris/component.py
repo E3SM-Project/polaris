@@ -1,5 +1,6 @@
 import json
-from importlib import resources
+
+from polaris.io import imp_res
 
 
 class Component:
@@ -66,9 +67,9 @@ class Component:
         package = f'polaris.{self.name}'
         filename = 'cached_files.json'
         try:
-            with resources.path(package, filename) as path:
-                with open(path) as data_file:
-                    self.cached_files = json.load(data_file)
+            pkg_file = imp_res.files(package).joinpath(filename)
+            with pkg_file.open('r') as data_file:
+                self.cached_files = json.load(data_file)
         except FileNotFoundError:
             # no cached files for this core
             pass

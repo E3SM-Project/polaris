@@ -1,5 +1,6 @@
-from importlib import resources
 from typing import Dict
+
+from polaris.io import imp_res
 
 
 def parse_replacements(package, namelist):
@@ -20,7 +21,7 @@ def parse_replacements(package, namelist):
         A dictionary of replacement namelist options
     """
 
-    lines = resources.read_text(package, namelist).split('\n')
+    lines = imp_res.files(package).joinpath(namelist).read_text().split('\n')
     replacements = dict()
     for line in lines:
         if '=' in line:
@@ -52,7 +53,7 @@ def ingest(defaults_filename):
 def replace(namelist, replacements):
     """ Replace entries in the namelist using the replacements dict """
     new = dict(namelist)
-    is_not_replaced = [True for key in replacements.keys()]
+    is_not_replaced = [True for _ in replacements.keys()]
     for record in new:
         for idx, key in enumerate(replacements):
             if key in new[record]:
