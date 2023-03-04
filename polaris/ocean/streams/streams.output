@@ -1,7 +1,0 @@
-<streams>
-
-<stream name="output"
-        type="output"
-        precision="double"/>
-
-</streams>
