@@ -38,7 +38,7 @@ def read(package, streams_filename, tree=None, replacements=None):
 
     new_tree = etree.fromstring(text)
 
-    tree = _update_tree(tree, new_tree)
+    tree = update_tree(tree, new_tree)
 
     return tree
 
@@ -134,7 +134,24 @@ def update_defaults(new_child, defaults):
         defaults.append(deepcopy(new_child))
 
 
-def _update_tree(tree, new_tree):
+def update_tree(tree, new_tree):
+    """
+    Parse the given streams file
+
+    Parameters
+    ----------
+    tree : lxml.etree
+        An existing set of streams to add to or modify
+
+    new_tree : lxml.etree
+        A new set of streams to add or modify
+
+    Returns
+    -------
+    tree : lxml.etree
+        A tree of XML data describing MPAS i/o streams with the content from
+        the given streams file
+    """
 
     if tree is None:
         tree = new_tree
