@@ -1,3 +1,4 @@
+import argparse
 from collections import OrderedDict
 from typing import Dict
 
@@ -152,6 +153,38 @@ def mpas_namelist_and_streams_to_yaml(model, namelist_template=None,
         yaml.streams = _streams_xml_to_dict(streams)
 
     return yaml
+
+
+def main_mpas_to_yaml():
+    parser = argparse.ArgumentParser(
+        description='Convert a namelist and/or streams file to yaml')
+    parser.add_argument("-n", "--namelist", dest="namelist",
+                        required=False,
+                        help="MPAS namelist file")
+    parser.add_argument("-s", "--streams", dest="streams",
+                        required=False,
+                        help="MPAS streams file")
+    parser.add_argument("-t", "--namelist_template", dest="namelist_template",
+                        required=False,
+                        help="MPAS namelist template file (with all namelist "
+                             "options). For MPAS-Ocean, this will typically be"
+                             " ${PATH_TO_MPASO}/default_inputs/"
+                             "namelist.forward.ocean")
+    parser.add_argument("-y", "--yaml", dest="yaml",
+                        required=True,
+                        help="Output yaml file")
+    parser.add_argument("-m", "--model", dest="model", default='omega',
+                        help="Model name for the yaml")
+
+    args = parser.parse_args()
+
+    yaml = mpas_namelist_and_streams_to_yaml(
+        model=args.model,
+        namelist_template=args.namelist_template,
+        namelist=args.namelist,
+        streams=args.streams)
+
+    yaml.write(args.yaml)
 
 
 def yaml_to_mpas_streams(processed_registry_filename, yaml):
