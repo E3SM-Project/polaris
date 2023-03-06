@@ -9,6 +9,7 @@ import shutil
 import socket
 import stat
 import subprocess
+import time
 from configparser import ConfigParser
 from typing import Dict
 
@@ -309,13 +310,6 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                 f'conda create -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
-
-            commands = \
-                f'{activate_env} && ' \
-                f'cd {source_path} && ' \
-                f'python -m pip install --no-deps -e .'
-            check_call(commands, logger=logger)
-
         else:
             # conda packages don't like dashes
             version_conda = version.replace('-', '')
@@ -332,16 +326,55 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                 f'conda install -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
-
-            commands = \
-                f'{activate_env} && ' \
-                f'cd {source_path} && ' \
-                f'python -m pip install --no-deps -e .'
-            check_call(commands, logger=logger)
         else:
             print(f'{env_name} already exists')
 
     if env_type == 'dev':
+        # remove conda jigsaw and jigsaw-python
+        t0 = time.time()
+        commands = \
+            f'{activate_env} && ' \
+            f'conda remove -y --force-remove jigsaw jigsawpy'
+        check_call(commands, logger=logger)
+
+        commands = \
+            f'{activate_env} && ' \
+            f'cd {source_path} && ' \
+            f'git submodule update --init jigsaw-python'
+        check_call(commands, logger=logger)
+
+        print('Building JIGSAW\n')
+        commands = \
+            f'{activate_env} && ' \
+            f'conda install -y cxx-compiler && ' \
+            f'cd {source_path}/jigsaw-python && ' \
+            f'python setup.py build_external'
+        check_call(commands, logger=logger)
+
+        print('Installing JIGSAW and JIGSAW-Python\n')
+        commands = \
+            f'{activate_env} && ' \
+            f'cd {source_path}/jigsaw-python && ' \
+            f'python -m pip install --no-deps -e . && ' \
+            f'cp jigsawpy/_bin/* ${{CONDA_PREFIX}}/bin'
+        check_call(commands, logger=logger)
+
+        t1 = time.time()
+        total = int(t1 - t0 + 0.5)
+        message = f'JIGSAW install took {total} s.'
+        if logger is None:
+            print(message)
+        else:
+            logger.info(message)
+
+        # install (or reinstall) compass in edit mode
+        print('Installing compass\n')
+        commands = \
+            f'{activate_env} && ' \
+            f'cd {source_path} && ' \
+            f'python -m pip install --no-deps -e .'
+        check_call(commands, logger=logger)
+
         print('Installing pre-commit\n')
         commands = \
             f'{activate_env} && ' \
