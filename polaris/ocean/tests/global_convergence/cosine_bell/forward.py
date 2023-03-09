@@ -1,9 +1,9 @@
 import time
 
-from polaris import ModelStep
+from polaris.ocean.model import OceanModelStep
 
 
-class Forward(ModelStep):
+class Forward(OceanModelStep):
     """
     A step for performing forward ocean component runs as part of the cosine
     bell test case
@@ -41,14 +41,11 @@ class Forward(ModelStep):
         self.mesh_name = mesh_name
 
         # make sure output is double precision
-        self.add_streams_file('polaris.ocean.streams', 'streams.output')
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_namelist_file(
+        self.add_yaml_file(
             'polaris.ocean.tests.global_convergence.cosine_bell',
-            'namelist.forward')
-        self.add_streams_file(
-            'polaris.ocean.tests.global_convergence.cosine_bell',
-            'streams.forward')
+            'forward.yaml')
 
         self.add_input_file(filename='init.nc',
                             target='../init/initial_state.nc')
@@ -63,7 +60,7 @@ class Forward(ModelStep):
         """
         super().setup()
         dt = self.get_dt()
-        self.add_namelist_options({'config_dt': dt})
+        self.add_model_config_options({'config_dt': dt})
         self._get_resources()
 
     def constrain_resources(self, available_cores):
@@ -82,8 +79,7 @@ class Forward(ModelStep):
 
         # update dt in case the user has changed dt_per_km
         dt = self.get_dt()
-        self.update_namelist_at_runtime(options={'config_dt': dt},
-                                        out_name='namelist.ocean')
+        self.update_model_config_at_runtime(options={'config_dt': dt})
 
     def get_dt(self):
         """

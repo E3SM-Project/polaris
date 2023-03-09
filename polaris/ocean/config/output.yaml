@@ -1,0 +1,5 @@
+ocean:
+  streams:
+    output:
+      type: output
+      precision: double
