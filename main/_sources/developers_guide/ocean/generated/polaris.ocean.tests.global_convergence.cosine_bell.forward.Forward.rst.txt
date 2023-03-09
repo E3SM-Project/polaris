@@ -15,12 +15,14 @@
    
       ~Forward.__init__
       ~Forward.add_input_file
+      ~Forward.add_model_config_options
       ~Forward.add_namelist_file
-      ~Forward.add_namelist_options
       ~Forward.add_output_file
       ~Forward.add_streams_file
+      ~Forward.add_yaml_file
       ~Forward.constrain_resources
       ~Forward.get_dt
+      ~Forward.map_yaml_to_namelist
       ~Forward.partition
       ~Forward.process_inputs_and_outputs
       ~Forward.run
@@ -28,9 +30,11 @@
       ~Forward.set_model_resources
       ~Forward.set_resources
       ~Forward.setup
+      ~Forward.update_model_config_at_runtime
       ~Forward.update_namelist_at_runtime
       ~Forward.update_namelist_pio
       ~Forward.update_streams_at_runtime
+      ~Forward.update_yaml_at_runtime
    
    
 

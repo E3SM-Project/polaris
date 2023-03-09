@@ -90,6 +90,19 @@ ocean/api
 
 ```
 
+#### mpas_to_yaml
+
+```{eval-rst}
+.. currentmodule:: polaris.yaml
+
+.. autosummary::
+   :toctree: generated/
+
+   main_mpas_to_yaml
+
+```
+
+
 ### Base Classes
 
 #### Component
@@ -160,8 +173,11 @@ ocean/api
    ModelStep
    ModelStep.setup
    ModelStep.set_model_resources
+   ModelStep.add_model_config_options
+   ModelStep.add_yaml_file
+   ModelStep.update_yaml_at_runtime
+   ModelStep.map_yaml_to_namelist
    ModelStep.add_namelist_file
-   ModelStep.add_namelist_options
    ModelStep.update_namelist_at_runtime
    ModelStep.update_namelist_pio
    ModelStep.add_streams_file
@@ -170,6 +186,18 @@ ocean/api
    ModelStep.process_inputs_and_outputs
    ModelStep.partition
 ```
+
+### components
+
+```{eval-rst}
+.. currentmodule:: polaris.components
+
+.. autosummary::
+   :toctree: generated/
+
+   get_components
+```
+
 
 ### config
 
@@ -192,7 +220,7 @@ ocean/api
 
    download
    symlink
-   package_path
+   imp_res
 ```
 
 ### logging
@@ -245,16 +273,18 @@ ocean/api
    make_graph_file
 ```
 
-
-### components
+### namelist
 
 ```{eval-rst}
-.. currentmodule:: polaris.components
+.. currentmodule:: polaris.namelist
 
 .. autosummary::
    :toctree: generated/
 
-   get_components
+   parse_replacements
+   ingest
+   replace
+   write
 ```
 
 ### parallel
@@ -283,6 +313,20 @@ ocean/api
 ```
 
 
+### streams
+
+```{eval-rst}
+.. currentmodule:: polaris.streams
+
+.. autosummary::
+   :toctree: generated/
+
+   read
+   write
+   update_defaults
+   update_tree
+```
+
 ### validate
 
 ```{eval-rst}
@@ -293,4 +337,22 @@ ocean/api
 
    compare_variables
    compare_timers
+```
+
+### validate
+
+```{eval-rst}
+.. currentmodule:: polaris.yaml
+
+.. autosummary::
+   :toctree: generated/
+
+   PolarisYaml
+   PolarisYaml.read
+   PolarisYaml.update
+   PolarisYaml.write
+   
+   mpas_namelist_and_streams_to_yaml
+   yaml_to_mpas_streams
+
 ```

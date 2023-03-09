@@ -297,3 +297,19 @@ and the list of files printed to stdout without actually copying the files to
 the LCRC server.
 
 See {ref}`dev-cache` for more about the underlying framework.
+
+
+(dev-mpas-to-yaml)=
+
+## mpas_to_yaml
+
+For convenience of translating from compass to polaris, we have added an 
+`mpas_to_yaml` tool that can be used to convert a namelist and/or streams file 
+into a yaml file.  You need to point to a namelist template (e.g. 
+`namelist.ocean.forward` from the directory where you have built MPAS-Ocean) 
+because the compass namelist files don't include the namelist sections, 
+required by the yaml format.  Note that, for the `ocean` component, the `model`
+is a keyword that will be added at the top of the yaml file but is ignored when
+the yaml file gets parsed, so its value doesn't matter.  We recommend using
+`omega` since the yaml file is in OMEGA's format, but it will also be usable
+when the test case is configured for MPAS-Ocean.

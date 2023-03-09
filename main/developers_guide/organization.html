@@ -91,10 +91,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#cached-output-files">Cached output files</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#adding-namelist-and-streams-files">Adding namelist and streams files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-yaml-namelist-and-streams-files">Adding yaml, namelist and streams files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#adding-a-yaml-file">Adding a yaml file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-a-namelist-file">Adding a namelist file</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#adding-namelist-options">Adding namelist options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#updating-namelist-options-at-runtime">Updating namelist options at runtime</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adding-model-config-options">Adding model config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#updating-namelist-or-yaml-options-at-runtime">Updating namelist or yaml options at runtime</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-a-streams-file">Adding a streams file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-a-template-streams-file">Adding a template streams file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#updating-a-streams-file-at-runtime">Updating a streams file at runtime</a></li>
@@ -560,7 +561,7 @@ mesh type and the velocity solver an attributes:</p>
                         <span class="n">name</span><span class="o">=</span><span class="s1">&#39;run_step&#39;</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">=</span><span class="n">velo_solver</span><span class="p">,</span>
                         <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">velo_solver</span> <span class="o">==</span> <span class="s1">&#39;sia&#39;</span><span class="p">:</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_options</span><span class="p">(</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
                 <span class="p">{</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">:</span> <span class="s2">&quot;&#39;0200-00-00_00:00:00&#39;&quot;</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
@@ -588,9 +589,10 @@ associated with these steps until the point where the step is being set up in</p
 <ul class="simple">
 <li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
 <li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>As an example, here is the constructor from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code>:</p>
@@ -969,7 +971,7 @@ the minimum number of MPI tasks, the number of CPUs per task, the minimum
 number of CPUs per task, the number of OpenMP threads, and (currently as
 placeholders) the amount of memory the step is allowed to use.</p>
 <p>Then, the step can add <a class="reference internal" href="#dev-step-inputs-outputs"><span class="std std-ref">inputs and outputs</span></a> as well as
-<a class="reference internal" href="#dev-step-namelists-and-streams"><span class="std std-ref">Adding namelist and streams files</span></a>, as described below.</p>
+<a class="reference internal" href="#dev-step-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>, as described below.</p>
 <p>As with the test case’s <a class="reference internal" href="#dev-test-case-init"><span class="std std-ref">constructor</span></a>, it is important that the
 step’s constructor doesn’t perform any time-consuming calculations, download
 files, or otherwise use significant resources because this function is called
@@ -980,9 +982,10 @@ the step by calling any of the following methods:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
 <li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>Each of these functions just caches information about the the inputs, outputs,
 namelists or streams files to be read later if the test case in question gets
@@ -1049,7 +1052,7 @@ set up, so each takes a negligible amount of time.</p>
         <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value</span>
             <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_mom_del2&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nu</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.streams&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.output&#39;</span><span class="p">)</span>
@@ -1061,8 +1064,6 @@ set up, so each takes a negligible amount of time.</p>
                             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/ocean.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
                             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/culled_graph.info&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_as_input</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1103,14 +1104,11 @@ files to the step by calling any of the following methods:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
 <li><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
-<p>If you are running the E3SM component, you should call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_model_as_input()</span></code> to create a symlink to the
-E3SM component’s executable.  This can be done in the constructor or the
-<code class="docutils literal notranslate"><span class="pre">setup()</span></code> method.</p>
 <p>Set up should not do any major computations or any time-consuming operations
 other than downloading files.  Time-consuming work should be saved for
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> whenever possible.</p>
@@ -1571,23 +1569,91 @@ recommended.</p>
 <span class="xref std std-ref">design-doc-cached-outputs</span>.</p>
 </section>
 </section>
-<section id="adding-namelist-and-streams-files">
-<span id="dev-step-namelists-and-streams"></span><h3>Adding namelist and streams files<a class="headerlink" href="#adding-namelist-and-streams-files" title="Permalink to this heading"></a></h3>
-<p>Components, test groups, and test cases can provide namelist and streams files
-that are used to replace default namelist options and streams definitions
-before the E3SM component gets run.  Namelist and streams files within the
-<code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix <code class="docutils literal notranslate"><span class="pre">namelist.</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.</span></code>,
-respectively, to ensure that they are included when we build the package.</p>
-<p>You can make calls to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>  and
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code> as described below to indicate how
-name list and streams file should be built up by modifying the defaults for the
-E3SM component.  The namelists and streams files themselves are generated
-automatically as part of setting up the test case.</p>
+<section id="adding-yaml-namelist-and-streams-files">
+<span id="dev-step-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Permalink to this heading"></a></h3>
+<p>Components, test groups, and test cases can provide yaml config options,
+namelist and streams files  that are used to replace default model config
+options  and streams definitions before the E3SM component gets run.  Namelist
+and streams files within the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix
+<code class="docutils literal notranslate"><span class="pre">namelist.</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.</span></code>,  respectively, to ensure that they are included
+when we build the package.  Yaml files must end with <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">.yml</span></code> for the
+same reason.</p>
+<p>You can make calls to <a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>,
+<a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>,
+<a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>  and
+<a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> as described below to indicate
+how yaml, namelist and streams file should be built up by modifying the
+defaults for the  E3SM component.  The yaml, namelists and streams files
+themselves  are generated  automatically (which of these depends on the E3SM
+component in question) as part of setting up the test case.</p>
+<section id="adding-a-yaml-file">
+<span id="dev-step-add-yaml-file"></span><h4>Adding a yaml file<a class="headerlink" href="#adding-a-yaml-file" title="Permalink to this heading"></a></h4>
+<p>Typically, a step that runs an E3SM component will include one or more calls
+to  <a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
+<a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
+or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling one of these methods simply adds the
+file to  a list that will be parsed if and when the step gets set up.  (This
+way, it is  safe to add namelist files to a step in init even if that test case
+will never  get set up or run.)</p>
+<p>The format of the yaml file is a hierarchical list of sections with config
+options and values, followed by streams:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">run_modes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_ocean_run_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">forward</span>
+<span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0024_00:00:00</span>
+<span class="w">  </span><span class="nt">ALE_vertical_grid</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_vert_coord_movement</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">impermeable_interfaces</span>
+<span class="w">  </span><span class="nt">decomposition</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_block_decomp_file_prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph.info.part.</span>
+<span class="w">  </span><span class="nt">time_integration</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_time_integrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RK4</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mesh</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">init.nc</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">init.nc</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0030_00:00:00</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0024_00:00:00</span>
+<span class="w">      </span><span class="nt">clobber_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truncate</span>
+<span class="w">      </span><span class="nt">reference_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0001-01-01_00:00:00</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tracers</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mesh</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xtime</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normalVelocity</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">layerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">refZMid</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">refLayerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kineticEnergyCell</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relativeVorticityCell</span>
+</pre></div>
+</div>
+<p>Unlike for namelist files (see below), we require that config options be placed
+in appropriate sections both for clarity and because there is no guarantee that
+config options must have unique names.</p>
+<p>A typical yaml file is added by passing a package where the yaml file
+is located and the name of the input yaml file within that package
+as arguments to <a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.global_convergence.cosine_bell&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Model config values are replaced by the files (or options, see below) in the
+sequence they are given.  This way, you can add the model config substitutions
+for  the test group first, and then override those with the replacements for
+the test case or step.</p>
+</section>
 <section id="adding-a-namelist-file">
 <span id="dev-step-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Permalink to this heading"></a></h4>
-<p>Typically, a step that runs the E3SM component will include one or more calls to
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
+<p>Typically, a step that runs the E3SM component will include one or more calls
+to  <a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
+<a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
 or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this method simply adds the file to
 a list that will be parsed if and when the step gets set up.  (This way, it is
 safe to add namelist files to a step in init even if that test case will never
@@ -1607,41 +1673,39 @@ config_cvmix_background_viscosity = 1.0e-4
 which specific namelist within the file each belongs to.</p>
 <p>A typical namelist file is added by passing a package where the namelist file
 is located and the name of the input namelist file within that package
-as arguments to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code>:</p>
+as arguments to <a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If the namelist should have a different name than the default
-(<code class="docutils literal notranslate"><span class="pre">namelist.&lt;component&gt;</span></code>), the name can be given via the <code class="docutils literal notranslate"><span class="pre">out_name</span></code> keyword
-argument.  If <code class="docutils literal notranslate"><span class="pre">init</span></code> mode is desired, rather than the default, <code class="docutils literal notranslate"><span class="pre">forward</span></code>
-mode, this can also be specified.</p>
 <p>Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
 the test group first, and then override those with the replacements for
 the test case or step.</p>
 </section>
-<section id="adding-namelist-options">
-<span id="dev-step-add-namelist-options"></span><h4>Adding namelist options<a class="headerlink" href="#adding-namelist-options" title="Permalink to this heading"></a></h4>
-<p>Sometimes, it is easier to replace namelist options using a dictionary within
-the code, rather than a namelist file.  This is appropriate when there are only
-1 or 2 options to replace (so creating a file seems like overkill) or when the
-namelist options rely on values that are determined by the code (e.g. different
-values for different resolutions).  Simply create a dictionary of replacements
-and call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code> either at init or
-in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are parsed, along
-with replacements from files, in the order they are added.  Thus, you could
-add replacements from a namelist file for the test group, test case, or step,
-then override them with namelist options in a dictionary for the test case or
-step, as in this example:</p>
+<section id="adding-model-config-options">
+<span id="dev-step-add-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#adding-model-config-options" title="Permalink to this heading"></a></h4>
+<p>Sometimes, it is easier to replace yaml or namelist options (together referred
+to as model config options)  using a dictionary within  the code, rather than
+a yaml or namelist file.  This is appropriate when there are only 1 or 2
+options to  replace (so creating a file seems like overkill) or when the
+model config options rely on values that are determined by the code (e.g.
+different  values for different resolutions).  Simply create a dictionary
+replacements and call <a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>
+either  at init or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are
+parsed, along  with replacements from files, in the order they are added.<br />
+Thus, you could add replacements from a model config file for the test group,
+test case, or step, then override them with namelist options in a dictionary
+for the test case or  step, as in this example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;namelist.</span><span class="si">{}</span><span class="s1">.forward&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="s1">&#39;resolution&#39;</span><span class="p">]))</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+                       <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="n">step</span><span class="p">[</span><span class="s2">&quot;resolution&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.forward&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># update the viscosity to the requested value</span>
-    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_mom_del2&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">])}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hmix&#39;</span><span class="p">:</span> 
+                 <span class="p">{</span><span class="s1">&#39;config_mom_del2&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">}}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here, we get default options for “forward” steps, then for the resolution of
@@ -1649,17 +1713,19 @@ the test case from namelist files, then update the viscosity <code class="docuti
 an option passed in when creating this step.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Namelist values must be of type <code class="docutils literal notranslate"><span class="pre">str</span></code>, so use <code class="docutils literal notranslate"><span class="pre">'{}'.format(value)</span></code> to
-convert a numerical value to a string.</p>
+<p>Model config options can have values of type <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>,
+and are automatically converted to the appropriate type in the yaml or namelist
+file.</p>
 </div>
 </section>
-<section id="updating-namelist-options-at-runtime">
-<span id="dev-step-update-namelist-options"></span><h4>Updating namelist options at runtime<a class="headerlink" href="#updating-namelist-options-at-runtime" title="Permalink to this heading"></a></h4>
+<section id="updating-namelist-or-yaml-options-at-runtime">
+<span id="dev-step-update-namelist-options"></span><h4>Updating namelist or yaml options at runtime<a class="headerlink" href="#updating-namelist-or-yaml-options-at-runtime" title="Permalink to this heading"></a></h4>
 <p>It is sometimes useful to update namelist options after a namelist has already
 been generated as part of setting up.  This typically happens within a step’s
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for options that cannot be known beforehand, particularly
 options related to the number of MPI tasks, CPUs per task, and OpenMP threads.
-In such cases, call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.update_namelist_at_runtime()</span></code>:</p>
+In such cases, call <a class="reference internal" href="generated/polaris.ModelStep.update_namelist_at_runtime.html#polaris.ModelStep.update_namelist_at_runtime" title="polaris.ModelStep.update_namelist_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_at_runtime()</span></code></a> or
+<a class="reference internal" href="generated/polaris.ModelStep.update_yaml_at_runtime.html#polaris.ModelStep.update_yaml_at_runtime" title="polaris.ModelStep.update_yaml_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_yaml_at_runtime()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pio_num_iotasks</span><span class="p">),</span>
@@ -1675,11 +1741,11 @@ In such cases, call <code class="xref py py-meth docutils literal notranslate"><
 streams files are XML documents, requiring some slightly more sophisticated
 parsing.</p>
 <p>Typically, a step that runs the E3SM component will include one or more calls
-to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> within the <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>
-or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function simply adds the file to
-a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed if an when
-the step gets set up.  (This way, it is safe to add streams files to a step at
-init even if that test case will never get set up or run.)</p>
+to <a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> within the<br />
+<a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a> or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function
+simply adds the file to a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed
+if an when the step gets set up.  (This way, it is safe to add streams files to
+a step at init even if that test case will never get set up or run.)</p>
 <p>The format of the streams file is essentially the same as the default and
 generated streams file, e.g.:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
@@ -1717,7 +1783,7 @@ remove contents from the defaults, just keep the default contents or replace
 them all.  (Past experience has shown that such a feature would be
 confusing and difficult to keep synchronized with the E3SM code.)</p>
 <p>A typical streams file is added by calling
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> with a package where the streams
+<a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with a package where the streams
 file is located and the name of the input streams file within that package:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
@@ -1731,9 +1797,9 @@ mode, this can also be specified.</p>
 <section id="adding-a-template-streams-file">
 <span id="dev-step-add-streams-file-template"></span><h4>Adding a template streams file<a class="headerlink" href="#adding-a-template-streams-file" title="Permalink to this heading"></a></h4>
 <p>The main difference between namelists and streams files is that there is no
-direct equivalent for streams of <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>.
+direct equivalent for streams of <a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.
 It is simply too confusing to try to define streams within the code.</p>
-<p>Instead, <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> includes a keyword
+<p>Instead, <a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> includes a keyword
 argument <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code>.  If you provide a dictionary of
 replacements to this argument, the input streams file will be treated as a
 <a class="reference external" href="https://jinja.palletsprojects.com/">Jinja2 template</a> that is rendered
@@ -1772,9 +1838,9 @@ we are creating a series of steps that will be used to perform dynamic
 adjustment of the ocean model, each of which might have different durations and
 restart intervals.  Rather than creating a streams file for each step of the
 spin up, we reuse the same template with just a few appropriate replacements.
-Thus, calls to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code> with
+Thus, calls to <a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with
 <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code> are qualitatively similar to namelist calls to
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code>.</p>
+<a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.</p>
 </section>
 <section id="updating-a-streams-file-at-runtime">
 <span id="dev-step-update-streams"></span><h4>Updating a streams file at runtime<a class="headerlink" href="#updating-a-streams-file-at-runtime" title="Permalink to this heading"></a></h4>
@@ -1812,13 +1878,13 @@ with the new run duration:</p>
 </section>
 <section id="adding-e3sm-component-as-an-input">
 <h3>Adding E3SM component as an input<a class="headerlink" href="#adding-e3sm-component-as-an-input" title="Permalink to this heading"></a></h3>
-<p>If a step involves running the E3SM component, the model executable can be
-linked and added  as an input to the step by calling
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model.add_model_as_input()</span></code> in <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> or the <code class="docutils literal notranslate"><span class="pre">setup()</span></code>
-method.  This way, if the user has forgotten to compile the model, this will be
-obvious by the broken symlink and  the step will immediately fail because of
-the missing input.  The path to the  executable is automatically detected based
-on the work directory for the step  and the config options.</p>
+<p>If a step involves running the E3SM component, it should descend from
+:py:class<code class="docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code>.  The model executable will  automatically be
+linked and added as an input to the step.  This way, if the user has forgotten
+to compile the model, this will be obvious by the broken symlink and the step
+will immediately fail because of the missing input.  The path to the executable
+is automatically detected based on the work directory for the step and the
+config options.</p>
 </section>
 </section>
 <section id="test-suites">

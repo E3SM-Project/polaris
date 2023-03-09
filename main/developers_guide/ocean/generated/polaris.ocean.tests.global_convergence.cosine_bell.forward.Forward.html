@@ -157,11 +157,11 @@ bell test case</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist[, ...])</p></td>
-<td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options)</p></td>
+<td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_options</span></code>(options[, out_name, mode])</p></td>
-<td><p>Add the namelist replacements to be parsed when generating a namelist file if and when the step gets set up.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
+<td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
@@ -169,11 +169,17 @@ bell test case</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml)</p></td>
+<td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
 <td><p>Update resources at runtime from config options</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dt</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dt</span></code></a>()</p></td>
 <td><p>Get the time step</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
+<td><p>A mapping from yaml model config options to namelist options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
@@ -196,14 +202,20 @@ bell test case</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Set namelist options base on config options</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_at_runtime</span></code>(options[, out_name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_model_config_at_runtime</span></code>(options)</p></td>
+<td><p>Update an existing namelist or yaml file with additional options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_at_runtime</span></code>(options)</p></td>
 <td><p>Update an existing namelist file with additional options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>([out_name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_streams_at_runtime</span></code>(package, streams, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_streams_at_runtime</span></code>(package, streams, ...)</p></td>
 <td><p>Update the streams files during the run phase of this step using the given template and replacements.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_yaml_at_runtime</span></code>(options)</p></td>
+<td><p>Update an existing yaml file with additional options.</p></td>
 </tr>
 </tbody>
 </table>

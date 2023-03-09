@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.yaml</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.1.0-alpha.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean conponent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.yaml</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.yaml</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">ruamel.yaml</span> <span class="kn">import</span> <span class="n">YAML</span>
+
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
+
+
+<div class="viewcode-block" id="PolarisYaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml">[docs]</a><span class="k">class</span> <span class="nc">PolarisYaml</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for reading writing and combining config files in yaml format</span>
+<span class="sd">    (e.g. as used in OMEGA).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    configs : dict</span>
+<span class="sd">        Nested dictionaries containing config options</span>
+
+<span class="sd">    streams : dict</span>
+<span class="sd">        Nested dictionaries containing data about streams</span>
+
+<span class="sd">    model : str</span>
+<span class="sd">        The name of the E3SM component</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PolarisYaml.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a yaml config object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PolarisYaml.read"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add config options from a yaml file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A template yaml config file</span>
+
+<span class="sd">        package : str, optional</span>
+<span class="sd">            The name of a package the filename is found in</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        yaml : polaris.yaml.PolarisYaml</span>
+<span class="sd">            A yaml object read in from the given file (and optionally package)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">yaml</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+                <span class="n">configs</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+                <span class="n">configs</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Config yaml file contains unexpected sections:</span><span class="se">\n</span><span class="s1"> &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="n">yaml</span><span class="o">.</span><span class="n">model</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;streams&#39;</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="s1">&#39;streams&#39;</span><span class="p">]</span>
+            <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">)</span>
+
+        <span class="n">yaml</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="n">configs</span>
+        <span class="k">return</span> <span class="n">yaml</span></div>
+
+<div class="viewcode-block" id="PolarisYaml.update"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add config options from a dictionary</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        configs : dict</span>
+<span class="sd">            A nested dictionary of config sections, options and values</span>
+
+<span class="sd">        quiet : bool, optional</span>
+<span class="sd">            Whether or not to print the updated config options as they are</span>
+<span class="sd">            replaced</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+            <span class="c1"># we want one layer deeper</span>
+            <span class="n">configs</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">]</span>
+        <span class="n">_update_section</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolarisYaml.write"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write config options to a yaml file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A yaml config file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">yaml</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+            <span class="n">configs</span><span class="p">[</span><span class="s1">&#39;streams&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span>
+
+        <span class="n">model_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">model_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">]</span> <span class="o">=</span> <span class="n">configs</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model_configs</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_add_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add stream from a dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span></div>
+
+
+<div class="viewcode-block" id="mpas_namelist_and_streams_to_yaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">namelist_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add config options from a yaml file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : str</span>
+<span class="sd">        The name of the model</span>
+
+<span class="sd">    namelist_template : str</span>
+<span class="sd">        An MPAS namelist template file</span>
+
+<span class="sd">    namelist : str, optional</span>
+<span class="sd">        An MPAS namelist file</span>
+
+<span class="sd">    streams : str, optional</span>
+<span class="sd">        An MPAS streams file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    yaml : polaris.yaml.PolarisYaml</span>
+<span class="sd">        A yaml object with the namelists and streams</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="p">()</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">if</span> <span class="n">namelist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="n">_read_namelist</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="n">namelist</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">streams</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="n">_streams_xml_to_dict</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">yaml</span></div>
+
+
+<div class="viewcode-block" id="main_mpas_to_yaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">main_mpas_to_yaml</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Convert a namelist and/or streams file to yaml&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--namelist&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;namelist&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;MPAS namelist file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--streams&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;streams&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;MPAS streams file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--namelist_template&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;namelist_template&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;MPAS namelist template file (with all namelist &quot;</span>
+                             <span class="s2">&quot;options). For MPAS-Ocean, this will typically be&quot;</span>
+                             <span class="s2">&quot; $</span><span class="si">{PATH_TO_MPASO}</span><span class="s2">/default_inputs/&quot;</span>
+                             <span class="s2">&quot;namelist.forward.ocean&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;--yaml&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output yaml file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;omega&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model name for the yaml&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">yaml</span> <span class="o">=</span> <span class="n">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">namelist_template</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">namelist_template</span><span class="p">,</span>
+        <span class="n">namelist</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">namelist</span><span class="p">,</span>
+        <span class="n">streams</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">streams</span><span class="p">)</span>
+
+    <span class="n">yaml</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">yaml</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="yaml_to_mpas_streams"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add config options from a yaml file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    processed_registry_filename : str</span>
+<span class="sd">        The processed registry file, used to determine the types of variables</span>
+<span class="sd">        each steam (since the yaml format doesn&#39;t supply that information).</span>
+
+<span class="sd">    yaml : polaris.yaml.PolarisYaml</span>
+<span class="sd">        A yaml object with the namelists and streams</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tree : lxml.etree</span>
+<span class="sd">        A tree of XML data describing MPAS i/o streams with the content from</span>
+<span class="sd">        the streams in the yaml file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reg_file</span><span class="p">:</span>
+        <span class="n">registry_string</span> <span class="o">=</span> <span class="n">reg_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">registry_string</span> <span class="o">=</span> <span class="n">registry_string</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">registry_string</span><span class="p">)</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+        <span class="c1"># find out if stream or immutable_stream</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">_get_stream_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;contents&#39;</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;contents&#39;</span><span class="p">)</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="n">child</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+                <span class="c1"># find out what type it has</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="n">_get_var_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+                <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">var</span><span class="p">))</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tree</span></div>
+
+
+<span class="k">def</span> <span class="nf">_update_section</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively update config options in a section of a config from a source</span>
+<span class="sd">    section to the associate destination dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">src</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">print_section</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">print_subsection</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">print_section</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">print_subsection</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Attempting to modify config options to a &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;nonexistent config</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;(sub)section: </span><span class="si">{</span><span class="n">print_subsection</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="c1"># this is a subsection</span>
+            <span class="n">src_sub</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">dst_sub</span> <span class="o">=</span> <span class="n">dst</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">_update_section</span><span class="p">(</span><span class="n">src_sub</span><span class="p">,</span> <span class="n">dst_sub</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_subsection</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Attempting to modify a nonexistent config &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;options:</span><span class="si">{</span><span class="n">print_section</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">print_section</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">dst</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_read_namelist</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="n">namelist_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the defaults file &quot;&quot;&quot;</span>
+    <span class="n">record_map</span> <span class="o">=</span> <span class="n">_read_namelist_template</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">namelist_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">namelist</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_read_namelist_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="n">record_map</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">record</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">namelist</span><span class="p">:</span>
+                <span class="n">namelist</span><span class="p">[</span><span class="n">record</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">namelist</span><span class="p">[</span><span class="n">record</span><span class="p">][</span><span class="n">opt</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">namelist</span>
+
+
+<span class="k">def</span> <span class="nf">_read_namelist_template</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the defaults file &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">record_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">new_record</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_read_namelist_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="n">new_record</span>
+        <span class="k">elif</span> <span class="n">opt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">record_map</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span>
+
+    <span class="k">return</span> <span class="n">record_map</span>
+
+
+<span class="k">def</span> <span class="nf">_read_namelist_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s1">&#39;&amp;&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&amp;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">opt</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">str_value</span> <span class="o">=</span> \
+            <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">str_value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">str_value</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;.true.&#39;</span><span class="p">]:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">str_value</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;false&#39;</span><span class="p">,</span> <span class="s1">&#39;.false.&#39;</span><span class="p">]:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">str_value</span>
+
+    <span class="k">return</span> <span class="n">record</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span>
+
+
+<span class="k">def</span> <span class="nf">_streams_xml_to_dict</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a streams XML file to nested dictionaries &quot;&quot;&quot;</span>
+    <span class="n">streams</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">)</span>
+    <span class="n">xml_streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">xml_streams</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stream&#39;</span><span class="p">,</span> <span class="s1">&#39;immutable_stream&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected tag </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> instead of stream or&#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;immutable stream&#39;</span><span class="p">)</span>
+        <span class="n">stream_name</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="o">!=</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span>
+                <span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">grandchild</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;var&#39;</span><span class="p">:</span>
+                <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grandchild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;var_struct&#39;</span><span class="p">:</span>
+                <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grandchild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;var_array&#39;</span><span class="p">:</span>
+                <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grandchild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span><span class="p">:</span>
+                <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grandchild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected tag </span><span class="si">{</span><span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">][</span><span class="s1">&#39;contents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">contents</span>
+
+    <span class="k">return</span> <span class="n">streams</span>
+
+
+<span class="k">def</span> <span class="nf">_get_stream_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get the xml tag, &#39;stream&#39; or &#39;immutable_stream&#39; for a given stream &quot;&quot;&quot;</span>
+    <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+    <span class="c1"># if we don&#39;t find the stream, it can&#39;t be an immutable stream</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;stream&#39;</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;immutable&#39;</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> \
+                    <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;immutable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">:</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;immutable_stream&#39;</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">tag</span>
+
+
+<span class="k">def</span> <span class="nf">_get_var_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the xml tag -- &#39;stream&#39;, &#39;var_struct&#39;, &#39;var_array&#39; or &#39;var&#39; -- for a</span>
+<span class="sd">    variable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">variable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;stream&#39;</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;var_struct&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">variable</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;var_struct&#39;</span>
+
+            <span class="k">for</span> <span class="n">grandchild</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;var_struct&#39;</span><span class="p">,</span> <span class="s1">&#39;var_array&#39;</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">]</span> <span class="ow">and</span> \
+                        <span class="n">grandchild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">variable</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span>
+                <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;var_struct&#39;</span><span class="p">,</span> <span class="s1">&#39;var_array&#39;</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">greatgrand</span> <span class="ow">in</span> <span class="n">grandchild</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">greatgrand</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;var_array&#39;</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">]</span> <span class="ow">and</span> \
+                                <span class="n">greatgrand</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">variable</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">greatgrand</span><span class="o">.</span><span class="n">tag</span>
+
+    <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find </span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1"> in preprocessed registry&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tag</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="yaml.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

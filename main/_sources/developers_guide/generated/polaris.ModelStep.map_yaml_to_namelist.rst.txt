@@ -1,0 +1,6 @@
+﻿polaris.ModelStep.map\_yaml\_to\_namelist
+=========================================
+
+.. currentmodule:: polaris
+
+.. automethod:: ModelStep.map_yaml_to_namelist

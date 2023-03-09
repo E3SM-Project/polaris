@@ -15,11 +15,13 @@
    
       ~ModelStep.__init__
       ~ModelStep.add_input_file
+      ~ModelStep.add_model_config_options
       ~ModelStep.add_namelist_file
-      ~ModelStep.add_namelist_options
       ~ModelStep.add_output_file
       ~ModelStep.add_streams_file
+      ~ModelStep.add_yaml_file
       ~ModelStep.constrain_resources
+      ~ModelStep.map_yaml_to_namelist
       ~ModelStep.partition
       ~ModelStep.process_inputs_and_outputs
       ~ModelStep.run
@@ -30,6 +32,7 @@
       ~ModelStep.update_namelist_at_runtime
       ~ModelStep.update_namelist_pio
       ~ModelStep.update_streams_at_runtime
+      ~ModelStep.update_yaml_at_runtime
    
    
 

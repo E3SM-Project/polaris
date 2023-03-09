@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.ModelStep.update_namelist_pio" href="polaris.ModelStep.update_namelist_pio.html" />
-    <link rel="prev" title="polaris.ModelStep.add_namelist_options" href="polaris.ModelStep.add_namelist_options.html" />
+    <link rel="prev" title="polaris.ModelStep.add_namelist_file" href="polaris.ModelStep.add_namelist_file.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -81,15 +81,18 @@
 <li class="toctree-l4 current"><a class="reference internal" href="../api.html#modelstep">ModelStep</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#config">config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#io">io</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mesh">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#validate">validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id2">validate</a></li>
 </ul>
 </li>
 </ul>
@@ -130,19 +133,15 @@
 <h1>polaris.ModelStep.update_namelist_at_runtime<a class="headerlink" href="#polaris-modelstep-update-namelist-at-runtime" title="Permalink to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ModelStep.update_namelist_at_runtime">
-<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">update_namelist_at_runtime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.update_namelist_at_runtime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.update_namelist_at_runtime" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">update_namelist_at_runtime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.update_namelist_at_runtime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.update_namelist_at_runtime" title="Permalink to this definition"></a></dt>
 <dd><p>Update an existing namelist file with additional options.  This would
 typically be used for namelist options that are only known at runtime,
 not during setup, typically those related to the number of nodes and
 cores.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of options and value to replace namelist options with
-new values</p></li>
-<li><p><strong>out_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the namelist file to write out, <code class="docutils literal notranslate"><span class="pre">namelist.&lt;core&gt;</span></code> by
-default</p></li>
-</ul>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of options and value to replace namelist options with
+new values</p>
 </dd>
 </dl>
 </dd></dl>
@@ -153,7 +152,7 @@ default</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ModelStep.add_namelist_options.html" class="btn btn-neutral float-left" title="polaris.ModelStep.add_namelist_options" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ModelStep.add_namelist_file.html" class="btn btn-neutral float-left" title="polaris.ModelStep.add_namelist_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ModelStep.update_namelist_pio.html" class="btn btn-neutral float-right" title="polaris.ModelStep.update_namelist_pio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

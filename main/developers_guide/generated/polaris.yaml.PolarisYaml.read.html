@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ModelStep.add_namelist_options</title>
+  <title>polaris.yaml.PolarisYaml.read</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.ModelStep.update_namelist_at_runtime" href="polaris.ModelStep.update_namelist_at_runtime.html" />
-    <link rel="prev" title="polaris.ModelStep.add_namelist_file" href="polaris.ModelStep.add_namelist_file.html" />
+    <link rel="next" title="polaris.yaml.PolarisYaml.update" href="polaris.yaml.PolarisYaml.update.html" />
+    <link rel="prev" title="polaris.yaml.PolarisYaml" href="polaris.yaml.PolarisYaml.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -73,23 +73,27 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#components">Components</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#polaris-framework">polaris framework</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../api.html#command-line-interface">Command-line interface</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../api.html#base-classes">Base Classes</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../api.html#component">Component</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#testgroup">TestGroup</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#testcase">TestCase</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#step">Step</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#modelstep">ModelStep</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#base-classes">Base Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#config">config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#io">io</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mesh">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#validate">validate</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#id2">validate</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="polaris.yaml.PolarisYaml.html">polaris.yaml.PolarisYaml</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.yaml.PolarisYaml.read</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.yaml.PolarisYaml.update.html">polaris.yaml.PolarisYaml.update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.yaml.PolarisYaml.write.html">polaris.yaml.PolarisYaml.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.yaml.mpas_namelist_and_streams_to_yaml.html">polaris.yaml.mpas_namelist_and_streams_to_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.yaml.yaml_to_mpas_streams.html">polaris.yaml.yaml_to_mpas_streams</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -116,9 +120,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.ModelStep.add_namelist_options</li>
+      <li class="breadcrumb-item active">polaris.yaml.PolarisYaml.read</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.ModelStep.add_namelist_options.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.yaml.PolarisYaml.read.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -126,22 +130,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-modelstep-add-namelist-options">
-<h1>polaris.ModelStep.add_namelist_options<a class="headerlink" href="#polaris-modelstep-add-namelist-options" title="Permalink to this heading"></a></h1>
+  <section id="polaris-yaml-polarisyaml-read">
+<h1>polaris.yaml.PolarisYaml.read<a class="headerlink" href="#polaris-yaml-polarisyaml-read" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ModelStep.add_namelist_options">
-<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">add_namelist_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.add_namelist_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.add_namelist_options" title="Permalink to this definition"></a></dt>
-<dd><p>Add the namelist replacements to be parsed when generating a namelist
-file if and when the step gets set up.</p>
+<dt class="sig sig-object py" id="polaris.yaml.PolarisYaml.read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PolarisYaml.</span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/yaml.html#PolarisYaml.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.yaml.PolarisYaml.read" title="Permalink to this definition"></a></dt>
+<dd><p>Add config options from a yaml file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of options and value to replace namelist options with
-new values</p></li>
-<li><p><strong>out_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the namelist file to write out, <code class="docutils literal notranslate"><span class="pre">namelist.&lt;core&gt;</span></code> by
-default</p></li>
-<li><p><strong>mode</strong> (<em>{'init'</em><em>, </em><em>'forward'}</em><em>, </em><em>optional</em>) – The mode that the model will run in</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – A template yaml config file</p></li>
+<li><p><strong>package</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The name of a package the filename is found in</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>yaml</strong> (<em>polaris.yaml.PolarisYaml</em>) – A yaml object read in from the given file (and optionally package)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -152,8 +155,8 @@ default</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ModelStep.add_namelist_file.html" class="btn btn-neutral float-left" title="polaris.ModelStep.add_namelist_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ModelStep.update_namelist_at_runtime.html" class="btn btn-neutral float-right" title="polaris.ModelStep.update_namelist_at_runtime" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.yaml.PolarisYaml.html" class="btn btn-neutral float-left" title="polaris.yaml.PolarisYaml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.yaml.PolarisYaml.update.html" class="btn btn-neutral float-right" title="polaris.yaml.PolarisYaml.update" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -182,7 +185,7 @@ default</p></li>
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ModelStep.add_namelist_options.html">main</a></dd>
+      <dd><a href="polaris.yaml.PolarisYaml.read.html">main</a></dd>
     </dl>
   </div>
 </div><script>

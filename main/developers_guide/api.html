@@ -82,6 +82,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#suite">suite</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#run">run</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cache">cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mpas-to-yaml">mpas_to_yaml</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
@@ -92,6 +93,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#modelstep">ModelStep</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.components.get_components.html">polaris.components.get_components</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#config">config</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html">polaris.config.PolarisConfigParser</a></li>
 </ul>
@@ -99,6 +104,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#io">io</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.download.html">polaris.io.download</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.symlink.html">polaris.io.symlink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.imp_res.html">polaris.io.imp_res</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#logging">logging</a><ul>
@@ -128,8 +134,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.model_step.make_graph_file.html">polaris.model_step.make_graph_file</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">components</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.components.get_components.html">polaris.components.get_components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#namelist">namelist</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.parse_replacements.html">polaris.namelist.parse_replacements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.ingest.html">polaris.namelist.ingest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.replace.html">polaris.namelist.replace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.write.html">polaris.namelist.write</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#parallel">parallel</a><ul>
@@ -143,9 +152,25 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.write.html">polaris.provenance.write</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#streams">streams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.read.html">polaris.streams.read</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.write.html">polaris.streams.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.update_defaults.html">polaris.streams.update_defaults</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.update_tree.html">polaris.streams.update_tree</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#validate">validate</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_variables.html">polaris.validate.compare_variables</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_timers.html">polaris.validate.compare_timers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.html">polaris.yaml.PolarisYaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.read.html">polaris.yaml.PolarisYaml.read</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.update.html">polaris.yaml.PolarisYaml.update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.write.html">polaris.yaml.PolarisYaml.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html">polaris.yaml.mpas_namelist_and_streams_to_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.yaml.yaml_to_mpas_streams.html">polaris.yaml.yaml_to_mpas_streams</a></li>
 </ul>
 </li>
 </ul>
@@ -293,6 +318,20 @@ documentation.</p>
 </tbody>
 </table>
 </section>
+<section id="mpas-to-yaml">
+<h4>mpas_to_yaml<a class="headerlink" href="#mpas-to-yaml" title="Permalink to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml" title="polaris.yaml.main_mpas_to_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main_mpas_to_yaml</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section id="base-classes">
 <h3>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this heading"></a></h3>
@@ -410,36 +449,59 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources" title="polaris.ModelStep.set_model_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.set_model_resources</span></code></a>([ntasks, ...])</p></td>
 <td><p>Update the resources for the step.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_model_config_options</span></code></a>(options)</p></td>
+<td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_yaml_file</span></code></a>(package, yaml)</p></td>
+<td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_yaml_at_runtime.html#polaris.ModelStep.update_yaml_at_runtime" title="polaris.ModelStep.update_yaml_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_yaml_at_runtime</span></code></a>(options)</p></td>
+<td><p>Update an existing yaml file with additional options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist" title="polaris.ModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.map_yaml_to_namelist</span></code></a>(options)</p></td>
+<td><p>A mapping from yaml model config options to namelist options.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_namelist_file</span></code></a>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_namelist_options.html#polaris.ModelStep.add_namelist_options" title="polaris.ModelStep.add_namelist_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_namelist_options</span></code></a>(options[, ...])</p></td>
-<td><p>Add the namelist replacements to be parsed when generating a namelist file if and when the step gets set up.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_namelist_at_runtime.html#polaris.ModelStep.update_namelist_at_runtime" title="polaris.ModelStep.update_namelist_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_namelist_at_runtime</span></code></a>(options)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_namelist_at_runtime.html#polaris.ModelStep.update_namelist_at_runtime" title="polaris.ModelStep.update_namelist_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_namelist_at_runtime</span></code></a>(options)</p></td>
 <td><p>Update an existing namelist file with additional options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_namelist_pio</span></code></a>([out_name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_namelist_pio</span></code></a>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_streams_file</span></code></a>(package, streams)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.add_streams_file</span></code></a>(package, streams)</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_streams_at_runtime.html#polaris.ModelStep.update_streams_at_runtime" title="polaris.ModelStep.update_streams_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_streams_at_runtime</span></code></a>(package, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_streams_at_runtime.html#polaris.ModelStep.update_streams_at_runtime" title="polaris.ModelStep.update_streams_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_streams_at_runtime</span></code></a>(package, ...)</p></td>
 <td><p>Update the streams files during the run phase of this step using the given template and replacements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.runtime_setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.runtime_setup</span></code></a>()</p></td>
 <td><p>Update PIO namelist options, make graph file, and partition graph file (if any of these are requested)</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs" title="polaris.ModelStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.process_inputs_and_outputs</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs" title="polaris.ModelStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.process_inputs_and_outputs</span></code></a>()</p></td>
 <td><p>Process the model as an input, then call the parent class' version</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.partition</span></code></a>([graph_file])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.partition</span></code></a>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
 </tr>
 </tbody>
 </table>
 </section>
+</section>
+<section id="id1">
+<h3>components<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.components.get_components.html#polaris.components.get_components" title="polaris.components.get_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_components</span></code></a>()</p></td>
+<td><p>Get a list of components, which in turn contain lists of test groups</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="config">
 <h3>config<a class="headerlink" href="#config" title="Permalink to this heading"></a></h3>
@@ -468,6 +530,9 @@ documentation.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.io.symlink.html#polaris.io.symlink" title="polaris.io.symlink"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symlink</span></code></a>(target, link_name[, overwrite])</p></td>
 <td><p>From <a class="reference external" href="https://stackoverflow.com/a/55742015/7728169">https://stackoverflow.com/a/55742015/7728169</a> Create a symbolic link named link_name pointing to target.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.io.imp_res.html#module-polaris.io.imp_res" title="polaris.io.imp_res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imp_res</span></code></a></p></td>
+<td><p>Read resources contained within a package.</p></td>
 </tr>
 </tbody>
 </table>
@@ -559,16 +624,25 @@ documentation.</p>
 </tbody>
 </table>
 </section>
-<section id="id1">
-<h3>components<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<section id="namelist">
+<h3>namelist<a class="headerlink" href="#namelist" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.components.get_components.html#polaris.components.get_components" title="polaris.components.get_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_components</span></code></a>()</p></td>
-<td><p>Get a list of components, which in turn contain lists of test groups</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.namelist.parse_replacements.html#polaris.namelist.parse_replacements" title="polaris.namelist.parse_replacements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_replacements</span></code></a>(package, namelist)</p></td>
+<td><p>Parse the replacement namelist options from the given file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.namelist.ingest.html#polaris.namelist.ingest" title="polaris.namelist.ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ingest</span></code></a>(defaults_filename)</p></td>
+<td><p>Read the defaults file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.namelist.replace.html#polaris.namelist.replace" title="polaris.namelist.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>(namelist, replacements)</p></td>
+<td><p>Replace entries in the namelist using the replacements dict</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.namelist.write.html#polaris.namelist.write" title="polaris.namelist.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(namelist, filename)</p></td>
+<td><p>Write the namelist out</p></td>
 </tr>
 </tbody>
 </table>
@@ -610,6 +684,29 @@ documentation.</p>
 </tbody>
 </table>
 </section>
+<section id="streams">
+<h3>streams<a class="headerlink" href="#streams" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.streams.read.html#polaris.streams.read" title="polaris.streams.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(package, streams_filename[, tree, ...])</p></td>
+<td><p>Parse the given streams file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.streams.write.html#polaris.streams.write" title="polaris.streams.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(streams, out_filename)</p></td>
+<td><p>write the streams XML data to the file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults" title="polaris.streams.update_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_defaults</span></code></a>(new_child, defaults)</p></td>
+<td><p>Update a stream or its children (sub-stream, var, etc.) starting from the defaults or add it if it's new.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.streams.update_tree.html#polaris.streams.update_tree" title="polaris.streams.update_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_tree</span></code></a>(tree, new_tree)</p></td>
+<td><p>Parse the given streams file</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="validate">
 <h3>validate<a class="headerlink" href="#validate" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -623,6 +720,35 @@ documentation.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_timers</span></code></a>(test_case, timers, rundir1[, ...])</p></td>
 <td><p>Compare variables between files in the current test case and/or with the baseline results.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h3>validate<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml" title="polaris.yaml.PolarisYaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisYaml</span></code></a>()</p></td>
+<td><p>A class for reading writing and combining config files in yaml format (e.g.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read" title="polaris.yaml.PolarisYaml.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisYaml.read</span></code></a>(filename[, package])</p></td>
+<td><p>Add config options from a yaml file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update" title="polaris.yaml.PolarisYaml.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisYaml.update</span></code></a>(configs[, quiet])</p></td>
+<td><p>Add config options from a dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write" title="polaris.yaml.PolarisYaml.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisYaml.write</span></code></a>(filename)</p></td>
+<td><p>Write config options to a yaml file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml" title="polaris.yaml.mpas_namelist_and_streams_to_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpas_namelist_and_streams_to_yaml</span></code></a>(model[, ...])</p></td>
+<td><p>Add config options from a yaml file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams" title="polaris.yaml.yaml_to_mpas_streams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yaml_to_mpas_streams</span></code></a>(...)</p></td>
+<td><p>Add config options from a yaml file</p></td>
 </tr>
 </tbody>
 </table>

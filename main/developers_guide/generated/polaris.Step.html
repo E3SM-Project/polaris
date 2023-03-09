@@ -81,15 +81,18 @@
 <li class="toctree-l4"><a class="reference internal" href="../api.html#modelstep">ModelStep</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#config">config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#io">io</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mesh">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#validate">validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id2">validate</a></li>
 </ul>
 </li>
 </ul>
@@ -175,12 +178,6 @@ time or the step will raise an exception</p></li>
 <li><p><strong>outputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – a list of absolute paths of output files produced by this step (or
 cached) and available as inputs to other test cases and steps.  These
 files must exist after the test has run or an exception will be raised</p></li>
-<li><p><strong>namelist_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – a dictionary used internally to keep track of updates to the default
-namelist options from calls to
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_file()</span></code>
-and <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_namelist_options()</span></code></p></li>
-<li><p><strong>streams_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – a dictionary used internally to keep track of updates to the default
-streams from calls to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_streams_file()</span></code></p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this test case, a combination of the defaults
 for the machine, core and configuration</p></li>
 <li><p><strong>machine_info</strong> (<em>mache.MachineInfo</em>) – Information about E3SM supported machines</p></li>
