@@ -1,6 +1,6 @@
 (ocean)=
 
-# Ocean conponent
+# Ocean component
 
 The `ocean` component in polaris contains test groups and test cases for the
 [MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and 
