@@ -2022,3 +2022,34 @@ A developer  defines a test suite by creating a `.txt` file within the
 `polaris/<component>/suites` directory.  The format of the `.txt` file is a 
 list of the work directories to  the tests desired to be part of the suite.  A 
 line starting with `#` will be  treated as a comment line.
+
+The philosophy and requirements for the test suites are as follows:
+
+### Pull-Request (PR) suite
+
+The PR suite is intended to be run in the context of its namesake, a pull-
+request to the model component. It should require no more than 32 cores (the
+minimum number of cores on a typical compute node) and take no more than 20
+minutes of run time on 32 cores.
+
+Examples of test cases that may be included in this suite:
+
+* Short tests to compare the solution and timers with a baseline (often called
+performance tests lasting 3-5 timesteps)
+* Variants on the above with different combinations of config options
+* Tests of all common config option combinations
+
+### Nightly suite
+
+The nightly suite is intended to be run nightly as a more exhausitive test
+that no recent merges have resulted in a change in solution for any possible
+combination of config options. It should require no more than 256 cores and
+take no more than 120 minutes of run time on 256 cores.
+
+Examples of test cases that may be included in this suite:
+
+* More expensive convergence tests
+* Tests that require a longer run to reach steady state.
+* Tests in conditions not normally encountered in global E3SM runs (e.g.,
+wetting and drying)
+* Tests of all possible config option combinations
