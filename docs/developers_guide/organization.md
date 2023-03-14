@@ -2027,10 +2027,15 @@ The philosophy and requirements for the test suites are as follows:
 
 ### Pull-Request (PR) suite
 
-The PR suite is intended to be run in the context of its namesake, a pull-
-request to the model component. It should require no more than 32 cores (the
-minimum number of cores on a typical compute node) and take no more than 20
-minutes of run time on 32 cores.
+The PR suite is intended to be run in the context of its namesake, a pull
+request to the model component. The PR suite should be able to be run in under
+an hour on 256 cores (two 128-core nodes), and the core count could be doubled
+for quicker testing.
+
+In order to achieve this performance, each test in the suite should preferably
+take under 20 minutes on 32 cores. However, a test may exceed these recommended
+limits if it offers significant benefit for catching bugs or performance issues
+or providing code covereage.
 
 Examples of test cases that may be included in this suite:
 
@@ -2038,6 +2043,11 @@ Examples of test cases that may be included in this suite:
 performance tests lasting 3-5 timesteps)
 * Variants on the above with different combinations of config options
 * Tests of all common config option combinations
+* Tests that verify identical behavior:
+  * across different numbers of cores
+  * across different numbers of threads
+  * with a longer model run and 2 (or more) shorter runs of the same total
+duration with a model restart
 
 ### Nightly suite
 
