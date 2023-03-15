@@ -242,7 +242,7 @@ def get_env_setup(args, config, machine, compiler, mpi, env_type, source_path,
 def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                     python, source_path, conda_template_path, conda_base,
                     env_name, env_path, activate_base, use_local,
-                    local_conda_build, logger, local_mache):
+                    local_conda_build, logger, local_mache, update_jigsaw):
 
     if env_type != 'dev':
         install_miniforge(conda_base, activate_base, logger)
@@ -301,7 +301,10 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
     else:
         spec_filename = None
 
-    if not os.path.exists(env_path) or recreate:
+    if not os.path.exists(env_path):
+        recreate = True
+
+    if recreate:
         print(f'creating {env_name}')
         if env_type == 'dev':
             # install dev dependencies and polaris itself
@@ -343,29 +346,30 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             f'git submodule update --init jigsaw-python'
         check_call(commands, logger=logger)
 
-        print('Building JIGSAW\n')
-        commands = \
-            f'{activate_env} && ' \
-            f'conda install -y cxx-compiler && ' \
-            f'cd {source_path}/jigsaw-python && ' \
-            f'python setup.py build_external'
-        check_call(commands, logger=logger)
+        if recreate or update_jigsaw:
+            print('Building JIGSAW\n')
+            commands = \
+                f'{activate_env} && ' \
+                f'conda install -y cxx-compiler && ' \
+                f'cd {source_path}/jigsaw-python && ' \
+                f'python setup.py build_external'
+            check_call(commands, logger=logger)
 
-        print('Installing JIGSAW and JIGSAW-Python\n')
-        commands = \
-            f'{activate_env} && ' \
-            f'cd {source_path}/jigsaw-python && ' \
-            f'python -m pip install --no-deps -e . && ' \
-            f'cp jigsawpy/_bin/* ${{CONDA_PREFIX}}/bin'
-        check_call(commands, logger=logger)
+            print('Installing JIGSAW and JIGSAW-Python\n')
+            commands = \
+                f'{activate_env} && ' \
+                f'cd {source_path}/jigsaw-python && ' \
+                f'python -m pip install --no-deps -e . && ' \
+                f'cp jigsawpy/_bin/* ${{CONDA_PREFIX}}/bin'
+            check_call(commands, logger=logger)
 
-        t1 = time.time()
-        total = int(t1 - t0 + 0.5)
-        message = f'JIGSAW install took {total} s.'
-        if logger is None:
-            print(message)
-        else:
-            logger.info(message)
+            t1 = time.time()
+            total = int(t1 - t0 + 0.5)
+            message = f'JIGSAW install took {total} s.'
+            if logger is None:
+                print(message)
+            else:
+                logger.info(message)
 
         # install (or reinstall) compass in edit mode
         print('Installing compass\n')
@@ -1022,7 +1026,8 @@ def main():  # noqa: C901
                 config, env_type, recreate, mpi, conda_mpi, polaris_version,
                 python, source_path, conda_template_path, conda_base,
                 conda_env_name, conda_env_path, activate_base, args.use_local,
-                args.local_conda_build, logger, local_mache)
+                args.local_conda_build, logger, local_mache,
+                args.update_jigsaw)
 
             if local_mache:
                 print('Install local mache\n')
