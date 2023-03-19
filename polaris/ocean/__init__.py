@@ -1,4 +1,5 @@
 from polaris.component import Component
+from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.global_convergence import GlobalConvergence
 
 
@@ -13,6 +14,8 @@ class Ocean(Component):
         """
         super().__init__(name='ocean')
 
+        # please keep these in alphabetical order
+        self.add_test_group(BaroclinicChannel(component=self))
         self.add_test_group(GlobalConvergence(component=self))
 
     def configure(self, config):
