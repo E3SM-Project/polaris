@@ -14,7 +14,7 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
     ----------
     config : polaris.config.PolarisConfigParser
         Configuration options for this test case, a combination of user configs
-        and the defaults for the machine and MPAS core
+        and the defaults for the machine and component
 
     machine : {str, None}
         The name of the machine

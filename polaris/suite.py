@@ -15,7 +15,7 @@ def setup_suite(component, suite_name, work_dir, config_file=None,
     Parameters
     ----------
     component : str
-        The MPAS core ('ocean', 'landice', etc.) of the test suite
+        The component ('ocean', 'landice', etc.) of the test suite
 
     suite_name : str
         The name of the test suite.  A file ``<suite_name>.txt`` must exist

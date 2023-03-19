@@ -108,7 +108,6 @@ def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
                                  zIndex <= maxLevelCell)
         cellMask.append(mask)
     cellMaskArray = xarray.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
-    print(f'type cellMask {type(cellMask)}')
     cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
     return cellMaskArray
 

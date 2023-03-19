@@ -92,7 +92,7 @@ class Forward(OceanModelStep):
         """
         config = self.config
         # dt is proportional to resolution: default 30 seconds per km
-        dt_per_km = config.getint('cosine_bell', 'dt_per_km')
+        dt_per_km = config.getfloat('cosine_bell', 'dt_per_km')
 
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
