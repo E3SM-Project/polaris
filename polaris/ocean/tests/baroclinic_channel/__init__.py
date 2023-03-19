@@ -4,6 +4,7 @@ from polaris.ocean.tests.baroclinic_channel.baroclinic_channel_test_case import 
 from polaris.ocean.tests.baroclinic_channel.decomp_test import DecompTest
 from polaris.ocean.tests.baroclinic_channel.default import Default
 from polaris.ocean.tests.baroclinic_channel.restart_test import RestartTest
+from polaris.ocean.tests.baroclinic_channel.threads_test import ThreadsTest
 from polaris.testgroup import TestGroup
 
 
@@ -28,3 +29,6 @@ class BaroclinicChannel(TestGroup):
 
             self.add_test_case(
                 RestartTest(test_group=self, resolution=resolution))
+
+            self.add_test_case(
+                ThreadsTest(test_group=self, resolution=resolution))
