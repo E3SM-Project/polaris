@@ -231,7 +231,7 @@ class ModelStep(Step):
         """
         self.model_config_data.append(dict(options=options))
 
-    def add_yaml_file(self, package, yaml):
+    def add_yaml_file(self, package, yaml, template_replacements=None):
         """
         Add a file with updates to yaml config options to the step to be parsed
         when generating a complete yaml file if and when the step gets set
@@ -244,9 +244,15 @@ class ModelStep(Step):
 
         yaml : str
             The name of the yaml file with replacement config options to read
+
+        template_replacements : dict, optional
+            A dictionary of replacements, in which case ``yaml`` must be a
+            Jinja2 template to be rendered with these replacements
         """
-        self.model_config_data.append(dict(package=package, yaml=yaml))
-        self.streams_data.append(dict(package=package, yaml=yaml))
+        self.model_config_data.append(dict(package=package, yaml=yaml,
+                                           replacements=template_replacements))
+        self.streams_data.append(dict(package=package, yaml=yaml,
+                                      replacements=template_replacements))
 
     def update_yaml_at_runtime(self, options):
         """
@@ -537,7 +543,8 @@ class ModelStep(Step):
                 options = self.map_yaml_to_namelist(entry['options'])
             elif 'yaml' in entry:
                 yaml = PolarisYaml.read(filename=entry['yaml'],
-                                        package=entry['package'])
+                                        package=entry['package'],
+                                        replacements=entry['replacements'])
                 options = self.map_yaml_to_namelist(yaml.configs)
             else:
                 options = polaris.namelist.parse_replacements(
@@ -572,7 +579,8 @@ class ModelStep(Step):
         for entry in self.streams_data:
             if 'yaml' in entry:
                 yaml = PolarisYaml.read(filename=entry['yaml'],
-                                        package=entry['package'])
+                                        package=entry['package'],
+                                        replacements=entry['replacements'])
                 assert processed_registry_filename is not None
                 new_tree = yaml_to_mpas_streams(processed_registry_filename,
                                                 yaml)
@@ -630,7 +638,8 @@ class ModelStep(Step):
                 options = entry['options']
             else:
                 yaml = PolarisYaml.read(filename=entry['yaml'],
-                                        package=entry['package'])
+                                        package=entry['package'],
+                                        replacements=entry['replacements'])
                 options = yaml.configs
             replacements.update(options)
 

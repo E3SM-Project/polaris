@@ -2,6 +2,7 @@ import argparse
 from collections import OrderedDict
 from typing import Dict
 
+from jinja2 import Template
 from lxml import etree
 from ruamel.yaml import YAML
 
@@ -34,7 +35,7 @@ class PolarisYaml:
         self.model = None
 
     @classmethod
-    def read(cls, filename, package=None):
+    def read(cls, filename, package=None, replacements=None):
         """
         Add config options from a yaml file
 
@@ -46,19 +47,33 @@ class PolarisYaml:
         package : str, optional
             The name of a package the filename is found in
 
+        replacements : dict, optional
+            A dictionary of replacements, which, if provided, is used to
+            replace Jinja variables and the yaml file is assumed do be a Jinja
+            template
+
         Returns
         -------
         yaml : polaris.yaml.PolarisYaml
             A yaml object read in from the given file (and optionally package)
         """
-        yaml = cls()
-        yaml_data = YAML(typ='rt')
+        # read the text from a file (possibly in a package)
         if package is not None:
-            with imp_res.files(package).joinpath(filename).open('r') as infile:
-                configs = yaml_data.load(infile)
+            text = imp_res.files(package).joinpath(filename).read_text()
         else:
             with open(filename, 'r') as infile:
-                configs = yaml_data.load(infile)
+                text = infile.read()
+
+        # if this is a jinja template, render the template with the
+        # replacements
+        if replacements is not None:
+            template = Template(text)
+            text = template.render(**replacements)
+
+        yaml = cls()
+        yaml_data = YAML(typ='rt')
+        configs = yaml_data.load(text)
+
         keys = list(configs)
         if len(keys) > 1:
             raise ValueError(
