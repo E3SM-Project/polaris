@@ -105,6 +105,19 @@ class CosineBell(TestCase):
                        str(min_tasks),
                        comment=f'Minimum core count for {resolution} km mesh')
 
+    def validate(self):
+        """
+        Validate variables against a baseline
+        """
+        for resolution in self.resolutions:
+            if self.icosahedral:
+                mesh_name = f'Icos{resolution}'
+            else:
+                mesh_name = f'QU{resolution}'
+            compare_variables(test_case=self,
+                              variables=['normalVelocity', 'tracer1'],
+                              filename1=f'{mesh_name}/forward/output.nc')
+
     def _setup_steps(self, config):
         """ setup steps given resolutions """
         if self.icosahedral:
@@ -153,16 +166,3 @@ class CosineBell(TestCase):
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions,
                                icosahedral=self.icosahedral))
-
-    def validate(self):
-        """
-        Validate variables against a baseline
-        """
-        for resolution in self.resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
-            compare_variables(test_case=self,
-                              variables=['normalVelocity', 'tracer1'],
-                              filename1=f'{mesh_name}/forward/output.nc')
