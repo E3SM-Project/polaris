@@ -10,7 +10,7 @@ class GlobalConvergence(TestGroup):
     def __init__(self, component):
         """
         component : polaris.ocean.Ocean
-            the MPAS core that this test group belongs to
+            the ocean component that this test group belongs to
         """
         super().__init__(component=component, name='global_convergence')
 
