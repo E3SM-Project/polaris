@@ -208,6 +208,19 @@
                        <span class="nb">str</span><span class="p">(</span><span class="n">min_tasks</span><span class="p">),</span>
                        <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Minimum core count for </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1"> km mesh&#39;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate variables against a baseline</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
+                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Icos</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;QU</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                              <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">],</span>
+                              <span class="n">filename1</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/forward/output.nc&#39;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; setup steps given resolutions &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
@@ -255,20 +268,7 @@
                                   <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
-                               <span class="n">icosahedral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate variables against a baseline</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
-                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Icos</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;QU</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                              <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">],</span>
-                              <span class="n">filename1</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/forward/output.nc&#39;</span><span class="p">)</span></div>
+                               <span class="n">icosahedral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

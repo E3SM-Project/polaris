@@ -196,7 +196,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
-        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
+        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
 
         <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
         <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
