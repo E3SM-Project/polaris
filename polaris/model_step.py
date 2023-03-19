@@ -310,7 +310,7 @@ class ModelStep(Step):
                 # extra set of quotes
                 namelist[option] = f"'{value}'"
             else:
-                namelist[option] = f'{value}'
+                namelist[option] = f'{value:g}'
 
         return namelist
 
