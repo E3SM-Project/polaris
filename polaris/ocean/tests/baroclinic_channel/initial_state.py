@@ -34,7 +34,7 @@ class InitialState(Step):
         self.resolution = resolution
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'ocean.nc']:
+                     'initial_state.nc']:
             self.add_output_file(file)
 
     def run(self):
@@ -139,4 +139,4 @@ class InitialState(Step):
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
-        write_netcdf(ds, 'ocean.nc')
+        write_netcdf(ds, 'initial_state.nc')

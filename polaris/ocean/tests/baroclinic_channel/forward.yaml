@@ -13,9 +13,9 @@ omega:
     config_cvmix_background_viscosity: 0.0001
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: initial_state.nc
     input:
-      filename_template: init.nc
+      filename_template: initial_state.nc
     restart: {}
     output:
       type: output

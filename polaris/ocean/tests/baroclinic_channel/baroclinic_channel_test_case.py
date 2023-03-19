@@ -70,4 +70,4 @@ class BaroclinicChannelTestCase(TestCase):
         """
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/ocean.nc')
+                          filename1='initial_state/initial_state.nc')

@@ -65,8 +65,8 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='init.nc',
-                            target='../initial_state/ocean.nc')
+        self.add_input_file(filename='initial_state.nc',
+                            target='../initial_state/initial_state.nc')
         self.add_input_file(filename='graph.info',
                             target='../initial_state/culled_graph.info')
 
