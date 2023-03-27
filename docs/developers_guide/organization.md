@@ -2051,7 +2051,7 @@ duration with a model restart
 
 ### Nightly suite
 
-The nightly suite is intended to be run nightly as a more exhausitive test
+The nightly suite is intended to be run nightly as a more exhaustive test
 that no recent merges have resulted in a change in solution for any possible
 combination of config options. It should require no more than 256 cores and
 take no more than 120 minutes of run time on 256 cores.
