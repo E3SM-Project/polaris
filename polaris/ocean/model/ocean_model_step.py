@@ -97,12 +97,8 @@ class OceanModelStep(ModelStep):
         model = config.get('ocean', 'model')
         if model == 'omega':
             self.make_yaml = True
-            self.make_namelist = False
-            self.make_streams = False
         elif model == 'mpas-ocean':
             self.make_yaml = False
-            self.make_namelist = True
-            self.make_streams = True
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 
@@ -179,31 +175,6 @@ class OceanModelStep(ModelStep):
         """
         raise ValueError('Input streams files are not supported in '
                          'OceanModelStep')
-
-    def update_model_config_at_runtime(self, options):
-        """
-        Update an existing namelist or yaml file with additional options.  This
-        would typically be used for model config options that are only known at
-        runtime, not during setup, typically those related to the number of
-        nodes and cores.
-
-        Parameters
-        ----------
-        options : dict
-            A dictionary of options and value to replace namelist options with
-            new values
-        """
-
-        config = self.config
-
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            self.update_yaml_at_runtime(options)
-        elif model == 'mpas-ocean':
-            self.update_namelist_at_runtime(
-                self.map_yaml_to_namelist(options))
-        else:
-            raise ValueError(f'Unexpected ocean model: {model}')
 
     def update_ntasks(self, cell_count):
         """

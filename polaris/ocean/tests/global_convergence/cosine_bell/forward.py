@@ -58,40 +58,25 @@ class Forward(OceanModelStep):
 
         self.add_output_file(filename='output.nc')
 
-    def setup(self):
+    def dynamic_model_config(self, at_setup):
         """
-        Set namelist options base on config options
-        """
-        super().setup()
-        dt = self.get_dt()
-        self.add_model_config_options({'config_dt': dt})
+        Set the model time step from config options at setup and runtime
 
-    def runtime_setup(self):
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
         """
-        Update the resources and time step in case the user has update config
-        options
-        """
-        super().runtime_setup()
+        super().dynamic_model_config(at_setup=at_setup)
 
-        # update dt in case the user has changed dt_per_km
-        dt = self.get_dt()
-        self.update_model_config_at_runtime(options={'config_dt': dt})
-
-    def get_dt(self):
-        """
-        Get the time step
-
-        Returns
-        -------
-        dt : str
-            the time step in HH:MM:SS
-        """
         config = self.config
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('cosine_bell', 'dt_per_km')
 
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
-        dt = time.strftime('%H:%M:%S', time.gmtime(dt))
+        dt_str = time.strftime('%H:%M:%S', time.gmtime(dt))
 
-        return dt
+        options = dict(config_dt=dt_str)
+        self.add_model_config_options(options)
