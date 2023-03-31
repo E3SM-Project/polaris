@@ -25,8 +25,7 @@ class Init(Step):
 
         super().__init__(test_case=test_case,
                          name=f'{mesh_name}_init',
-                         subdir=f'{mesh_name}/init',
-                         ntasks=36, min_tasks=1)
+                         subdir=f'{mesh_name}/init')
 
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
@@ -44,7 +43,6 @@ class Init(Step):
         temperature = section.getfloat('temperature')
         salinity = section.getfloat('salinity')
         lat_center = section.getfloat('lat_center')
-        lon_center = section.getfloat('lon_center')
         lon_center = section.getfloat('lon_center')
         radius = section.getfloat('radius')
         psi0 = section.getfloat('psi0')
