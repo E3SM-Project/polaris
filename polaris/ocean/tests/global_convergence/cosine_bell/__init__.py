@@ -69,42 +69,6 @@ class CosineBell(TestCase):
             init_options[f'config_cosine_bell_{option}'] = \
                 config.get('cosine_bell', option)
 
-        self.update_cores()
-
-    def update_cores(self):
-        """ Update the number of cores and min_tasks for each forward step """
-
-        config = self.config
-
-        goal_cells_per_core = config.getfloat('cosine_bell',
-                                              'goal_cells_per_core')
-        max_cells_per_core = config.getfloat('cosine_bell',
-                                             'max_cells_per_core')
-
-        for resolution in self.resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
-            # a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
-            approx_cells = 6e8 / resolution**2
-            # ideally, about 300 cells per core
-            # (make it a multiple of 4 because...it looks better?)
-            ntasks = max(1,
-                         4 * round(approx_cells / (4 * goal_cells_per_core)))
-            # In a pinch, about 3000 cells per core
-            min_tasks = max(1,
-                            round(approx_cells / max_cells_per_core))
-            step = self.steps[f'{mesh_name}_forward']
-            step.ntasks = ntasks
-            step.min_tasks = min_tasks
-
-            config.set('cosine_bell', f'{mesh_name}_ntasks', str(ntasks),
-                       comment=f'Target core count for {resolution} km mesh')
-            config.set('cosine_bell', f'{mesh_name}_min_tasks',
-                       str(min_tasks),
-                       comment=f'Minimum core count for {resolution} km mesh')
-
     def validate(self):
         """
         Validate variables against a baseline

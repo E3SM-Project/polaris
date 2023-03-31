@@ -32,10 +32,14 @@ class Forward(OceanModelStep):
         mesh_name : str
             The name of the mesh
         """
+        # a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
+        approx_cells = 6e8 / resolution**2
+
         super().__init__(test_case=test_case,
                          name=f'{mesh_name}_forward',
                          subdir=f'{mesh_name}/forward',
-                         openmp_threads=1)
+                         openmp_threads=1,
+                         cell_count=approx_cells)
 
         self.resolution = resolution
         self.mesh_name = mesh_name
@@ -61,14 +65,6 @@ class Forward(OceanModelStep):
         super().setup()
         dt = self.get_dt()
         self.add_model_config_options({'config_dt': dt})
-        self._get_resources()
-
-    def constrain_resources(self, available_cores):
-        """
-        Update resources at runtime from config options
-        """
-        self._get_resources()
-        super().constrain_resources(available_cores)
 
     def runtime_setup(self):
         """
@@ -99,9 +95,3 @@ class Forward(OceanModelStep):
         dt = time.strftime('%H:%M:%S', time.gmtime(dt))
 
         return dt
-
-    def _get_resources(self):
-        mesh_name = self.mesh_name
-        config = self.config
-        self.ntasks = config.getint('cosine_bell', f'{mesh_name}_ntasks')
-        self.min_tasks = config.getint('cosine_bell', f'{mesh_name}_min_tasks')

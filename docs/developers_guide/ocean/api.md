@@ -46,3 +46,21 @@
    analysis.Analysis.rmse
 
 ```
+
+## Framework
+
+### OceanModelStep
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.model
+
+.. autosummary::
+   :toctree: generated/
+
+   OceanModelStep
+   OceanModelStep.setup
+   OceanModelStep.constrain_resources
+   OceanModelStep.map_yaml_to_namelist
+   OceanModelStep.update_model_config_at_runtime
+   OceanModelStep.update_ntasks
+```
