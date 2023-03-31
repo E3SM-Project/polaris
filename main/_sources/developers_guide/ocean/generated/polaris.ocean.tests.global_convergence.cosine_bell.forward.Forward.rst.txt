@@ -33,6 +33,7 @@
       ~Forward.update_model_config_at_runtime
       ~Forward.update_namelist_at_runtime
       ~Forward.update_namelist_pio
+      ~Forward.update_ntasks
       ~Forward.update_streams_at_runtime
       ~Forward.update_yaml_at_runtime
    

@@ -74,6 +74,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">ocean</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#test-groups">Test Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#framework">Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -185,6 +186,38 @@
 </tbody>
 </table>
 </section>
+</section>
+</section>
+<section id="framework">
+<h2>Framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<section id="oceanmodelstep">
+<h3>OceanModelStep<a class="headerlink" href="#oceanmodelstep" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a>(test_case, name[, subdir, ...])</p></td>
+<td><p>An Omega or MPAS-Ocean step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup" title="polaris.ocean.model.OceanModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.setup</span></code></a>()</p></td>
+<td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_to_namelist</span></code></a>(options)</p></td>
+<td><p>A mapping from yaml model config options to namelist options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.update_model_config_at_runtime.html#polaris.ocean.model.OceanModelStep.update_model_config_at_runtime" title="polaris.ocean.model.OceanModelStep.update_model_config_at_runtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.update_model_config_at_runtime</span></code></a>(options)</p></td>
+<td><p>Update an existing namelist or yaml file with additional options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.update_ntasks.html#polaris.ocean.model.OceanModelStep.update_ntasks" title="polaris.ocean.model.OceanModelStep.update_ntasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.update_ntasks</span></code></a>(cell_count)</p></td>
+<td><p>Update <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> for the step based on the estimated mesh size</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 </section>

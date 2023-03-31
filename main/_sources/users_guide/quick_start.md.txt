@@ -5,7 +5,7 @@
 :::{admonition} Quick Start for Users is not yet valid
 There has not yet been a release of polaris.  We will update this 
 documentation as soon as there is one.  Until then please refer to the
-{ref}`dev_quick_start`.
+{ref}`dev-quick-start`.
 :::
 
 (conda-env)=

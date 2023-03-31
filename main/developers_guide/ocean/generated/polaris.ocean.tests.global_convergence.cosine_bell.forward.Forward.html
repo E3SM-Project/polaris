@@ -74,6 +74,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html">ocean</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../api.html#test-groups">Test Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#framework">Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -173,7 +174,7 @@ bell test case</p>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
-<td><p>Update resources at runtime from config options</p></td>
+<td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dt</span></code></a>()</p></td>
 <td><p>Get the time step</p></td>
@@ -211,10 +212,13 @@ bell test case</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_streams_at_runtime</span></code>(package, streams, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_ntasks</span></code>(cell_count)</p></td>
+<td><p>Update <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> for the step based on the estimated mesh size</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_streams_at_runtime</span></code>(package, streams, ...)</p></td>
 <td><p>Update the streams files during the run phase of this step using the given template and replacements.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_yaml_at_runtime</span></code>(options)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_yaml_at_runtime</span></code>(options)</p></td>
 <td><p>Update an existing yaml file with additional options.</p></td>
 </tr>
 </tbody>

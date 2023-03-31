@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanModelStep.update\_model\_config\_at\_runtime
+=====================================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanModelStep.update_model_config_at_runtime

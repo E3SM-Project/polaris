@@ -17,7 +17,6 @@
       ~CosineBell.add_step
       ~CosineBell.check_validation
       ~CosineBell.configure
-      ~CosineBell.update_cores
       ~CosineBell.validate
    
    
