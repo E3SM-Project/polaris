@@ -60,7 +60,6 @@
    OceanModelStep
    OceanModelStep.setup
    OceanModelStep.constrain_resources
+   OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_to_namelist
-   OceanModelStep.update_model_config_at_runtime
-   OceanModelStep.update_ntasks
 ```

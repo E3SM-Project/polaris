@@ -47,11 +47,12 @@ counterparts.
 #### Setting MPI resources
 
 The target and minimum number of MPI tasks (`ntasks` and `min_tasks`, 
-respectively) are set automatically if the `cell_count` attribute in in the
-ocean model step is set to an approximate number of cells in the mesh.
-Sometimes, the number of cells in the mesh is known at setup time (e.g. for
-regularly spaced planar meshes, where the number of cells is provided 
-explicitly).  Often, this is not possible and a more heuristic approach is
-needed to estimate the number of cells.  The right approach will need to be 
-determined on a test case by test case basis.
-
+respectively) are set automatically if `ntasks` and `min_tasks` have not
+already been set explicitly.  In such cases, a subclass of `OceanModelStep`
+must override the
+{py:meth}`polaris.ocean.model.OceanModelStep.compute_cell_count()` method
+to compute the number of cells in the mesh.  Since it is typically not possible
+to read the cell count from a file during setup, this method may need to have
+a heuristic way of approximating the number of cells during setup (i.e. when
+the `at_setup` parameter is `True`.  Then, it can return the exact number of 
+cells at runtime (i.e. `at_setup == False`).
