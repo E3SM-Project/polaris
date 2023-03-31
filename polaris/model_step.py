@@ -54,14 +54,9 @@ class ModelStep(Step):
         a list used internally to keep track of updates to the default
         streams from calls to :py:meth:`polaris.ModelStep.add_streams_file`
 
-    make_namelist : bool
-        Whether to create a namelist file
-
-    make_streams : bool
-        Whether to create a streams file
-
     make_yaml : bool
         Whether to create a yaml file with model config options and streams
+        instead of MPAS namelist and streams files
 
     """
     def __init__(self, test_case, name, subdir=None, ntasks=None,
@@ -69,7 +64,7 @@ class ModelStep(Step):
                  cached=False, namelist=None, streams=None, yaml=None,
                  update_pio=True, make_graph=False, mesh_filename=None,
                  partition_graph=True, graph_filename='graph.info',
-                 make_namelist=True, make_streams=True, make_yaml=False):
+                 make_yaml=False):
         """
         Make a step for running the model
 
@@ -133,14 +128,9 @@ class ModelStep(Step):
         graph_filename : str, optional
             The name of the graph file to partition
 
-        make_namelist : bool, optional
-            Whether to create one or more namelist files
-
-        make_streams : bool, optional
-            Whether to create one or more streams file
-
         make_yaml : bool, optional
             Whether to create a yaml file with model config options and streams
+            instead of MPAS namelist and streams files
         """
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          cpus_per_task=openmp_threads,
@@ -167,14 +157,17 @@ class ModelStep(Step):
         self.partition_graph = partition_graph
         self.graph_filename = graph_filename
 
-        self.make_namelist = make_namelist
-        self.make_streams = make_streams
         self.make_yaml = make_yaml
 
         self.add_input_file(filename='<<<model>>>')
 
         self.model_config_data = list()
         self.streams_data = list()
+
+        # used during generating yaml, namelist and streams files
+        self._yaml = None
+        self._namelist = None
+        self._streams_tree = None
 
     def setup(self):
         """ Setup the command-line arguments """
@@ -221,7 +214,9 @@ class ModelStep(Step):
     def add_model_config_options(self, options):
         """
         Add the replacement model config options to be parsed when generating
-        a namelist or yaml file if and when the step gets set up
+        a namelist or yaml file if and when the step gets set up.  The config
+        values should be in the appropriate python data type: bool, float,
+        int or str.
 
         Parameters
         ----------
@@ -253,28 +248,6 @@ class ModelStep(Step):
                                            replacements=template_replacements))
         self.streams_data.append(dict(package=package, yaml=yaml,
                                       replacements=template_replacements))
-
-    def update_yaml_at_runtime(self, options):
-        """
-        Update an existing yaml file with additional options.  This would
-        typically be used for yaml options that are only known at runtime,
-        not during setup, typically those related to the number of nodes and
-        cores.
-
-        Parameters
-        ----------
-        options : dict
-            A nested dictionary of sections, options and value to use as
-            replacements for existing values
-        """
-
-        print(f'Warning: replacing yaml options in {self.yaml}')
-
-        filename = os.path.join(self.work_dir, self.yaml)
-
-        yaml = PolarisYaml.read(filename)
-        yaml = yaml.update(options, quiet=False)
-        yaml.write(filename)
 
     def map_yaml_to_namelist(self, options):
         """
@@ -339,32 +312,6 @@ class ModelStep(Step):
         """
         self.model_config_data.append(dict(package=package, namelist=namelist))
 
-    def update_namelist_at_runtime(self, options):
-        """
-        Update an existing namelist file with additional options.  This would
-        typically be used for namelist options that are only known at runtime,
-        not during setup, typically those related to the number of nodes and
-        cores.
-
-        Parameters
-        ----------
-        options : dict
-            A dictionary of options and value to replace namelist options with
-            new values
-        """
-
-        print(f'Warning: replacing namelist options in {self.namelist}')
-        for key, value in options.items():
-            print(f'{key} = {value}')
-
-        filename = os.path.join(self.work_dir, self.namelist)
-
-        namelist = polaris.namelist.ingest(filename)
-
-        namelist = polaris.namelist.replace(namelist, options)
-
-        polaris.namelist.write(namelist, filename)
-
     def add_streams_file(self, package, streams, template_replacements=None):
         """
         Add a streams file to the step to be parsed when generating a complete
@@ -386,47 +333,41 @@ class ModelStep(Step):
             dict(package=package, streams=streams,
                  replacements=template_replacements))
 
-    def update_streams_at_runtime(self, package, streams,
-                                  template_replacements):
+    def dynamic_model_config(self, at_setup):
         """
-        Update the streams files during the run phase of this step using the
-        given template and replacements.  This may be useful for updating
-        streams based on config options that a user may have changed before
-        running the step.
+        Add model config options, namelist, streams and yaml files using config
+        options or template replacements that need to be set both during step
+        setup and at runtime
 
         Parameters
         ----------
-        package : Package
-            The package name or module object that contains the streams file
-
-        streams : str
-            The name of a Jinja2 template to be rendered with replacements
-
-        template_replacements : dict
-            A dictionary of replacements
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
         """
-        if template_replacements is not None:
-            print(f'Warning: updating streams in {self.streams} using the '
-                  f'following template and replacements:')
-            print(f'{package} {streams}')
-            for key, value in template_replacements.items():
-                print(f'{key} = {value}')
-
-        filename = os.path.join(self.work_dir, self.streams)
-
-        tree = etree.parse(filename)
-        tree = polaris.streams.read(package, streams, tree=tree,
-                                    replacements=template_replacements)
-        polaris.streams.write(tree, filename)
+        if self.update_pio and not at_setup:
+            self.update_namelist_pio()
 
     def runtime_setup(self):
         """
         Update PIO namelist options, make graph file, and partition graph file
         (if any of these are requested)
         """
+        quiet = False
+        self._read_model_config()
 
-        if self.make_namelist and self.update_pio:
-            self.update_namelist_pio()
+        # start fresh for dynamic model configuration
+        self.model_config_data = list()
+        self.streams_data = list()
+        self.dynamic_model_config(at_setup=False)
+
+        if self.make_yaml:
+            self._process_yaml(quiet=quiet)
+        else:
+            self._process_namelists(quiet=quiet)
+            self._process_streams(quiet=quiet, remove_unrequested=False)
+
+        self._write_model_config()
 
         if self.make_graph:
             make_graph_file(mesh_filename=self.mesh_filename,
@@ -453,12 +394,21 @@ class ModelStep(Step):
 
         super().process_inputs_and_outputs()
 
-        if self.make_namelist and not self.cached:
-            self._generate_namelists()
-        if self.make_streams and not self.cached:
-            self._generate_streams()
-        if self.make_yaml and not self.cached:
-            self._generate_yaml()
+        if self.cached:
+            return
+
+        self.dynamic_model_config(at_setup=True)
+
+        quiet = True
+        self._create_model_config()
+
+        if self.make_yaml:
+            self._process_yaml(quiet=quiet)
+        else:
+            self._process_namelists(quiet=quiet)
+            self._process_streams(quiet=quiet, remove_unrequested=True)
+
+        self._write_model_config()
 
     def update_namelist_pio(self):
         """
@@ -481,10 +431,10 @@ class ModelStep(Step):
                              f'cores: {cores}, cores per node: '
                              f'{cores_per_node}')
 
-        replacements = {'config_pio_num_iotasks': f'{pio_num_iotasks}',
-                        'config_pio_stride': f'{pio_stride}'}
+        replacements = {'config_pio_num_iotasks': pio_num_iotasks,
+                        'config_pio_stride': pio_stride}
 
-        self.update_namelist_at_runtime(options=replacements)
+        self.add_model_config_options(options=replacements)
 
     def partition(self, graph_file='graph.info'):
         """
@@ -504,6 +454,7 @@ class ModelStep(Step):
 
     @staticmethod
     def _process_model(config, base_work_dir):
+        """ Process the E3SM component model as an input to the step """
         model = config.get('executables', 'component')
         filename = os.path.basename(model)
         copy_executable = config.getboolean('setup', 'copy_executable')
@@ -526,14 +477,74 @@ class ModelStep(Step):
             target = os.path.abspath(model)
         return filename, target
 
-    def _generate_namelists(self):
+    def _create_model_config(self):
         """
-        Writes out a namelist file in the work directory with new values given
-        by parsing the files and dictionaries in the step's ``namelist_data``.
+        At setup, create either the yaml or the namelist/streams file for the
+        step
         """
-
-        step_work_dir = self.work_dir
         config = self.config
+        if self.make_yaml:
+            defaults_filename = config.get('model_config', 'defaults')
+            self._yaml = PolarisYaml.read(defaults_filename)
+        else:
+            defaults_filename = config.get('namelists', 'forward')
+            self._namelist = polaris.namelist.ingest(defaults_filename)
+
+            defaults_filename = config.get('streams', 'forward')
+            self._streams_tree = etree.parse(defaults_filename)
+
+    def _read_model_config(self):
+        """
+        At runtime, read either the yaml or the namelist/streams file for the
+        step
+        """
+        if self.make_yaml:
+            filename = os.path.join(self.work_dir, self.yaml)
+            self._yaml = PolarisYaml.read(filename)
+        else:
+            filename = os.path.join(self.work_dir, self.namelist)
+            self._namelist = polaris.namelist.ingest(filename)
+
+            filename = os.path.join(self.work_dir, self.streams)
+            self._streams_tree = etree.parse(filename)
+
+    def _write_model_config(self):
+        """
+        At setup or runtime, write either the yaml or the namelist/streams
+        file for the step
+        """
+        step_work_dir = self.work_dir
+        if self.make_yaml:
+            yaml_filename = f'{step_work_dir}/{self.yaml}'
+            if self._yaml is None:
+                raise ValueError('Trying to write a yaml file but no yaml '
+                                 'object was created.')
+            self._yaml.write(yaml_filename)
+        else:
+            namelist_filename = f'{step_work_dir}/{self.namelist}'
+            if self._namelist is None:
+                raise ValueError('Trying to write a namelist file but no '
+                                 'namelist object was created.')
+            polaris.namelist.write(self._namelist, namelist_filename)
+
+            streams_filename = f'{step_work_dir}/{self.streams}'
+            if self._streams_tree is None:
+                raise ValueError('Trying to write a streams file but no '
+                                 'streams XML tree was created.')
+            polaris.streams.write(self._streams_tree, streams_filename)
+        # set these back to None because we don't need to keep them around
+        # and the streams tree can't be pickled
+        self._yaml = None
+        self._namelist = None
+        self._streams_tree = None
+
+    def _process_namelists(self, quiet):
+        """
+        Processes changes to a namelist file from the files and dictionaries
+        in the step's ``model_config_data``.
+        """
+        if not self.model_config_data:
+            return
 
         replacements = dict()
 
@@ -551,21 +562,24 @@ class ModelStep(Step):
                     entry['package'], entry['namelist'])
             replacements.update(options)
 
-        defaults_filename = config.get('namelists', 'forward')
-        out_filename = f'{step_work_dir}/{self.namelist}'
+        if not quiet:
+            print(f'Warning: replacing namelist options in {self.namelist}')
+            for key, value in replacements.items():
+                print(f'{key} = {value}')
 
-        namelist = polaris.namelist.ingest(defaults_filename)
+        if self._streams_tree is None:
+            raise ValueError('Trying to update a namelist object but it was '
+                             'never created.')
+        self._namelist = polaris.namelist.replace(self._namelist, replacements)
 
-        namelist = polaris.namelist.replace(namelist, replacements)
-
-        polaris.namelist.write(namelist, out_filename)
-
-    def _generate_streams(self):
+    def _process_streams(self, quiet, remove_unrequested):
         """
-        Writes out a streams file in the work directory with new values given
-        by parsing the files and dictionaries in the step's ``streams_data``.
+        Processes changes to a streams file from the files and dictionaries
+        in the step's ``streams_data``.
         """
-        step_work_dir = self.work_dir
+        if not self.streams_data:
+            return
+
         config = self.config
 
         # generate the streams file
@@ -577,54 +591,67 @@ class ModelStep(Step):
             processed_registry_filename = config.get('registry', 'processed')
 
         for entry in self.streams_data:
+            package = entry['package']
+            replacements = entry['replacements']
             if 'yaml' in entry:
-                yaml = PolarisYaml.read(filename=entry['yaml'],
-                                        package=entry['package'],
-                                        replacements=entry['replacements'])
+                yaml_filename = entry['yaml']
+                if not quiet:
+                    print(f'{package} {yaml_filename}')
+
+                yaml = PolarisYaml.read(filename=yaml_filename,
+                                        package=package,
+                                        replacements=replacements)
                 assert processed_registry_filename is not None
                 new_tree = yaml_to_mpas_streams(processed_registry_filename,
                                                 yaml)
                 tree = polaris.streams.update_tree(tree, new_tree)
             else:
+                streams_filename = entry['streams']
+                if not quiet:
+                    print(f'{package} {streams_filename}')
+
                 tree = polaris.streams.read(
-                    package=entry['package'],
-                    streams_filename=entry['streams'],
-                    replacements=entry['replacements'], tree=tree)
+                    package=package, streams_filename=streams_filename,
+                    replacements=replacements, tree=tree)
+
+            if not quiet and replacements is not None:
+                for key, value in replacements.items():
+                    print(f'{key} = {value}')
 
         if tree is None:
-            raise ValueError('No streams were added to the streams file.')
+            # nothing to add
+            return
 
-        defaults_filename = config.get('streams', 'forward')
-        out_filename = f'{step_work_dir}/{self.streams}'
+        if self._streams_tree is None:
+            raise ValueError('Trying to update a streams XML tree but it was '
+                             'never created.')
 
-        defaults_tree = etree.parse(defaults_filename)
-
-        defaults = next(defaults_tree.iter('streams'))
+        defaults = next(self._streams_tree.iter('streams'))
         streams = next(tree.iter('streams'))
 
         for stream in streams:
             polaris.streams.update_defaults(stream, defaults)
 
-        # remove any streams that aren't requested
-        for default in defaults:
-            found = False
-            for stream in streams:
-                if stream.attrib['name'] == default.attrib['name']:
-                    found = True
-                    break
-            if not found:
-                defaults.remove(default)
+        if remove_unrequested:
+            # during setup, we remove any streams that aren't requested but
+            # at runtime we don't want to do because we would lose any streams
+            # added only during setup.
+            for default in defaults:
+                found = False
+                for stream in streams:
+                    if stream.attrib['name'] == default.attrib['name']:
+                        found = True
+                        break
+                if not found:
+                    defaults.remove(default)
 
-        polaris.streams.write(defaults_tree, out_filename)
-
-    def _generate_yaml(self):
+    def _process_yaml(self, quiet):
         """
-        Writes out a namelist file in the work directory with new values given
-        by parsing the files and dictionaries in the step's ``namelist_data``.
+        Processes changes to a yaml file from the files and dictionaries
+        in the step's ``model_config_data``.
         """
-
-        step_work_dir = self.work_dir
-        config = self.config
+        if not self.model_config_data:
+            return
 
         replacements = dict()
 
@@ -643,12 +670,13 @@ class ModelStep(Step):
                 options = yaml.configs
             replacements.update(options)
 
-        defaults_filename = config.get('model_config', 'defaults')
-        out_filename = f'{step_work_dir}/{self.yaml}'
+        if not quiet:
+            print(f'Warning: replacing yaml options in {self.yaml}')
 
-        yaml = PolarisYaml.read(defaults_filename)
-        yaml = yaml.update(replacements, quiet=True)
-        yaml.write(out_filename)
+        if self._yaml is None:
+            raise ValueError('Trying to update a yaml object but it was '
+                             'never created.')
+        self._yaml = self._yaml.update(replacements, quiet=quiet)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',
