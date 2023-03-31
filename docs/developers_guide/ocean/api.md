@@ -26,27 +26,26 @@
    BaroclinicChannelTestCase.validate
    
    forward.Forward
-   forward.Forward.setup
-   forward.Forward.run
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
 
    initial_state.InitialState
    initial_state.InitialState.setup
    initial_state.InitialState.run
 
    default.Default
-   default.Default.configure
    default.Default.validate
 
    decomp_test.DecompTest
-   decomp_test.DecompTest.configure
    decomp_test.DecompTest.validate
 
    restart_test.RestartTest
-   restart_test.RestartTest.configure
    restart_test.RestartTest.validate
 
+   restart_test.restart_step.RestartStep
+   restart_test.restart_step.RestartStep.dynamic_model_config
+
    threads_test.ThreadsTest
-   threads_test.ThreadsTest.configure
    threads_test.ThreadsTest.validate
 
    rpe_test.RpeTest

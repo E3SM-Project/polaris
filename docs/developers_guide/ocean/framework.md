@@ -50,6 +50,20 @@ a heuristic way of approximating the number of cells during setup (i.e. when
 the `at_setup` parameter is `True`.  Then, it can return the exact number of 
 cells at runtime (i.e. `at_setup == False`).
 
+The algorithm for determining the resources is:
+
+```python
+# ideally, about 200 cells per core
+self.ntasks = max(1, round(cell_count / goal_cells_per_core + 0.5))
+# In a pinch, about 2000 cells per core
+self.min_tasks = max(1, round(cell_count / max_cells_per_core + 0.5))
+```
+
+The config options `goal_cells_per_core` and `max_cells_per_core` in the
+`[ocean]` seciton can be used to control how resources scale with the size of 
+the planar mesh.  By default,  the number of MPI tasks tries to apportion 200 
+cells to each core, but it will allow as many as 2000. 
+
 (dev-ocean-framework-config)=
 
 ## Model config options and streams

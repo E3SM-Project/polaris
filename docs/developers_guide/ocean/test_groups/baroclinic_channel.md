@@ -50,12 +50,14 @@ The class {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
 the `initial_state` step.  If `nu` is provided as an argument to the
 constructor, the associate namelist option (`config_mom_del2`) will be given
-this value. Namelist and streams files are generate during `setup()`.
-Additionally, the size of the time step and optionally the resources required
-to run the model are determined algorithmically based on config options.  This
-is done once at setup (in the `setup()` method) and once at runtime in case
-config options have changed in either the `contrain_resources()` or 
-`runtime_setup()`. For MPAS-Ocean, PIO namelist options are modified and a
+this value. Namelist and streams files are updated in
+{py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config()`
+with time steps determined algorithmically based on config options.  The
+number of cells is computed from config options in
+{py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.compute_cell_count()`
+so that this can be used to constrain the number of MPI tasks that tests
+have as their target and minimum (if the resources are not explicitly
+prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_steup()`.  Finally, the ocean 
 model is run.
 
@@ -117,21 +119,6 @@ The {py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest`
 performs a longer (20 day) integration of the model forward in time at 5
 different values of the viscosity.  Versions of the test case exist at each of
 the 3 default horizontal resolutions (1, 4 and 10 km).
-
-The different resolutions use different numbers of resources, as determined by
-an algorithm in `BaroclinicChannelTestCase`:
-
-```python
-# ideally, about 200 cells per core
-self.ntasks = max(1, round(nx * ny / goal_cells_per_core + 0.5))
-# In a pinch, about 2000 cells per core
-self.min_tasks = max(1, round(nx * ny / max_cells_per_core + 0.5))
-```
-
-The config options `goal_cells_per_core` and `max_cells_per_core` can be used
-to control how resources scale with the size of the planar mesh.  By default,
-the number of MPI tasks tries to apportion 200 cells to each core, but it will
-allow as many as 2000. 
 
 The `analysis` step defined by
 {py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis`
