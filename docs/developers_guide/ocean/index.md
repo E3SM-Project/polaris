@@ -95,5 +95,6 @@ appropriate for whichever of the {ref}`machines` you are using.
 :titlesonly: true
 
 test_groups/index
+framework
 models/index
 ```
