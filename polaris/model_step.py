@@ -634,8 +634,8 @@ class ModelStep(Step):
 
         if remove_unrequested:
             # during setup, we remove any streams that aren't requested but
-            # at runtime we don't want to do because we would lose any streams
-            # added only during setup.
+            # at runtime we don't want to do this because we would lose any
+            # streams added only during setup.
             for default in defaults:
                 found = False
                 for stream in streams:

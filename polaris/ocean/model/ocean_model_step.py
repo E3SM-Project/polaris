@@ -7,15 +7,16 @@ class OceanModelStep(ModelStep):
 
     Attributes
     ----------
-    cell_count : int or None
-        The approximate number of cells in the mesh, used to constrain
-        resources
+    dynamic_ntasks : bool
+        Whether the target and minimum number of MPI tasks (``ntasks`` and
+        ``min_tasks``) are computed dynamically from the number of cells
+        in the mesh
     """
     def __init__(self, test_case, name, subdir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, yaml=None, update_pio=True, make_graph=False,
                  mesh_filename=None, partition_graph=True,
-                 graph_filename='graph.info', cell_count=None):
+                 graph_filename='graph.info'):
         """
         Make a step for running the model
 
@@ -72,10 +73,6 @@ class OceanModelStep(ModelStep):
 
         graph_filename : str, optional
             The name of the graph file to partition
-
-        cell_count : int, optional
-            The approximate number of cells in the mesh, used to constrain
-            resources
         """
         super().__init__(
             test_case=test_case, name=name, subdir=subdir, ntasks=ntasks,
@@ -85,7 +82,7 @@ class OceanModelStep(ModelStep):
             mesh_filename=mesh_filename, partition_graph=partition_graph,
             graph_filename=graph_filename)
 
-        self.cell_count = cell_count
+        self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
     def setup(self):
         """
@@ -102,8 +99,10 @@ class OceanModelStep(ModelStep):
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 
-        if self.cell_count is not None:
-            self.update_ntasks(self.cell_count)
+        self.dynamic_ntasks = (self.ntasks is None and self.min_tasks is None)
+
+        if self.dynamic_ntasks:
+            self._update_ntasks(at_setup=True)
 
         super().setup()
 
@@ -111,9 +110,27 @@ class OceanModelStep(ModelStep):
         """
         Update the number of MPI tasks to use based on the estimated mesh size
         """
-        if self.cell_count is not None:
-            self.update_ntasks(self.cell_count)
+        if self.dynamic_ntasks:
+            self._update_ntasks(at_setup=False)
         super().constrain_resources(available_cores)
+
+    def compute_cell_count(self, at_setup):
+        """
+        Compute the approximate number of cells in the mesh, used to constrain
+        resources
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+
+        Returns
+        -------
+        cell_count : int or None
+            The approximate number of cells in the mesh
+        """
+        return None
 
     def map_yaml_to_namelist(self, options):
         """
@@ -176,12 +193,18 @@ class OceanModelStep(ModelStep):
         raise ValueError('Input streams files are not supported in '
                          'OceanModelStep')
 
-    def update_ntasks(self, cell_count):
+    def _update_ntasks(self, at_setup):
         """
         Update ``ntasks`` and ``min_tasks`` for the step based on the estimated
         mesh size
         """
         config = self.config
+        cell_count = self.compute_cell_count(at_setup)
+        if cell_count is None:
+            raise ValueError('ntasks and min_tasks were not set explicitly '
+                             'but they also cannot be computed because '
+                             'compute_cell_count() does not appear to have '
+                             'been overridden.')
 
         goal_cells_per_core = config.getfloat('ocean', 'goal_cells_per_core')
         max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
