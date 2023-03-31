@@ -138,6 +138,9 @@ class ModelStep(Step):
 
         make_streams : bool, optional
             Whether to create one or more streams file
+
+        make_yaml : bool, optional
+            Whether to create a yaml file with model config options and streams
         """
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          cpus_per_task=openmp_threads,
