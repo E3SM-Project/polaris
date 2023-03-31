@@ -1,8 +1,6 @@
 omega:
   io:
     config_write_output_on_startup: false
-  time_management:
-    config_run_duration: 0000_00:15:00
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: 10.0

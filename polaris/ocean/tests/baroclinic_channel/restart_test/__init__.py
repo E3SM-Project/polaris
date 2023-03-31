@@ -1,5 +1,7 @@
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.forward import Forward
+from polaris.ocean.tests.baroclinic_channel.restart_test.restart_step import (
+    RestartStep,
+)
 from polaris.validate import compare_variables
 
 
@@ -25,15 +27,10 @@ class RestartTest(BaroclinicChannelTestCase):
         super().__init__(test_group=test_group, resolution=resolution,
                          name='restart_test')
 
-        for part in ['full', 'restart']:
-            name = f'{part}_run'
-            step = Forward(test_case=self, name=name, subdir=name, ntasks=4,
-                           min_tasks=4, openmp_threads=1,
-                           resolution=resolution)
-            package = 'polaris.ocean.tests.baroclinic_channel.restart_test'
-            step.add_yaml_file(package=package,
-                               yaml=f'{part}.yaml')
-            self.add_step(step)
+        for name in ['full_run', 'restart_run']:
+            self.add_step(
+                RestartStep(test_case=self, resolution=resolution,
+                            name=name))
 
     def validate(self):
         """

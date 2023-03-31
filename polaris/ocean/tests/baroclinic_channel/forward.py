@@ -16,6 +16,12 @@ class Forward(OceanModelStep):
     resources_fixed : bool
         Whether resources were set already and shouldn't be updated
         algorithmically
+
+    dt : float
+        The model time step in seconds
+
+    btr_dt : float
+        The model barotropic time step in seconds
     """
     def __init__(self, test_case, resolution, name='forward', subdir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1, nu=None):
@@ -55,8 +61,6 @@ class Forward(OceanModelStep):
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
-        self.add_yaml_file('polaris.ocean.tests.baroclinic_channel',
-                           'forward.yaml')
 
         if nu is not None:
             # update the viscosity to the requested value
@@ -70,72 +74,76 @@ class Forward(OceanModelStep):
         self.add_input_file(filename='graph.info',
                             target='../initial_state/culled_graph.info')
 
+        self.add_yaml_file('polaris.ocean.tests.baroclinic_channel',
+                           'forward.yaml')
+
         self.add_output_file(filename='output.nc')
 
         self.resources_fixed = (ntasks is not None)
 
-    def setup(self):
-        """
-        Set namelist options base on config options
-        """
-        options = self.get_dt_model_options()
-        self.add_model_config_options(options=options)
-        self.resources_fixed = (self.ntasks is not None)
-        if not self.resources_fixed:
-            # we do this once at setup with the default config options
-            self._get_resources()
-        super().setup()
+        self.dt = None
+        self.btr_dt = None
 
-    def constrain_resources(self, available_cores):
+    def compute_cell_count(self, at_setup):
         """
-        Update resources at runtime from config options
-        """
-        if not self.resources_fixed:
-            # we do this again at runtime in case config options have changed
-            self._get_resources()
-        super().constrain_resources(available_cores)
+        Compute the approximate number of cells in the mesh, used to constrain
+        resources
 
-    def runtime_setup(self):
-        """
-        Update the resources and time step in case the user has update config
-        options
-        """
-        super().runtime_setup()
-
-        # update dt in case the user has changed dt_per_km
-        options = self.get_dt_model_options()
-        self.update_model_config_at_runtime(options=options)
-
-    def get_dt_model_options(self):
-        """
-        Get the time steps for the given resolution
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
 
         Returns
         -------
-        options : dict
-            model config options related to time steps to replace
+        cell_count : int or None
+            The approximate number of cells in the mesh
         """
-        config = self.config
-
-        options = dict()
-        for opt in ['dt', 'btr_dt']:
-            # dt is proportional to resolution: default 30 seconds per km
-            dt_per_km = config.getfloat('baroclinic_channel', f'{opt}_per_km')
-            dt = dt_per_km * self.resolution
-            # https://stackoverflow.com/a/1384565/7728169
-            options[f'config_{opt}'] = \
-                time.strftime('%H:%M:%S', time.gmtime(dt))
-
-        return options
-
-    def _get_resources(self):
         section = self.config['baroclinic_channel']
         nx = section.getint('nx')
         ny = section.getint('ny')
-        goal_cells_per_core = section.getfloat('goal_cells_per_core')
-        max_cells_per_core = section.getfloat('max_cells_per_core')
+        # by setting the cell count, the resources will be computed
+        # automatically
+        cell_count = nx * ny
+        return cell_count
 
-        # ideally, about 200 cells per core
-        self.ntasks = max(1, round(nx * ny / goal_cells_per_core + 0.5))
-        # In a pinch, about 2000 cells per core
-        self.min_tasks = max(1, round(nx * ny / max_cells_per_core + 0.5))
+    def dynamic_model_config(self, at_setup):
+        """
+        Add model config options, namelist, streams and yaml files using config
+        options or template replacements that need to be set both during step
+        setup and at runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup)
+
+        config = self.config
+
+        options = dict()
+
+        # dt is proportional to resolution: default 30 seconds per km
+        dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
+        dt = dt_per_km * self.resolution
+        # https://stackoverflow.com/a/1384565/7728169
+        options['config_dt'] = \
+            time.strftime('%H:%M:%S', time.gmtime(dt))
+
+        # default run duration is 3 time steps
+        options['config_run_duration'] = \
+            time.strftime('%H:%M:%S', time.gmtime(3. * dt))
+
+        # btr_dt is also proportional to resolution: default 1.5 seconds per km
+        btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
+        btr_dt = btr_dt_per_km * self.resolution
+        options['config_btr_dt'] = \
+            time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+
+        self.dt = dt
+        self.btr_dt = btr_dt
+
+        self.add_model_config_options(options=options)
