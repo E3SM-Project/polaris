@@ -31,7 +31,7 @@ class DecompTest(BaroclinicChannelTestCase):
             self.add_step(Forward(
                 test_case=self, name=name, subdir=name, ntasks=procs,
                 min_tasks=procs, openmp_threads=1,
-                resolution=resolution))
+                resolution=resolution, run_time_steps=3))
 
     def validate(self):
         """

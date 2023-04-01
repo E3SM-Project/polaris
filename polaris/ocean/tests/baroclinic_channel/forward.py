@@ -22,9 +22,13 @@ class Forward(OceanModelStep):
 
     btr_dt : float
         The model barotropic time step in seconds
+
+    run_time_steps : int or None
+        Number of time steps to run for
     """
     def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
+                 run_time_steps=None):
         """
         Create a new test case
 
@@ -56,8 +60,12 @@ class Forward(OceanModelStep):
 
         nu : float, optional
             the viscosity (if different from the default for the test group)
+
+        run_time_steps : int, optional
+            Number of time steps to run for
         """
         self.resolution = resolution
+        self.run_time_steps = run_time_steps
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
@@ -133,9 +141,11 @@ class Forward(OceanModelStep):
         options['config_dt'] = \
             time.strftime('%H:%M:%S', time.gmtime(dt))
 
-        # default run duration is 3 time steps
-        options['config_run_duration'] = \
-            time.strftime('%H:%M:%S', time.gmtime(3. * dt))
+        if self.run_time_steps is not None:
+            # default run duration is a few time steps
+            run_seconds = self.run_time_steps * dt
+            options['config_run_duration'] = \
+                time.strftime('%H:%M:%S', time.gmtime(run_seconds))
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')

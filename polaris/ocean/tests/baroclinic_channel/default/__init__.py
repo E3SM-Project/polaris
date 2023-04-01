@@ -27,7 +27,7 @@ class Default(BaroclinicChannelTestCase):
 
         self.add_step(
             Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
-                    resolution=resolution))
+                    resolution=resolution, run_time_steps=3))
 
     def validate(self):
         """

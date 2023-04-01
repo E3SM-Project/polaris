@@ -30,7 +30,7 @@ class ThreadsTest(BaroclinicChannelTestCase):
             self.add_step(Forward(
                 test_case=self, name=name, subdir=name, ntasks=4,
                 min_tasks=4, openmp_threads=openmp_threads,
-                resolution=resolution))
+                resolution=resolution, run_time_steps=3))
 
     def validate(self):
         """
