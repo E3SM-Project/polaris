@@ -17,22 +17,15 @@ discussion in {ref}`dev-model`.
 
 #### YAML files vs. namelists and streams
 
-In order to have the same test cases support Omega or MPAS-Ocean, we we want
+In order to have the same test cases support Omega or MPAS-Ocean, we want
 to be able to produce either the YAML config files used by Omega or the
 namelists and streams files used by MPAS-Ocean.  To support both, we decided
-that polaris would use Omega-style YAML files to configure all test cases and
-convert to MPAS-Ocean's namelists and streams files if needed when steps get
-set up.
+that polaris would use Omega-style YAML files to configure all ocean test cases
+and convert to MPAS-Ocean's namelists and streams files if needed when steps
+get set up.
 
 As a result, the `add_namelist_file()` and `add_streams_file()` methods should
-not be used for ocean model steps (they will raise errors).  Similarly,
-{py:meth}`polaris.ModelStep.update_yaml_at_runtime()`, 
-{py:meth}`polaris.ModelStep.update_namelist_at_runtime()` and
-{py:meth}`polaris.ModelStep.update_streams_at_runtime()` should not be 
-used  directly but instead should be accessed through
-{py:meth}`polaris.ocean.model.OceanModelStep.update_model_config_at_runtime()`.
-This method will call the appropriate method depending on whether the test has
-been set up for Omega or MPAS-Ocean.
+not be used for ocean model steps (they will raise errors).
 
 #### Mapping from Omega to MPAS-Ocean config options
 

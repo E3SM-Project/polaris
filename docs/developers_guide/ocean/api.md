@@ -32,14 +32,14 @@
 
    CosineBell
    CosineBell.configure
+   CosineBell.validate
 
    init.Init
    init.Init.run
 
    forward.Forward
-   forward.Forward.setup
-   forward.Forward.run
-   forward.Forward.get_dt
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
 
    analysis.Analysis
    analysis.Analysis.run
