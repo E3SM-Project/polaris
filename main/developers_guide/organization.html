@@ -104,7 +104,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#adding-e3sm-component-as-an-input">Adding E3SM component as an input</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#test-suites">Test Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-suites">Test Suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pull-request-pr-suite">Pull-Request (PR) suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nightly-suite">Nightly suite</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
@@ -1896,6 +1900,48 @@ A developer  defines a test suite by creating a <code class="docutils literal no
 <code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/suites</span></code> directory.  The format of the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file is a
 list of the work directories to  the tests desired to be part of the suite.  A
 line starting with <code class="docutils literal notranslate"><span class="pre">#</span></code> will be  treated as a comment line.</p>
+<p>The philosophy and requirements for the test suites are as follows:</p>
+<section id="pull-request-pr-suite">
+<h3>Pull-Request (PR) suite<a class="headerlink" href="#pull-request-pr-suite" title="Permalink to this heading"></a></h3>
+<p>The PR suite is intended to be run in the context of its namesake, a pull
+request to the model component. The PR suite should be able to be run in under
+an hour on 256 cores (two 128-core nodes), and the core count could be doubled
+for quicker testing.</p>
+<p>In order to achieve this performance, each test in the suite should preferably
+take under 20 minutes on 32 cores. However, a test may exceed these recommended
+limits if it offers significant benefit for catching bugs or performance issues
+or providing code covereage.</p>
+<p>Examples of test cases that may be included in this suite:</p>
+<ul class="simple">
+<li><p>Short tests to compare the solution and timers with a baseline (often called
+performance tests lasting 3-5 timesteps)</p></li>
+<li><p>Variants on the above with different combinations of config options</p></li>
+<li><p>Tests of all common config option combinations</p></li>
+<li><p>Tests that verify identical behavior:</p>
+<ul>
+<li><p>across different numbers of cores</p></li>
+<li><p>across different numbers of threads</p></li>
+<li><p>with a longer model run and 2 (or more) shorter runs of the same total
+duration with a model restart</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="nightly-suite">
+<h3>Nightly suite<a class="headerlink" href="#nightly-suite" title="Permalink to this heading"></a></h3>
+<p>The nightly suite is intended to be run nightly as a more exhaustive test
+that no recent merges have resulted in a change in solution for any possible
+combination of config options. It should require no more than 256 cores and
+take no more than 120 minutes of run time on 256 cores.</p>
+<p>Examples of test cases that may be included in this suite:</p>
+<ul class="simple">
+<li><p>More expensive convergence tests</p></li>
+<li><p>Tests that require a longer run to reach steady state.</p></li>
+<li><p>Tests in conditions not normally encountered in global E3SM runs (e.g.,
+wetting and drying)</p></li>
+<li><p>Tests of all possible config option combinations</p></li>
+</ul>
+</section>
 </section>
 </section>
 
