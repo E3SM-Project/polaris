@@ -1724,8 +1724,8 @@ file.</p>
 been generated as part of setting up.  This typically happens within a step’s
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for options that cannot be known beforehand, particularly
 options related to the number of MPI tasks, CPUs per task, and OpenMP threads.
-In such cases, call <a class="reference internal" href="generated/polaris.ModelStep.update_namelist_at_runtime.html#polaris.ModelStep.update_namelist_at_runtime" title="polaris.ModelStep.update_namelist_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_at_runtime()</span></code></a> or
-<a class="reference internal" href="generated/polaris.ModelStep.update_yaml_at_runtime.html#polaris.ModelStep.update_yaml_at_runtime" title="polaris.ModelStep.update_yaml_at_runtime"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_yaml_at_runtime()</span></code></a>:</p>
+In such cases, call <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_at_runtime()</span></code> or
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_yaml_at_runtime()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pio_num_iotasks</span><span class="p">),</span>

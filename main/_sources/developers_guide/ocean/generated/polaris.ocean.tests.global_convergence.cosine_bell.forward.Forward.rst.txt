@@ -20,8 +20,9 @@
       ~Forward.add_output_file
       ~Forward.add_streams_file
       ~Forward.add_yaml_file
+      ~Forward.compute_cell_count
       ~Forward.constrain_resources
-      ~Forward.get_dt
+      ~Forward.dynamic_model_config
       ~Forward.map_yaml_to_namelist
       ~Forward.partition
       ~Forward.process_inputs_and_outputs
@@ -30,12 +31,7 @@
       ~Forward.set_model_resources
       ~Forward.set_resources
       ~Forward.setup
-      ~Forward.update_model_config_at_runtime
-      ~Forward.update_namelist_at_runtime
       ~Forward.update_namelist_pio
-      ~Forward.update_ntasks
-      ~Forward.update_streams_at_runtime
-      ~Forward.update_yaml_at_runtime
    
    
 

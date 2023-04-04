@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.model.OceanModelStep.update_model_config_at_runtime</title>
+  <title>polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.model.OceanModelStep.update_ntasks" href="polaris.ocean.model.OceanModelStep.update_ntasks.html" />
-    <link rel="prev" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" href="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html" />
+    <link rel="next" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config.html" />
+    <link rel="prev" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -73,8 +73,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../../api.html#components">Components</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html">ocean</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#test-groups">Test Groups</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#framework">Framework</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#test-groups">Test Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#framework">Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -105,9 +105,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.model.OceanModelStep.update_model_config_at_runtime</li>
+      <li class="breadcrumb-item active">polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.update_model_config_at_runtime.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -115,19 +115,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-model-oceanmodelstep-update-model-config-at-runtime">
-<h1>polaris.ocean.model.OceanModelStep.update_model_config_at_runtime<a class="headerlink" href="#polaris-ocean-model-oceanmodelstep-update-model-config-at-runtime" title="Permalink to this heading"></a></h1>
+  <section id="polaris-ocean-tests-global-convergence-cosine-bell-forward-forward-compute-cell-count">
+<h1>polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count<a class="headerlink" href="#polaris-ocean-tests-global-convergence-cosine-bell-forward-forward-compute-cell-count" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.model.OceanModelStep.update_model_config_at_runtime">
-<span class="sig-prename descclassname"><span class="pre">OceanModelStep.</span></span><span class="sig-name descname"><span class="pre">update_model_config_at_runtime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/ocean_model_step.html#OceanModelStep.update_model_config_at_runtime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.OceanModelStep.update_model_config_at_runtime" title="Permalink to this definition"></a></dt>
-<dd><p>Update an existing namelist or yaml file with additional options.  This
-would typically be used for model config options that are only known at
-runtime, not during setup, typically those related to the number of
-nodes and cores.</p>
+<dt class="sig sig-object py" id="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count">
+<span class="sig-prename descclassname"><span class="pre">Forward.</span></span><span class="sig-name descname"><span class="pre">compute_cell_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">at_setup</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tests/global_convergence/cosine_bell/forward.html#Forward.compute_cell_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the approximate number of cells in the mesh, used to constrain
+resources</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of options and value to replace namelist options with
-new values</p>
+<dd class="field-odd"><p><strong>at_setup</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether this method is being run during setup of the step, as
+opposed to at runtime</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cell_count</strong> (<em>int or None</em>) – The approximate number of cells in the mesh</p>
 </dd>
 </dl>
 </dd></dl>
@@ -138,8 +139,8 @@ new values</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html" class="btn btn-neutral float-left" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.model.OceanModelStep.update_ntasks.html" class="btn btn-neutral float-right" title="polaris.ocean.model.OceanModelStep.update_ntasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.html" class="btn btn-neutral float-left" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config.html" class="btn btn-neutral float-right" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -168,7 +169,7 @@ new values</p>
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.model.OceanModelStep.update_model_config_at_runtime.html">main</a></dd>
+      <dd><a href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html">main</a></dd>
     </dl>
   </div>
 </div><script>

@@ -175,15 +175,13 @@ ocean/api
    ModelStep.set_model_resources
    ModelStep.add_model_config_options
    ModelStep.add_yaml_file
-   ModelStep.update_yaml_at_runtime
    ModelStep.map_yaml_to_namelist
    ModelStep.add_namelist_file
-   ModelStep.update_namelist_at_runtime
-   ModelStep.update_namelist_pio
    ModelStep.add_streams_file
-   ModelStep.update_streams_at_runtime
+   ModelStep.dynamic_model_config
    ModelStep.runtime_setup
    ModelStep.process_inputs_and_outputs
+   ModelStep.update_namelist_pio
    ModelStep.partition
 ```
 

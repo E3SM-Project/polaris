@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.ModelStep.update_yaml_at_runtime" href="polaris.ModelStep.update_yaml_at_runtime.html" />
+    <link rel="next" title="polaris.ModelStep.map_yaml_to_namelist" href="polaris.ModelStep.map_yaml_to_namelist.html" />
     <link rel="prev" title="polaris.ModelStep.add_model_config_options" href="polaris.ModelStep.add_model_config_options.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -133,7 +133,7 @@
 <h1>polaris.ModelStep.add_yaml_file<a class="headerlink" href="#polaris-modelstep-add-yaml-file" title="Permalink to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ModelStep.add_yaml_file">
-<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">add_yaml_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.add_yaml_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.add_yaml_file" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">add_yaml_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_replacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.add_yaml_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.add_yaml_file" title="Permalink to this definition"></a></dt>
 <dd><p>Add a file with updates to yaml config options to the step to be parsed
 when generating a complete yaml file if and when the step gets set
 up.</p>
@@ -142,6 +142,8 @@ up.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>package</strong> (<em>Package</em>) – The package name or module object that contains <code class="docutils literal notranslate"><span class="pre">yaml</span></code></p></li>
 <li><p><strong>yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the yaml file with replacement config options to read</p></li>
+<li><p><strong>template_replacements</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – A dictionary of replacements, in which case <code class="docutils literal notranslate"><span class="pre">yaml</span></code> must be a
+Jinja2 template to be rendered with these replacements</p></li>
 </ul>
 </dd>
 </dl>
@@ -154,7 +156,7 @@ up.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.ModelStep.add_model_config_options.html" class="btn btn-neutral float-left" title="polaris.ModelStep.add_model_config_options" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ModelStep.update_yaml_at_runtime.html" class="btn btn-neutral float-right" title="polaris.ModelStep.update_yaml_at_runtime" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ModelStep.map_yaml_to_namelist.html" class="btn btn-neutral float-right" title="polaris.ModelStep.map_yaml_to_namelist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -32,14 +32,14 @@
 
    CosineBell
    CosineBell.configure
+   CosineBell.validate
 
    init.Init
    init.Init.run
 
    forward.Forward
-   forward.Forward.setup
-   forward.Forward.run
-   forward.Forward.get_dt
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
 
    analysis.Analysis
    analysis.Analysis.run
@@ -60,7 +60,6 @@
    OceanModelStep
    OceanModelStep.setup
    OceanModelStep.constrain_resources
+   OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_to_namelist
-   OceanModelStep.update_model_config_at_runtime
-   OceanModelStep.update_ntasks
 ```

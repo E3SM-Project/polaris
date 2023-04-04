@@ -109,15 +109,16 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    cell_count : int or None</span>
-<span class="sd">        The approximate number of cells in the mesh, used to constrain</span>
-<span class="sd">        resources</span>
+<span class="sd">    dynamic_ntasks : bool</span>
+<span class="sd">        Whether the target and minimum number of MPI tasks (``ntasks`` and</span>
+<span class="sd">        ``min_tasks``) are computed dynamically from the number of cells</span>
+<span class="sd">        in the mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="OceanModelStep.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partition_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span> <span class="n">cell_count</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a step for running the model</span>
 
@@ -174,10 +175,6 @@
 
 <span class="sd">        graph_filename : str, optional</span>
 <span class="sd">            The name of the graph file to partition</span>
-
-<span class="sd">        cell_count : int, optional</span>
-<span class="sd">            The approximate number of cells in the mesh, used to constrain</span>
-<span class="sd">            resources</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
@@ -187,7 +184,7 @@
             <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">partition_graph</span><span class="o">=</span><span class="n">partition_graph</span><span class="p">,</span>
             <span class="n">graph_filename</span><span class="o">=</span><span class="n">graph_filename</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cell_count</span> <span class="o">=</span> <span class="n">cell_count</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="p">(</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OceanModelStep.setup"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -199,17 +196,15 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">make_namelist</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">make_streams</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">make_namelist</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">make_streams</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected ocean model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
@@ -217,9 +212,27 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the number of MPI tasks to use based on the estimated mesh size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_cores</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OceanModelStep.compute_cell_count"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count">[docs]</a>    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
+<span class="sd">        resources</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        at_setup : bool</span>
+<span class="sd">            Whether this method is being run during setup of the step, as</span>
+<span class="sd">            opposed to at runtime</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cell_count : int or None</span>
+<span class="sd">            The approximate number of cells in the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="OceanModelStep.map_yaml_to_namelist"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist">[docs]</a>    <span class="k">def</span> <span class="nf">map_yaml_to_namelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -282,37 +295,18 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input streams files are not supported in &#39;</span>
                          <span class="s1">&#39;OceanModelStep&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OceanModelStep.update_model_config_at_runtime"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.update_model_config_at_runtime.html#polaris.ocean.model.OceanModelStep.update_model_config_at_runtime">[docs]</a>    <span class="k">def</span> <span class="nf">update_model_config_at_runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update an existing namelist or yaml file with additional options.  This</span>
-<span class="sd">        would typically be used for model config options that are only known at</span>
-<span class="sd">        runtime, not during setup, typically those related to the number of</span>
-<span class="sd">        nodes and cores.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        options : dict</span>
-<span class="sd">            A dictionary of options and value to replace namelist options with</span>
-<span class="sd">            new values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_yaml_at_runtime</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_at_runtime</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected ocean model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="OceanModelStep.update_ntasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.update_ntasks.html#polaris.ocean.model.OceanModelStep.update_ntasks">[docs]</a>    <span class="k">def</span> <span class="nf">update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_count</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update ``ntasks`` and ``min_tasks`` for the step based on the estimated</span>
 <span class="sd">        mesh size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">cell_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cell_count</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cell_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ntasks and min_tasks were not set explicitly &#39;</span>
+                             <span class="s1">&#39;but they also cannot be computed because &#39;</span>
+                             <span class="s1">&#39;compute_cell_count() does not appear to have &#39;</span>
+                             <span class="s1">&#39;been overridden.&#39;</span><span class="p">)</span>
 
         <span class="n">goal_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;goal_cells_per_core&#39;</span><span class="p">)</span>
         <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cells_per_core&#39;</span><span class="p">)</span>
@@ -320,7 +314,7 @@
         <span class="c1"># ideally, about 200 cells per core</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">goal_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
         <span class="c1"># In a pinch, about 2000 cells per core</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">max_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">max_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

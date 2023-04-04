@@ -20,7 +20,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup.html" />
+    <link rel="next" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html" />
     <link rel="prev" title="polaris.ocean.tests.global_convergence.cosine_bell.init.Init.run" href="polaris.ocean.tests.global_convergence.cosine_bell.init.Init.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -159,7 +159,7 @@ bell test case</p>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options)</p></td>
-<td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up</p></td>
+<td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
@@ -170,56 +170,44 @@ bell test case</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cell_count</span></code></a>(at_setup)</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.get_dt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dt</span></code></a>()</p></td>
-<td><p>Get the time step</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Set the model time step from config options at setup and runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the model as an input, then call the parent class' version</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.run.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.run" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
-<td><p>Update the resources and time step in case the user has update config options</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
+<td><p>Update PIO namelist options, make graph file, and partition graph file (if any of these are requested)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
 <td><p>Update the resources for the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Set namelist options base on config options</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
+<td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_model_config_at_runtime</span></code>(options)</p></td>
-<td><p>Update an existing namelist or yaml file with additional options.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_at_runtime</span></code>(options)</p></td>
-<td><p>Update an existing namelist file with additional options.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_ntasks</span></code>(cell_count)</p></td>
-<td><p>Update <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> for the step based on the estimated mesh size</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_streams_at_runtime</span></code>(package, streams, ...)</p></td>
-<td><p>Update the streams files during the run phase of this step using the given template and replacements.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_yaml_at_runtime</span></code>(options)</p></td>
-<td><p>Update an existing yaml file with additional options.</p></td>
 </tr>
 </tbody>
 </table>
@@ -232,7 +220,7 @@ bell test case</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.ocean.tests.global_convergence.cosine_bell.init.Init.run.html" class="btn btn-neutral float-left" title="polaris.ocean.tests.global_convergence.cosine_bell.init.Init.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup.html" class="btn btn-neutral float-right" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html" class="btn btn-neutral float-right" title="polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

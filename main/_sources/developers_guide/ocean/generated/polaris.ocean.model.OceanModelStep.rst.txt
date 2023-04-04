@@ -20,7 +20,9 @@
       ~OceanModelStep.add_output_file
       ~OceanModelStep.add_streams_file
       ~OceanModelStep.add_yaml_file
+      ~OceanModelStep.compute_cell_count
       ~OceanModelStep.constrain_resources
+      ~OceanModelStep.dynamic_model_config
       ~OceanModelStep.map_yaml_to_namelist
       ~OceanModelStep.partition
       ~OceanModelStep.process_inputs_and_outputs
@@ -29,12 +31,7 @@
       ~OceanModelStep.set_model_resources
       ~OceanModelStep.set_resources
       ~OceanModelStep.setup
-      ~OceanModelStep.update_model_config_at_runtime
-      ~OceanModelStep.update_namelist_at_runtime
       ~OceanModelStep.update_namelist_pio
-      ~OceanModelStep.update_ntasks
-      ~OceanModelStep.update_streams_at_runtime
-      ~OceanModelStep.update_yaml_at_runtime
    
    
 

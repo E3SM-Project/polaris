@@ -1,6 +1,0 @@
-﻿polaris.ocean.model.OceanModelStep.update\_ntasks
-=================================================
-
-.. currentmodule:: polaris.ocean.model
-
-.. automethod:: OceanModelStep.update_ntasks
