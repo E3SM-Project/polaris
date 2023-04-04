@@ -111,6 +111,14 @@ cores, each with 2 threads.  It ensures that `temperature`, `salinity`,
 runs (as well as with a baseline if one is provided when calling
 {ref}`dev-polaris-setup`).
 
+:::{note}
+The `ocean/baroclinic_channel/10km/thread_test/1thread` step is identical 
+to `ocean/baroclinic_channel/10km/default/forward`. If
+`ocean/baroclinic_channel/10km/thread_test` is included in a test suite, 
+it would be redundant to include `ocean/baroclinic_channel/10km/default` in the
+suite as well.
+:::
+
 (dev-ocean-baroclinic-channel-rpe-test)=
 
 ## rpe_test
