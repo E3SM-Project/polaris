@@ -92,13 +92,13 @@ rather than system compilers.  To create a development conda environment and
 an activation script for it, on Linux, run:
 
 ```bash
-./conda/configure_polaris_env.py --conda <conda_path> -c gnu -i mpich
+./conda/configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
 ```
 
 and on OSX run:
 
 ```bash
-./conda/configure_polaris_env.py --conda <conda_path> -c clang -i mpich
+./conda/configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
 ```
 
 You may use `openmpi` instead of `mpich` but we have had better experiences
