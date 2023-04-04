@@ -1,5 +1,7 @@
 import time
 
+import xarray as xr
+
 from polaris.ocean.model import OceanModelStep
 
 
@@ -32,14 +34,10 @@ class Forward(OceanModelStep):
         mesh_name : str
             The name of the mesh
         """
-        # a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
-        approx_cells = 6e8 / resolution**2
-
         super().__init__(test_case=test_case,
                          name=f'{mesh_name}_forward',
                          subdir=f'{mesh_name}/forward',
-                         openmp_threads=1,
-                         cell_count=approx_cells)
+                         openmp_threads=1)
 
         self.resolution = resolution
         self.mesh_name = mesh_name
@@ -58,40 +56,51 @@ class Forward(OceanModelStep):
 
         self.add_output_file(filename='output.nc')
 
-    def setup(self):
+    def compute_cell_count(self, at_setup):
         """
-        Set namelist options base on config options
-        """
-        super().setup()
-        dt = self.get_dt()
-        self.add_model_config_options({'config_dt': dt})
+        Compute the approximate number of cells in the mesh, used to constrain
+        resources
 
-    def runtime_setup(self):
-        """
-        Update the resources and time step in case the user has update config
-        options
-        """
-        super().runtime_setup()
-
-        # update dt in case the user has changed dt_per_km
-        dt = self.get_dt()
-        self.update_model_config_at_runtime(options={'config_dt': dt})
-
-    def get_dt(self):
-        """
-        Get the time step
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
 
         Returns
         -------
-        dt : str
-            the time step in HH:MM:SS
+        cell_count : int or None
+            The approximate number of cells in the mesh
         """
+        if at_setup:
+            # use a heuristic based on QU30 (65275 cells) and QU240 (10383
+            # cells)
+            cell_count = 6e8 / self.resolution**2
+        else:
+            # get nCells from the input file
+            with xr.open_dataset('init.nc') as ds:
+                cell_count = ds.sizes['nCells']
+        return cell_count
+
+    def dynamic_model_config(self, at_setup):
+        """
+        Set the model time step from config options at setup and runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup=at_setup)
+
         config = self.config
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('cosine_bell', 'dt_per_km')
 
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
-        dt = time.strftime('%H:%M:%S', time.gmtime(dt))
+        dt_str = time.strftime('%H:%M:%S', time.gmtime(dt))
 
-        return dt
+        options = dict(config_dt=dt_str)
+        self.add_model_config_options(options)
