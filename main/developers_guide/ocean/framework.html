@@ -17,6 +17,8 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -70,6 +72,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
@@ -157,8 +162,58 @@ to read the cell count from a file during setup, this method may need to have
 a heuristic way of approximating the number of cells during setup (i.e. when
 the <code class="docutils literal notranslate"><span class="pre">at_setup</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">True</span></code>.  Then, it can return the exact number of
 cells at runtime (i.e. <code class="docutils literal notranslate"><span class="pre">at_setup</span> <span class="pre">==</span> <span class="pre">False</span></code>).</p>
+<p>The algorithm for determining the resources is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ideally, about 200 cells per core</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">goal_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="c1"># In a pinch, about 2000 cells per core</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">max_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The config options <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> seciton can be used to control how resources scale with the size of
+the planar mesh.  By default,  the number of MPI tasks tries to apportion 200
+cells to each core, but it will allow as many as 2000.</p>
 </section>
 </section>
+</section>
+<section id="model-config-options-and-streams">
+<span id="dev-ocean-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Permalink to this heading"></a></h2>
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.config</span></code> contains yaml files for setting model
+config options and configuring streams.  These include things like setting
+output to double precision, adjusting sea surface height in ice-shelf cavities,
+and outputting variables related to frazil ice and land-ice fluxes.</p>
+</section>
+<section id="vertical-coordinate">
+<span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
+vertical coordinates for MPAS-Ocean test cases.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d</span></code> module provides 1D vertical
+coordinates.  To create 1D vertical grids, test cases should call
+<a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d.generate_1d_grid()</span></code></a> with the desired
+config options set in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section (as described in
+the User’s Guide under <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-vertical"><span class="std std-ref">Vertical coordinate</span></a>).</p>
+<p>The z-level and z-star coordinates are also controlled by config options from
+this section of the config file. The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a> can be used to compute
+<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">zMid</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> variables for <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-level"><span class="std std-ref">z-level</span></a> and
+<a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinates using the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> as well
+as config options from <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>.</p>
+</section>
+<section id="reference-resting-potential-energy-rpe">
+<span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Permalink to this heading"></a></h2>
+<p>The module <code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
+resting) potential energy for an entire model domain.  The RPE as given in
+<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a> is:</p>
+<div class="math notranslate nohighlight">
+\[
+RPE = g \int_\Omega z \rho^*\left(z\right) dV
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain and <span class="math notranslate nohighlight">\(\rho^*\left(z\right)\)</span> is the sorted
+density, which is horizontally constant and increases with depth.</p>
+<p>The <a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.rpe.compute_rpe()</span></code></a> is used to compute the RPE as
+a function of time in a series of one or more output files.  The RPE is stored
+in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
 </section>
 </section>
 

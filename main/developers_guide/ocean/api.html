@@ -74,7 +74,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">ocean</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#test-groups">Test Groups</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#framework">Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-framework">Ocean Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -129,6 +129,95 @@
 </table>
 <section id="test-groups">
 <h2>Test Groups<a class="headerlink" href="#test-groups" title="Permalink to this heading"></a></h2>
+<section id="baroclinic-channel">
+<h3>baroclinic_channel<a class="headerlink" href="#baroclinic-channel" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.BaroclinicChannel.html#polaris.ocean.tests.baroclinic_channel.BaroclinicChannel" title="polaris.ocean.tests.baroclinic_channel.BaroclinicChannel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaroclinicChannel</span></code></a>(component)</p></td>
+<td><p>A test group for baroclinic channel test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.html#polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase" title="polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaroclinicChannelTestCase</span></code></a>(test_group, ...)</p></td>
+<td><p>The superclass for all baroclinic channel test cases with shared functionality</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.configure.html#polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.configure" title="polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaroclinicChannelTestCase.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this test case.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate.html#polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate" title="polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaroclinicChannelTestCase.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> from the initial condition with a baseline if one was provided</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(test_case, resolution[, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of baroclinic channel test cases.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.compute_cell_count.html#polaris.ocean.tests.baroclinic_channel.forward.Forward.compute_cell_count" title="polaris.ocean.tests.baroclinic_channel.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>(at_setup)</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState</span></code></a>(test_case, resolution)</p></td>
+<td><p>A step for creating a mesh and initial condition for baroclinic channel test cases</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.setup.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.setup" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState.setup</span></code></a>()</p></td>
+<td><p>Set up the test case in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.default.Default.html#polaris.ocean.tests.baroclinic_channel.default.Default" title="polaris.ocean.tests.baroclinic_channel.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(test_group, resolution)</p></td>
+<td><p>The default test case for the baroclinic channel test group simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.default.Default.validate.html#polaris.ocean.tests.baroclinic_channel.default.Default.validate" title="polaris.ocean.tests.baroclinic_channel.default.Default.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest.html#polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest" title="polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp_test.DecompTest</span></code></a>(test_group, resolution)</p></td>
+<td><p>A decomposition test case for the baroclinic channel test group, which makes sure the model produces identical results on 1 and 4 cores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest.validate.html#polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest.validate" title="polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp_test.DecompTest.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">4proc</span></code> and <code class="docutils literal notranslate"><span class="pre">8proc</span></code> steps with each other and with a baseline if one was provided</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest.html#polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest" title="polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_test.RestartTest</span></code></a>(test_group, resolution)</p></td>
+<td><p>A restart test case for the baroclinic channel test group, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest.validate.html#polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest.validate" title="polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_test.RestartTest.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">full_run</span></code> and <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> steps with each other and with a baseline if one was provided</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep.html#polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep" title="polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_test.restart_step.RestartStep</span></code></a>(...)</p></td>
+<td><p>A forward model step in the restart test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep.dynamic_model_config.html#polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep.dynamic_model_config" title="polaris.ocean.tests.baroclinic_channel.restart_test.restart_step.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_test.restart_step.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest.html#polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest" title="polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threads_test.ThreadsTest</span></code></a>(test_group, resolution)</p></td>
+<td><p>A thread test case for the baroclinic channel test group, which makes sure the model produces identical results with 1 and 2 threads.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest.validate.html#polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest.validate" title="polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threads_test.ThreadsTest.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">1thread</span></code> and <code class="docutils literal notranslate"><span class="pre">2thread</span></code> steps with each other and with a baseline if one was provided</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.RpeTest</span></code></a>(test_group, resolution)</p></td>
+<td><p>The reference potential energy (RPE) test case for the baroclinic channel test group performs a 20-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.RpeTest.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this test case.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.validate.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.validate" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.RpeTest.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.analysis.Analysis</span></code></a>(test_case, ...)</p></td>
+<td><p>A step for plotting the results of a series of RPE runs in the baroclinic channel test group</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.setup.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.setup" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.analysis.Analysis.setup</span></code></a>()</p></td>
+<td><p>Set up the test case in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.run.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.run" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe_test.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="global-convergence">
 <h3>global_convergence<a class="headerlink" href="#global-convergence" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -188,8 +277,8 @@
 </section>
 </section>
 </section>
-<section id="framework">
-<h2>Framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<section id="ocean-framework">
+<h2>Ocean Framework<a class="headerlink" href="#ocean-framework" title="Permalink to this heading"></a></h2>
 <section id="oceanmodelstep">
 <h3>OceanModelStep<a class="headerlink" href="#oceanmodelstep" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -212,6 +301,61 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_to_namelist</span></code></a>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="reference-potential-energy-rpe">
+<h3>Reference Potential Energy (RPE)<a class="headerlink" href="#reference-potential-energy-rpe" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.compute_rpe</span></code></a>(initial_state_file_name, ...)</p></td>
+<td><p>Computes the reference (resting) potential energy for the whole domain</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="vertical-coordinates">
+<h3>Vertical coordinates<a class="headerlink" href="#vertical-coordinates" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.init_vertical_coord</span></code></a>(config, ds)</p></td>
+<td><p>Create a vertical coordinate based on the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section and the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.generate_1d_grid</span></code></a>(config)</p></td>
+<td><p>Generate a vertical grid for a test case, using the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.write_1d_grid.html#polaris.ocean.vertical.grid_1d.write_1d_grid" title="polaris.ocean.vertical.grid_1d.write_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.write_1d_grid</span></code></a>(interfaces, ...)</p></td>
+<td><p>write the vertical grid to a file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_bottom_depth.html#polaris.ocean.vertical.partial_cells.alter_bottom_depth" title="polaris.ocean.vertical.partial_cells.alter_bottom_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_bottom_depth</span></code></a>(...)</p></td>
+<td><p>Alter <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> for full or partial top cells, if requested</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_ssh.html#polaris.ocean.vertical.partial_cells.alter_ssh" title="polaris.ocean.vertical.partial_cells.alter_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_ssh</span></code></a>(config, ...)</p></td>
+<td><p>Alter <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> for full or partial top cells, if requested</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zlevel.init_z_level_vertical_coord.html#polaris.ocean.vertical.zlevel.init_z_level_vertical_coord" title="polaris.ocean.vertical.zlevel.init_z_level_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zlevel.init_z_level_vertical_coord</span></code></a>(...)</p></td>
+<td><p>Create a z-level vertical coordinate based on the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section and the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell" title="polaris.ocean.vertical.zlevel.compute_min_max_level_cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zlevel.compute_min_max_level_cell</span></code></a>(...)</p></td>
+<td><p>Compute <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> indices as well as a cell mask for the given reference grid and top and bottom topography.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zlevel.compute_z_level_layer_thickness.html#polaris.ocean.vertical.zlevel.compute_z_level_layer_thickness" title="polaris.ocean.vertical.zlevel.compute_z_level_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zlevel.compute_z_level_layer_thickness</span></code></a>(...)</p></td>
+<td><p>Compute z-level layer thickness from ssh and bottomDepth</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zlevel.compute_z_level_resting_thickness.html#polaris.ocean.vertical.zlevel.compute_z_level_resting_thickness" title="polaris.ocean.vertical.zlevel.compute_z_level_resting_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zlevel.compute_z_level_resting_thickness</span></code></a>(...)</p></td>
+<td><p>Compute z-level resting thickness by &quot;unstretching&quot; layerThickness based on ssh and bottomDepth</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zstar.init_z_star_vertical_coord.html#polaris.ocean.vertical.zstar.init_z_star_vertical_coord" title="polaris.ocean.vertical.zstar.init_z_star_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zstar.init_z_star_vertical_coord</span></code></a>(...)</p></td>
+<td><p>Create a z-star vertical coordinate based on the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section and the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
 </tr>
 </tbody>
 </table>

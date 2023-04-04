@@ -300,7 +300,7 @@ perhaps with different mesh resolutions, parameters, or both.  It is common for
 a test group to include “framework” modules that are shared between its test
 cases and steps (but not with other test groups).  Each component will
 typically include a mix of “idealized” test groups (e.g.
-<span class="xref std std-ref">dev-ocean-baroclinic-channel</span> or <span class="xref std std-ref">dev-landice-dome</span>) and “realistic”
+<a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> or <span class="xref std std-ref">dev-landice-dome</span>) and “realistic”
 domains (e.g. <span class="xref std std-ref">dev-landice-greenland</span> and <span class="xref std std-ref">dev-ocean-global-ocean</span>).</p>
 <p>Each test group is a python package within the core’s <code class="docutils literal notranslate"><span class="pre">tests</span></code> package.
 While it is not required, a test group will typically include a config file,
@@ -595,7 +595,7 @@ associated with these steps until the point where the step is being set up in</p
 <li><p><a class="reference internal" href="generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>As an example, here is the constructor from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code>:</p>
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.testcase</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
@@ -670,9 +670,9 @@ associated with these steps until the point where the step is being set up in</p
 <p>We have deliberately chosen a fairly complex example to demonstrate how to make
 full use of <a class="reference internal" href="overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a test case.</p>
 <p>The test case imports the classes for its steps –
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState</span></code>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code>, and
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code>
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState</span></code></a>,
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code></a>, and
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code></a>
 – so it can create objects for each and add them to itself with
 <a class="reference internal" href="generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
 steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>.</p>
@@ -708,7 +708,7 @@ during test-case setup.</p>
 <p>Since many test groups need similar behavior in the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method for
 each test case, it is common to have a shared function (sometimes also called
 <code class="docutils literal notranslate"><span class="pre">configure()</span></code>) in the test group, as we discussed in <a class="reference internal" href="#dev-test-groups"><span class="std std-ref">Test Groups</span></a>.</p>
-<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure()</span></code>
+<p><a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure()</span></code></a>
 simply calls the shared function in its test group,
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.configure()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests</span> <span class="kn">import</span> <span class="n">baroclinic_channel</span>
@@ -991,7 +991,7 @@ the step by calling any of the following methods:</p>
 namelists or streams files to be read later if the test case in question gets
 set up, so each takes a negligible amount of time.</p>
 <p>The following is from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward()</span></code>:</p>
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">ModelStep</span>
 
 
@@ -1140,7 +1140,7 @@ computing a times step based on config options that might have been modified
 by the user.  It must not include modifying the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
 <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> or <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.
 These attributes must be altered by overriding
-<span class="xref std std-ref">dev_step_constrain_resources</span>.</p>
+<a class="reference internal" href="#dev-step-constrain-resources"><span class="std std-ref">constrain_resources()</span></a>.</p>
 </section>
 <section id="dev-step-run">
 <span id="id2"></span><h3>run()<a class="headerlink" href="#dev-step-run" title="Permalink to this heading"></a></h3>
@@ -1148,7 +1148,7 @@ These attributes must be altered by overriding
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary quite a lot between steps.</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for
 the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()</span></code>,
+<a class="reference internal" href="ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()</span></code></a>,
 is quite involved:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -1565,8 +1565,8 @@ produced on another machine, they must be transferred to one of these two
 machines before calling <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code>.  File can be added manually to the
 LCRC server and the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> databases but this is not
 recommended.</p>
-<p>More details on cached outputs are available in the design document
-<span class="xref std std-ref">design-doc-cached-outputs</span>.</p>
+<p>More details on cached outputs are available in the compass design document
+<a class="reference external" href="https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html">Caching outputs from compass steps</a>.</p>
 </section>
 </section>
 <section id="adding-yaml-namelist-and-streams-files">

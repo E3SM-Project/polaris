@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.baroclinic\_channel.rpe\_test.RpeTest.configure
+===================================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel.rpe_test
+
+.. automethod:: RpeTest.configure

@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.baroclinic\_channel.BaroclinicChannelTestCase.validate
+==========================================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel
+
+.. automethod:: BaroclinicChannelTestCase.validate

@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.baroclinic\_channel.forward.Forward.compute\_cell\_count
+============================================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel.forward
+
+.. automethod:: Forward.compute_cell_count

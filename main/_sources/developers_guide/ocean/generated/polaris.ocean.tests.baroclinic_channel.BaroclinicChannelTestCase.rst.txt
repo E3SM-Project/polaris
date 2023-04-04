@@ -1,0 +1,26 @@
+﻿polaris.ocean.tests.baroclinic\_channel.BaroclinicChannelTestCase
+=================================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel
+
+.. autoclass:: BaroclinicChannelTestCase
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaroclinicChannelTestCase.__init__
+      ~BaroclinicChannelTestCase.add_step
+      ~BaroclinicChannelTestCase.check_validation
+      ~BaroclinicChannelTestCase.configure
+      ~BaroclinicChannelTestCase.validate
+   
+   
+
+   
+   
+   

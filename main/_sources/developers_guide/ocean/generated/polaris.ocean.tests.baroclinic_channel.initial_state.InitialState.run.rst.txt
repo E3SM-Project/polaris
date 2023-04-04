@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.baroclinic\_channel.initial\_state.InitialState.run
+=======================================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel.initial_state
+
+.. automethod:: InitialState.run
