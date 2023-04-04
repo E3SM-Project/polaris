@@ -1,0 +1,14 @@
+omega:
+  time_management:
+    config_start_time: {{ start_time }}
+    config_run_duration: {{ run_duration }}
+    config_do_restart: {{ do_restart }}
+  io:
+    config_write_output_on_startup: false
+  streams:
+    restart:
+      filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+      filename_interval: output_interval
+      output_interval: 0000-00-00_00:00:01
+    output:
+      output_interval: {{ output_interval }}

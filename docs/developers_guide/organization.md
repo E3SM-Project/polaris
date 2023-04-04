@@ -1153,7 +1153,7 @@ computing a times step based on config options that might have been modified
 by the user.  It must not include modifying the `ntasks`, `min_tasks`,
 `cpus_per_task`, `min_cpus_per_task` or `openmp_threads` attributes.
 These attributes must be altered by overriding
-{ref}`dev_step_constrain_resources`.
+{ref}`dev-step-constrain-resources`.
 
 (dev-step-run)=
 
@@ -1645,8 +1645,8 @@ machines before calling `polaris cache`.  File can be added manually to the
 LCRC server and the `cached_files.json` databases but this is not
 recommended.
 
-More details on cached outputs are available in the design document
-{ref}`design-doc-cached-outputs`.
+More details on cached outputs are available in the compass design document
+[Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
 
 (dev-step-namelists-and-streams)=
 
