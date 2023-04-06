@@ -152,9 +152,9 @@ the latest dependencies for polaris and a development installation of polaris
 from the  branch you’re working on.  On supported machines, you will also need
 to point to a shared <a class="reference external" href="https://spack.io/">spack</a> environment with some tools
 and libraries built for that system that polaris needs.</p>
-<p>In the root of the repository is a tool, <code class="docutils literal notranslate"><span class="pre">configure_polaris_env.py</span></code>
+<p>In the root of the repository is a tool, <code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code>
 that can get you started.</p>
-<p>You will need to run <code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span></code> each time you check
+<p>You will need to run <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code> each time you check
 out a new branch or create a new worktree with <code class="docutils literal notranslate"><span class="pre">git</span></code>.  Typically, you will
 <em>not</em> need to run this command when you make changes to files within the
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> python package.  These will automatically be recognized because
@@ -183,13 +183,13 @@ environment.</p>
 would be creating your polaris development environment in a shared space,
 which could cause confusion.</p>
 <p>Please use your own personal installation of Mambaforge for development,
-letting <code class="docutils literal notranslate"><span class="pre">configure_polaris_env.py</span></code> download and install Mambaforge for
+letting <code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code> download and install Mambaforge for
 you if you don’t already have it installed.</p>
 </div>
 <section id="supported-machines">
 <h3>Supported machines<a class="headerlink" href="#supported-machines" title="Permalink to this heading"></a></h3>
 <p>If you are on one of the <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a>, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;base_path_to_install_or_update_conda&gt;<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;base_path_to_install_or_update_conda&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>-c<span class="w"> </span>&lt;compiler&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--mpi<span class="w"> </span>&lt;mpi&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>-m<span class="w"> </span>&lt;machine&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with_albany<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>--with_netlib_lapack<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with_petsc<span class="o">]</span>
 </pre></div>
@@ -234,7 +234,7 @@ resulting load script (see below).</p>
 <p>If your are on an “unknown” machine, typically a Mac or Linux laptop or
 workstation, you will need to specify which flavor of MPI you want to use
 (<code class="docutils literal notranslate"><span class="pre">mpich</span></code> or <code class="docutils literal notranslate"><span class="pre">openmpi</span></code>):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--mpi<span class="w"> </span>&lt;mpi&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--mpi<span class="w"> </span>&lt;mpi&gt;
 </pre></div>
 </div>
 <p>Again, the <code class="docutils literal notranslate"><span class="pre">&lt;conda_path&gt;</span></code> is typically <code class="docutils literal notranslate"><span class="pre">~/mambaforge</span></code>, and is the location
@@ -321,7 +321,7 @@ set an  environment variable <code class="docutils literal notranslate"><span cl
 script. Polaris uses this to make an symlink to the activation script called
 <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> in the work directory.</p>
 <p>If you switch between different polaris branches, it is safest to rerun
-<code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span></code> with the same arguments as above to make
+<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code> with the same arguments as above to make
 sure dependencies are up to date and the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package points to the
 current directory.  If you are certain that no polaris dependencies are
 different between branches, you can also simply source the activation script
@@ -339,7 +339,7 @@ a similar command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you switch branches and <em>do not</em> remember to recreate the conda
-environment (<code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span></code>) or at least source the
+environment (<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code>) or at least source the
 activation script (<code class="docutils literal notranslate"><span class="pre">load_dev_polaris*.sh</span></code>), you are likely to end up with
 an incorrect and possibly unusable <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package in your conda
 environment.</p>
@@ -352,7 +352,7 @@ it’s best to start a new terminal without having sourced a load script at
 all.</p>
 </div>
 <p>If you switch to another branch, you will need to rerun
-<code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span></code> with the same arguments as above to make
+<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code> with the same arguments as above to make
 sure dependencies are up to date and the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package points to the
 current directory.</p>
 <div class="admonition note">
@@ -364,7 +364,7 @@ just the <code class="docutils literal notranslate"><span class="pre">polaris</s
 </div>
 <p>The activation script will do this automatically when you source it in
 the root directory of your polaris branch.  This is substantially faster
-than rerunning <code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span> <span class="pre">...</span></code> but risks
+than rerunning <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span> <span class="pre">...</span></code> but risks
 dependencies being out of date.  Since dependencies change fairly rarely,
 this will usually be safe.</p>
 </div>
@@ -379,7 +379,7 @@ compiler.</p>
 <h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h3>
 <p>If you run into trouble with the environment or just want a clean start, you
 can run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>&lt;compiler&gt;<span class="w"> </span>--recreate
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>&lt;compiler&gt;<span class="w"> </span>--recreate
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--recreate</span></code> flag will delete the conda environment and create it from
@@ -392,7 +392,7 @@ scratch.  This takes just a little extra time.</p>
 only want to create the conda environment and not build SCORPIO, ESMF or
 include any system modules or environment variables in your activation script.
 In such cases, run with the <code class="docutils literal notranslate"><span class="pre">--env_only</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only
 </pre></div>
 </div>
 <p>Each time you want to work with polaris, you will need to run:</p>
@@ -404,7 +404,7 @@ set an environment variable <code class="docutils literal notranslate"><span cla
 script. Polaris uses this to make a symlink to the activation script
 called <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> in the work directory.</p>
 <p>If you switch to another branch, you will need to rerun:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only
 </pre></div>
 </div>
 <p>to make sure dependencies are up to date and the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package points
@@ -417,7 +417,7 @@ just the <code class="docutils literal notranslate"><span class="pre">polaris</s
 </pre></div>
 </div>
 <p>This will be substantially faster than rerunning
-<code class="docutils literal notranslate"><span class="pre">./configure_polaris_env.py</span> <span class="pre">...</span></code> but at the risk that dependencies are
+<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span> <span class="pre">...</span></code> but at the risk that dependencies are
 not up-to-date.  Since dependencies change fairly rarely, this will usually
 be safe.</p>
 </div>
@@ -435,7 +435,7 @@ make<span class="w"> </span>&lt;mpas_make_target&gt;
 first-order velocity solver.  The Albany first-order velocity solver is the
 only velocity option that is scientifically validated.  On supported machines
 and with compilers that support albany, you can run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.py<span class="w"> </span>--with_albany<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--with_albany<span class="w"> </span>...
 </pre></div>
 </div>
 <p>Then, you can build MALI:</p>

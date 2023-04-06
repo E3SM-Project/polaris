@@ -41,10 +41,10 @@ from the  branch you're working on.  On supported machines, you will also need
 to point to a shared [spack](https://spack.io/) environment with some tools 
 and libraries built for that system that polaris needs.
 
-In the root of the repository is a tool, `configure_polaris_env.py`
+In the root of the repository is a tool, `configure_polaris_envs.py`
 that can get you started.
 
-You will need to run `./configure_polaris_env.py` each time you check
+You will need to run `./configure_polaris_envs.py` each time you check
 out a new branch or create a new worktree with `git`.  Typically, you will
 *not* need to run this command when you make changes to files within the
 `polaris` python package.  These will automatically be recognized because
@@ -76,7 +76,7 @@ would be creating your polaris development environment in a shared space,
 which could cause confusion.
 
 Please use your own personal installation of Mambaforge for development,
-letting `configure_polaris_env.py` download and install Mambaforge for
+letting `configure_polaris_envs.py` download and install Mambaforge for
 you if you don't already have it installed.
 :::
 
@@ -86,7 +86,7 @@ you if you don't already have it installed.
 If you are on one of the {ref}`dev-supported-machines`, run:
 
 ```bash
-./configure_polaris_env.py --conda <base_path_to_install_or_update_conda> \
+./configure_polaris_envs.py --conda <base_path_to_install_or_update_conda> \
     [-c <compiler>] [--mpi <mpi>] [-m <machine>] [--with_albany] \
     [--with_netlib_lapack] [--with_petsc]
 ```
@@ -136,7 +136,7 @@ workstation, you will need to specify which flavor of MPI you want to use
 (`mpich` or `openmpi`):
 
 ```bash
-./configure_polaris_env.py --conda <conda_path> --mpi <mpi>
+./configure_polaris_envs.py --conda <conda_path> --mpi <mpi>
 ```
 
 Again, the `<conda_path>` is typically `~/mambaforge`, and is the location
@@ -233,7 +233,7 @@ script. Polaris uses this to make an symlink to the activation script called
 `load_polaris_env.sh` in the work directory.
 
 If you switch between different polaris branches, it is safest to rerun
-`./configure_polaris_env.py` with the same arguments as above to make
+`./configure_polaris_envs.py` with the same arguments as above to make
 sure dependencies are up to date and the `polaris` package points to the
 current directory.  If you are certain that no polaris dependencies are
 different between branches, you can also simply source the activation script
@@ -254,7 +254,7 @@ a similar command.
 
 :::{note}
 If you switch branches and *do not* remember to recreate the conda
-environment (`./configure_polaris_env.py`) or at least source the
+environment (`./configure_polaris_envs.py`) or at least source the
 activation script (`load_dev_polaris*.sh`), you are likely to end up with
 an incorrect and possibly unusable `polaris` package in your conda
 environment.
@@ -269,7 +269,7 @@ all.
 :::
 
 If you switch to another branch, you will need to rerun
-`./configure_polaris_env.py` with the same arguments as above to make
+`./configure_polaris_envs.py` with the same arguments as above to make
 sure dependencies are up to date and the `polaris` package points to the
 current directory.
 
@@ -283,7 +283,7 @@ python -m pip install -e .
 
 The activation script will do this automatically when you source it in
 the root directory of your polaris branch.  This is substantially faster
-than rerunning `./configure_polaris_env.py ...` but risks
+than rerunning `./configure_polaris_envs.py ...` but risks
 dependencies being out of date.  Since dependencies change fairly rarely,
 this will usually be safe.
 :::
@@ -301,7 +301,7 @@ If you run into trouble with the environment or just want a clean start, you
 can run:
 
 ```bash
-./configure_polaris_env.py --conda <conda_path> -c <compiler> --recreate
+./configure_polaris_envs.py --conda <conda_path> -c <compiler> --recreate
 ```
 
 The `--recreate` flag will delete the conda environment and create it from
@@ -317,7 +317,7 @@ include any system modules or environment variables in your activation script.
 In such cases, run with the `--env_only` flag:
 
 ```bash
-./configure_polaris_env.py --conda <conda_path> --env_only
+./configure_polaris_envs.py --conda <conda_path> --env_only
 ```
 
 Each time you want to work with polaris, you will need to run:
@@ -334,7 +334,7 @@ called `load_polaris_env.sh` in the work directory.
 If you switch to another branch, you will need to rerun:
 
 ```bash
-./configure_polaris_env.py --conda <conda_path> --env_only
+./configure_polaris_envs.py --conda <conda_path> --env_only
 ```
 
 to make sure dependencies are up to date and the `polaris` package points
@@ -349,7 +349,7 @@ python -m pip install -e .
 ```
 
 This will be substantially faster than rerunning
-`./configure_polaris_env.py ...` but at the risk that dependencies are
+`./configure_polaris_envs.py ...` but at the risk that dependencies are
 not up-to-date.  Since dependencies change fairly rarely, this will usually
 be safe.
 :::
@@ -373,7 +373,7 @@ only velocity option that is scientifically validated.  On supported machines
 and with compilers that support albany, you can run:
 
 ```bash
-./configure_polaris_env.py --with_albany ...
+./configure_polaris_envs.py --with_albany ...
 ```
 
 Then, you can build MALI:

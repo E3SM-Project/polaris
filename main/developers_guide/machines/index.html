@@ -234,11 +234,11 @@ to what was described in <a class="reference internal" href="../quick_start.html
 we will use <code class="docutils literal notranslate"><span class="pre">mpich</span></code> or <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> and the gnu compilers from conda-forge
 rather than system compilers.  To create a development conda environment and
 an activation script for it, on Linux, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>mpich
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>and on OSX run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_env.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>clang<span class="w"> </span>-i<span class="w"> </span>mpich
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>clang<span class="w"> </span>-i<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>You may use <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mpich</span></code> but we have had better experiences
