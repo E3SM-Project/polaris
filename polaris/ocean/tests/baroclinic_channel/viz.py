@@ -1,0 +1,51 @@
+import cmocean  # noqa: F401
+import numpy as np
+import xarray as xr
+
+from polaris.step import Step
+from polaris.viz import plot_horiz_field
+
+
+class Viz(Step):
+    """
+    A step for plotting the results of a series of RPE runs in the baroclinic
+    channel test group
+
+    Attributes
+    ----------
+    nus : list
+        A list of viscosities
+    """
+    def __init__(self, test_case):
+        """
+        Create the step
+
+        Parameters
+        ----------
+        test_case : polaris.TestCase
+            The test case this step belongs to
+        """
+        super().__init__(test_case=test_case, name='viz')
+        self.add_input_file(
+            filename='initial_state.nc',
+            target='../initial_state/initial_state.nc')
+        self.add_input_file(
+            filename='output.nc',
+            target='../forward/output.nc')
+
+    def run(self):
+        """
+        Run this step of the test case
+        """
+        config = self.config
+        dsMesh = xr.load_dataset('initial_state.nc')
+        ds = xr.load_dataset('output.nc')
+        tIndex = ds.sizes['Time'] - 1
+        plot_horiz_field(config, ds, dsMesh, 'temperature',
+                         'final_temperature.png', tIndex=tIndex)
+        max_velocity = np.max(np.abs(ds.normalVelocity.values))
+        plot_horiz_field(config, ds, dsMesh, 'normalVelocity',
+                         'final_normalVelocity.png',
+                         tIndex=tIndex,
+                         vmin=-1 * max_velocity, vmax=max_velocity,
+                         cmap='cmo.balance', show_cell_edges=True)
