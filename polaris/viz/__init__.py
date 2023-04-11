@@ -1,3 +1,4 @@
+import importlib.resources as imp_res  # noqa: F401
 import os
 
 import cmocean  # noqa: F401
@@ -11,7 +12,7 @@ from matplotlib.patches import Polygon
 
 def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
                      title=None, tIndex=None, zIndex=None,
-                     vmin=None, vmax=None,
+                     vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_scale='linear'):
 
     """
@@ -42,6 +43,9 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
     vmin, vmax : float, optional
         The minimum and maximum values for the colorbar
 
+    show_patch_edges : boolean, optional
+        If true, patches will be plotted with visible edges
+
     tIndex, zIndex: int, optional
         The indices of 'Time' and 'nVertLevels' axes to select for plotting
 
@@ -54,6 +58,9 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
     """
+    style_filename = str(
+        imp_res.files('polaris.viz') / 'polaris.mplstyle')
+    plt.style.use(style_filename)
 
     try:
         os.makedirs(os.path.dirname(outFileName))
@@ -90,7 +97,10 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
         current_cmap = oceanPatches.get_cmap()
         current_cmap.set_under(cmap_set_under)
 
-    oceanPatches.set_edgecolor('face')
+    if show_patch_edges:
+        oceanPatches.set_edgecolor('black')
+    else:
+        oceanPatches.set_edgecolor('face')
     oceanPatches.set_clim(vmin=vmin, vmax=vmax)
 
     if cmap_scale == 'log':
@@ -107,6 +117,8 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
     plt.figure(figsize=figsize)
     ax = plt.subplot(111)
     ax.add_collection(oceanPatches)
+    ax.set_xlabel('x (km)')
+    ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
     plt.colorbar(oceanPatches, extend='both', shrink=0.7)

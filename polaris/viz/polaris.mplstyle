@@ -1,0 +1,11 @@
+# polaris.mplstyle
+
+figure.titlesize: 16
+figure.labelsize: 14
+
+legend.fontsize: 14
+
+axes.titlesize: 16
+axes.labelsize: 14
+
+patch.linewidth: 0.5
