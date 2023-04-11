@@ -6,6 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.step import Step
+from polaris.viz import plot_horiz_field
 
 
 class InitialState(Step):
@@ -79,6 +80,7 @@ class InitialState(Step):
 
         init_vertical_coord(config, ds)
 
+        dsMesh['maxLevelCell'] = ds.maxLevelCell
         xMin = xCell.min().values
         xMax = xCell.max().values
         yMin = yCell.min().values
@@ -140,3 +142,6 @@ class InitialState(Step):
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
         write_netcdf(ds, 'initial_state.nc')
+
+        plot_horiz_field(config, ds, dsMesh, 'temperature',
+                         'initial_temperature.png')
