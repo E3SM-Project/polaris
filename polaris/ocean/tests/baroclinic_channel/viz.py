@@ -38,14 +38,14 @@ class Viz(Step):
         Run this step of the test case
         """
         config = self.config
-        dsMesh = xr.load_dataset('initial_state.nc')
+        ds_mesh = xr.load_dataset('initial_state.nc')
         ds = xr.load_dataset('output.nc')
-        tIndex = ds.sizes['Time'] - 1
-        plot_horiz_field(config, ds, dsMesh, 'temperature',
-                         'final_temperature.png', tIndex=tIndex)
+        t_index = ds.sizes['Time'] - 1
+        plot_horiz_field(config, ds, ds_mesh, 'temperature',
+                         'final_temperature.png', t_index=t_index)
         max_velocity = np.max(np.abs(ds.normalVelocity.values))
-        plot_horiz_field(config, ds, dsMesh, 'normalVelocity',
+        plot_horiz_field(config, ds, ds_mesh, 'normalVelocity',
                          'final_normalVelocity.png',
-                         tIndex=tIndex,
+                         t_index=t_index,
                          vmin=-1 * max_velocity, vmax=max_velocity,
                          cmap='cmo.balance', show_cell_edges=True)
