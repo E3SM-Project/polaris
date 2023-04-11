@@ -1,3 +1,4 @@
+import cmocean  # noqa: F401
 import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
@@ -81,6 +82,7 @@ class InitialState(Step):
         init_vertical_coord(config, ds)
 
         dsMesh['maxLevelCell'] = ds.maxLevelCell
+
         xMin = xCell.min().values
         xMax = xCell.max().values
         yMin = yCell.min().values
@@ -145,3 +147,6 @@ class InitialState(Step):
 
         plot_horiz_field(config, ds, dsMesh, 'temperature',
                          'initial_temperature.png')
+        plot_horiz_field(config, ds, dsMesh, 'normalVelocity',
+                         'initial_normalVelocity.png', cmap='cmo.balance',
+                         show_patch_edges=True)

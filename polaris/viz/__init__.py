@@ -70,9 +70,9 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
     if title is None:
         title = fieldName
 
-    for var in ['maxLevelCell']:
-        if var not in dsMesh:
-            raise ValueError(f'{var} must be added to dsMesh before plotting.')
+    if 'maxLevelCell' not in dsMesh:
+        raise ValueError(
+            'maxLevelCell must be added to dsMesh before plotting.')
     if fieldName not in ds:
         raise ValueError(f'{fieldName} must be present in ds before plotting.')
 
@@ -87,9 +87,14 @@ def plot_horiz_field(config, ds, dsMesh, fieldName, outFileName,
     if zIndex is not None:
         field = field[:, zIndex]
 
-    oceanMask = dsMesh.maxLevelCell - 1 >= 0
-    oceanMask = _remove_boundary_cells_from_mask(dsMesh, oceanMask)
-    oceanPatches = _compute_cell_patches(dsMesh, oceanMask)
+    if 'nCells' in field.dims:
+        oceanMask = dsMesh.maxLevelCell - 1 >= 0
+        oceanMask = _remove_boundary_cells_from_mask(dsMesh, oceanMask)
+        oceanPatches = _compute_cell_patches(dsMesh, oceanMask)
+    elif 'nEdges' in field.dims:
+        oceanMask = np.ones_like(field, dtype='bool')
+        oceanMask = _remove_boundary_edges_from_mask(dsMesh, oceanMask)
+        oceanPatches = _compute_edge_patches(dsMesh, oceanMask)
     oceanPatches.set_array(field[oceanMask])
     if cmap is not None:
         oceanPatches.set_cmap(cmap)
@@ -149,6 +154,41 @@ def _remove_boundary_cells_from_mask(dsMesh, mask):
     return mask
 
 
+def _remove_boundary_edges_from_mask(dsMesh, mask):
+    areaCell = dsMesh.areaCell.values
+    cellsOnEdge = dsMesh.cellsOnEdge.values - 1
+    verticesOnEdge = dsMesh.verticesOnEdge.values - 1
+    xCell = dsMesh.xCell.values
+    yCell = dsMesh.yCell.values
+    boundaryVertex = dsMesh.boundaryVertex.values
+    xVertex = dsMesh.xVertex.values
+    yVertex = dsMesh.yVertex.values
+    for iEdge in range(dsMesh.sizes['nEdges']):
+        if not mask[iEdge]:
+            continue
+        cellIndices = cellsOnEdge[iEdge]
+        vertexIndices = verticesOnEdge[iEdge, :]
+        if any(boundaryVertex[vertexIndices]):
+            mask[iEdge] = 0
+        vertices = np.zeros((4, 2))
+        vertices[0, 0] = xVertex[vertexIndices[0]]
+        vertices[0, 1] = yVertex[vertexIndices[0]]
+        vertices[1, 0] = xCell[cellIndices[0]]
+        vertices[1, 1] = yCell[cellIndices[0]]
+        vertices[2, 0] = xVertex[vertexIndices[1]]
+        vertices[2, 1] = yVertex[vertexIndices[1]]
+        vertices[3, 0] = xCell[cellIndices[1]]
+        vertices[3, 1] = yCell[cellIndices[1]]
+
+        # Remove cells that span the periodic boundaries
+        dx = max(vertices[:, 0]) - min(vertices[:, 0])
+        dy = max(vertices[:, 1]) - min(vertices[:, 1])
+        if dx * dy / 10 > areaCell[0]:
+            mask[iEdge] = 0
+
+    return mask
+
+
 def _compute_cell_patches(dsMesh, mask):
     patches = []
     nVerticesOnCell = dsMesh.nEdgesOnCell.values
@@ -163,6 +203,37 @@ def _compute_cell_patches(dsMesh, mask):
         vertices = np.zeros((nVert, 2))
         vertices[:, 0] = 1e-3 * xVertex[vertexIndices]
         vertices[:, 1] = 1e-3 * yVertex[vertexIndices]
+
+        polygon = Polygon(vertices, True)
+        patches.append(polygon)
+
+    p = PatchCollection(patches, alpha=1.)
+
+    return p
+
+
+def _compute_edge_patches(dsMesh, mask):
+    patches = []
+    cellsOnEdge = dsMesh.cellsOnEdge.values - 1
+    verticesOnEdge = dsMesh.verticesOnEdge.values - 1
+    xCell = dsMesh.xCell.values
+    yCell = dsMesh.yCell.values
+    xVertex = dsMesh.xVertex.values
+    yVertex = dsMesh.yVertex.values
+    for iEdge in range(dsMesh.sizes['nEdges']):
+        if not mask[iEdge]:
+            continue
+        cellIndices = cellsOnEdge[iEdge]
+        vertexIndices = verticesOnEdge[iEdge, :]
+        vertices = np.zeros((4, 2))
+        vertices[0, 0] = 1e-3 * xVertex[vertexIndices[0]]
+        vertices[0, 1] = 1e-3 * yVertex[vertexIndices[0]]
+        vertices[1, 0] = 1e-3 * xCell[cellIndices[0]]
+        vertices[1, 1] = 1e-3 * yCell[cellIndices[0]]
+        vertices[2, 0] = 1e-3 * xVertex[vertexIndices[1]]
+        vertices[2, 1] = 1e-3 * yVertex[vertexIndices[1]]
+        vertices[3, 0] = 1e-3 * xCell[cellIndices[1]]
+        vertices[3, 1] = 1e-3 * yCell[cellIndices[1]]
 
         polygon = Polygon(vertices, True)
         patches.append(polygon)
