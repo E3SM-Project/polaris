@@ -25,9 +25,6 @@ all_build_targets = {
     'compy': {
         ('intel', 'impi'): 'intel-mpi',
         ('gnu', 'openmpi'): 'gfortran'},
-    'cori-haswell': {
-        ('intel', 'mpt'): 'intel-cray',
-        ('gnu', 'mpt'): 'gnu-cray'},
     'pm-cpu': {
         ('gnu', 'mpich'): 'gnu-cray'},
     'conda-linux': {

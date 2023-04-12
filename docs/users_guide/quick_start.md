@@ -20,7 +20,7 @@ For each polaris release, we maintain a
 (currently [ESMF](https://earthsystemmodeling.org/) and
 [SCORPIO](https://e3sm.org/scorpio-parallel-io-library/)) built with system
 MPI using [spack](https://spack.io/) on our standard machines (Anvil, Chicoma, 
-Chrysalis, Compy, Cori and  Perlmutter).  Once there is a polaris release,
+Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,
 these will be the commands to load the environments and set you up for building
 the desired E3SM component (MPAS-Ocean, MALI or OMEGA):
 
@@ -46,12 +46,6 @@ source /lcrc/soft/climate/polaris/chrysalis/load_latest_polaris.sh
 
 ```bash
 source /share/apps/E3SM/conda_envs/polaris/load_latest_polaris.sh
-```
-
-- Cori-Haswell:
-
-```bash
-source /global/cfs/cdirs/e3sm/software/polaris/cori-haswell/load_latest_polaris.sh
 ```
 
 - Perlmutter (CPU nodes):
