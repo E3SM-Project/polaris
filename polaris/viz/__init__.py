@@ -90,12 +90,11 @@ def plot_horiz_field(config, ds, ds_mesh, field_name, out_file_name,
 
     if 'nCells' in field.dims:
         ocean_mask = ds_mesh.maxLevelCell - 1 >= 0
-        ocean_mask = _remove_boundary_cells_from_mask(ds_mesh, ocean_mask)
-        ocean_patches = _compute_cell_patches(ds_mesh, ocean_mask)
+        ocean_patches, ocean_mask = _compute_cell_patches(ds_mesh, ocean_mask)
     elif 'nEdges' in field.dims:
         ocean_mask = np.ones_like(field, dtype='bool')
         ocean_mask = _remove_boundary_edges_from_mask(ds_mesh, ocean_mask)
-        ocean_patches = _compute_edge_patches(ds_mesh, ocean_mask)
+        ocean_patches, ocean_mask = _compute_edge_patches(ds_mesh, ocean_mask)
     ocean_patches.set_array(field[ocean_mask])
     if cmap is not None:
         ocean_patches.set_cmap(cmap)
@@ -134,29 +133,9 @@ def plot_horiz_field(config, ds, ds_mesh, field_name, out_file_name,
     plt.close()
 
 
-def _remove_boundary_cells_from_mask(ds, mask):
-    area_cell = ds.areaCell.values
-    num_vertices_on_cell = ds.nEdgesOnCell.values
-    vertices_on_cell = ds.verticesOnCell.values - 1
-    x_vertex = ds.xVertex.values
-    y_vertex = ds.yVertex.values
-    for cell_index in range(ds.sizes['nCells']):
-        if not mask[cell_index]:
-            continue
-        num_vertices = num_vertices_on_cell[cell_index]
-        vertex_indices = vertices_on_cell[cell_index, :num_vertices]
-
-        # Remove cells that span the periodic boundaries
-        dx = max(x_vertex[vertex_indices]) - min(x_vertex[vertex_indices])
-        dy = max(y_vertex[vertex_indices]) - min(y_vertex[vertex_indices])
-        if dx * dy / 10 > area_cell[cell_index]:
-            mask[cell_index] = 0
-
-    return mask
-
-
 def _remove_boundary_edges_from_mask(ds, mask):
     area_cell = ds.areaCell.values
+    mean_area_cell = np.mean(area_cell)
     cells_on_edge = ds.cellsOnEdge.values - 1
     vertices_on_edge = ds.verticesOnEdge.values - 1
     x_cell = ds.xCell.values
@@ -171,6 +150,7 @@ def _remove_boundary_edges_from_mask(ds, mask):
         vertex_indices = vertices_on_edge[edge_index, :]
         if any(boundary_vertex[vertex_indices]):
             mask[edge_index] = 0
+            continue
         vertices = np.zeros((4, 2))
         vertices[0, 0] = x_vertex[vertex_indices[0]]
         vertices[0, 1] = y_vertex[vertex_indices[0]]
@@ -181,10 +161,10 @@ def _remove_boundary_edges_from_mask(ds, mask):
         vertices[3, 0] = x_cell[cell_indices[1]]
         vertices[3, 1] = y_cell[cell_indices[1]]
 
-        # Remove cells that span the periodic boundaries
+        # Remove edges that span the periodic boundaries
         dx = max(vertices[:, 0]) - min(vertices[:, 0])
         dy = max(vertices[:, 1]) - min(vertices[:, 1])
-        if dx * dy / 10 > area_cell[0]:
+        if dx * dy / 10 > mean_area_cell:
             mask[edge_index] = 0
 
     return mask
@@ -196,6 +176,7 @@ def _compute_cell_patches(ds, mask):
     vertices_on_cell = ds.verticesOnCell.values - 1
     x_vertex = ds.xVertex.values
     y_vertex = ds.yVertex.values
+    area_cell = ds.areaCell.values
     for cell_index in range(ds.sizes['nCells']):
         if not mask[cell_index]:
             continue
@@ -205,12 +186,18 @@ def _compute_cell_patches(ds, mask):
         vertices[:, 0] = 1e-3 * x_vertex[vertex_indices]
         vertices[:, 1] = 1e-3 * y_vertex[vertex_indices]
 
-        polygon = Polygon(vertices, True)
-        patches.append(polygon)
+        # Remove cells that span the periodic boundaries
+        dx = max(x_vertex[vertex_indices]) - min(x_vertex[vertex_indices])
+        dy = max(y_vertex[vertex_indices]) - min(y_vertex[vertex_indices])
+        if dx * dy / 10 > area_cell[cell_index]:
+            mask[cell_index] = False
+        else:
+            polygon = Polygon(vertices, True)
+            patches.append(polygon)
 
     p = PatchCollection(patches, alpha=1.)
 
-    return p
+    return p, mask
 
 
 def _compute_edge_patches(ds, mask):
@@ -241,4 +228,4 @@ def _compute_edge_patches(ds, mask):
 
     p = PatchCollection(patches, alpha=1.)
 
-    return p
+    return p, mask
