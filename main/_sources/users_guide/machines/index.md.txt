@@ -130,7 +130,6 @@ anvil
 chicoma
 chrysalis
 compy
-cori
 perlmutter
 ```
 

@@ -60,10 +60,6 @@ supported for those configurations with `gnu` compilers.
 |              +------------+-----------+-------------------+
 |              | gnu        | openmpi   | gfortran          |
 +--------------+------------+-----------+-------------------+
-| cori-haswell | intel      | mpt       | intel-cray        |
-|              +------------+-----------+-------------------+
-|              | gnu        | mpt       | gnu-cray          |
-+--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
 +--------------+------------+-----------+-------------------+
 ```
@@ -77,7 +73,6 @@ anvil
 chicoma
 chrysalis
 compy
-cori
 perlmutter
 ```
 
