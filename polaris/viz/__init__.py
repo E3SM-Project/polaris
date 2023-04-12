@@ -82,11 +82,11 @@ def plot_horiz_field(config, ds, ds_mesh, field_name, out_file_name,
     if 'Time' in field.dims and t_index is None:
         t_index = 0
     if t_index is not None:
-        field = field[t_index, :]
+        field = field.isel(Time=t_index)
     if 'nVertLevels' in field.dims and z_index is None:
         z_index = 0
     if z_index is not None:
-        field = field[:, z_index]
+        field = field.isel(nVertLevels=z_index)
 
     if 'nCells' in field.dims:
         ocean_mask = ds_mesh.maxLevelCell - 1 >= 0

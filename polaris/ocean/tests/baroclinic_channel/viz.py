@@ -47,5 +47,5 @@ class Viz(Step):
         plot_horiz_field(config, ds, ds_mesh, 'normalVelocity',
                          'final_normalVelocity.png',
                          t_index=t_index,
-                         vmin=-1 * max_velocity, vmax=max_velocity,
-                         cmap='cmo.balance', show_cell_edges=True)
+                         vmin=-max_velocity, vmax=max_velocity,
+                         cmap='cmo.balance', show_patch_edges=True)
