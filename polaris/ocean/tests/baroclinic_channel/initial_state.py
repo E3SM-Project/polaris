@@ -145,8 +145,8 @@ class InitialState(Step):
 
         write_netcdf(ds, 'initial_state.nc')
 
-        plot_horiz_field(config, ds, dsMesh, 'temperature',
+        plot_horiz_field(ds, dsMesh, 'temperature',
                          'initial_temperature.png')
-        plot_horiz_field(config, ds, dsMesh, 'normalVelocity',
+        plot_horiz_field(ds, dsMesh, 'normalVelocity',
                          'initial_normalVelocity.png', cmap='cmo.balance',
                          show_patch_edges=True)

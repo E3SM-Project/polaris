@@ -10,7 +10,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.patches import Polygon
 
 
-def plot_horiz_field(config, ds, ds_mesh, field_name, out_file_name,
+def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
                      title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_scale='linear'):
@@ -21,10 +21,6 @@ def plot_horiz_field(config, ds, ds_mesh, field_name, out_file_name,
 
     Parameters
     ----------
-    config : polaris.config.PolarisConfigParser
-        Configuration options with parameters used to construct the vertical
-        grid
-
     ds : xarray.Dataset
         A data set containing fieldName
 
