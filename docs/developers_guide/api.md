@@ -337,7 +337,18 @@ ocean/api
    compare_timers
 ```
 
-### validate
+#### viz
+
+```{eval-rst}
+.. currentmodule:: polaris.viz
+
+.. autosummary::
+   :toctree: generated/
+
+   plot_horiz_field
+```
+
+### yaml
 
 ```{eval-rst}
 .. currentmodule:: polaris.yaml
