@@ -119,10 +119,7 @@ def setup_cases(work_dir, tests=None, numbers=None, config_file=None,
     with open(pickle_file, 'wb') as handle:
         pickle.dump(test_suite, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    if 'LOAD_POLARIS_ENV' in os.environ:
-        script_filename = os.environ['LOAD_POLARIS_ENV']
-        # make a symlink to the script for loading the polaris conda env.
-        symlink(script_filename, os.path.join(work_dir, 'load_polaris_env.sh'))
+    _symlink_load_script(work_dir)
 
     max_cores, max_of_min_cores = _get_required_cores(test_cases)
 
@@ -269,6 +266,14 @@ def setup_case(path, test_case, config_file, machine, work_dir, baseline_dir,
             pickle.dump((test_case, step), handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
 
+        _symlink_load_script(step.work_dir)
+
+        if machine is not None:
+            cores = step.cpus_per_task * step.ntasks
+            min_cores = step.min_cpus_per_task * step.min_tasks
+            write_job_script(config, machine, cores, min_cores,
+                             step.work_dir)
+
     # pickle the test case and step for use at runtime
     pickle_filename = os.path.join(test_case.work_dir, 'test_case.pickle')
     with open(pickle_filename, 'wb') as handle:
@@ -277,11 +282,7 @@ def setup_case(path, test_case, config_file, machine, work_dir, baseline_dir,
                       'work_dir': test_case.work_dir}
         pickle.dump(test_suite, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    if 'LOAD_POLARIS_ENV' in os.environ:
-        script_filename = os.environ['LOAD_POLARIS_ENV']
-        # make a symlink to the script for loading the polaris conda env.
-        symlink(script_filename, os.path.join(test_case_dir,
-                                              'load_polaris_env.sh'))
+    _symlink_load_script(test_case_dir)
 
     if machine is not None:
         max_cores, max_of_min_cores = _get_required_cores({path: test_case})
@@ -477,3 +478,11 @@ def _add_test_cases_by_name(tests, all_test_cases, cached, test_cases,
             else:
                 cached_steps[path] = list()
             test_cases[path] = all_test_cases[path]
+
+
+def _symlink_load_script(work_dir):
+    """ make a symlink to the script for loading the polaris conda env. """
+    if 'LOAD_POLARIS_ENV' in os.environ:
+        script_filename = os.environ['LOAD_POLARIS_ENV']
+        symlink(script_filename,
+                os.path.join(work_dir, 'load_polaris_env.sh'))
