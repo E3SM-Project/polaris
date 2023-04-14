@@ -101,7 +101,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tests.baroclinic_channel.initial_state</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
@@ -109,6 +110,7 @@
 
 <span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">init_vertical_coord</span>
 <span class="kn">from</span> <span class="nn">polaris.step</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
 <div class="viewcode-block" id="InitialState"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState">[docs]</a><span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -182,6 +184,8 @@
 
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
+        <span class="n">dsMesh</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span>
+
         <span class="n">xMin</span> <span class="o">=</span> <span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">xMax</span> <span class="o">=</span> <span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">yMin</span> <span class="o">=</span> <span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
@@ -242,7 +246,13 @@
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span></div></div>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">dsMesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;initial_temperature.png&#39;</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">dsMesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;initial_normalVelocity.png&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                         <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

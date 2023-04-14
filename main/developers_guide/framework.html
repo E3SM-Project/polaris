@@ -94,6 +94,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#making-a-graph-file">Making a graph file</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization">Visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#validation">Validation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#validating-variables">Validating variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#norms">Norms</a></li>
@@ -576,6 +577,32 @@ from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
 on cells in the mesh file that gives different weight to different cells
 (<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
 </section>
+</section>
+<section id="visualization">
+<span id="dev-visualization"></span><h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading"></a></h2>
+<p>Visualization is an optional, but desirable aspect of test cases. Often,
+visualization is an optional step of a test case but can also be included
+as part of other steps such as <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> or <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
+<p>While developers can write their own visualization scripts associated with
+individual test cases, the following shared visualization routines are
+provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
+<p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a patches-style
+visualization of x-y fields across a single vertical level at a single time
+step. The image file (png) is saved to the directory from which
+<a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> is called. The function
+automatically detects whether the field specified by its variable name is
+a cell-centered variable or an edge-variable and generates the patches, the
+polygons characterized by the field values, accordingly.</p>
+<a class="reference internal image-reference" href="developers_guide/images/baroclinic_channel_cell_patches.png"><img alt="developers_guide/images/baroclinic_channel_cell_patches.png" class="align-center" src="developers_guide/images/baroclinic_channel_cell_patches.png" style="width: 250px;" /></a>
+<a class="reference internal image-reference" href="developers_guide/images/baroclinic_channel_edge_patches.png"><img alt="developers_guide/images/baroclinic_channel_edge_patches.png" class="align-center" src="developers_guide/images/baroclinic_channel_edge_patches.png" style="width: 250px;" /></a>
+<p>An example function call that uses the default vertical level (top) is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
+                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
+                 <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
+                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="validation">
 <span id="dev-validation"></span><h2>Validation<a class="headerlink" href="#validation" title="Permalink to this heading"></a></h2>

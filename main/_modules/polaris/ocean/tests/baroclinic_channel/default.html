@@ -103,6 +103,7 @@
   <h1>Source code for polaris.ocean.tests.baroclinic_channel.default</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannelTestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
 <span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
 
 
@@ -130,7 +131,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span></div>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Viz</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Default.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.baroclinic_channel.default.Default.validate.html#polaris.ocean.tests.baroclinic_channel.default.Default.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

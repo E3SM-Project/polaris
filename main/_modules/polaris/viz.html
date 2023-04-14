@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.viz</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.1.0-alpha.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.viz</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.viz</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">PatchCollection</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LogNorm</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
+
+
+<div class="viewcode-block" id="plot_horiz_field"><a class="viewcode-back" href="../../developers_guide/generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field">[docs]</a><span class="k">def</span> <span class="nf">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">out_file_name</span><span class="p">,</span>
+                     <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_set_under</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a horizontal field from a planar domain using x,y coordinates at a</span>
+<span class="sd">    single time and depth slice.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A data set containing fieldName</span>
+
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        A data set containing mesh variables</span>
+
+<span class="sd">    field_name: str</span>
+<span class="sd">        The name of the variable to plot, which must be present in ds</span>
+
+<span class="sd">    out_file_name: str</span>
+<span class="sd">        The path to which the plot image should be written</span>
+
+<span class="sd">    title: str, optional</span>
+<span class="sd">        The title of the plot</span>
+
+<span class="sd">    vmin, vmax : float, optional</span>
+<span class="sd">        The minimum and maximum values for the colorbar</span>
+
+<span class="sd">    show_patch_edges : boolean, optional</span>
+<span class="sd">        If true, patches will be plotted with visible edges</span>
+
+<span class="sd">    t_index, z_index: int, optional</span>
+<span class="sd">        The indices of &#39;Time&#39; and &#39;nVertLevels&#39; axes to select for plotting</span>
+
+<span class="sd">    cmap : Colormap or str, optional</span>
+<span class="sd">        A color map to plot</span>
+
+<span class="sd">    cmap_set_under : str or None, optional</span>
+<span class="sd">        A color for low out-of-range values</span>
+
+<span class="sd">    cmap_scale : {&#39;log&#39;, &#39;linear&#39;}, optional</span>
+<span class="sd">        Whether the colormap is logarithmic or linear</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.viz&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;polaris.mplstyle&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">field_name</span>
+
+    <span class="k">if</span> <span class="s1">&#39;maxLevelCell&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;maxLevelCell must be added to ds_mesh before plotting.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> must be present in ds before plotting.&#39;</span><span class="p">)</span>
+
+    <span class="n">field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;nVertLevels&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">z_index</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">ocean_patches</span><span class="p">,</span> <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">_compute_cell_patches</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ocean_mask</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;nEdges&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">_remove_boundary_edges_from_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ocean_mask</span><span class="p">)</span>
+        <span class="n">ocean_patches</span><span class="p">,</span> <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">_compute_edge_patches</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ocean_mask</span><span class="p">)</span>
+    <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="n">ocean_mask</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cmap_set_under</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">current_cmap</span> <span class="o">=</span> <span class="n">ocean_patches</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">()</span>
+        <span class="n">current_cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">cmap_set_under</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_patch_edges</span><span class="p">:</span>
+        <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s1">&#39;face&#39;</span><span class="p">)</span>
+    <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_clim</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cmap_scale</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_norm</span><span class="p">(</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">vmin</span><span class="p">),</span>
+                               <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">length</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">legend_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="mi">5</span>
+    <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig_width</span> <span class="o">+</span> <span class="n">legend_width</span><span class="p">,</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">ocean_patches</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x (km)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y (km)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">ocean_patches</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">_remove_boundary_edges_from_mask</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">areaCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">mean_area_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">area_cell</span><span class="p">)</span>
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">vertices_on_edge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">verticesOnEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">boundary_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">boundaryVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">x_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">edge_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span>
+        <span class="n">vertex_indices</span> <span class="o">=</span> <span class="n">vertices_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">boundary_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">]):</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">continue</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="c1"># Remove edges that span the periodic boundaries</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vertices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vertices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">&gt;</span> <span class="n">mean_area_cell</span><span class="p">:</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">mask</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_cell_patches</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="n">patches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">num_vertices_on_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">nEdgesOnCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">vertices_on_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">verticesOnCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">x_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">areaCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">cell_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">num_vertices_on_cell</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span>
+        <span class="n">vertex_indices</span> <span class="o">=</span> <span class="n">vertices_on_cell</span><span class="p">[</span><span class="n">cell_index</span><span class="p">,</span> <span class="p">:</span><span class="n">num_vertices</span><span class="p">]</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_vertices</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">vertices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">]</span>
+        <span class="n">vertices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">]</span>
+
+        <span class="c1"># Remove cells that span the periodic boundaries</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">])</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">&gt;</span> <span class="n">area_cell</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]:</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">patches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">PatchCollection</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">mask</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_edge_patches</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="n">patches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">vertices_on_edge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">verticesOnEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">x_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_vertex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">edge_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span>
+        <span class="n">vertex_indices</span> <span class="o">=</span> <span class="n">vertices_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">x_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">y_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">x_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">y_vertex</span><span class="p">[</span><span class="n">vertex_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">x_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">y_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">patches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">PatchCollection</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">mask</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="viz.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
