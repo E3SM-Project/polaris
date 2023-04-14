@@ -1,5 +1,6 @@
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tests.baroclinic_channel.forward import Forward
+from polaris.ocean.tests.baroclinic_channel.viz import Viz
 from polaris.validate import compare_variables
 
 
@@ -28,6 +29,9 @@ class Default(BaroclinicChannelTestCase):
         self.add_step(
             Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
                     resolution=resolution, run_time_steps=3))
+
+        self.add_step(
+            Viz(test_case=self))
 
     def validate(self):
         """
