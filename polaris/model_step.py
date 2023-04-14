@@ -1,7 +1,9 @@
 import os
 import shutil
+import subprocess
 from collections import OrderedDict
 
+import git  # noqa: F401
 import numpy as np
 import xarray as xr
 from lxml import etree
@@ -477,6 +479,17 @@ class ModelStep(Step):
                 pass
         else:
             target = os.path.abspath(model)
+
+        exe_name = target[target.rfind('/'):]
+        hash_filename = f"{base_work_dir}/{exe_name}_hash.txt"
+        if not os.path.exists(hash_filename):
+            model_path = target[:target.rfind('/')]
+            model_hash = subprocess.check_output(
+                ['git', 'rev-parse', '--short', 'HEAD'],
+                cwd=model_path).strip().decode()
+            text_file = open(hash_filename, "wt")
+            text_file.write(model_hash)
+            text_file.close()
         return filename, target
 
     def _create_model_config(self):

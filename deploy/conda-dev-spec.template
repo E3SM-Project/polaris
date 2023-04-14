@@ -10,6 +10,7 @@ esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
 git
+gitpython
 importlib_resources
 ipython
 jigsaw={{ jigsaw }}
