@@ -22,6 +22,369 @@ in the  {ref}`dev-step-setup` method (i.e. before calling {ref}`dev-step-run`)
 so that  the polaris framework  can ensure that the required resources are 
 available.
 
+(dev-step-namelists-and-streams)=
+
+### Adding yaml, namelist and streams files
+
+Components, test groups, and test cases can provide yaml config options, 
+namelist and streams files that are used to replace default model config 
+options  and streams definitions before the E3SM component gets run.  Namelist 
+and streams files within the `polaris` package must start with the prefix 
+`namelist.` and `streams.`,  respectively, to ensure that they are included 
+when we build the package.  Yaml files must end with `.yaml` or `.yml` for the
+same reason.
+
+You can make calls to {py:meth}`polaris.ModelStep.add_namelist_file()`,
+{py:meth}`polaris.ModelStep.add_yaml_file()`,
+{py:meth}`polaris.ModelStep.add_model_config_options()`  and
+{py:meth}`polaris.ModelStep.add_streams_file()` as described below to indicate 
+how yaml, namelist and streams file should be built up by modifying the 
+defaults for the  E3SM component.  The yaml, namelists and streams files 
+themselves  are generated  automatically (which of these depends on the E3SM
+component in question) as part of setting up the test case.
+
+(dev-step-add-yaml-file)=
+
+#### Adding a yaml file
+
+Typically, a step that runs an E3SM component will include one or more calls 
+to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
+{py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
+or {ref}`dev-step-setup` method.  Calling one of these methods simply adds the
+file to  a list that will be parsed if and when the step gets set up.  (This 
+way, it is  safe to add namelist files to a step in init even if that test case
+will never  get set up or run.)
+
+The format of the yaml file is a hierarchical list of sections with config
+options and values, followed by streams:
+
+``` yaml
+ocean:
+  run_modes:
+    config_ocean_run_mode: forward
+  time_management:
+    config_run_duration: 0024_00:00:00
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+  decomposition:
+    config_block_decomp_file_prefix: graph.info.part.
+  time_integration:
+    config_time_integrator: RK4
+  
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    restart:
+      output_interval: 0030_00:00:00
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0024_00:00:00
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - tracers
+      - mesh
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - refZMid
+      - refLayerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+```
+
+Unlike for namelist files (see below), we require that config options be placed
+in appropriate sections both for clarity and because there is no guarantee that
+config options must have unique names.
+
+A typical yaml file is added by passing a package where the yaml file
+is located and the name of the input yaml file within that package
+as arguments to {py:meth}`polaris.ModelStep.add_yaml_file()`:
+
+```python
+self.add_yaml_file('polaris.ocean.tests.global_convergence.cosine_bell',
+                   'forward.yaml')
+```
+
+Model config values are replaced by the files (or options, see below) in the
+sequence they are given.  This way, you can add the model config substitutions
+for  the test group first, and then override those with the replacements for
+the test case or step.
+
+
+(dev-step-add-namelists-file)=
+
+#### Adding a namelist file
+
+Typically, a step that runs the E3SM component will include one or more calls 
+to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
+{py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
+or {ref}`dev-step-setup` method.  Calling this method simply adds the file to
+a list that will be parsed if and when the step gets set up.  (This way, it is
+safe to add namelist files to a step in init even if that test case will never
+get set up or run.)
+
+The format of the namelist file is simply a list of namelist options and
+the replacement values:
+
+```none
+config_write_output_on_startup = .false.
+config_run_duration = '0000_00:15:00'
+config_use_mom_del2 = .true.
+config_implicit_bottom_drag_coeff = 1.0e-2
+config_use_cvmix_background = .true.
+config_cvmix_background_diffusion = 0.0
+config_cvmix_background_viscosity = 1.0e-4
+```
+
+Since all MPAS namelist options must have unique names, we do not worry about
+which specific namelist within the file each belongs to.
+
+A typical namelist file is added by passing a package where the namelist file
+is located and the name of the input namelist file within that package
+as arguments to {py:meth}`polaris.ModelStep.add_namelist_file()`:
+
+```python
+self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+                       'namelist.forward')
+```
+
+Namelist values are replaced by the files (or options, see below) in the
+sequence they are given.  This way, you can add the namelist substitutions for
+the test group first, and then override those with the replacements for
+the test case or step.
+
+(dev-step-add-model-config-options)=
+
+#### Adding model config options
+
+Sometimes, it is easier to replace yaml or namelist options (together referred
+to as model config options)  using a dictionary within  the code, rather than 
+a yaml or namelist file.  This is appropriate when there are only 1 or 2 
+options to  replace (so creating a file seems like overkill) or when the
+model config options rely on values that are determined by the code (e.g. 
+different  values for different resolutions).  Simply create a dictionary
+replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()` 
+either  at init or in the `setup()` method of the step.  These replacements are
+parsed, along  with replacements from files, in the order they are added.  
+Thus, you could add replacements from a model config file for the test group, 
+test case, or step, then override them with namelist options in a dictionary 
+for the test case or  step, as in this example:
+
+```python
+self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+                       'namelist.forward')
+self.add_namelist_file(f'polaris.ocean.tests.baroclinic_channel',
+                       f'namelist.{step["resolution"]}.forward')
+if self.nu is not None:
+    # update the viscosity to the requested value
+    options = {'hmix': 
+                 {'config_mom_del2': self.nu}}
+    self.add_model_config_options(options)
+```
+
+Here, we get default options for "forward" steps, then for the resolution of
+the test case from namelist files, then update the viscosity `nu`, which is
+an option passed in when creating this step.
+
+:::{note}
+Model config options can have values of type `bool`, `int`, `float` or `str`,
+and are automatically converted to the appropriate type in the yaml or namelist
+file.
+:::
+
+(dev-step-update-namelist-options)=
+
+#### Updating namelist or yaml options at runtime
+
+It is sometimes useful to update namelist options after a namelist has already
+been generated as part of setting up.  This typically happens within a step's
+`run()` method for options that cannot be known beforehand, particularly
+options related to the number of MPI tasks, CPUs per task, and OpenMP threads.
+In such cases, call {py:meth}`polaris.ModelStep.update_namelist_at_runtime()` or
+{py:meth}`polaris.ModelStep.update_yaml_at_runtime()`:
+
+```python
+...
+
+replacements = {'config_pio_num_iotasks': '{}'.format(pio_num_iotasks),
+                'config_pio_stride': '{}'.format(pio_stride)}
+
+self.update_namelist_at_runtime(options=replacements, out_name=namelist)
+```
+
+(dev-step-add-streams-file)=
+
+#### Adding a streams file
+
+Streams files are a bit more complicated than namelist files because
+streams files are XML documents, requiring some slightly more sophisticated
+parsing.
+
+Typically, a step that runs the E3SM component will include one or more calls
+to {py:meth}`polaris.ModelStep.add_streams_file()` within the  
+{ref}`dev-step-init` or {ref}`dev-step-setup` method.  Calling this function 
+simply adds the file to a list within the `step` dictionary that will be parsed
+if an when the step gets set up.  (This way, it is safe to add streams files to
+a step at init even if that test case will never get set up or run.)
+
+The format of the streams file is essentially the same as the default and
+generated streams file, e.g.:
+
+```xml
+<streams>
+
+<immutable_stream name="mesh"
+                  filename_template="init.nc"/>
+
+<immutable_stream name="input"
+                  filename_template="init.nc"/>
+
+<immutable_stream name="restart"/>
+
+<stream name="output"
+        type="output"
+        filename_template="output.nc"
+        output_interval="0000_00:00:01"
+        clobber_mode="truncate">
+
+    <var_struct name="tracers"/>
+    <var name="xtime"/>
+    <var name="normalVelocity"/>
+    <var name="layerThickness"/>
+</stream>
+
+</streams>
+```
+
+These are all streams that are already defined in the default forward streams
+for MPAS-Ocean, so the defaults will be updated.  If only the attributes of
+a stream are given, the contents of the stream (the `var`, `var_struct`
+and `var_array` tags within the stream) are taken from the defaults.  If
+any contents are given, as for the `output` stream in the example above, they
+replace the default contents.  Polaris does not include a way to add or
+remove contents from the defaults, just keep the default contents or replace
+them all.  (Past experience has shown that such a feature would be
+confusing and difficult to keep synchronized with the E3SM code.)
+
+A typical streams file is added by calling
+{py:meth}`polaris.ModelStep.add_streams_file()` with a package where the streams
+file is located and the name of the input streams file within that package:
+
+```python
+self.add_streams_file('polaris.ocean.tests.baroclinic_channel',
+                      'streams.forward')
+```
+
+If the streams file should have a different name than the default
+(`streams.<component>`), the name can be given via the `out_name` keyword
+argument.   If `init` mode is desired, rather than the default, `forward`
+mode, this can also be specified.
+
+(dev-step-add-streams-file-template)=
+
+#### Adding a template streams file
+
+The main difference between namelists and streams files is that there is no
+direct equivalent for streams of {py:meth}`polaris.ModelStep.add_model_config_options()`.
+It is simply too confusing to try to define streams within the code.
+
+Instead, {py:meth}`polaris.ModelStep.add_streams_file()` includes a keyword
+argument `template_replacements`.  If you provide a dictionary of
+replacements to this argument, the input streams file will be treated as a
+[Jinja2 template](https://jinja.palletsprojects.com/) that is rendered
+using the provided replacements.  Here is an example of such a template streams
+file:
+
+```xml
+<streams>
+
+<stream name="output"
+        output_interval="{{ output_interval }}"/>
+<immutable_stream name="restart"
+                  filename_template="../restarts/rst.$Y-$M-$D_$h.$m.$s.nc"
+                  output_interval="{{ restart_interval }}"/>
+
+</streams>
+```
+
+And here is how it would be added, along with replacements:
+
+```python
+stream_replacements = {
+    'output_interval': '00-00-01_00:00:00',
+    'restart_interval': '00-00-01_00:00:00'}
+add_streams_file(step, module, 'streams.template',
+                 template_replacements=stream_replacements)
+
+...
+
+stream_replacements = {
+    'output_interval': '00-00-01_00:00:00',
+    'restart_interval': '00-00-01_00:00:00'}
+add_streams_file(step, module, 'streams.template',
+                 template_replacements=stream_replacements)
+```
+
+In this example, taken from
+{py:class}`polaris.ocean.tests.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
+we are creating a series of steps that will be used to perform dynamic
+adjustment of the ocean model, each of which might have different durations and
+restart intervals.  Rather than creating a streams file for each step of the
+spin up, we reuse the same template with just a few appropriate replacements.
+Thus, calls to {py:meth}`polaris.ModelStep.add_streams_file()` with
+`template_replacements` are qualitatively similar to namelist calls to
+{py:meth}`polaris.ModelStep.add_model_config_options()`.
+
+(dev-step-update-streams)=
+
+#### Updating a streams file at runtime
+
+Just as with namelist options, it is sometimes useful to update streams files
+after it has already been generated as part of setting up.  This typically
+happens within a step's `run()` method for properties of the stream that
+may be affected by config options that a user may have changed.  In such
+cases, call {py:meth}`polaris.Step.update_streams_at_runtime()`.  In this
+fairly complicated example, the duration of the run in hours is a config option
+that we turn into a string.  A dictionary of replacements together with a
+template streams file, as described above, are used to update the streams file
+with the new run duration:
+
+```python
+import time
+from datetime import datetime, timedelta
+...
+
+config = self.config
+# the duration (hours) of the run
+duration = int(3600 * config.getfloat('planar_convergence', 'duration'))
+delta = timedelta(seconds=duration)
+hours = delta.seconds//3600
+minutes = delta.seconds//60 % 60
+seconds = delta.seconds % 60
+duration = f'{delta.days:03d}_{hours:02d}:{minutes:02d}:{seconds:02d}'
+
+stream_replacements = {'output_interval': duration}
+
+self.update_streams_at_runtime(
+    'polaris.ocean.tests.planar_convergence',
+    'streams.template', template_replacements=stream_replacements,
+    out_name='streams.ocean')
+```
+
+### Adding E3SM component as an input
+
+If a step involves running the E3SM component, it should descend from 
+:py:class`polaris.ModelStep`.  The model executable will  automatically be 
+linked and added as an input to the step.  This way, if the user has forgotten
+to compile the model, this will be obvious by the broken symlink and the step 
+will immediately fail because of the missing input.  The path to the executable
+is automatically detected based on the work directory for the step and the 
+config options.
+
 ## Partitioning the mesh
 
 The method {py:meth}`polaris.ModelStep.partition()` calls the graph 
