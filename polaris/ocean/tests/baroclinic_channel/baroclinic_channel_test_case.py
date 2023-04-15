@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+
 from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
 from polaris.testcase import TestCase
 from polaris.validate import compare_variables
@@ -49,14 +51,19 @@ class BaroclinicChannelTestCase(TestCase):
         """
         resolution = self.resolution
         config = self.config
+
+        lx = config.getfloat('baroclinic_channel', 'lx')
+        ly = config.getfloat('baroclinic_channel', 'ly')
+
         # these could be hard-coded as functions of specific supported
         # resolutions but it is preferable to make them algorithmic like here
         # for greater flexibility
         #
         # ny is required to be even for periodicity, and we do the same for nx
         # for consistency
-        nx = max(2 * int(0.5 * 160. / resolution + 0.5), 4)
-        ny = max(2 * int(0.5 * 500. / resolution + 0.5), 4)
+        nx = max(2 * int(0.5 * lx / resolution + 0.5), 4)
+        # factor of 2/sqrt(3) because of hexagonal mesh
+        ny = max(2 * int(0.5 * ly * (2. / np.sqrt(3)) / resolution + 0.5), 4)
         dc = 1e3 * resolution
 
         config.set('baroclinic_channel', 'nx', f'{nx}')
