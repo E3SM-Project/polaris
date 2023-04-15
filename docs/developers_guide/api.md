@@ -337,7 +337,7 @@ ocean/api
    compare_timers
 ```
 
-#### viz
+### viz
 
 ```{eval-rst}
 .. currentmodule:: polaris.viz
