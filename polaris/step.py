@@ -88,6 +88,18 @@ class Step:
         cached) and available as inputs to other test cases and steps.  These
         files must exist after the test has run or an exception will be raised
 
+    dependencies : dict of polaris.Step
+        A dictionary of steps that this step depends on (i.e. it can't run
+        until they have finished). Dependencies are used when the names of
+        the files produced by the dependency aren't known at setup (e.g.
+        because they depend on config options or data read in from files).
+        Under other circumstances, it is sufficient to indicate that an output
+        file from another step is an input of this step to establish a
+        dependency.
+
+    is_dependency : bool
+        Whether this step is the dependency of one or more other steps.
+
     config : polaris.config.PolarisConfigParser
         Configuration options for this test case, a combination of the defaults
         for the machine, core and configuration
@@ -212,6 +224,8 @@ class Step:
         self.inputs = list()
         self.outputs = list()
         self.args = None
+        self.dependencies = dict()
+        self.is_dependency = False
 
         # these will be set later during setup, dummy placeholders for now
         self.config = PolarisConfigParser()
@@ -415,6 +429,35 @@ class Step:
             directory
         """
         self.outputs.append(filename)
+
+    def add_dependency(self, step, name=None):
+        """
+        Add `step` as a dependency of this step (i.e. this step can't run
+        until the dependency has finished). A dependency should be used when
+        the names of the files produced by the dependency aren't known at setup
+        (e.g. because they depend on config options or data read in from
+        files). Under other circumstances, a dependency can be established by
+        indicating that an output (added with the ``add_output_file()`` method)
+        from another step is an input (added with ``add_input_file()``) of this
+        step .
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step that is a dependency
+
+        name : str, optional
+            The name of the step used to access it in the ``dependencies``
+            dictionary.  By default, it is ``step.name`` but another name may
+            be required if 2 dependencies have the same ``step.name``.
+        """
+        if name is None:
+            name = step.name
+        if name in self.dependencies:
+            raise ValueError('Adding a dependency that is already in '
+                             'dependencies.')
+        self.dependencies[name] = step
+        step.is_dependency = True
 
     def process_inputs_and_outputs(self):
         """
