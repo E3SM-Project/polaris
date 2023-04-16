@@ -106,7 +106,7 @@ not strictly necessary.)
 Another important consideration is that the physical size of the mesh in the x
 direction is `lx = nx * dc`.  However, the physical extent in the y direction 
 is `ly = (np.sqrt(3) / 2) * ny * dc` because of the staggering of the hexagons
-in that direction.  As a result, you if you know the desired domain size `ly`, 
+in that direction.  As a result, if you know the desired domain size `ly`, 
 you need to compute the number of cells in that direction including an extra
 factor of `2. / np.sqrt(3)`, as in this example:
 ```python
