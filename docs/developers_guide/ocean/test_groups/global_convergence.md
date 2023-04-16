@@ -54,3 +54,22 @@ from the test case's `namelist.forward`.
 The class {py:class}`polaris.ocean.tests.global_convergence.cosine_bell.analysis.Analysis`
 defines a step for computing the RMSE (root-mean-squared error) for the results
 at each resolution and plotting them in `convergence.png`.
+
+### viz
+
+The class {py:class}`polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap`
+defines a step for creating a mapping file from the MPAS mesh at a given
+resolution to a lon-lat grid at a resolution and interpolation method 
+determined by config options.
+
+```cfg
+# options for visualization for the cosine bell convergence test case
+[cosine_bell_viz]
+
+# visualization latitude and longitude resolution
+dlon = 0.5
+dlat = 0.5
+
+# remapping method ('bilinear', 'neareststod', 'conserve')
+remap_method = conserve
+```
