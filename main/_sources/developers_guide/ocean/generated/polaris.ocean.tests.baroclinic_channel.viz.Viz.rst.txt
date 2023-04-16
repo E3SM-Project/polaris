@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Viz.__init__
+      ~Viz.add_dependency
       ~Viz.add_input_file
       ~Viz.add_output_file
       ~Viz.constrain_resources

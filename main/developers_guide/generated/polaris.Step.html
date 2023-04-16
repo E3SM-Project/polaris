@@ -179,6 +179,14 @@ time or the step will raise an exception</p></li>
 <li><p><strong>outputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – a list of absolute paths of output files produced by this step (or
 cached) and available as inputs to other test cases and steps.  These
 files must exist after the test has run or an exception will be raised</p></li>
+<li><p><strong>dependencies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> of </em><a class="reference internal" href="#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – A dictionary of steps that this step depends on (i.e. it can’t run
+until they have finished). Dependencies are used when the names of
+the files produced by the dependency aren’t known at setup (e.g.
+because they depend on config options or data read in from files).
+Under other circumstances, it is sufficient to indicate that an output
+file from another step is an input of this step to establish a
+dependency.</p></li>
+<li><p><strong>is_dependency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether this step is the dependency of one or more other steps.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this test case, a combination of the defaults
 for the machine, core and configuration</p></li>
 <li><p><strong>machine_info</strong> (<em>mache.MachineInfo</em>) – Information about E3SM supported machines</p></li>
@@ -250,28 +258,31 @@ additional subprocesses).</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.Step.__init__" title="polaris.Step.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(test_case, name[, subdir, ...])</p></td>
 <td><p>Create a new test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code></a>([filename, target, database, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code></a>(step[, name])</p></td>
+<td><p>Add <cite>step</cite> as a dependency of this step (i.e.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code></a>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename)</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_cores)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_cores)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code></a>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code></a>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Set up the test case in the work directory, including downloading any dependencies.</p></td>
 </tr>
 </tbody>

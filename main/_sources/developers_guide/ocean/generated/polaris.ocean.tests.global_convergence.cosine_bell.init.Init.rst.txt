@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Init.__init__
+      ~Init.add_dependency
       ~Init.add_input_file
       ~Init.add_output_file
       ~Init.constrain_resources

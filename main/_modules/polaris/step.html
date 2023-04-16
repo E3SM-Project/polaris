@@ -189,6 +189,18 @@
 <span class="sd">        cached) and available as inputs to other test cases and steps.  These</span>
 <span class="sd">        files must exist after the test has run or an exception will be raised</span>
 
+<span class="sd">    dependencies : dict of polaris.Step</span>
+<span class="sd">        A dictionary of steps that this step depends on (i.e. it can&#39;t run</span>
+<span class="sd">        until they have finished). Dependencies are used when the names of</span>
+<span class="sd">        the files produced by the dependency aren&#39;t known at setup (e.g.</span>
+<span class="sd">        because they depend on config options or data read in from files).</span>
+<span class="sd">        Under other circumstances, it is sufficient to indicate that an output</span>
+<span class="sd">        file from another step is an input of this step to establish a</span>
+<span class="sd">        dependency.</span>
+
+<span class="sd">    is_dependency : bool</span>
+<span class="sd">        Whether this step is the dependency of one or more other steps.</span>
+
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        Configuration options for this test case, a combination of the defaults</span>
 <span class="sd">        for the machine, core and configuration</span>
@@ -313,6 +325,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_dependency</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># these will be set later during setup, dummy placeholders for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
@@ -516,6 +530,35 @@
 <span class="sd">            directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Step.add_dependency"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency">[docs]</a>    <span class="k">def</span> <span class="nf">add_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add `step` as a dependency of this step (i.e. this step can&#39;t run</span>
+<span class="sd">        until the dependency has finished). A dependency should be used when</span>
+<span class="sd">        the names of the files produced by the dependency aren&#39;t known at setup</span>
+<span class="sd">        (e.g. because they depend on config options or data read in from</span>
+<span class="sd">        files). Under other circumstances, a dependency can be established by</span>
+<span class="sd">        indicating that an output (added with the ``add_output_file()`` method)</span>
+<span class="sd">        from another step is an input (added with ``add_input_file()``) of this</span>
+<span class="sd">        step .</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step that is a dependency</span>
+
+<span class="sd">        name : str, optional</span>
+<span class="sd">            The name of the step used to access it in the ``dependencies``</span>
+<span class="sd">            dictionary.  By default, it is ``step.name`` but another name may</span>
+<span class="sd">            be required if 2 dependencies have the same ``step.name``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Adding a dependency that is already in &#39;</span>
+                             <span class="s1">&#39;dependencies.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span> <span class="o">=</span> <span class="kc">True</span></div>
 
     <span class="k">def</span> <span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

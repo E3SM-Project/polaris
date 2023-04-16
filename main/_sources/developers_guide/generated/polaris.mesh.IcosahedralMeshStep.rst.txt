@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~IcosahedralMeshStep.__init__
+      ~IcosahedralMeshStep.add_dependency
       ~IcosahedralMeshStep.add_input_file
       ~IcosahedralMeshStep.add_output_file
       ~IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon

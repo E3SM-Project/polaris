@@ -528,6 +528,8 @@
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span>
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">test_case</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
+    <span class="n">_load_dependencies</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
     <span class="n">test_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">new_log_file</span><span class="p">:</span>
         <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.log&#39;</span>
@@ -574,6 +576,8 @@
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span>
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">test_case</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
+    <span class="n">_pickle_step_after_run</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_run_step_as_subprocess</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -595,6 +599,39 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
         <span class="n">step_args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;serial&#39;</span><span class="p">,</span> <span class="s1">&#39;--step_is_subprocess&#39;</span><span class="p">]</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">step_args</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_load_dependencies</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load each dependency from its pickle file to pick up changes that may have</span>
+<span class="sd">    happened since it ran</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">old_dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">old_dependency</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_dependency</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
+                                       <span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">test_case</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> was &#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;not run.&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">dep_test_case</span><span class="p">,</span> <span class="n">dependency</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dependency</span>
+
+
+<span class="k">def</span> <span class="nf">_pickle_step_after_run</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Picle a step after it has run so its dependencies will pick up the changes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span><span class="p">:</span>
+        <span class="c1"># pickle the test case and step for use at runtime</span>
+        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">),</span> <span class="n">handle</span><span class="p">,</span>
+                        <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 </pre></div>
 
            </div>

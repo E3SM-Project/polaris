@@ -889,6 +889,36 @@ recommended.</p>
 <p>More details on cached outputs are available in the compass design document
 <a class="reference external" href="https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html">Caching outputs from compass steps</a>.</p>
 </section>
+<section id="adding-other-steps-as-dependencies">
+<h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Permalink to this heading"></a></h3>
+<p>In some circumstances, it is not feasible to know the output filenames at
+when a step gets set up.  For example, the filename may depend on config
+options that a user could change before running the step.  Or the filename
+could depend on data read in from files or computed at runtime.  In such
+circumstances, it is not feasible to specify the output filename with
+<a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  Nor can other steps that depend
+on that output file as an input use <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>.</p>
+<p>Under these circumstances, it is useful to be able to specify that a step
+is a dependency of another (dependent) step.  This is accomplished by passing
+the  dependency to the step’s <a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> method
+either  during the creation of the dependent step, within the <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
+method of  the parent test case, or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the dependent
+step.  The  dependency does not need to belong to the same test case as the
+dependent step.  But the dependent step will fail to run if the dependency
+has not run.  Also all dependencies must be set up along with dependent steps
+(even if they are not run by default, because they are added to the test case
+with <code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>).  This is because a user could modify which steps
+they wish to run and all dependencies should be available if they do so.</p>
+<p>When a step is added as a dependency, after it runs, its state will be stored
+in a pickle file (see <a class="reference internal" href="../framework/commands.html#dev-setup"><span class="std std-ref">setup module</span></a>) that contains any modifications to its
+state during the run.  When the dependent step is run, the the state of
+each dependency is “unpickled” along with the state of the step itself so that
+the dependent step can make use of runtime updates to its dependencies.</p>
+<div class="highlight-note notranslate"><div class="highlight"><pre><span></span>There is some non-negligible overhead involved in pickling and unpickling
+dependencies so it is preferable to use file-based dependencies where possible.
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 

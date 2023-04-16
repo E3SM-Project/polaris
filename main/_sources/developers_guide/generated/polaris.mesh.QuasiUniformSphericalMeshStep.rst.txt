@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~QuasiUniformSphericalMeshStep.__init__
+      ~QuasiUniformSphericalMeshStep.add_dependency
       ~QuasiUniformSphericalMeshStep.add_input_file
       ~QuasiUniformSphericalMeshStep.add_output_file
       ~QuasiUniformSphericalMeshStep.build_cell_width_lat_lon

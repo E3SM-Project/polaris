@@ -210,6 +210,8 @@
                    <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
                    <span class="n">copy_executable</span><span class="o">=</span><span class="n">copy_executable</span><span class="p">)</span>
 
+    <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span>
+
     <span class="n">test_suite</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">suite_name</span><span class="p">,</span>
                   <span class="s1">&#39;test_cases&#39;</span><span class="p">:</span> <span class="n">test_cases</span><span class="p">,</span>
                   <span class="s1">&#39;work_dir&#39;</span><span class="p">:</span> <span class="n">work_dir</span><span class="p">}</span>
@@ -587,6 +589,16 @@
         <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOAD_POLARIS_ENV&#39;</span><span class="p">]</span>
         <span class="n">symlink</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;load_polaris_env.sh&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_check_dependencies</span><span class="p">(</span><span class="n">tests</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">test_case</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">test_case</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">test_case</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> was &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;not set up.&#39;</span><span class="p">)</span>
 </pre></div>
 
            </div>

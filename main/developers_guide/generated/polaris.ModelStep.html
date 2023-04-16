@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.ModelStep.setup" href="polaris.ModelStep.setup.html" />
-    <link rel="prev" title="polaris.Step.add_output_file" href="polaris.Step.add_output_file.html" />
+    <link rel="prev" title="polaris.Step.add_dependency" href="polaris.Step.add_dependency.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -214,55 +214,58 @@ instead of MPAS namelist and streams files</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ModelStep.__init__" title="polaris.ModelStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(test_case, name[, subdir, ntasks, ...])</p></td>
 <td><p>Make a step for running the model</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
+<td><p>Add <cite>step</cite> as a dependency of this step (i.e.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options)</p></td>
 <td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code></a>(package, namelist)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code></a>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code></a>(package, streams[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code></a>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code></a>(package, yaml[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code></a>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config" title="polaris.ModelStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config" title="polaris.ModelStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist" title="polaris.ModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code></a>(options)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist" title="polaris.ModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code></a>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>([graph_file])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs" title="polaris.ModelStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs" title="polaris.ModelStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code></a>()</p></td>
 <td><p>Process the model as an input, then call the parent class' version</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
 <td><p>Update PIO namelist options, make graph file, and partition graph file (if any of these are requested)</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources" title="polaris.ModelStep.set_model_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code></a>([ntasks, min_tasks, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources" title="polaris.ModelStep.set_model_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code></a>([ntasks, min_tasks, ...])</p></td>
 <td><p>Update the resources for the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.setup.html#polaris.ModelStep.setup" title="polaris.ModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.setup.html#polaris.ModelStep.setup" title="polaris.ModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Setup the command-line arguments</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code></a>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
 </tbody>
@@ -275,7 +278,7 @@ instead of MPAS namelist and streams files</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.Step.add_output_file.html" class="btn btn-neutral float-left" title="polaris.Step.add_output_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.Step.add_dependency.html" class="btn btn-neutral float-left" title="polaris.Step.add_dependency" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ModelStep.setup.html" class="btn btn-neutral float-right" title="polaris.ModelStep.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
