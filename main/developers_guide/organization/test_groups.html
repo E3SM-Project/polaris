@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Groups</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Test cases" href="test_cases.html" />
+    <link rel="prev" title="Components" href="components.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.1.0-alpha.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tests</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#directory-structure">Directory structure</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Test Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_cases.html">Test cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steps.html">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suites.html">Test Suites</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Organization of Tests</a></li>
+      <li class="breadcrumb-item active">Test Groups</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/organization/test_groups.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="test-groups">
+<span id="dev-test-groups"></span><h1>Test Groups<a class="headerlink" href="#test-groups" title="Permalink to this heading"></a></h1>
+<p>Test groups are the next level of test-case organization below
+<a class="reference internal" href="components.html#dev-components"><span class="std std-ref">Components</span></a>.  Typically, the test cases within a test group are
+in some way conceptually linked, serving a similar purpose or being variants on
+one another. Often, they have a common topography and initial condition,
+perhaps with different mesh resolutions, parameters, or both.  It is common for
+a test group to include “framework” modules that are shared between its test
+cases and steps (but not with other test groups).  Each component will
+typically include a mix of “idealized” test groups (e.g.
+<a class="reference internal" href="../ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> or <span class="xref std std-ref">dev-landice-dome</span>) and “realistic”
+domains (e.g. <span class="xref std std-ref">dev-landice-greenland</span> and <span class="xref std std-ref">dev-ocean-global-ocean</span>).</p>
+<p>Each test group is a python package within the core’s <code class="docutils literal notranslate"><span class="pre">tests</span></code> package.
+While it is not required, a test group will typically include a config file,
+named <code class="docutils literal notranslate"><span class="pre">&lt;test_group&gt;.cfg</span></code>, with a set of default config options that are
+the starting point for all its test cases.  As an example, here is the config
+file for the <code class="docutils literal notranslate"><span class="pre">dome</span></code> test group in the <code class="docutils literal notranslate"><span class="pre">landice</span></code> core:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for dome test cases</span>
+<span class="k">[dome]</span>
+
+<span class="c1"># sizes (in cells) for the 2000m uniform mesh</span>
+<span class="na">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
+<span class="na">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">34</span>
+
+<span class="c1"># resolution (in m) for the 2000m uniform mesh</span>
+<span class="na">dc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+
+<span class="c1"># number of levels in the mesh</span>
+<span class="na">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+
+<span class="c1"># the dome type (&#39;halfar&#39; or &#39;cism&#39;)</span>
+<span class="na">dome_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">halfar</span>
+
+<span class="c1"># Whether to center the dome in the center of the cell that is closest to the</span>
+<span class="c1"># center of the domain</span>
+<span class="na">put_origin_on_a_cell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># whether to add a small shelf to the test</span>
+<span class="na">shelf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># whether to add hydrology to the initial condition</span>
+<span class="na">hydro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># config options related to visualization for dome test cases</span>
+<span class="k">[dome_viz]</span>
+
+<span class="c1"># which time index to visualize</span>
+<span class="na">time_slice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+
+<span class="c1"># whether to save image files</span>
+<span class="na">save_images</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># whether to hide figures (typically when save_images = True)</span>
+<span class="na">hide_figs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+<p>Some test group options will provide defaults for config options that are
+shared across the core (as is the case for the <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> config
+section in the ocean core).  But most config options for a test group will
+typically go into a section with the same name as the test group, as in the
+example above.  Config options that are specific to a particular step might
+go into a section with another name, like the <code class="docutils literal notranslate"><span class="pre">[dome_viz]</span></code> section above.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file for the test group must define a class for the
+test group that descends from <a class="reference internal" href="../generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>. The constructor
+of that class (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>) first calls the base class’ constructor with the
+parent <a class="reference internal" href="../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> object and the name of the test group.
+Then, it constructs objects for each test case in the group and adds them to
+itself by calling <a class="reference internal" href="../generated/polaris.TestGroup.add_test_case.html#polaris.TestGroup.add_test_case" title="polaris.TestGroup.add_test_case"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestGroup.add_test_case()</span></code></a>.  Each test case
+gets passed the <code class="docutils literal notranslate"><span class="pre">self</span></code> object as its test group, allowing the test case to
+determine both which component and which test group it belongs to. As an
+example, the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.Dome</span></code> class looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.testgroup</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.smoke_test</span> <span class="kn">import</span> <span class="n">SmokeTest</span>
+<span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.decomposition_test</span> <span class="kn">import</span> <span class="n">DecompositionTest</span>
+<span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.restart_test</span> <span class="kn">import</span> <span class="n">RestartTest</span>
+
+
+<span class="k">class</span> <span class="nc">Dome</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A test group for dome test cases</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        component : polaris.landice.Landice</span>
+<span class="sd">            the component that this test group belongs to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;dome&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">mesh_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;2000m&#39;</span><span class="p">,</span> <span class="s1">&#39;variable_resolution&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
+                <span class="n">SmokeTest</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
+                <span class="n">DecompositionTest</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
+                <span class="n">RestartTest</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>As in this example, it may be useful for a test group to make several
+versions of a test case by passing different parameters.  In the example, we
+create versions of <code class="docutils literal notranslate"><span class="pre">SmokeTest</span></code>, <code class="docutils literal notranslate"><span class="pre">DecompositionTest</span></code> and <code class="docutils literal notranslate"><span class="pre">RestartTest</span></code>
+with each of two mesh types (<code class="docutils literal notranslate"><span class="pre">2000m</span></code> and <code class="docutils literal notranslate"><span class="pre">variable_resolution</span></code>).  We will
+explore this further when we talk about <a class="reference internal" href="test_cases.html#dev-test-cases"><span class="std std-ref">Test cases</span></a> and
+<a class="reference internal" href="steps.html#dev-steps"><span class="std std-ref">Steps</span></a> below.</p>
+<p>It is also common for a test group to define takes care of setting any
+additional config options that apply across all test cases but are too
+complicated to simply add to the <code class="docutils literal notranslate"><span class="pre">&lt;test_group.cfg&gt;</span></code> file.</p>
+<p>An example of a shared <code class="docutils literal notranslate"><span class="pre">configure()</span></code> function is
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.configure()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modify the configuration options for one of the baroclinic test cases</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolution : str</span>
+<span class="sd">        The resolution of the test case</span>
+
+<span class="sd">    config : configparser.ConfigParser</span>
+<span class="sd">        Configuration options for this test case</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;10km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;nx&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                           <span class="s1">&#39;ny&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+                           <span class="s1">&#39;dc&#39;</span><span class="p">:</span> <span class="mf">10e3</span><span class="p">},</span>
+                  <span class="s1">&#39;4km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;nx&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                          <span class="s1">&#39;ny&#39;</span><span class="p">:</span> <span class="mi">126</span><span class="p">,</span>
+                          <span class="s1">&#39;dc&#39;</span><span class="p">:</span> <span class="mf">4e3</span><span class="p">},</span>
+                  <span class="s1">&#39;1km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;nx&#39;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                          <span class="s1">&#39;ny&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+                          <span class="s1">&#39;dc&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">}}</span>
+
+    <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">res_params</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unsupported resolution </span><span class="si">{}</span><span class="s1">. Supported values are: &#39;</span>
+                         <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">res_params</span><span class="p">)))</span>
+    <span class="n">res_params</span> <span class="o">=</span> <span class="n">res_params</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">res_params</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res_params</span><span class="p">[</span><span class="n">param</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, 3 resolutions are supported:
+<code class="docutils literal notranslate"><span class="pre">1km</span></code>, <code class="docutils literal notranslate"><span class="pre">4km</span></code> and <code class="docutils literal notranslate"><span class="pre">10km</span></code>.  Here, we use a dictionary to define parameters
+(the size of the mesh) associated with each resolution and then to set config
+options with those parameters.  This approach is appropriate if we want a user
+to be able to modify these config options before running the test case (in this
+case, if they would like to run on a mesh of a different size or resolution).
+If these parameters should be held fixed, they should not be added to the
+<code class="docutils literal notranslate"><span class="pre">config</span></code> object but rather as attributes to the test case’s and/or step’s
+class, as we will discuss below.</p>
+<p>As with components and the main <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package, test groups can also have
+a shared “framework” of packages, modules, config files, namelists, and streams
+files that is shared among test cases and steps.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="components.html" class="btn btn-neutral float-left" title="Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="test_cases.html" class="btn btn-neutral float-right" title="Test cases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="test_groups.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

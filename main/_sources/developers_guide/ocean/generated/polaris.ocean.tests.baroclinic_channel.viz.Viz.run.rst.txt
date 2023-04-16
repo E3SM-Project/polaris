@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.baroclinic\_channel.viz.Viz.run
+===================================================
+
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel.viz
+
+.. automethod:: Viz.run

@@ -62,9 +62,9 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
@@ -206,16 +206,31 @@ framework that users may need to be aware of, e.g. because of
 <p>Finally, all functions in the test group that are part of the public API
 (i.e. all functions that don’t start with an underscore) should be added to
 <code class="docutils literal notranslate"><span class="pre">docs/&lt;component&gt;/api.md</span></code>:</p>
-<div class="markdown docutils">
-<h3 class="rubric" id="baroclinic-channel">baroclinic_channel</h3>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-</tbody>
-</table>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">### baroclinic_channel</span>
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel
+
+.. autosummary::
+   :toctree: generated/
+
+   BaroclinicChannel
+
+   BaroclinicChannelTestCase
+   BaroclinicChannelTestCase.configure
+   BaroclinicChannelTestCase.validate
+   
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   initial_state.InitialState
+   initial_state.InitialState.setup
+   initial_state.InitialState.run
+
+...
+```
+</pre></div>
 </div>
 <p>The Developer’s Guide also contains details on the framework shared across
 polaris, so any updates to this framework should include relevant additions

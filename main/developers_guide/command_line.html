@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Organization of Tests" href="organization.html" />
+    <link rel="next" title="Organization of Tests" href="organization/index.html" />
     <link rel="prev" title="Overview" href="overview.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -70,9 +70,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#mpas-to-yaml">mpas_to_yaml</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="organization.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
@@ -150,7 +150,7 @@ a single test case with the given number.</p>
 be passed to the <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> by using the
 <code class="docutils literal notranslate"><span class="pre">--machines</span></code> flag.</p>
 <p>Similarly, you can list all the available test suites for all
-<a class="reference internal" href="organization.html#dev-components"><span class="std std-ref">Components</span></a> by using the <code class="docutils literal notranslate"><span class="pre">--suites</span></code> flag.  The result are the flags
+<a class="reference internal" href="organization/components.html#dev-components"><span class="std std-ref">Components</span></a> by using the <code class="docutils literal notranslate"><span class="pre">--suites</span></code> flag.  The result are the flags
 that would be passed  to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> as part of setting up this test suite.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> flag lists more detail about each test case,
 including its description, short name, core, configuration, subdirectory within
@@ -167,7 +167,7 @@ steps:
  - step2
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="framework.html#dev-list"><span class="std std-ref">list module</span></a> for more about the underlying framework.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-list"><span class="std std-ref">list module</span></a> for more about the underlying framework.</p>
 </section>
 <section id="polaris-setup">
 <span id="dev-polaris-setup"></span><h2>polaris setup<a class="headerlink" href="#polaris-setup" title="Permalink to this heading"></a></h2>
@@ -220,7 +220,7 @@ with test cases setups and output within the branch.</p>
 <code class="docutils literal notranslate"><span class="pre">-b</span></code> or <code class="docutils literal notranslate"><span class="pre">--baseline_dir</span></code> flag to point to the work directory of the
 previous run.  Many test cases validate variables to make sure they are
 identical between runs, compare timers to see how much performance has changed,
-or both.  See <a class="reference internal" href="framework.html#dev-validation"><span class="std std-ref">Validation</span></a>.</p>
+or both.  See <a class="reference internal" href="framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a>.</p>
 <p>The test cases will be included in a “custom” test suite in the order they are
 named or numbered.  You can give this suite a name with <code class="docutils literal notranslate"><span class="pre">--suite_name</span></code> or
 leave it with the default name <code class="docutils literal notranslate"><span class="pre">custom</span></code>.  You can run this test suite with
@@ -230,7 +230,7 @@ leave it with the default name <code class="docutils literal notranslate"><span 
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>, so keep this in mind when providing the list.  Any test
 cases that depend on the output of other test cases must run after their
 dependencies.</p>
-<p>See <a class="reference internal" href="framework.html#dev-setup"><span class="std std-ref">setup module</span></a> for more about the underlying framework.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-setup"><span class="std std-ref">setup module</span></a> for more about the underlying framework.</p>
 </section>
 <section id="polaris-suite">
 <span id="dev-polaris-suite"></span><h2>polaris suite<a class="headerlink" href="#polaris-suite" title="Permalink to this heading"></a></h2>
@@ -242,7 +242,7 @@ options are:</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> options will display the help message describing the
 command-line options.</p>
-<p>The required argument are <code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--component</span></code>, one of the <a class="reference internal" href="organization.html#dev-components"><span class="std std-ref">Components</span></a>,
+<p>The required argument are <code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--component</span></code>, one of the <a class="reference internal" href="organization/components.html#dev-components"><span class="std std-ref">Components</span></a>,
 where the test suite and its test cases reside; and <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--test_suite</span></code>,
 the name of the test suite.  These are the options listed when you run
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--suites</span></code>. As with <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, you must supply a
@@ -253,9 +253,9 @@ machine with <code class="docutils literal notranslate"><span class="pre">-m</sp
 override the defaults with <code class="docutils literal notranslate"><span class="pre">-f</span></code> or <code class="docutils literal notranslate"><span class="pre">--config_file</span></code>.  As with
 <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, you may optionally supply a baseline directory for
 comparison with <code class="docutils literal notranslate"><span class="pre">-b</span></code> or <code class="docutils literal notranslate"><span class="pre">--baseline_dir</span></code>.  If supplied, each test case in the
-suite that includes <a class="reference internal" href="framework.html#dev-validation"><span class="std std-ref">Validation</span></a> will be validated against the
+suite that includes <a class="reference internal" href="framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a> will be validated against the
 previous run in the baseline.</p>
-<p>See <a class="reference internal" href="framework.html#dev-suite"><span class="std std-ref">suite module</span></a> for more about the underlying framework.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-suite"><span class="std std-ref">suite module</span></a> for more about the underlying framework.</p>
 </section>
 <section id="polaris-serial">
 <span id="dev-polaris-run"></span><h2>polaris serial<a class="headerlink" href="#polaris-serial" title="Permalink to this heading"></a></h2>
@@ -302,16 +302,16 @@ over the config option.</p>
 </div>
 <p>To see which steps are are available in a given test case, you need to run
 <a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a> with the <code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> flag.</p>
-<p>See <a class="reference internal" href="framework.html#dev-run"><span class="std std-ref">run.serial module</span></a> for more about the underlying framework.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-run"><span class="std std-ref">run.serial module</span></a> for more about the underlying framework.</p>
 </section>
 <section id="polaris-cache">
 <span id="dev-polaris-cache"></span><h2>polaris cache<a class="headerlink" href="#polaris-cache" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">polaris</span></code> supports caching outputs from any step in a special database
-called <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> (see <a class="reference internal" href="organization.html#dev-step-input-download"><span class="std std-ref">Downloading and symlinking input files</span></a>). Files in this
+called <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> (see <a class="reference internal" href="organization/steps.html#dev-step-input-download"><span class="std std-ref">Downloading and symlinking input files</span></a>). Files in this
 database have a directory structure similar to the work directory (but without
 the component subdirectory, which is redundant). The files include a date stamp
 so that new revisions can be added without removing older ones (supported by
-older polaris versions).  See <a class="reference internal" href="organization.html#dev-step-cached-output"><span class="std std-ref">Cached output files</span></a> for more details.</p>
+older polaris versions).  See <a class="reference internal" href="organization/steps.html#dev-step-cached-output"><span class="std std-ref">Cached output files</span></a> for more details.</p>
 <p>A new command, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> has been added to aid in updating the file
 <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> within a component.  This command is only available on
 Anvil and Chrysalis, since developers can only copy files from a polaris work
@@ -345,7 +345,7 @@ a date they choose.  The default is today’s date.</p>
 <p>The flag <code class="docutils literal notranslate"><span class="pre">--dry_run</span></code> can be used to sanity check the resulting <code class="docutils literal notranslate"><span class="pre">json</span></code> file
 and the list of files printed to stdout without actually copying the files to
 the LCRC server.</p>
-<p>See <a class="reference internal" href="framework.html#dev-cache"><span class="std std-ref">cache module</span></a> for more about the underlying framework.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-cache"><span class="std std-ref">cache module</span></a> for more about the underlying framework.</p>
 </section>
 <section id="mpas-to-yaml">
 <span id="dev-mpas-to-yaml"></span><h2>mpas_to_yaml<a class="headerlink" href="#mpas-to-yaml" title="Permalink to this heading"></a></h2>
@@ -367,7 +367,7 @@ when the test case is configured for MPAS-Ocean.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="organization.html" class="btn btn-neutral float-right" title="Organization of Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="organization/index.html" class="btn btn-neutral float-right" title="Organization of Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

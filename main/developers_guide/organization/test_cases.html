@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test cases</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Steps" href="steps.html" />
+    <link rel="prev" title="Test Groups" href="test_groups.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.1.0-alpha.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tests</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#directory-structure">Directory structure</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Test cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testcase-attributes">TestCase attributes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constructor">constructor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configure">configure()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validate">validate()</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steps.html">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suites.html">Test Suites</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Organization of Tests</a></li>
+      <li class="breadcrumb-item active">Test cases</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/organization/test_cases.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="test-cases">
+<span id="dev-test-cases"></span><h1>Test cases<a class="headerlink" href="#test-cases" title="Permalink to this heading"></a></h1>
+<p>In many ways, test cases are polaris’s fundamental building blocks, since a
+user can’t set up an individual step of test case (though they can run the
+steps one at a time).</p>
+<p>A test case can be a module but is usually a python package so it can
+incorporate modules for its steps and/or config files, namelists, and streams
+files.  The test case must include a class that descends from
+<a class="reference internal" href="../generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a>.  In addition to a constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>),
+the class will often override the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> and <code class="docutils literal notranslate"><span class="pre">validate()</span></code> methods of
+the base class, as described below.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in <a class="reference internal" href="../generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a> is deprecated; behaviors
+at runtime can instead be handled by individual steps by overriding the
+<a class="reference internal" href="../generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code></a> and
+<a class="reference internal" href="../generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code></a> methods.  Details about these methods
+are described further in <a class="reference internal" href="steps.html#dev-steps"><span class="std std-ref">Steps</span></a>.</p>
+<section id="testcase-attributes">
+<span id="dev-test-case-class"></span><h2>TestCase attributes<a class="headerlink" href="#testcase-attributes" title="Permalink to this heading"></a></h2>
+<p>The base class <a class="reference internal" href="../generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a> has a large number of attributes
+that are useful at different stages (init, configuration and run) of the test
+case.</p>
+<p>Some attributes are available after calling the base class’ constructor
+<code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>.  These include:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the test case</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.test_group</span></code></dt><dd><p>The test group the test case belongs to</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the test group belongs to</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the test case</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.path</span></code></dt><dd><p>the path within the base work directory of the test case, made up of
+<code class="docutils literal notranslate"><span class="pre">component</span></code>, <code class="docutils literal notranslate"><span class="pre">test_group</span></code>, and the test case’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p>
+</dd>
+</dl>
+<p>Other attributes become useful only after steps have been added to the test
+case:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">self.steps</span></code></dt><dd><p>A dictionary of steps in the test case with step names as keys</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.steps_to_run</span></code></dt><dd><p>A list of the steps to run when <a class="reference internal" href="../generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a>
+gets called.  This list includes all steps by default but can be replaced
+with a list of only those tests that should run by default if some steps
+are optional and should be run manually by the user.</p>
+</dd>
+</dl>
+<p>Another set of attributes is not useful until <code class="docutils literal notranslate"><span class="pre">configure()</span></code> is called by the
+polaris framework:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">self.config</span></code></dt><dd><p>Configuration options for this test case, a combination of the defaults
+for the machine, core and configuration</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.config_filename</span></code></dt><dd><p>The local name of the config file that <code class="docutils literal notranslate"><span class="pre">config</span></code> has been written to
+during setup and read from during run</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.work_dir</span></code></dt><dd><p>The test case’s work directory, defined during setup as the combination
+of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.base_work_dir</span></code></dt><dd><p>The base work directory</p>
+</dd>
+</dl>
+<p>These can be used to make further alterations to the config options or to add
+symlinks files in the test case’s work directory.</p>
+<p>Finally, one attribute is available only when the
+<a class="reference internal" href="../generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a> function gets called by the
+framework:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">self.logger</span></code></dt><dd><p>A logger for output from the test case.  This gets accessed by other
+methods and functions that use the logger to write their output to the log
+file.</p>
+</dd>
+</dl>
+<p>You can add other attributes to the child class that keeps track of information
+that the test case or its steps will need.  As an example,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.smoke_test.SmokeTest</span></code> keeps track of the
+mesh type and the velocity solver an attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SmokeTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The default test case for the dome test group simply creates the mesh and</span>
+<span class="sd">    initial condition, then performs a short forward run on 4 cores.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_type : str</span>
+<span class="sd">        The resolution or type of mesh of the test case</span>
+
+<span class="sd">    velo_solver : {&#39;sia&#39;, &#39;FO&#39;}</span>
+<span class="sd">        The velocity solver to use for the test case</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the test case</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_group : polaris.landice.tests.dome.Dome</span>
+<span class="sd">            The test group that this test case belongs to</span>
+
+<span class="sd">        velo_solver : {&#39;sia&#39;, &#39;FO&#39;}</span>
+<span class="sd">            The velocity solver to use for the test case</span>
+
+<span class="sd">        mesh_type : str</span>
+<span class="sd">            The resolution or type of mesh of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;smoke_test&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velo_solver</span> <span class="o">=</span> <span class="n">velo_solver</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_type</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">SetupMesh</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="n">RunModel</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;run_step&#39;</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">=</span><span class="n">velo_solver</span><span class="p">,</span>
+                        <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">velo_solver</span> <span class="o">==</span> <span class="s1">&#39;sia&#39;</span><span class="p">:</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="p">{</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">:</span> <span class="s2">&quot;&#39;0200-00-00_00:00:00&#39;&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="n">Visualize</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="constructor">
+<span id="dev-test-case-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method must first call the base constructor
+<code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the test case, the test group it
+will belong to, and the subdirectory (if different from the name of the test
+case).  Then, it should create an object for each step and add them to itself
+using call <a class="reference internal" href="../generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.</p>
+<p>It is important that <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> doesn’t perform any time-consuming
+calculations, download files, or otherwise use significant resources because
+objects get constructed (and all constructors get called) quite often for every
+single test case and step in polaris: when test cases are listed, set up,
+or cleaned up, and also when test suites are set up or cleaned up.</p>
+<p>However, it is fine to call the following methods on a step during init because
+these methods only keep track of a “recipe” for downloading files or
+constructing namelist and streams files, they don’t actually do the work
+associated with these steps until the point where the step is being set up in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
+</ul>
+<p>As an example, here is the constructor from
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.testcase</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+
+<span class="k">class</span> <span class="nc">RpeTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The reference potential energy (RPE) test case for the baroclinic channel</span>
+<span class="sd">    test group performs a 20-day integration of the model forward in time at</span>
+<span class="sd">    5 different values of the viscosity at the given resolution.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolution : str</span>
+<span class="sd">        The resolution of the test case</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the test case</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel</span>
+<span class="sd">            The test group that this test case belongs to</span>
+
+<span class="sd">        resolution : str</span>
+<span class="sd">            The resolution of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_test&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+
+        <span class="n">nus</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+
+        <span class="n">res_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;1km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">},</span>
+                      <span class="s1">&#39;4km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+                      <span class="s1">&#39;10km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}}</span>
+
+        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">res_params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unsupported resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">. Supported values are: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">res_params</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">res_params</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">InitialState</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">nu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nus</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_test_</span><span class="si">{}</span><span class="s1">_nu_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                <span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">ntasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ntasks&#39;</span><span class="p">],</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_tasks&#39;</span><span class="p">],</span>
+                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">nu</span><span class="p">))</span>
+
+            <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
+                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe_test&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
+                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe_test&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Analysis</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nus</span><span class="o">=</span><span class="n">nus</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We have deliberately chosen a fairly complex example to demonstrate how to make
+full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a test case.</p>
+<p>The test case imports the classes for its steps –
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code></a>, and
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code></a>
+– so it can create objects for each and add them to itself with
+<a class="reference internal" href="../generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
+steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>.</p>
+<p>By default, the test case will go into a subdirectory with the same name as the
+test case (<code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> in this case).  However, polaris is flexible
+about the subdirectory structure and the names of the subdirectories.  This
+flexibility was an important requirement in polaris’ design.  Each test case
+and step must end up in a unique  directory, so it may be important that the
+name and subdirectory of each test  case or step depends in some way on the
+arguments passed the constructor.  In  the example above, the resolution is an
+argument to the constructor, which is  then saved as an attribute
+(<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>) and also used to define a unique subdirectory each
+resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe_test</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe_test</span></code> and <code class="docutils literal notranslate"><span class="pre">10km/rpe_test</span></code>.</p>
+<p>The same <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step is included in the test case 5 times with a different
+viscosity parameter <code class="docutils literal notranslate"><span class="pre">nu</span></code> for each.  The value of
+<code class="docutils literal notranslate"><span class="pre">nu</span></code> is passed to the step’s constructor, along with
+the unique <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">subdir</span></code>, and several other parameters:
+<code class="docutils literal notranslate"><span class="pre">resolution</span></code>, <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>. In this example, the steps are
+given rather clumsy names – <code class="docutils literal notranslate"><span class="pre">rpe_test_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_test_2_nu_5</span></code>, etc. –
+but these could be any unique names.</p>
+</section>
+<section id="configure">
+<span id="dev-test-case-configure"></span><h2>configure()<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.TestCase.configure.html#polaris.TestCase.configure" title="polaris.TestCase.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.configure()</span></code></a> method can be overridden by a
+child class to set config options or build them up from defaults stored in
+config files within the test case or its test group. The <code class="docutils literal notranslate"><span class="pre">self.config</span></code>
+attribute that is modified in this function will be written to a config file
+for the test case (see <a class="reference internal" href="../../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a>).</p>
+<p>If you override this method in a test case, you should assume that the
+<code class="docutils literal notranslate"><span class="pre">&lt;test_case.name&gt;.cfg</span></code> file in its package has already been added to the
+config options prior to calling <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.  This happens automatically
+during test-case setup.</p>
+<p>Since many test groups need similar behavior in the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method for
+each test case, it is common to have a shared function (sometimes also called
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code>) in the test group, as we discussed in <a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a>.</p>
+<p><a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure()</span></code></a>
+simply calls the shared function in its test group,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.configure()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests</span> <span class="kn">import</span> <span class="n">baroclinic_channel</span>
+
+
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modify the configuration options for this test case.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">baroclinic_channel</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.configure()</span></code> was already
+shown in <a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a> above.  It sets parameters for the number of
+cells in the mesh in the x and y directions and the resolution of those cells.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method can also be used to perform other operations at the
+test-case level when a test case is being set up. An example of this would be
+creating a symlink to a README file that is shared across the whole test case,
+as in <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.files_for_e3sm.FilesForE3SM.configure()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_ocean.configure</span> <span class="kn">import</span> <span class="n">configure_global_ocean</span>
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span>
+
+
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modify the configuration options for this test case</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">configure_global_ocean</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.global_ocean.files_for_e3sm&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;README&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">target</span><span class="p">:</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/README&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method is not the right place for adding or modifying steps
+that belong to a test case.  Steps should be added during init and altered only
+in their own <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> methods.</p>
+<p>Test cases that don’t need to change config options don’t need to override
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code> at all.</p>
+</section>
+<section id="validate">
+<span id="dev-test-case-validate"></span><h2>validate()<a class="headerlink" href="#validate" title="Permalink to this heading"></a></h2>
+<p>The base class’s <a class="reference internal" href="../generated/polaris.TestCase.validate.html#polaris.TestCase.validate" title="polaris.TestCase.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.validate()</span></code></a> can be overridden to
+perform <a class="reference internal" href="../framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a> of variables in output files from a step and/or
+timers from the E3SM component.</p>
+<p>In  <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.init.Init.validate()</span></code>, we see
+examples of validation of variables from output files:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test cases can override this method to perform validation of variables</span>
+<span class="sd">    and timers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
+    <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+                      <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_bgc</span><span class="p">:</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;PO4&#39;</span><span class="p">,</span> <span class="s1">&#39;NO3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;SiO3&#39;</span><span class="p">,</span> <span class="s1">&#39;NH4&#39;</span><span class="p">,</span> <span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;O2&#39;</span><span class="p">,</span> <span class="s1">&#39;DIC&#39;</span><span class="p">,</span> <span class="s1">&#39;DIC_ALT_CO2&#39;</span><span class="p">,</span> <span class="s1">&#39;ALK&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;DOC&#39;</span><span class="p">,</span> <span class="s1">&#39;DON&#39;</span><span class="p">,</span> <span class="s1">&#39;DOFe&#39;</span><span class="p">,</span> <span class="s1">&#39;DOP&#39;</span><span class="p">,</span> <span class="s1">&#39;DOPr&#39;</span><span class="p">,</span> <span class="s1">&#39;DONr&#39;</span><span class="p">,</span> <span class="s1">&#39;zooC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;spChl&#39;</span><span class="p">,</span> <span class="s1">&#39;spC&#39;</span><span class="p">,</span> <span class="s1">&#39;spFe&#39;</span><span class="p">,</span> <span class="s1">&#39;spCaCO3&#39;</span><span class="p">,</span> <span class="s1">&#39;diatChl&#39;</span><span class="p">,</span> <span class="s1">&#39;diatC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;diatFe&#39;</span><span class="p">,</span> <span class="s1">&#39;diatSi&#39;</span><span class="p">,</span> <span class="s1">&#39;diazChl&#39;</span><span class="p">,</span> <span class="s1">&#39;diazC&#39;</span><span class="p">,</span> <span class="s1">&#39;diazFe&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;phaeoChl&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoC&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoFe&#39;</span><span class="p">,</span> <span class="s1">&#39;DMS&#39;</span><span class="p">,</span> <span class="s1">&#39;DMSP&#39;</span><span class="p">,</span> <span class="s1">&#39;PROT&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;POLY&#39;</span><span class="p">,</span> <span class="s1">&#39;LIP&#39;</span><span class="p">]</span>
+        <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;landIcePressure&#39;</span><span class="p">]</span>
+        <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;ssh_adjustment/adjusted_init.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you leave the default keyword argument <code class="docutils literal notranslate"><span class="pre">skip_if_step_not_run=True</span></code>,
+comparison will be skipped (logging a message) if one or more of the steps
+involved in the comparison was not run.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="test_groups.html" class="btn btn-neutral float-left" title="Test Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="steps.html" class="btn btn-neutral float-right" title="Steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="test_cases.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
