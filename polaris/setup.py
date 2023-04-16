@@ -109,6 +109,8 @@ def setup_cases(work_dir, tests=None, numbers=None, config_file=None,
                    cached_steps=cached_steps[path],
                    copy_executable=copy_executable)
 
+    _check_dependencies(test_cases)
+
     test_suite = {'name': suite_name,
                   'test_cases': test_cases,
                   'work_dir': work_dir}
@@ -486,3 +488,13 @@ def _symlink_load_script(work_dir):
         script_filename = os.environ['LOAD_POLARIS_ENV']
         symlink(script_filename,
                 os.path.join(work_dir, 'load_polaris_env.sh'))
+
+
+def _check_dependencies(tests):
+    for test_case in tests.values():
+        for step in test_case.steps.values():
+            for name, dependency in step.dependencies.items():
+                if dependency.work_dir == '':
+                    raise ValueError(f'The dependency {name} of '
+                                     f'{test_case.path} step {step.name} was '
+                                     f'not set up.')
