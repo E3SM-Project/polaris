@@ -903,3 +903,36 @@ recommended.
 
 More details on cached outputs are available in the compass design document
 [Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
+
+### Adding other steps as dependencies
+
+In some circumstances, it is not feasible to know the output filenames at
+when a step gets set up.  For example, the filename may depend on config
+options that a user could change before running the step.  Or the filename
+could depend on data read in from files or computed at runtime.  In such
+circumstances, it is not feasible to specify the output filename with
+{py:meth}`polaris.Step.add_output_file()`.  Nor can other steps that depend
+on that output file as an input use {py:meth}`polaris.Step.add_input_file()`.
+
+Under these circumstances, it is useful to be able to specify that a step
+is a dependency of another (dependent) step.  This is accomplished by passing 
+the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method 
+either  during the creation of the dependent step, within the `configure()` 
+method of  the parent test case, or in the `setup()` method of the dependent
+step.  The  dependency does not need to belong to the same test case as the
+dependent step.  But the dependent step will fail to run if the dependency
+has not run.  Also all dependencies must be set up along with dependent steps
+(even if they are not run by default, because they are added to the test case
+with `run_by_default=False`).  This is because a user could modify which steps
+they wish to run and all dependencies should be available if they do so.
+
+When a step is added as a dependency, after it runs, its state will be stored
+in a pickle file (see {ref}`dev-setup`) that contains any modifications to its
+state during the run.  When the dependent step is run, the the state of
+each dependency is "unpickled" along with the state of the step itself so that
+the dependent step can make use of runtime updates to its dependencies.
+
+```note
+There is some non-negligible overhead involved in pickling and unpickling
+dependencies so it is preferable to use file-based dependencies where possible.
+```

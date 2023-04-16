@@ -159,6 +159,7 @@ ocean/api
    Step.run
    Step.add_input_file
    Step.add_output_file
+   Step.add_dependency
 ```
 
 
