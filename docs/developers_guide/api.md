@@ -369,6 +369,7 @@ ocean/api
    :toctree: generated/
 
    plot_horiz_field
+   globe.plot_global
 ```
 
 ### yaml
