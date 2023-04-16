@@ -51,7 +51,9 @@ extensions = [
     "sphinx.ext.napoleon",
 ]
 
-autosummary_generate = True
+autosummary_generate = ['developers_guide/api.md',
+                        'developers_guide/landice/api.md',
+                        'developers_guide/ocean/api.md']
 
 # Otherwise, the Return parameter list looks different from the Parameters list
 napoleon_use_rtype = False

@@ -114,26 +114,33 @@ Finally, all functions in the test group that are part of the public API
 (i.e. all functions that don't start with an underscore) should be added to
 `docs/<component>/api.md`:
 
-:::markdown
+````markdown
+
 ### baroclinic_channel
 
-```{autosummary}
-:toctree: generated/
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tests.baroclinic_channel
 
-BaroclinicChannel
-configure
+.. autosummary::
+   :toctree: generated/
 
-decomp_test.DecompTest
-decomp_test.DecompTest.configure
-decomp_test.DecompTest.run
+   BaroclinicChannel
 
-default.Default
-default.Default.configure
-default.Default.run
+   BaroclinicChannelTestCase
+   BaroclinicChannelTestCase.configure
+   BaroclinicChannelTestCase.validate
+   
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   initial_state.InitialState
+   initial_state.InitialState.setup
+   initial_state.InitialState.run
 
 ...
 ```
-:::
+````
 
 The Developer's Guide also contains details on the framework shared across
 polaris, so any updates to this framework should include relevant additions

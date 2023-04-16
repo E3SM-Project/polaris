@@ -33,6 +33,9 @@
    initial_state.InitialState.setup
    initial_state.InitialState.run
 
+   viz.Viz
+   viz.Viz.run
+
    default.Default
    default.Default.validate
 
