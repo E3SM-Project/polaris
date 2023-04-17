@@ -93,6 +93,9 @@
    analysis.Analysis.run
    analysis.Analysis.rmse
 
+   viz.VizMap
+   viz.VizMap.run
+
 ```
 
 ## Ocean Framework
