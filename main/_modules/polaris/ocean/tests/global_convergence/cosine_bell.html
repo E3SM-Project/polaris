@@ -111,6 +111,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">VizMap</span>
 <span class="kn">from</span> <span class="nn">polaris.testcase</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
 
@@ -230,6 +231,12 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                                   <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_map&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/map&#39;</span>
+            <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                                <span class="n">icosahedral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">))</span></div>

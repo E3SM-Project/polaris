@@ -150,15 +150,29 @@ following showing convergence as a function of the number of cells:</p>
 <section id="config-options">
 <h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> config options include:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for cosine bell convergence test case</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-level</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># options for cosine bell convergence test case</span>
 <span class="k">[cosine_bell]</span>
-
-<span class="c1"># the number of cells per core to aim for</span>
-<span class="na">goal_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span>
-
-<span class="c1"># the approximate maximum number of cells per core (the test will fail if too</span>
-<span class="c1"># few cores are available)</span>
-<span class="na">max_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3000</span>
 
 <span class="c1"># time step per resolution (s/km), since dt is proportional to resolution</span>
 <span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
@@ -195,10 +209,29 @@ following showing convergence as a function of the number of cells:</p>
 
 <span class="c1"># Convergence rate above which a warning is issued for icosahedral meshes</span>
 <span class="na">icos_conv_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.2</span>
+
+
+<span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># visualization latitude and longitude resolution</span>
+<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
+<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
 </pre></div>
 </div>
-<p>The last 7 options are used to control properties of the cosine bell and the
-background properties.  The first 4 options are discussed below.</p>
+<p>The config options in <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> define the vertical grid, as described
+in <a class="reference internal" href="../framework/vertical.html#ocean-vertical"><span class="std std-ref">Vertical coordinate</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> option <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code> is used to control the time step, as
+discussed below in more detail.</p>
+<p>The 7 options from <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> are used to control properties of
+the cosine bell and the rest of the sphere, as well as the advection.  The
+options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining
+when the convergence rates are not within the expected range.  The options
+in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the initial and
+final states on a lon-lat grid.</p>
 </section>
 <section id="resolutions">
 <h3>resolutions<a class="headerlink" href="#resolutions" title="Permalink to this heading"></a></h3>
@@ -232,11 +265,23 @@ test case (in the config file in the work directory).</p>
 <h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
 <p>The number of cores (and the minimum) is proportional to the number of cells,
 so that the number of cells per core is roughly constant.  You can alter how
-many cells are allocated to each core with <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.  You can
-control the maximum number of cells that are allowed to be placed on a single
-core (before the test case will fail) with <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code>.  If there
-aren’t enough processors to handle the finest resolution, you will see that
-the step (and therefore the test case) has failed.</p>
+many cells are allocated to each core with <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section.  You can  control the maximum number of cells that
+are allowed  to be placed on a single  core (before the test case will fail)
+with <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> also in <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code>.  If there  aren’t enough
+processors to handle the finest resolution, you will see that  the step (and
+therefore the  test case) has failed.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># the number of cells per core to aim for</span>
+<span class="na">goal_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200</span>
+
+<span class="c1"># the approximate maximum number of cells per core (the test will fail if too</span>
+<span class="c1"># few cores are available)</span>
+<span class="na">max_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>

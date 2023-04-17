@@ -152,6 +152,20 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.write.html">polaris.provenance.write</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#remap">remap</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html">polaris.remap.MappingFileStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_mpas.html">polaris.remap.MappingFileStep.src_from_mpas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_mpas.html">polaris.remap.MappingFileStep.dst_from_mpas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_lon_lat.html">polaris.remap.MappingFileStep.src_from_lon_lat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_lon_lat.html">polaris.remap.MappingFileStep.dst_from_lon_lat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_global_lon_lat.html">polaris.remap.MappingFileStep.dst_global_lon_lat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_proj.html">polaris.remap.MappingFileStep.src_from_proj</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_proj.html">polaris.remap.MappingFileStep.dst_from_proj</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_points.html">polaris.remap.MappingFileStep.dst_from_points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.get_remapper.html">polaris.remap.MappingFileStep.get_remapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.remap.MappingFileStep.run.html">polaris.remap.MappingFileStep.run</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#streams">streams</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.read.html">polaris.streams.read</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.streams.write.html">polaris.streams.write</a></li>
@@ -681,6 +695,50 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(work_dir, test_cases[, config])</p></td>
 <td><p>Write a file with provenance, such as the git version, conda packages, command, and test cases, to the work directory</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="remap">
+<h3>remap<a class="headerlink" href="#remap" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep</span></code></a>(test_case, name[, subdir, ...])</p></td>
+<td><p>A step for creating a mapping file between grids</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas" title="polaris.remap.MappingFileStep.src_from_mpas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.src_from_mpas</span></code></a>(filename, ...)</p></td>
+<td><p>Set the source grid from an MPAS mesh file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_mpas.html#polaris.remap.MappingFileStep.dst_from_mpas" title="polaris.remap.MappingFileStep.dst_from_mpas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.dst_from_mpas</span></code></a>(filename, ...)</p></td>
+<td><p>Set the destination grid from an MPAS mesh file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_lon_lat.html#polaris.remap.MappingFileStep.src_from_lon_lat" title="polaris.remap.MappingFileStep.src_from_lon_lat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.src_from_lon_lat</span></code></a>(filename[, ...])</p></td>
+<td><p>Set the source grid from a file with a longitude-latitude grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_lon_lat.html#polaris.remap.MappingFileStep.dst_from_lon_lat" title="polaris.remap.MappingFileStep.dst_from_lon_lat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.dst_from_lon_lat</span></code></a>(filename[, ...])</p></td>
+<td><p>Set the destination grid from a file with a longitude-latitude grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_global_lon_lat.html#polaris.remap.MappingFileStep.dst_global_lon_lat" title="polaris.remap.MappingFileStep.dst_global_lon_lat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.dst_global_lon_lat</span></code></a>(dlon, dlat)</p></td>
+<td><p>Set the destination grid from a file with a longitude-latitude grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_proj.html#polaris.remap.MappingFileStep.src_from_proj" title="polaris.remap.MappingFileStep.src_from_proj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.src_from_proj</span></code></a>(filename, ...)</p></td>
+<td><p>Set the source grid from a file with a projection grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_proj.html#polaris.remap.MappingFileStep.dst_from_proj" title="polaris.remap.MappingFileStep.dst_from_proj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.dst_from_proj</span></code></a>(filename, ...)</p></td>
+<td><p>Set the destination grid from a file with a projection grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.dst_from_points.html#polaris.remap.MappingFileStep.dst_from_points" title="polaris.remap.MappingFileStep.dst_from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.dst_from_points</span></code></a>(filename, ...)</p></td>
+<td><p>Set the destination grid from a file with a collection of points.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.get_remapper.html#polaris.remap.MappingFileStep.get_remapper" title="polaris.remap.MappingFileStep.get_remapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.get_remapper</span></code></a>()</p></td>
+<td><p>Get the remapper for this step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
 </table>

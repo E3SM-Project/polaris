@@ -165,6 +165,24 @@ from the test case’s <code class="docutils literal notranslate"><span class="p
 defines a step for computing the RMSE (root-mean-squared error) for the results
 at each resolution and plotting them in <code class="docutils literal notranslate"><span class="pre">convergence.png</span></code>.</p>
 </section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap.html#polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap" title="polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap</span></code></a>
+defines a step for creating a mapping file from the MPAS mesh at a given
+resolution to a lon-lat grid at a resolution and interpolation method
+determined by config options.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># visualization latitude and longitude resolution</span>
+<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
+<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 

@@ -1,0 +1,40 @@
+﻿polaris.remap.MappingFileStep
+=============================
+
+.. currentmodule:: polaris.remap
+
+.. autoclass:: MappingFileStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MappingFileStep.__init__
+      ~MappingFileStep.add_dependency
+      ~MappingFileStep.add_input_file
+      ~MappingFileStep.add_output_file
+      ~MappingFileStep.constrain_resources
+      ~MappingFileStep.dst_from_lon_lat
+      ~MappingFileStep.dst_from_mpas
+      ~MappingFileStep.dst_from_points
+      ~MappingFileStep.dst_from_proj
+      ~MappingFileStep.dst_global_lon_lat
+      ~MappingFileStep.get_remapper
+      ~MappingFileStep.process_inputs_and_outputs
+      ~MappingFileStep.run
+      ~MappingFileStep.runtime_setup
+      ~MappingFileStep.set_resources
+      ~MappingFileStep.setup
+      ~MappingFileStep.src_from_lon_lat
+      ~MappingFileStep.src_from_mpas
+      ~MappingFileStep.src_from_proj
+   
+   
+
+   
+   
+   
