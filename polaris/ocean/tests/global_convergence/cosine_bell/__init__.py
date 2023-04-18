@@ -49,13 +49,15 @@ class CosineBell(TestCase):
 
         # add the steps with default resolutions so they can be listed
         config = PolarisConfigParser()
-        config.add_from_package(self.__module__, f'{self.name}.cfg')
+        package = 'polaris.ocean.tests.global_convergence.cosine_bell'
+        config.add_from_package(package, 'cosine_bell.cfg')
         self._setup_steps(config)
 
     def configure(self):
         """
         Set config options for the test case
         """
+        super().configure()
         config = self.config
         config.add_from_package('polaris.mesh', 'mesh.cfg')
 
@@ -63,12 +65,6 @@ class CosineBell(TestCase):
 
         # set up the steps again in case a user has provided new resolutions
         self._setup_steps(config)
-
-        init_options = dict()
-        for option in ['temperature', 'salinity', 'lat_center', 'lon_center',
-                       'radius', 'psi0', 'vel_pd']:
-            init_options[f'config_cosine_bell_{option}'] = \
-                config.get('cosine_bell', option)
 
     def validate(self):
         """
