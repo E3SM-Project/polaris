@@ -55,6 +55,10 @@ min_pc_fraction = 0.1
 # config options for baroclinic channel testcases
 [baroclinic_channel]
 
+# the size of the domain in km in the x and y directions
+lx = 160.0
+ly = 500.0
+
 # the number of mesh cells in the x direction
 nx = <<<set in code>>>
 
@@ -110,6 +114,8 @@ salinity = 35.0
 coriolis_parameter = -1.2e-4
 ```
 
+The default domain size (`lx` and `ly`) is designed to be consistent with the
+literature, but can be modified by users to suit their needs.  
 The `nx`, `ny` and `dc` config options are set in the code.  While you can
 override these values with user config options, this isn't recommended. The
 `goal_cells_per_core` and `max_cells_per_core` are used to control how many

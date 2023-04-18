@@ -103,6 +103,8 @@
   <h1>Source code for polaris.ocean.tests.baroclinic_channel.baroclinic_channel_test_case</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
 <span class="kn">from</span> <span class="nn">polaris.testcase</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
@@ -138,7 +140,7 @@
         <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">:</span>
             <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">km&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
+            <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
@@ -152,14 +154,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+
         <span class="c1"># these could be hard-coded as functions of specific supported</span>
         <span class="c1"># resolutions but it is preferable to make them algorithmic like here</span>
         <span class="c1"># for greater flexibility</span>
         <span class="c1">#</span>
         <span class="c1"># ny is required to be even for periodicity, and we do the same for nx</span>
         <span class="c1"># for consistency</span>
-        <span class="n">nx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="mf">160.</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
-        <span class="n">ny</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="mf">500.</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">lx</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="c1"># factor of 2/sqrt(3) because of hexagonal mesh</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ly</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
         <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
 
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;nx&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>

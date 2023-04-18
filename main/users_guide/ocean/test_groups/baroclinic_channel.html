@@ -165,6 +165,10 @@ forward runs), which performs time integration of the model.</p>
 <span class="c1"># config options for baroclinic channel testcases</span>
 <span class="k">[baroclinic_channel]</span>
 
+<span class="c1"># the size of the domain in km in the x and y directions</span>
+<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">160.0</span>
+<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
+
 <span class="c1"># the number of mesh cells in the x direction</span>
 <span class="na">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;&lt;&lt;set in code&gt;&gt;&gt;</span>
 
@@ -220,7 +224,9 @@ forward runs), which performs time integration of the model.</p>
 <span class="na">coriolis_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-1.2e-4</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">nx</span></code>, <code class="docutils literal notranslate"><span class="pre">ny</span></code> and <code class="docutils literal notranslate"><span class="pre">dc</span></code> config options are set in the code.  While you can
+<p>The default domain size (<code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>) is designed to be consistent with the
+literature, but can be modified by users to suit their needs.<br />
+The <code class="docutils literal notranslate"><span class="pre">nx</span></code>, <code class="docutils literal notranslate"><span class="pre">ny</span></code> and <code class="docutils literal notranslate"><span class="pre">dc</span></code> config options are set in the code.  While you can
 override these values with user config options, this isn’t recommended. The
 <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> are used to control how many
 MPI tasks the <code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> simulations use (all other tests use hard-coded
