@@ -73,3 +73,28 @@ dlat = 0.5
 # remapping method ('bilinear', 'neareststod', 'conserve')
 remap_method = conserve
 ```
+
+The class {py:class}`polaris.ocean.tests.global_convergence.cosine_bell.viz.Viz`
+is a step for plotting the initial and final states of the advection test for
+each resolution, mapped to the common lat-lon grid.  The colormap is controlled
+by these options:
+
+```cfg
+# options for visualization for the cosine bell convergence test case
+[cosine_bell_viz]
+
+# colormap options
+# colormap
+colormap_name = viridis
+
+# the type of norm used in the colormap
+norm_type = linear
+
+# A dictionary with keywords for the norm
+norm_args = {'vmin': 0., 'vmax': 1.}
+
+# We could provide colorbar tick marks but we'll leave the defaults
+# colorbar_ticks = np.linspace(0., 1., 9)
+```
+
+See {ref}`dev-visualization-global` for more details.

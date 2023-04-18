@@ -8,7 +8,7 @@ from polaris.ocean.tests.global_convergence.cosine_bell.analysis import (
 )
 from polaris.ocean.tests.global_convergence.cosine_bell.forward import Forward
 from polaris.ocean.tests.global_convergence.cosine_bell.init import Init
-from polaris.ocean.tests.global_convergence.cosine_bell.viz import VizMap
+from polaris.ocean.tests.global_convergence.cosine_bell.viz import Viz, VizMap
 from polaris.testcase import TestCase
 from polaris.validate import compare_variables
 
@@ -134,6 +134,11 @@ class CosineBell(TestCase):
             viz_map = VizMap(test_case=self, name=name, subdir=subdir,
                              mesh_name=mesh_name)
             self.add_step(viz_map)
+
+            name = f'{mesh_name}_viz'
+            subdir = f'{mesh_name}/viz'
+            self.add_step(Viz(test_case=self, name=name, subdir=subdir,
+                              viz_map=viz_map, mesh_name=mesh_name))
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions,
                                icosahedral=self.icosahedral))
