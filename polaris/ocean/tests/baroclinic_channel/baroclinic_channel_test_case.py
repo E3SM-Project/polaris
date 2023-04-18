@@ -37,7 +37,7 @@ class BaroclinicChannelTestCase(TestCase):
         if resolution >= 1.:
             res_str = f'{resolution:g}km'
         else:
-            res_str = f'{resolution:g}m'
+            res_str = f'{resolution * 1000.:g}m'
         subdir = os.path.join(res_str, name)
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
