@@ -182,6 +182,28 @@ determined by config options.</p>
 <span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
 </pre></div>
 </div>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.global_convergence.cosine_bell.viz.Viz.html#polaris.ocean.tests.global_convergence.cosine_bell.viz.Viz" title="polaris.ocean.tests.global_convergence.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_convergence.cosine_bell.viz.Viz</span></code></a>
+is a step for plotting the initial and final states of the advection test for
+each resolution, mapped to the common lat-lon grid.  The colormap is controlled
+by these options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+
+<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
+<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots from spherical meshes</span></a> for more details.</p>
 </section>
 </section>
 </section>

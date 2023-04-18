@@ -74,7 +74,11 @@
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#horizontal-fields-from-planar-meshes">horizontal fields from planar meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-lat-lon-plots-from-spherical-meshes">global lat/lon plots from spherical meshes</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
@@ -122,6 +126,8 @@ as part of other steps such as <code class="docutils literal notranslate"><span 
 <p>While developers can write their own visualization scripts associated with
 individual test cases, the following shared visualization routines are
 provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
+<section id="horizontal-fields-from-planar-meshes">
+<span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Permalink to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a patches-style
 visualization of x-y fields across a single vertical level at a single time
 step. The image file (png) is saved to the directory from which
@@ -139,6 +145,65 @@ polygons characterized by the field values, accordingly.</p>
                  <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="global-lat-lon-plots-from-spherical-meshes">
+<span id="dev-visualization-global"></span><h2>global lat/lon plots from spherical meshes<a class="headerlink" href="#global-lat-lon-plots-from-spherical-meshes" title="Permalink to this heading"></a></h2>
+<p>You can use <a class="reference internal" href="../generated/polaris.viz.globe.plot_global.html#polaris.viz.globe.plot_global" title="polaris.viz.globe.plot_global"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.globe.plot_global()</span></code></a> to plot a field on
+a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a>.</p>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final.png"><img alt="../../_images/cosine_bell_final.png" class="align-center" src="../../_images/cosine_bell_final.png" style="width: 500px;" /></a>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.globe.plot_global.html#polaris.viz.globe.plot_global" title="polaris.viz.globe.plot_global"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.globe.plot_global()</span></code></a> is used
+to enable or disable continents overlain on top of the data:</p>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final_land.png"><img alt="../../_images/cosine_bell_final_land.png" class="align-center" src="../../_images/cosine_bell_final_land.png" style="width: 500px;" /></a>
+<p>Typical usage might be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">polaris.step</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.viz.globe</span> <span class="kn">import</span> <span class="n">plot_global</span>
+
+<span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">plot_global</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">colormap_section</span></code> of the config file must contain config options for
+specifying the colormap:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+
+<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
+<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">colormap_name</span></code> can be any available matplotlib colormap.  For ocean test
+cases, we recommend importing <a class="reference external" href="https://matplotlib.org/cmocean/">cmocean</a> so
+the standard ocean colormaps are available.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> is one of <code class="docutils literal notranslate"><span class="pre">linear</span></code> (a linear colormap), <code class="docutils literal notranslate"><span class="pre">symlog</span></code> (a
+<a class="reference external" href="https://matplotlib.org/stable/gallery/images_contours_and_fields/colormap_normalizations_symlognorm.html">symmetric log</a>
+colormap with a central linear region), or <code class="docutils literal notranslate"><span class="pre">log</span></code> (a logarithmic colormap).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">norm_args</span></code> depend on the <code class="docutils literal notranslate"><span class="pre">norm_typ</span></code> and are the arguments to
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.Normalize.html#matplotlib.colors.Normalize" title="(in Matplotlib v3.7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.Normalize</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.SymLogNorm.html#matplotlib.colors.SymLogNorm" title="(in Matplotlib v3.7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.SymLogNorm</span></code></a>,
+and <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm" title="(in Matplotlib v3.7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.LogNorm</span></code></a>, respectively.</p>
+<p>The config option <code class="docutils literal notranslate"><span class="pre">colorbar_ticks</span></code> (if it is defined) specifies tick locations
+along the colorbar. If it is not specified, they are determined automatically.</p>
+</section>
 </section>
 
 

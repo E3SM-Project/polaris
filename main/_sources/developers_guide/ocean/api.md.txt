@@ -96,6 +96,8 @@
    viz.VizMap
    viz.VizMap.run
 
+   viz.Viz
+   viz.Viz.run
 ```
 
 ## Ocean Framework

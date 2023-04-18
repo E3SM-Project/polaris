@@ -220,6 +220,19 @@ following showing convergence as a function of the number of cells:</p>
 
 <span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
 <span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+
+<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
+<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
 </pre></div>
 </div>
 <p>The config options in <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> define the vertical grid, as described

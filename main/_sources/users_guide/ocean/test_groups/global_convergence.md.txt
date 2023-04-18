@@ -115,6 +115,19 @@ dlat = 0.5
 
 # remapping method ('bilinear', 'neareststod', 'conserve')
 remap_method = conserve
+
+# colormap options
+# colormap
+colormap_name = viridis
+
+# the type of norm used in the colormap
+norm_type = linear
+
+# A dictionary with keywords for the norm
+norm_args = {'vmin': 0., 'vmax': 1.}
+
+# We could provide colorbar tick marks but we'll leave the defaults
+# colorbar_ticks = np.linspace(0., 1., 9)
 ```
 
 The config options in `[vertical_grid]` define the vertical grid, as described
