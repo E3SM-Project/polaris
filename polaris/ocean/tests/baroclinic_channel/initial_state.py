@@ -6,6 +6,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
+from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
@@ -47,18 +48,26 @@ class InitialState(Step):
         logger = self.logger
 
         section = config['baroclinic_channel']
-        nx = section.getint('nx')
-        ny = section.getint('ny')
-        dc = section.getfloat('dc')
+        resolution = self.resolution
 
-        dsMesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc, nonperiodic_x=False,
-                                      nonperiodic_y=True)
-        write_netcdf(dsMesh, 'base_mesh.nc')
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
 
-        dsMesh = cull(dsMesh, logger=logger)
-        dsMesh = convert(dsMesh, graphInfoFileName='culled_graph.info',
-                         logger=logger)
-        write_netcdf(dsMesh, 'culled_mesh.nc')
+        # these could be hard-coded as functions of specific supported
+        # resolutions but it is preferable to make them algorithmic like here
+        # for greater flexibility
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+        dc = 1e3 * resolution
+
+        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
+                                       nonperiodic_x=False,
+                                       nonperiodic_y=True)
+        write_netcdf(ds_mesh, 'base_mesh.nc')
+
+        ds_mesh = cull(ds_mesh, logger=logger)
+        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
+                          logger=logger)
+        write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         section = config['baroclinic_channel']
         use_distances = section.getboolean('use_distances')
@@ -70,7 +79,7 @@ class InitialState(Step):
         salinity = section.getfloat('salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
 
-        ds = dsMesh.copy()
+        ds = ds_mesh.copy()
         xCell = ds.xCell
         yCell = ds.yCell
 
@@ -81,7 +90,7 @@ class InitialState(Step):
 
         init_vertical_coord(config, ds)
 
-        dsMesh['maxLevelCell'] = ds.maxLevelCell
+        ds_mesh['maxLevelCell'] = ds.maxLevelCell
 
         xMin = xCell.min().values
         xMax = xCell.max().values
@@ -143,10 +152,14 @@ class InitialState(Step):
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
+        ds.attrs['nx'] = nx
+        ds.attrs['ny'] = ny
+        ds.attrs['dc'] = dc
+
         write_netcdf(ds, 'initial_state.nc')
 
-        plot_horiz_field(ds, dsMesh, 'temperature',
+        plot_horiz_field(ds, ds_mesh, 'temperature',
                          'initial_temperature.png')
-        plot_horiz_field(ds, dsMesh, 'normalVelocity',
+        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'initial_normalVelocity.png', cmap='cmo.balance',
                          show_patch_edges=True)
