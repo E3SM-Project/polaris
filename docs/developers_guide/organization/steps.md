@@ -172,7 +172,7 @@ mesh type as an attribute:
 
 ```python
 from polaris.model_step import make_graph_file
-from polaris.step import Step
+from polaris import Step
 
 
 class SetupMesh(Step):
@@ -433,7 +433,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 
 from polaris.ocean.vertical import generate_grid
-from polaris.step import Step
+from polaris import Step
 
 
 class InitialState(Step):

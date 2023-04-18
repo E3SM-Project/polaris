@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
+from polaris import TestCase
 from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
-from polaris.testcase import TestCase
 from polaris.validate import compare_variables
 
 

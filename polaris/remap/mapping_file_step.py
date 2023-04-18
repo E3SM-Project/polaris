@@ -13,7 +13,7 @@ from pyremap import (
     get_lat_lon_descriptor,
 )
 
-from polaris.step import Step
+from polaris import Step
 
 
 class MappingFileStep(Step):

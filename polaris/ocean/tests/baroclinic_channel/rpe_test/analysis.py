@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray
 
+from polaris import Step
 from polaris.ocean.rpe import compute_rpe
-from polaris.step import Step
 
 
 class Analysis(Step):

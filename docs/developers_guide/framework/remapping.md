@@ -23,7 +23,7 @@ method:
 
 ```python
 
-from polaris.testcase import TestCase
+from polaris import TestCase
 from polaris.remap import MappingFileStep
 
 class MyTestCase(TestCase):

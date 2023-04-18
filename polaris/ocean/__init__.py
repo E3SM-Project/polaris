@@ -1,4 +1,4 @@
-from polaris.component import Component
+from polaris import Component
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.global_convergence import GlobalConvergence
 

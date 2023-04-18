@@ -1,3 +1,4 @@
+from polaris import TestGroup
 from polaris.ocean.tests.baroclinic_channel.baroclinic_channel_test_case import (  # noqa: E501
     BaroclinicChannelTestCase,
 )
@@ -6,7 +7,6 @@ from polaris.ocean.tests.baroclinic_channel.default import Default
 from polaris.ocean.tests.baroclinic_channel.restart_test import RestartTest
 from polaris.ocean.tests.baroclinic_channel.rpe_test import RpeTest
 from polaris.ocean.tests.baroclinic_channel.threads_test import ThreadsTest
-from polaris.testgroup import TestGroup
 
 
 class BaroclinicChannel(TestGroup):

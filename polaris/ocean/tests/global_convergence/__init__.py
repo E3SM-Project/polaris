@@ -1,5 +1,5 @@
+from polaris import TestGroup
 from polaris.ocean.tests.global_convergence.cosine_bell import CosineBell
-from polaris.testgroup import TestGroup
 
 
 class GlobalConvergence(TestGroup):

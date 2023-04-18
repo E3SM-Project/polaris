@@ -5,8 +5,8 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
+from polaris import Step
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.step import Step
 from polaris.viz import plot_horiz_field
 
 

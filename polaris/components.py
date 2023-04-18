@@ -1,6 +1,6 @@
 from typing import List
 
-from polaris.component import Component
+from polaris import Component
 # import new components here
 from polaris.ocean import Ocean
 

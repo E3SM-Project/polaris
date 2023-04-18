@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
-from polaris.step import Step
+from polaris import Step
 
 
 class Analysis(Step):

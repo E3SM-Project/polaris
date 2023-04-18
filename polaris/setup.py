@@ -7,12 +7,11 @@ from typing import Dict, List
 
 from mache import discover_machine
 
-from polaris import provenance
+from polaris import TestCase, provenance
 from polaris.components import get_components
 from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
-from polaris.testcase import TestCase
 
 
 def setup_cases(work_dir, tests=None, numbers=None, config_file=None,

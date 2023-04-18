@@ -15,8 +15,8 @@ from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
 
+from polaris import Step
 from polaris.model_step import make_graph_file
-from polaris.step import Step
 
 
 class SphericalBaseStep(Step):
@@ -34,7 +34,7 @@ class SphericalBaseStep(Step):
 
         Parameters
         ----------
-        test_case : polaris.testcase.TestCase
+        test_case : polaris.TestCase
             The test case this step belongs to
 
         name : str
@@ -191,7 +191,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
 
         Parameters
         ----------
-        test_case : polaris.testcase.TestCase
+        test_case : polaris.TestCase
             The test case this step belongs to
 
         name : str, optional
@@ -331,7 +331,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
 
         Parameters
         ----------
-        test_case : polaris.testcase.TestCase
+        test_case : polaris.TestCase
             The test case this step belongs to
 
         name : str, optional
