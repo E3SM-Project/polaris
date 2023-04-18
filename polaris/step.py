@@ -491,10 +491,10 @@ class Step:
         inputs = []
         databases_with_downloads = set()
         for entry in self.input_data:
-            input_file, database_subdir = Step._process_input(
+            input_file, database_subdirs = Step._process_input(
                 entry, config, base_work_dir, component, step_dir)
-            if database_subdir is not None:
-                databases_with_downloads.add(database_subdir)
+            if database_subdirs is not None:
+                databases_with_downloads.update(database_subdirs)
             inputs.append(input_file)
 
         if len(databases_with_downloads) > 0:
@@ -509,7 +509,7 @@ class Step:
 
     @staticmethod
     def _process_input(entry, config, base_work_dir, component, step_dir):
-        database_subdir = None
+        database_subdirs = None
         filename = entry['filename']
         target = entry['target']
         database = entry['database']
@@ -549,7 +549,11 @@ class Step:
             download_path = os.path.join(database_root, database_component,
                                          database, download_target)
             if not os.path.exists(download_path):
-                database_subdir = os.path.join(database_root, database)
+                database_subdirs = {
+                    database_root,
+                    os.path.join(database_root, database_component),
+                    os.path.join(database_root, database_component, database)
+                }
         elif url is not None:
             download_path = download_target
 
@@ -569,7 +573,7 @@ class Step:
         else:
             input_file = filename
 
-        return input_file, database_subdir
+        return input_file, database_subdirs
 
     def _fix_permissions(self, databases):  # noqa: C901
         """
@@ -599,10 +603,7 @@ class Step:
         # first the base directories that don't seem to be included in
         # os.walk()
         for directory in databases:
-            try:
-                dir_stat = os.stat(directory)
-            except OSError:
-                continue
+            dir_stat = os.stat(directory)
 
             perm = dir_stat.st_mode & mask
 
