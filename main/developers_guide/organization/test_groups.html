@@ -181,7 +181,7 @@ itself by calling <a class="reference internal" href="../generated/polaris.TestG
 gets passed the <code class="docutils literal notranslate"><span class="pre">self</span></code> object as its test group, allowing the test case to
 determine both which component and which test group it belongs to. As an
 example, the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.Dome</span></code> class looks like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.testgroup</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
 <span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.smoke_test</span> <span class="kn">import</span> <span class="n">SmokeTest</span>
 <span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.decomposition_test</span> <span class="kn">import</span> <span class="n">DecompositionTest</span>
 <span class="kn">from</span> <span class="nn">polaris.landice.tests.dome.restart_test</span> <span class="kn">import</span> <span class="n">RestartTest</span>

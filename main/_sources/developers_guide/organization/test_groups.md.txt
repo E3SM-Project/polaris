@@ -77,7 +77,7 @@ determine both which component and which test group it belongs to. As an
 example, the {py:class}`polaris.landice.tests.dome.Dome` class looks like this:
 
 ```python
-from polaris.testgroup import TestGroup
+from polaris import TestGroup
 from polaris.landice.tests.dome.smoke_test import SmokeTest
 from polaris.landice.tests.dome.decomposition_test import DecompositionTest
 from polaris.landice.tests.dome.restart_test import RestartTest

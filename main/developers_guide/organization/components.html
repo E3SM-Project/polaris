@@ -138,7 +138,7 @@ and packages within the core, not by other cores or the main polaris
 of the constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the MPAS
 core.  Then, it creates objects for each test group and adds them to itself, as
 in this example from <a class="reference internal" href="../ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.component</span> <span class="kn">import</span> <span class="n">Component</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_ocean</span> <span class="kn">import</span> <span class="n">GlobalOcean</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.ice_shelf_2d</span> <span class="kn">import</span> <span class="n">IceShelf2d</span>

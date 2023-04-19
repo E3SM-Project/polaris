@@ -101,7 +101,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tests.global_convergence.cosine_bell</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.mesh.spherical</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
     <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
@@ -112,7 +113,6 @@
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
-<span class="kn">from</span> <span class="nn">polaris.testcase</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
 
 

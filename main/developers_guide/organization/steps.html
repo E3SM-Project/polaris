@@ -251,7 +251,7 @@ that the step will need.</p>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.setup_mesh.SetupMesh</span></code> keeps track of the
 mesh type as an attribute:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">make_graph_file</span>
-<span class="kn">from</span> <span class="nn">polaris.step</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 
 
 <span class="k">class</span> <span class="nc">SetupMesh</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -487,7 +487,7 @@ is quite involved:</p>
 <span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
 
 <span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">generate_grid</span>
-<span class="kn">from</span> <span class="nn">polaris.step</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 
 
 <span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>

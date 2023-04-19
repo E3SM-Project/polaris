@@ -189,7 +189,7 @@ As an example, here is the constructor from
 {py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest`:
 
 ```python
-from polaris.testcase import TestCase
+from polaris import TestCase
 from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
 from polaris.ocean.tests.baroclinic_channel.forward import Forward
 from polaris.ocean.tests.baroclinic_channel.rpe_test.analysis import Analysis
