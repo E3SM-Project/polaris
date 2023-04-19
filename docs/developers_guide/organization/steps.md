@@ -904,6 +904,8 @@ recommended.
 More details on cached outputs are available in the compass design document
 [Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
 
+(dev-step-dependencies)=
+
 ### Adding other steps as dependencies
 
 In some circumstances, it is not feasible to know the output filenames at
@@ -932,7 +934,7 @@ state during the run.  When the dependent step is run, the the state of
 each dependency is "unpickled" along with the state of the step itself so that
 the dependent step can make use of runtime updates to its dependencies.
 
-```note
+```{note}
 There is some non-negligible overhead involved in pickling and unpickling
 dependencies so it is preferable to use file-based dependencies where possible.
 ```
