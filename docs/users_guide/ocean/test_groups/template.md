@@ -72,8 +72,7 @@ min_pc_fraction = 0.1
 ### initial conditions
 
 The initial conditions should be specified for all variables requiring
-initial conditions (see
-[Models](https://e3sm-project.github.io/polaris/main/developers_guide/ocean/models/index.html)).
+initial conditions (see {ref}`dev-ocean-models`).
 
 ### forcing
 
