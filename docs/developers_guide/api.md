@@ -240,6 +240,8 @@ ocean/api
 
 .. autosummary::
    :toctree: generated/
+   
+   planar.compute_planar_hex_nx_ny
 
    spherical.SphericalBaseStep
    spherical.SphericalBaseStep.setup
