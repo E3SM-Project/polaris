@@ -63,23 +63,31 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tests</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="index.html#directory-structure">Directory structure</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="test_cases.html">Test cases</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Steps</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#constructor">constructor</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#setup">setup()</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#runtime-setup">runtime_setup()</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#run">run()</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#inputs-and-outputs">inputs and outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_cases.html">Test cases</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup">setup()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-setup">runtime_setup()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">run()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inputs-and-outputs">inputs and outputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#input-files">Input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#symlinks-to-input-files">Symlinks to input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#symlink-to-input-files-from-polaris">Symlink to input files from polaris</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#downloading-and-symlinking-input-files">Downloading and symlinking input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#copying-input-files">Copying input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output-files">Output files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cached-output-files">Cached output files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adding-other-steps-as-dependencies">Adding other steps as dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="suites.html">Test Suites</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="suites.html">Test Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
@@ -890,7 +898,7 @@ recommended.</p>
 <a class="reference external" href="https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html">Caching outputs from compass steps</a>.</p>
 </section>
 <section id="adding-other-steps-as-dependencies">
-<h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Permalink to this heading"></a></h3>
+<span id="dev-step-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Permalink to this heading"></a></h3>
 <p>In some circumstances, it is not feasible to know the output filenames at
 when a step gets set up.  For example, the filename may depend on config
 options that a user could change before running the step.  Or the filename
@@ -914,9 +922,10 @@ in a pickle file (see <a class="reference internal" href="../framework/commands.
 state during the run.  When the dependent step is run, the the state of
 each dependency is “unpickled” along with the state of the step itself so that
 the dependent step can make use of runtime updates to its dependencies.</p>
-<div class="highlight-note notranslate"><div class="highlight"><pre><span></span>There is some non-negligible overhead involved in pickling and unpickling
-dependencies so it is preferable to use file-based dependencies where possible.
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is some non-negligible overhead involved in pickling and unpickling
+dependencies so it is preferable to use file-based dependencies where possible.</p>
 </div>
 </section>
 </section>

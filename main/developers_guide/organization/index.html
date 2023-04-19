@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Components" href="components.html" />
+    <link rel="next" title="Directory structure" href="directories.html" />
     <link rel="prev" title="Command-line interface" href="../command_line.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -63,14 +63,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Organization of Tests</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#directory-structure">Directory structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="test_cases.html">Test cases</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steps.html">Steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="suites.html">Test Suites</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_cases.html">Test cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steps.html">Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suites.html">Test Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
@@ -111,53 +109,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <figure class="align-right" id="id1" style="width: 50%">
-<a class="reference internal image-reference" href="../../_images/org_in_package.png"><img alt="../../_images/org_in_package.png" src="../../_images/org_in_package.png" style="width: 311px;" /></a>
-<figcaption>
-<p><span class="caption-text">Figure 1: The organization of components (green), test groups (blue), test
-cases (orange) and steps (red) in the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<section class="tex2jax_ignore mathjax_ignore" id="organization-of-tests">
+  <section class="tex2jax_ignore mathjax_ignore" id="organization-of-tests">
 <span id="dev-organization"></span><h1>Organization of Tests<a class="headerlink" href="#organization-of-tests" title="Permalink to this heading"></a></h1>
 <p>Here, we describe how tests in polaris are organized, both in the package
 itself and in the work directories where they get set up and run.  At the base
 level are components (<span class="xref std std-ref">dev-landice</span> or <a class="reference internal" href="../ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a>).  Each component
 has collection of test groups, which has a collection of test cases, each of
 which contains a sequence of steps.</p>
-<section id="directory-structure">
-<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this heading"></a></h2>
-<p>In the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package within a local clone of the polaris repository,
-components, test groups, test cases and steps are laid out like shown in Fig 1.</p>
-<p>Each component has its directory with the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package directory. Among
-other contents of the component’s directory is a <code class="docutils literal notranslate"><span class="pre">tests</span></code> directory that
-contains all of the test groups.  Each test group contains directories for
-the test cases and typically also python modules that define the shared steps.
-Any steps that are specific to a test case would have a module within that
-test case’s directory.</p>
-<p>More details on each of these organizational concepts – <a class="reference internal" href="components.html#dev-components"><span class="std std-ref">Components</span></a>,
-<a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a>, <a class="reference internal" href="test_cases.html#dev-test-cases"><span class="std std-ref">Test cases</span></a>, and <a class="reference internal" href="steps.html#dev-steps"><span class="std std-ref">Steps</span></a> – are
-provided below.</p>
-<p>The organization of the work directory similar but not quite the same as in the
-<code class="docutils literal notranslate"><span class="pre">polaris</span></code> package, as shown in Fig. 2.</p>
-<figure class="align-right" id="id2" style="width: 50%">
-<a class="reference internal image-reference" href="../../_images/org_in_work_dir.png"><img alt="../../_images/org_in_work_dir.png" src="../../_images/org_in_work_dir.png" style="width: 283px;" /></a>
-<figcaption>
-<p><span class="caption-text">Figure 2: The organization of components (green), test groups (blue), test
-cases (orange) and steps (red) in an example work directory.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>At the top level are directories for the components.  There is no <code class="docutils literal notranslate"><span class="pre">tests</span></code>
-subdirectory in this case – the test groups are directly within the MPAS
-core’s directory.  The organization of test cases within a test group can
-include many additional subdirectories that help sort different versions of
-the test cases.  In the examples shown above, each test case is in a
-subdirectory indicating the resolution of the mesh used in the test case.
-Finally, steps are in subdirectories of each test case.  In some cases,
-additional subdirectories are used to sort steps within a test case (e.g. if
-the same step will be run at different mesh resolutions in a convergence test).</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="directories.html">Directory structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_cases.html">Test cases</a></li>
@@ -166,14 +127,13 @@ the same step will be run at different mesh resolutions in a convergence test).<
 </ul>
 </div>
 </section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../command_line.html" class="btn btn-neutral float-left" title="Command-line interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="components.html" class="btn btn-neutral float-right" title="Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="directories.html" class="btn btn-neutral float-right" title="Directory structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

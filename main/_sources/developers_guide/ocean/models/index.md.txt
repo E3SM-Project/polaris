@@ -1,10 +1,10 @@
-(dev-models)=
+(dev-ocean-models)=
 
 # Models
 
 Polaris is designed to support multiple ocean models.
 
-(dev-supported-models)=
+(dev-ocean-supported-models)=
 
 ## Supported Models
 
