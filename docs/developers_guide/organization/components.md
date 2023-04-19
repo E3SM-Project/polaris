@@ -32,7 +32,7 @@ core.  Then, it creates objects for each test group and adds them to itself, as
 in this example from {py:class}`polaris.ocean.Ocean`:
 
 ```python
-from polaris.component import Component
+from polaris import Component
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.global_ocean import GlobalOcean
 from polaris.ocean.tests.ice_shelf_2d import IceShelf2d

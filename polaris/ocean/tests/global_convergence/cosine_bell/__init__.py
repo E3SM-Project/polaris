@@ -1,3 +1,4 @@
+from polaris import TestCase
 from polaris.config import PolarisConfigParser
 from polaris.mesh.spherical import (
     IcosahedralMeshStep,
@@ -9,7 +10,6 @@ from polaris.ocean.tests.global_convergence.cosine_bell.analysis import (
 from polaris.ocean.tests.global_convergence.cosine_bell.forward import Forward
 from polaris.ocean.tests.global_convergence.cosine_bell.init import Init
 from polaris.ocean.tests.global_convergence.cosine_bell.viz import Viz, VizMap
-from polaris.testcase import TestCase
 from polaris.validate import compare_variables
 
 

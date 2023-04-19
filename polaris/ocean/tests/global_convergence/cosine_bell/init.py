@@ -2,8 +2,8 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris import Step
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.step import Step
 
 
 class Init(Step):

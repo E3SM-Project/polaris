@@ -68,7 +68,7 @@ Typical usage might be:
 import cmocean  # noqa: F401
 import xarray as xr
 
-from polaris.step import Step
+from polaris import Step
 from polaris.viz.globe import plot_global
 
 class Viz(Step):

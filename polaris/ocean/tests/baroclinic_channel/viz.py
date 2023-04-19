@@ -2,7 +2,7 @@ import cmocean  # noqa: F401
 import numpy as np
 import xarray as xr
 
-from polaris.step import Step
+from polaris import Step
 from polaris.viz import plot_horiz_field
 
 
