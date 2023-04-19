@@ -9,8 +9,10 @@ Description of the test group.
 ## test_case_name
 
 In cases where the test cases within a test group share many characteristics,
-it may be more appropriate to move the following sections up one level to the
-test group, and only specify here the differences between each test case.
+it may be more appropriate to move the certain sections up one level to the
+test group. In that case, the respective section should still be included for
+each test case, specifying any or no differences from the section in the test
+group level.
 
 ### description
 
@@ -79,10 +81,10 @@ If applicable, specify the forcing applied at each time step of the simulation
 (in MPAS-Ocean, these are the variables contained in the `forcing` stream).
 If not applicable, keep this section with the notation N/A.
 
-### time step
+### time step and run duration
 
 The time step for forward integration should be specified here for the test
-case's resolution.
+case's resolution. The run duration should also be specified.
 
 ### config options
 
