@@ -59,22 +59,6 @@ min_pc_fraction = 0.1
 lx = 160.0
 ly = 500.0
 
-# the number of mesh cells in the x direction
-nx = <<<set in code>>>
-
-# the number of mesh cells in the y direction
-ny = <<<set in code>>>
-
-# the distance between adjacent cell centers
-dc = <<<set in code>>>
-
-# the number of cells per core to aim for
-goal_cells_per_core = 200
-
-# the approximate maximum number of cells per core (the test will fail if too
-# few cores are available)
-max_cells_per_core = 2000
-
 # time step per resolution (s/km), since dt is proportional to resolution
 dt_per_km = 30
 
@@ -100,11 +84,11 @@ bottom_temperature = 10.1
 temperature_difference = 1.2
 
 # Fraction of domain in Y direction the temperature gradient should be linear
-# over.
+# over. Used when use_distances = False.
 gradient_width_frac = 0.08
 
 # Width of the temperature gradient around the center sin wave. Default value
-# is relative to a 500km domain in Y.
+# is relative to a 500km domain in Y. Used when use_distances = True.
 gradient_width_dist = 40e3
 
 # Salinity of the water in the entire domain.
