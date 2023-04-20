@@ -10,11 +10,6 @@ class Viz(Step):
     """
     A step for plotting the results of a series of RPE runs in the baroclinic
     channel test group
-
-    Attributes
-    ----------
-    nus : list
-        A list of viscosities
     """
     def __init__(self, test_case):
         """

@@ -6,6 +6,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
+from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
@@ -47,18 +48,26 @@ class InitialState(Step):
         logger = self.logger
 
         section = config['baroclinic_channel']
-        nx = section.getint('nx')
-        ny = section.getint('ny')
-        dc = section.getfloat('dc')
+        resolution = self.resolution
 
-        dsMesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc, nonperiodic_x=False,
-                                      nonperiodic_y=True)
-        write_netcdf(dsMesh, 'base_mesh.nc')
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
 
-        dsMesh = cull(dsMesh, logger=logger)
-        dsMesh = convert(dsMesh, graphInfoFileName='culled_graph.info',
-                         logger=logger)
-        write_netcdf(dsMesh, 'culled_mesh.nc')
+        # these could be hard-coded as functions of specific supported
+        # resolutions but it is preferable to make them algorithmic like here
+        # for greater flexibility
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+        dc = 1e3 * resolution
+
+        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
+                                       nonperiodic_x=False,
+                                       nonperiodic_y=True)
+        write_netcdf(ds_mesh, 'base_mesh.nc')
+
+        ds_mesh = cull(ds_mesh, logger=logger)
+        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
+                          logger=logger)
+        write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         section = config['baroclinic_channel']
         use_distances = section.getboolean('use_distances')
@@ -70,83 +79,87 @@ class InitialState(Step):
         salinity = section.getfloat('salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
 
-        ds = dsMesh.copy()
-        xCell = ds.xCell
-        yCell = ds.yCell
+        ds = ds_mesh.copy()
+        x_cell = ds.xCell
+        y_cell = ds.yCell
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(xCell)
-        ds['ssh'] = xr.zeros_like(xCell)
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
+        ds['ssh'] = xr.zeros_like(x_cell)
 
         init_vertical_coord(config, ds)
 
-        dsMesh['maxLevelCell'] = ds.maxLevelCell
+        ds_mesh['maxLevelCell'] = ds.maxLevelCell
 
-        xMin = xCell.min().values
-        xMax = xCell.max().values
-        yMin = yCell.min().values
-        yMax = yCell.max().values
+        x_min = x_cell.min().values
+        x_max = x_cell.max().values
+        y_min = y_cell.min().values
+        y_max = y_cell.max().values
 
-        yMid = 0.5 * (yMin + yMax)
-        xPerturbMin = xMin + 4.0 * (xMax - xMin) / 6.0
-        xPerturbMax = xMin + 5.0 * (xMax - xMin) / 6.0
+        y_mid = 0.5 * (y_min + y_max)
+        x_perturb_min = x_min + 4.0 * (x_max - x_min) / 6.0
+        x_perturb_max = x_min + 5.0 * (x_max - x_min) / 6.0
 
         if use_distances:
-            perturbationWidth = gradient_width_dist
+            perturb_width = gradient_width_dist
         else:
-            perturbationWidth = (yMax - yMin) * gradient_width_frac
+            perturb_width = (y_max - y_min) * gradient_width_frac
 
-        yOffset = perturbationWidth * np.sin(
-            6.0 * np.pi * (xCell - xMin) / (xMax - xMin))
+        y_offset = perturb_width * np.sin(
+            6.0 * np.pi * (x_cell - x_min) / (x_max - x_min))
 
         temp_vert = (bottom_temperature +
                      (surface_temperature - bottom_temperature) *
                      ((ds.refZMid + bottom_depth) / bottom_depth))
 
-        frac = xr.where(yCell < yMid - yOffset, 1., 0.)
+        frac = xr.where(y_cell < y_mid - y_offset, 1., 0.)
 
-        mask = np.logical_and(yCell >= yMid - yOffset,
-                              yCell < yMid - yOffset + perturbationWidth)
+        mask = np.logical_and(y_cell >= y_mid - y_offset,
+                              y_cell < y_mid - y_offset + perturb_width)
         frac = xr.where(mask,
-                        1. - (yCell - (yMid - yOffset)) / perturbationWidth,
+                        1. - (y_cell - (y_mid - y_offset)) / perturb_width,
                         frac)
 
         temperature = temp_vert - temperature_difference * frac
         temperature = temperature.transpose('nCells', 'nVertLevels')
 
-        # Determine yOffset for 3rd crest in sin wave
-        yOffset = 0.5 * perturbationWidth * np.sin(
-            np.pi * (xCell - xPerturbMin) / (xPerturbMax - xPerturbMin))
+        # Determine y_offset for 3rd crest in sin wave
+        y_offset = 0.5 * perturb_width * np.sin(
+            np.pi * (x_cell - x_perturb_min) / (x_perturb_max - x_perturb_min))
 
         mask = np.logical_and(
-            np.logical_and(yCell >= yMid - yOffset - 0.5 * perturbationWidth,
-                           yCell <= yMid - yOffset + 0.5 * perturbationWidth),
-            np.logical_and(xCell >= xPerturbMin,
-                           xCell <= xPerturbMax))
+            np.logical_and(y_cell >= y_mid - y_offset - 0.5 * perturb_width,
+                           y_cell <= y_mid - y_offset + 0.5 * perturb_width),
+            np.logical_and(x_cell >= x_perturb_min,
+                           x_cell <= x_perturb_max))
 
         temperature = (temperature +
-                       mask * 0.3 * (1. - ((yCell - (yMid - yOffset)) /
-                                           (0.5 * perturbationWidth))))
+                       mask * 0.3 * (1. - ((y_cell - (y_mid - y_offset)) /
+                                           (0.5 * perturb_width))))
 
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
-        normalVelocity = xr.zeros_like(ds.xEdge)
-        normalVelocity, _ = xr.broadcast(normalVelocity, ds.refBottomDepth)
-        normalVelocity = normalVelocity.transpose('nEdges', 'nVertLevels')
-        normalVelocity = normalVelocity.expand_dims(dim='Time', axis=0)
+        normal_velocity = xr.zeros_like(ds.xEdge)
+        normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
+        normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
+        normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity * xr.ones_like(temperature)
-        ds['normalVelocity'] = normalVelocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(xCell)
+        ds['normalVelocity'] = normal_velocity
+        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
+        ds.attrs['nx'] = nx
+        ds.attrs['ny'] = ny
+        ds.attrs['dc'] = dc
+
         write_netcdf(ds, 'initial_state.nc')
 
-        plot_horiz_field(ds, dsMesh, 'temperature',
+        plot_horiz_field(ds, ds_mesh, 'temperature',
                          'initial_temperature.png')
-        plot_horiz_field(ds, dsMesh, 'normalVelocity',
-                         'initial_normalVelocity.png', cmap='cmo.balance',
+        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+                         'initial_normal_velocity.png', cmap='cmo.balance',
                          show_patch_edges=True)

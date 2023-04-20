@@ -1,5 +1,8 @@
 import time
 
+import xarray as xr
+
+from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep
 
 
@@ -108,12 +111,17 @@ class Forward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        section = self.config['baroclinic_channel']
-        nx = section.getint('nx')
-        ny = section.getint('ny')
-        # by setting the cell count, the resources will be computed
-        # automatically
-        cell_count = nx * ny
+        if at_setup:
+            # no file to read from, so we'll compute it based on config options
+            section = self.config['baroclinic_channel']
+            lx = section.getfloat('lx')
+            ly = section.getfloat('ly')
+            nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+            cell_count = nx * ny
+        else:
+            # get nCells from the input file
+            with xr.open_dataset('initial_state.nc') as ds:
+                cell_count = ds.sizes['nCells']
         return cell_count
 
     def dynamic_model_config(self, at_setup):

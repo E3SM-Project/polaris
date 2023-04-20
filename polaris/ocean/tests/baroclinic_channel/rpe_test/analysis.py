@@ -1,7 +1,7 @@
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray
+import xarray as xr
 
 from polaris import Step
 from polaris.ocean.rpe import compute_rpe
@@ -54,14 +54,18 @@ class Analysis(Step):
         Run this step of the test case
         """
         section = self.config['baroclinic_channel']
-        nx = section.getint('nx')
-        ny = section.getint('ny')
-        rpe = compute_rpe(initial_state_file_name=self.inputs[0],
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
+        init_filename = self.inputs[0]
+        rpe = compute_rpe(initial_state_file_name=init_filename,
                           output_files=self.inputs[1:])
-        _plot(nx, ny, self.outputs[0], self.nus, rpe)
+        with xr.open_dataset(init_filename) as ds_init:
+            nx = ds_init.attrs['nx']
+            ny = ds_init.attrs['ny']
+        _plot(nx, ny, lx, ly, self.outputs[0], self.nus, rpe)
 
 
-def _plot(nx, ny, filename, nus, rpe):
+def _plot(nx, ny, lx, ly, filename, nus, rpe):
     """
     Plot section of the baroclinic channel at different viscosities
 
@@ -72,6 +76,12 @@ def _plot(nx, ny, filename, nus, rpe):
 
     ny : int
         The number of cells in the y direction (before culling)
+
+    lx : float
+        The size of the domain in km in the x direction
+
+    ly : int
+        The size of the domain in km in the y direction
 
     filename : str
         The output file name
@@ -87,7 +97,7 @@ def _plot(nx, ny, filename, nus, rpe):
     num_files = len(nus)
     time = 20
 
-    ds = xarray.open_dataset('output_1.nc', decode_times=False)
+    ds = xr.open_dataset('output_1.nc', decode_times=False)
     times = ds.daysSinceStartOfSim.values
 
     fig = plt.figure()
@@ -104,8 +114,10 @@ def _plot(nx, ny, filename, nus, rpe):
     fig, axs = plt.subplots(1, num_files, figsize=(
         2.1 * num_files, 5.0), constrained_layout=True)
 
+    # ***NOTE***: This is a quick-and-dirty plotting technique for regular
+    # planar hex meshes that we do not recommend adopting in other test groups
     for iCol in range(num_files):
-        ds = xarray.open_dataset(f'output_{iCol + 1}.nc', decode_times=False)
+        ds = xr.open_dataset(f'output_{iCol + 1}.nc', decode_times=False)
         times = ds.daysSinceStartOfSim.values
         time_index = np.argmin(np.abs(times - time))
         var = ds.temperature.values
@@ -123,14 +135,14 @@ def _plot(nx, ny, filename, nus, rpe):
         ax = axs[iCol]
         dis = ax.imshow(
             var_avg,
-            extent=[0, 160, 0, 500],
+            extent=[0, lx, 0, ly],
             cmap='cmo.thermal',
             vmin=11.8,
             vmax=13.0)
         ax.set_title(f'day {times[time_index]}, '
                      f'$\\nu_h=${nus[iCol]}')
-        ax.set_xticks(np.arange(0, 161, step=40))
-        ax.set_yticks(np.arange(0, 501, step=50))
+        ax.set_xticks(np.linspace(0, lx, 5))
+        ax.set_yticks(np.arange(0, ly, 11))
 
         ax.set_xlabel('x, km')
         if iCol == 0:
