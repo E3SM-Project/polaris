@@ -152,26 +152,22 @@
 
         <span class="c1"># add the steps with default resolutions so they can be listed</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tests.global_convergence.cosine_bell&#39;</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CosineBell.configure"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.configure.html#polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set config options for the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh.cfg&#39;</span><span class="p">)</span>
 
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_mesh_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
 
         <span class="c1"># set up the steps again in case a user has provided new resolutions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">init_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_center&#39;</span><span class="p">,</span> <span class="s1">&#39;lon_center&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="s1">&#39;psi0&#39;</span><span class="p">,</span> <span class="s1">&#39;vel_pd&#39;</span><span class="p">]:</span>
-            <span class="n">init_options</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;config_cosine_bell_</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CosineBell.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.validate.html#polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
