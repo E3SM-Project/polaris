@@ -2,33 +2,28 @@
 
 # baroclinic_channel
 
+## description
+
 The `ocean/baroclinic_channel` test group implements variants of the
 Baroclinic Eddies test case from
 [Ilicak et al. (2012)](https://doi.org/10.1016/j.ocemod.2011.10.003).
-
-The domain is zonally periodic with solid northern and southern boundaries.
-Salinity is constant throughout the domain (at 35 PSU).  The initial
-temperature is cooler in the southern half of the domain than in the north,
-with a gradient between the two halves that is sinusoidally perturbed in the
-meridional direction.  The surface temperature is also warmer than at depth.
-
-```{image} images/baroclinic_channel.png
-:align: center
-:width: 500 px
-```
-
-Variants of the test case are available at 1-km, 4-km and 10-km horizontal
-resolution.  By default, the 20 vertical layers each have 50-m uniform
-thickness.
 
 The test group includes 5 test cases.  All test cases have 2 steps,
 `initial_state`, which defines the mesh and initial conditions for the model,
 and `forward` (given another name in many test cases to distinguish multiple
 forward runs), which performs time integration of the model.
 
-## config options
+## mesh
 
-All 5 test cases share the same set of config options:
+The domain is zonally periodic with solid northern and southern boundaries.
+The domain size is 160 km in the zonal dimension by 500 km in the meridional
+dimension. These dimensions are set in the config file by `lx` and `ly`.
+Variants of the test case are available at 1-km, 4-km and 10-km horizontal
+resolution.
+
+## vertical grid
+
+By default, all tests have 20 vertical layers of 50-m uniform thickness. The domain bottom is flat.
 
 ```cfg
 # Options related to the vertical grid
@@ -51,7 +46,82 @@ partial_cell_type = None
 
 # The minimum fraction of a layer for partial cells
 min_pc_fraction = 0.1
+```
 
+## initial conditions
+
+Salinity is constant throughout the domain (at 35 PSU).  The initial
+temperature is cooler in the southern half of the domain than in the north,
+with a gradient between the two halves that is sinusoidally perturbed in the
+meridional direction.
+
+First the temperature in the depth dimension is defined:
+$$
+T_0(z) = T_b + (T_s - T_b)(z - z_b)/z_b\\
+y_{perturb}(x) = \Delta y_{perturb} \sin(6 \pi x/l_x)\\
+$$
+where $y_{perturb}$ corresponds to the config option `perturb_width`, $T_s$ to
+`surface_temperature and `$T_b$ to `bottom_temperature`. The surface
+temperature is warmer than at depth. $z_b$ is the bottom depth.
+
+A fraction is defined to scale the horizontal temperature perturbations, which
+are uniform with depth:
+$$
+f(y) = \begin{cases}
+    1 &\text{ if } y < y_{mid} - y_{perturb}\\
+    1 - (y - (y_{mid} - y{perturb}))/\Delta y_{perturb} &
+    \text{ if } y \ge y_{mid} - y_{perturb}\\
+    0 & \text{otherwise}
+\end{cases}
+$$
+where $\Delta y_{perturb}$ corresponds to the perturbation width in the
+y-dimension defined by `gradient_width_dist` or `gradient_width_fraction` *
+`ly`. $y_{mid} = \frac{1}{2} l_y$.
+
+The temperature field is constructed using this fraction of the
+`temperature_difference`, $\Delta T$, and a fraction of $\Delta T_{crest}$,
+hard-coded as 0.3, applied over a more limited x-extent.
+$$
+T_0(y) = \begin{cases}
+    T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
+    (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &
+    \text{ if } y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}
+    \le y \ge
+    y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb} &&
+    \frac{4}{6} l_x \le x \ge \frac{5}{6} l_x \\
+    T_0(z) - \Delta T \: f(y) & \text{otherwise}
+\end{cases}
+$$
+where
+$$
+y_{crest}(x) = \frac{1}{2} \Delta y_{perturb}
+               \sin(\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x))
+$$
+
+```{image} images/baroclinic_channel.png
+:align: center
+:width: 500 px
+```
+
+The flow is initially stationary and the Coriolis parameter is uniform across
+the domain and defined in the config file by `coriolis_parameter`.
+
+## forcing
+
+N/A
+
+## time step and run duration
+
+The time step is determined by the config options `dt_per_km` so that the time
+step is proportional to the resolution. By default, a 10 km-resolution test
+has a time step of 5 min. Run duration will be specified for each test case.
+Run duration will be discussed for individual test cases.
+
+## config options
+
+All 5 test cases share the same set of config options:
+
+```cfg
 # config options for baroclinic channel testcases
 [baroclinic_channel]
 
@@ -100,15 +170,6 @@ coriolis_parameter = -1.2e-4
 
 The default domain size (`lx` and `ly`) is designed to be consistent with the
 literature, but can be modified by users to suit their needs.  
-The `nx`, `ny` and `dc` config options are set in the code.  While you can
-override these values with user config options, this isn't recommended. The
-`goal_cells_per_core` and `max_cells_per_core` are used to control how many
-MPI tasks the `rpe_test` simulations use (all other tests use hard-coded
-resources). By default, `goal_cells_per_core = 200`, indicating that the
-ocean domain will be decomposed across enough cores so there are about 200 
-cells per core.  If there aren't enough cores for this goal decomposition,
-the model will run on fewer cores but it will not allow more than
-`max_cells_per_core` cells on each core.
 
 The config options `dt_per_km` and `btr_dt_per_km` are used to determine a
 time steps that is consistent with a given resolution.  Changing these config
@@ -121,36 +182,162 @@ All units are mks, with temperature in degrees Celsius and salinity in PSU.
 
 ## default
 
+### description
+
 `ocean/baroclinic_channel/10km/default` is the default version of the
 baroclinic eddies test case for a short (15 min) test run and validation of
-prognostic variables for regression testing.  Currently, only 10-km horizontal
+prognostic variables for regression testing.  
+
+### mesh
+
+See {ref}`ocean-baroclinic-channel`. Currently, only 10-km horizontal
 resolution is supported.
 
+### vertical grid
+
+See {ref}`ocean-baroclinic-channel`.
+
+### initial conditions
+
+See {ref}`ocean-baroclinic-channel`.
+
+### forcing
+
+See {ref}`ocean-baroclinic-channel`.
+
+### time step and run duration
+
+See {ref}`ocean-baroclinic-channel` for time step. The run duration is 3 time
+steps.
+
+### config options
+
+See {ref}`ocean-baroclinic-channel`.
+
+### cores
+
+The number of processors is hard-coded to be 4 for this case.
+
 ## decomp_test
+
+### description
 
 `ocean/baroclinic_channel/10km/decomp_test` runs a short (15 min) integration
 of the model forward in time on 4 (`4proc` step) and then on 8 processors
 (`8proc` step) to make sure the resulting prognostic variables are
-bit-for-bit identical between the two runs. Currently, only 10-km horizontal
+bit-for-bit identical between the two runs.
+ 
+### mesh
+
+See {ref}`ocean-baroclinic-channel`. Currently, only 10-km horizontal
 resolution is supported.
 
+### vertical grid
+
+See {ref}`ocean-baroclinic-channel`.
+
+### initial conditions
+
+See {ref}`ocean-baroclinic-channel`.
+
+### forcing
+
+See {ref}`ocean-baroclinic-channel`.
+
+### time step and run duration
+
+See {ref}`ocean-baroclinic-channel` for time step. The run duration is 3 time
+steps.
+
+### config options
+
+See {ref}`ocean-baroclinic-channel`.
+
+### cores
+
+This test is run on 4 cores for the `4proc` step and 8 cores for the `8proc`
+step.
+
 ## thread_test
+
+### description
 
 `ocean/baroclinic_channel/10km/thread_test` runs a short (15 min) integration
 of the model forward in time on 1 threads per processor (`1thread` step) and
 then on 2 threads (`2thread` step) to make sure the resulting prognostic
-variables are bit-for-bit identical between the two runs. Currently, only 10-km
-horizontal resolution is supported.
+variables are bit-for-bit identical between the two runs.
+
+### mesh
+
+See {ref}`ocean-baroclinic-channel`. Currently, only 10-km horizontal
+resolution is supported.
+
+### vertical grid
+
+See {ref}`ocean-baroclinic-channel`.
+
+### initial conditions
+
+See {ref}`ocean-baroclinic-channel`.
+
+### forcing
+
+See {ref}`ocean-baroclinic-channel`.
+
+### time step and run duration
+
+See {ref}`ocean-baroclinic-channel` for time step. The run duration is 3 time
+steps.
+
+### config options
+
+See {ref}`ocean-baroclinic-channel`.
+
+### cores
+
+The model steps are run on 4 cores. The `1thread` step is run on 1 thread
+per processor and the `2thread` step is run on 2 threads per processor.
 
 ## restart_test
+
+### description
 
 `ocean/baroclinic_channel/10km/restart_test` runs a short (10 min)
 integration of the model forward in time (`full_run` step), saving a restart
 file every 5 minutes.  Then, a second run (`restart_run` step) is performed
 from the restart file 5 minutes into the simulation and prognostic variables
 are compared between the "full" and "restart" runs at minute 10 to make sure
-they are bit-for-bit identical. Currently, only 10-km horizontal resolution is
-supported.
+they are bit-for-bit identical.
+
+### mesh
+
+See {ref}`ocean-baroclinic-channel`. Currently, only 10-km horizontal
+resolution is supported.
+
+### vertical grid
+
+See {ref}`ocean-baroclinic-channel`.
+
+### initial conditions
+
+See {ref}`ocean-baroclinic-channel`.
+
+### forcing
+
+See {ref}`ocean-baroclinic-channel`.
+
+### time step and run duration
+
+See {ref}`ocean-baroclinic-channel` for time step. The full run is two time
+steps and the restart run is one time step long.
+
+### config options
+
+See {ref}`ocean-baroclinic-channel`.
+
+### cores
+
+The number of processors is hard-coded to be 4 for this case.
 
 ## rpe_test
 
@@ -163,3 +350,38 @@ horizontal resolutions (1, 4 and 10 km).  Results of these tests have been used
 to show that MPAS-Ocean has lower spurious dissipation of reference potential
 energy (RPE) than POP, MOM and MITgcm models
 ([Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004)).
+
+### mesh
+
+See {ref}`ocean-baroclinic-channel`.
+
+### vertical grid
+
+See {ref}`ocean-baroclinic-channel`.
+
+### initial conditions
+
+See {ref}`ocean-baroclinic-channel`.
+
+### forcing
+
+See {ref}`ocean-baroclinic-channel`.
+
+### time step and run duration
+
+See {ref}`ocean-baroclinic-channel` for time step. Each run lasts 20 days.
+
+### config options
+
+See {ref}`ocean-baroclinic-channel`. The config option that is specific to
+this case is:
+
+```
+# Viscosity values to test for rpe test case
+viscosities = 1, 5, 10, 20, 200
+```
+
+### cores
+
+The number of cores is dynamically computed based on the number of cells. See
+{ref}`dev-ocean-model`.
