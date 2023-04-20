@@ -28,7 +28,7 @@ icosahedron.  The following table shows the approximate resolution of a mesh
 with a given number of subdivisions:
 
 | subdivisions | cell width (km) |
-| ------------ | --------------- |
+|--------------|-----------------|
 | 5            | 240             |
 | 6            | 120             |
 | 7            | 60              |
@@ -96,12 +96,23 @@ resolution `dc` in km (`dc` is the distance between adjacent cell centers),
 and some (admittedly oddly named) parameters for determining which directions
 (if any) are periodic, `nonperiodic_x` and `nonperiodic_y`.
 
-There are a few considerations for determining `nx` and `ny`.  Typically,
-we need at least 4 grid cells in each direction for MPAS-Ocean to be well
-behaved, and similar restrictions may apply to other components.  Second,
-`ny` needs to be an even number because of the staggering of the hexagons used
-to create the mesh.  (We typically also use even numbers for `nx` but that is
-not strictly necessary.)
+There are a few considerations for determining `nx` and `ny`. There is a 
+framework level function {py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()`
+to take care of this for you:
+
+```python
+from polaris.mesh.planar import compute_planar_hex_nx_ny
+
+
+nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+```
+
+What follows is an explanation of the subtleties that are accounted for in that
+function. Typically, we need at least 4 grid cells in each direction for 
+MPAS-Ocean to be well behaved, and similar restrictions may apply to other 
+components.  Second, `ny` needs to be an even number because of the staggering 
+of the hexagons used to create the mesh.  (We typically also use even numbers 
+for `nx` but that is not strictly necessary.)
 
 Another important consideration is that the physical size of the mesh in the x
 direction is `lx = nx * dc`.  However, the physical extent in the y direction 

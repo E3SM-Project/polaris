@@ -22,7 +22,6 @@
    BaroclinicChannel
 
    BaroclinicChannelTestCase
-   BaroclinicChannelTestCase.configure
    BaroclinicChannelTestCase.validate
    
    forward.Forward

@@ -232,12 +232,21 @@ by the number of cells in the x and y directions (<code class="docutils literal 
 resolution <code class="docutils literal notranslate"><span class="pre">dc</span></code> in km (<code class="docutils literal notranslate"><span class="pre">dc</span></code> is the distance between adjacent cell centers),
 and some (admittedly oddly named) parameters for determining which directions
 (if any) are periodic, <code class="docutils literal notranslate"><span class="pre">nonperiodic_x</span></code> and <code class="docutils literal notranslate"><span class="pre">nonperiodic_y</span></code>.</p>
-<p>There are a few considerations for determining <code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>.  Typically,
-we need at least 4 grid cells in each direction for MPAS-Ocean to be well
-behaved, and similar restrictions may apply to other components.  Second,
-<code class="docutils literal notranslate"><span class="pre">ny</span></code> needs to be an even number because of the staggering of the hexagons used
-to create the mesh.  (We typically also use even numbers for <code class="docutils literal notranslate"><span class="pre">nx</span></code> but that is
-not strictly necessary.)</p>
+<p>There are a few considerations for determining <code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>. There is a
+framework level function <a class="reference internal" href="../generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.planar.compute_planar_hex_nx_ny()</span></code></a>
+to take care of this for you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+
+
+<span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>What follows is an explanation of the subtleties that are accounted for in that
+function. Typically, we need at least 4 grid cells in each direction for
+MPAS-Ocean to be well behaved, and similar restrictions may apply to other
+components.  Second, <code class="docutils literal notranslate"><span class="pre">ny</span></code> needs to be an even number because of the staggering
+of the hexagons used to create the mesh.  (We typically also use even numbers
+for <code class="docutils literal notranslate"><span class="pre">nx</span></code> but that is not strictly necessary.)</p>
 <p>Another important consideration is that the physical size of the mesh in the x
 direction is <code class="docutils literal notranslate"><span class="pre">lx</span> <span class="pre">=</span> <span class="pre">nx</span> <span class="pre">*</span> <span class="pre">dc</span></code>.  However, the physical extent in the y direction
 is <code class="docutils literal notranslate"><span class="pre">ly</span> <span class="pre">=</span> <span class="pre">(np.sqrt(3)</span> <span class="pre">/</span> <span class="pre">2)</span> <span class="pre">*</span> <span class="pre">ny</span> <span class="pre">*</span> <span class="pre">dc</span></code> because of the staggering of the hexagons

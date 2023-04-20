@@ -105,7 +105,7 @@
 <span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.rpe</span> <span class="kn">import</span> <span class="n">compute_rpe</span>
@@ -158,14 +158,18 @@
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">]</span>
-        <span class="n">nx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;nx&#39;</span><span class="p">)</span>
-        <span class="n">ny</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;ny&#39;</span><span class="p">)</span>
-        <span class="n">rpe</span> <span class="o">=</span> <span class="n">compute_rpe</span><span class="p">(</span><span class="n">initial_state_file_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+        <span class="n">init_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rpe</span> <span class="o">=</span> <span class="n">compute_rpe</span><span class="p">(</span><span class="n">initial_state_file_name</span><span class="o">=</span><span class="n">init_filename</span><span class="p">,</span>
                           <span class="n">output_files</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="n">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">)</span></div></div>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">init_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_init</span><span class="p">:</span>
+            <span class="n">nx</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span>
+            <span class="n">ny</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span>
+        <span class="n">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">)</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot section of the baroclinic channel at different viscosities</span>
 
@@ -176,6 +180,12 @@
 
 <span class="sd">    ny : int</span>
 <span class="sd">        The number of cells in the y direction (before culling)</span>
+
+<span class="sd">    lx : float</span>
+<span class="sd">        The size of the domain in km in the x direction</span>
+
+<span class="sd">    ly : int</span>
+<span class="sd">        The size of the domain in km in the y direction</span>
 
 <span class="sd">    filename : str</span>
 <span class="sd">        The output file name</span>
@@ -191,7 +201,7 @@
     <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nus</span><span class="p">)</span>
     <span class="n">time</span> <span class="o">=</span> <span class="mi">20</span>
 
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output_1.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output_1.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">times</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span>
 
     <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -208,8 +218,10 @@
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_files</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span>
         <span class="mf">2.1</span> <span class="o">*</span> <span class="n">num_files</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="c1"># ***NOTE***: This is a quick-and-dirty plotting technique for regular</span>
+    <span class="c1"># planar hex meshes that we do not recommend adopting in other test groups</span>
     <span class="k">for</span> <span class="n">iCol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_files</span><span class="p">):</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n">iCol</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n">iCol</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">times</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span>
         <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="n">time</span><span class="p">))</span>
         <span class="n">var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">values</span>
@@ -227,14 +239,14 @@
         <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">iCol</span><span class="p">]</span>
         <span class="n">dis</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
             <span class="n">var_avg</span><span class="p">,</span>
-            <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+            <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ly</span><span class="p">],</span>
             <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="mf">11.8</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="mf">13.0</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;day </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">time_index</span><span class="p">]</span><span class="si">}</span><span class="s1">, &#39;</span>
                      <span class="sa">f</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">nu_h=$</span><span class="si">{</span><span class="n">nus</span><span class="p">[</span><span class="n">iCol</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">161</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">501</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x, km&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">iCol</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
