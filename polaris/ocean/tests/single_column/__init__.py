@@ -13,4 +13,4 @@ class SingleColumn(TestGroup):
         """
         super().__init__(component=component, name='single_column')
 
-        self.add_test_case(CVMix(test_group=self))
+        self.add_test_case(CVMix(test_group=self, resolution=10.))
