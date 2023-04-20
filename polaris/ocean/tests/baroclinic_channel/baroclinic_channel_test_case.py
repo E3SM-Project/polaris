@@ -48,6 +48,7 @@ class BaroclinicChannelTestCase(TestCase):
         Compare ``temperature``, ``salinity`` and ``layerThickness`` from the
         initial condition with a baseline if one was provided
         """
+        super().validate()
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
                           filename1='initial_state/initial_state.nc')
