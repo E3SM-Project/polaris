@@ -88,6 +88,8 @@ case, including:
   - An image showing typical output from one of the test cases
   - A list of (commented) config options that apply to all test cases
   - A (typically brief) description of each test case
+  - The following sections as described in the template: description, mesh,
+    vertical grid, initial conditions, forcing, time step, config, and cores
 
 - A description of any common framework within the component that the test 
   group or test case pages may need to refer to.  This should only include
@@ -95,6 +97,9 @@ case, including:
   {ref}`config-files` or namelist options they may wish to edit.
 
 - A description of each test suite, including which test cases are included
+
+A template is available for test groups and test cases in the User's Guide:
+{ref}`component-test-group-name`
 
 The Developer's guide for each component should contain:
 

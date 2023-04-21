@@ -123,33 +123,47 @@
 full globe.  Currently, the only test case is the advection of a cosine bell.</p>
 <section id="cosine-bell">
 <span id="ocean-global-convergence-cosine-bell"></span><h2>cosine_bell<a class="headerlink" href="#cosine-bell" title="Permalink to this heading"></a></h2>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> test case implements the Cosine Bell test case as first
 described in <a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a>
 but using the variant from Sec. 3a of
 <a class="reference external" href="https://doi.org/10.1175/MWR-D-10-05056.1">Skamarock and Gassmann</a>.  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
 in a tracer <span class="math notranslate nohighlight">\(psi\)</span> once around the sphere, returning to its initial
-location.  The bell is defined by:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\psi =
-    \begin{cases}
-        \left( \psi_0/2 \right) \left[ 1 + \cos(\pi r/R )\right] &amp;
-            \text{if } r &lt; R \\
-        0 &amp; \text{if } r \ge R
-    \end{cases}
-\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\psi_0 = 1\)</span>, the bell radius <span class="math notranslate nohighlight">\(R = a/3\)</span>, and <span class="math notranslate nohighlight">\(a\)</span> is
-the radius of the sphere.  The equatorial velocity
-<span class="math notranslate nohighlight">\(u_0 = 2 \pi a/ (\text{24 days})\)</span>. The time step is proportional to the
-grid-cell size.</p>
-<p>By default, the resolution is varied from 60 km to 240 km in steps of 30 km.
-The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the test case is a plot like the
+location.</p>
+<p>The test is a convergence test with time step varying proportionately to grid
+size. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the test case is a plot like the
 following showing convergence as a function of the number of cells:</p>
 <a class="reference internal image-reference" href="../../../_images/cosine_bell_convergence.png"><img alt="../../../_images/cosine_bell_convergence.png" class="align-center" src="../../../_images/cosine_bell_convergence.png" style="width: 500px;" /></a>
-<section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> config options include:</p>
+</section>
+<section id="mesh">
+<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. The
+default resolutions used in the test case depends on the mesh type.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
+</pre></div>
+</div>
+<p>for the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
+</pre></div>
+</div>
+<p>To alter the resolutions used in this test, you will need to create your own
+config file (or add a <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> section to a config file if you’re
+already using one).  The resolutions are a comma-separated list of the
+resolution of the mesh in km.  If you specify a different list
+before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
+resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">resolutions</span></code> in the test case’s config file in
+the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes, make sure you
+use a resolution close to those listed in <a class="reference internal" href="../../../developers_guide/framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each
+resolution will be rounded to the nearest allowed icosahedral resolution.</p>
+</section>
+<section id="vertical-grid">
+<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h3>
+<p>This test case only exercises the shallow water dynamics. As such, the minimum
+number of vertical levels may be used. The bottom depth is constant and the
+results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
 
@@ -170,8 +184,54 @@ following showing convergence as a function of the number of cells:</p>
 
 <span class="c1"># The minimum fraction of a layer for partial cells</span>
 <span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
-
-<span class="c1"># options for cosine bell convergence test case</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h3>
+<p>The initial bell is defined by any passive tracer <span class="math notranslate nohighlight">\(\psi\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\psi =
+    \begin{cases}
+        \left( \psi_0/2 \right) \left[ 1 + \cos(\pi r/R )\right] &amp;
+            \text{if } r &lt; R \\
+        0 &amp; \text{if } r \ge R
+    \end{cases}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\psi_0 = 1\)</span>, the bell radius <span class="math notranslate nohighlight">\(R = a/3\)</span>, and <span class="math notranslate nohighlight">\(a\)</span> is the radius of the
+sphere. <code class="docutils literal notranslate"><span class="pre">psi_0</span></code> and <code class="docutils literal notranslate"><span class="pre">radius</span></code>, <span class="math notranslate nohighlight">\(R\)</span>, are given as config options and may be
+altered by the user. In the <code class="docutils literal notranslate"><span class="pre">initial_state</span> <span class="pre">step</span></code> we assign <code class="docutils literal notranslate"><span class="pre">debug_tracers_1</span></code>
+to <span class="math notranslate nohighlight">\(\psi\)</span>.</p>
+<p>The initial velocity is equatorial:</p>
+<div class="math notranslate nohighlight">
+\[
+u_0 = 2 \pi a/ \tau
+\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\tau\)</span> is the time it takes to transit the equator. The default is 24
+days, and can be altered by the user using the config option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code>.</p>
+<p>Temperature and salinity are not evolved in this test case and are given
+constant values determined by config options <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
+<p>The Coriolis parameters <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code>, and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> do not need to be
+specified for a global mesh and are initialized as zeros.</p>
+</section>
+<section id="forcing">
+<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<p>N/A. This case is run with all velocity tendencies disabled so the velocity
+field remains at the initial velocity <span class="math notranslate nohighlight">\(u_0\)</span>.</p>
+</section>
+<section id="time-step-and-run-duration">
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<p>The time step for forward integration is determined by multiplying the
+resolution by <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>, so that coarser meshes have longer time steps.
+You can alter this before setup (in a user config file) or before running the
+test case (in the config file in the work directory). The run duration is 24
+days.</p>
+</section>
+<section id="config-options">
+<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> config options include:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for cosine bell convergence test case</span>
 <span class="k">[cosine_bell]</span>
 
 <span class="c1"># time step per resolution (s/km), since dt is proportional to resolution</span>
@@ -235,66 +295,21 @@ following showing convergence as a function of the number of cells:</p>
 <span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
 </pre></div>
 </div>
-<p>The config options in <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> define the vertical grid, as described
-in <a class="reference internal" href="../framework/vertical.html#ocean-vertical"><span class="std std-ref">Vertical coordinate</span></a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> option <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code> is used to control the time step, as
-discussed below in more detail.</p>
+discussed above in more detail.</p>
 <p>The 7 options from <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> are used to control properties of
-the cosine bell and the rest of the sphere, as well as the advection.  The
-options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining
-when the convergence rates are not within the expected range.  The options
-in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the initial and
-final states on a lon-lat grid.</p>
-</section>
-<section id="resolutions">
-<h3>resolutions<a class="headerlink" href="#resolutions" title="Permalink to this heading"></a></h3>
-<p>The default resolutions used in the test case depends on the mesh type. For
-the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
-</pre></div>
-</div>
-<p>for the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
-</pre></div>
-</div>
-<p>To alter the resolutions used in this test, you will need to create your own
-config file (or add a <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> section to a config file if you’re
-already using one).  The resolutions are a comma-separated list of the
-resolution of the mesh in km.  If you specify a different list
-before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
-resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">resolutions</span></code> in the test case’s config file in
-the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes, make sure you
-use a resolution close to those listed in <a class="reference internal" href="../../../developers_guide/framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each
-resolution will be rounded to the nearest allowed icosahedral resolution.</p>
-</section>
-<section id="time-step">
-<h3>time step<a class="headerlink" href="#time-step" title="Permalink to this heading"></a></h3>
-<p>The time step for forward integration is determined by multiplying the
-resolution by <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>, so that coarser meshes have longer time steps.
-You can alter this before setup (in a user config file) or before running the
-test case (in the config file in the work directory).</p>
+the cosine bell and the rest of the sphere, as well as the advection.</p>
+<p>The options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining
+when the convergence rates are not within the expected range.</p>
+<p>The options in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the
+initial and final states on a lon-lat grid.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
-<p>The number of cores (and the minimum) is proportional to the number of cells,
-so that the number of cells per core is roughly constant.  You can alter how
-many cells are allocated to each core with <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> in the
-<code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section.  You can  control the maximum number of cells that
-are allowed  to be placed on a single  core (before the test case will fail)
-with <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> also in <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code>.  If there  aren’t enough
-processors to handle the finest resolution, you will see that  the step (and
-therefore the  test case) has failed.</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
-<span class="k">[ocean]</span>
-
-<span class="c1"># the number of cells per core to aim for</span>
-<span class="na">goal_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200</span>
-
-<span class="c1"># the approximate maximum number of cells per core (the test will fail if too</span>
-<span class="c1"># few cores are available)</span>
-<span class="na">max_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span>
-</pre></div>
-</div>
+<p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
+and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
+respectively. This ensures that the number of cells per core is roughly
+constant across the different resolutions in the convergence study.</p>
 </section>
 </section>
 </section>

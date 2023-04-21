@@ -17,6 +17,8 @@
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -57,6 +59,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Test groups</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">baroclinic_channel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#decomp-test">decomp_test</a></li>
@@ -122,25 +130,27 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="baroclinic-channel">
 <span id="ocean-baroclinic-channel"></span><h1>baroclinic_channel<a class="headerlink" href="#baroclinic-channel" title="Permalink to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel</span></code> test group implements variants of the
 Baroclinic Eddies test case from
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2011.10.003">Ilicak et al. (2012)</a>.</p>
-<p>The domain is zonally periodic with solid northern and southern boundaries.
-Salinity is constant throughout the domain (at 35 PSU).  The initial
-temperature is cooler in the southern half of the domain than in the north,
-with a gradient between the two halves that is sinusoidally perturbed in the
-meridional direction.  The surface temperature is also warmer than at depth.</p>
-<a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" /></a>
-<p>Variants of the test case are available at 1-km, 4-km and 10-km horizontal
-resolution.  By default, the 20 vertical layers each have 50-m uniform
-thickness.</p>
 <p>The test group includes 5 test cases.  All test cases have 2 steps,
 <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>, which defines the mesh and initial conditions for the model,
 and <code class="docutils literal notranslate"><span class="pre">forward</span></code> (given another name in many test cases to distinguish multiple
 forward runs), which performs time integration of the model.</p>
-<section id="config-options">
-<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
-<p>All 5 test cases share the same set of config options:</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<p>The domain is zonally periodic with solid northern and southern boundaries.
+The domain size is 160 km in the zonal dimension by 500 km in the meridional
+dimension. These dimensions are set in the config file by <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.
+Variants of the test case are available at 1-km, 4-km and 10-km horizontal
+resolution.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<p>By default, all tests have 20 vertical layers of 50-m uniform thickness. The domain bottom is flat.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
 
@@ -161,8 +171,82 @@ forward runs), which performs time integration of the model.</p>
 
 <span class="c1"># The minimum fraction of a layer for partial cells</span>
 <span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<p>Salinity is constant throughout the domain (at 35 PSU).  The initial
+temperature is cooler in the southern half of the domain than in the north,
+with a gradient between the two halves that is sinusoidally perturbed in the
+meridional direction.</p>
+<p>First the temperature in the depth dimension is defined:
+<div class="math notranslate nohighlight">
+\[\begin{split}
+T_0(z) = T_b + (T_s - T_b)(z - z_b)/z_b\\
+y_{perturb}(x) = \Delta y_{perturb} \sin(6 \pi x/l_x)\\
+\end{split}\]</div>
 
-<span class="c1"># config options for baroclinic channel testcases</span>
+where <span class="math notranslate nohighlight">\(y_{perturb}\)</span> corresponds to the config option <code class="docutils literal notranslate"><span class="pre">perturb_width</span></code>, <span class="math notranslate nohighlight">\(T_s\)</span> to
+<code class="docutils literal notranslate"><span class="pre">surface_temperature</span> <span class="pre">and</span> </code><span class="math notranslate nohighlight">\(T_b\)</span> to <code class="docutils literal notranslate"><span class="pre">bottom_temperature</span></code>. The surface
+temperature is warmer than at depth. <span class="math notranslate nohighlight">\(z_b\)</span> is the bottom depth.</p>
+<p>A fraction is defined to scale the horizontal temperature perturbations, which
+are uniform with depth:
+<div class="math notranslate nohighlight">
+\[\begin{split}
+f(y) = \begin{cases}
+    1 &amp;\text{ if } y &lt; y_{mid} - y_{perturb}\\
+    1 - (y - (y_{mid} - y{perturb}))/\Delta y_{perturb} &amp;
+    \text{ if } y \ge y_{mid} - y_{perturb}\\
+    0 &amp; \text{otherwise}
+\end{cases}
+\end{split}\]</div>
+
+where <span class="math notranslate nohighlight">\(\Delta y_{perturb}\)</span> corresponds to the perturbation width in the
+y-dimension defined by <code class="docutils literal notranslate"><span class="pre">gradient_width_dist</span></code> or <code class="docutils literal notranslate"><span class="pre">gradient_width_fraction</span></code> *
+<code class="docutils literal notranslate"><span class="pre">ly</span></code>. <span class="math notranslate nohighlight">\(y_{mid} = \frac{1}{2} l_y\)</span>.</p>
+<p>The temperature field is constructed using this fraction of the
+<code class="docutils literal notranslate"><span class="pre">temperature_difference</span></code>, <span class="math notranslate nohighlight">\(\Delta T\)</span>, and a fraction of <span class="math notranslate nohighlight">\(\Delta T_{crest}\)</span>,
+hard-coded as 0.3, applied over a more limited x-extent.
+<div class="math notranslate nohighlight">
+\[\begin{split}
+T_0(y) = \begin{cases}
+    T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
+    (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &amp;
+    \text{ if } y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}
+    \le y \ge
+    y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb} &amp;&amp;
+    \frac{4}{6} l_x \le x \ge \frac{5}{6} l_x \\
+    T_0(z) - \Delta T \: f(y) &amp; \text{otherwise}
+\end{cases}
+\end{split}\]</div>
+
+where
+<div class="math notranslate nohighlight">
+\[
+y_{crest}(x) = \frac{1}{2} \Delta y_{perturb}
+               \sin(\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x))
+\]</div>
+</p>
+<a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" /></a>
+<p>The flow is initially stationary and the Coriolis parameter is uniform across
+the domain and defined in the config file by <code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<p>The time step is determined by the config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> so that the time
+step is proportional to the resolution. By default, a 10 km-resolution test
+has a time step of 5 min. Run duration will be specified for each test case.
+Run duration will be discussed for individual test cases.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<p>All 5 test cases share the same set of config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for baroclinic channel testcases</span>
 <span class="k">[baroclinic_channel]</span>
 
 <span class="c1"># the size of the domain in km in the x and y directions</span>
@@ -209,16 +293,7 @@ forward runs), which performs time integration of the model.</p>
 </pre></div>
 </div>
 <p>The default domain size (<code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>) is designed to be consistent with the
-literature, but can be modified by users to suit their needs.<br />
-The <code class="docutils literal notranslate"><span class="pre">nx</span></code>, <code class="docutils literal notranslate"><span class="pre">ny</span></code> and <code class="docutils literal notranslate"><span class="pre">dc</span></code> config options are set in the code.  While you can
-override these values with user config options, this isn’t recommended. The
-<code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> are used to control how many
-MPI tasks the <code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> simulations use (all other tests use hard-coded
-resources). By default, <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span> <span class="pre">=</span> <span class="pre">200</span></code>, indicating that the
-ocean domain will be decomposed across enough cores so there are about 200
-cells per core.  If there aren’t enough cores for this goal decomposition,
-the model will run on fewer cores but it will not allow more than
-<code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> cells on each core.</p>
+literature, but can be modified by users to suit their needs.</p>
 <p>The config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> are used to determine a
 time steps that is consistent with a given resolution.  Changing these config
 options is likely to break the <code class="docutils literal notranslate"><span class="pre">restart_test</span></code>, since it assumes a time step of
@@ -229,36 +304,166 @@ other baroclinic channel tests.</p>
 </section>
 <section id="default">
 <h2>default<a class="headerlink" href="#default" title="Permalink to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/default</span></code> is the default version of the
 baroclinic eddies test case for a short (15 min) test run and validation of
-prognostic variables for regression testing.  Currently, only 10-km horizontal
+prognostic variables for regression testing.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id6">
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> for time step. The run duration is 3 time
+steps.</p>
+</section>
+<section id="id7">
+<h3>config options<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="cores">
+<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<p>The number of processors is hard-coded to be 4 for this case.</p>
+</section>
 </section>
 <section id="decomp-test">
 <h2>decomp_test<a class="headerlink" href="#decomp-test" title="Permalink to this heading"></a></h2>
+<section id="id8">
+<h3>description<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/decomp_test</span></code> runs a short (15 min) integration
 of the model forward in time on 4 (<code class="docutils literal notranslate"><span class="pre">4proc</span></code> step) and then on 8 processors
 (<code class="docutils literal notranslate"><span class="pre">8proc</span></code> step) to make sure the resulting prognostic variables are
-bit-for-bit identical between the two runs. Currently, only 10-km horizontal
+bit-for-bit identical between the two runs.</p>
+</section>
+<section id="id9">
+<h3>mesh<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
+</section>
+<section id="id10">
+<h3>vertical grid<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id11">
+<h3>initial conditions<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id12">
+<h3>forcing<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id13">
+<h3>time step and run duration<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> for time step. The run duration is 3 time
+steps.</p>
+</section>
+<section id="id14">
+<h3>config options<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id15">
+<h3>cores<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<p>This test is run on 4 cores for the <code class="docutils literal notranslate"><span class="pre">4proc</span></code> step and 8 cores for the <code class="docutils literal notranslate"><span class="pre">8proc</span></code>
+step.</p>
+</section>
 </section>
 <section id="thread-test">
 <h2>thread_test<a class="headerlink" href="#thread-test" title="Permalink to this heading"></a></h2>
+<section id="id16">
+<h3>description<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread_test</span></code> runs a short (15 min) integration
 of the model forward in time on 1 threads per processor (<code class="docutils literal notranslate"><span class="pre">1thread</span></code> step) and
 then on 2 threads (<code class="docutils literal notranslate"><span class="pre">2thread</span></code> step) to make sure the resulting prognostic
-variables are bit-for-bit identical between the two runs. Currently, only 10-km
-horizontal resolution is supported.</p>
+variables are bit-for-bit identical between the two runs.</p>
+</section>
+<section id="id17">
+<h3>mesh<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>. Currently, only 10-km horizontal
+resolution is supported.</p>
+</section>
+<section id="id18">
+<h3>vertical grid<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id19">
+<h3>initial conditions<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id20">
+<h3>forcing<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id21">
+<h3>time step and run duration<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> for time step. The run duration is 3 time
+steps.</p>
+</section>
+<section id="id22">
+<h3>config options<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id23">
+<h3>cores<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
+<p>The model steps are run on 4 cores. The <code class="docutils literal notranslate"><span class="pre">1thread</span></code> step is run on 1 thread
+per processor and the <code class="docutils literal notranslate"><span class="pre">2thread</span></code> step is run on 2 threads per processor.</p>
+</section>
 </section>
 <section id="restart-test">
 <h2>restart_test<a class="headerlink" href="#restart-test" title="Permalink to this heading"></a></h2>
+<section id="id24">
+<h3>description<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/restart_test</span></code> runs a short (10 min)
 integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">full_run</span></code> step), saving a restart
 file every 5 minutes.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart_run</span></code> step) is performed
 from the restart file 5 minutes into the simulation and prognostic variables
 are compared between the “full” and “restart” runs at minute 10 to make sure
-they are bit-for-bit identical. Currently, only 10-km horizontal resolution is
-supported.</p>
+they are bit-for-bit identical.</p>
+</section>
+<section id="id25">
+<h3>mesh<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>. Currently, only 10-km horizontal
+resolution is supported.</p>
+</section>
+<section id="id26">
+<h3>vertical grid<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id27">
+<h3>initial conditions<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id28">
+<h3>forcing<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id29">
+<h3>time step and run duration<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> for time step. The full run is two time
+steps and the restart run is one time step long.</p>
+</section>
+<section id="id30">
+<h3>config options<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id31">
+<h3>cores<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
+<p>The number of processors is hard-coded to be 4 for this case.</p>
+</section>
 </section>
 <section id="rpe-test">
 <h2>rpe_test<a class="headerlink" href="#rpe-test" title="Permalink to this heading"></a></h2>
@@ -271,6 +476,40 @@ horizontal resolutions (1, 4 and 10 km).  Results of these tests have been used
 to show that MPAS-Ocean has lower spurious dissipation of reference potential
 energy (RPE) than POP, MOM and MITgcm models
 (<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a>).</p>
+<section id="id32">
+<h3>mesh<a class="headerlink" href="#id32" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id33">
+<h3>vertical grid<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id34">
+<h3>initial conditions<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id35">
+<h3>forcing<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>.</p>
+</section>
+<section id="id36">
+<h3>time step and run duration<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> for time step. Each run lasts 20 days.</p>
+</section>
+<section id="id37">
+<h3>config options<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>. The config option that is specific to
+this case is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Viscosity values to test for rpe test case</span>
+<span class="n">viscosities</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span>
+</pre></div>
+</div>
+</section>
+<section id="id38">
+<h3>cores<a class="headerlink" href="#id38" title="Permalink to this heading"></a></h3>
+<p>The number of cores is dynamically computed based on the number of cells. See
+<a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>.</p>
+</section>
 </section>
 </section>
 
