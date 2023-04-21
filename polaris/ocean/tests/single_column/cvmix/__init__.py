@@ -1,6 +1,7 @@
 import os
 
 from polaris import TestCase
+from polaris.ocean.tests.single_column.forward import Forward
 from polaris.ocean.tests.single_column.initial_state import InitialState
 
 
@@ -29,3 +30,7 @@ class CVMix(TestCase):
                          subdir=subdir)
         self.add_step(
             InitialState(test_case=self, resolution=resolution))
+
+        self.add_step(
+            Forward(test_case=self, ntasks=1, min_tasks=1,
+                    openmp_threads=1))
