@@ -89,7 +89,7 @@ case, including:
   - A list of (commented) config options that apply to all test cases
   - A (typically brief) description of each test case
   - The following sections as described in the template: description, mesh,
-vertical grid, initial conditions, forcing, time step, config, and cores
+    vertical grid, initial conditions, forcing, time step, config, and cores
 
 - A description of any common framework within the component that the test 
   group or test case pages may need to refer to.  This should only include
