@@ -1417,17 +1417,136 @@ follow the procedure as in
 * go to the test case's work directory
 * on an interactive node, run `polaris serial`.
 
+(dev-tutorial-add-test-group-adding-second-test)=
 
 ## Adding a second test case
 
-(((I will add the `decomp_test` here.)))
+Let's add one more test case to see how that goes.  This will be a quick one.
 
-## Set up and run
+The decomposition test we present here is pretty similar to the default test.
+It starts with the same initial condition and does a forward run exactly like
+`default`. 
 
-You're all set!  You should be able to see your new test cases when you run
-`polaris list`, set them up by running `polaris setup`, and run them by
-calling `polaris serial` within the work directory.  
-See {ref}`dev-command-line` for details.
+```python
+import os
+
+from polaris import TestCase
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+
+
+class DecompTest(TestCase):
+    """
+    A decomposition test case for the baroclinic channel test group, which
+    makes sure the model produces identical results on 1 and 4 cores.
+
+    Attributes
+    ----------
+    resolution : float
+        The resolution of the test case in km    
+    """
+
+    def __init__(self, test_group, resolution):
+        """
+        Create the test case
+
+        Parameters
+        ----------
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
+            The test group that this test case belongs to
+
+        resolution : float
+            The resolution of the test case in km
+        """
+        name = 'default'
+        self.resolution = resolution
+        if resolution >= 1.:
+            res_str = f'{resolution:g}km'
+        else:
+            res_str = f'{resolution * 1000.:g}m'
+        subdir = os.path.join(res_str, name)
+        super().__init__(test_group=test_group, name=name,
+                         subdir=subdir)
+        self.add_step(
+            InitialState(test_case=self, resolution=resolution))
+```
+
+But then it does a second forward run on 8 cores instead of 4 and compares the
+results to make sure they are identical.
+
+```python
+from polaris import TestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
+
+
+class DecompTest(TestCase):
+    def __init__(self, test_group, resolution):
+        ...
+        for procs in [4, 8]:
+            name = f'{procs}proc'
+
+            self.add_step(Forward(
+                test_case=self, name=name, subdir=name, ntasks=procs,
+                min_tasks=procs, openmp_threads=1,
+                resolution=resolution))
+```
+
+Then, we validate temperature, salinity, layer thickness and normal velocity
+to make sure they area all identical between the 4 and 8 core runs:
+
+```python
+from polaris import TestCase
+from polaris.validate import compare_variables
+
+
+class DecompTest(TestCase):
+    def validate(self):
+        """
+        Compare ``temperature``, ``salinity``, ``layerThickness`` and
+        ``normalVelocity`` in the ``4proc`` and ``8proc`` steps with each other
+        and with a baseline if one was provided
+        """
+        super().validate()
+        variables = ['temperature', 'salinity', 'layerThickness',
+                     'normalVelocity']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='4proc/output.nc',
+                          filename2='8proc/output.nc')
+```
+
+Note that, unlike in the `default` test case, we provide the `filename2`
+parameter here so validation is performed even if we don't provide a baseline.
+(If we do provide a baseline, both the 4 core and 8 core results will be 
+validated against their equivalents in the baseline as well.)
+
+Finally, we add the new test case to the test group:
+
+```python
+
+from polaris.ocean.tests.yet_another_channel.decomp_test import DecompTest
+from polaris.ocean.tests.yet_another_channel.default import Default
+from polaris import TestGroup
+
+
+class YetAnotherChannel(TestGroup):
+    """
+    A test group for "yet another channel" test cases
+    """
+    def __init__(self, component):
+        """
+        component : polaris.ocean.Ocean
+            the ocean component that this test group belongs to
+        """
+        super().__init__(component=component,
+                         name='yet_another_channel')
+
+        for resolution in [1., 4., 10.]:
+            self.add_test_case(
+                Default(test_group=self, resolution=resolution))
+            self.add_test_case(
+                DecompTest(test_group=self, resolution=resolution))
+```
+
+And we're ready to test once again!
 
 (dev-tutorial-add-test-group-docs)=
 
