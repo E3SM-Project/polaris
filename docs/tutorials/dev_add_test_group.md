@@ -245,13 +245,52 @@ As a starting point, we just pass along the test group (`YetAnotherChannel`)
 this test case belongs to on to the base class's constructor
 (`super().__init__()`) and give the test case a name, `default`.
 
+And let's add the `Default` test case to the test group:
+
+```python
+from polaris.ocean.tests.yet_another_channel.default import Default
+from polaris import TestGroup
+
+
+class YetAnotherChannel(TestGroup):
+    """
+    A test group for "yet another channel" test cases
+    """
+    def __init__(self, component):
+        """
+        component : polaris.ocean.Ocean
+            the ocean component that this test group belongs to
+        """
+        super().__init__(component=component,
+                         name='yet_another_channel')
+
+        self.add_test_case(
+            Default(test_group=self))
+```
+
+Even though this test case doesn't do anything, we can list the tests and make
+sure your new one shows up:
+
+```bash
+$ polaris list
+Testcases:
+...
+   9: ocean/yet_another_channel/default
+```
+
+If they don't show up, you probably missed a step (adding the test group to the
+component or the test case to the test group).  If you get import errors or
+syntax errors, you'll need to fix those first.
+
 (dev-tutorial-add-test-group-vary-res)=
 
 ## Varying resolution and other parameters
 
-For "yet another channel" tests, we know that we want each test to be at a single
-resolution but that we want multiple versions of at least some of the tests
-for different resolutions.  We also want a lot of flexibility in determining
+For "yet another channel" tests, we know that we want each test to be at a 
+single resolution but let's suppose that we want multiple versions of the
+`yet_another_channel` test for different resolutions. 
+
+We also want a lot of flexibility in determining 
 the resolution, so it's easy to add new ones in the future.  At the same time,
 we want it to be easy to set up and run tests and the supported resolutions
 without users having to specify the resolution (e.g. in a config option). We
@@ -277,7 +316,7 @@ explore non-default parameter values to change the config options before
 running the test case.  We'll see in more detail what that looks like later in
 the tutorial.
 
-For now, we plan to support 3 resolutions in `yet_another_channel` test cases: 
+Let's say you want to support 3 resolutions in `yet_another_channel` test cases: 
 1, 4 and 10 km.  We'll add resolution in km as a float parameter and attribute
 to the `default` test case:
 
@@ -333,14 +372,12 @@ future) as well as the name of the test case. We add resolution to the
 docstring for both the class (where we describe the `resolution` attribute) and
 the constructor (where we describe the `resolution` argument or parameter).  
 
-The `default` test case doesn't do anything yet because we haven't added
-any steps, but let's add it to the `yet_another_channel` test group so we can
-see how the resolution will be specified.  We add the following to the file
-`__init__.py` that defines the `YetAnotherChannel` test group:
+The `default` test case still doesn't do anything yet because we haven't added
+any steps, change how we add ti to the `yet_another_channel` test group so we 
+can see how the resolution will be specified.  We update `YetAnotherChannel` 
+toa dd a loop over resolutions as follows:
 
-```{code-block} python
-:emphasize-lines: 2, 17-19
-
+```python
 from polaris.ocean.tests.yet_another_channel.default import Default
 from polaris import TestGroup
 
@@ -360,6 +397,15 @@ class YetAnotherChannel(TestGroup):
         for resolution in [1., 4., 10.]:
             self.add_test_case(
                 Default(test_group=self, resolution=resolution))
+```
+
+Let's run `polaris list` and see that our new tests appear:
+```
+$ polaris list
+...
+   9: ocean/yet_another_channel/1km/default
+  10: ocean/yet_another_channel/4km/default
+  11: ocean/yet_another_channel/10km/default
 ```
 
 In the long run, the `default` test case and most other test cases in this 
