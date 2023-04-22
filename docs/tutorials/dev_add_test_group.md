@@ -1699,86 +1699,6 @@ class Forward(OceanModelStep):
             self.add_model_config_options(options=dict(config_mom_del2=nu))
 ```
 
-### Computing the cell count
-
-In the ocean component, we have infrastructure for determining good values
-for `ntask` and `min_tasks` (the reasonable range of MPI tasks that a forward
-model step should use).  Using this infrastructure requires overriding the
-{py:meth}`polaris.ocean.model.OceanModelStep.compute_cell_count()` method:
-
-```python
-import xarray as xr
-
-from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
-
-
-class Forward(OceanModelStep):
-    def compute_cell_count(self, at_setup):
-        """
-        Compute the approximate number of cells in the mesh, used to constrain
-        resources
-
-        Parameters
-        ----------
-        at_setup : bool
-            Whether this method is being run during setup of the step, as
-            opposed to at runtime
-
-        Returns
-        -------
-        cell_count : int or None
-            The approximate number of cells in the mesh
-        """
-        if at_setup:
-            # no file to read from, so we'll compute it based on config options
-            section = self.config['yet_another_channel']
-            lx = section.getfloat('lx')
-            ly = section.getfloat('ly')
-            nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-            cell_count = nx * ny
-        else:
-            # get nCells from the input file
-            with xr.open_dataset('initial_state.nc') as ds:
-                cell_count = ds.sizes['nCells']
-        return cell_count
-```
-This method gets called once at setup (with `at_setup=True`) and once at
-runtime (with `at_setup=False`).  We do this because we need to compute or 
-estimate the size of the mesh during setup so we have a good guess at the
-resources it will need when we add it to a test suite and make a job script for
-running it.  Then, at runtime, we may need to revise that size, either because
-it was an estimate only or because it was based on config options that a user
-may have changed after setup.  Here, we use 
-{py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()` to get `nx` and `ny`
-(and thus the total cell count) during setup because we have no other way to
-get them (the initial condition has not yet been created, for example).  But
-at runtime, rather than recomputing them, we look at the initial condition
-file that must exist (otherwise the step already would have failed) to see
-what the actual number of cells ended up being.
-
-`cell_count` is used in `OceanModelStep` to compute `ntasks` and `min_tasks`
-by also using 2 config options:
-```cfg
-# Options related the ocean component
-[ocean]
-
-# the number of cells per core to aim for
-goal_cells_per_core = 200
-
-# the approximate maximum number of cells per core (the test will fail if too
-# few cores are available)
-max_cells_per_core = 2000
-```
-
-This method is only used if `ntasks` and `min_tasks` aren't explicitly defined
-as parameters to the constructor.
-
-So far, there isn't a equivalent process for MALI, so `ntasks` and `min_tasks`
-should be set explicitly either when constructing a test case or by overriding
-the {py:meth}`polaris.Step.setup()` or 
-{py:meth}`polaris.Step.constrain_resources()` methods.
-
 ### Adding dynamic model config options
 
 Sometimes, you want to define model config options that should get set during
@@ -1893,6 +1813,86 @@ Unlike in `compute_cell_count()`, we don't do anything differently in
 reason we run it twice is to update the model config options in case the user
 modified `dt_per_km` or `btr_dt_per_km` in the config file in the work 
 directory before running the step.
+
+### Computing the cell count
+
+In the ocean component, we have infrastructure for determining good values
+for `ntask` and `min_tasks` (the reasonable range of MPI tasks that a forward
+model step should use).  Using this infrastructure requires overriding the
+{py:meth}`polaris.ocean.model.OceanModelStep.compute_cell_count()` method:
+
+```python
+import xarray as xr
+
+from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanModelStep
+
+
+class Forward(OceanModelStep):
+    def compute_cell_count(self, at_setup):
+        """
+        Compute the approximate number of cells in the mesh, used to constrain
+        resources
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+
+        Returns
+        -------
+        cell_count : int or None
+            The approximate number of cells in the mesh
+        """
+        if at_setup:
+            # no file to read from, so we'll compute it based on config options
+            section = self.config['yet_another_channel']
+            lx = section.getfloat('lx')
+            ly = section.getfloat('ly')
+            nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+            cell_count = nx * ny
+        else:
+            # get nCells from the input file
+            with xr.open_dataset('initial_state.nc') as ds:
+                cell_count = ds.sizes['nCells']
+        return cell_count
+```
+This method gets called once at setup (with `at_setup=True`) and once at
+runtime (with `at_setup=False`).  We do this because we need to compute or 
+estimate the size of the mesh during setup so we have a good guess at the
+resources it will need when we add it to a test suite and make a job script for
+running it.  Then, at runtime, we may need to revise that size, either because
+it was an estimate only or because it was based on config options that a user
+may have changed after setup.  Here, we use 
+{py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()` to get `nx` and `ny`
+(and thus the total cell count) during setup because we have no other way to
+get them (the initial condition has not yet been created, for example).  But
+at runtime, rather than recomputing them, we look at the initial condition
+file that must exist (otherwise the step already would have failed) to see
+what the actual number of cells ended up being.
+
+`cell_count` is used in `OceanModelStep` to compute `ntasks` and `min_tasks`
+by also using 2 config options:
+```cfg
+# Options related the ocean component
+[ocean]
+
+# the number of cells per core to aim for
+goal_cells_per_core = 200
+
+# the approximate maximum number of cells per core (the test will fail if too
+# few cores are available)
+max_cells_per_core = 2000
+```
+
+This method is only used if `ntasks` and `min_tasks` aren't explicitly defined
+as parameters to the constructor.
+
+So far, there isn't a equivalent process for MALI, so `ntasks` and `min_tasks`
+should be set explicitly either when constructing a test case or by overriding
+the {py:meth}`polaris.Step.setup()` or 
+{py:meth}`polaris.Step.constrain_resources()` methods.
 
 
 (dev-tutorial-add-test-group-add-shared-superclass)=
@@ -2033,17 +2033,23 @@ class Default(YetAnotherChannelTestCase):
 
 ### Adding a parameter study
 
-The `yet_another_channel` test group contains several test cases in addition
-to `default`.  The `restart_test` checks whether running the model for one
-times step, writing out a restart file, loading the model state from the
-restart file, and running for another time step produces the same results as
-running for 2 time steps.  The `decomp_test` and `threads_test` check
-whether the results are the same when the model runs on different numbers of
-cores and threads, respectively.
+The typical structure for a parameter study is to explore each parameter choice
+in a separate step (or steps) within a single test case. In addition to running
+the model for each of these parameter choices, there is typically a separate 
+step for analyzing the behavior across the parameter set, using the output from
+each of the forward steps. 
 
-The most interesting test case is the `rpe_test`, which has been used to show
-that MPAS-Ocean has lower spurious dissipation of reference potential energy
-(RPE) than POP, MOM and MITgcm models
+A convergence study is one example of this, where each resolution and time step
+combination is run and then an analysis step computes the rate of convergence
+from the results. We won't cover this example here, in part because a
+resolution study involves both a forward step and an initial condition step for
+each resolution in order to generate unique meshes for each step. You may refer
+to {ref}`dev-ocean-global-convergence-cosine-bell` for these details. Instead, 
+we will explore the `rpe_test` for the `baroclinic_channel` test group, which
+only requires unique forward runs for different viscosity values. 
+
+The `rpe_test` has been used to show that MPAS-Ocean has lower spurious 
+dissipation of reference potential energy (RPE) than POP, MOM and MITgcm models
 ([Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004)).
 
 We want to define the `rpe_test` at 3 "standard" resolutions that have been
