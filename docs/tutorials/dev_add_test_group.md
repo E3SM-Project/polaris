@@ -962,7 +962,7 @@ syntax errors, you'll need to fix those first.
 
 If listing works out, it's time to set up one of your tests.  Probably start
 with one that's pretty light weight and fast to run.  In this case, that's the
-10 km `defatult` (test number 11):
+10 km `default` (test number 11):
 
 ```bash
 $ polaris setup -n 11 -p <E3SM_component> -w <work_dir>
@@ -980,11 +980,36 @@ e.g. on Chrysalis:
 $ cd <work_dir>
 $ srun -N 1 -t 2:00:00 --pty bash
 ```
+
+Let's navigate into the test case directory and see what it looks like:
+```
+$ cd ocean/yet_another_channel/10km/default
+$ ls
+default.cfg  load_polaris_env.sh   initial_state  job_script.sh      test_case.pickle
+```
+If we open up `default.cfg` we can see that it contains our newly added 
+`yet_another_channel` section along with a bunch of other sections. Let's go to
+the `test_case` section, where you will see `steps_to_run = initial_state`. 
+This means that when we run our case, the initial condition should be generated
+if we didn't make any mistakes in setting up the step (fingers crossed!).
+
 Then, on the interactive node, source the local link the load script and run:
 ```bash
 $ source load_polaris_env.sh
 $ polaris serial
 ```
+
+Now let's see what's in the `initial_state` directory:
+```
+$ cd initial_state
+$ ls
+base_mesh.nc               default.cfg                initial_state.nc
+culled_graph.info          initial_normalVelocity.png initial_temperature.png
+culled_mesh.nc             initial_salinity.png       step.pickle
+```
+Our `initial_state.nc` file is there for use in running MPAS-Ocean in the next 
+step. Let's also take a look at the image files and make sure our initial 
+condition looks as expected.
 
 (Later on, there will be a `polaris run` command that runs in task parallel,
 and this should be the default way you run, but for now you can only run in
@@ -1517,7 +1542,8 @@ class DecompTest(TestCase):
 ```
 
 But then it does a second forward run on 8 cores instead of 4 and compares the
-results to make sure they are identical.
+results to make sure they are identical.  Each of these runs is performed in 
+its own step.
 
 ```python
 from polaris import TestCase
