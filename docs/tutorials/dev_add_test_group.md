@@ -19,8 +19,8 @@ free to use the `git worktree` approach from {ref}`dev-polaris-repo-advanced`
 instead if you are comfortable with it.
 
 ```bash
-git clone git@github.com:E3SM-Project/polaris.git add-baroclinic-channel
-cd add-baroclinic-channel
+git clone git@github.com:E3SM-Project/polaris.git add-yet-another-channel
+cd add-yet-another-channel
 ```
 
 Now, you will need to create a conda environment for developing polaris, as
@@ -67,10 +67,10 @@ you will want to create a branch (possibly with `git worktree`) for your
 development there as well:
 
 ```bash
-cd E3SM-Project
+cd e3sm_submodules/E3SM-Project
 git fetch --all -p
-git branch xylar/mpas-ocean/add-baroclinic-channel origin/main
-git switch xylar/mpas-ocean/add-baroclinic-channel
+git branch xylar/mpas-ocean/add-yet-another-channel origin/main
+git switch xylar/mpas-ocean/add-yet-another-channel
 cd ../
 ```
 
@@ -110,34 +110,35 @@ the style required for polaris (see {ref}`dev-style`).  `vim` or a similar
 tool will work fine on supercomputers.
 
 Your new test group will be a new python package within an existing component
-(`ocean` here).  For this example, we create a new `baroclinic_channel`
-directory in `polaris/ocean/tests`.  In that directory, we will make a new
-file called `__init__.py` that will initially be empty.  That's all it takes
-to make `baroclinic_channel` a new package in `polaris`.  It can be
-imported with:
+(`ocean` here).  For this example, we create a new test group modeled on 
+`baroclinic_channel` called `yet_another_channel`. We create a new 
+`yet_another_channel` directory in `polaris/ocean/tests`.  In that directory, 
+we will make a new  file called `__init__.py` that will initially be empty.  
+That's all it takes  to make `yet_another_channel` a new package in `polaris`.  
+It can be  imported with:
 
 ```python
-from polaris.ocean.tests import baroclinic_channel
+from polaris.ocean.tests import yet_another_channel
 ```
 
 Each test group in `polaris` is a class that descends from the
 {py:class}`polaris.TestGroup` class.  Let's make a new class for the
-`baroclinic_channel` test group in `__init__.py`:
+`yet_another_channel` test group in `__init__.py`:
 
 ```python
 from polaris import TestGroup
 
 
-class BaroclinicChannel(TestGroup):
+class YetAnotherChannel(TestGroup):
     """
-    A test group for baroclinic channel test cases
+    A test group for "yet another channel" test cases
     """
     def __init__(self, component):
         """
         component : polaris.ocean.Ocean
             the ocean component that this test group belongs to
         """
-        super().__init__(component=component, name='baroclinic_channel')
+        super().__init__(component=component, name='yet_another_channel')
 ```
 
 The method (a function for a class) called `__init__()` is the constructor
@@ -145,7 +146,7 @@ used to make an instance (an object) representing the test group.  It needs
 to know what component it belongs to so that is passed in as the `component`
 argument.  The only thing that happens so far is that the constructor for the
 base class `TestGroup` gets called.  In the process, we give the test group
-the name `baroclinic_channel`.  You can take a look at the base class
+the name `yet_another_channel`.  You can take a look at the base class
 {py:class}`polaris.TestGroup` in 
 [polaris/testgroup.py](https://github.com/E3SM-Project/polaris/blob/main/polaris/testgroup.py)
 if you want.  That's not necessary for the tutorial, but some new developers 
@@ -165,7 +166,7 @@ classes, methods and functions as you write them.  We use the
 [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style
 conventions, as described in {ref}`dev-docstrings`.
 
-Our new `BaroclinicChannel` class defines the test group, but so far it
+Our new `YetAnotherChannel` class defines the test group, but so far it
 doesn't have any test cases in it.  We'll come back and add them later in the
 tutorial.  Before we add a test case, let's make `polaris` aware that the
 test group exists. To do that, we need to open 
@@ -177,7 +178,7 @@ groups in the ocean core:
 :emphasize-lines: 2, 18
 
 from polaris import Component
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannel
 from polaris.ocean.tests.global_convergence import GlobalConvergence
 
 
@@ -193,11 +194,11 @@ class Ocean(Component):
         super().__init__(name='ocean')
 
         # please keep these in alphabetical order
-        self.add_test_group(BaroclinicChannel(component=self))
+        self.add_test_group(YetAnotherChannel(component=self))
         self.add_test_group(GlobalConvergence(component=self))
 ```
 
-We make an instance of the `BaroclinicChannel` class and we immediately add
+We make an instance of the `YetAnotherChannel` class and we immediately add
 it to the `Ocean` core's list of test groups.  That's all we need to do.  Now
 `polaris` knows about the test group.
 
@@ -205,9 +206,9 @@ it to the `Ocean` core's list of test groups.  That's all we need to do.  Now
 
 ## Adding a "default" test case
 
-We'll add a test case called `default` to `baroclinic_channel` by making a
-`default` package within `polaris/ocean/tests/baroclinic_channel`.  First,
-we make the directory `polaris/ocean/tests/baroclinic_channel/default`, then
+We'll add a test case called `default` to `yet_another_channel` by making a
+`default` package within `polaris/ocean/tests/yet_another_channel`.  First,
+we make the directory `polaris/ocean/tests/yet_another_channel/default`, then
 we add an empty `__init__.py` file into it. As a starting point, we'll create
 a new `Default` class in this file that descends from the
 {py:class}`polaris.TestCase` base class (take a look at
@@ -220,7 +221,7 @@ from polaris import TestCase
 
 class Default(TestCase):
     """
-    The default test case for the baroclinic channel test group simply creates
+    The default test case for the "yet another channel" test group simply creates
     the mesh and initial condition, then performs a short forward run on 4
     cores.
     """
@@ -231,14 +232,14 @@ class Default(TestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
             The test group that this test case belongs to
         """
         name = 'default'
         super().__init__(test_group=test_group, name=name)
 ```
 
-As a starting point, we just pass along the test group (`BaroclinicChannel`)
+As a starting point, we just pass along the test group (`YetAnotherChannel`)
 this test case belongs to on to the base class's constructor
 (`super().__init__()`) and give the test case a name, `default`.
 
@@ -246,7 +247,7 @@ this test case belongs to on to the base class's constructor
 
 ## Varying resolution and other parameters
 
-For baroclinic channel tests, we know that we want each test to be at a single
+For "yet another channel" tests, we know that we want each test to be at a single
 resolution but that we want multiple versions of at least some of the tests
 for different resolutions.  We also want a lot of flexibility in determining
 the resolution, so it's easy to add new ones in the future.  At the same time,
@@ -265,7 +266,7 @@ in the next few sections.
 There are also types of test cases where a single parameter is varied *within*
 the test case (e.g. with different steps each performing a simulation with its 
 own parameter value, and then a step analyzing the behavior as the parameter 
-varies).  The baroclinic channel test group includes the RPE (reference
+varies).  The "yet another channel" test group includes the RPE (reference
 potential energy) test case that explores the behavior of the test case at
 different horizontal viscosities in this way.  In this situation, it is more
 convenient for the parameter values to come from config options than to be
@@ -274,7 +275,7 @@ explore non-default parameter values to change the config options before
 running the test case.  We'll see in more detail what that looks like later in
 the tutorial.
 
-For now, we plan to support 3 resolutions in `baroclinic_channel` test cases: 
+For now, we plan to support 3 resolutions in `yet_another_channel` test cases: 
 1, 4 and 10 km.  We'll add resolution in km as a float parameter and attribute
 to the `default` test case:
 
@@ -286,7 +287,7 @@ from polaris import TestCase
 
 class Default(TestCase):
     """
-    The default test case for the baroclinic channel test group simply creates
+    The default test case for the "yet another channel" test group simply creates
     the mesh and initial condition, then performs a short forward run on 4
     cores.
 
@@ -302,7 +303,7 @@ class Default(TestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
             The test group that this test case belongs to
 
         resolution : float
@@ -329,20 +330,20 @@ docstring for both the class (where we describe the `resolution` attribute) and
 the constructor (where we describe the `resolution` argument or parameter).  
 
 The `default` test case doesn't do anything yet because we haven't added
-any steps, but let's add it to the `baroclinic_channel` test group so we can
+any steps, but let's add it to the `yet_another_channel` test group so we can
 see how the resolution will be specified.  We add the following to the file
-`__init__.py` that defines the `BaroclinicChannel` test group:
+`__init__.py` that defines the `YetAnotherChannel` test group:
 
 ```{code-block} python
 :emphasize-lines: 2, 17-19
 
-from polaris.ocean.tests.baroclinic_channel.default import Default
+from polaris.ocean.tests.yet_another_channel.default import Default
 from polaris import TestGroup
 
 
-class BaroclinicChannel(TestGroup):
+class YetAnotherChannel(TestGroup):
     """
-    A test group for baroclinic channel test cases
+    A test group for "yet another channel" test cases
     """
     def __init__(self, component):
         """
@@ -350,7 +351,7 @@ class BaroclinicChannel(TestGroup):
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
-                         name='baroclinic_channel')
+                         name='yet_another_channel')
 
         for resolution in [1., 4., 10.]:
             self.add_test_case(
@@ -386,7 +387,7 @@ from polaris import Step
 
 class InitialState(Step):
     """
-    A step for creating a mesh and initial condition for baroclinic channel
+    A step for creating a mesh and initial condition for "yet another channel"
     test cases
 
     Attributes
@@ -450,7 +451,7 @@ class InitialState(Step):
         logger = self.logger
         config = self.config
 
-        section = config['baroclinic_channel']
+        section = config['yet_another_channel']
         resolution = self.resolution
 
         lx = section.getfloat('lx')
@@ -502,24 +503,24 @@ case.)
 
 In this case, we know that these config options are going to be used across
 many test cases so it makes sense to put them directly in the
-`baroclinic_channel` test group.  If we put them in a file called
-`baroclinic_channel.cfg`, they will automatically get read in and added to
+`yet_another_channel` test group.  If we put them in a file called
+`yet_another_channel.cfg`, they will automatically get read in and added to
 the config file for each test case as part of setup:
 
 ```cfg
 ...
-# config options for baroclinic channel testcases
-[baroclinic_channel]
+# config options for "yet another channel" testcases
+[yet_another_channel]
 
 # the size of the domain in km in the x and y directions
 lx = 160.0
 ly = 500.0
 ```
 
-There is another way to get define default config options.  The baroclinic 
-channel test case doesn't use this but we can also define them in the code in a
-`configure()` method of the test case.  These config options will also show up 
-in the config file in the test case's work directory.  There is no 
+There is another way to get define default config options.  The "yet another
+channel" test case doesn't use this but we can also define them in the code in 
+a `configure()` method of the test case.  These config options will also show 
+up in the config file in the test case's work directory.  There is no 
 `configure()` method for individual steps because it is not a good idea to 
 change config options within a step, since other steps may be affected in 
 potentially unexpected ways.  You can see an example of this in the
@@ -626,7 +627,7 @@ from polaris import Step
 class InitialState(Step):
     def run(self):
         ...
-        section = config['baroclinic_channel']
+        section = config['yet_another_channel']
         use_distances = section.getboolean('use_distances')
         gradient_width_dist = section.getfloat('gradient_width_dist')
         gradient_width_frac = section.getfloat('gradient_width_frac')
@@ -707,13 +708,13 @@ The details aren't critical for the purpose of this tutorial, though you may
 find this example to be useful for developing other test cases, particularly
 those for the `ocean` component.  The point is mostly to show how config
 options are used to define the initial condition. Again, we use config options
-from `baroclinic_channel.cfg`, this time in a section specific to the test
-group that we therefore call `baroclinic_channel`:
+from `yet_another_channel.cfg`, this time in a section specific to the test
+group that we therefore call `yet_another_channel`:
 
 ```cfg
 ...
-# config options for baroclinic channel testcases
-[baroclinic_channel]
+# config options for "yet another channel" testcases
+[yet_another_channel]
 
 ...
 
@@ -750,7 +751,7 @@ Again, the idea is that we make these config options rather than hard-coding
 them in the test case so that users can more easily alter the test case and
 also to provide a relatively obvious place to document these parameters.
 
-```{figure} ../developers_guide/framework/images/baroclinic_channel_cell_patches.png
+```{figure} ../developers_guide/framework/images/yet_another_channel_cell_patches.png
 ---
 align: right
 width: 250 px
@@ -846,8 +847,8 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel test cases.
+    A step for performing forward ocean component runs as part of "yet another
+    channel" test cases.
 
     Attributes
     ----------
@@ -957,7 +958,7 @@ will use the namelist and streams files that MPAS components use.  This
 tutorial will focus on the yaml format but the concepts will not be hugely
 different for namelist and streams files.
 
-Here is the `forward.yaml` file from the `baroclinic_channel` test group:
+Here is the `forward.yaml` file from the `yet_another_channel` test group:
 
 ```yaml
 omega:
@@ -1065,7 +1066,7 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_yaml_file('polaris.ocean.tests.baroclinic_channel',
+        self.add_yaml_file('polaris.ocean.tests.yet_another_channel',
                            'forward.yaml')
 ```
 
@@ -1181,7 +1182,7 @@ class Forward(OceanModelStep):
         """
         if at_setup:
             # no file to read from, so we'll compute it based on config options
-            section = self.config['baroclinic_channel']
+            section = self.config['yet_another_channel']
             lx = section.getfloat('lx')
             ly = section.getfloat('ly')
             nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
@@ -1250,8 +1251,8 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel test cases.
+    A step for performing forward ocean component runs as part of "yet another
+    channel" test cases.
 
     Attributes
     ----------
@@ -1286,7 +1287,7 @@ class Forward(OceanModelStep):
         options = dict()
 
         # dt is proportional to resolution: default 30 seconds per km
-        dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
+        dt_per_km = config.getfloat('yet_another_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
         options['config_dt'] = \
@@ -1299,7 +1300,7 @@ class Forward(OceanModelStep):
                 time.strftime('%H:%M:%S', time.gmtime(run_seconds))
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
+        btr_dt_per_km = config.getfloat('yet_another_channel', 'btr_dt_per_km')
         btr_dt = btr_dt_per_km * self.resolution
         options['config_btr_dt'] = \
             time.strftime('%H:%M:%S', time.gmtime(btr_dt))
@@ -1311,11 +1312,11 @@ class Forward(OceanModelStep):
 ```
 
 The default values for the polaris config options are again found in
-`baroclinic_channel.cfg`:
+`yet_another_channel.cfg`:
 
 ```cfg
-# config options for baroclinic channel testcases
-[baroclinic_channel]
+# config options for "yet another channel" testcases
+[yet_another_channel]
 
 # time step per resolution (s/km), since dt is proportional to resolution
 dt_per_km = 30
@@ -1347,8 +1348,8 @@ from polaris.viz import plot_horiz_field
 
 class Viz(Step):
     """
-    A step for plotting the results of a series of RPE runs in the baroclinic
-    channel test group
+    A step for plotting the results of a series of RPE runs in the "yet another
+    channel" test group
     """
     def __init__(self, test_case):
         """
@@ -1392,13 +1393,13 @@ steps, we won't describe this step in any more detail.
 
 Returning to the `default` test case, we are now ready to add
 `initial_state` and `forward` steps to the test case.  In
-`polaris/ocean/tests/baroclinic_channel/default/__init.py`, we add:
+`polaris/ocean/tests/yet_another_channel/default/__init.py`, we add:
 
 ```python
 from polaris import TestCase
-from polaris.ocean.tests.baroclinic_channel.forward import Forward
-from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
-from polaris.ocean.tests.baroclinic_channel.viz import Viz
+from polaris.ocean.tests.yet_another_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.viz import Viz
 
 
 class Default(TestCase):
@@ -1479,9 +1480,9 @@ new ones show up:
 $ polaris list
 
 Testcases:
-   0: ocean/baroclinic_channel/1km/default
-   1: ocean/baroclinic_channel/4km/default
-   2: ocean/baroclinic_channel/10km/default
+   0: ocean/yet_another_channel/1km/default
+   1: ocean/yet_another_channel/4km/default
+   2: ocean/yet_another_channel/10km/default
    3: ocean/global_convergence/qu/cosine_bell
    4: ocean/global_convergence/icos/cosine_bell
 ```
@@ -1532,11 +1533,11 @@ you might try to stress-test your own test case.
 
 ## Adding a shared "superclass" for test cases
 
-As I started to add other test cases to `baroclinic_channel`, it became clear
+As I started to add other test cases to `yet_another_channel`, it became clear
 that there was going to be some redundant code that I copied from one to the
 next.  This isn't great for future maintenance and it's kind of counter to
 the philosophy of polaris.  So I decided to make a "superclass" with this
-common code that all the `baroclinic_channel` test cases can descend from.
+common code that all the `yet_another_channel` test cases can descend from.
 Later, I removed some of the code from the superclass, so it turned out to not
 be as helpful as I originally thought but I think it's still a helpful
 demonstration. In general, if you find there are a lot of redundancies between 
@@ -1549,21 +1550,21 @@ resolution as an attribute, adding the initial-condition step, and
 validating variables in that initial condition.  All of our test cases will 
 need these features so it's a little simpler to add them here. 
 
-In the file `baroclinic_channel_test_case.py` in 
-`polaris/ocean/tests/baroclinic_channel`, we define the superclass 
-`BaroclinicChannelTestCase` that descends from {py:class}`polaris.TestCase`:
+In the file `yet_another_channel_test_case.py` in 
+`polaris/ocean/tests/yet_another_channel`, we define the superclass 
+`YetAnotherChannelTestCase` that descends from {py:class}`polaris.TestCase`:
 
 ```python
 import os
 
 from polaris import TestCase
-from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
 from polaris.validate import compare_variables
 
 
-class BaroclinicChannelTestCase(TestCase):
+class YetAnotherChannelTestCase(TestCase):
     """
-    The superclass for all baroclinic channel test cases with shared
+    The superclass for all "yet another channel" test cases with shared
     functionality
 
     Attributes
@@ -1578,7 +1579,7 @@ class BaroclinicChannelTestCase(TestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
             The test group that this test case belongs to
 
         resolution : float
@@ -1611,19 +1612,19 @@ class BaroclinicChannelTestCase(TestCase):
 
 ```
 
-Now, we'll make `Default` descend from `BaroclinicChannelTestCase` and remove
+Now, we'll make `Default` descend from `YetAnotherChannelTestCase` and remove
 the redundant pieces.  Here's what's left:
 
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.forward import Forward
-from polaris.ocean.tests.baroclinic_channel.viz import Viz
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel.viz import Viz
 from polaris.validate import compare_variables
 
 
-class Default(BaroclinicChannelTestCase):
+class Default(YetAnotherChannelTestCase):
     """
-    The default test case for the baroclinic channel test group simply creates
+    The default test case for the "yet another channel" test group simply creates
     the mesh and initial condition, then performs a short forward run on 4
     cores.
     """
@@ -1634,7 +1635,7 @@ class Default(BaroclinicChannelTestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
             The test group that this test case belongs to
 
         resolution : float
@@ -1666,7 +1667,7 @@ class Default(BaroclinicChannelTestCase):
 
 ## Adding another test case
 
-The `baroclinic_channel` test group contains several test cases in addition
+The `yet_another_channel` test group contains several test cases in addition
 to `default`.  The `restart_test` checks whether running the model for one
 times step, writing out a restart file, loading the model state from the
 restart file, and running for another time step produces the same results as
@@ -1694,17 +1695,17 @@ original purpose of the test group as a whole, serving to validate the code in
 a specific context.
 
 In analogy to the `default` test case, we will start by creating a directory
-`rpe_test` within the `baroclinic_channel` directory, adding a new file
+`rpe_test` within the `yet_another_channel` directory, adding a new file
 `__init__.py`, and adding a class `RpeTest` that descends from the
-`BaroclinicChannelTestCase` base class:
+`YetAnotherChannelTestCase` base class:
 
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     """
-    The reference potential energy (RPE) test case for the baroclinic channel
+    The reference potential energy (RPE) test case for the "yet another channel"
     test group performs a 20-day integration of the model forward in time at
     5 different values of the viscosity at the given resolution.
     """
@@ -1715,7 +1716,7 @@ class RpeTest(BaroclinicChannelTestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.baroclinic_channel.BaroclinicChannel
+        test_group : polaris.ocean.tests.yet_another_channel.YetAnotherChannel
             The test group that this test case belongs to
 
         resolution : float
@@ -1729,24 +1730,24 @@ So far, this is identical ot the `default` test case except for the name
 and docstring changes.
 
 Before we add steps, let's add the `rpe_test` test case to the
-`baroclinic_channel` test group so we can compare it with the `default`
+`yet_another_channel` test group so we can compare it with the `default`
 tet case. We add the following to the file `__init__.py` that defines the
-`BaroclinicChannel` test group:
+`YetAnotherChannel` test group:
 
 ```{code-block} python
 :emphasize-lines: 6, 21, 25-27
 
 from polaris import TestGroup
-from polaris.ocean.tests.baroclinic_channel.baroclinic_channel_test_case import (  # noqa: E501
-    BaroclinicChannelTestCase,
+from polaris.ocean.tests.yet_another_channel.yet_another_channel_test_case import (  # noqa: E501
+    YetAnotherChannelTestCase,
 )
-from polaris.ocean.tests.baroclinic_channel.default import Default
-from polaris.ocean.tests.baroclinic_channel.rpe_test import RpeTest
+from polaris.ocean.tests.yet_another_channel.default import Default
+from polaris.ocean.tests.yet_another_channel.rpe_test import RpeTest
 
 
-class BaroclinicChannel(TestGroup):
+class YetAnotherChannel(TestGroup):
     """
-    A test group for baroclinic channel test cases
+    A test group for "yet another channel" test cases
     """
     def __init__(self, component):
         """
@@ -1754,7 +1755,7 @@ class BaroclinicChannel(TestGroup):
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
-                         name='baroclinic_channel')
+                         name='yet_another_channel')
 
         for resolution in [10.]:
             self.add_test_case(
@@ -1772,7 +1773,7 @@ the `rpe_test` test case available at 3 resolutions.
 ### Adding the steps to the test case
 
 The `initial_state` step has already been added to `rpe_test` because that
-happens in the `BaroclinicChannelTestCase` superclass.  Now, we will add the 
+happens in the `YetAnotherChannelTestCase` superclass.  Now, we will add the 
 variants of the `forward` step and the `analysis` step to the test case.
 Bear with me, as this is where things get a little complicated.
 
@@ -1780,8 +1781,8 @@ We want there to be a sequence of steps based on a config options
 `viscosities`. By default this config options looks like:
 
 ```cfg
-# config options for baroclinic channel testcases
-[baroclinic_channel]
+# config options for "yet another channel" testcases
+[yet_another_channel]
 
 ...
 
@@ -1795,15 +1796,15 @@ a user has changed these values in a user config file before setting up the
 test case.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
 We will handle this with the following additions to 
-`polaris/ocean/tests/baroclinic_channel/rpe_test/__init.py`:
+`polaris/ocean/tests/yet_another_channel/rpe_test/__init.py`:
 
 ```python
 from polaris.config import PolarisConfigParser
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     def __init__(self, test_group, resolution):
         super().__init__(test_group=test_group, resolution=resolution,
                          name='rpe_test')
@@ -1821,11 +1822,11 @@ class RpeTest(BaroclinicChannelTestCase):
         """ Add the steps in the test case either at init or set-up """
 
         if config is None:
-            # get just the default config options for baroclinic_channel so
+            # get just the default config options for yet_another_channel so
             # we can get the default viscosities
             config = PolarisConfigParser()
-            package = 'polaris.ocean.tests.baroclinic_channel'
-            config.add_from_package(package, 'baroclinic_channel.cfg')
+            package = 'polaris.ocean.tests.yet_another_channel'
+            config.add_from_package(package, 'yet_another_channel.cfg')
 
         for step in list(self.steps):
             if step.startswith('rpe_test') or step == 'analysis':
@@ -1834,7 +1835,7 @@ class RpeTest(BaroclinicChannelTestCase):
 
         resolution = self.resolution
 
-        nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
+        nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
             name = f'rpe_test_{index + 1}_nu_{int(nu)}'
             step = Forward(
@@ -1843,7 +1844,7 @@ class RpeTest(BaroclinicChannelTestCase):
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tests.baroclinic_channel.rpe_test',
+                'polaris.ocean.tests.yet_another_channel.rpe_test',
                 'forward.yaml')
             self.add_step(step)
 ```
@@ -1858,17 +1859,17 @@ available yet from `self.config`:
 
 ```python
 from polaris.config import PolarisConfigParser
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         if config is None:
-            # get just the default config options for baroclinic_channel so
+            # get just the default config options for yet_another_channel so
             # we can get the default viscosities
             config = PolarisConfigParser()
-            package = 'polaris.ocean.tests.baroclinic_channel'
-            config.add_from_package(package, 'baroclinic_channel.cfg')
+            package = 'polaris.ocean.tests.yet_another_channel'
+            config.add_from_package(package, 'yet_another_channel.cfg')
 ```
 
 This is a kind of unusual circumstance (unique to parameter studies) and the 
@@ -1878,10 +1879,10 @@ steps in the test case:
 ```
 $ polaris list --verbose
 ...
-   1: path:          ocean/baroclinic_channel/1km/rpe_test
+   1: path:          ocean/yet_another_channel/1km/rpe_test
       name:          rpe_test
       component:     ocean
-      test group:    baroclinic_channel
+      test group:    yet_another_channel
       subdir:        1km/rpe_test
       steps:
        - initial_state
@@ -1898,14 +1899,14 @@ and what the viscosity values are by reading the config file.
 Next, if this is the second time calling `self._setup_steps()` from
 `configure()` we need to remove the steps we added before so we can add them
 again in case the list of viscosities has changed.  We don't want to remove
-the `initial_state` step added by `BaroclinicChannelTestCase` so we will
+the `initial_state` step added by `YetAnotherChannelTestCase` so we will
 only remove steps that start with `rpe_test`.  To remove an item from a 
 dictionary, you use {py:meth}`dict.pop()`:
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         for step in list(self.steps):
             if step.startswith('rpe_test'):
@@ -1915,16 +1916,16 @@ class RpeTest(BaroclinicChannelTestCase):
 
 Okay, now we're ready to actually add the steps:
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         ...
         resolution = self.resolution
 
-        nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
+        nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
             name = f'rpe_test_{index + 1}_nu_{int(nu)}'
             step = Forward(
@@ -1933,7 +1934,7 @@ class RpeTest(BaroclinicChannelTestCase):
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tests.baroclinic_channel.rpe_test',
+                'polaris.ocean.tests.yet_another_channel.rpe_test',
                 'forward.yaml')
             self.add_step(step)
 ```
@@ -1979,8 +1980,8 @@ from polaris.ocean.rpe import compute_rpe
 
 class Analysis(Step):
     """
-    A step for plotting the results of a series of RPE runs in the baroclinic
-    channel test group
+    A step for plotting the results of a series of RPE runs in the "yet another
+    channel" test group
 
     Attributes
     ----------
@@ -2015,7 +2016,7 @@ class Analysis(Step):
                 target=f'../rpe_test_{index + 1}_nu_{int(nu)}/output.nc')
 
         self.add_output_file(
-            filename=f'sections_baroclinic_channel_{resolution}.png')
+            filename=f'sections_yet_another_channel_{resolution}.png')
         self.add_output_file(filename='rpe_t.png')
         self.add_output_file(filename='rpe.csv')
 
@@ -2023,7 +2024,7 @@ class Analysis(Step):
         """
         Run this step of the test case
         """
-        section = self.config['baroclinic_channel']
+        section = self.config['yet_another_channel']
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         init_filename = self.inputs[0]
@@ -2037,7 +2038,7 @@ class Analysis(Step):
 
 def _plot(nx, ny, lx, ly, filename, nus, rpe):
     """
-    Plot section of the baroclinic channel at different viscosities
+    Plot section of the "yet another channel" at different viscosities
 
     Parameters
     ----------
@@ -2076,11 +2077,11 @@ It plots the results together in a single image that it writes out.
 We add the `analysis` step to the test case as follows:
 
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.rpe_test.analysis import Analysis
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
+from polaris.ocean.tests.yet_another_channel.rpe_test.analysis import Analysis
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         ...
         for step in list(self.steps):
@@ -2101,11 +2102,11 @@ getting called for the second time from `configure()`.
 Adding validation to the `rpe_test` is very similar to `default`.  The only
 difference is that we need to do it once for each forward test:
 ```python
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 from polaris.validate import compare_variables
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class RpeTest(YetAnotherChannelTestCase):
      def validate(self):
         """
         Compare ``temperature``, ``salinity``, ``layerThickness`` and
@@ -2118,7 +2119,7 @@ class RpeTest(BaroclinicChannelTestCase):
         variables = ['temperature', 'salinity', 'layerThickness',
                      'normalVelocity']
 
-        nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
+        nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
             name = f'rpe_test_{index + 1}_nu_{int(nu)}'
             compare_variables(test_case=self, variables=variables,
@@ -2127,9 +2128,9 @@ class RpeTest(BaroclinicChannelTestCase):
 
 ## How to (and how not to) pass data between steps
 
-In developing `baroclinic_channel`, we initially used config options to pass
+In developing `yet_another_channel`, we initially used config options to pass
 parameters `nx`, `ny`, and `dc` between steps.  They were computed and set in 
-the shared `BaroclinicChannelTestCase` in its `configure()` method.  This
+the shared `YetAnotherChannelTestCase` in its `configure()` method.  This
 turned out not to be a good idea and we wanted to share the lessons learned
 because they may be useful to other developers.
 
