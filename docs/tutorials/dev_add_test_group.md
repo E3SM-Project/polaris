@@ -178,8 +178,9 @@ groups in the ocean core:
 :emphasize-lines: 2, 18
 
 from polaris import Component
-from polaris.ocean.tests.yet_another_channel import YetAnotherChannel
+from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.global_convergence import GlobalConvergence
+from polaris.ocean.tests.yet_another_channel import YetAnotherChannel
 
 
 class Ocean(Component):
@@ -194,8 +195,9 @@ class Ocean(Component):
         super().__init__(name='ocean')
 
         # please keep these in alphabetical order
-        self.add_test_group(YetAnotherChannel(component=self))
+        self.add_test_group(BaroclinicChannel(component=self))
         self.add_test_group(GlobalConvergence(component=self))
+        self.add_test_group(YetAnotherChannel(component=self))
 ```
 
 We make an instance of the `YetAnotherChannel` class and we immediately add
@@ -260,7 +262,7 @@ just by passing different values for the resolution.  The same could apply for
 many other parameters, such as the horizontal viscosity in the model, the type
 of vertical coordinate, or whether or not a test case includes a type of 
 forcing (e.g. tides).  There is little restriction on what types of parameters
-can be used to  create variants of a test case. We'll see what this looks like
+can be used to create variants of a test case. We'll see what this looks like
 in the next few sections.
 
 There are also types of test cases where a single parameter is varied *within*
@@ -280,7 +282,9 @@ For now, we plan to support 3 resolutions in `yet_another_channel` test cases:
 to the `default` test case:
 
 ```{code-block} python
-:emphasize-lines: 10-13, 16, 25-26, 29-34
+:emphasize-lines: 12-15, 18, 27-28, 31-36
+
+import os
 
 from polaris import TestCase
 
@@ -751,7 +755,7 @@ Again, the idea is that we make these config options rather than hard-coding
 them in the test case so that users can more easily alter the test case and
 also to provide a relatively obvious place to document these parameters.
 
-```{figure} ../developers_guide/framework/images/yet_another_channel_cell_patches.png
+```{figure} ../developers_guide/framework/images/baroclinic_channel_cell_patches.png
 ---
 align: right
 width: 250 px
@@ -817,9 +821,141 @@ Only `initial_state.nc` and `culled_graph.info` are strictly necessary, as
 these are used as inputs to the `forward` and `analysis` steps that we will 
 define below, but explicitly including other outputs is not a problem.
 
+(dev-tutorial-add-test-group-adding-a-step)=
+
+### Adding the step to the test case
+
+Returning to the `default` test case, we are now ready to add
+`initial_state`. In `polaris/ocean/tests/yet_another_channel/default/__init.py`,
+we add:
+
+```python
+from polaris import TestCase
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+
+
+class Default(TestCase):
+    def __init__(self, test_group, resolution):
+        ...
+
+        self.add_step(
+            InitialState(test_case=self, resolution=resolution))
+```
+
+(dev-tutorial-add-test-group-adding-validation)=
+
+### Adding validation
+
+One of the main purposes of having test cases is to validate changes to the
+code.  You can use polaris' validation code to compare the output of different
+steps to one another (or files within a single step), but a very common type
+of validation is to check if the contents of files exactly match the contents
+of the same files from a "baseline" run (performed with a different branch of
+E3SM and/or polaris).
+
+Validation happens at the test-case level so that steps can be compared with
+one another.  Well add baseline validation for both the initial state and
+forward runs:
+
+```python
+from polaris import TestCase
+from polaris.validate import compare_variables
+
+
+class Default(TestCase):
+    def validate(self):
+        """
+        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the 
+        ``initial_state`` step with a baseline if one was provided.
+        """
+        super().validate()
+
+        variables = ['temperature', 'salinity', 'layerThickness']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='initial_state/initial_state.nc')
+```
+We check salinity, temperature and layer thickness in the initial state step.
+Since we only provide `filename1` in the call to 
+{py:func}`polaris.validate.compare_variables()`, we will only do this 
+validation if a user has set up the test case with a baseline, see 
+{ref}`dev-validation`.
+
+(dev-tutorial-add-test-group-testing-a-step)=
+
+### Test things out!
+
+It's a good idea to test things out after adding each step to a test case.
+Before we add any more steps or test cases, we'll run `default` and make sure 
+we can create the initial condition.  It would be good to make sure what we've 
+done so far works well before we move on.  
+
+The first way to test things out is just to list the tests and make sure your
+new ones show up:
+
+```bash
+$ polaris list
+
+Testcases:
+   0: ocean/baroclinic_channel/10km/default
+   1: ocean/baroclinic_channel/10km/decomp_test
+   2: ocean/baroclinic_channel/10km/restart_test
+   3: ocean/baroclinic_channel/10km/threads_test
+   4: ocean/baroclinic_channel/1km/rpe_test
+   5: ocean/baroclinic_channel/4km/rpe_test
+   6: ocean/baroclinic_channel/10km/rpe_test
+   7: ocean/global_convergence/qu/cosine_bell
+   8: ocean/global_convergence/icos/cosine_bell
+   9: ocean/yet_another_channel/1km/default
+   10: ocean/yet_another_channel/4km/default
+   11: ocean/yet_another_channel/10km/default
+```
+
+If they don't show up, you probably missed a step (adding the test group to the
+component or the test case to the test group).  If you get import errors or
+syntax errors, you'll need to fix those first.
+
+If listing works out, it's time to set up one of your tests.  Probably start
+with one that's pretty light weight and fast to run.  In this case, that's the
+10 km `defatult` (test number 11):
+
+```bash
+$ polaris setup -n 11 -p <E3SM_component> -w <work_dir>
+```
+See {ref}`dev-polaris-setup` for the details.  If that works, you're ready to
+do a test run.  If you get errors during setup, you have some debugging to do.
+
+You can run the test with a job script or an interactive node.  For debugging,
+the interactive node is usually more efficient.  To run the test case, open a 
+new terminal, go to the work directory, start an interactive session on
+however many nodes you need (most often 1 when you're just debugging something
+small) and for a long enough time that your debugging doesn't get interrupted,
+e.g. on Chrysalis:
+```bash
+$ cd <work_dir>
+$ srun -N 1 -t 2:00:00 --pty bash
+```
+Then, on the interactive node, source the local link the load script and run:
+```bash
+$ source load_polaris_env.sh
+$ polaris serial
+```
+
+(Later on, there will be a `polaris run` command that runs in task parallel,
+and this should be the default way you run, but for now you can only run in
+task-serial mode, where your test cases and steps run one after the other.)
+
+One important aspect of this testing will be to change config options in the 
+work directory and make sure the test case is modified in the expected way.  If
+you change `lx` and `ly`, does the domain size change in the plots as expected?
+What happens to the initial condition when you change the physical parameters?  
+How is the time step and simulation duration changed when you modify 
+`dt_per_km` and `btr_dt_per_km`? Obviously, these are only example of things 
+you might try to stress-test your own test case.
+
 ## Adding the forward step
 
-Now, we will add a `forward` step for running the MPAS-Ocean model forward
+Now that we know that the first step steems to be working, we're ready to add 
+another. We will add a `forward` step for running the MPAS-Ocean model forward
 in time from the initial condition created in `initial_state`.  `forward`
 will be a little more complicated than `initial_state` as we get started.
 We're going to start from the {py:class}`polaris.ocean.model.OceanModelStep`
@@ -854,13 +990,9 @@ class Forward(OceanModelStep):
     ----------
     resolution : float
         The resolution of the test case in km
-
-    run_time_steps : int or None
-        Number of time steps to run for
     """
     def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1):
         """
         Create a new test case
 
@@ -889,15 +1021,8 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
-
-        nu : float, optional
-            the viscosity (if different from the default for the test group)
-
-        run_time_steps : int, optional
-            Number of time steps to run for
         """
         self.resolution = resolution
-        self.run_time_steps = run_time_steps
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
@@ -910,10 +1035,6 @@ they will be computed algorithmically later on based on the number of cells in
 the mesh, as well discuss below. There are also 3 parameters that are specific
 to the functionality we anticipate adding to this step:
 * `resolution` - the resolution of the step in km as we already discussed.
-* `nu` - an optional value for the viscosity, which will be supplied by one of 
-  the test cases (`rpe_test`) as part of a parameter studay.
-* `run_time_steps` - the number of steps to run the test case for if we want
-  to run for a fixed number of steps rather than a fixed duration in time.
 
 Next, we add inputs that are outputs from the `initial_state` test case:
 
@@ -923,8 +1044,7 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1):
         ...
         self.add_input_file(filename='initial_state.nc',
                             target='../initial_state/initial_state.nc')
@@ -934,6 +1054,8 @@ class Forward(OceanModelStep):
         self.add_output_file(filename='output.nc')
 
 ```
+
+(dev-tutorial-add-test-group-model-config-and-streams)=
 
 ### Defining model config options and streams
 
@@ -962,6 +1084,12 @@ Here is the `forward.yaml` file from the `yet_another_channel` test group:
 
 ```yaml
 omega:
+  time_management:
+    config_run_duration: 00:15:00
+  time_integration:
+    config_dt: 00:05:00
+  split_explicit_ts:
+    config_btr_dt: 00:00:15
   io:
     config_write_output_on_startup: false
   hmix_del2:
@@ -1060,8 +1188,7 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1):
         ...
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -1126,13 +1253,241 @@ Finally, you can add completely new streams that don't exist in the default
 model config files to a step by defining all of the relevant streams attributes
 and contents.  We don't demonstrate that in this tutorial.
 
-Another way to set model config options is to use a python dictionary and to 
-call {py:meth}`polaris.ModelStep.add_model_config_options()`.  This is the way 
+### Adding the `forward` step to the test case
+
+Returning to the `default` test case, we are now ready to add
+`initial_state` and `forward` steps to the test case.  In
+`polaris/ocean/tests/yet_another_channel/default/__init.py`, we add:
+
+```python
+from polaris import TestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+
+
+class Default(TestCase):
+    def __init__(self, test_group, resolution):
+        ...
+
+        self.add_step(
+            InitialState(test_case=self, resolution=resolution))
+
+        self.add_step(
+            Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
+                    resolution=resolution))
+```
+
+We hard-code the `forward` test case to run on 4 cores and 1 thread, and do
+not pass a viscosity (meaning it will use the default value from
+`forward.yaml`).
+
+### Adding more validation
+
+Just as we did with the initial state in {ref}``,
+we want to add validation of the result of the forward run:
+
+```python
+from polaris import TestCase
+from polaris.validate import compare_variables
+
+
+class Default(TestCase):
+    def validate(self):
+        """
+        Compare ``temperature``, ``salinity`` and ``layerThickness`` in
+        both ``initial_state`` and ``forward`` steps, and ``normalVelocity`` 
+        in the ``forward`` step with a baseline if one was provided.
+        """
+        super().validate()
+
+        variables = ['temperature', 'salinity', 'layerThickness']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='initial_state/initial_state.nc')
+
+        variables = ['temperature', 'salinity', 'layerThickness',
+                     'normalVelocity']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='forward/output.nc')
+```
+We check salinity, temperature,  layer thickness and normal velocity in the 
+forward step.  Again, we only provide `filename1` in each call to 
+{py:func}`polaris.validate.compare_variables()` so validation will only be
+performed if a user has set up the test case with a baseline.
+
+### Test the test case again!
+
+We're ready to run some more tests just like we did in 
+{ref}`dev-tutorial-add-test-group-testing-a-step`.  Again, we'll start with 
+`polaris list` to make sure that works fine and the test cases still show
+up.  Then, we'll set up the test case with `polaris setup` as before.  Next,
+we will go to the test case's work directory and use `polaris serial` 
+(likely on an interactive node) to make sure the test case runs both steps
+we've added so far.
+
+## Adding a visualization step
+
+We'll add one more step to make some plots after the forward run has finished.
+Here is the contents of `viz.py`:
+
+```python
+import cmocean  # noqa: F401
+import numpy as np
+import xarray as xr
+
+from polaris import Step
+from polaris.viz import plot_horiz_field
+
+
+class Viz(Step):
+    """
+    A step for plotting the results of a series of RPE runs in the "yet another
+    channel" test group
+    """
+    def __init__(self, test_case):
+        """
+        Create the step
+
+        Parameters
+        ----------
+        test_case : polaris.TestCase
+            The test case this step belongs to
+        """
+        super().__init__(test_case=test_case, name='viz')
+        self.add_input_file(
+            filename='initial_state.nc',
+            target='../initial_state/initial_state.nc')
+        self.add_input_file(
+            filename='output.nc',
+            target='../forward/output.nc')
+
+    def run(self):
+        """
+        Run this step of the test case
+        """
+        ds_mesh = xr.load_dataset('initial_state.nc')
+        ds = xr.load_dataset('output.nc')
+        t_index = ds.sizes['Time'] - 1
+        plot_horiz_field(ds, ds_mesh, 'temperature',
+                         'final_temperature.png', t_index=t_index)
+        max_velocity = np.max(np.abs(ds.normalVelocity.values))
+        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+                         'final_normalVelocity.png',
+                         t_index=t_index,
+                         vmin=-max_velocity, vmax=max_velocity,
+                         cmap='cmo.balance', show_patch_edges=True)
+```
+
+It makes images of the final temperature and normal velocity from a forward
+step.  Since all the pieces of this step have been covered in the other 2 
+steps, we won't describe this step in any more detail.
+
+### Adding the `viz` step to the test case
+
+We're now ready to add the `viz` step to the `default` test case:
+
+```python
+from polaris import TestCase
+from polaris.ocean.tests.yet_another_channel.forward import Forward
+from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.viz import Viz
+
+
+class Default(TestCase):
+    def __init__(self, test_group, resolution):
+        ...
+
+        self.add_step(
+            InitialState(test_case=self, resolution=resolution))
+
+        self.add_step(
+            Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
+                    resolution=resolution))
+
+        self.add_step(
+            Viz(test_case=self))
+```
+
+### Test the test case one more time!
+
+And it's time to test things out one more time, now with all 3 steps. Again,
+follow the procedure as in 
+{ref}`dev-tutorial-add-test-group-testing-a-step`:
+* `polaris list` to make sure you can list the test cases
+* `polaris setup` to set them up again (maybe in a fresh work directory)
+* go to the test case's work directory
+* on an interactive node, run `polaris serial`.
+
+
+## Adding a second test case
+
+(((I will add the `decomp_test` here.)))
+
+## Set up and run
+
+You're all set!  You should be able to see your new test cases when you run
+`polaris list`, set them up by running `polaris setup`, and run them by
+calling `polaris serial` within the work directory.  
+See {ref}`dev-command-line` for details.
+
+(dev-tutorial-add-test-group-docs)=
+
+## Documentation
+
+Make sure to add some documentation of your new test group.  The documentation
+is written in the [MyST](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html)
+flavor of Markdown, similar to what GitHub uses. See {ref}`dev-docs` for 
+details.
+
+You need to add all of the public functions, classes and methods to the
+{ref}`dev-api` in `docs/developers_guide/<component>/api.md`, following the 
+examples for other test groups.  
+
+You also need to add a file to both the user's guide and the developer's guide 
+describing the test group and its test cases and steps.
+
+For the user's guide, make a copy of 
+`docs/users_guide/<component>/test_groups/template.md` called
+`docs/users_guide/<component>/test_groups/<test_group>.md`.  In that file, you
+should describe the test group and its test cases in a way that would be
+relevant for a user wanting to run the test case and look at the output.
+This file should describe all of the config options relevant the test
+group and each test case (if it has its own config options), including what
+they are used for and whether it is a good idea to modify them.  Add
+`<test_group>` in the appropriate place (in alphabetical order) to the list
+of test groups in the file `docs/users_guide/<component>/test_groups/index.md`.
+
+For the developer's guide, create a file
+`docs/developers_guide/<component>/test_groups/<test_group>.md`. In this file,
+you will describe the test group, its test cases and steps in a way that is
+relevant to developers who might want to modify the code or use it as an
+example for developing their own test cases.  Currently, the descriptions are
+brief in part because of the daunting task of documenting a large number of 
+test cases but should be fleshed out over time.  It would help new developers 
+if new test groups and test cases were documented well. Add `<test_group>` in 
+the appropriate place (in alphabetical order) to the list of test groups in
+`docs/developers_guide/<component>/test_groups/index.md`.
+
+At this point, you are ready to make a pull request with the new test group!
+
+## Enhancements
+
+This is the "bonus" section of the tutorial with some more advanced
+capabilities.  These are still important for you to know about, since they
+will give you added flexibility, improve code reuse, and introduce you to
+more complex capabilities of polaris.  But they aren't strictly necessary for
+you to get started.
+
+### Adding model config options in code
+
+In {ref}`dev-tutorial-add-test-group-model-config-and-streams`, we added
+model config options using yaml and namelist files. Another way to set model 
+config options is to use a python dictionary and to call 
+{py:meth}`polaris.ModelStep.add_model_config_options()`.  This is the way 
 to handle namelist options that depend on parameters (such as resolution) that
 are not known in advance.  In this case, we use this technique to set the 
-model config option for the viscosity `config_mom_del2` using the parameter 
+model config option for the viscosity `config_mom_del2` using a parameter 
 `nu` passed into the constructor (if it is not `None`, indicating that it was 
-not set).
+not set):
 
 ```python
 from polaris.ocean.model import OceanModelStep
@@ -1140,8 +1495,12 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None):
+        """
+        ...
+        nu : float, optional
+            the viscosity (if different from the default for the test group)
+        """
         ...
 
         if nu is not None:
@@ -1235,7 +1594,9 @@ Sometimes, you want to define model config options that should get set during
 setup but then get updated at runtime in case config options that affect them
 have been updated.  Here, we show example of 2 such "dynamic" model config
 options, `dt` and `btr_dt`, the baroclinic and barotropic time steps in the
-ocean model.
+ocean model.  We also add a `run_time_steps` parameter and attribute to the
+step so we can easily set up steps to run for a few time steps instead of a
+fixed period of time.
 
 To define dynamic model config options, override the
 {py:meth}`polaris.ModelStep.dynamic_model_config()` method. Here, we will use
@@ -1256,15 +1617,25 @@ class Forward(OceanModelStep):
 
     Attributes
     ----------
+    ...
     dt : float
         The model time step in seconds
 
     btr_dt : float
         The model barotropic time step in seconds
+
+    run_time_steps : int or None
+        Number of time steps to run for
     """
     def __init__(self, test_case, resolution, name='forward', subdir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
                  run_time_steps=None):
+        """
+        run_time_steps : int, optional
+            Number of time steps to run for
+        """
+        ...
+        self.run_time_steps = run_time_steps
         self.dt = None
         self.btr_dt = None
 
@@ -1332,206 +1703,10 @@ reason we run it twice is to update the model config options in case the user
 modified `dt_per_km` or `btr_dt_per_km` in the config file in the work 
 directory before running the step.
 
-## Adding a visualization step
-
-We'll add one more step to make some plots after the forward run has finished.
-Here is the contents of `viz.py`:
-
-```python
-import cmocean  # noqa: F401
-import numpy as np
-import xarray as xr
-
-from polaris import Step
-from polaris.viz import plot_horiz_field
-
-
-class Viz(Step):
-    """
-    A step for plotting the results of a series of RPE runs in the "yet another
-    channel" test group
-    """
-    def __init__(self, test_case):
-        """
-        Create the step
-
-        Parameters
-        ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
-        """
-        super().__init__(test_case=test_case, name='viz')
-        self.add_input_file(
-            filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
-        self.add_input_file(
-            filename='output.nc',
-            target='../forward/output.nc')
-
-    def run(self):
-        """
-        Run this step of the test case
-        """
-        ds_mesh = xr.load_dataset('initial_state.nc')
-        ds = xr.load_dataset('output.nc')
-        t_index = ds.sizes['Time'] - 1
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'final_temperature.png', t_index=t_index)
-        max_velocity = np.max(np.abs(ds.normalVelocity.values))
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
-                         'final_normalVelocity.png',
-                         t_index=t_index,
-                         vmin=-max_velocity, vmax=max_velocity,
-                         cmap='cmo.balance', show_patch_edges=True)
-```
-
-It makes images of the final temperature and normal velocity from a forward
-step.  Since all the pieces of this step have been covered in the other 2 
-steps, we won't describe this step in any more detail.
-
-### Adding the steps to the test case
-
-Returning to the `default` test case, we are now ready to add
-`initial_state` and `forward` steps to the test case.  In
-`polaris/ocean/tests/yet_another_channel/default/__init.py`, we add:
-
-```python
-from polaris import TestCase
-from polaris.ocean.tests.yet_another_channel.forward import Forward
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
-from polaris.ocean.tests.yet_another_channel.viz import Viz
-
-
-class Default(TestCase):
-    def __init__(self, test_group, resolution):
-        ...
-
-        self.add_step(
-            InitialState(test_case=self, resolution=resolution))
-
-        self.add_step(
-            Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
-                    resolution=resolution, run_time_steps=3))
-
-        self.add_step(
-            Viz(test_case=self))
-```
-
-We hard-code the `forward` test case to run on 4 cores and 1 thread, and do
-not pass a viscosity (meaning it will use the default value from
-`forward.yaml`).
-
-### Adding validation
-
-One of the main purposes of having test cases is to validate changes to the
-code.  You can use polaris' validation code to compare the output of different
-steps to one another (or files within a single step), but a very common type
-of validation is to check if the contents of files exactly match the contents
-of the same files from a "baseline" run (performed with a different branch of
-E3SM and/or polaris).
-
-Validation happens at the test-case level so that steps can be compared with
-one another.  Well add baseline validation for both the initial state and
-forward runs:
-
-```python
-from polaris import TestCase
-from polaris.validate import compare_variables
-
-
-class Default(TestCase):
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``forward`` step with a baseline if one was
-        provided.
-        """
-        super().validate()
-
-        variables = ['temperature', 'salinity', 'layerThickness']
-        compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
-
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(test_case=self, variables=variables,
-                          filename1='forward/output.nc')
-```
-We check salinity, temperature and layer thickness in both the initial state
-and forward steps, and the normal velocity only in the forward step (it's
-initialized to zero in the initial state so we feel confident that we can skip
-it, though validating it would certainly do no harm).  Since we only provide
-`filename1` in each call to {py:func}`polaris.validate.compare_variables()`,
-we will only do this validation if a user has set up the test case with a
-baseline, see {ref}`dev-validation`.
-
-### Test things out!
-
-We're all set to run some tests.  Before we add any more test cases, it would
-be a good idea to run `default` and make sure it works as expected.  Believe
-it or no, adding the first test case is about 60-70% of the work so we're 
-most of the way done already.  It would be good to make sure what we've done
-so far works well before we move on.  
-
-The first way to test things out is just to list the tests and make sure your
-new ones show up:
-
-```bash
-$ polaris list
-
-Testcases:
-   0: ocean/yet_another_channel/1km/default
-   1: ocean/yet_another_channel/4km/default
-   2: ocean/yet_another_channel/10km/default
-   3: ocean/global_convergence/qu/cosine_bell
-   4: ocean/global_convergence/icos/cosine_bell
-```
-
-If they don't show up, you probably missed a step (adding the test group to the
-component or the test case to the test group).  If you get import errors or
-syntax errors, you'll need to fix those first.
-
-If listing works out, it's time to set up one of your tests.  Probably start
-with one that's pretty light weight and fast to run.  In this case, that's the
-10 km `defatult` (test number 2):
-
-```bash
-$ polaris setup -n 2 -p <E3SM_component> -w <work_dir>
-```
-See {ref}`dev-polaris-setup` for the details.  If that works, you're ready to
-do a test run.  If you get errors during setup, you have some debugging to do.
-
-You can run the test with a job script or an interactive node.  For debugging,
-the interactive node is usually more efficient.  To run the test case, open a 
-new terminal, go to the work directory, start an interactive session on
-however many nodes you need (most often 1 when you're just debugging something
-small) and for a long enough time that your debugging doesn't get interrupted,
-e.g. on Chrysalis:
-```bash
-$ cd <work_dir>
-$ srun -N 1 -t 2:00:00 --pty bash
-```
-Then, on the interactive node, source the local link the load script and run:
-```bash
-$ source load_polaris_env.sh
-$ polaris serial
-```
-
-(Later on, there will be a `polaris run` command that runs in task parallel,
-and this should be the default way you run, but for now you can only run in
-task-serial mode, where your test cases and steps run one after the other.)
-
-One important aspect of this testing will be to change config options in the 
-work directory and make sure the test case is modified in the expected way.  If
-you change `lx` and `ly`, does the domain size change in the plots as expected?
-What happens to the initial condition when you change the physical parameters?  
-How is the time step and simulation duration changed when you modify 
-`dt_per_km` and `btr_dt_per_km`? Obviously, these are only example of things 
-you might try to stress-test your own test case.
 
 (dev-tutorial-add-test-group-add-shared-superclass)=
 
-## Adding a shared "superclass" for test cases
+### Adding a shared "superclass" for test cases
 
 As I started to add other test cases to `yet_another_channel`, it became clear
 that there was going to be some redundant code that I copied from one to the
@@ -1646,7 +1821,7 @@ class Default(YetAnotherChannelTestCase):
 
         self.add_step(
             Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
-                    resolution=resolution, run_time_steps=3))
+                    resolution=resolution))
 
         self.add_step(
             Viz(test_case=self))
@@ -1665,7 +1840,7 @@ class Default(YetAnotherChannelTestCase):
 
 ```
 
-## Adding another test case
+### Adding a parameter study
 
 The `yet_another_channel` test group contains several test cases in addition
 to `default`.  The `restart_test` checks whether running the model for one
@@ -1770,7 +1945,7 @@ class YetAnotherChannel(TestGroup):
 We switch the `default` test case to only support 10 km resolution but now have
 the `rpe_test` test case available at 3 resolutions.
 
-### Adding the steps to the test case
+#### Adding the steps to the test case
 
 The `initial_state` step has already been added to `rpe_test` because that
 happens in the `YetAnotherChannelTestCase` superclass.  Now, we will add the 
@@ -1963,7 +2138,7 @@ omega:
 We want to run each step for 20 days, outputting the list of variables above 
 every day.
 
-## Adding the analysis step
+#### Adding the analysis step
 
 The `rpe_test` includes another step, `analysis` that plots results from
 each simulation.  The full analysis step looks like this:
@@ -2097,7 +2272,7 @@ Note that we have also taken care to remove the previous version of `analysis`
 along with the forward tests before adding new versions if `_add_steps()` is
 getting called for the second time from `configure()`.
 
-### Adding validation
+#### Adding validation
 
 Adding validation to the `rpe_test` is very similar to `default`.  The only
 difference is that we need to do it once for each forward test:
@@ -2126,7 +2301,7 @@ class RpeTest(YetAnotherChannelTestCase):
                               filename1=f'{name}/output.nc')
 ```
 
-## How to (and how not to) pass data between steps
+### How to (and how not to) pass data between steps
 
 In developing `yet_another_channel`, we initially used config options to pass
 parameters `nx`, `ny`, and `dc` between steps.  They were computed and set in 
@@ -2170,50 +2345,3 @@ risk".  But you should not put in config options that are overridden in the
 code, so that a user changing them actually doesn't do anything.  And you
 shouldn't use config options for the primary purpose of passing data between 
 steps.
-
-## Set up and run
-
-You're all set!  You should be able to see your new test cases when you run
-`polaris list`, set them up by running `polaris setup`, and run them by
-calling `polaris serial` within the work directory.  
-See {ref}`dev-command-line` for details.
-
-(dev-tutorial-add-test-group-docs)=
-
-## Documentation
-
-Make sure to add some documentation of your new test group.  The documentation
-is written in the [MyST](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html)
-flavor of Markdown, similar to what GitHub uses. See {ref}`dev-docs` for 
-details.
-
-You need to add all of the public functions, classes and methods to the
-{ref}`dev-api` in `docs/developers_guide/<component>/api.md`, following the 
-examples for other test groups.  
-
-You also need to add a file to both the user's guide and the developer's guide 
-describing the test group and its test cases and steps.
-
-For the user's guide, make a copy of 
-`docs/users_guide/<component>/test_groups/template.md` called
-`docs/users_guide/<component>/test_groups/<test_group>.md`.  In that file, you
-should describe the test group and its test cases in a way that would be
-relevant for a user wanting to run the test case and look at the output.
-This file should describe all of the config options relevant the test
-group and each test case (if it has its own config options), including what
-they are used for and whether it is a good idea to modify them.  Add
-`<test_group>` in the appropriate place (in alphabetical order) to the list
-of test groups in the file `docs/users_guide/<component>/test_groups/index.md`.
-
-For the developer's guide, create a file
-`docs/developers_guide/<component>/test_groups/<test_group>.md`. In this file,
-you will describe the test group, its test cases and steps in a way that is
-relevant to developers who might want to modify the code or use it as an
-example for developing their own test cases.  Currently, the descriptions are
-brief in part because of the daunting task of documenting a large number of 
-test cases but should be fleshed out over time.  It would help new developers 
-if new test groups and test cases were documented well. Add `<test_group>` in 
-the appropriate place (in alphabetical order) to the list of test groups in
-`docs/developers_guide/<component>/test_groups/index.md`.
-
-At this point, you are ready to make a pull request with the new test group!
