@@ -4,6 +4,7 @@ from polaris import TestCase
 from polaris.ocean.tests.single_column.forward import Forward
 from polaris.ocean.tests.single_column.initial_state import InitialState
 from polaris.ocean.tests.single_column.viz import Viz
+from polaris.validate import compare_variables
 
 
 class CVMix(TestCase):
@@ -38,3 +39,15 @@ class CVMix(TestCase):
 
         self.add_step(
             Viz(test_case=self))
+
+    def validate(self):
+        """
+        Compare ``temperature``, ``salinity``, ``layerThickness`` and
+        ``normalVelocity`` in the ``forward`` step with a baseline if one was
+        provided.
+        """
+        super().validate()
+        variables = ['temperature', 'salinity', 'layerThickness',
+                     'normalVelocity']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='forward/output.nc')
