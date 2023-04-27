@@ -119,6 +119,7 @@
 
    cvmix.CVMix
    cvmix.CVMix.validate
+```
 
 ## Ocean Framework
 
