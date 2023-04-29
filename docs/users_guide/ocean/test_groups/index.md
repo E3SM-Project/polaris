@@ -7,4 +7,5 @@
 
 baroclinic_channel
 global_convergence
+single_column
 ```

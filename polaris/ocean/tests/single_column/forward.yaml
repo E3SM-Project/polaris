@@ -1,0 +1,50 @@
+omega:
+  run_modes:
+    config_ocean_run_mode: forward
+  time_management:
+    config_run_duration: 0001_00:00:00
+  time_integration:
+    config_dt: 00:10:00
+  split_explicit_ts:
+    config_btr_dt: 0000_00:00:30
+  hmix_del4:
+    config_use_mom_del4: true
+    config_mom_del4: 2.0e14
+  cvmix:
+    config_use_cvmix_convection: true
+    config_use_cvmix_shear: true
+    config_cvmix_shear_mixing_scheme: KPP
+    config_use_cvmix_kpp: true
+    config_cvmix_kpp_matching: MatchBoth
+    config_cvmix_kpp_interpolationOMLType: cubic
+  forcing:
+    config_use_bulk_wind_stress: true
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+  streams:
+    mesh:
+      filename_template: initial_state.nc
+    input:
+      filename_template: initial_state.nc
+    restart: {}
+    KPP_testing: {}
+    mixedLayerDepthsOutput:
+      contents:
+      - xtime
+      - dThreshMLD
+      - tThreshMLD
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_00:00:01
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - zTop
+      - normalVelocity
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell

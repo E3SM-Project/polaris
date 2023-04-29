@@ -99,6 +99,28 @@
    viz.Viz.run
 ```
 
+### single_column
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tests.single_column
+
+.. autosummary::
+   :toctree: generated/
+
+   SingleColumn
+
+   forward.Forward
+
+   initial_state.InitialState
+   initial_state.InitialState.run
+
+   viz.Viz
+   viz.Viz.run
+
+   cvmix.CVMix
+   cvmix.CVMix.validate
+```
+
 ## Ocean Framework
 
 ### OceanModelStep
