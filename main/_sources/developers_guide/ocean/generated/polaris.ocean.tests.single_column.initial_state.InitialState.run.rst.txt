@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.single\_column.initial\_state.InitialState.run
+==================================================================
+
+.. currentmodule:: polaris.ocean.tests.single_column.initial_state
+
+.. automethod:: InitialState.run

@@ -291,6 +291,41 @@
 </table>
 </section>
 </section>
+<section id="single-column">
+<h3>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.SingleColumn.html#polaris.ocean.tests.single_column.SingleColumn" title="polaris.ocean.tests.single_column.SingleColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleColumn</span></code></a>(component)</p></td>
+<td><p>A test group for single column test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.forward.Forward.html#polaris.ocean.tests.single_column.forward.Forward" title="polaris.ocean.tests.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(test_case[, name, subdir, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of baroclinic channel test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.initial_state.InitialState.html#polaris.ocean.tests.single_column.initial_state.InitialState" title="polaris.ocean.tests.single_column.initial_state.InitialState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState</span></code></a>(test_case, resolution)</p></td>
+<td><p>A step for creating a mesh and initial condition for single column test cases :ivar resolution: The resolution of the test case in km</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.initial_state.InitialState.run.html#polaris.ocean.tests.single_column.initial_state.InitialState.run" title="polaris.ocean.tests.single_column.initial_state.InitialState.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz" title="polaris.ocean.tests.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(test_case)</p></td>
+<td><p>A step for plotting the results of a series of RPE runs in the baroclinic channel test group</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.viz.Viz.run.html#polaris.ocean.tests.single_column.viz.Viz.run" title="polaris.ocean.tests.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.cvmix.CVMix.html#polaris.ocean.tests.single_column.cvmix.CVMix" title="polaris.ocean.tests.single_column.cvmix.CVMix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix</span></code></a>(test_group, resolution)</p></td>
+<td><p>The default test case for the single column test group simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.cvmix.CVMix.validate.html#polaris.ocean.tests.single_column.cvmix.CVMix.validate" title="polaris.ocean.tests.single_column.cvmix.CVMix.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section id="ocean-framework">
 <h2>Ocean Framework<a class="headerlink" href="#ocean-framework" title="Permalink to this heading"></a></h2>

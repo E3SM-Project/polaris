@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.single\_column.viz.Viz.run
+==============================================
+
+.. currentmodule:: polaris.ocean.tests.single_column.viz
+
+.. automethod:: Viz.run

@@ -1,0 +1,31 @@
+﻿polaris.ocean.tests.single\_column.initial\_state.InitialState
+==============================================================
+
+.. currentmodule:: polaris.ocean.tests.single_column.initial_state
+
+.. autoclass:: InitialState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InitialState.__init__
+      ~InitialState.add_dependency
+      ~InitialState.add_input_file
+      ~InitialState.add_output_file
+      ~InitialState.constrain_resources
+      ~InitialState.process_inputs_and_outputs
+      ~InitialState.run
+      ~InitialState.runtime_setup
+      ~InitialState.set_resources
+      ~InitialState.setup
+   
+   
+
+   
+   
+   
