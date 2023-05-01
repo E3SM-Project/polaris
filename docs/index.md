@@ -67,12 +67,20 @@ design_docs/index
 ```
 
 ```{toctree}
+:caption: Tutorials
+:maxdepth: 1
+
+tutorials/dev_add_test_group
+```
+
+```{toctree}
 :caption: Glossary
 :maxdepth: 2
 
 glossary
 ```
 
+(compass)=
 # Compass
 
 The ``compass`` package is the predecessor of polaris. Documentation for 
