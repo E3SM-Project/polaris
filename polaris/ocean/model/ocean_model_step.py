@@ -209,7 +209,10 @@ class OceanModelStep(ModelStep):
         goal_cells_per_core = config.getfloat('ocean', 'goal_cells_per_core')
         max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
 
+        # machines (e.g. Perlmutter) seem to be happier with ntasks that
+        # are multiples of 4
         # ideally, about 200 cells per core
-        self.ntasks = max(1, round(cell_count / goal_cells_per_core + 0.5))
+        self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
         # In a pinch, about 2000 cells per core
-        self.min_tasks = max(1, round(cell_count / max_cells_per_core + 0.5))
+        self.min_tasks = max(1,
+                             4 * round(cell_count / (4 * max_cells_per_core)))
