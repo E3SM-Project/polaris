@@ -21,6 +21,7 @@ instead if you are comfortable with it.
 ```bash
 git clone git@github.com:E3SM-Project/polaris.git add-yet-another-channel
 cd add-yet-another-channel
+git checkout -b add-yet-another-channel
 ```
 
 Now, you will need to create a conda environment for developing polaris, as
