@@ -1,6 +1,7 @@
 from polaris import Component
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.global_convergence import GlobalConvergence
+from polaris.ocean.tests.inertial_gravity_wave import InertialGravityWave
 from polaris.ocean.tests.single_column import SingleColumn
 
 
@@ -18,6 +19,7 @@ class Ocean(Component):
         # please keep these in alphabetical order
         self.add_test_group(BaroclinicChannel(component=self))
         self.add_test_group(GlobalConvergence(component=self))
+        self.add_test_group(InertialGravityWave(component=self))
         self.add_test_group(SingleColumn(component=self))
 
     def configure(self, config):
