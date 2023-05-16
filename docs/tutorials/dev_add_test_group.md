@@ -1462,9 +1462,6 @@ only included in the step if they are referenced in one of the yaml or streams
 files added to it.  If you want the default definition of a stream, referring
 to it is enough:
 
-```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/output.yaml
-```
 ```yaml
 omega:
   streams:
@@ -1485,10 +1482,11 @@ attributes.  In this case, the contents you provide will replace the default
 contents:
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/output.yaml
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/forward.yaml
 ```
 ```yaml
 omega:
+  ...
   streams:
     output:
       type: output
