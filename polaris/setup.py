@@ -417,7 +417,8 @@ def _get_basic_config(config_file, machine, component_path, component):
 
     # add the E3SM config options from mache
     if machine is not None:
-        config.add_from_package('mache.machines', f'{machine}.cfg')
+        config.add_from_package('mache.machines', f'{machine}.cfg',
+                                exception=False)
 
     # add the polaris machine config file
     if machine is None:
