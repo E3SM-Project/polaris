@@ -1,4 +1,7 @@
 from polaris import TestCase
+from polaris.ocean.tests.inertial_gravity_wave.initial_state import (
+    InitialState,
+)
 
 
 class Convergence(TestCase):
@@ -18,3 +21,6 @@ class Convergence(TestCase):
         """
         name = 'convergence'
         super().__init__(test_group=test_group, name=name)
+
+        for res in [200.0, 100.0, 50.0]:
+            self.add_step(InitialState(test_case=self, resolution=res))
