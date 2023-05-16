@@ -1,6 +1,6 @@
 from polaris import TestGroup
 from polaris.ocean.tests.single_column.cvmix import CVMix
-
+from polaris.ocean.tests.single_column.ecosys import Ecosys
 
 class SingleColumn(TestGroup):
     """
@@ -14,3 +14,4 @@ class SingleColumn(TestGroup):
         super().__init__(component=component, name='single_column')
 
         self.add_test_case(CVMix(test_group=self, resolution=960.))
+        self.add_test_case(Ecosys(test_group=self, resolution=960.))

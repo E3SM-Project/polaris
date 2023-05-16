@@ -1,0 +1,6 @@
+# config options for "yet another channel" testcases
+[yet_another_channel]
+
+# the size of the domain in km in the x and y directions
+lx = 160.0
+ly = 500.0

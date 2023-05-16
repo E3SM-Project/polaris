@@ -17,7 +17,7 @@ class InitialState(Step):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, test_case, resolution):
+    def __init__(self, test_case, resolution, tracer_groups=['ecosys']):
         """
         Create the step
         Parameters
@@ -29,6 +29,7 @@ class InitialState(Step):
         """
         super().__init__(test_case=test_case, name='initial_state')
         self.resolution = resolution
+        self.tracer_groups = tracer_groups
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
                      'initial_state.nc', 'forcing.nc']:
             self.add_output_file(file)
@@ -128,6 +129,10 @@ class InitialState(Step):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
+
+        if 'ecosys' in self.tracer_groups:
+            ds['spC'] = xr.ones_like(x_cell)
+            
         write_netcdf(ds, 'initial_state.nc')
 
         # create forcing stream
