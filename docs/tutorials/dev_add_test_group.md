@@ -509,9 +509,7 @@ that direction (`nonperiodic_y=True`).
 $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
 ```
 ```{code-block} python
-:emphasize-lines: 3-6, 8, 15-42
-
-import os
+:emphasize-lines: 1-4, 6, 13-40
 
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
