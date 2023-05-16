@@ -82,11 +82,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#adding-the-initial-state-step">Adding the initial_state step</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-horizontal-mesh">Creating a horizontal mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-a-config-file">Adding a config file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-the-step-to-the-test-case">Adding the step to the test case</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-vertical-coordinate">Creating a vertical coordinate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-initial-condition">Creating an initial condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-plots">Adding plots</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-step-outputs">Adding step outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#adding-the-step-to-the-test-case">Adding the step to the test case</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-validation">Adding validation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#test-things-out">Test things out!</a></li>
 </ul>
@@ -167,6 +167,7 @@ free to use the <code class="docutils literal notranslate"><span class="pre">git
 instead if you are comfortable with it.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:E3SM-Project/polaris.git<span class="w"> </span>add-yet-another-channel
 <span class="nb">cd</span><span class="w"> </span>add-yet-another-channel
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>add-yet-another-channel
 </pre></div>
 </div>
 <p>Now, you will need to create a conda environment for developing polaris, as
@@ -245,14 +246,13 @@ tool will work fine on supercomputers.</p>
 <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> called <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code>. We create a new
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> directory in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests</span></code>.  In that directory,
 we will make a new  file called <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> that will initially be empty.<br />
-That’s all it takes  to make <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> a new package in <code class="docutils literal notranslate"><span class="pre">polaris</span></code>.<br />
-It can be  imported with:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests</span> <span class="kn">import</span> <span class="n">yet_another_channel</span>
-</pre></div>
-</div>
+That’s all it takes  to make <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> a new package in <code class="docutils literal notranslate"><span class="pre">polaris</span></code>.</p>
 <p>Each test group in <code class="docutils literal notranslate"><span class="pre">polaris</span></code> is a class that descends from the
 <a class="reference internal" href="../developers_guide/generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a> class.  Let’s make a new class for the
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group in <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
 
 
@@ -294,14 +294,17 @@ conventions, as described in <a class="reference internal" href="../developers_g
 doesn’t have any test cases in it.  We’ll come back and add them later in the
 tutorial.  Before we add a test case, let’s make <code class="docutils literal notranslate"><span class="pre">polaris</span></code> aware that the
 test group exists. To do that, we need to open
-<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/__init__.py">polaris/ocean/<strong>init</strong>.py</a>,
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>,
 add an import for the new test group, and add an instance of the test group to the list of test
 groups in the ocean core:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
-</span><span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence</span> <span class="kn">import</span> <span class="n">GlobalConvergence</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannel</span>
-
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence</span> <span class="kn">import</span> <span class="n">GlobalConvergence</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannel</span>
+</span>
 
 <span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -314,11 +317,11 @@ groups in the ocean core:</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
 
-<span class="hll">        <span class="c1"># please keep these in alphabetical order</span>
-</span>        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">BaroclinicChannel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1"># please keep these in alphabetical order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">BaroclinicChannel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">GlobalConvergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">YetAnotherChannel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
-</pre></div>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">YetAnotherChannel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+</span></pre></div>
 </div>
 <p>We make an instance of the <code class="docutils literal notranslate"><span class="pre">YetAnotherChannel</span></code> class and we immediately add
 it to the <code class="docutils literal notranslate"><span class="pre">Ocean</span></code> core’s list of test groups.  That’s all we need to do.  Now
@@ -334,6 +337,9 @@ a new <code class="docutils literal notranslate"><span class="pre">Default</span
 <a class="reference internal" href="../developers_guide/generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a> base class (take a look at
 <code class="docutils literal notranslate"><span class="pre">polaris/testcase.py</span></code> if you want to see the contents of <code class="docutils literal notranslate"><span class="pre">TestCase</span></code> if
 you’re interested).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 
@@ -361,8 +367,11 @@ you’re interested).</p>
 this test case belongs to on to the base class’s constructor
 (<code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>) and give the test case a name, <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p>
 <p>And let’s add the <code class="docutils literal notranslate"><span class="pre">Default</span></code> test case to the test group:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/__init__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
+</span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
 
 
 <span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
@@ -376,17 +385,17 @@ this test case belongs to on to the base class’s constructor
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
-            <span class="n">Default</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
-</pre></div>
+<span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Default</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+</span></pre></div>
 </div>
 <p>Even though this test case doesn’t do anything, we can list the tests and make
 sure your new one shows up:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>list
-Testcases:
-...
-<span class="w">   </span><span class="m">9</span>:<span class="w"> </span>ocean/yet_another_channel/default
+<span class="w">     </span>Testcases:
+<span class="w">     </span>...
+<span class="w">        </span><span class="m">9</span>:<span class="w"> </span>ocean/yet_another_channel/default
 </pre></div>
 </div>
 <p>If they don’t show up, you probably missed a step (adding the test group to the
@@ -425,8 +434,11 @@ the tutorial.</p>
 <p>Let’s say you want to support 3 resolutions in <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test cases:
 1, 4 and 10 km.  We’ll add resolution in km as a float parameter and attribute
 to the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">os</span>
+</span>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 
@@ -461,9 +473,9 @@ to the <code class="docutils literal notranslate"><span class="pre">default</spa
 </span><span class="hll">        <span class="k">else</span><span class="p">:</span>
 </span><span class="hll">            <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
 </span><span class="hll">        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-</span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
-</pre></div>
+</span><span class="hll">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+</span><span class="hll">                         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>We store the <code class="docutils literal notranslate"><span class="pre">resolution</span></code> as an attribute of the test case object itself
 (<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>). Later on in the test case in other methods, we will access
@@ -476,7 +488,10 @@ the constructor (where we describe the <code class="docutils literal notranslate
 <p>The <code class="docutils literal notranslate"><span class="pre">default</span></code> test case still doesn’t do anything yet because we haven’t added
 any steps, change how we add ti to the <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group so we
 can see how the resolution will be specified.  We update <code class="docutils literal notranslate"><span class="pre">YetAnotherChannel</span></code>
-toa dd a loop over resolutions as follows:</p>
+to add a loop over resolutions as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
 
@@ -493,17 +508,17 @@ toa dd a loop over resolutions as follows:</p>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
-                <span class="n">Default</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
-</pre></div>
+<span class="hll">        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">]:</span>
+</span><span class="hll">            <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span>
+</span><span class="hll">                <span class="n">Default</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+</span></pre></div>
 </div>
 <p>Let’s run <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> and see that our new tests appear:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ polaris list
 ...
-   9: ocean/yet_another_channel/1km/default
-  10: ocean/yet_another_channel/4km/default
-  11: ocean/yet_another_channel/10km/default
+  10: ocean/yet_another_channel/1km/default
+  11: ocean/yet_another_channel/4km/default
+  12: ocean/yet_another_channel/10km/default
 </pre></div>
 </div>
 <p>In the long run, the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case and most other test cases in this
@@ -525,6 +540,9 @@ group’s package to promote <a class="reference internal" href="../developers_g
 <p>The <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step will create the MPAS mesh and initial condition for
 the test case.  To start with, we’ll just create a new <code class="docutils literal notranslate"><span class="pre">InitialState</span></code> class
 that descends from <code class="docutils literal notranslate"><span class="pre">Step</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 
 
@@ -574,44 +592,52 @@ discussed below.  The distance between grid-cell centers <code class="docutils l
 resolution converted from km to m.  Then, we “cull” (remove) the the top and
 bottom row of cells in the y direction so the mesh is no longer periodic in
 that direction (<code class="docutils literal notranslate"><span class="pre">nonperiodic_y=True</span></code>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-
+<span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
+</span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
+</span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+</span><span class="hll">
+</span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+</span>
 
 <span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
-        <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+    <span class="o">...</span>
 
-        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
-
-        <span class="c1"># these could be hard-coded as functions of specific supported</span>
-        <span class="c1"># resolutions but it is preferable to make them algorithmic like here</span>
-        <span class="c1"># for greater flexibility</span>
-        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
-        <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
-
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
-                                       <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                       <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
-
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
-                          <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
-</pre></div>
+<span class="hll">    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="sd">        Run this step of the test case</span>
+</span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class="hll">        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+</span><span class="hll">        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># these could be hard-coded as functions of specific supported</span>
+</span><span class="hll">        <span class="c1"># resolutions but it is preferable to make them algorithmic like here</span>
+</span><span class="hll">        <span class="c1"># for greater flexibility</span>
+</span><span class="hll">        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
+</span><span class="hll">                                       <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span class="hll">                                       <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+</span><span class="hll">                          <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>We use <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a> to compute the
 number of grid cells in x and y from the physical sizes and the resolution.</p>
@@ -642,8 +668,10 @@ many test cases so it makes sense to put them directly in the
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group.  If we put them in a file called
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel.cfg</span></code>, they will automatically get read in and added to
 the config file for each test case as part of setup:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">...</span>
-<span class="c1"># config options for &quot;yet another channel&quot; testcases</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/yet_another_channel.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for &quot;yet another channel&quot; testcases</span>
 <span class="k">[yet_another_channel]</span>
 
 <span class="c1"># the size of the domain in km in the x and y directions</span>
@@ -660,6 +688,83 @@ change config options within a step, since other steps may be affected in
 potentially unexpected ways.  You can see an example of this in the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/tests/global_convergence/cosine_bell/__init__.py#L55-L62">cosine_bell test case</a>.</p>
 </section>
+<section id="adding-the-step-to-the-test-case">
+<span id="dev-tutorial-add-test-group-adding-a-step"></span><h3>Adding the step to the test case<a class="headerlink" href="#adding-the-step-to-the-test-case" title="Permalink to this heading"></a></h3>
+<p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case, we are now ready to add
+<code class="docutils literal notranslate"><span class="pre">initial_state</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
+</span>
+
+<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+        <span class="o">...</span>
+
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">InitialState</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+</span></pre></div>
+</div>
+<p>Now we have created a step, <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>, that does something, creating a
+mesh. We can first check that the step exists:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="w">  </span>...
+
+<span class="w">  </span><span class="m">12</span>:<span class="w"> </span>path:<span class="w">          </span>ocean/yet_another_channel/10km/default
+<span class="w">      </span>name:<span class="w">          </span>default
+<span class="w">      </span>component:<span class="w">     </span>ocean
+<span class="w">      </span><span class="nb">test</span><span class="w"> </span>group:<span class="w">    </span>yet_another_channel
+<span class="w">      </span>subdir:<span class="w">        </span>10km/default
+<span class="w">      </span>steps:
+<span class="w">       </span>-<span class="w"> </span>initial_state
+</pre></div>
+</div>
+<p>Then we can set up the test case:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/yet_another_channel/10km/default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">PATH_TO_MPAS_OCEAN</span><span class="si">}</span><span class="w"> </span>-w<span class="w"> </span><span class="si">${</span><span class="nv">PATH_TO_WORKING_DIR</span><span class="si">}</span>
+
+<span class="w">     </span>Setting<span class="w"> </span>up<span class="w"> </span><span class="nb">test</span><span class="w"> </span>cases:
+<span class="w">       </span>ocean/yet_another_channel/10km/default
+<span class="w">     </span>target<span class="w"> </span>cores:<span class="w"> </span><span class="m">1</span>
+<span class="w">     </span>minimum<span class="w"> </span>cores:<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>and run it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">PATH_TO_WORKING_DIR</span><span class="si">}</span>/ocean/yet_another_channel/10km/default
+$<span class="w"> </span>sbatch<span class="w"> </span>job_script.sh
+$<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${</span><span class="nv">SLURM_JOBID</span><span class="si">}</span>
+
+<span class="w">     </span>Loading<span class="w"> </span>conda<span class="w"> </span>environment
+<span class="w">     </span>Done.
+<span class="w">     </span>
+<span class="w">     </span>Loading<span class="w"> </span>Spack<span class="w"> </span>environment...
+<span class="w">     </span>Done.
+<span class="w">     </span>
+<span class="w">     </span>ocean/yet_another_channel/10km/default
+<span class="w">     </span>compass<span class="w"> </span>calling:<span class="w"> </span>polaris.run.serial._run_test<span class="o">()</span>
+<span class="w">       </span><span class="k">in</span><span class="w"> </span>/gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/run/serial.py
+<span class="w">     </span>
+<span class="w">     </span>Running<span class="w"> </span>steps:<span class="w"> </span>initial_state
+<span class="w">       </span>*<span class="w"> </span>step:<span class="w"> </span>initial_state
+<span class="w">     </span>
+<span class="w">     </span>compass<span class="w"> </span>calling:<span class="w"> </span>polaris.ocean.tests.yet_another_channel.default.Default.validate<span class="o">()</span>
+<span class="w">       </span>inherited<span class="w"> </span>from:<span class="w"> </span>polaris.testcase.TestCase.validate<span class="o">()</span>
+<span class="w">       </span><span class="k">in</span><span class="w"> </span>/gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/testcase.py
+<span class="w">     </span>
+<span class="w">       </span><span class="nb">test</span><span class="w"> </span>execution:<span class="w">      </span>SUCCESS
+<span class="w">       </span><span class="nb">test</span><span class="w"> </span>runtime:<span class="w">        </span><span class="m">00</span>:00
+<span class="w">     </span>Test<span class="w"> </span>Runtimes:
+<span class="w">     </span><span class="m">00</span>:00<span class="w"> </span>PASS<span class="w"> </span>ocean/yet_another_channel/10km/default
+<span class="w">     </span>Total<span class="w"> </span>runtime<span class="w"> </span><span class="m">00</span>:01
+<span class="w">     </span>PASS:<span class="w"> </span>All<span class="w"> </span>passed<span class="w"> </span>successfully!
+</pre></div>
+</div>
+</section>
 <section id="creating-a-vertical-coordinate">
 <h3>Creating a vertical coordinate<a class="headerlink" href="#creating-a-vertical-coordinate" title="Permalink to this heading"></a></h3>
 <p>Ocean test cases typically need to define a vertical coordinate as we will
@@ -668,32 +773,45 @@ vertical coordinates, so this section will not apply to those tests.<br />
 Returning to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step, the code
 snippet below is an example of how to make use of the
 <a class="reference internal" href="../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a> to create the vertical coordinate:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+</span>
+<span class="o">...</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">init_vertical_coord</span>
-
+<span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">init_vertical_coord</span>
+</span>
 
 <span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
         <span class="o">...</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
-        <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
 
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
-
-        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-</pre></div>
+<span class="hll">        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span><span class="hll">        <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
+</span><span class="hll">        <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>This part of the step, too, relies on config options, this time from the
 <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section (see <a class="reference internal" href="../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a> for more on
 this):</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
-<span class="k">[vertical_grid]</span>
+<p>Now we add a new section to the config file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/yet_another_channel.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
 
 <span class="c1"># the type of vertical grid</span>
 <span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
@@ -745,8 +863,11 @@ levels (with <code class="docutils literal notranslate"><span class="pre">nVertL
 <h3>Creating an initial condition<a class="headerlink" href="#creating-an-initial-condition" title="Permalink to this heading"></a></h3>
 <p>The next part of the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step is to
 define the initial condition:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
@@ -754,83 +875,86 @@ define the initial condition:</p>
 
 <span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
         <span class="o">...</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
-        <span class="n">use_distances</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;use_distances&#39;</span><span class="p">)</span>
-        <span class="n">gradient_width_dist</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_dist&#39;</span><span class="p">)</span>
-        <span class="n">gradient_width_frac</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_frac&#39;</span><span class="p">)</span>
-        <span class="n">bottom_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_temperature&#39;</span><span class="p">)</span>
-        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_temperature&#39;</span><span class="p">)</span>
-        <span class="n">temperature_difference</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;temperature_difference&#39;</span><span class="p">)</span>
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
-        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
+        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
-        <span class="n">x_min</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">x_max</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">y_min</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">y_max</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="n">y_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_min</span> <span class="o">+</span> <span class="n">y_max</span><span class="p">)</span>
-        <span class="n">x_perturb_min</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
-        <span class="n">x_perturb_max</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
-
-        <span class="k">if</span> <span class="n">use_distances</span><span class="p">:</span>
-            <span class="n">perturb_width</span> <span class="o">=</span> <span class="n">gradient_width_dist</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">perturb_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient_width_frac</span>
-
-        <span class="n">y_offset</span> <span class="o">=</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
-            <span class="mf">6.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">))</span>
-
-        <span class="n">temp_vert</span> <span class="o">=</span> <span class="p">(</span><span class="n">bottom_temperature</span> <span class="o">+</span>
-                     <span class="p">(</span><span class="n">surface_temperature</span> <span class="o">-</span> <span class="n">bottom_temperature</span><span class="p">)</span> <span class="o">*</span>
-                     <span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span> <span class="o">+</span> <span class="n">bottom_depth</span><span class="p">)</span> <span class="o">/</span> <span class="n">bottom_depth</span><span class="p">))</span>
-
-        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span>
-                              <span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="n">perturb_width</span><span class="p">)</span>
-        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span>
-                        <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span> <span class="n">perturb_width</span><span class="p">,</span>
-                        <span class="n">frac</span><span class="p">)</span>
-
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temp_vert</span> <span class="o">-</span> <span class="n">temperature_difference</span> <span class="o">*</span> <span class="n">frac</span>
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Determine y_offset for 3rd crest in sin wave</span>
-        <span class="n">y_offset</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_perturb_max</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">))</span>
-
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">,</span>
-                           <span class="n">y_cell</span> <span class="o">&lt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">x_cell</span> <span class="o">&gt;=</span> <span class="n">x_perturb_min</span><span class="p">,</span>
-                           <span class="n">x_cell</span> <span class="o">&lt;=</span> <span class="n">x_perturb_max</span><span class="p">))</span>
-
-        <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">+</span>
-                       <span class="n">mask</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">((</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span>
-                                           <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">))))</span>
-
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
-        <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normal_velocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
-        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_velocity</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
-
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;dc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
-
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
-</pre></div>
+<span class="hll">        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="n">use_distances</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;use_distances&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">gradient_width_dist</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_dist&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">gradient_width_frac</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_frac&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">bottom_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_temperature&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_temperature&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">temperature_difference</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;temperature_difference&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">x_min</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+</span><span class="hll">        <span class="n">x_max</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+</span><span class="hll">        <span class="n">y_min</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+</span><span class="hll">        <span class="n">y_max</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">y_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_min</span> <span class="o">+</span> <span class="n">y_max</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">x_perturb_min</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
+</span><span class="hll">        <span class="n">x_perturb_max</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="k">if</span> <span class="n">use_distances</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">perturb_width</span> <span class="o">=</span> <span class="n">gradient_width_dist</span>
+</span><span class="hll">        <span class="k">else</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">perturb_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient_width_frac</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">y_offset</span> <span class="o">=</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+</span><span class="hll">            <span class="mf">6.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">))</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">temp_vert</span> <span class="o">=</span> <span class="p">(</span><span class="n">bottom_temperature</span> <span class="o">+</span>
+</span><span class="hll">                     <span class="p">(</span><span class="n">surface_temperature</span> <span class="o">-</span> <span class="n">bottom_temperature</span><span class="p">)</span> <span class="o">*</span>
+</span><span class="hll">                     <span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span> <span class="o">+</span> <span class="n">bottom_depth</span><span class="p">)</span> <span class="o">/</span> <span class="n">bottom_depth</span><span class="p">))</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span>
+</span><span class="hll">                              <span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="n">perturb_width</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span>
+</span><span class="hll">                        <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span> <span class="n">perturb_width</span><span class="p">,</span>
+</span><span class="hll">                        <span class="n">frac</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temp_vert</span> <span class="o">-</span> <span class="n">temperature_difference</span> <span class="o">*</span> <span class="n">frac</span>
+</span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># Determine y_offset for 3rd crest in sin wave</span>
+</span><span class="hll">        <span class="n">y_offset</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_perturb_max</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">))</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">y_cell</span> <span class="o">&lt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">x_cell</span> <span class="o">&gt;=</span> <span class="n">x_perturb_min</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">x_cell</span> <span class="o">&lt;=</span> <span class="n">x_perturb_max</span><span class="p">))</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">+</span>
+</span><span class="hll">                       <span class="n">mask</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">((</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span>
+</span><span class="hll">                                           <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">))))</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normal_velocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_velocity</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
+</span><span class="hll">        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
+</span><span class="hll">        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;dc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>The details aren’t critical for the purpose of this tutorial, though you may
 find this example to be useful for developing other test cases, particularly
@@ -838,8 +962,7 @@ those for the <code class="docutils literal notranslate"><span class="pre">ocean
 options are used to define the initial condition. Again, we use config options
 from <code class="docutils literal notranslate"><span class="pre">yet_another_channel.cfg</span></code>, this time in a section specific to the test
 group that we therefore call <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code>:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">...</span>
-<span class="c1"># config options for &quot;yet another channel&quot; testcases</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for &quot;yet another channel&quot; testcases</span>
 <span class="k">[yet_another_channel]</span>
 
 <span class="na">...</span>
@@ -888,23 +1011,33 @@ also to provide a relatively obvious place to document these parameters.</p>
 <p>It is helpful to make some plots of a few variables from the initial condition
 as a sanity check.  We do this using the visualization for
 <a class="reference internal" href="../developers_guide/framework/visualization.html#dev-visualization-planar"><span class="std std-ref">horizontal fields from planar meshes</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+</span>
+<span class="o">...</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
-
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
+</span>
 
 <span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span>
 
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;initial_temperature.png&#39;</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;initial_normal_velocity.png&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
-                         <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="o">...</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+
+<span class="hll">        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+</span><span class="hll">                         <span class="s1">&#39;initial_temperature.png&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+</span><span class="hll">                         <span class="s1">&#39;initial_normal_velocity.png&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+</span><span class="hll">                         <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>Here, we add plots of temperature and the normal component of the velocity at
 model edges.  You pass in the data set and the name of the field to plot as
@@ -923,36 +1056,28 @@ outputs will be a requirement for future work on task parallelism in which
 the connection between test cases and steps will be determined based on their
 inputs and outputs.  For this step, we add the following outputs in the
 constructor:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
 </pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+
+        <span class="o">...</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+
+<span class="hll">        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+</span><span class="hll">                     <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">]:</span>
+</span><span class="hll">            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>Only <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">culled_graph.info</span></code> are strictly necessary, as
 these are used as inputs to the <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis</span></code> steps that we will
 define below, but explicitly including other outputs is not a problem.</p>
-</section>
-<section id="adding-the-step-to-the-test-case">
-<span id="dev-tutorial-add-test-group-adding-a-step"></span><h3>Adding the step to the test case<a class="headerlink" href="#adding-the-step-to-the-test-case" title="Permalink to this heading"></a></h3>
-<p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case, we are now ready to add
-<code class="docutils literal notranslate"><span class="pre">initial_state</span></code>. In <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests/yet_another_channel/default/__init.py</span></code>,
-we add:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
-
-
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-        <span class="o">...</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">InitialState</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
-</pre></div>
-</div>
 </section>
 <section id="adding-validation">
 <span id="dev-tutorial-add-test-group-adding-validation"></span><h3>Adding validation<a class="headerlink" href="#adding-validation" title="Permalink to this heading"></a></h3>
@@ -965,22 +1090,29 @@ E3SM and/or polaris).</p>
 <p>Validation happens at the test-case level so that steps can be compared with
 one another.  Well add baseline validation for both the initial state and
 forward runs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
-
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+</span>
 
 <span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the </span>
-<span class="sd">        ``initial_state`` step with a baseline if one was provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
 
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
-        <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
-</pre></div>
+    <span class="o">...</span>
+
+<span class="hll">    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="sd">        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the </span>
+</span><span class="hll"><span class="sd">        ``initial_state`` step with a baseline if one was provided.</span>
+</span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class="hll">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+</span><span class="hll">                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>We check salinity, temperature and layer thickness in the initial state step.
 Since we only provide <code class="docutils literal notranslate"><span class="pre">filename1</span></code> in the call to
@@ -1031,6 +1163,7 @@ however many nodes you need (most often 1 when you’re just debugging something
 small) and for a long enough time that your debugging doesn’t get interrupted,
 e.g. on Chrysalis:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;work_dir&gt;
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>load_polaris_env.sh
 $<span class="w"> </span>srun<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-t<span class="w"> </span><span class="m">2</span>:00:00<span class="w"> </span>--pty<span class="w"> </span>bash
 </pre></div>
 </div>
@@ -1096,6 +1229,9 @@ constructor with the name of the step.  This time, we also supply the target
 number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code>), minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>), and
 number of threads (the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> used the default of 1 task, 1 CPU per
 task and 1 thread):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
@@ -1156,21 +1292,27 @@ to the functionality we anticipate adding to this step:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">resolution</span></code> - the resolution of the step in km as we already discussed.</p></li>
 </ul>
 <p>Next, we add inputs that are outputs from the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> test case:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
-
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
         <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/initial_state.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/culled_graph.info&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
-
-</pre></div>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+</span><span class="hll">                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+</span><span class="hll">                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/culled_graph.info&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <section id="defining-model-config-options-and-streams">
 <span id="dev-tutorial-add-test-group-model-config-and-streams"></span><h3>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Permalink to this heading"></a></h3>
@@ -1192,7 +1334,12 @@ yaml file format that Omega will use, whereas the landice component of polaris
 will use the namelist and streams files that MPAS components use.  This
 tutorial will focus on the yaml format but the concepts will not be hugely
 different for namelist and streams files.</p>
-<p>Here is the <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file from the <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group:</p>
+<p>Here is the <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file from the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group. We’ll just copy it into our <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/baroclinic_channel/forward.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/.
+$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.yaml
+</pre></div>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:15:00</span>
@@ -1279,6 +1426,11 @@ config_block_decomp_file_prefix = &#39;graph.info.part.&#39;
 <p>There is also a shared <code class="docutils literal notranslate"><span class="pre">output.yaml</span></code> file for ocean test cases that makes sure
 we get double-precision output (the default is single precision, which saves a
 lot of space but isn’t great for regression testing):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/baroclinic_channel/output.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/.
+$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
+</pre></div>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
@@ -1287,19 +1439,19 @@ lot of space but isn’t great for regression testing):</p>
 </pre></div>
 </div>
 <p>In the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, we add these namelists as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
-
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="o">...</span>
-        <span class="c1"># make sure output is double precision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.yet_another_channel&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
-</pre></div>
+        <span class="c1"># make sure output is double precision</span>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.yet_another_channel&#39;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+</span></pre></div>
 </div>
 <p>The first argument to <a class="reference internal" href="../developers_guide/generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> is the
 python package where the namelist file can be found, and the second is the
@@ -1319,6 +1471,9 @@ of defaults from the E3SM components, such as
 only included in the step if they are referenced in one of the yaml or streams
 files added to it.  If you want the default definition of a stream, referring
 to it is enough:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
+</pre></div>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
@@ -1336,6 +1491,9 @@ that:</p>
 change the contents (the variables or arrays) of a stream in addition to the
 attributes.  In this case, the contents you provide will replace the default
 contents:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
+</pre></div>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
@@ -1358,10 +1516,10 @@ and contents.  We don’t demonstrate that in this tutorial.</p>
 <h3>Adding the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step to the test case<a class="headerlink" href="#adding-the-forward-step-to-the-test-case" title="Permalink to this heading"></a></h3>
 <p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case, we are now ready to add
 <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps to the test case.  In
-<code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests/yet_another_channel/default/__init.py</span></code>, we add:</p>
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests/yet_another_channel/default/__init__.py</span></code>, we add:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+</span><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
 
 
 <span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
@@ -1371,10 +1529,10 @@ and contents.  We don’t demonstrate that in this tutorial.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">InitialState</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
-</pre></div>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span class="hll">                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+</span></pre></div>
 </div>
 <p>We hard-code the <code class="docutils literal notranslate"><span class="pre">forward</span></code> test case to run on 4 cores and 1 thread, and do
 not pass a viscosity (meaning it will use the default value from
@@ -1384,6 +1542,9 @@ not pass a viscosity (meaning it will use the default value from
 <h3>Adding more validation<a class="headerlink" href="#adding-more-validation" title="Permalink to this heading"></a></h3>
 <p>Just as we did with the initial state in {ref}``,
 we want to add validation of the result of the forward run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
 
@@ -1427,6 +1588,9 @@ we’ve added so far.</p>
 <h2>Adding a visualization step<a class="headerlink" href="#adding-a-visualization-step" title="Permalink to this heading"></a></h2>
 <p>We’ll add one more step to make some plots after the forward run has finished.
 Here is the contents of <code class="docutils literal notranslate"><span class="pre">viz.py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/viz.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
@@ -1480,11 +1644,14 @@ steps, we won’t describe this step in any more detail.</p>
 <section id="adding-the-viz-step-to-the-test-case">
 <h3>Adding the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step to the test case<a class="headerlink" href="#adding-the-viz-step-to-the-test-case" title="Permalink to this heading"></a></h3>
 <p>We’re now ready to add the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step to the <code class="docutils literal notranslate"><span class="pre">default</span></code> test case:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/default/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
-
+<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
+</span>
 
 <span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
@@ -1497,9 +1664,9 @@ steps, we won’t describe this step in any more detail.</p>
             <span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Viz</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
-</pre></div>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Viz</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+</span></pre></div>
 </div>
 </section>
 <section id="test-the-test-case-one-more-time">
@@ -1521,6 +1688,9 @@ follow the procedure as in
 <p>The decomposition test we present here is pretty similar to the default test.
 It starts with the same initial condition and does a forward run exactly like
 <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/decomp_test/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
@@ -1550,7 +1720,7 @@ It starts with the same initial condition and does a forward run exactly like
 <span class="sd">        resolution : float</span>
 <span class="sd">            The resolution of the test case in km</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;decomp&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
         <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">:</span>
             <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">km&#39;</span>
@@ -1569,10 +1739,13 @@ its own step.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 
+<span class="o">...</span>
 
 <span class="k">class</span> <span class="nc">DecompTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+
         <span class="o">...</span>
+
         <span class="k">for</span> <span class="n">procs</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">procs</span><span class="si">}</span><span class="s1">proc&#39;</span>
 
@@ -1589,6 +1762,9 @@ to make sure they area all identical between the 4 and 8 core runs:</p>
 
 
 <span class="k">class</span> <span class="nc">DecompTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
@@ -1608,6 +1784,9 @@ parameter here so validation is performed even if we don’t provide a baseline.
 (If we do provide a baseline, both the 4 core and 8 core results will be
 validated against their equivalents in the baseline as well.)</p>
 <p>Finally, we add the new test case to the test group:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/__init__.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.decomp_test</span> <span class="kn">import</span> <span class="n">DecompTest</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
@@ -1686,7 +1865,11 @@ are not known in advance.  In this case, we use this technique to set the
 model config option for the viscosity <code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code> using a parameter
 <code class="docutils literal notranslate"><span class="pre">nu</span></code> passed into the constructor (if it is not <code class="docutils literal notranslate"><span class="pre">None</span></code>, indicating that it was
 not set):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
 <span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
@@ -1719,6 +1902,9 @@ fixed period of time.</p>
 2 polaris config options, <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>, to define the
 ocean model time step and the duration of the simulation (if it was specified
 as a number of times steps):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
@@ -1798,6 +1984,9 @@ as a number of times steps):</p>
 </div>
 <p>The default values for the polaris config options are again found in
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel.cfg</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/yet_another_channel.cfg
+</pre></div>
+</div>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for &quot;yet another channel&quot; testcases</span>
 <span class="k">[yet_another_channel]</span>
 
@@ -1821,13 +2010,15 @@ directory before running the step.</p>
 for <code class="docutils literal notranslate"><span class="pre">ntask</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> (the reasonable range of MPI tasks that a forward
 model step should use).  Using this infrastructure requires overriding the
 <a class="reference internal" href="../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.compute_cell_count()</span></code></a> method:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-
-<span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
-
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
     <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
@@ -1873,6 +2064,9 @@ file that must exist (otherwise the step already would have failed) to see
 what the actual number of cells ended up being.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cell_count</span></code> is used in <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> to compute <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>
 by also using 2 config options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/ocean.cfg
+</pre></div>
+</div>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
 <span class="k">[ocean]</span>
 
@@ -1882,6 +2076,8 @@ by also using 2 config options:</p>
 <span class="c1"># the approximate maximum number of cells per core (the test will fail if too</span>
 <span class="c1"># few cores are available)</span>
 <span class="na">max_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span>
+
+<span class="na">...</span>
 </pre></div>
 </div>
 <p>This method is only used if <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> aren’t explicitly defined
@@ -2141,7 +2337,7 @@ a user has changed these values in a user config file before setting up the
 test case.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
 We will handle this with the following additions to
-<code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests/yet_another_channel/rpe_test/__init.py</span></code>:</p>
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/tests/yet_another_channel/rpe_test/__init__.py</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>

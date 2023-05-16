@@ -235,7 +235,7 @@ resulting load script (see below).</p>
 </section>
 <section id="unknown-machines">
 <h3>Unknown machines<a class="headerlink" href="#unknown-machines" title="Permalink to this heading"></a></h3>
-<p>If your are on an “unknown” machine, typically a Mac or Linux laptop or
+<p>If you are on an “unknown” machine, typically a Mac or Linux laptop or
 workstation, you will need to specify which flavor of MPI you want to use
 (<code class="docutils literal notranslate"><span class="pre">mpich</span></code> or <code class="docutils literal notranslate"><span class="pre">openmpi</span></code>):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--mpi<span class="w"> </span>&lt;mpi&gt;
@@ -477,7 +477,7 @@ details.</p>
 </pre></div>
 </div>
 <p>And you would set up a suite as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-s<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>nightly<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>nightly<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
 </pre></div>
 </div>
 <p>When you want to run the code, go to the work directory (for the suite or test
