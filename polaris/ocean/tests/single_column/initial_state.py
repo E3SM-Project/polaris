@@ -132,7 +132,7 @@ class InitialState(Step):
 
         if 'ecosys' in self.tracer_groups:
             ds['spC'] = xr.ones_like(x_cell)
-            
+
         write_netcdf(ds, 'initial_state.nc')
 
         # create forcing stream
