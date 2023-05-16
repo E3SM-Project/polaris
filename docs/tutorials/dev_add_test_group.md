@@ -169,7 +169,7 @@ Our new `YetAnotherChannel` class defines the test group, but so far it
 doesn't have any test cases in it.  We'll come back and add them later in the
 tutorial.  Before we add a test case, let's make `polaris` aware that the
 test group exists. To do that, we need to open 
-[polaris/ocean/__init__.py](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/__init__.py),
+[polaris/ocean/\_\_init\_\_.py](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/__init__.py),
 add an import for the new test group, and add an instance of the test group to the list of test
 groups in the ocean core:
 
@@ -509,7 +509,7 @@ that direction (`nonperiodic_y=True`).
 $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
 ```
 ```{code-block} python
-:emphasize-lines: 3-6, 8, 25-42
+:emphasize-lines: 3-6, 8, 15-42
 
 import os
 
@@ -637,7 +637,8 @@ class Default(TestCase):
             InitialState(test_case=self, resolution=resolution))
 ```
 
-Now we have created a step, `initial_state`, that does something, creating a mesh. We can first check that the step exists:
+Now we have created a step, `initial_state`, that does something, creating a 
+mesh. We can first check that the step exists:
 
 ```bash
 $ polaris list -v
@@ -670,7 +671,7 @@ and run it:
 ```bash
 $ cd ${PATH_TO_WORKING_DIR}/ocean/yet_another_channel/10km/default
 $ sbatch job_script.sh
-$ vi polaris.o${SLURM_JOBID}
+$ cat polaris.o${SLURM_JOBID}
 
      Loading conda environment
      Done.
@@ -689,10 +690,10 @@ $ vi polaris.o${SLURM_JOBID}
        inherited from: polaris.testcase.TestCase.validate()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/testcase.py
      
-       test execution:      ^[[92mSUCCESS^[[0m
-       test runtime:        ^[[94m00:00^[[0m
+       test execution:      SUCCESS
+       test runtime:        00:00
      Test Runtimes:
-     00:00 ^[[92mPASS^[[0m ocean/yet_another_channel/10km/default
+     00:00 PASS ocean/yet_another_channel/10km/default
      Total runtime 00:01
      PASS: All passed successfully!
 ```
@@ -710,7 +711,7 @@ snippet below is an example of how to make use of the
 $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
 ```
 ```{code-block} python
-:emphasize-lines: 1, 7, 15-26
+:emphasize-lines: 1, 7, 17-26
 
 import xarray as xr
 
@@ -1515,7 +1516,7 @@ and contents.  We don't demonstrate that in this tutorial.
 
 Returning to the `default` test case, we are now ready to add
 `initial_state` and `forward` steps to the test case.  In
-`polaris/ocean/tests/yet_another_channel/default/__init.py`, we add:
+`polaris/ocean/tests/yet_another_channel/default/__init__.py`, we add:
 
 ```{code-block} python
 :emphasize-lines: 2, 13-15
@@ -2398,7 +2399,7 @@ a user has changed these values in a user config file before setting up the
 test case.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
 We will handle this with the following additions to 
-`polaris/ocean/tests/yet_another_channel/rpe_test/__init.py`:
+`polaris/ocean/tests/yet_another_channel/rpe_test/__init__.py`:
 
 ```python
 from polaris.config import PolarisConfigParser
