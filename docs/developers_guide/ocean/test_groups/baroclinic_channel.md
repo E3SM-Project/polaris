@@ -58,7 +58,7 @@ number of cells is computed from config options in
 so that this can be used to constrain the number of MPI tasks that tests
 have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of `runtime_steup()`.  Finally, the ocean 
+graph partition is generated as part of `runtime_setup()`.  Finally, the ocean 
 model is run.
 
 (dev-ocean-baroclinic-channel-default)=

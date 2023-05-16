@@ -131,7 +131,7 @@ resulting load script (see below).
 
 ### Unknown machines
 
-If your are on an "unknown" machine, typically a Mac or Linux laptop or
+If you are on an "unknown" machine, typically a Mac or Linux laptop or
 workstation, you will need to specify which flavor of MPI you want to use
 (`mpich` or `openmpi`):
 
@@ -427,7 +427,7 @@ polaris list --suites
 And you would set up a suite as follows:
 
 ```bash
-polaris suite -s -c ocean -t nightly -m $MACHINE -w $WORKDIR -p $COMPONENT
+polaris suite -c ocean -t nightly -m $MACHINE -w $WORKDIR -p $COMPONENT
 ```
 
 When you want to run the code, go to the work directory (for the suite or test
