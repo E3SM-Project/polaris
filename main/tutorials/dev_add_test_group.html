@@ -595,9 +595,7 @@ that direction (<code class="docutils literal notranslate"><span class="pre">non
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/initial_state.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-
-<span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
 </span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
 </span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 </span><span class="hll">
@@ -1426,11 +1424,6 @@ config_block_decomp_file_prefix = &#39;graph.info.part.&#39;
 <p>There is also a shared <code class="docutils literal notranslate"><span class="pre">output.yaml</span></code> file for ocean test cases that makes sure
 we get double-precision output (the default is single precision, which saves a
 lot of space but isn’t great for regression testing):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/baroclinic_channel/output.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">     </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/.
-$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
-</pre></div>
-</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
@@ -1471,9 +1464,6 @@ of defaults from the E3SM components, such as
 only included in the step if they are referenced in one of the yaml or streams
 files added to it.  If you want the default definition of a stream, referring
 to it is enough:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
-</pre></div>
-</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
@@ -1491,11 +1481,12 @@ that:</p>
 change the contents (the variables or arrays) of a stream in addition to the
 attributes.  In this case, the contents you provide will replace the default
 contents:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/output.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.yaml
 </pre></div>
 </div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">streams</span><span class="p p-Indicator">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
 <span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
