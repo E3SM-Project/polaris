@@ -1413,11 +1413,6 @@ There is also a shared `output.yaml` file for ocean test cases that makes sure
 we get double-precision output (the default is single precision, which saves a
 lot of space but isn't great for regression testing):
 
-```bash
-$ cp ${POLARIS_HEAD}/polaris/ocean/tests/baroclinic_channel/output.yaml \
-     ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/.
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/output.yaml
-```
 ```yaml
 omega:
   streams:
