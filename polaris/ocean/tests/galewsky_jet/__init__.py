@@ -1,5 +1,5 @@
-from polaris.ocean.tests.galewsky_jet.test_balance import TestBalance
 from polaris import TestGroup
+from polaris.ocean.tests.galewsky_jet.test_balance import TestBalance
 
 
 class GalewskyJet(TestGroup):
