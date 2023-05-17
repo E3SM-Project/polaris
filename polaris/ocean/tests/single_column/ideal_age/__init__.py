@@ -1,9 +1,9 @@
 import os
 
 from polaris import TestCase
-# from polaris.ocean.tests.single_column.forward import Forward
+from polaris.ocean.tests.single_column.forward import Forward
 from polaris.ocean.tests.single_column.initial_state import InitialState
-# from polaris.ocean.tests.single_column.viz import Viz
+from polaris.ocean.tests.single_column.viz import Viz
 from polaris.validate import compare_variables
 
 
@@ -31,23 +31,23 @@ class IdealAge(TestCase):
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            InitialState(test_case=self, resolution=resolution,
+                         ideal_age=ideal_age))
 
-#        self.add_step(
-#            Forward(test_case=self, ntasks=1, min_tasks=1,
-#                    openmp_threads=1))
+        self.add_step(
+            Forward(test_case=self, ntasks=1, min_tasks=1,
+                    openmp_threads=1, ideal_age=ideal_age))
 
-#        self.add_step(
-#            Viz(test_case=self))
+        self.add_step(
+            Viz(test_case=self, ideal_age=ideal_age))
 
-#    def validate(self):
-#        """
-#        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-#        ``normalVelocity`` in the ``forward`` step with a baseline if one was
-#        provided.
-#        """
-#        super().validate()
-#        variables = ['temperature', 'salinity', 'layerThickness',
-#                     'normalVelocity']
-#        compare_variables(test_case=self, variables=variables,
-#                          filename1='forward/output.nc')
+    def validate(self):
+        """
+        Compare ``temperature``, ``salinity``, and ``iAge``
+        in the ``forward`` step with a baseline if one was
+        provided.
+        """
+        super().validate()
+        variables = ['temperature', 'salinity', 'iAge']
+        compare_variables(test_case=self, variables=variables,
+                          filename1='forward/output.nc')

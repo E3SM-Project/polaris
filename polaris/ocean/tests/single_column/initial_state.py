@@ -121,7 +121,7 @@ class InitialState(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
         if ideal_age:
-            ds['idealAgeTracers'] = xr.zeroes_like(x_cell)
+            ds['idealAgeTracers'] = xr.zeros_like(x_cell)
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity

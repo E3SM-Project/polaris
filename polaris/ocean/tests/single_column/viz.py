@@ -19,7 +19,7 @@ class Viz(Step):
     A step for plotting the results of a series of RPE runs in the baroclinic
     channel test group
     """
-    def __init__(self, test_case):
+    def __init__(self, test_case, ideal_age=False):
         """
         Create the step
 
@@ -29,6 +29,7 @@ class Viz(Step):
             The test case this step belongs to
         """
         super().__init__(test_case=test_case, name='viz')
+        self.ideal_age = ideal_age
         self.add_input_file(
             filename='initial_state.nc',
             target='../initial_state/initial_state.nc')
@@ -43,6 +44,7 @@ class Viz(Step):
         style_filename = str(
             imp_res.files('polaris.viz') / 'polaris.mplstyle')
         plt.style.use(style_filename)
+        ideal_age = self.ideal_age
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         t = ds.daysSinceStartOfSim[t_index]
@@ -50,6 +52,8 @@ class Viz(Step):
         title = f'final time = {t_days / np.timedelta64(1, "D")} days'
         fields = {'temperature': 'degC',
                   'salinity': 'PSU'}
+        if ideal_age:
+            fields['iAge'] = 'seconds'
         z_mid = ds['zMid'].mean(dim='nCells')
         z_mid_init = z_mid.isel(Time=0)
         z_mid_final = z_mid.isel(Time=t_index)

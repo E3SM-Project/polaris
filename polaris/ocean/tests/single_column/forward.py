@@ -27,7 +27,7 @@ class Forward(OceanModelStep):
     """
     def __init__(self, test_case, name='forward', subdir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 run_time_steps=None, ideal_age=False):
         """
         Create a new test case
 
@@ -73,6 +73,10 @@ class Forward(OceanModelStep):
 
         self.add_yaml_file('polaris.ocean.tests.single_column',
                            'forward.yaml')
+
+        if ideal_age:
+            self.add_yaml_file('polaris.ocean.tests.single_column.ideal_age',
+                               'forward.yaml')
 
         self.add_output_file(filename='output.nc')
 

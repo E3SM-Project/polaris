@@ -1,0 +1,12 @@
+omega:
+  tracer_forcing_idealAgeTracers:
+    config_use_idealAgeTracers: true
+    config_use_idealAgeTracers_idealAge_forcing: true
+  streams:
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_00:00:01
+      clobber_mode: truncate
+      contents:
+      - idealAgeTracers
