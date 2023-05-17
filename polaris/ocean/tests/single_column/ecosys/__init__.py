@@ -1,9 +1,9 @@
 import os
 
 from polaris import TestCase
-#from polaris.ocean.tests.single_column.forward import Forward
+# from polaris.ocean.tests.single_column.forward import Forward
 from polaris.ocean.tests.single_column.initial_state import InitialState
-#from polaris.ocean.tests.single_column.viz import Viz
+# from polaris.ocean.tests.single_column.viz import Viz
 from polaris.validate import compare_variables
 
 
@@ -31,7 +31,8 @@ class Ecosys(TestCase):
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            InitialState(test_case=self, resolution=resolution,
+                         tracer_groups=['ecosys']))
 
 #        self.add_step(
 #            Forward(test_case=self, ntasks=1, min_tasks=1,
