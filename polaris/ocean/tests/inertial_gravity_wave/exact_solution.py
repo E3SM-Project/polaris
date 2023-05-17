@@ -13,7 +13,7 @@ class ExactSolution():
         self.xEdge = ds.xEdge
         self.yEdge = ds.yEdge
 
-        self.g = 9.81
+        self.g = 9.80616
         self.eta0 = eta0
         self.kx = nx * 2.0 * np.pi / (lx * 1e3)
         self.ky = ny * 2.0 * np.pi / (ly * 1e3)

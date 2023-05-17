@@ -1,0 +1,23 @@
+omega:
+  time_management:
+    config_run_duration: 10:00:00
+  wetting_drying:
+    config_thickness_flux_type: constant
+  debug:
+    config_disable_vel_hadv: true
+  streams:
+    mesh:
+      filename_template: initial_state.nc
+    input:
+      filename_template: initial_state.nc
+    restart: {}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_00:00:01
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - ssh

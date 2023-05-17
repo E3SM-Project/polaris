@@ -36,8 +36,9 @@ class InitialState(Step):
             The resolution of the test case in km
         """
         super().__init__(test_case=test_case,
-                         name=f'initial_state_{resolution}km')
-        self.resolution = resolution
+                         name=f'initial_state_{resolution}km',
+                         subdir=f'{resolution}km/initial_state')
+        self.resolution = float(resolution)
 
     def run(self):
         """
@@ -88,9 +89,15 @@ class InitialState(Step):
         ssh = exact_solution.eta(0.0)
         ssh = ssh.expand_dims(dim='Time', axis=0)
         ds['ssh'] = ssh
-        ds['layerThickness'] = ssh + bottom_depth
+
         plot_horiz_field(ds, ds_mesh, 'ssh',
                          'initial_ssh.png', t_index=0)
+
+        layerThickness = ssh + bottom_depth
+        layerThickness, _ = xr.broadcast(layerThickness, ds.refBottomDepth)
+        layerThickness = layerThickness.transpose('Time', 'nCells',
+                                                  'nVertLevels')
+        ds['layerThickness'] = layerThickness
 
         normal_velocity = exact_solution.normalVelocity(0.0)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
