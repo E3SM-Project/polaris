@@ -7,7 +7,7 @@ from polaris.ocean.tests.single_column.initial_state import InitialState
 from polaris.validate import compare_variables
 
 
-class Ecosys(TestCase):
+class IdealAge(TestCase):
     """
     The default test case for the single column test group simply creates
     the mesh and initial condition, then performs a short forward run on 4

@@ -1,6 +1,8 @@
 from polaris import TestGroup
 from polaris.ocean.tests.single_column.cvmix import CVMix
 from polaris.ocean.tests.single_column.ecosys import Ecosys
+from polaris.ocean.tests.single_column.ideal_age import IdealAge
+
 
 class SingleColumn(TestGroup):
     """
@@ -15,3 +17,4 @@ class SingleColumn(TestGroup):
 
         self.add_test_case(CVMix(test_group=self, resolution=960.))
         self.add_test_case(Ecosys(test_group=self, resolution=960.))
+        self.add_test_case(IdealAge(test_group=self, resolution=960.))
