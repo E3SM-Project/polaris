@@ -1,6 +1,8 @@
 from polaris.mesh.spherical import IcosahedralMeshStep
 # from polaris.ocean.tests.galewsky_jet.forward import Forward
-# from polaris.ocean.tests.galewsky_jet.initial_state import InitialState
+from polaris.ocean.tests.galewsky_jet.test_balance.initial_state import (
+    InitialState,
+)
 from polaris.testcase import TestCase
 
 
@@ -36,8 +38,8 @@ class TestBalance(TestCase):
 
         self.add_step(IcosahedralMeshStep(
             test_case=self, cell_width=int(resolution[:-2])))
-        # self.add_step(
-        #    InitialState(test_case=self, resolution=resolution))
+        self.add_step(
+            InitialState(test_case=self, resolution=resolution))
         # self.add_step(
         #    Forward(test_case=self, resolution=resolution,
         #            long=long))

@@ -32,51 +32,24 @@ class InitialState(Step):
         super().__init__(test_case=test_case, name='initial_state')
         self.resolution = resolution
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'initial_state.nc']:
-            self.add_output_file(file)
+        self.add_input_file(
+           filename='mesh.nc',
+           target='../base_mesh/mesh.nc')
+        self.add_input_file(
+           filename='graph.info',
+           target='../base_mesh/graph.info')
+        self.add_output_file('initial_state.nc')
 
     def run(self):
         """
         Run this step of the test case
         """
-        # TODO: needs to be cleaned!!!
         config = self.config
-        logger = self.logger
 
-        section = config['galewsky_jet']
-        resolution = self.resolution
+        dsMesh = xr.open_dataset('mesh.nc')
 
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-
-        # these could be hard-coded as functions of specific supported
-        # resolutions but it is preferable to make them algorithmic like here
-        # for greater flexibility
-        # nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
-        # dc = 1e3 * resolution
-
-        # ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-        #                               nonperiodic_x=False,
-        #                               nonperiodic_y=True)
-        # self.add_step(IcosahedralMeshStep(
-        #    test_case=self, name=name, subdir=subdir,
-        #    cell_width=resolution))
-        write_netcdf(ds_mesh, 'base_mesh.nc')
-
-        ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
-        # section = config['galewsky_jet']
-        # temperature_difference = section.getfloat('temperature_difference')
-        # salinity = section.getfloat('salinity')
-        # coriolis_parameter = section.getfloat('coriolis_parameter')
-
-        ds = ds_mesh.copy()
+        ds = dsMesh.copy()
         x_cell = ds.xCell
-        y_cell = ds.yCell
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
@@ -85,8 +58,16 @@ class InitialState(Step):
 
         init_vertical_coord(config, ds)
 
-        # ds['temperature'] = temperature
-        # ds['salinity'] = salinity * xr.ones_like(temperature)
+        # resolution = self.resolution
+        section = config['galewsky_jet']
+        temperature = section.getfloat('temperature')
+        salinity = section.getfloat('salinity')
+        # coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        temperature_array = temperature * xr.ones_like(x_cell)
+        temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
+        ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
+        ds['salinity'] = salinity * xr.ones_like(ds.temperature)
         # ds['normalVelocity'] = normal_velocity
         # ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
         # ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
@@ -96,4 +77,4 @@ class InitialState(Step):
         # ds.attrs['ny'] = ny
         # ds.attrs['dc'] = dc
 
-        # write_netcdf(ds, 'initial_state.nc')
+        write_netcdf(ds, 'initial_state.nc')
