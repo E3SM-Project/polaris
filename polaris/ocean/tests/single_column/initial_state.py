@@ -30,7 +30,7 @@ class InitialState(Step):
         super().__init__(test_case=test_case, name='initial_state')
         self.resolution = resolution
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'initial_state.nc']:
+                     'initial_state.nc', 'forcing.nc']:
             self.add_output_file(file)
 
     def run(self):

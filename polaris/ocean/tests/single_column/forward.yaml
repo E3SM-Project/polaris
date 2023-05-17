@@ -48,3 +48,22 @@ omega:
       - layerThickness
       - kineticEnergyCell
       - relativeVorticityCell
+    forcing_data:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
