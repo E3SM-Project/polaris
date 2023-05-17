@@ -568,6 +568,11 @@ class Step:
             if copy:
                 shutil.copy(target, filepath)
             else:
+                dirname = os.path.dirname(filepath)
+                try:
+                    os.makedirs(dirname)
+                except FileExistsError:
+                    pass
                 symlink(target, filepath)
             input_file = target
         else:
