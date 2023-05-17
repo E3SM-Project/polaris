@@ -17,7 +17,7 @@ class InitialState(Step):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, test_case, resolution):
+    def __init__(self, test_case, resolution, tracer_groups=['ecosys']):
         """
         Create the step
         Parameters

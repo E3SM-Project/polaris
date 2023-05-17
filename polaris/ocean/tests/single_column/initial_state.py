@@ -17,7 +17,7 @@ class InitialState(Step):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, test_case, resolution, tracer_groups=['ecosys']):
+    def __init__(self, test_case, resolution, ideal_age=False):
         """
         Create the step
         Parameters
@@ -29,6 +29,7 @@ class InitialState(Step):
         """
         super().__init__(test_case=test_case, name='initial_state')
         self.resolution = resolution
+        self.ideal_age = ideal_age
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
                      'initial_state.nc', 'forcing.nc']:
             self.add_output_file(file)
@@ -41,6 +42,7 @@ class InitialState(Step):
         config = self.config
         section = config['single_column']
         resolution = self.resolution
+        ideal_age = self.ideal_age
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
@@ -117,6 +119,9 @@ class InitialState(Step):
             xr.zeros_like(ds.xEdge), ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
+
+        if ideal_age:
+            ds['idealAgeTracers'] = xr.zeroes_like(x_cell)
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity

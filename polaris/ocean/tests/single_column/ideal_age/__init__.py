@@ -13,7 +13,7 @@ class Ecosys(TestCase):
     the mesh and initial condition, then performs a short forward run on 4
     cores.
     """
-    def __init__(self, test_group, resolution):
+    def __init__(self, test_group, resolution, ideal_age=True):
         """
         Create the test case
         Parameters
@@ -21,7 +21,7 @@ class Ecosys(TestCase):
         test_group : polaris.ocean.tests.single_column.SingleColumn
             The test group that this test case belongs to
         """
-        name = 'ecosys'
+        name = 'ideal_age'
         self.resolution = resolution
         if resolution >= 1.:
             res_str = f'{resolution:g}km'
