@@ -1,7 +1,7 @@
 import cmocean  # noqa: F401
 import xarray as xr
 from mpas_tools.io import write_netcdf
-from mpas_tools.mesh.conversion import convert, cull
+from mpas_tools.mesh.jet import init as jet_init
 
 from polaris import Step
 from polaris.ocean.vertical import init_vertical_coord
@@ -33,11 +33,11 @@ class InitialState(Step):
         self.resolution = resolution
 
         self.add_input_file(
-           filename='mesh.nc',
-           target='../base_mesh/mesh.nc')
+            filename='mesh.nc',
+            target='../base_mesh/mesh.nc')
         self.add_input_file(
-           filename='graph.info',
-           target='../base_mesh/graph.info')
+            filename='graph.info',
+            target='../base_mesh/graph.info')
         self.add_output_file('initial_state.nc')
 
     def run(self):
@@ -78,3 +78,6 @@ class InitialState(Step):
         # ds.attrs['dc'] = dc
 
         write_netcdf(ds, 'initial_state.nc')
+
+        jet_init(name='initial_state.nc', save='initial_state2.nc',
+                 rsph=6371220.0, pert=False)

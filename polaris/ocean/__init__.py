@@ -3,7 +3,6 @@ from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
 from polaris.ocean.tests.galewsky_jet import GalewskyJet
 from polaris.ocean.tests.global_convergence import GlobalConvergence
 from polaris.ocean.tests.single_column import SingleColumn
-from polaris.ocean.tests.yet_another_channel import YetAnotherChannel
 
 
 class Ocean(Component):
@@ -22,7 +21,6 @@ class Ocean(Component):
         self.add_test_group(GalewskyJet(component=self))
         self.add_test_group(GlobalConvergence(component=self))
         self.add_test_group(SingleColumn(component=self))
-        self.add_test_group(YetAnotherChannel(component=self))
 
     def configure(self, config):
         """
