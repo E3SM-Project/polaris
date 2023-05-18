@@ -58,7 +58,8 @@ class InitialState(Step):
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
         ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
-        ds['ssh'] = xr.zeros_like(x_cell)
+        # ds['ssh'] = xr.zeros_like(x_cell)
+        ds['ssh'] = ds2.h - ds['bottomDepth']
 
         init_vertical_coord(config, ds)
 
@@ -73,12 +74,11 @@ class InitialState(Step):
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        ds['ssh'] = ds2.h - ds['bottomDepth']
         unrm_array, _ = xr.broadcast(ds2.u, ds.refZMid)
         ds['normalVelocity'] = unrm_array
 
         # if (config.getfloat('vertical_grid', 'grid_type') == 'uniform'):
-        nlev = config.getfloat('vertical_grid', 'vert_levels')
-        ds['layerThickness'], _ = xr.broadcast(ds2.h / nlev, ds.refZMid)
+        # nlev = config.getfloat('vertical_grid', 'vert_levels')
+        # ds['layerThickness'], _ = xr.broadcast(ds2.h / nlev, ds.refZMid)
 
         write_netcdf(ds, 'initial_state.nc')

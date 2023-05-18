@@ -1,5 +1,5 @@
 from polaris.mesh.spherical import IcosahedralMeshStep
-# from polaris.ocean.tests.galewsky_jet.forward import Forward
+from polaris.ocean.tests.galewsky_jet.test_balance.forward import Forward
 from polaris.ocean.tests.galewsky_jet.test_balance.initial_state import (
     InitialState,
 )
@@ -26,23 +26,22 @@ class TestBalance(TestCase):
         polaris.ocean.tests.galewsky_jet.GalewskyJet
             The test group that this test case belongs to
 
-        resolution : str
-            The resolution of the test case
+        resolution : float
+            The resolution of the test case (in km)
         """
         name = 'balanced'
         self.resolution = resolution
-
-        subdir = f'{resolution}/{name}'
+        res = int(resolution)
+        subdir = f'{res}km/{name}'
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
 
         self.add_step(IcosahedralMeshStep(
-            test_case=self, cell_width=int(resolution[:-2])))
+            test_case=self, cell_width=resolution))
         self.add_step(
             InitialState(test_case=self, resolution=resolution))
-        # self.add_step(
-        #    Forward(test_case=self, resolution=resolution,
-        #            long=long))
+        self.add_step(
+            Forward(test_case=self, resolution=resolution))
 
     def configure(self):
         """

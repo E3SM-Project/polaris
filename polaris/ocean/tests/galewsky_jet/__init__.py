@@ -13,6 +13,6 @@ class GalewskyJet(TestGroup):
         """
         super().__init__(component=component, name='galewsky_jet')
 
-        for resolution in ['120km']:
-           self.add_test_case(
-            TestBalance(test_group=self, resolution=resolution))
+        for resolution in [120.]:
+            self.add_test_case(
+                TestBalance(test_group=self, resolution=resolution))
