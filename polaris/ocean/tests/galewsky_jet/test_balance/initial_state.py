@@ -45,6 +45,10 @@ class InitialState(Step):
         Run this step of the test case
         """
         config = self.config
+# update rsph from cime.constants
+        jet_init(name='mesh.nc', save='velocity_ic.nc',
+                 rsph=6371220.0, pert=False)
+        ds2 = xr.open_dataset('velocity_ic.nc')
 
         dsMesh = xr.open_dataset('mesh.nc')
 
@@ -68,16 +72,13 @@ class InitialState(Step):
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
-        # ds['normalVelocity'] = normal_velocity
-        # ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        # ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
-        # ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
-        # ds.attrs['nx'] = nx
-        # ds.attrs['ny'] = ny
-        # ds.attrs['dc'] = dc
+        ds['ssh'] = ds2.h - ds['bottomDepth']
+        unrm_array, _ = xr.broadcast(ds2.u, ds.refZMid)
+        ds['normalVelocity'] = unrm_array
+
+        # if (config.getfloat('vertical_grid', 'grid_type') == 'uniform'):
+        nlev = config.getfloat('vertical_grid', 'vert_levels')
+        ds['layerThickness'], _ = xr.broadcast(ds2.h / nlev, ds.refZMid)
 
         write_netcdf(ds, 'initial_state.nc')
-
-        jet_init(name='initial_state.nc', save='initial_state2.nc',
-                 rsph=6371220.0, pert=False)
