@@ -1,6 +1,6 @@
 omega:
   time_management:
-    config_run_duration: 00:20:00
+    config_run_duration: 10:00:00
   bottom_drag:
     config_bottom_drag_mode: implicit
     config_implicit_bottom_drag_type: constant

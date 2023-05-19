@@ -1,6 +1,6 @@
 import datetime
 
-import cmocean  # noqa: E401
+import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
@@ -62,7 +62,7 @@ class Analysis(Step):
         npx = section.getfloat('nx')
         npy = section.getfloat('ny')
 
-        fig, axes = plt.subplots(nrows=3, ncols=3)
+        fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(12, 6))
         rmse = []
         for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
@@ -74,21 +74,53 @@ class Analysis(Step):
             tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
                                             '%Y-%m-%d_%H:%M:%S')
             t = (tf - t0).total_seconds()
-            rmse.append(np.sqrt(np.mean((ds.ssh - exact.ssh(t))**2)))
+            ssh_model = ds.ssh.values[-1, :]
+            rmse.append(np.sqrt(np.mean((ssh_model - exact.ssh(t).values)**2)))
+
+            # Comparison plots
             ds['ssh_exact'] = exact.ssh(t)
-            ds['ssh_error'] = ds.ssh - exact.ssh(t)
+            ds['ssh_error'] = ssh_model - exact.ssh(t)
             error_range = np.max(np.abs(ds.ssh_error.values))
+
             plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
-                             cmap='cmo.balance')
+                             cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
+                             vmin=-eta0, vmax=eta0)
             plot_horiz_field(ds, init, 'ssh_exact', ax=axes[i, 1],
-                             cmap='cmo.balance')
+                             cmap='cmo.balance',
+                             vmin=-eta0, vmax=eta0)
             plot_horiz_field(ds, init, 'ssh_error', ax=axes[i, 2],
                              cmap='cmo.balance',
                              vmin=-error_range, vmax=error_range)
 
+        axes[0, 0].set_title('Numerical')
+        axes[0, 1].set_title('Exact')
+        axes[0, 2].set_title('Error')
+
+        pad = 5
+        for ax, res in zip(axes[:, 0], resolutions):
+            ax.annotate(f'{res}km', xy=(0, 0.5),
+                        xytext=(-ax.yaxis.labelpad - pad, 0),
+                        xycoords=ax.yaxis.label, textcoords='offset points',
+                        size='large', ha='right', va='center')
+
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
 
+        # Convergence polts
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        ax.loglog(resolutions, rmse)
+        p = np.polyfit(np.log10(resolutions), np.log10(rmse), 1)
+        conv = np.round(p[0], 3)
+        ax.loglog(resolutions, rmse, '-ok', label=f'numerical (order={conv})')
+
+        c = rmse[0] * 1.5 / resolutions[0]
+        order1 = c * np.power(resolutions, 1)
+        c = rmse[0] * 1.5 / resolutions[0]**2
+        order2 = c * np.power(resolutions, 2)
+
+        ax.loglog(resolutions, order1, '--k', label='first order', alpha=0.3)
+        ax.loglog(resolutions, order2, 'k', label='second order', alpha=0.3)
+        ax.set_xlabel('resolution (km)')
+        ax.set_ylabel('RMS error (m)')
+        ax.set_title('Error Convergence')
+        ax.legend(loc='lower right')
         fig.savefig('convergence.png', bbox_inches='tight', pad_inches=0.1)
