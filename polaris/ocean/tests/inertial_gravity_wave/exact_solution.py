@@ -20,7 +20,7 @@ class ExactSolution():
         self.omega = np.sqrt(self.f0**2 +
                              self.g * self.b0 * (self.kx**2 + self.ky**2))
 
-    def eta(self, t):
+    def ssh(self, t):
 
         eta = self.eta0 * np.cos(self.kx * self.xCell +
                                  self.ky * self.yCell -

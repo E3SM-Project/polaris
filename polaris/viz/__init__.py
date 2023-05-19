@@ -16,7 +16,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.patches import Polygon
 
 
-def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
+def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None, ax=None,
                      title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_scale='linear'):
@@ -64,10 +64,13 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
         imp_res.files('polaris.viz') / 'polaris.mplstyle')
     plt.style.use(style_filename)
 
-    try:
-        os.makedirs(os.path.dirname(out_file_name))
-    except OSError:
-        pass
+    if ax is None:
+        if out_file_name is None:
+            out_file_name = f'{field_name}.png'
+        try:
+            os.makedirs(os.path.dirname(out_file_name))
+        except OSError:
+            pass
 
     if title is None:
         title = field_name
@@ -121,18 +124,20 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
     legend_width = fig_width / 5
     figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
-    plt.figure(figsize=figsize)
-    ax = plt.subplot(111)
+    if ax is None:
+        plt.figure(figsize=figsize)
+        ax = plt.subplot(111)
     ax.add_collection(ocean_patches)
     ax.set_xlabel('x (km)')
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
-    plt.colorbar(ocean_patches, extend='both', shrink=0.7)
-    plt.title(title)
-    plt.tight_layout(pad=0.5)
-    plt.savefig(out_file_name)
-    plt.close()
+    plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
+    if ax is None:
+        plt.title(title)
+        plt.tight_layout(pad=0.5)
+        plt.savefig(out_file_name)
+        plt.close()
 
 
 def _remove_boundary_edges_from_mask(ds, mask):

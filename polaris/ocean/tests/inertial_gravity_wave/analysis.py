@@ -1,3 +1,6 @@
+import datetime
+
+import cmocean  # noqa: E401
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
@@ -6,6 +9,7 @@ from polaris import Step
 from polaris.ocean.tests.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
+from polaris.viz import plot_horiz_field
 
 
 class Analysis(Step):
@@ -47,19 +51,44 @@ class Analysis(Step):
         """
         Run this step of the test case
         """
+        plt.switch_backend('Agg')
         config = self.config
         resolutions = self.resolutions
 
         section = config['inertial_gravity_wave']
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        f0 = section.getfloat('f0')
         eta0 = section.getfloat('eta0')
         npx = section.getfloat('nx')
         npy = section.getfloat('ny')
 
+        fig, axes = plt.subplots(nrows=3, ncols=3)
         rmse = []
-        for res in resolutions:
+        for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
             exact = ExactSolution(init, eta0, npx, npy, lx, ly)
+
+            t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
+                                            '%Y-%m-%d_%H:%M:%S')
+            tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
+                                            '%Y-%m-%d_%H:%M:%S')
+            t = (tf - t0).total_seconds()
+            rmse.append(np.sqrt(np.mean((ds.ssh - exact.ssh(t))**2)))
+            ds['ssh_exact'] = exact.ssh(t)
+            ds['ssh_error'] = ds.ssh - exact.ssh(t)
+            error_range = np.max(np.abs(ds.ssh_error.values))
+            plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
+                             cmap='cmo.balance')
+            plot_horiz_field(ds, init, 'ssh_exact', ax=axes[i, 1],
+                             cmap='cmo.balance')
+            plot_horiz_field(ds, init, 'ssh_error', ax=axes[i, 2],
+                             cmap='cmo.balance',
+                             vmin=-error_range, vmax=error_range)
+
+        fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.loglog(resolutions, rmse)
+        fig.savefig('convergence.png', bbox_inches='tight', pad_inches=0.1)
