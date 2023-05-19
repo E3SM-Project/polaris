@@ -90,14 +90,14 @@ class Viz(Step):
         super().__init__(test_case=test_case, name=name, subdir=subdir)
         self.add_input_file(
             filename='initial_state.nc',
-            target='../../initial_state/initial_state.nc')
-        # self.add_input_file(
-        #     filename='output.nc',
-        #     target='../forward/output.nc')
+            target='../initial_state/initial_state.nc')
+        self.add_input_file(
+            filename='output.nc',
+            target='../forward/output.nc')
         self.add_dependency(viz_map, name='viz_map')
         self.mesh_name = mesh_name
         self.add_output_file('init.png')
-        # self.add_output_file('final.png')
+        self.add_output_file('final.png')
 
     def run(self):
         """
@@ -115,19 +115,19 @@ class Viz(Step):
         ds_init = remapper.remap(ds_init)
 
         plot_global(ds_init.lon.values, ds_init.lat.values,
-                    ds_init.tracer1.values,
+                    ds_init.layerThickness.values,
                     out_filename='init.png', config=config,
                     colormap_section='galewsky_jet_viz',
                     title=f'{mesh_name} layerThickness at init',
                           plot_land=False)
 
-        # ds_out = xr.open_dataset('output.nc')
-        # ds_out = ds_out[['tracer1', ]].isel(Time=-1, nVertLevels=0)
-        # ds_out = remapper.remap(ds_out)
+        ds_out = xr.open_dataset('output.nc')
+        ds_out = ds_out[['layerThickness', ]].isel(Time=-1, nVertLevels=0)
+        ds_out = remapper.remap(ds_out)
 
-        # plot_global(ds_out.lon.values, ds_out.lat.values,
-        #             ds_out.tracer1.values,
-        #             out_filename='final.png', config=config,
-        #             colormap_section='galewsky_jet_viz',
-        #             title=f'{mesh_name} tracer after {period} days',
-        #             plot_land=False)
+        plot_global(ds_out.lon.values, ds_out.lat.values,
+                    ds_out.layerThickness.values,
+                    out_filename='final.png', config=config,
+                    colormap_section='galewsky_jet_viz',
+                    title=f'{mesh_name} layerThickness at end of run',
+                    plot_land=False)

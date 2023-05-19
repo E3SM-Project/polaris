@@ -46,13 +46,13 @@ class TestBalance(TestCase):
 
         mesh_name = f'Icos{res}'
         name = f'{mesh_name}_map'
-        subdir = f'{mesh_name}/map'
+        subdir = 'map'
         viz_map = VizMap(test_case=self, name=name, subdir=subdir,
                          mesh_name=mesh_name)
         self.add_step(viz_map)
 
         name = f'{mesh_name}_viz'
-        subdir = f'{mesh_name}/viz'
+        subdir = 'viz'
         self.add_step(Viz(test_case=self, name=name, subdir=subdir,
                           viz_map=viz_map, mesh_name=mesh_name))
 
