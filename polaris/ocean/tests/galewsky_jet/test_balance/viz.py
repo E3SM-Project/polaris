@@ -38,14 +38,14 @@ class VizMap(MappingFileStep):
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc',
-                            target='../../base_mesh/mesh.nc')
+                            target='../base_mesh/mesh.nc')
 
     def run(self):
         """
         Set up the source and destination grids for this step
         """
         config = self.config
-        section = config['galewsky_jet_viz']
+        section = config['galewsky_jet_vizmap']
         dlon = section.getfloat('dlon')
         dlat = section.getfloat('dlat')
         method = section.get('remap_method')
@@ -117,7 +117,7 @@ class Viz(Step):
         plot_global(ds_init.lon.values, ds_init.lat.values,
                     ds_init.layerThickness.values,
                     out_filename='init.png', config=config,
-                    colormap_section='galewsky_jet_viz',
+                    colormap_section='galewsky_jet_viz_thickness',
                     title=f'{mesh_name} layerThickness at init',
                           plot_land=False)
 
@@ -128,6 +128,17 @@ class Viz(Step):
         plot_global(ds_out.lon.values, ds_out.lat.values,
                     ds_out.layerThickness.values,
                     out_filename='final.png', config=config,
-                    colormap_section='galewsky_jet_viz',
+                    colormap_section='galewsky_jet_viz_thickness',
                     title=f'{mesh_name} layerThickness at end of run',
+                    plot_land=False)
+
+        ds_out = xr.open_dataset('output.nc')
+        ds_out = ds_out[['kineticEnergyCell', ]].isel(Time=-1, nVertLevels=0)
+        ds_out = remapper.remap(ds_out)
+
+        plot_global(ds_out.lon.values, ds_out.lat.values,
+                    ds_out.kineticEnergyCell.values,
+                    out_filename='final_ke.png', config=config,
+                    colormap_section='galewsky_jet_viz_kineticenergy',
+                    title=f'{mesh_name} kinetic energy at end of run',
                     plot_land=False)
