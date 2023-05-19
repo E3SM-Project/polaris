@@ -1,6 +1,4 @@
 omega:
-  time_integration:
-    config_time_integrator: RK4
   cvmix:
     config_use_cvmix: false
   ALE_vertical_grid:
@@ -8,11 +6,8 @@ omega:
     config_ALE_thickness_proportionality: weights_only
   debug:
     config_disable_thick_vadv: true
-    config_disable_thick_sflux: true
-    config_disable_vel_vmix: true
     config_disable_vel_vadv: true
     config_disable_tr_all_tend: true
-    config_disable_vel_hmix: true
   pressure_gradient:
     config_pressure_gradient_type: ssh_gradient
   tracer_forcing_debugTracers:
