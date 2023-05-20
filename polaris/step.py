@@ -500,10 +500,7 @@ class Step:
         if len(databases_with_downloads) > 0:
             self._fix_permissions(databases_with_downloads)
 
-        # convert inputs and outputs to absolute paths
-        self.inputs = [os.path.abspath(os.path.join(step_dir, filename)) for
-                       filename in inputs]
-
+        # inputs are already absolute paths, convert outputs to absolute paths
         self.outputs = [os.path.abspath(os.path.join(step_dir, filename)) for
                         filename in self.outputs]
 
@@ -565,18 +562,20 @@ class Step:
 
         if target is not None:
             filepath = os.path.join(step_dir, filename)
+            dirname = os.path.dirname(filepath)
             if copy:
                 shutil.copy(target, filepath)
             else:
-                dirname = os.path.dirname(filepath)
                 try:
                     os.makedirs(dirname)
                 except FileExistsError:
                     pass
                 symlink(target, filepath)
-            input_file = target
+            input_file = os.path.join(dirname, target)
         else:
-            input_file = filename
+            input_file = os.path.join(step_dir, filename)
+
+        input_file = os.path.abspath(input_file)
 
         return input_file, database_subdirs
 
