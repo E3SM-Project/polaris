@@ -1,0 +1,12 @@
+recursive-include polaris namelist.*
+recursive-include polaris streams.*
+recursive-include polaris README*
+
+recursive-include polaris *.cfg
+recursive-include polaris *.csv
+recursive-include polaris *.geojson
+recursive-include polaris *.json
+recursive-include polaris *.mplstyle
+recursive-include polaris *.template
+recursive-include polaris *.txt
+recursive-include polaris *.yaml
