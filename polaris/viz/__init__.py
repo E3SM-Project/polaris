@@ -64,7 +64,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     plt.style.use(style_filename)
 
     create_fig = True
-    if ax is None:
+    if ax is not None:
         create_fig = False
 
     if create_fig:

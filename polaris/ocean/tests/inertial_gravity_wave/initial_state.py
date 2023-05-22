@@ -10,7 +10,6 @@ from polaris.ocean.tests.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.viz import plot_horiz_field
 
 
 class InitialState(Step):
@@ -90,9 +89,6 @@ class InitialState(Step):
         ssh = ssh.expand_dims(dim='Time', axis=0)
         ds['ssh'] = ssh
 
-        plot_horiz_field(ds, ds_mesh, 'ssh',
-                         'initial_ssh.png', t_index=0)
-
         layerThickness = ssh + bottom_depth
         layerThickness, _ = xr.broadcast(layerThickness, ds.refBottomDepth)
         layerThickness = layerThickness.transpose('Time', 'nCells',
@@ -104,7 +100,5 @@ class InitialState(Step):
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
-                         'initial_normalVelocity.png', t_index=0)
 
         write_netcdf(ds, 'initial_state.nc')

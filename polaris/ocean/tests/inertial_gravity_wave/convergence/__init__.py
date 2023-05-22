@@ -4,6 +4,7 @@ from polaris.ocean.tests.inertial_gravity_wave.forward import Forward
 from polaris.ocean.tests.inertial_gravity_wave.initial_state import (
     InitialState,
 )
+from polaris.ocean.tests.inertial_gravity_wave.viz import Viz
 
 
 class Convergence(TestCase):
@@ -27,7 +28,8 @@ class Convergence(TestCase):
         resolutions = [200, 100, 50, 25]
         for res in resolutions:
             self.add_step(InitialState(test_case=self, resolution=res))
-            self.add_step(Forward(test_case=self, resolution=res,
-                                  ntasks=2, min_tasks=1))
+            self.add_step(Forward(test_case=self, resolution=res))
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions))
+        self.add_step(Viz(test_case=self, resolutions=resolutions),
+                      run_by_default=False)
