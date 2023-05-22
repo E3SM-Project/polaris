@@ -16,11 +16,10 @@ from matplotlib.colors import LogNorm
 from matplotlib.patches import Polygon
 
 
-def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None, ax=None,
-                     title=None, t_index=None, z_index=None,
+def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
+                     ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_scale='linear'):
-
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -64,7 +63,11 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None, ax=None,
         imp_res.files('polaris.viz') / 'polaris.mplstyle')
     plt.style.use(style_filename)
 
+    create_fig = True
     if ax is None:
+        create_fig = False
+
+    if create_fig:
         if out_file_name is None:
             out_file_name = f'{field_name}.png'
         try:
@@ -124,7 +127,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None, ax=None,
     legend_width = fig_width / 5
     figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
-    if ax is None:
+    if create_fig:
         plt.figure(figsize=figsize)
         ax = plt.subplot(111)
     ax.add_collection(ocean_patches)
@@ -133,7 +136,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None, ax=None,
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
     plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
-    if ax is None:
+    if create_fig:
         plt.title(title)
         plt.tight_layout(pad=0.5)
         plt.savefig(out_file_name)
