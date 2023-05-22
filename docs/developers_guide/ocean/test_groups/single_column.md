@@ -31,6 +31,9 @@ generated, with 100 layers of 4 m thickness each by default.  Finally, the
 initial temperature and salinity field are computed with variability in the
 vertical dimension only.
 
+A forcing netCDF file is also created based on the config options given in the
+`single_column_forcing` section.
+
 ### forward
 
 The class {py:class}`polaris.ocean.tests.single_column.forward.Forward`
