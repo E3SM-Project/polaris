@@ -1,10 +1,12 @@
 import cmocean  # noqa: F401
 import xarray as xr
 from mpas_tools.io import write_netcdf
-from mpas_tools.mesh.jet import init as jet_init
 
 from polaris import Step
 from polaris.ocean.vertical import init_vertical_coord
+
+# from mpas_tools.mesh.jet import init as jet_init
+
 
 
 class InitialState(Step):
@@ -38,6 +40,8 @@ class InitialState(Step):
         self.add_input_file(
             filename='graph.info',
             target='../base_mesh/graph.info')
+        self.add_input_file(
+            filename='init.nc')
         self.add_output_file('initial_state.nc')
 
     def run(self):
@@ -46,9 +50,9 @@ class InitialState(Step):
         """
         config = self.config
 # update rsph from cime.constants
-        jet_init(name='mesh.nc', save='velocity_ic.nc',
-                 rsph=6371220.0, pert=False)
-        ds2 = xr.open_dataset('velocity_ic.nc')
+        #jet_init(name='mesh.nc', save='velocity_ic.nc',
+        #         rsph=6371220.0, pert=False)
+        #ds2 = xr.open_dataset('velocity_ic.nc')
 
         dsMesh = xr.open_dataset('mesh.nc')
 
@@ -58,8 +62,8 @@ class InitialState(Step):
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
         ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
-        # ds['ssh'] = xr.zeros_like(x_cell)
-        ds['ssh'] = ds2.h - ds['bottomDepth']
+        ds['ssh'] = xr.zeros_like(x_cell)
+        #ds['ssh'] = ds2.h - ds['bottomDepth']
 
         init_vertical_coord(config, ds)
 
@@ -74,8 +78,20 @@ class InitialState(Step):
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
+        #ds2 = xr.open_dataset('init.nc')
+        jet_init(name='mesh.nc', save='velocity_ic.nc',
+                 rsph=6371220.0, pert=False)
+        ds2 = xr.open_dataset('velocity_ic.nc')
+
         unrm_array, _ = xr.broadcast(ds2.u, ds.refZMid)
         ds['normalVelocity'] = unrm_array
+        #ds['normalVelocity'] = ds2.u
+        h_array, _ = xr.broadcast(ds2.h, ds.refZMid)
+        ds['layerThickness'] = h_array
+        ds['fCell'] = ds2.fCell
+        ds['fEdge'] = ds2.fEdge
+        ds['fVertex'] = ds2.fVertex
+        ds['ssh'] = ds2.h - ds['bottomDepth']
 
         # if (config.getfloat('vertical_grid', 'grid_type') == 'uniform'):
         # nlev = config.getfloat('vertical_grid', 'vert_levels')

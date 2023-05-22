@@ -142,3 +142,13 @@ class Viz(Step):
                     colormap_section='galewsky_jet_viz_kineticenergy',
                     title=f'{mesh_name} kinetic energy at end of run',
                     plot_land=False)
+
+        ds_out2 = ds_out[['kineticEnergyCell', ]].isel(Time=1, nVertLevels=0)
+        ds_out2 = remapper.remap(ds_out2)
+
+        plot_global(ds_out.lon.values, ds_out.lat.values,
+                    ds_out.kineticEnergyCell.values - ds_out2.kineticEnergyCell.values,
+                    out_filename='diff_ke.png', config=config,
+                    colormap_section='galewsky_jet_viz_kineticenergy_diff',
+                    title=f'{mesh_name} kinetic energy diff',
+                    plot_land=False)
