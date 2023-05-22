@@ -19,7 +19,7 @@ omega:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:00:01
+      output_interval: 0000_00:20:00
       clobber_mode: truncate
       contents:
       - xtime

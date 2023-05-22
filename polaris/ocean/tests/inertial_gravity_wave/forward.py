@@ -61,8 +61,10 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tests.inertial_gravity_wave',
                            'forward.yaml')
 
-        dt_dict = {200: '00:10:00',
+        dt_dict = {400: '00:20:00',
+                   200: '00:10:00',
                    100: '00:05:00',
-                   50: '00:02:30'}
+                   50: '00:02:30',
+                   25: '00:01:15'}
         options = {'time_integration': {'config_dt': dt_dict[resolution]}}
         self.add_model_config_options(options)

@@ -24,7 +24,7 @@ class Convergence(TestCase):
         name = 'convergence'
         super().__init__(test_group=test_group, name=name)
 
-        resolutions = [200, 100, 50]
+        resolutions = [200, 100, 50, 25]
         for res in resolutions:
             self.add_step(InitialState(test_case=self, resolution=res))
             self.add_step(Forward(test_case=self, resolution=res,
