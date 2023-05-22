@@ -54,6 +54,7 @@ class Analysis(Step):
         plt.switch_backend('Agg')
         config = self.config
         resolutions = self.resolutions
+        nres = len(resolutions)
 
         section = config['inertial_gravity_wave']
         lx = section.getfloat('lx')
@@ -62,7 +63,7 @@ class Analysis(Step):
         npx = section.getfloat('nx')
         npy = section.getfloat('ny')
 
-        fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(12, 6))
+        fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
         for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
@@ -80,7 +81,8 @@ class Analysis(Step):
             # Comparison plots
             ds['ssh_exact'] = exact.ssh(t)
             ds['ssh_error'] = ssh_model - exact.ssh(t)
-            error_range = np.max(np.abs(ds.ssh_error.values))
+            if i == 0:
+                error_range = np.max(np.abs(ds.ssh_error.values))
 
             plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
                              cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
