@@ -134,7 +134,8 @@ class InitialState(Step):
         ds_forcing = xr.Dataset()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
-        forcing_array_surface = xr.expand_dims(dim='Time', axis=0)
+        forcing_array_surface = forcing_array_surface.expand_dims(
+            dim='Time', axis=0)
         section = config['single_column_forcing']
         temperature_piston_velocity = section.getfloat(
             'temperature_piston_velocity')
@@ -162,9 +163,9 @@ class InitialState(Step):
         ds_forcing['salinityPistonVelocity'] = \
             salinity_piston_velocity * forcing_array_surface
         ds_forcing['temperatureSurfaceRestoringValue'] = \
-            temperature_surface_restoring_value * forcing_array
+            temperature_surface_restoring_value * forcing_array_surface
         ds_forcing['salinitySurfaceRestoringValue'] = \
-            salinity_surface_restoring_value * forcing_array
+            salinity_surface_restoring_value * forcing_array_surface
         ds_forcing['temperatureInteriorRestoringRate'] = \
             temperature_interior_restoring_rate * forcing_array
         ds_forcing['salinityInteriorRestoringRate'] = \
