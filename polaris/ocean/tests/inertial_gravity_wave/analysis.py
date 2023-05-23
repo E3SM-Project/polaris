@@ -56,11 +56,6 @@ class Analysis(Step):
         nres = len(resolutions)
 
         section = config['inertial_gravity_wave']
-        lx = section.getfloat('lx')
-        ly = np.sqrt(3.0) / 2.0 * lx
-        eta0 = section.getfloat('eta0')
-        npx = section.getfloat('nx')
-        npy = section.getfloat('ny')
         conv_thresh = section.getfloat('conv_thresh')
         conv_max = section.getfloat('conv_max')
 
@@ -69,7 +64,7 @@ class Analysis(Step):
         for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
-            exact = ExactSolution(init, eta0, npx, npy, lx, ly)
+            exact = ExactSolution(init, config)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
                                             '%Y-%m-%d_%H:%M:%S')

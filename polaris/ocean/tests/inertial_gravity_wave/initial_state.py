@@ -52,9 +52,6 @@ class InitialState(Step):
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
         f0 = section.getfloat('f0')
-        eta0 = section.getfloat('eta0')
-        npx = section.getfloat('nx')  # rename these
-        npy = section.getfloat('ny')
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
@@ -83,7 +80,7 @@ class InitialState(Step):
         ds['fVertex'] = f0 * xr.ones_like(ds.xVertex)
 
         ds_mesh['maxLevelCell'] = ds.maxLevelCell
-        exact_solution = ExactSolution(ds, eta0, npx, npy, lx, ly)
+        exact_solution = ExactSolution(ds, config)
 
         ssh = exact_solution.ssh(0.0)
         ssh = ssh.expand_dims(dim='Time', axis=0)
