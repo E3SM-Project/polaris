@@ -78,7 +78,7 @@ class InitialState(Step):
 
         # ds2 = xr.open_dataset('init.nc')
         jet_init(name='mesh.nc', save='velocity_ic.nc',
-                 rsph=6371220.0, pert=False)
+                 rsph=6371220.0, pert=True)
         ds2 = xr.open_dataset('velocity_ic.nc')
 
         unrm_array, _ = xr.broadcast(ds2.u, ds.refZMid)
