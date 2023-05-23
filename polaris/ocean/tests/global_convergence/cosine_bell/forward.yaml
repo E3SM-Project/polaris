@@ -1,10 +1,13 @@
 omega:
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+    config_ALE_thickness_proportionality: weights_only
+  pressure_gradient:
+    config_pressure_gradient_type: ssh_gradient
   run_modes:
     config_ocean_run_mode: forward
   time_management:
     config_run_duration: 0024_00:00:00
-  ALE_vertical_grid:
-    config_vert_coord_movement: impermeable_interfaces
   decomposition:
     config_block_decomp_file_prefix: graph.info.part.
   time_integration:
