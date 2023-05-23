@@ -82,17 +82,17 @@ class Viz(Step):
 
             plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
                              cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
-                             vmin=-eta0, vmax=eta0)
+                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
             plot_horiz_field(ds, init, 'ssh_exact', ax=axes[i, 1],
                              cmap='cmo.balance',
-                             vmin=-eta0, vmax=eta0)
+                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
             plot_horiz_field(ds, init, 'ssh_error', ax=axes[i, 2],
-                             cmap='cmo.balance',
+                             cmap='cmo.balance', cmap_title="dSSH",
                              vmin=-error_range, vmax=error_range)
 
-        axes[0, 0].set_title('Numerical')
-        axes[0, 1].set_title('Exact')
-        axes[0, 2].set_title('Error')
+        axes[0, 0].set_title('Numerical solution')
+        axes[0, 1].set_title('Analytical solution')
+        axes[0, 2].set_title('Error (Numerical - Analytical)')
 
         pad = 5
         for ax, res in zip(axes[:, 0], resolutions):

@@ -51,7 +51,7 @@ class InitialState(Step):
 
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        f0 = section.getfloat('f0')
+        f0 = section.getfloat('coriolis_parameter')
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution

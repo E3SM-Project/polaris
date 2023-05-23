@@ -28,7 +28,7 @@ class Analysis(Step):
 
         Parameters
         ----------
-        test_case : polaris.ocean.tests.inertial_gravity_wave.convergence.Convergence # noqa: E501
+        test_case : polaris.TestCase
             The test case this step belongs to
 
         resolutions : list of int

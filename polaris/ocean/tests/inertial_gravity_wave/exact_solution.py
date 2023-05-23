@@ -2,24 +2,70 @@ import numpy as np
 
 
 class ExactSolution():
+    """
+    Class to compute the exact solution for the inertial gravity wave
+    test case
 
+    Attributes
+    ----------
+    angleEdge : xr.DataArray
+        angle between edge normals and positive x direction
+
+    xCell : xr.DataArray
+        x coordinates of mesh cell centers
+
+    yCell : xr.DataArray
+        y coordinates of mesh cell centers
+
+    xEdge: xr.DataArray
+        x coordinates of mesh edges
+
+    yEdge : xr.DataArray
+        y coordinates of mesh edges
+
+    f0 : float
+        Coriolis parameter
+
+    eta0 : float
+        Amplitide of sea surface height
+
+    kx : float
+        Wave number in the x direction
+
+    ky : float
+        Wave number in the y direction
+
+    omega : float
+        Angular frequency
+    """
     def __init__(self, ds, config):
+        """
+        Create a new exact solution object
 
-        bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
+        Parameters
+        ----------
+        ds : xr.DataSet
+            MPAS mesh information
+
+        config : polaris.config.PolarisConfigParser
+            Config options for test case
+        """
         self.angleEdge = ds.angleEdge
         self.xCell = ds.xCell
         self.yCell = ds.yCell
         self.xEdge = ds.xEdge
         self.yEdge = ds.yEdge
 
+        bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         section = config['inertial_gravity_wave']
-        self.g = 9.80616
-        self.f0 = section.getfloat('f0')
-        self.eta0 = section.getfloat('eta0')
+        self.f0 = section.getfloat('coriolis_parameter')
+        self.eta0 = section.getfloat('ssh_amplitude')
         lx = section.getfloat('lx')
+        npx = section.getfloat('n_wavelengths_x')
+        npy = section.getfloat('n_wavelenghts_y')
+
+        self.g = 9.80616
         ly = np.sqrt(3.0) / 2.0 * lx
-        npx = section.getfloat('nx')  # rename these
-        npy = section.getfloat('ny')
         self.kx = npx * 2.0 * np.pi / (lx * 1e3)
         self.ky = npy * 2.0 * np.pi / (ly * 1e3)
         self.omega = np.sqrt(self.f0**2 +

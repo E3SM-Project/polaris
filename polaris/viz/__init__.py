@@ -19,7 +19,8 @@ from matplotlib.patches import Polygon
 def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
-                     cmap=None, cmap_set_under=None, cmap_scale='linear'):
+                     cmap=None, cmap_set_under=None, cmap_scale='linear',
+                     cmap_title=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -59,6 +60,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
+
+    cmap_title : str
+        Title for color bar
     """
     style_filename = str(
         imp_res.files('polaris.viz') / 'polaris.mplstyle')
@@ -136,7 +140,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
-    plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
+    cbar = plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
+    if cmap_title is not None:
+        cbar.ax.set_title(cmap_title)
     if create_fig:
         plt.title(title)
         plt.tight_layout(pad=0.5)
