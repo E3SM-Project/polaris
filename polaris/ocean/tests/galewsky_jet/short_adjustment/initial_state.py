@@ -9,7 +9,7 @@ from polaris.ocean.vertical import init_vertical_coord
 
 class InitialState(Step):
     """
-    A step for creating a mesh and initial condition 
+    A step for creating a mesh and initial condition
     for galewsky jet - short adjustment
     test case
 
