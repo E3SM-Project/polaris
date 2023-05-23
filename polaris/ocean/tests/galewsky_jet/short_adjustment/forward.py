@@ -8,7 +8,7 @@ from polaris.ocean.model import OceanModelStep
 class Forward(OceanModelStep):
     """
     A step for performing forward ocean component runs as part of
-    the galewsky jet - perturbed test case
+    the galewsky jet - short adjustment test case
 
     Attributes
     ----------
@@ -22,7 +22,7 @@ class Forward(OceanModelStep):
 
         Parameters
         ----------
-        test_case : polaris.ocean.tests.galewsky_jet.test_perturbed.TestPerturbed  # noqa: E501
+        test_case : polaris.ocean.tests.galewsky_jet.short_adjustment.ShortAdjustment  # noqa: E501
             The test case this step belongs to
 
         resolution : int
@@ -39,7 +39,7 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_yaml_file(
-            'polaris.ocean.tests.galewsky_jet.test_perturbed',
+            'polaris.ocean.tests.galewsky_jet.short_adjustment',
             'forward.yaml')
 
         self.add_input_file(filename='initial_state.nc',

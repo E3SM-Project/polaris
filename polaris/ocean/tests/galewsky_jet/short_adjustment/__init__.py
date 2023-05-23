@@ -1,15 +1,16 @@
 from polaris.mesh.spherical import IcosahedralMeshStep
-from polaris.ocean.tests.galewsky_jet.test_perturbed.forward import Forward
-from polaris.ocean.tests.galewsky_jet.test_perturbed.initial_state import (
+from polaris.ocean.tests.galewsky_jet.short_adjustment.forward import Forward
+from polaris.ocean.tests.galewsky_jet.short_adjustment.initial_state import (
     InitialState,
 )
-from polaris.ocean.tests.galewsky_jet.test_perturbed.viz import Viz, VizMap
+from polaris.ocean.tests.galewsky_jet.short_adjustment.viz import Viz, VizMap
 from polaris.testcase import TestCase
 
 
-class TestPerturbed(TestCase):
+class ShortAdjustment(TestCase):
     """
-    A class to define the Galewsky jet perturbed test case
+    A class to define the Galewsky jet short adjustment test case
+    (6 hrs for gravity wave adjustment)
 
     Attributes
     ----------
@@ -30,7 +31,7 @@ class TestPerturbed(TestCase):
         resolution : float
             The resolution of the test case (in km)
         """
-        name = 'perturbed'
+        name = 'short_adjustment'
         self.resolution = resolution
         res = int(resolution)
         subdir = f'{res}km/{name}'

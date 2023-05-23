@@ -1,6 +1,7 @@
 from polaris import TestGroup
 from polaris.ocean.tests.galewsky_jet.test_balance import TestBalance
-from polaris.ocean.tests.galewsky_jet.test_perturbed import TestPerturbed
+from polaris.ocean.tests.galewsky_jet.short_adjustment import ShortAdjustment
+from polaris.ocean.tests.galewsky_jet.barotropic_instability import BarotropicInstability
 
 
 class GalewskyJet(TestGroup):
@@ -18,4 +19,6 @@ class GalewskyJet(TestGroup):
             self.add_test_case(
                 TestBalance(test_group=self, resolution=resolution))
             self.add_test_case(
-                TestPerturbed(test_group=self, resolution=resolution))
+                ShortAdjustment(test_group=self, resolution=resolution))
+            self.add_test_case(
+                BarotropicInstability(test_group=self, resolution=resolution))

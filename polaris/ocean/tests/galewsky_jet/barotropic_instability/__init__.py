@@ -1,15 +1,16 @@
 from polaris.mesh.spherical import IcosahedralMeshStep
-from polaris.ocean.tests.galewsky_jet.test_balance.forward import Forward
-from polaris.ocean.tests.galewsky_jet.test_balance.initial_state import (
+from polaris.ocean.tests.galewsky_jet.barotropic_instability.forward import Forward
+from polaris.ocean.tests.galewsky_jet.barotropic_instability.initial_state import (
     InitialState,
 )
-from polaris.ocean.tests.galewsky_jet.test_balance.viz import Viz, VizMap
+from polaris.ocean.tests.galewsky_jet.barotropic_instability.viz import Viz, VizMap
 from polaris.testcase import TestCase
 
 
-class TestBalance(TestCase):
+class BarotropicInstability(TestCase):
     """
-    A class to define the Galewsky jet test balance test cases
+    A class to define the Galewsky jet barotropic instability
+    test case (6 days for instbaility development)
 
     Attributes
     ----------
@@ -30,7 +31,7 @@ class TestBalance(TestCase):
         resolution : float
             The resolution of the test case (in km)
         """
-        name = 'steady_state'
+        name = 'barotropic_instability'
         self.resolution = resolution
         res = int(resolution)
         subdir = f'{res}km/{name}'
