@@ -49,6 +49,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     t_index, z_index: int, optional
         The indices of 'Time' and 'nVertLevels' axes to select for plotting
+        The default time index is 0 (initial time)
 
     cmap : Colormap or str, optional
         A color map to plot
