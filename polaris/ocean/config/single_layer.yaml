@@ -10,5 +10,3 @@ omega:
     config_disable_tr_all_tend: true
   pressure_gradient:
     config_pressure_gradient_type: ssh_gradient
-  tracer_forcing_debugTracers:
-    config_use_debugTracers: false
