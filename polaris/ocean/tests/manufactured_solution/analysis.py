@@ -59,7 +59,7 @@ class Analysis(Step):
         for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
-            exact = ExactSolution(init, config)
+            exact = ExactSolution(config, init)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
                                             '%Y-%m-%d_%H:%M:%S')
