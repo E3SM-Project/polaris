@@ -129,7 +129,7 @@ def plot_global(lon, lat, data_array, out_filename, config, colormap_section,
     cbar.set_label(colorbar_label)
     if ticks is not None:
         cbar.set_ticks(ticks)
-        cbar.set_ticklabels(['{}'.format(tick) for tick in ticks])
+        cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
     plt.savefig(out_filename, dpi='figure', bbox_inches='tight',
                 pad_inches=0.2)
