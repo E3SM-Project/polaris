@@ -12,14 +12,22 @@ class IdealAge(TestCase):
     The default test case for the single column test group simply creates
     the mesh and initial condition, then performs a short forward run on 4
     cores.
+
+    Attributes
+    -------------
+    resolution : float
+        The horizontal resolution in km
     """
-    def __init__(self, test_group, resolution, ideal_age=True):
+    def __init__(self, test_group, resolution):
         """
         Create the test case
         Parameters
         ----------
         test_group : polaris.ocean.tests.single_column.SingleColumn
             The test group that this test case belongs to
+
+        resolution : float
+            The horizontal resolution in km
         """
         name = 'ideal_age'
         self.resolution = resolution
@@ -32,14 +40,19 @@ class IdealAge(TestCase):
                          subdir=subdir)
         self.add_step(
             InitialState(test_case=self, resolution=resolution,
-                         ideal_age=ideal_age))
+                         ideal_age=True))
 
         self.add_step(
             Forward(test_case=self, ntasks=1, min_tasks=1,
-                    openmp_threads=1, ideal_age=ideal_age))
+                    openmp_threads=1))
+
+#        step.add_yaml_file('polaris.ocean.tests.single_column.ideal_age',
+#                           'forward.yaml')
+
+#        self.add_step(step)
 
         self.add_step(
-            Viz(test_case=self, ideal_age=ideal_age))
+            Viz(test_case=self, ideal_age=True))
 
     def validate(self):
         """

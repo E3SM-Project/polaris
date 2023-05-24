@@ -39,7 +39,7 @@ vertical dimension only.
 A forcing netCDF file is also created based on the config options given in the
 `single_column_forcing` section.
 
-For the ideal age tracer case, an initial profile for the ideal age tracer is
+For cases with ideal age tracers, an initial profile for the ideal age tracer is
 also constructed and is equal to zero seconds throughout the column.
 
 ### forward
@@ -53,9 +53,6 @@ the `initial_state` step. The ocean model is run.
 The class {py:class}`polaris.ocean.tests.single_column.viz.Viz`
 produces figures comparing the initial and final profiles of temperature and
 salinity.
-
-For the ideal age tracer case, an additional figure is produced comparing the 
-initial and final profile of ideal age.
 
 (dev-ocean-single-column-cvmix)=
 
@@ -71,6 +68,9 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`.
 The {py:class}`polaris.ocean.tests.single_column.cvmix.IdealAge` test
 performs the same 1-day run on 1 cores as the 
 {py:class}`polaris.ocean.tests.single_column.cvmix.CVMix` test, but with a
-single ideal age tracer included. Validation of `temperature`, `salinity`, 
+single ideal age tracer included. An additional `forward.yaml` file is 
+included in the ideal age tracer test case for enabeling on the ideal age 
+tracers and ideal age surface forcing, as well as for defining 
+`idealAgeTracers` streams. Validation of `temperature`, `salinity`, 
 and `idealAgeTracers` are performed against a baseline if one is provided
 when calling {ref}`dev-polaris-setup`.

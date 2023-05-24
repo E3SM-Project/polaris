@@ -74,10 +74,6 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tests.single_column',
                            'forward.yaml')
 
-        if ideal_age:
-            self.add_yaml_file('polaris.ocean.tests.single_column.ideal_age',
-                               'forward.yaml')
-
         self.add_output_file(filename='output.nc')
 
         self.resources_fixed = (ntasks is not None)
