@@ -1,0 +1,12 @@
+omega:
+  cvmix:
+    config_use_cvmix: false
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+    config_ALE_thickness_proportionality: weights_only
+  debug:
+    config_disable_thick_vadv: true
+    config_disable_vel_vadv: true
+    config_disable_tr_all_tend: true
+  pressure_gradient:
+    config_pressure_gradient_type: ssh_gradient
