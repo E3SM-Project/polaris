@@ -15,6 +15,14 @@ repos:
     hooks:
       - id: isort
 
+  # Can run individually with `flynt [file]` or `flynt [source]`
+  - repo: https://github.com/ikamensh/flynt
+    rev: '0.78'
+    hooks:
+      - id: flynt
+        args: ["--fail-on-change", "--verbose"]
+        require_serial: true
+
   # Can run individually with `pre-commit run flake8 --all-files`
   # Need to use flake8 GitHub mirror due to CentOS git issue with GitLab
   # https://github.com/pre-commit/pre-commit/issues/1206
