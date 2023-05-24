@@ -1,9 +1,4 @@
 omega:
-  ALE_vertical_grid:
-    config_vert_coord_movement: impermeable_interfaces
-    config_ALE_thickness_proportionality: weights_only
-  pressure_gradient:
-    config_pressure_gradient_type: ssh_gradient
   run_modes:
     config_ocean_run_mode: forward
   time_management:
@@ -30,8 +25,7 @@ omega:
     config_disable_tr_sflux: true
     config_disable_tr_nonlocalflux: true
     config_check_ssh_consistency: false
-  cvmix:
-    config_use_cvmix: false
+    config_disable_tr_all_tend: false
   eos:
     config_eos_type: linear
   forcing:

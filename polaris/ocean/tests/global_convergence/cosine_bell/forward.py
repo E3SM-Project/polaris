@@ -44,7 +44,7 @@ class Forward(OceanModelStep):
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
+        self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
         self.add_yaml_file(
             'polaris.ocean.tests.global_convergence.cosine_bell',
             'forward.yaml')
