@@ -119,6 +119,5 @@ class Forward(OceanModelStep):
                    'config_manufactured_solution_wavelength_x':
                    exact_solution.lambda_x,
                    'config_manufactured_solution_wavelength_y':
-                   exact_solution.lambda_y,
-                   'config_manufactured_solution_omega': exact_solution.omega}
+                   exact_solution.lambda_y}
         self.add_model_config_options(options)
