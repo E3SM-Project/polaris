@@ -2,7 +2,6 @@ import datetime
 import warnings
 
 import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
@@ -53,13 +52,11 @@ class Analysis(Step):
         """
         config = self.config
         resolutions = self.resolutions
-        nres = len(resolutions)
 
         section = config['inertial_gravity_wave']
         conv_thresh = section.getfloat('conv_thresh')
         conv_max = section.getfloat('conv_max')
 
-        fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
         for i, res in enumerate(resolutions):
             init = xr.open_dataset(f'init_{res}km.nc')
