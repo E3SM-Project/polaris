@@ -35,10 +35,10 @@ class ExactSolution():
 
         return eta
 
-    def normalVelocity(self, t):
+    def normal_velocity(self, t):
 
         u = self.eta0 * np.cos(self.kx * self.xEdge +
                                self.ky * self.yEdge -
                                self.omega * t)
-        v = 0.0
+        v = u
         return u * np.cos(self.angleEdge) + v * np.sin(self.angleEdge)

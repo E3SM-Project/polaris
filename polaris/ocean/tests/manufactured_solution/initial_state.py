@@ -84,7 +84,7 @@ class InitialState(Step):
         # Evaluate the exact solution at time=0
         exact_solution = ExactSolution(config, ds)
         ssh = exact_solution.ssh(0.0)
-        normal_velocity = exact_solution.normalVelocity(0.0)
+        normal_velocity = exact_solution.normal_velocity(0.0)
 
         ssh = ssh.expand_dims(dim='Time', axis=0)
         ds['ssh'] = ssh
@@ -94,10 +94,10 @@ class InitialState(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        layerThickness = ssh + bottom_depth
-        layerThickness, _ = xr.broadcast(layerThickness, ds.refBottomDepth)
-        layerThickness = layerThickness.transpose('Time', 'nCells',
-                                                  'nVertLevels')
-        ds['layerThickness'] = layerThickness
+        layer_thickness = ssh + bottom_depth
+        layer_thickness, _ = xr.broadcast(layer_thickness, ds.refBottomDepth)
+        layer_thickness = layer_thickness.transpose('Time', 'nCells',
+                                                    'nVertLevels')
+        ds['layerThickness'] = layer_thickness
 
         write_netcdf(ds, 'initial_state.nc')
