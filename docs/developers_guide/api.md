@@ -332,7 +332,7 @@ ocean/api
    MappingFileStep.dst_from_proj
    MappingFileStep.dst_from_points
    MappingFileStep.get_remapper
-   MappingFileStep.run
+   MappingFileStep.runtime_setup
 ```
 
 
