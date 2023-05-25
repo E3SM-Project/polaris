@@ -3,7 +3,7 @@ from polaris.ocean.tests.galewsky_jet.short_adjustment.forward import Forward
 from polaris.ocean.tests.galewsky_jet.short_adjustment.initial_state import (
     InitialState,
 )
-from polaris.ocean.tests.galewsky_jet.short_adjustment.viz import Viz, VizMap
+from polaris.ocean.tests.galewsky_jet.short_adjustment.viz import Viz
 from polaris.testcase import TestCase
 
 
@@ -45,17 +45,17 @@ class ShortAdjustment(TestCase):
         self.add_step(
             Forward(test_case=self, resolution=resolution))
 
-        # mesh_name = f'Icos{res}'
+        mesh_name = f'Icos{res}'
         # name = f'{mesh_name}_map'
         # subdir = 'map'
         # viz_map = VizMap(test_case=self, name=name, subdir=subdir,
         #                  mesh_name=mesh_name)
         # self.add_step(viz_map)
 
-        # name = f'{mesh_name}_viz'
-        # subdir = 'viz'
-        # self.add_step(Viz(test_case=self, name=name, subdir=subdir,
-        #                   viz_map=viz_map, mesh_name=mesh_name))
+        name = f'{mesh_name}_viz'
+        subdir = 'viz'
+        self.add_step(Viz(test_case=self, name=name, subdir=subdir,
+                          mesh_name=mesh_name))
 
     def configure(self):
         """
