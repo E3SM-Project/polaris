@@ -653,8 +653,7 @@ def update_permissions(config, env_type, activ_path,  # noqa: C901
 
     if env_type != 'dev':
 
-        activation_files = glob.glob('{}/*_polaris*.sh'.format(
-            activ_path))
+        activation_files = glob.glob(f'{activ_path}/*_polaris*.sh')
         for file_name in activation_files:
             os.chmod(file_name, read_perm)
             os.chown(file_name, new_uid, new_gid)
@@ -953,13 +952,13 @@ def main():  # noqa: C901
 
         if env_type == 'dev':
             if args.env_name is not None:
-                prefix = 'load_{}'.format(args.env_name)
+                prefix = f'load_{args.env_name}'
             else:
-                prefix = 'load_dev_polaris_{}'.format(polaris_version)
+                prefix = f'load_dev_polaris_{polaris_version}'
         elif env_type == 'test_release':
-            prefix = 'test_polaris_{}'.format(polaris_version)
+            prefix = f'test_polaris_{polaris_version}'
         else:
-            prefix = 'load_polaris_{}'.format(polaris_version)
+            prefix = f'load_polaris_{polaris_version}'
 
         script_filename = write_load_polaris(
             conda_template_path, activ_path, conda_base, env_type,
@@ -979,14 +978,14 @@ def main():  # noqa: C901
 
             default_compiler = config.get('deploy', 'compiler')
             default_mpi = config.get('deploy',
-                                     'mpi_{}'.format(default_compiler))
+                                     f'mpi_{default_compiler}')
             if compiler == default_compiler and mpi == default_mpi:
                 # make a default symlink to the activation script
                 link = os.path.join(activ_path, 'load_latest_polaris.sh')
                 check_call(f'ln -sfn {script_filename} {link}')
         os.chdir(source_path)
 
-    commands = '{} && conda clean -y -p -t'.format(activate_base)
+    commands = f'{activate_base} && conda clean -y -p -t'
     check_call(commands, logger=logger)
 
     if args.update_spack or env_type != 'dev':

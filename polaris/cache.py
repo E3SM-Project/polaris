@@ -41,7 +41,7 @@ def update_cache(step_paths, date_string=None, dry_run=False):
         raise ValueError('You must cache files from either Anvil or Chrysalis')
 
     config = PolarisConfigParser()
-    config.add_from_package('polaris.machines', '{}.cfg'.format(machine))
+    config.add_from_package('polaris.machines', f'{machine}.cfg')
 
     if date_string is None:
         date_string = datetime.now().strftime("%y%m%d")
