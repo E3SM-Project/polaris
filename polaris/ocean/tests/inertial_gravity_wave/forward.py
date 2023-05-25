@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import xarray as xr
 
@@ -59,14 +61,6 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tests.inertial_gravity_wave',
                            'forward.yaml')
 
-        dt_dict = {400: '00:20:00',
-                   200: '00:10:00',
-                   100: '00:05:00',
-                   50: '00:02:30',
-                   25: '00:01:15'}
-        options = {'time_integration': {'config_dt': dt_dict[resolution]}}
-        self.add_model_config_options(options)
-
     def compute_cell_count(self, at_setup):
         """
         Compute the approximate number of cells in the mesh, used to constrain
@@ -95,3 +89,25 @@ class Forward(OceanModelStep):
             with xr.open_dataset('initial_state.nc') as ds:
                 cell_count = ds.sizes['nCells']
         return cell_count
+
+    def dynamic_model_config(self, at_setup):
+        """
+        Set the model time step from config options at setup and runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup=at_setup)
+
+        # dt is proportional to resolution
+        config = self.config
+        section = config['inertial_gravity_wave']
+        dt_per_km = section.getfloat('dt_per_km')
+        dt = dt_per_km * self.resolution
+        # https://stackoverflow.com/a/1384565/7728169
+        dt_str = time.strftime('%H:%M:%S', time.gmtime(dt))
+        options = {'config_dt': dt_str}
+        self.add_model_config_options(options)
