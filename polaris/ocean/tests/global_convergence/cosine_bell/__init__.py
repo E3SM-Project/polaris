@@ -24,8 +24,11 @@ class CosineBell(TestCase):
 
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
+
+    include_viz : bool
+        Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, test_group, icosahedral):
+    def __init__(self, test_group, icosahedral, include_viz):
         """
         Create test case for creating a global MPAS-Ocean mesh
 
@@ -37,15 +40,21 @@ class CosineBell(TestCase):
         icosahedral : bool
             Whether to use icosahedral, as opposed to less regular, JIGSAW
             meshes
+
+        include_viz : bool
+            Include VizMap and Viz steps for each resolution
         """
         if icosahedral:
             subdir = 'icos/cosine_bell'
         else:
             subdir = 'qu/cosine_bell'
+        if include_viz:
+            subdir = f'{subdir}_with_viz'
         super().__init__(test_group=test_group, name='cosine_bell',
                          subdir=subdir)
         self.resolutions = list()
         self.icosahedral = icosahedral
+        self.include_viz = include_viz
 
         # add the steps with default resolutions so they can be listed
         config = PolarisConfigParser()
@@ -125,17 +134,17 @@ class CosineBell(TestCase):
             self.add_step(Forward(test_case=self, resolution=resolution,
                                   mesh_name=mesh_name))
 
-            name = f'{mesh_name}_map'
-            subdir = f'{mesh_name}/map'
-            viz_map = VizMap(test_case=self, name=name, subdir=subdir,
-                             mesh_name=mesh_name)
-            self.add_step(viz_map, run_by_default=False)
+            if self.include_viz:
+                name = f'{mesh_name}_map'
+                subdir = f'{mesh_name}/map'
+                viz_map = VizMap(test_case=self, name=name, subdir=subdir,
+                                 mesh_name=mesh_name)
+                self.add_step(viz_map)
 
-            name = f'{mesh_name}_viz'
-            subdir = f'{mesh_name}/viz'
-            self.add_step(Viz(test_case=self, name=name, subdir=subdir,
-                              viz_map=viz_map, mesh_name=mesh_name),
-                          run_by_default=False)
+                name = f'{mesh_name}_viz'
+                subdir = f'{mesh_name}/viz'
+                self.add_step(Viz(test_case=self, name=name, subdir=subdir,
+                                  viz_map=viz_map, mesh_name=mesh_name))
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions,
                                icosahedral=self.icosahedral))
