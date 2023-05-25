@@ -44,8 +44,6 @@ class Analysis(Step):
                 filename=f'output_{resolution}km.nc',
                 target=f'../{resolution}km/forward/output.nc')
 
-        self.add_output_file('convergence.png')
-
     def run(self):
         """
         Run this step of the test case

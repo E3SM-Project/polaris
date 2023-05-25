@@ -46,6 +46,7 @@ class Viz(Step):
                 target=f'../{resolution}km/forward/output.nc')
 
         self.add_output_file('convergence.png')
+        self.add_output_file('comparison.png')
 
     def run(self):
         """
@@ -57,7 +58,7 @@ class Viz(Step):
         nres = len(resolutions)
 
         section = config['inertial_gravity_wave']
-        eta0 = section.getfloat('eta0')
+        eta0 = section.getfloat('ssh_amplitude')
 
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
@@ -103,7 +104,7 @@ class Viz(Step):
 
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
 
-        # Convergence polts
+        # Convergence plots
         fig = plt.figure()
         ax = fig.add_subplot(111)
         p = np.polyfit(np.log10(resolutions), np.log10(rmse), 1)

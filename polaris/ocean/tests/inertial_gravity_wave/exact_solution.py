@@ -62,7 +62,7 @@ class ExactSolution():
         self.eta0 = section.getfloat('ssh_amplitude')
         lx = section.getfloat('lx')
         npx = section.getfloat('n_wavelengths_x')
-        npy = section.getfloat('n_wavelenghts_y')
+        npy = section.getfloat('n_wavelengths_y')
 
         self.g = 9.80616
         ly = np.sqrt(3.0) / 2.0 * lx
