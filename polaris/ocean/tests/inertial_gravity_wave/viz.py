@@ -119,6 +119,7 @@ class Viz(Step):
         ax.loglog(resolutions, order2, 'k', label='second order', alpha=0.3)
         ax.set_xlabel('resolution (km)')
         ax.set_ylabel('RMS error (m)')
+        ax.invert_xaxis()
         ax.set_title('Error Convergence')
         ax.legend(loc='lower right')
         fig.savefig('convergence.png', bbox_inches='tight', pad_inches=0.1)
