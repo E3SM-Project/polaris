@@ -87,7 +87,7 @@ class Viz(Step):
         latCell = latCell * 180 / np.pi
         lonCell = lonCell * 180 / np.pi - 180
         xi = np.linspace(-180, 180, 720)
-        yi = np.linspace(-60, 60, 180)
+        yi = np.linspace(-80, 80, 180)
         X, Y = np.meshgrid(xi, yi)
         Z = griddata((lonCell, latCell), var, (X, Y), method='linear')
         # Z = np.clip(Z, 0, 2.6e-8)
