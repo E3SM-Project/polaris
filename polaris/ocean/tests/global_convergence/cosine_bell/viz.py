@@ -38,7 +38,7 @@ class VizMap(MappingFileStep):
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
-    def run(self):
+    def runtime_setup(self):
         """
         Set up the source and destination grids for this step
         """
@@ -51,7 +51,7 @@ class VizMap(MappingFileStep):
         self.dst_global_lon_lat(dlon=dlon, dlat=dlat)
         self.method = method
 
-        super().run()
+        super().runtime_setup()
 
 
 class Viz(Step):
