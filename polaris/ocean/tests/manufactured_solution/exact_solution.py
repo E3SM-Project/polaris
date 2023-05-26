@@ -8,11 +8,11 @@ class ExactSolution():
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         section = config['manufactured_solution']
         self.g = 9.80616
-        self.eta0 = section.getfloat('eta0')
+        self.eta0 = section.getfloat('ssh_amplitude')
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        npx = section.getfloat('npx')
-        npy = section.getfloat('npy')
+        npx = section.getfloat('n_wavelengths_x')
+        npy = section.getfloat('n_wavelengths_y')
         self.lambda_x = (lx * 1e3) / npx
         self.lambda_y = (ly * 1e3) / npy
         self.kx = 2.0 * np.pi / self.lambda_x
