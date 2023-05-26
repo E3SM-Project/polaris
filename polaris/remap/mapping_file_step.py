@@ -350,25 +350,95 @@ class MappingFileStep(Step):
         remapper = Remapper(in_descriptor, out_descriptor, self.map_filename)
         return remapper
 
-    def run(self):
+    def runtime_setup(self):
         """
-        Run this step of the test case
+        Create a remapper and set the command-line arguments
         """
-        config = self.config
-        logger = self.logger
         method = self.method
-
-        parallel_executable = config.get('parallel', 'parallel_executable')
-
         remapper = self.get_remapper()
+        self.args = _build_mapping_file_args(remapper, method)
 
-        try:
-            os.remove(remapper.mappingFileName)
-        except FileNotFoundError:
-            pass
-        remapper.build_mapping_file(method=method, mpiTasks=self.ntasks,
-                                    tempdir='.', logger=logger,
-                                    esmf_parallel_exec=parallel_executable)
+
+def _build_mapping_file_args(remapper, method, src_mesh_filename='src_mesh.nc',
+                             dst_mesh_filename='dst_mesh.nc'):
+    """
+    Get command-line arguments for making a mapping file
+    """
+
+    _check_remapper(remapper, method)
+
+    src_descriptor = remapper.sourceDescriptor
+    src_loc = _write_mesh_and_get_location(src_descriptor, src_mesh_filename)
+
+    dst_descriptor = remapper.destinationDescriptor
+    dst_loc = _write_mesh_and_get_location(dst_descriptor, dst_mesh_filename)
+
+    args = ['ESMF_RegridWeightGen',
+            '--source', src_mesh_filename,
+            '--destination', dst_mesh_filename,
+            '--weight', remapper.mappingFileName,
+            '--method', method,
+            '--netcdf4',
+            '--no_log']
+
+    if src_loc is not None:
+        args.extend(['--src_loc', src_loc])
+    if dst_loc is not None:
+        args.extend(['--dst_loc', dst_loc])
+
+    if src_descriptor.regional:
+        args.append('--src_regional')
+
+    if dst_descriptor.regional:
+        args.append('--dst_regional')
+
+    if src_descriptor.regional or dst_descriptor.regional:
+        args.append('--ignore_unmapped')
+
+    return args
+
+
+def _check_remapper(remapper, method):
+    """
+    Check for inconsistencies in the remapper
+    """
+    if isinstance(remapper.destinationDescriptor,
+                  PointCollectionDescriptor) and \
+            method not in ['bilinear', 'neareststod']:
+        raise ValueError(f'method {method} not supported for destination '
+                         'grid of type PointCollectionDescriptor.')
+
+    if isinstance(remapper.sourceDescriptor, MpasMeshDescriptor) and \
+            remapper.sourceDescriptor.vertices:
+        if 'conserve' in method:
+            raise ValueError('Can\'t remap from MPAS vertices with '
+                             'conservative methods')
+
+    if isinstance(remapper.destinationDescriptor, MpasMeshDescriptor) and \
+            remapper.destinationDescriptor.vertices:
+        if 'conserve' in method:
+            raise ValueError('Can\'t remap to MPAS vertices with '
+                             'conservative methods')
+
+
+def _write_mesh_and_get_location(descriptor, mesh_filename):
+    if isinstance(descriptor,
+                  (MpasMeshDescriptor, MpasEdgeMeshDescriptor)):
+        file_format = 'esmf'
+        descriptor.to_esmf(mesh_filename)
+    else:
+        file_format = 'scrip'
+        descriptor.to_scrip(mesh_filename)
+
+    if file_format == 'esmf':
+        if isinstance(descriptor, MpasMeshDescriptor) and descriptor.vertices:
+            location = 'corner'
+        else:
+            location = 'center'
+    else:
+        location = None
+
+    return location
 
 
 def _get_descriptor(info):

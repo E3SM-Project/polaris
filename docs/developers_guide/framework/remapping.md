@@ -14,7 +14,7 @@ tool, which uses MPI parallelism.  To better support task parallelism, it is
 best to have each MPI task be a separate polaris step.  For this reason, we
 provide {py:class}`polaris.remap.MappingFileStep` to perform remapping.
 
-A remapping step can be added to a test case either by creating an
+A remapping step can be added to a test case either by creating a
 {py:class}`polaris.remap.MappingFileStep` object directly or by creating a
 step that descends from the class.  Here is an example of using 
 `MappingFileStep` directly to remap data from a WOA 2023 lon-lat grid to an
@@ -49,12 +49,12 @@ Here is an example of creating a subclass to remap from an MPAS mesh to a
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-{py:meth}`polaris.remap.MappingFileStep.run()`.  In the example, the
+{py:meth}`polaris.remap.MappingFileStep.runtime_setup()`.  In the example, the
 resolution of the lon-lat grid and the remapping method will be set using the
 config options provided while setting up the polaris test case.  We call the
-`src_*()` and `dst_*()` methods in the `run()` method to make sure we pick up
-any changes to the config options that a user might have made before running
-the test case:
+`src_*()` and `dst_*()` methods in the `runtime_setup()` method to make sure
+we pick up any changes to the config options that a user might have made
+before running the test case:
 
 ```python
 
@@ -68,7 +68,7 @@ class VizMap(MappingFileStep):
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
-    def run(self):
+    def runtime_setup(self):
         config = self.config
         section = config['cosine_bell_viz']
         dlon = section.getfloat('dlon')
@@ -78,7 +78,7 @@ class VizMap(MappingFileStep):
         self.dst_global_lon_lat(dlon=dlon, dlat=dlat)
         self.method = method
 
-        super().run()
+        super().runtime_setup()
 ```
 
 With either approach, you will need to call one of the `src_*()` methods to
