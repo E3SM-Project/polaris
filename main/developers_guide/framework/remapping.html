@@ -131,7 +131,7 @@ such a mapping file.  Under the hood, <code class="docutils literal notranslate"
 tool, which uses MPI parallelism.  To better support task parallelism, it is
 best to have each MPI task be a separate polaris step.  For this reason, we
 provide <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> to perform remapping.</p>
-<p>A remapping step can be added to a test case either by creating an
+<p>A remapping step can be added to a test case either by creating a
 <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> object directly or by creating a
 step that descends from the class.  Here is an example of using
 <code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> directly to remap data from a WOA 2023 lon-lat grid to an
@@ -164,12 +164,12 @@ method:</p>
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.run()</span></code></a>.  In the example, the
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup" title="polaris.remap.MappingFileStep.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.runtime_setup()</span></code></a>.  In the example, the
 resolution of the lon-lat grid and the remapping method will be set using the
 config options provided while setting up the polaris test case.  We call the
-<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods in the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method to make sure we pick up
-any changes to the config options that a user might have made before running
-the test case:</p>
+<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods in the <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method to make sure
+we pick up any changes to the config options that a user might have made
+before running the test case:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="kn">from</span> <span class="nn">polaris.remap</span> <span class="kn">import</span> <span class="n">MappingFileStep</span>
 
@@ -181,7 +181,7 @@ the test case:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../mesh/mesh.nc&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">]</span>
         <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlon&#39;</span><span class="p">)</span>
@@ -191,7 +191,7 @@ the test case:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>With either approach, you will need to call one of the <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to
