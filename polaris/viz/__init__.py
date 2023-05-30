@@ -142,7 +142,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     ax.autoscale(tight=True)
     cbar = plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
     if cmap_title is not None:
-        cbar.ax.set_title(cmap_title)
+        cbar.set_label(cmap_title)
     if create_fig:
         plt.title(title)
         plt.tight_layout(pad=0.5)

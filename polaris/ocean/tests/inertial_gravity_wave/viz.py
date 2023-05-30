@@ -83,12 +83,13 @@ class Viz(Step):
 
             plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
                              cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
-                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
+                             vmin=-eta0, vmax=eta0, cmap_title="SSH (m)")
             plot_horiz_field(ds, init, 'ssh_exact', ax=axes[i, 1],
                              cmap='cmo.balance',
-                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
+                             vmin=-eta0, vmax=eta0, cmap_title="SSH (m)")
             plot_horiz_field(ds, init, 'ssh_error', ax=axes[i, 2],
-                             cmap='cmo.balance', cmap_title="dSSH",
+                             cmap='cmo.balance',
+                             cmap_title=r"$\Delta$ SSH (m)",
                              vmin=-error_range, vmax=error_range)
 
         axes[0, 0].set_title('Numerical solution')
@@ -122,5 +123,5 @@ class Viz(Step):
         ax.set_ylabel('RMS error (m)')
         ax.invert_xaxis()
         ax.set_title('Error Convergence')
-        ax.legend(loc='lower right')
+        ax.legend(loc='lower left')
         fig.savefig('convergence.png', bbox_inches='tight', pad_inches=0.1)
