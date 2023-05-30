@@ -2,9 +2,52 @@ import numpy as np
 
 
 class ExactSolution():
+    """
+    Class to compute the exact solution for the manufactured solution
+    test case
+
+    Attributes
+    ----------
+    angleEdge : xr.DataArray
+        angle between edge normals and positive x direction
+
+    xCell : xr.DataArray
+        x coordinates of mesh cell centers
+
+    yCell : xr.DataArray
+        y coordinates of mesh cell centers
+
+    xEdge: xr.DataArray
+        x coordinates of mesh edges
+
+    yEdge : xr.DataArray
+        y coordinates of mesh edges
+
+    eta0 : float
+        Amplitide of sea surface height
+
+    kx : float
+        Wave number in the x direction
+
+    ky : float
+        Wave number in the y direction
+
+    omega : float
+        Angular frequency
+    """
 
     def __init__(self, config, ds=None):
+        """
+        Create a new exact solution object
 
+        Parameters
+        ----------
+        ds : xr.DataSet
+            MPAS mesh information
+
+        config : polaris.config.PolarisConfigParser
+            Config options for test case
+        """
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         section = config['manufactured_solution']
         self.g = 9.80616
@@ -28,6 +71,20 @@ class ExactSolution():
             self.yEdge = ds.yEdge
 
     def ssh(self, t):
+        """
+        Exact solution for sea surface height
+
+        Parameters
+        ----------
+        t : float
+            time at which to evaluate exact solution
+
+        Returns
+        -------
+        eta : xr.DataArray
+            the exact sea surface height solution on cells at time t
+
+        """
 
         eta = self.eta0 * np.sin(self.kx * self.xCell +
                                  self.ky * self.yCell -
@@ -36,7 +93,19 @@ class ExactSolution():
         return eta
 
     def normal_velocity(self, t):
+        """
+        Exact solution for normal velocity
 
+        Parameters
+        ----------
+        t : float
+            time at which to evaluate exact solution
+
+        Returns
+        -------
+        normalvelocity : xr.DataArray
+            the exact normal velocity solution on edges at time t
+        """
         u = self.eta0 * np.cos(self.kx * self.xEdge +
                                self.ky * self.yEdge -
                                self.omega * t)

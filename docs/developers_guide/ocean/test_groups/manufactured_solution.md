@@ -8,7 +8,7 @@ implements a test case according to the Method of Manufactured Solutions
 (see {ref}`ocean-manufactured-solution`) at 4 resolutions (200, 100, 50, and 25 km).  Here,
 we describe the shared framework for this test group and the 1 test case.
 
-(dev-ocean-baroclinic-channel-framework)=
+(dev-ocean-manufactured-solution)=
 
 ## framework
 
