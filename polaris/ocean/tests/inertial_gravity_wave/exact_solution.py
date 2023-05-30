@@ -72,7 +72,20 @@ class ExactSolution():
                              self.g * bottom_depth * (self.kx**2 + self.ky**2))
 
     def ssh(self, t):
+        """
+        Exact solution for sea surface height
 
+        Parameters
+        ----------
+        t : float
+            time at which to evaluate exact solution
+
+        Returns
+        -------
+        eta : xr.DataArray
+            the exact sea surface height solution on cells at time t
+
+        """
         eta = self.eta0 * np.cos(self.kx * self.xCell +
                                  self.ky * self.yCell -
                                  self.omega * t)
@@ -80,7 +93,19 @@ class ExactSolution():
         return eta
 
     def normalVelocity(self, t):
+        """
+        Exact solution for normal velocity
 
+        Parameters
+        ----------
+        t : float
+            time at which to evaluate exact solution
+
+        Returns
+        -------
+        normalvelocity : xr.DataArray
+            the exact normal velocity solution on edges at time t
+        """
         u = self.eta0 * (self.g / (self.omega**2.0 - self.f0**2.0) *
                          (self.omega * self.kx * np.cos(self.kx * self.xEdge +
                           self.ky * self.yEdge - self.omega * t) -
