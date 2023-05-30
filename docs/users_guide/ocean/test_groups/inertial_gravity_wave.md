@@ -18,8 +18,31 @@ Currently, the test group contains one test case, which is a convergence test.
 ### description
 
 The `convergence` test case runs the inertial gravity wave simulation for 4
-different resolutions: 200, 100, 50, and 25 km. Computes the error with respect
-to the exact solution and calculates the convergence rate.
+different resolutions: 200, 100, 50, and 25 km.
+
+The forward step for each resolution runs the simulation for 10 hours. The
+model is configured without vertical advection and mixing. No tracers are enabled
+and the pressure gradient used is the gradient of the sea surface height.
+Horizontal mixing and bottom friction are also neglected. The nonlinear momentum
+terms are not included and the layer thickness equation is linearized.
+
+The analysis step computes the root mean-square-error of the difference between
+the simulated SSH field and the exact solution at the end of the simulation. It
+also computes the convergence rate with resolution.
+
+The visualization step produces two plots: the convergence of the RMSE with
+resolution and a plan-view of the simulated, exact, and (simulated-analytical)
+SSH fields.
+
+```{image} images/inertial_gravity_wave_comparison.png
+:align: center
+:width: 500 px
+```
+
+```{image} images/inertial_gravity_wave_convergence.png
+:align: center
+:width: 500 px
+```
 
 ### mesh
 
@@ -55,12 +78,21 @@ min_pc_fraction = 0.1
 
 ### initial conditions
 
-The initial conditions are set to the following:
+The initial conditions are set to the exact solution at time $t=0$:
 $$
-\eta = \\
-u = \\
-v = 
+\eta &= \cos(k_x x + k_y y + \omega t) \\
+u &= \frac{g}{\omega^2 - f^2} [\omega k_x \cos(k_x x + k_y y - \omega t) - f k_y \sin(k_x x + k_y y - \omega t)]\\
+v &= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f k_x \sin(k_x x + k_y y - \omega t)]
 $$
+
+### forcing
+
+N/A
+
+### time step and run duration
+
+The time step is determined by the config option ``dt_per_km`` according to the
+mesh resolution. The run duration is 10 hours.
 
 ### config options
 
@@ -74,16 +106,16 @@ The following config options are availiable for this case:
 lx = 10000
 
 # The Corilois parameter (constant)
-f0 = 1e-4
+coriolis_parameter = 1e-4
 
 # Amplitude of the ssh initial condition
-eta0 = 1.0
+ssh_amplitude = 1.0
 
 # Number of wavelengths in x direction
-nx = 2 
+n_wavelengths_x = 2
 
 # Number of wavelengths in y direction
-ny = 2 
+n_wavelengths_y = 2
 
 # Convergence threshold below which the test fails
 conv_thresh = 1.8
@@ -91,21 +123,12 @@ conv_thresh = 1.8
 # Convergence rate above which a warning is issued
 conv_max = 2.2
 
+# time step per resolution (s/km), since dt is proportional to resolution
+dt_per_km = 3.0
+
 ```
 
-### forward 
+### cores
 
-The forward step for each resolution runs the simulation for 10 hours. The
-model is configured without vertical adection and mixing. No tracers are enabled
-and the pressure gradient used is the gradient of the sea surface height.
-Horizontal mixing and bottom friction are also neglected. The nonlinear momentum
-terms are no included and the layer thickness equation is linearized.
-
-### analysis
-
-The analysis step computes 
-
-### viz
-
-
- 
+The number of cores is determined according to the config options
+``max_cells_per_core`` and ``goal_cells_per_core``.
