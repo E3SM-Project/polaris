@@ -678,13 +678,13 @@ $ cat polaris.o${SLURM_JOBID}
      Done.
      
      ocean/yet_another_channel/10km/default
-     compass calling: polaris.run.serial._run_test()
+     polaris calling: polaris.run.serial._run_test()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/run/serial.py
      
      Running steps: initial_state
        * step: initial_state
      
-     compass calling: polaris.ocean.tests.yet_another_channel.default.Default.validate()
+     polaris calling: polaris.ocean.tests.yet_another_channel.default.Default.validate()
        inherited from: polaris.testcase.TestCase.validate()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/testcase.py
      

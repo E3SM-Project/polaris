@@ -5,8 +5,8 @@ def log_method_call(method, logger):
     """
     Log the module path and file path of a call to a method, e.g.::
 
-      compass calling: compass.landice.tests.dome.decomposition_test.DecompositionTest.run()  # noqa: E501
-        in /turquoise/usr/projects/climate/mhoffman/mpas/compass/compass/landice/tests/dome/decomposition_test/__init__.py  # noqa: E501
+      polaris calling: polaris.landice.tests.dome.decomposition_test.DecompositionTest.run()  # noqa: E501
+        in /turquoise/usr/projects/climate/mhoffman/mpas/polaris/polaris/landice/tests/dome/decomposition_test/__init__.py  # noqa: E501
 
     Parameters
     ----------
@@ -49,14 +49,14 @@ def log_method_call(method, logger):
     actual_location = f'{actual_class.__module__}.{actual_class.__name__}'
 
     # not every class is defined in a file (e.g. python intrinsics) but we
-    # expect they always are in compass.  Still we'll check to make sure.
+    # expect they always are in polaris.  Still we'll check to make sure.
     try:
         class_file = inspect.getfile(actual_class)
     except TypeError:
         class_file = None
 
     # log what we found out
-    logger.info(f'compass calling: {child_location}.{method_name}()')
+    logger.info(f'polaris calling: {child_location}.{method_name}()')
     if child_location != actual_location:
         # okay, so we're inheriting this method from somewhere else.  Better
         # let the user know.
@@ -69,8 +69,8 @@ def log_function_call(function, logger):
     """
     Log the module path and file path of a call to a function, e.g.::
 
-      compass calling: compass.parallel.set_cores_per_node()
-        in /home/xylar/code/compass/compass/compass/parallel.py
+      polaris calling: polaris.parallel.set_cores_per_node()
+        in /home/xylar/code/polaris/polaris/polaris/parallel.py
 
     Parameters
     ----------
@@ -86,6 +86,6 @@ def log_function_call(function, logger):
     filename = inspect.getfile(function)
 
     # log what we found out
-    logger.info(f'compass calling: '
+    logger.info(f'polaris calling: '
                 f'{function.__module__}.{function.__name__}()')
     logger.info(f'  in {filename}')
