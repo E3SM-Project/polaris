@@ -19,7 +19,7 @@ from polaris.parallel import (
 
 
 def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
-              steps_not_to_run=None):
+              steps_to_skip=None):
     """
     Run the given test suite or test case
 
@@ -38,9 +38,9 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
     steps_to_run : list of str, optional
         A list of the steps to run if this is a test case, not a full suite.
         The default behavior is to run the default steps unless they are in
-        ``steps_not_to_run``
+        ``steps_to_skip``
 
-    steps_not_to_run : list of str, optional
+    steps_to_skip : list of str, optional
         A list of steps not to run if this is a test case, not a full suite.
         Typically, these are steps to remove from the defaults
     """
@@ -95,7 +95,7 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
 
             success_str, success, test_time = _log_and_run_test(
                 test_case, logger, test_logger, quiet, log_filename,
-                is_test_case, steps_to_run, steps_not_to_run)
+                is_test_case, steps_to_run, steps_to_skip)
             success_strs[test_name] = success_str
             if not success:
                 failures += 1
@@ -184,7 +184,7 @@ def main():
                         "or include the .pickle filename suffix.")
     parser.add_argument("--steps", dest="steps", nargs='+',
                         help="The steps of a test case to run")
-    parser.add_argument("--no-steps", dest="no_steps", nargs='+',
+    parser.add_argument("--skip_steps", dest="skip_steps", nargs='+',
                         help="The steps of a test case not to run, see "
                              "steps_to_run in the config file for defaults.")
     parser.add_argument("-q", "--quiet", dest="quiet", action="store_true",
@@ -201,7 +201,7 @@ def main():
         run_tests(args.suite, quiet=args.quiet)
     elif os.path.exists('test_case.pickle'):
         run_tests(suite_name='test_case', quiet=args.quiet, is_test_case=True,
-                  steps_to_run=args.steps, steps_not_to_run=args.no_steps)
+                  steps_to_run=args.steps, steps_to_skip=args.skip_steps)
     elif os.path.exists('step.pickle'):
         run_single_step(args.step_is_subprocess)
     else:
@@ -217,7 +217,7 @@ def main():
                              'which to run: polaris serial <suite>')
 
 
-def _update_steps_to_run(steps_to_run, steps_not_to_run, config, steps):
+def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
     """
     Update the steps to run
     """
@@ -232,8 +232,8 @@ def _update_steps_to_run(steps_to_run, steps_not_to_run, config, steps):
                 f'in this test case:'
                 f'\n{list(steps)}')
 
-    if steps_not_to_run is not None:
-        for step in steps_not_to_run:
+    if steps_to_skip is not None:
+        for step in steps_to_skip:
             if step not in steps:
                 raise ValueError(
                     f'A step "{step}" was flagged not to run but is not one '
@@ -241,7 +241,7 @@ def _update_steps_to_run(steps_to_run, steps_not_to_run, config, steps):
                     f'\n{list(steps)}')
 
         steps_to_run = [step for step in steps_to_run if step not in
-                        steps_not_to_run]
+                        steps_to_skip]
 
     return steps_to_run
 
@@ -258,7 +258,7 @@ def _print_to_stdout(test_case, message):
 
 
 def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
-                      is_test_case, steps_to_run, steps_not_to_run):
+                      is_test_case, steps_to_run, steps_to_skip):
     # ANSI fail text: https://stackoverflow.com/a/287944/7728169
     start_fail = '\033[91m'
     start_pass = '\033[92m'
@@ -294,7 +294,7 @@ def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
         mpas_tools.io.default_engine = config.get('io', 'engine')
 
         test_case.steps_to_run = _update_steps_to_run(
-            steps_to_run, steps_not_to_run, config, test_case.steps)
+            steps_to_run, steps_to_skip, config, test_case.steps)
 
         test_start = time.time()
 

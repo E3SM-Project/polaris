@@ -196,7 +196,7 @@ directory:
 
 ```none
 polaris serial [-h] [--steps STEPS [STEPS ...]]
-                 [--no-steps NO_STEPS [NO_STEPS ...]]
+                 [--skip_steps SKIP_STEPS [SKIP_STEPS ...]]
                  [suite]
 ```
 
@@ -218,7 +218,7 @@ in the config file:
 steps_to_run = initial_state full_run restart_run
 ```
 
-Or you can use `--steps` to supply a list of steps to run, or `--no-steps`
+Or you can use `--steps` to supply a list of steps to run, or `--skip_steps`
 to supply a list of steps you do not want to run (from the defaults given in
 the config file).  For example,
 
@@ -229,7 +229,7 @@ polaris serial --steps initial_state full_run
 or
 
 ```none
-polaris serial --no-steps restart_run
+polaris serial --skip_steps restart_run
 ```
 
 Would both accomplish the same thing in this example -- skipping the
