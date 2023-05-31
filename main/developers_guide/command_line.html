@@ -267,7 +267,7 @@ previous run in the baseline.</p>
 parallel) a test suite, test case or step  that has been set up in the current
 directory:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial [-h] [--steps STEPS [STEPS ...]]
-                 [--no-steps NO_STEPS [NO_STEPS ...]]
+                 [--skip_steps SKIP_STEPS [SKIP_STEPS ...]]
                  [suite]
 </pre></div>
 </div>
@@ -286,14 +286,14 @@ in the config file:</p>
 <span class="na">steps_to_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">initial_state full_run restart_run</span>
 </pre></div>
 </div>
-<p>Or you can use <code class="docutils literal notranslate"><span class="pre">--steps</span></code> to supply a list of steps to run, or <code class="docutils literal notranslate"><span class="pre">--no-steps</span></code>
+<p>Or you can use <code class="docutils literal notranslate"><span class="pre">--steps</span></code> to supply a list of steps to run, or <code class="docutils literal notranslate"><span class="pre">--skip_steps</span></code>
 to supply a list of steps you do not want to run (from the defaults given in
 the config file).  For example,</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial --steps initial_state full_run
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial --no-steps restart_run
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial --skip_steps restart_run
 </pre></div>
 </div>
 <p>Would both accomplish the same thing in this example – skipping the
