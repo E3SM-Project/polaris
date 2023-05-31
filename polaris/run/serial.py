@@ -65,7 +65,7 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
     check_parallel_system(config)
 
     # start logging to stdout/stderr
-    with LoggingContext(suite_name) as logger:
+    with LoggingContext(suite_name) as stdout_logger:
 
         os.environ['PYTHONUNBUFFERED'] = '1'
 
@@ -81,20 +81,20 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
         test_times = dict()
         success_strs = dict()
         for test_name in test_suite['test_cases']:
-            logger.info(f'{test_name}')
+            stdout_logger.info(f'{test_name}')
 
             test_case = test_suite['test_cases'][test_name]
 
             if is_test_case:
                 log_filename = None
-                test_logger = logger
+                test_logger = stdout_logger
             else:
                 test_prefix = test_case.path.replace('/', '_')
                 log_filename = f'{cwd}/case_outputs/{test_prefix}.log'
                 test_logger = None
 
             success_str, success, test_time = _log_and_run_test(
-                test_case, logger, test_logger, quiet, log_filename,
+                test_case, stdout_logger, test_logger, quiet, log_filename,
                 is_test_case, steps_to_run, steps_to_skip)
             success_strs[test_name] = success_str
             if not success:
@@ -105,26 +105,26 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
 
         os.chdir(cwd)
 
-        logger.info('Test Runtimes:')
+        stdout_logger.info('Test Runtimes:')
         for test_name, test_time in test_times.items():
             secs = round(test_time)
             mins = secs // 60
             secs -= 60 * mins
-            logger.info(f'{mins:02d}:{secs:02d} {success_strs[test_name]} '
-                        f'{test_name}')
+            stdout_logger.info(f'{mins:02d}:{secs:02d} \
+                               {success_strs[test_name]} {test_name}')
         secs = round(suite_time)
         mins = secs // 60
         secs -= 60 * mins
-        logger.info(f'Total runtime {mins:02d}:{secs:02d}')
+        stdout_logger.info(f'Total runtime {mins:02d}:{secs:02d}')
 
         if failures == 0:
-            logger.info('PASS: All passed successfully!')
+            stdout_logger.info('PASS: All passed successfully!')
         else:
             if failures == 1:
                 message = '1 test'
             else:
                 message = f'{failures} tests'
-            logger.error(f'FAIL: {message} failed, see above.')
+            stdout_logger.error(f'FAIL: {message} failed, see above.')
             sys.exit(1)
 
 
@@ -159,19 +159,19 @@ def run_single_step(step_is_subprocess=False):
 
     # start logging to stdout/stderr
     test_name = step.path.replace('/', '_')
-    with LoggingContext(name=test_name) as logger:
-        test_case.logger = logger
+    with LoggingContext(name=test_name) as stdout_logger:
+        test_case.logger = stdout_logger
         test_case.stdout_logger = None
-        log_function_call(function=_run_test, logger=logger)
-        logger.info('')
+        log_function_call(function=_run_test, logger=stdout_logger)
+        stdout_logger.info('')
         _run_test(test_case)
 
         if not step_is_subprocess:
             # only perform validation if the step is being run by a user on its
             # own
-            logger.info('')
-            log_method_call(method=test_case.validate, logger=logger)
-            logger.info('')
+            stdout_logger.info('')
+            log_method_call(method=test_case.validate, logger=stdout_logger)
+            stdout_logger.info('')
             test_case.validate()
 
 
@@ -257,8 +257,9 @@ def _print_to_stdout(test_case, message):
             test_case.logger.info(message)
 
 
-def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
-                      is_test_case, steps_to_run, steps_to_skip):
+def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
+                      log_filename, is_test_case, steps_to_run,
+                      steps_to_skip):
     # ANSI fail text: https://stackoverflow.com/a/287944/7728169
     start_fail = '\033[91m'
     start_pass = '\033[92m'
@@ -278,9 +279,13 @@ def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
             test_case.stdout_logger = test_logger
         else:
             # log steps to stdout
-            test_case.stdout_logger = logger
+            test_case.stdout_logger = stdout_logger
         test_case.logger = test_logger
         test_case.log_filename = log_filename
+
+        # If we are running a test case on its own, we want a log file per step
+        # If we are running within a suite, we want a log file per test, with
+        #   output from each of its steps
         test_case.new_step_log_file = is_test_case
 
         os.chdir(test_case.work_dir)
@@ -357,13 +362,13 @@ def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
                      f'  baseline comparison: {baseline_status}'
 
         if test_pass:
-            logger.info(status)
+            stdout_logger.info(status)
             success_str = pass_str
             success = True
         else:
-            logger.error(status)
+            stdout_logger.error(status)
             if not is_test_case:
-                logger.error(f'  see: case_outputs/{test_name}.log')
+                stdout_logger.error(f'  see: case_outputs/{test_name}.log')
             success_str = fail_str
             success = False
 
@@ -372,8 +377,8 @@ def _log_and_run_test(test_case, logger, test_logger, quiet, log_filename,
         secs = round(test_time)
         mins = secs // 60
         secs -= 60 * mins
-        logger.info(f'  test runtime:        '
-                    f'{start_time_color}{mins:02d}:{secs:02d}{end}')
+        stdout_logger.info(f'  test runtime:        \
+                           {start_time_color}{mins:02d}:{secs:02d}{end}')
 
         return success_str, success, test_time
 
@@ -392,6 +397,8 @@ def _run_test(test_case):
         step.config = test_case.config
         if test_case.log_filename is not None:
             step.log_filename = test_case.log_filename
+        else:
+            step.log_filename = None
 
         _print_to_stdout(test_case, f'  * step: {step_name}')
 
@@ -429,15 +436,18 @@ def _run_step(test_case, step, new_log_file):
 
     _load_dependencies(test_case, step)
 
-    test_name = step.path.replace('/', '_')
+    # each logger needs a unique name
+    logger_name = step.path.replace('/', '_')
     if new_log_file:
         log_filename = f'{cwd}/{step.name}.log'
-        step.log_filename = log_filename
         step_logger = None
     else:
         step_logger = logger
         log_filename = None
-    with LoggingContext(name=test_name, logger=step_logger,
+
+    step.log_filename = log_filename
+
+    with LoggingContext(name=logger_name, logger=step_logger,
                         log_filename=log_filename) as step_logger:
         step.logger = step_logger
         os.chdir(step.work_dir)
@@ -456,6 +466,8 @@ def _run_step(test_case, step, new_log_file):
         step.runtime_setup()
 
         if step.args is not None:
+            step_logger.info('\nBypassing run() and running with command line \
+                             args\n')
             run_command(step.args, step.cpus_per_task, step.ntasks,
                         step.openmp_threads, step.config, step.logger)
         else:
