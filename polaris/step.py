@@ -236,7 +236,7 @@ class Step:
 
         # these will be set before running the step, dummy placeholders for now
         self.logger = logging.getLogger('dummy')
-        self.log_filename = ""
+        self.log_filename = None
 
         # output caching
         self.cached = cached
