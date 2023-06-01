@@ -66,6 +66,8 @@ class Forward(OceanModelStep):
 
         self.add_input_file(filename='initial_state.nc',
                             target='../initial_state/initial_state.nc')
+        self.add_input_file(filename='forcing.nc',
+                            target='../initial_state/forcing.nc')
         self.add_input_file(filename='graph.info',
                             target='../initial_state/culled_graph.info')
 

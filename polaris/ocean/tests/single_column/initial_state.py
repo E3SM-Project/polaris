@@ -30,7 +30,7 @@ class InitialState(Step):
         super().__init__(test_case=test_case, name='initial_state')
         self.resolution = resolution
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'initial_state.nc']:
+                     'initial_state.nc', 'forcing.nc']:
             self.add_output_file(file)
 
     def run(self):
@@ -129,3 +129,59 @@ class InitialState(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
         write_netcdf(ds, 'initial_state.nc')
+
+        # create forcing stream
+        ds_forcing = xr.Dataset()
+        forcing_array = xr.ones_like(temperature)
+        forcing_array_surface = xr.ones_like(ds.bottomDepth)
+        forcing_array_surface = forcing_array_surface.expand_dims(
+            dim='Time', axis=0)
+        section = config['single_column_forcing']
+        temperature_piston_velocity = section.getfloat(
+            'temperature_piston_velocity')
+        salinity_piston_velocity = section.getfloat(
+            'salinity_piston_velocity')
+        temperature_surface_restoring_value = section.getfloat(
+            'temperature_surface_restoring_value')
+        salinity_surface_restoring_value = section.getfloat(
+            'salinity_surface_restoring_value')
+        temperature_interior_restoring_rate = section.getfloat(
+            'temperature_interior_restoring_rate')
+        salinity_interior_restoring_rate = section.getfloat(
+            'salinity_interior_restoring_rate')
+
+        latent_heat_flux = section.getfloat('latent_heat_flux')
+        sensible_heat_flux = section.getfloat('sensible_heat_flux')
+        shortwave_heat_flux = section.getfloat('shortwave_heat_flux')
+        evaporation_flux = section.getfloat('evaporation_flux')
+        rain_flux = section.getfloat('rain_flux')
+        wind_stress_zonal = section.getfloat('wind_stress_zonal')
+        wind_stress_meridional = section.getfloat('wind_stress_meridional')
+
+        ds_forcing['temperaturePistonVelocity'] = \
+            temperature_piston_velocity * forcing_array_surface
+        ds_forcing['salinityPistonVelocity'] = \
+            salinity_piston_velocity * forcing_array_surface
+        ds_forcing['temperatureSurfaceRestoringValue'] = \
+            temperature_surface_restoring_value * forcing_array_surface
+        ds_forcing['salinitySurfaceRestoringValue'] = \
+            salinity_surface_restoring_value * forcing_array_surface
+        ds_forcing['temperatureInteriorRestoringRate'] = \
+            temperature_interior_restoring_rate * forcing_array
+        ds_forcing['salinityInteriorRestoringRate'] = \
+            salinity_interior_restoring_rate * forcing_array
+        ds_forcing['temperatureInteriorRestoringValue'] = temperature
+        ds_forcing['salinityInteriorRestoringValue'] = salinity
+        ds_forcing['windStressZonal'] = \
+            wind_stress_zonal * forcing_array_surface
+        ds_forcing['windStressMeridional'] = \
+            wind_stress_meridional * forcing_array_surface
+        ds_forcing['latentHeatFlux'] = latent_heat_flux * forcing_array_surface
+        ds_forcing['sensibleHeatFlux'] = \
+            sensible_heat_flux * forcing_array_surface
+        ds_forcing['shortWaveHeatFlux'] = \
+            shortwave_heat_flux * forcing_array_surface
+        ds_forcing['evaporationFlux'] = \
+            evaporation_flux * forcing_array_surface
+        ds_forcing['rainFlux'] = rain_flux * forcing_array_surface
+        write_netcdf(ds_forcing, 'forcing.nc')
