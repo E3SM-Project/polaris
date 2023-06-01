@@ -175,7 +175,7 @@ class MappingFileStep(Step):
             dst['name'] = mesh_name
         self.dst_grid_info = dst
 
-    def dst_global_lon_lat(self, dlon, dlat, mesh_name=None):
+    def dst_global_lon_lat(self, dlon, dlat, lon_min=-180., mesh_name=None):
         """
         Set the destination grid from a file with a longitude-latitude grid.
         The latitude and longitude variables can be 1D or 2D.
@@ -188,6 +188,9 @@ class MappingFileStep(Step):
         dlat : float
             The latitude resolution in degrees
 
+        lon_min : float, optional
+            The longitude for the left-hand edge of the global grid in degrees
+
         mesh_name : str, optional
             The name of the lon-lat grid (defaults to resolution and units,
             something like "0.5x0.5degree")
@@ -197,6 +200,7 @@ class MappingFileStep(Step):
         dst['type'] = 'lon-lat'
         dst['dlon'] = dlon
         dst['dlat'] = dlat
+        dst['lon_min'] = lon_min
         if mesh_name is not None:
             dst['name'] = mesh_name
         self.dst_grid_info = dst
@@ -482,8 +486,12 @@ def _get_lon_lat_descriptor(info):
     """ Get a lon-lat descriptor from the given info """
 
     if 'dlat' in info and 'dlon' in info:
+        lon_min = info['lon_min']
+        lon_max = lon_min + 360.
         descriptor = get_lat_lon_descriptor(dLon=info['dlon'],
-                                            dLat=info['dlat'])
+                                            dLat=info['dlat'],
+                                            lonMin=lon_min,
+                                            lonMax=lon_max)
     else:
         filename = info['filename']
         lon = info['lon_var']
