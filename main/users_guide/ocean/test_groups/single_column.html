@@ -275,7 +275,56 @@ day duration of the test, so the 10-day profiles are shown here:</p>
 </section>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
-<p>N/A</p>
+<p>The cvmix case has both surface forcing and restoring, which are controlled by
+the following config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
+<span class="k">[single_column_forcing]</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward temperature_surface_restoring_value</span>
+<span class="na">temperature_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward salinity_surface_restoring_value</span>
+<span class="na">salinity_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Temperature to restore towards when surface restoring is turned on</span>
+<span class="na">temperature_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># Salinity to restore towards when surface restoring is turned on</span>
+<span class="na">salinity_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">36.0</span>
+
+<span class="c1"># Rate at which temperature is restored toward the initial condition</span>
+<span class="na">temperature_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Rate at which salinity is restored toward the initial condition</span>
+<span class="na">salinity_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Net latent heat flux applied when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of heat to ocean</span>
+<span class="na">latent_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-50.0</span>
+
+<span class="c1"># Net sensible heat flux applied when bulk forcing is used. Positive values indicate a</span>
+<span class="c1"># net input of heat to ocean</span>
+<span class="na">sensible_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-25.0</span>
+
+<span class="c1"># Net solar shortwave heat flux applied when bulk forcing is used. Positive values</span>
+<span class="c1"># indicate a net input of heat to ocean</span>
+<span class="na">shortwave_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.0</span>
+
+<span class="c1"># Net surface evaporation when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of water to ocean</span>
+<span class="na">evaporation_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.5E-4</span>
+
+<span class="c1"># Net surface rain flux when bulk forcing is used. Positive values indicate a net input</span>
+<span class="c1"># of water to ocean</span>
+<span class="na">rain_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Zonal surface wind stress over the domain</span>
+<span class="na">wind_stress_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># Meridional surface wind stress over the domain</span>
+<span class="na">wind_stress_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
 </section>
 <section id="time-step-and-run-duration">
 <h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
