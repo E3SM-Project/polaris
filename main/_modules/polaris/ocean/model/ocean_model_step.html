@@ -315,10 +315,13 @@
         <span class="n">goal_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;goal_cells_per_core&#39;</span><span class="p">)</span>
         <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cells_per_core&#39;</span><span class="p">)</span>
 
+        <span class="c1"># machines (e.g. Perlmutter) seem to be happier with ntasks that</span>
+        <span class="c1"># are multiples of 4</span>
         <span class="c1"># ideally, about 200 cells per core</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">goal_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">goal_cells_per_core</span><span class="p">)))</span>
         <span class="c1"># In a pinch, about 2000 cells per core</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">max_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_core</span><span class="p">)))</span></div>
 </pre></div>
 
            </div>
