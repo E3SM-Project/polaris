@@ -7,17 +7,17 @@ full globe.  Currently, the only test case is the advection of a cosine bell.
 
 (ocean-global-convergence-cosine-bell)=
 
-## cosine_bell
+## cosine_bell and cosine_bell_with_viz
 
 ### Description
 
-The `cosine_bell` test case implements the Cosine Bell test case as first
-described in [Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
+The `cosine_bell` and `cosine_bell_with_viz` test cases implement the Cosine 
+Bell test case as first described in 
+[Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
 but using the variant from Sec. 3a of
 [Skamarock and Gassmann](https://doi.org/10.1175/MWR-D-10-05056.1).  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
-in a tracer $psi$ once around the sphere, returning to its initial
-location.
+in a tracer $psi$ once around the sphere, returning to its initial location.
 
 The test is a convergence test with time step varying proportionately to grid
 size. The result of the `analysis` step of the test case is a plot like the
@@ -27,6 +27,11 @@ following showing convergence as a function of the number of cells:
 :align: center
 :width: 500 px
 ```
+
+The `cosine_bell_with_viz` variant also includes visualization of the initial
+and final state on a lat-lon grid for each resolution.  The visualization is
+not included in the `cosine_bell` version of the test case in order to not
+slow down regression testing.
 
 ### mesh
 
@@ -209,7 +214,8 @@ The options `qu_conv_thresh` to `icos_conv_max` are thresholds for determining
 when the convergence rates are not within the expected range.
 
 The options in the `cosine_bell_viz` section are used in visualizing the
-initial and final states on a lon-lat grid.
+initial and final states on a lon-lat grid for `cosine_bell_with_viz` test
+cases.
 
 ### cores
 

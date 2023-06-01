@@ -57,6 +57,10 @@ at each resolution and plotting them in `convergence.png`.
 
 ### viz
 
+Two visualization steps are available only in the `cosine_bell_with_viz`
+test cases.  They are not included in the `cosine_bell` test cases in order
+to not slow down regression testing when visualization is not desired.
+
 The class {py:class}`polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap`
 defines a step for creating a mapping file from the MPAS mesh at a given
 resolution to a lon-lat grid at a resolution and interpolation method 
