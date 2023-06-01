@@ -377,8 +377,8 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
         secs = round(test_time)
         mins = secs // 60
         secs -= 60 * mins
-        stdout_logger.info(f'  test runtime:        \
-                           {start_time_color}{mins:02d}:{secs:02d}{end}')
+        stdout_logger.info(f'  test runtime:        '
+                           f'{start_time_color}{mins:02d}:{secs:02d}{end}')
 
         return success_str, success, test_time
 
@@ -466,8 +466,10 @@ def _run_step(test_case, step, new_log_file):
         step.runtime_setup()
 
         if step.args is not None:
-            step_logger.info('\nBypassing run() and running with command line \
-                             args\n')
+            step_logger.info('\nBypassing step\'s run() method and running '
+                             'with command line args\n')
+            log_function_call(function=run_command, logger=step_logger)
+            step_logger.info('')
             run_command(step.args, step.cpus_per_task, step.ntasks,
                         step.openmp_threads, step.config, step.logger)
         else:
