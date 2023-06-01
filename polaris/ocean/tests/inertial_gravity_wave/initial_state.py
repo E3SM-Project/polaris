@@ -92,7 +92,7 @@ class InitialState(Step):
                                                   'nVertLevels')
         ds['layerThickness'] = layerThickness
 
-        normal_velocity = exact_solution.normalVelocity(0.0)
+        normal_velocity = exact_solution.normal_velocity(0.0)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)

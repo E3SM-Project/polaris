@@ -92,7 +92,7 @@ class ExactSolution():
 
         return eta
 
-    def normalVelocity(self, t):
+    def normal_velocity(self, t):
         """
         Exact solution for normal velocity
 
@@ -103,7 +103,7 @@ class ExactSolution():
 
         Returns
         -------
-        normalvelocity : xr.DataArray
+        norm_vel : xr.DataArray
             the exact normal velocity solution on edges at time t
         """
         u = self.eta0 * (self.g / (self.omega**2.0 - self.f0**2.0) *
@@ -118,4 +118,6 @@ class ExactSolution():
                           self.f0 * self.kx * np.sin(self.kx * self.xEdge +
                           self.ky * self.yEdge - self.omega * t)))
 
-        return u * np.cos(self.angleEdge) + v * np.sin(self.angleEdge)
+        norm_vel = u * np.cos(self.angleEdge) + v * np.sin(self.angleEdge)
+
+        return norm_vel
