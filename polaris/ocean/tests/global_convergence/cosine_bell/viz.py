@@ -112,6 +112,7 @@ class Viz(Step):
         ds_init = xr.open_dataset('initial_state.nc')
         ds_init = ds_init[['tracer1', ]].isel(Time=0, nVertLevels=0)
         ds_init = remapper.remap(ds_init)
+        ds_init.to_netcdf('remapped_init.nc')
 
         plot_global(ds_init.lon.values, ds_init.lat.values,
                     ds_init.tracer1.values,
@@ -122,6 +123,7 @@ class Viz(Step):
         ds_out = xr.open_dataset('output.nc')
         ds_out = ds_out[['tracer1', ]].isel(Time=-1, nVertLevels=0)
         ds_out = remapper.remap(ds_out)
+        ds_out.to_netcdf('remapped_final.nc')
 
         plot_global(ds_out.lon.values, ds_out.lat.values,
                     ds_out.tracer1.values,
