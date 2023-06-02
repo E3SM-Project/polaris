@@ -70,6 +70,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#what-the-script-does">What the script does</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#optional-flags">Optional flags</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#activating-the-environment">Activating the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#switching-between-different-polaris-environments">Switching between different polaris environments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
@@ -315,7 +316,7 @@ compilers)</p>
 <section id="activating-the-environment">
 <h3>Activating the environment<a class="headerlink" href="#activating-the-environment" title="Permalink to this heading"></a></h3>
 <p>Each time you want to work with polaris, you will need to run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 </pre></div>
 </div>
 <p>This will load the appropriate conda environment, load system modules for
@@ -323,13 +324,25 @@ compilers, MPI and libraries needed to build and run E3SM components, and
 set environment variables needed for E3SM components or polaris.  It will also
 set an  environment variable <code class="docutils literal notranslate"><span class="pre">LOAD_POLARIS_ENV</span></code> that points to the activation
 script. Polaris uses this to make an symlink to the activation script called
-<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> in the work directory.</p>
+<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> in the work directory.  When the load script is
+executed from the base of the polaris repository (i.e., as
+<code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>),
+it will install the version of the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package from that location into
+the associated conda environment.  When the load script is executed from the
+work directory through the symlink, it will activate the associated conda
+environment, but does <em>not</em> install the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package into the conda
+environment; it is assumed that is already up to date from when the conda
+environment was created or last updated.</p>
+<p>It is generally recommended to activate the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> environment (from
+either the polaris repo or via the workdir symlink) from a
+clean environment.  Unexpected behavior may occur if activating a different
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code> environment after having one already activated.</p>
 <p>If you switch between different polaris branches, it is safest to rerun
 <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code> with the same arguments as above to make
 sure dependencies are up to date and the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package points to the
 current directory.  If you are certain that no polaris dependencies are
 different between branches, you can also simply source the activation script
-(<code class="docutils literal notranslate"><span class="pre">load_dev_polaris*.sh</span></code>) in the branch.</p>
+(<code class="docutils literal notranslate"><span class="pre">load_*.sh</span></code>) in the branch.</p>
 <p>Once you have sourced the activation script, you can run <code class="docutils literal notranslate"><span class="pre">polaris</span></code> commands
 anywhere, and it always refers to that branch.  To find out which branch you
 are actually running <code class="docutils literal notranslate"><span class="pre">polaris</span></code> from, you should run:</p>
@@ -340,11 +353,73 @@ are actually running <code class="docutils literal notranslate"><span class="pre
 the branch is.  If you do not use the worktree approach, you will also need to
 check what branch you are currently on with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">branch</span></code> or
 a similar command.</p>
+<p>If you wish to work with another compiler, simply rerun the script with a new
+compiler name and an activation script will be produced.  You can then source
+either activation script to get the same conda environment but with different
+compilers and related modules.  Make sure you are careful to set up polaris by
+pointing to a version of the MPAS model that was compiled with the correct
+compiler.</p>
+</section>
+<section id="switching-between-different-polaris-environments">
+<h3>Switching between different polaris environments<a class="headerlink" href="#switching-between-different-polaris-environments" title="Permalink to this heading"></a></h3>
+<p>Many developers are switching between different <code class="docutils literal notranslate"><span class="pre">polaris</span></code> branches.
+We have 2 main workflows for doing this: checking out different branches
+in the same directory (with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span></code>) or creating new directories for
+each branch (with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">worktree</span></code>).  Either way, you need to be careful that
+the version of the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package that is installed in the conda
+environment you are using is the one you want.  But how to handle it
+differs slightly between these workflows.</p>
+<p>If you are developing or using multiple <code class="docutils literal notranslate"><span class="pre">polaris</span></code> branches in the same
+directory (switching between them using <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span></code>), you will need
+to make sure you update your <code class="docutils literal notranslate"><span class="pre">polaris</span></code> environment after changing
+branches.  Often the branches you’re developing will make use of the
+same conda environment, because they are using the same
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code> version (so the dependencies aren’t changing).  The same
+conda environment (e.g. <code class="docutils literal notranslate"><span class="pre">dev_polaris_&lt;version&gt;</span></code>) can safely be used
+with multiple branches if you explicitly reinstall the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package
+you want to use into the conda environment <em>after</em> moving to a new branch.
+You can do this by simply re-executing
+<code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>
+from the <em>root of the repo</em> before proceeding.</p>
+<p>Similarly, if you are developing or using multiple <code class="docutils literal notranslate"><span class="pre">polaris</span></code> branches
+but you use a different directory for each
+(creating the directories with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">worktree</span></code>),
+you will need to make sure the version of the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package
+in your conda environment is the one you want.
+If your branches use the same <code class="docutils literal notranslate"><span class="pre">polaris</span></code> version (so the dependencies
+are the same), you can use the same conda environment
+(e.g. <code class="docutils literal notranslate"><span class="pre">dev_polaris_&lt;version&gt;</span></code>) for all of them.  But you will only
+be able to test one of them at a time.  You will tell the conda environment
+which branch to use by running
+<code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>
+from the <em>root of the directory (worktree) you want to work with</em> before
+proceeding.</p>
+<p>In both of these workflows, you can modify the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> code and the conda
+environment will notice the changes as you make them.  However, if you have
+added or removed any files during your development, you need to source the
+load script again:
+<code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">./load_&lt;conda_env&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>
+in the root of the repo or worktree so that the added or removed files will be
+accounted for in the conda environment.</p>
+<p>If you know that <code class="docutils literal notranslate"><span class="pre">polaris</span></code> has different dependencies
+in a branch or worktree you are working on compared to a previous branch
+you have worked with (or if you aren’t sure), it is safest to not just reinstall
+the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package but also to check the dependencies by re-running:
+<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code>  with the same arguments as above.
+This will also reinstall the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package from the current directory.</p>
+<p>If you need more than one conda environment (e.g. because you are testing
+multiple branches at the same time), you can choose your own name
+for the conda environment.  Typically, this might be something related to the
+name of the branch you are developing.  This can be done with the
+<code class="docutils literal notranslate"><span class="pre">--env_name</span></code> argument to <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code>.  You
+can reuse the same custom-named environment across multiple branches
+if that is useful.  Just remember to reinstall <code class="docutils literal notranslate"><span class="pre">polaris</span></code> each time you
+switch branches.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you switch branches and <em>do not</em> remember to recreate the conda
 environment (<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code>) or at least source the
-activation script (<code class="docutils literal notranslate"><span class="pre">load_dev_polaris*.sh</span></code>), you are likely to end up with
+activation script (<code class="docutils literal notranslate"><span class="pre">load_*.sh</span></code>), you are likely to end up with
 an incorrect and possibly unusable <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package in your conda
 environment.</p>
 <p>In general, if one wishes to switch between environments created for
@@ -355,10 +430,6 @@ if you want to run a job script that itself sources the load script,
 it’s best to start a new terminal without having sourced a load script at
 all.</p>
 </div>
-<p>If you switch to another branch, you will need to rerun
-<code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span></code> with the same arguments as above to make
-sure dependencies are up to date and the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package points to the
-current directory.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>With the conda environment activated, you can switch branches and update
@@ -372,12 +443,6 @@ than rerunning <code class="docutils literal notranslate"><span class="pre">./co
 dependencies being out of date.  Since dependencies change fairly rarely,
 this will usually be safe.</p>
 </div>
-<p>If you wish to work with another compiler, simply rerun the script with a new
-compiler name and an activation script will be produced.  You can then source
-either activation script to get the same conda environment but with different
-compilers and related modules.  Make sure you are careful to set up polaris by
-pointing to a version of the E3SM component that was compiled with the correct
-compiler.</p>
 </section>
 <section id="troubleshooting">
 <h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h3>
@@ -392,15 +457,17 @@ scratch.  This takes just a little extra time.</p>
 </section>
 <section id="creating-updating-only-the-polaris-environment">
 <span id="dev-creating-only-env"></span><h2>Creating/updating only the polaris environment<a class="headerlink" href="#creating-updating-only-the-polaris-environment" title="Permalink to this heading"></a></h2>
-<p>For some workflows (e.g. for MALI development wih the Albany library), you may
-only want to create the conda environment and not build SCORPIO, ESMF or
-include any system modules or environment variables in your activation script.
-In such cases, run with the <code class="docutils literal notranslate"><span class="pre">--env_only</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only
+<p>For some workflows (e.g. for MALI development with the Albany library when the
+MALI build environment has been created outside of <code class="docutils literal notranslate"><span class="pre">polaris</span></code>, for example,
+on an unsupported machine), you may only want to create the conda environment
+and not build SCORPIO, ESMF or include any system modules or environment
+variables in your activation script. In such cases, run with the
+<code class="docutils literal notranslate"><span class="pre">--env_only</span></code> flag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>--env_only<span class="w"> </span>...
 </pre></div>
 </div>
 <p>Each time you want to work with polaris, you will need to run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;.sh
 </pre></div>
 </div>
 <p>This will load the appropriate conda environment for polaris.  It will also
@@ -430,7 +497,7 @@ be safe.</p>
 <span id="dev-build-components"></span><h2>Building E3SM components<a class="headerlink" href="#building-e3sm-components" title="Permalink to this heading"></a></h2>
 <p>There are 3 E3SM repositories that are submodules within the polaris
 repository.  To build MPAS-Ocean, you would typically run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make<span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
@@ -443,7 +510,7 @@ and with compilers that support albany, you can run:</p>
 </pre></div>
 </div>
 <p>Then, you can build MALI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;_albany.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;_albany.sh
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/MALI-Dev/components/mpas-albany-landice
 make<span class="w"> </span><span class="nv">ALBANY</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
@@ -487,7 +554,7 @@ polaris<span class="w"> </span>run
 </pre></div>
 </div>
 <p>The first command will source the same activation script
-(<code class="docutils literal notranslate"><span class="pre">load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>) that you used to set
+(<code class="docutils literal notranslate"><span class="pre">load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>) that you used to set
 up the suite or test case (<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is just a symlink to that
 activation script you sourced before setting up the suite or test case).</p>
 </section>
@@ -560,7 +627,7 @@ default location for finding the E3SM component so you don’t need to specify
 the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag at the command line or put the E3SM component path path in
 your config file (if you even need a config file at all).  Here is an
 example for MPAS-Ocean:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_dev_polaris_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make<span class="w"> </span>gfortran

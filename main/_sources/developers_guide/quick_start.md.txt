@@ -222,7 +222,7 @@ this script will also:
 Each time you want to work with polaris, you will need to run:
 
 ```bash
-source ./load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 ```
 
 This will load the appropriate conda environment, load system modules for
@@ -230,14 +230,27 @@ compilers, MPI and libraries needed to build and run E3SM components, and
 set environment variables needed for E3SM components or polaris.  It will also 
 set an  environment variable `LOAD_POLARIS_ENV` that points to the activation 
 script. Polaris uses this to make an symlink to the activation script called
-`load_polaris_env.sh` in the work directory.
+`load_polaris_env.sh` in the work directory.  When the load script is
+executed from the base of the polaris repository (i.e., as
+`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`),
+it will install the version of the `polaris` package from that location into 
+the associated conda environment.  When the load script is executed from the 
+work directory through the symlink, it will activate the associated conda
+environment, but does *not* install the `polaris` package into the conda
+environment; it is assumed that is already up to date from when the conda
+environment was created or last updated.
+
+It is generally recommended to activate the `polaris` environment (from
+either the polaris repo or via the workdir symlink) from a
+clean environment.  Unexpected behavior may occur if activating a different
+`polaris` environment after having one already activated.
 
 If you switch between different polaris branches, it is safest to rerun
 `./configure_polaris_envs.py` with the same arguments as above to make
 sure dependencies are up to date and the `polaris` package points to the
 current directory.  If you are certain that no polaris dependencies are
 different between branches, you can also simply source the activation script
-(`load_dev_polaris*.sh`) in the branch.
+(`load_*.sh`) in the branch.
 
 Once you have sourced the activation script, you can run `polaris` commands
 anywhere, and it always refers to that branch.  To find out which branch you
@@ -252,10 +265,78 @@ the branch is.  If you do not use the worktree approach, you will also need to
 check what branch you are currently on with `git log`, `git branch` or
 a similar command.
 
+If you wish to work with another compiler, simply rerun the script with a new
+compiler name and an activation script will be produced.  You can then source
+either activation script to get the same conda environment but with different
+compilers and related modules.  Make sure you are careful to set up polaris by
+pointing to a version of the MPAS model that was compiled with the correct
+compiler.
+
+### Switching between different polaris environments
+
+Many developers are switching between different `polaris` branches.
+We have 2 main workflows for doing this: checking out different branches
+in the same directory (with `git checkout`) or creating new directories for
+each branch (with `git worktree`).  Either way, you need to be careful that
+the version of the `polaris` package that is installed in the conda
+environment you are using is the one you want.  But how to handle it
+differs slightly between these workflows.
+
+If you are developing or using multiple `polaris` branches in the same
+directory (switching between them using `git checkout`), you will need
+to make sure you update your `polaris` environment after changing
+branches.  Often the branches you're developing will make use of the
+same conda environment, because they are using the same
+`polaris` version (so the dependencies aren't changing).  The same
+conda environment (e.g. `dev_polaris_<version>`) can safely be used
+with multiple branches if you explicitly reinstall the `polaris` package
+you want to use into the conda environment *after* moving to a new branch.
+You can do this by simply re-executing
+`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`
+from the *root of the repo* before proceeding.
+
+Similarly, if you are developing or using multiple `polaris` branches
+but you use a different directory for each
+(creating the directories with `git worktree`),
+you will need to make sure the version of the `polaris` package
+in your conda environment is the one you want.
+If your branches use the same `polaris` version (so the dependencies
+are the same), you can use the same conda environment
+(e.g. `dev_polaris_<version>`) for all of them.  But you will only
+be able to test one of them at a time.  You will tell the conda environment
+which branch to use by running
+`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`
+from the *root of the directory (worktree) you want to work with* before
+proceeding.
+
+In both of these workflows, you can modify the `polaris` code and the conda
+environment will notice the changes as you make them.  However, if you have
+added or removed any files during your development, you need to source the
+load script again:
+`source ./load_<conda_env>_<machine>_<compiler>_<mpi>.sh`
+in the root of the repo or worktree so that the added or removed files will be
+accounted for in the conda environment.
+
+If you know that `polaris` has different dependencies
+in a branch or worktree you are working on compared to a previous branch
+you have worked with (or if you aren't sure), it is safest to not just reinstall
+the `polaris` package but also to check the dependencies by re-running:
+`./configure_polaris_envs.py`  with the same arguments as above.
+This will also reinstall the `polaris` package from the current directory.
+
+If you need more than one conda environment (e.g. because you are testing
+multiple branches at the same time), you can choose your own name
+for the conda environment.  Typically, this might be something related to the
+name of the branch you are developing.  This can be done with the
+`--env_name` argument to `./configure_polaris_envs.py`.  You
+can reuse the same custom-named environment across multiple branches
+if that is useful.  Just remember to reinstall `polaris` each time you
+switch branches.
+
 :::{note}
 If you switch branches and *do not* remember to recreate the conda
 environment (`./configure_polaris_envs.py`) or at least source the
-activation script (`load_dev_polaris*.sh`), you are likely to end up with
+activation script (`load_*.sh`), you are likely to end up with
 an incorrect and possibly unusable `polaris` package in your conda
 environment.
 
@@ -267,11 +348,6 @@ if you want to run a job script that itself sources the load script,
 it's best to start a new terminal without having sourced a load script at
 all.
 :::
-
-If you switch to another branch, you will need to rerun
-`./configure_polaris_envs.py` with the same arguments as above to make
-sure dependencies are up to date and the `polaris` package points to the
-current directory.
 
 :::{note}
 With the conda environment activated, you can switch branches and update
@@ -287,13 +363,6 @@ than rerunning `./configure_polaris_envs.py ...` but risks
 dependencies being out of date.  Since dependencies change fairly rarely,
 this will usually be safe.
 :::
-
-If you wish to work with another compiler, simply rerun the script with a new
-compiler name and an activation script will be produced.  You can then source
-either activation script to get the same conda environment but with different
-compilers and related modules.  Make sure you are careful to set up polaris by
-pointing to a version of the E3SM component that was compiled with the correct
-compiler.
 
 ### Troubleshooting
 
@@ -311,19 +380,21 @@ scratch.  This takes just a little extra time.
 
 ## Creating/updating only the polaris environment
 
-For some workflows (e.g. for MALI development wih the Albany library), you may
-only want to create the conda environment and not build SCORPIO, ESMF or
-include any system modules or environment variables in your activation script.
-In such cases, run with the `--env_only` flag:
+For some workflows (e.g. for MALI development with the Albany library when the
+MALI build environment has been created outside of `polaris`, for example,
+on an unsupported machine), you may only want to create the conda environment 
+and not build SCORPIO, ESMF or include any system modules or environment 
+variables in your activation script. In such cases, run with the 
+`--env_only` flag:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> --env_only
+./configure_polaris_envs.py --conda <conda_path> --env_only ...
 ```
 
 Each time you want to work with polaris, you will need to run:
 
 ```bash
-source ./load_dev_polaris_<version>.sh
+source ./load_<env_name>.sh
 ```
 
 This will load the appropriate conda environment for polaris.  It will also
@@ -362,7 +433,7 @@ There are 3 E3SM repositories that are submodules within the polaris
 repository.  To build MPAS-Ocean, you would typically run:
 
 ```bash
-source ./load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make <mpas_make_target>
 ```
@@ -379,7 +450,7 @@ and with compilers that support albany, you can run:
 Then, you can build MALI:
 
 ```bash
-source ./load_dev_polaris_<version>_<machine>_<compiler>_<mpi>_albany.sh
+source ./load_<env_name>_<machine>_<compiler>_<mpi>_albany.sh
 cd e3sm_submodules/MALI-Dev/components/mpas-albany-landice
 make ALBANY=true <mpas_make_target>
 ```
@@ -439,7 +510,7 @@ polaris run
 ```
 
 The first command will source the same activation script
-(`load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh`) that you used to set
+(`load_<env_name>_<machine>_<compiler>_<mpi>.sh`) that you used to set
 up the suite or test case (`load_polaris_env.sh` is just a symlink to that
 activation script you sourced before setting up the suite or test case).
 
@@ -533,7 +604,7 @@ There are two ways to build the E3SM component in standalone mode:
    example for MPAS-Ocean:
 
    ```bash
-   source ./load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh
+   source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
    git submodule update --init --recursive
    cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
    make gfortran
