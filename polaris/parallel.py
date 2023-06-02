@@ -156,6 +156,40 @@ def run_command(args, cpus_per_task, ntasks, openmp_threads, config, logger):
     if openmp_threads > 1:
         logger.info(f'Running with {openmp_threads} OpenMP threads')
 
+    command_line_args = get_parallel_command(args, cpus_per_task, ntasks,
+                                             config)
+    check_call(command_line_args, logger, env=env)
+
+
+def get_parallel_command(args, cpus_per_task, ntasks, config):
+    """
+    Run a subprocess with the given command-line arguments and resources
+
+    Parameters
+    ----------
+    args : list of str
+        The command-line arguments to run in parallel
+
+    cpus_per_task : int
+        the number of cores per task the process would ideally use.  If
+        fewer cores per node are available on the system, the substep will
+        run on all available cores as long as this is not below
+        ``min_cpus_per_task``
+
+    ntasks : int
+        the number of tasks the process would ideally use.  If too few
+        cores are available on the system to accommodate the number of
+        tasks and the number of cores per task, the substep will run on
+        fewer tasks as long as as this is not below ``min_tasks``
+
+    config : configparser.ConfigParser
+        Configuration options for the test case
+
+    Returns
+    -------
+    command_line_args : list
+        The full parallel command
+    """
     parallel_executable = config.get('parallel', 'parallel_executable')
 
     # split the parallel executable into constituents in case it includes flags
@@ -174,8 +208,7 @@ def run_command(args, cpus_per_task, ntasks, openmp_threads, config, logger):
         raise ValueError(f'Unexpected parallel system: {parallel_system}')
 
     command_line_args.extend(args)
-
-    check_call(command_line_args, logger, env=env)
+    return command_line_args
 
 
 def _get_subprocess_int(args):
