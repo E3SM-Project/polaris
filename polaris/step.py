@@ -294,16 +294,23 @@ class Step:
         if max_memory is not None:
             self.max_memory = max_memory
 
-    def constrain_resources(self, available_cores):
+    def constrain_resources(self, available_resources):
         """
         Constrain ``cpus_per_task`` and ``ntasks`` based on the number of
         cores available to this step
 
         Parameters
         ----------
-        available_cores : int
+        available_resources : dict
             The total number of cores available to the step
         """
+        mpi_allowed = available_resources['mpi_allowed']
+        if not mpi_allowed and self.ntasks > 1:
+            raise ValueError(
+                'You are trying to run an MPI job on a login node.\n'
+                'Please switch to a compute node.')
+
+        available_cores = available_resources['cores']
         if self.ntasks == 1:
             # just one task so only need to worry about cpus_per_task
             self.cpus_per_task = min(self.cpus_per_task, available_cores)

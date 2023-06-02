@@ -11,8 +11,7 @@ from mpas_tools.logging import LoggingContext, check_call
 from polaris.config import PolarisConfigParser
 from polaris.logging import log_function_call, log_method_call
 from polaris.parallel import (
-    check_parallel_system,
-    get_available_cores_and_nodes,
+    get_available_parallel_resources,
     run_command,
     set_cores_per_node,
 )
@@ -62,7 +61,7 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
                                    test_case.config_filename)
     config = PolarisConfigParser()
     config.add_from_file(config_filename)
-    check_parallel_system(config)
+    available_resources = get_available_parallel_resources(config)
 
     # start logging to stdout/stderr
     with LoggingContext(suite_name) as stdout_logger:
@@ -95,7 +94,8 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
 
             success_str, success, test_time = _log_and_run_test(
                 test_case, stdout_logger, test_logger, quiet, log_filename,
-                is_test_case, steps_to_run, steps_to_skip)
+                is_test_case, steps_to_run, steps_to_skip,
+                available_resources)
             success_strs[test_name] = success_str
             if not success:
                 failures += 1
@@ -110,8 +110,8 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
             secs = round(test_time)
             mins = secs // 60
             secs -= 60 * mins
-            stdout_logger.info(f'{mins:02d}:{secs:02d} \
-                               {success_strs[test_name]} {test_name}')
+            stdout_logger.info(f'{mins:02d}:{secs:02d} '
+                               f'{success_strs[test_name]} {test_name}')
         secs = round(suite_time)
         mins = secs // 60
         secs -= 60 * mins
@@ -149,10 +149,10 @@ def run_single_step(step_is_subprocess=False):
     config = PolarisConfigParser()
     config.add_from_file(step.config_filename)
 
-    check_parallel_system(config)
+    available_resources = get_available_parallel_resources(config)
 
     test_case.config = config
-    set_cores_per_node(test_case.config)
+    set_cores_per_node(test_case.config, available_resources['cores_per_node'])
 
     mpas_tools.io.default_format = config.get('io', 'format')
     mpas_tools.io.default_engine = config.get('io', 'engine')
@@ -164,7 +164,7 @@ def run_single_step(step_is_subprocess=False):
         test_case.stdout_logger = None
         log_function_call(function=_run_test, logger=stdout_logger)
         stdout_logger.info('')
-        _run_test(test_case)
+        _run_test(test_case, available_resources)
 
         if not step_is_subprocess:
             # only perform validation if the step is being run by a user on its
@@ -259,7 +259,7 @@ def _print_to_stdout(test_case, message):
 
 def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
                       log_filename, is_test_case, steps_to_run,
-                      steps_to_skip):
+                      steps_to_skip, available_resources):
     # ANSI fail text: https://stackoverflow.com/a/287944/7728169
     start_fail = '\033[91m'
     start_pass = '\033[92m'
@@ -293,7 +293,8 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
         config = PolarisConfigParser()
         config.add_from_file(test_case.config_filename)
         test_case.config = config
-        set_cores_per_node(test_case.config)
+        set_cores_per_node(test_case.config,
+                           available_resources['cores_per_node'])
 
         mpas_tools.io.default_format = config.get('io', 'format')
         mpas_tools.io.default_engine = config.get('io', 'engine')
@@ -308,7 +309,7 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
         test_list = ', '.join(test_case.steps_to_run)
         test_logger.info(f'Running steps: {test_list}')
         try:
-            _run_test(test_case)
+            _run_test(test_case, available_resources)
             run_status = success_str
             test_pass = True
         except BaseException:
@@ -383,7 +384,7 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
         return success_str, success, test_time
 
 
-def _run_test(test_case):
+def _run_test(test_case, available_resources):
     """
     Run each step of the test case
     """
@@ -407,21 +408,20 @@ def _run_test(test_case):
                 _run_step_as_subprocess(
                     test_case, step, test_case.new_step_log_file)
             else:
-                _run_step(test_case, step, test_case.new_step_log_file)
+                _run_step(test_case, step, test_case.new_step_log_file,
+                          available_resources)
         except BaseException:
             _print_to_stdout(test_case, '      Failed')
             raise
         os.chdir(cwd)
 
 
-def _run_step(test_case, step, new_log_file):
+def _run_step(test_case, step, new_log_file, available_resources):
     """
     Run the requested step
     """
     logger = test_case.logger
-    config = test_case.config
     cwd = os.getcwd()
-    available_cores, _, _ = get_available_cores_and_nodes(config)
 
     missing_files = list()
     for input_file in step.inputs:
@@ -455,7 +455,7 @@ def _run_step(test_case, step, new_log_file):
         step_logger.info('')
         log_method_call(method=step.constrain_resources, logger=step_logger)
         step_logger.info('')
-        step.constrain_resources(available_cores)
+        step.constrain_resources(available_resources)
 
         # runtime_setup() will perform small tasks that require knowing the
         # resources of the task before the step runs (such as creating
