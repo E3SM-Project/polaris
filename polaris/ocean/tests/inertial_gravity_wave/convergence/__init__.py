@@ -45,4 +45,4 @@ class Convergence(TestCase):
         variables = ['layerThickness', 'normalVelocity']
         for res in self.resolutions:
             compare_variables(test_case=self, variables=variables,
-                              filename1='{res}km/forward/output.nc')
+                              filename1=f'{res}km/forward/output.nc')
