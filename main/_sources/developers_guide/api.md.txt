@@ -296,10 +296,11 @@ ocean/api
 .. autosummary::
    :toctree: generated/
 
-   get_available_cores_and_nodes
+   get_available_parallel_resources
    check_parallel_system
    set_cores_per_node
    run_command
+   get_parallel_command
 ```
 
 ### provenance

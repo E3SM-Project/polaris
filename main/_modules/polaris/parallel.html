@@ -112,7 +112,7 @@
 <span class="kn">from</span> <span class="nn">mpas_tools.logging</span> <span class="kn">import</span> <span class="n">check_call</span>
 
 
-<span class="k">def</span> <span class="nf">get_available_parallel_resources</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="get_available_parallel_resources"><a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.get_available_parallel_resources.html#polaris.parallel.get_available_parallel_resources">[docs]</a><span class="k">def</span> <span class="nf">get_available_parallel_resources</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the number of total cores and nodes available for running steps</span>
 
@@ -171,7 +171,7 @@
         <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
         <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">mpi_allowed</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">available_resources</span>
+    <span class="k">return</span> <span class="n">available_resources</span></div>
 
 
 <div class="viewcode-block" id="check_parallel_system"><a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.check_parallel_system.html#polaris.parallel.check_parallel_system">[docs]</a><span class="k">def</span> <span class="nf">check_parallel_system</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
@@ -261,6 +261,40 @@
     <span class="k">if</span> <span class="n">openmp_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads&#39;</span><span class="p">)</span>
 
+    <span class="n">command_line_args</span> <span class="o">=</span> <span class="n">get_parallel_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span>
+                                             <span class="n">config</span><span class="p">)</span>
+    <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_parallel_command"><a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.get_parallel_command.html#polaris.parallel.get_parallel_command">[docs]</a><span class="k">def</span> <span class="nf">get_parallel_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a subprocess with the given command-line arguments and resources</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : list of str</span>
+<span class="sd">        The command-line arguments to run in parallel</span>
+
+<span class="sd">    cpus_per_task : int</span>
+<span class="sd">        the number of cores per task the process would ideally use.  If</span>
+<span class="sd">        fewer cores per node are available on the system, the substep will</span>
+<span class="sd">        run on all available cores as long as this is not below</span>
+<span class="sd">        ``min_cpus_per_task``</span>
+
+<span class="sd">    ntasks : int</span>
+<span class="sd">        the number of tasks the process would ideally use.  If too few</span>
+<span class="sd">        cores are available on the system to accommodate the number of</span>
+<span class="sd">        tasks and the number of cores per task, the substep will run on</span>
+<span class="sd">        fewer tasks as long as as this is not below ``min_tasks``</span>
+
+<span class="sd">    config : configparser.ConfigParser</span>
+<span class="sd">        Configuration options for the test case</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    command_line_args : list</span>
+<span class="sd">        The full parallel command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parallel_executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;parallel_executable&#39;</span><span class="p">)</span>
 
     <span class="c1"># split the parallel executable into constituents in case it includes flags</span>
@@ -279,8 +313,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected parallel system: </span><span class="si">{</span><span class="n">parallel_system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-    <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">command_line_args</span></div>
 
 
 <span class="k">def</span> <span class="nf">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
