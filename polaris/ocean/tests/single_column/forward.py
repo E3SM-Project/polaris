@@ -27,7 +27,7 @@ class Forward(OceanModelStep):
     """
     def __init__(self, test_case, name='forward', subdir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None, ideal_age=False):
+                 run_time_steps=None):
         """
         Create a new test case
 

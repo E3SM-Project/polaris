@@ -18,7 +18,7 @@ class IdealAge(TestCase):
     resolution : float
         The horizontal resolution in km
     """
-    def __init__(self, test_group, resolution):
+    def __init__(self, test_group, resolution, ideal_age=True):
         """
         Create the test case
         Parameters
@@ -40,19 +40,18 @@ class IdealAge(TestCase):
                          subdir=subdir)
         self.add_step(
             InitialState(test_case=self, resolution=resolution,
-                         ideal_age=True))
+                         ideal_age=ideal_age))
+
+        step = Forward(test_case=self, ntasks=1, min_tasks=1,
+                       openmp_threads=1)
+
+        step.add_yaml_file('polaris.ocean.tests.single_column.ideal_age',
+                           'forward.yaml')
+
+        self.add_step(step)
 
         self.add_step(
-            Forward(test_case=self, ntasks=1, min_tasks=1,
-                    openmp_threads=1))
-
-#        step.add_yaml_file('polaris.ocean.tests.single_column.ideal_age',
-#                           'forward.yaml')
-
-#        self.add_step(step)
-
-        self.add_step(
-            Viz(test_case=self, ideal_age=True))
+            Viz(test_case=self, ideal_age=ideal_age))
 
     def validate(self):
         """
