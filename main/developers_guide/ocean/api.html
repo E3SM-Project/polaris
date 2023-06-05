@@ -315,7 +315,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.initial_state.InitialState.run.html#polaris.ocean.tests.single_column.initial_state.InitialState.run" title="polaris.ocean.tests.single_column.initial_state.InitialState.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz" title="polaris.ocean.tests.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(test_case)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz" title="polaris.ocean.tests.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(test_case[, ideal_age])</p></td>
 <td><p>A step for plotting the results of a series of RPE runs in the baroclinic channel test group</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.viz.Viz.run.html#polaris.ocean.tests.single_column.viz.Viz.run" title="polaris.ocean.tests.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
@@ -326,6 +326,12 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.cvmix.CVMix.validate.html#polaris.ocean.tests.single_column.cvmix.CVMix.validate" title="polaris.ocean.tests.single_column.cvmix.CVMix.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix.validate</span></code></a>()</p></td>
 <td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.ideal_age.IdealAge.html#polaris.ocean.tests.single_column.ideal_age.IdealAge" title="polaris.ocean.tests.single_column.ideal_age.IdealAge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge</span></code></a>(test_group, resolution[, ...])</p></td>
+<td><p>The default test case for the single column test group simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.single_column.ideal_age.IdealAge.validate.html#polaris.ocean.tests.single_column.ideal_age.IdealAge.validate" title="polaris.ocean.tests.single_column.ideal_age.IdealAge.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, and <code class="docutils literal notranslate"><span class="pre">iAge</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
 </tr>
 </tbody>
 </table>

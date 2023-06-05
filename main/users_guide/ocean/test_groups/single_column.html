@@ -69,6 +69,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#id1">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
 </ul>
 </li>
 </ul>
@@ -340,6 +341,44 @@ the test group.</p>
 <h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
 <p>Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.</p>
+</section>
+</section>
+<section id="ocean-single-column-ideal-age">
+<span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ideal</span> <span class="pre">age</span></code> test exercises the ideal age tracers.</p>
+<section id="id7">
+<h3>description<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p>Temperature and salinity profiles evolve in the same way as in the <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a> test case. 10-day profiles for the ideal age tracer are as follows:</p>
+<a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" /></a>
+</section>
+<section id="id8">
+<h3>mesh<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+</section>
+<section id="id9">
+<h3>vertical grid<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+</section>
+<section id="id10">
+<h3>initial conditions<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.</p>
+</section>
+<section id="id11">
+<h3>forcing<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is set to zero seconds within the first surface grid layer at every time step.</p>
+</section>
+<section id="id12">
+<h3>time step and run duration<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
+</section>
+<section id="id13">
+<h3>config options<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>. Currently, config options are only given for
+the test group.</p>
+</section>
+<section id="id14">
+<h3>cores<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
 </section>
 </section>
 </section>

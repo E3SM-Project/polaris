@@ -106,6 +106,7 @@
   <h1>Source code for polaris.ocean.tests.single_column</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.single_column.cvmix</span> <span class="kn">import</span> <span class="n">CVMix</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.single_column.ideal_age</span> <span class="kn">import</span> <span class="n">IdealAge</span>
 
 
 <div class="viewcode-block" id="SingleColumn"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tests.single_column.SingleColumn.html#polaris.ocean.tests.single_column.SingleColumn">[docs]</a><span class="k">class</span> <span class="nc">SingleColumn</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
@@ -119,7 +120,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;single_column&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span><span class="n">CVMix</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span><span class="n">CVMix</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_case</span><span class="p">(</span><span class="n">IdealAge</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

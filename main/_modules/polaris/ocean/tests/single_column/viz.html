@@ -126,7 +126,7 @@
 <span class="sd">    A step for plotting the results of a series of RPE runs in the baroclinic</span>
 <span class="sd">    channel test group</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -136,6 +136,7 @@
 <span class="sd">            The test case this step belongs to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ideal_age</span> <span class="o">=</span> <span class="n">ideal_age</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/initial_state.nc&#39;</span><span class="p">)</span>
@@ -150,6 +151,7 @@
         <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
             <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.viz&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;polaris.mplstyle&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span>
+        <span class="n">ideal_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideal_age</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
         <span class="n">t_index</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="p">[</span><span class="n">t_index</span><span class="p">]</span>
@@ -157,6 +159,8 @@
         <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;final time = </span><span class="si">{</span><span class="n">t_days</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> days&#39;</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;salinity&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">ideal_age</span><span class="p">:</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;iAge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seconds&#39;</span>
         <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;zMid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)</span>
         <span class="n">z_mid_init</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">z_mid_final</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>

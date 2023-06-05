@@ -229,3 +229,47 @@ the test group.
 
 Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.
+
+(ocean-single-column-ideal-age)=
+
+## ideal age
+
+The `ideal age` test exercises the ideal age tracers.
+
+### description
+
+Temperature and salinity profiles evolve in the same way as in the {ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age tracer are as follows:
+
+```{image} images/single_column_ideal_age_tracer_10day.png
+:align: center
+:width: 200 px
+```
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+See {ref}`ocean-single-column`.
+
+### initial conditions
+
+`idealAgeTracers` is initialized as zero seconds throughout the water column.
+
+### forcing
+
+`idealAgeTracers` is set to zero seconds within the first surface grid layer at every time step.
+
+### time step and run duration
+
+See {ref}`ocean-single-column-cvmix`.
+
+### config options
+
+See {ref}`ocean-single-column`. Currently, config options are only given for
+the test group.
+
+### cores
+
+See {ref}`ocean-single-column-cvmix`.

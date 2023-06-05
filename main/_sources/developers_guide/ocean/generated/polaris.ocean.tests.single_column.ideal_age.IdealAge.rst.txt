@@ -1,0 +1,26 @@
+﻿polaris.ocean.tests.single\_column.ideal\_age.IdealAge
+======================================================
+
+.. currentmodule:: polaris.ocean.tests.single_column.ideal_age
+
+.. autoclass:: IdealAge
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IdealAge.__init__
+      ~IdealAge.add_step
+      ~IdealAge.check_validation
+      ~IdealAge.configure
+      ~IdealAge.validate
+   
+   
+
+   
+   
+   

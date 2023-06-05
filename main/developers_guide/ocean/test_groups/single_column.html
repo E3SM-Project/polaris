@@ -70,6 +70,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ideal-age">ideal age</a></li>
 </ul>
 </li>
 </ul>
@@ -126,8 +127,9 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> test group
 (<a class="reference internal" href="../generated/polaris.ocean.tests.single_column.SingleColumn.html#polaris.ocean.tests.single_column.SingleColumn" title="polaris.ocean.tests.single_column.SingleColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.SingleColumn</span></code></a>)
 implements test cases that exercise vertical dynamics only. There is currently
-one test case that exercises CVMix. Here, we describe the shared framework for
-this test group and the CVMix test case.</p>
+two test cases: one that exercises CVMix, the other that exercises ideal age
+tracers with CVMix. Here, we describe the shared framework for this test group
+and the CVMix and ideal age test cases.</p>
 <section id="framework">
 <span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
 <p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> test group
@@ -136,6 +138,9 @@ are described in <a class="reference internal" href="../../../users_guide/ocean/
 a few common model config options related to run duration and horizontal
 diffusion and cvmix, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, <code class="docutils literal notranslate"><span class="pre">output</span></code>,
 <code class="docutils literal notranslate"><span class="pre">KPP_testing</span></code> and <code class="docutils literal notranslate"><span class="pre">mixedLayerDepthsOutput</span></code> streams.</p>
+<p>An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is included in the ideal age tracer test case
+for enabeling on the ideal age tracers and ideal age surface forcing, as well as
+for defining <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams</p>
 <section id="initial-state">
 <h3>initial_state<a class="headerlink" href="#initial-state" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.initial_state.InitialState.html#polaris.ocean.tests.single_column.initial_state.InitialState" title="polaris.ocean.tests.single_column.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.initial_state.InitialState</span></code></a>
@@ -147,6 +152,8 @@ initial temperature and salinity field are computed with variability in the
 vertical dimension only.</p>
 <p>A forcing netCDF file is also created based on the config options given in the
 <code class="docutils literal notranslate"><span class="pre">single_column_forcing</span></code> section.</p>
+<p>For cases with ideal age tracers, an initial profile for the ideal age tracer is
+also constructed and is equal to zero seconds throughout the column.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
@@ -167,6 +174,18 @@ salinity.</p>
 test performs a 1-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
 <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
 baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+<section id="ideal-age">
+<h2>ideal age<a class="headerlink" href="#ideal-age" title="Permalink to this heading"></a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.cvmix.IdealAge</span></code> test
+performs the same 1-day run on 1 cores as the
+<a class="reference internal" href="../generated/polaris.ocean.tests.single_column.cvmix.CVMix.html#polaris.ocean.tests.single_column.cvmix.CVMix" title="polaris.ocean.tests.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.cvmix.CVMix</span></code></a> test, but with a
+single ideal age tracer included. An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is
+included in the ideal age tracer test case for enabeling on the ideal age
+tracers and ideal age surface forcing, as well as for defining
+<code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams. Validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> are performed against a baseline if one is provided
+when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 </section>
 
