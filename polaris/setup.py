@@ -5,13 +5,12 @@ import sys
 import warnings
 from typing import Dict, List
 
-from mache import discover_machine
-
 from polaris import TestCase, provenance
 from polaris.components import get_components
 from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
+from polaris.machines import discover_machine
 
 
 def setup_cases(work_dir, tests=None, numbers=None, config_file=None,
