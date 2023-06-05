@@ -119,6 +119,9 @@
 
    cvmix.CVMix
    cvmix.CVMix.validate
+
+   ideal_age.IdealAge
+   ideal_age.IdealAge.validate
 ```
 
 ## Ocean Framework
