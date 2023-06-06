@@ -478,18 +478,20 @@ def _run_step(test_case, step, new_log_file, available_resources):
             step_logger.info('')
             step.run()
 
+    _pickle_step_after_run(test_case, step)
+
     missing_files = list()
     for output_file in step.outputs:
         if not os.path.exists(output_file):
             missing_files.append(output_file)
 
     if len(missing_files) > 0:
+        # We want to indicate that the step failed by removing the pickle
+        os.remove('step_after_run.pickle')
         raise OSError(
             f'output file(s) missing in step {step.name} of '
             f'{step.component.name}/{step.test_group.name}/'
             f'{step.test_case.subdir}: {missing_files}')
-
-    _pickle_step_after_run(test_case, step)
 
 
 def _run_step_as_subprocess(test_case, step, new_log_file):

@@ -463,6 +463,10 @@ class Step:
                              'dependencies.')
         self.dependencies[name] = step
         step.is_dependency = True
+        step.add_output_file('step_after_run.pickle')
+        filename = f'dependencies/{name}_after_run.pickle'
+        target = f'{step.path}/step_after_run.pickle'
+        self.add_input_file(filename=filename, work_dir_target=target)
 
     def process_inputs_and_outputs(self):  # noqa: C901
         """
