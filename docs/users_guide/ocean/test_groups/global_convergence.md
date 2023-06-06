@@ -57,8 +57,8 @@ resolution will be rounded to the nearest allowed icosahedral resolution.
 
 ### vertical grid
 
-This test case only exercises the shallow water dynamics. As such, the minimum
-number of vertical levels may be used. The bottom depth is constant and the
+This test case only exercises the shallow water dynamics. As such, a single
+vertical level may be used. The bottom depth is constant and the
 results should be insensitive to the choice of `bottom_depth`.
 
 ```cfg
@@ -69,7 +69,7 @@ results should be insensitive to the choice of `bottom_depth`.
 grid_type = uniform
 
 # Number of vertical levels
-vert_levels = 3
+vert_levels = 1
 
 # Depth of the bottom of the ocean
 bottom_depth = 300.0
