@@ -397,9 +397,9 @@ def _run_test(test_case, available_resources):
             continue
         step.config = test_case.config
         if test_case.log_filename is not None:
-            step.log_filename = test_case.log_filename
+            step_log_filename = test_case.log_filename
         else:
-            step.log_filename = None
+            step_log_filename = None
 
         _print_to_stdout(test_case, f'  * step: {step_name}')
 
@@ -409,14 +409,15 @@ def _run_test(test_case, available_resources):
                     test_case, step, test_case.new_step_log_file)
             else:
                 _run_step(test_case, step, test_case.new_step_log_file,
-                          available_resources)
+                          available_resources, step_log_filename)
         except BaseException:
             _print_to_stdout(test_case, '      Failed')
             raise
         os.chdir(cwd)
 
 
-def _run_step(test_case, step, new_log_file, available_resources):
+def _run_step(test_case, step, new_log_file, available_resources,
+              step_log_filename):
     """
     Run the requested step
     """
@@ -439,16 +440,22 @@ def _run_step(test_case, step, new_log_file, available_resources):
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
     if new_log_file:
-        log_filename = f'{cwd}/{step.name}.log'
+        # we want to create new log file and point the step to that name
+        new_log_filename = f'{cwd}/{step.name}.log'
+        step_log_filename = new_log_filename
         step_logger = None
     else:
+        # either we don't want a log file at all or there is an existing one
+        # to use.  Either way, we don't want a new log filename and we want
+        # to use the existing logger.  The step log filename will be whatever
+        # is passed as a parameter
         step_logger = logger
-        log_filename = None
+        new_log_filename = None
 
-    step.log_filename = log_filename
+    step.log_filename = step_log_filename
 
     with LoggingContext(name=logger_name, logger=step_logger,
-                        log_filename=log_filename) as step_logger:
+                        log_filename=new_log_filename) as step_logger:
         step.logger = step_logger
         os.chdir(step.work_dir)
 
