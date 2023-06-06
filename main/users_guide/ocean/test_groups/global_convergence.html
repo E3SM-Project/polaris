@@ -166,8 +166,8 @@ resolution will be rounded to the nearest allowed icosahedral resolution.</p>
 </section>
 <section id="vertical-grid">
 <h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h3>
-<p>This test case only exercises the shallow water dynamics. As such, the minimum
-number of vertical levels may be used. The bottom depth is constant and the
+<p>This test case only exercises the shallow water dynamics. As such, a single
+vertical level may be used. The bottom depth is constant and the
 results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
@@ -176,7 +176,7 @@ results should be insensitive to the choice of <code class="docutils literal not
 <span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
 
 <span class="c1"># Number of vertical levels</span>
-<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 
 <span class="c1"># Depth of the bottom of the ocean</span>
 <span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300.0</span>
