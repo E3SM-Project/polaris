@@ -357,6 +357,38 @@ attributes.  Another reason might be to set these attributes using an algorithm
 When overriding `constrain_resources`, it is important to also call the base
 class' version of the method with `super().constrain_resources()`.
 
+The names of the resources are related to the
+[Slurm](https://slurm.schedmd.com/srun.html) naming conventions:
+
+`ntasks`
+
+: The target number of MPI tasks that a step will use if the resources 
+  are available.
+
+`min_tasks`
+
+: The minimum number of MPI tasks for a step.  If too few resources are
+  available, the step will not run.
+
+`cpus_per_task`
+
+: If `ntasks > 1`, this is typically a number of threads used by each
+  MPI task (e.g. with OpenMP threading).  If `ntasks == 1`, this may
+  be the number of target cores used in on-node parallelism like python or
+  c++ threading, or python multiprocessing.  `cpus_per_task` will
+  automatically be constrained to be less than or equal to the number of cores on a node
+  (and the total available cores).  So it may be appropriate to set it to a
+  high value appropriate for machines with large nodes, knowing that it will
+  be constrained to fit on one node.
+
+For MPI applications without threading, `cpus_per_task` will always be
+`1`, the default.
+
+`min_cpus_per_task`
+: The minimum number of cores for on-node parallelism (threading,
+  multiprocessing, etc.).  If too few resources are available, the step
+  will fail with an error message.
+
 (dev-step-setup)=
 
 ## setup()
@@ -576,7 +608,7 @@ explore different steps.
 ## inputs and outputs
 
 Currently, steps run in sequence in the order they are added to the test case
-(or in the order they appear in the test case's `steps_to_run` attribute.
+(or in the order they appear in the test case's `steps_to_run` attribute).
 There are plans to allow test cases and their steps to run in parallel in the
 future. For this reason, we require that each step defines a list of the
 absolute paths to all input files that could come from other steps (possibly in
@@ -766,7 +798,7 @@ files from a database belonging to another component, e.g.:
 self.add_input_file(filename='icePresent_QU60km_polar.nc',
                     target='icePresent_QU60km_polar.nc',
                     database='partition',
-                    database_component='seaice'
+                    database_component='seaice')
 ```
 
 It is also possible to download files directly from a URL and store them in
