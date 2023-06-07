@@ -502,9 +502,9 @@
             <span class="k">continue</span>
         <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">test_case</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="n">test_case</span><span class="o">.</span><span class="n">log_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">test_case</span><span class="o">.</span><span class="n">log_filename</span>
+            <span class="n">step_log_filename</span> <span class="o">=</span> <span class="n">test_case</span><span class="o">.</span><span class="n">log_filename</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">step_log_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;  * step: </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -514,14 +514,15 @@
                     <span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">test_case</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">_run_step</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">test_case</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">,</span>
-                          <span class="n">available_resources</span><span class="p">)</span>
+                          <span class="n">available_resources</span><span class="p">,</span> <span class="n">step_log_filename</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
             <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="s1">&#39;      Failed&#39;</span><span class="p">)</span>
             <span class="k">raise</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_run_step</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_run_step</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">,</span>
+              <span class="n">step_log_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the requested step</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -544,16 +545,22 @@
     <span class="c1"># each logger needs a unique name</span>
     <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">new_log_file</span><span class="p">:</span>
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.log&#39;</span>
+        <span class="c1"># we want to create new log file and point the step to that name</span>
+        <span class="n">new_log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.log&#39;</span>
+        <span class="n">step_log_filename</span> <span class="o">=</span> <span class="n">new_log_filename</span>
         <span class="n">step_logger</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># either we don&#39;t want a log file at all or there is an existing one</span>
+        <span class="c1"># to use.  Either way, we don&#39;t want a new log filename and we want</span>
+        <span class="c1"># to use the existing logger.  The step log filename will be whatever</span>
+        <span class="c1"># is passed as a parameter</span>
         <span class="n">step_logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">new_log_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">log_filename</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">step_log_filename</span>
 
     <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">,</span>
-                        <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">step_logger</span><span class="p">:</span>
+                        <span class="n">log_filename</span><span class="o">=</span><span class="n">new_log_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">step_logger</span><span class="p">:</span>
         <span class="n">step</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">step_logger</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
 
