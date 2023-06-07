@@ -1,6 +1,0 @@
-﻿polaris.parallel.check\_parallel\_system
-========================================
-
-.. currentmodule:: polaris.parallel
-
-.. autofunction:: check_parallel_system
