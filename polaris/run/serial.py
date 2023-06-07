@@ -8,13 +8,13 @@ import time
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
 
-from polaris.config import PolarisConfigParser
 from polaris.logging import log_function_call, log_method_call
 from polaris.parallel import (
     get_available_parallel_resources,
     run_command,
     set_cores_per_node,
 )
+from polaris.run import setup_config, unpickle_suite
 
 
 def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
@@ -44,23 +44,13 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
         Typically, these are steps to remove from the defaults
     """
 
-    # Allow a suite name to either include or not the .pickle suffix
-    if suite_name.endswith('.pickle'):
-        # code below assumes no suffix, so remove it
-        suite_name = suite_name[:-len('.pickle')]
-    # Now open the the suite's pickle file
-    if not os.path.exists(f'{suite_name}.pickle'):
-        raise ValueError(f'The suite "{suite_name}" does not appear to have '
-                         f'been set up here.')
-    with open(f'{suite_name}.pickle', 'rb') as handle:
-        test_suite = pickle.load(handle)
+    test_suite = unpickle_suite(suite_name)
 
     # get the config file for the first test case in the suite
     test_case = next(iter(test_suite['test_cases'].values()))
     config_filename = os.path.join(test_case.work_dir,
                                    test_case.config_filename)
-    config = PolarisConfigParser()
-    config.add_from_file(config_filename)
+    config = setup_config(config_filename)
     available_resources = get_available_parallel_resources(config)
 
     # start logging to stdout/stderr
@@ -104,28 +94,8 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
         suite_time = time.time() - suite_start
 
         os.chdir(cwd)
-
-        stdout_logger.info('Test Runtimes:')
-        for test_name, test_time in test_times.items():
-            secs = round(test_time)
-            mins = secs // 60
-            secs -= 60 * mins
-            stdout_logger.info(f'{mins:02d}:{secs:02d} '
-                               f'{success_strs[test_name]} {test_name}')
-        secs = round(suite_time)
-        mins = secs // 60
-        secs -= 60 * mins
-        stdout_logger.info(f'Total runtime {mins:02d}:{secs:02d}')
-
-        if failures == 0:
-            stdout_logger.info('PASS: All passed successfully!')
-        else:
-            if failures == 1:
-                message = '1 test'
-            else:
-                message = f'{failures} tests'
-            stdout_logger.error(f'FAIL: {message} failed, see above.')
-            sys.exit(1)
+        _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
+                           failures)
 
 
 def run_single_step(step_is_subprocess=False):
@@ -146,12 +116,9 @@ def run_single_step(step_is_subprocess=False):
     if step_is_subprocess:
         step.run_as_subprocess = False
 
-    config = PolarisConfigParser()
-    config.add_from_file(step.config_filename)
-
-    available_resources = get_available_parallel_resources(config)
-
+    config = setup_config(step.config_filename)
     test_case.config = config
+    available_resources = get_available_parallel_resources(config)
     set_cores_per_node(test_case.config, available_resources['cores_per_node'])
 
     mpas_tools.io.default_format = config.get('io', 'format')
@@ -198,15 +165,19 @@ def main():
                              "a step is being run as a subprocess.")
     args = parser.parse_args(sys.argv[2:])
     if args.suite is not None:
+        # Running a specified suite from the base work directory
         run_tests(args.suite, quiet=args.quiet)
     elif os.path.exists('test_case.pickle'):
+        # Running a test case inside of its work directory
         run_tests(suite_name='test_case', quiet=args.quiet, is_test_case=True,
                   steps_to_run=args.steps, steps_to_skip=args.skip_steps)
     elif os.path.exists('step.pickle'):
+        # Running a step inside of its work directory
         run_single_step(args.step_is_subprocess)
     else:
         pickles = glob.glob('*.pickle')
         if len(pickles) == 1:
+            # Running an unspecified suite from the base work directory
             suite = os.path.splitext(os.path.basename(pickles[0]))[0]
             run_tests(suite, quiet=args.quiet)
         elif len(pickles) == 0:
@@ -244,6 +215,34 @@ def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
                         steps_to_skip]
 
     return steps_to_run
+
+
+def _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
+                       failures):
+    """
+    Log the runtimes for the test case(s)
+    """
+    stdout_logger.info('Test Runtimes:')
+    for test_name, test_time in test_times.items():
+        secs = round(test_time)
+        mins = secs // 60
+        secs -= 60 * mins
+        stdout_logger.info(f'{mins:02d}:{secs:02d} '
+                           f'{success_strs[test_name]} {test_name}')
+    secs = round(suite_time)
+    mins = secs // 60
+    secs -= 60 * mins
+    stdout_logger.info(f'Total runtime {mins:02d}:{secs:02d}')
+
+    if failures == 0:
+        stdout_logger.info('PASS: All passed successfully!')
+    else:
+        if failures == 1:
+            message = '1 test'
+        else:
+            message = f'{failures} tests'
+        stdout_logger.error(f'FAIL: {message} failed, see above.')
+        sys.exit(1)
 
 
 def _print_to_stdout(test_case, message):
@@ -290,8 +289,7 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
 
         os.chdir(test_case.work_dir)
 
-        config = PolarisConfigParser()
-        config.add_from_file(test_case.config_filename)
+        config = setup_config(test_case.config_filename)
         test_case.config = config
         set_cores_per_node(test_case.config,
                            available_resources['cores_per_node'])
