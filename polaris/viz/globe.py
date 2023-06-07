@@ -12,8 +12,6 @@ import cartopy
 import cmocean  # noqa: F401
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-import numpy as np
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
@@ -95,28 +93,26 @@ def plot_global(lon, lat, data_array, out_filename, config, colormap_section,
         fig.suptitle(title, y=0.935)
 
     subplots = [111]
-    projection = cartopy.crs.PlateCarree()
+    ref_projection = cartopy.crs.PlateCarree()
+    central_longitude = 0.5 * (lon_corner[0] + lon_corner[-1])
+    projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
 
-    extent = [-180, 180, -90, 90]
+    extent = [lon_corner[0], lon_corner[-1], lat_corner[0], lat_corner[-1]]
 
     colormap, norm, ticks = _setup_colormap(config, colormap_section)
 
     ax = plt.subplot(subplots[0], projection=projection)
 
-    ax.set_extent(extent, crs=projection)
+    ax.set_extent(extent, crs=ref_projection)
 
-    gl = ax.gridlines(crs=projection, color='gray', linestyle=':', zorder=5,
-                      draw_labels=True, linewidth=0.5)
+    gl = ax.gridlines(crs=ref_projection, color='gray', linestyle=':',
+                      zorder=5, draw_labels=True, linewidth=0.5)
     gl.right_labels = False
     gl.top_labels = False
-    gl.xlocator = mticker.FixedLocator(np.arange(-180., 181., 60.))
-    gl.ylocator = mticker.FixedLocator(np.arange(-80., 81., 20.))
-    gl.xformatter = cartopy.mpl.gridliner.LONGITUDE_FORMATTER
-    gl.yformatter = cartopy.mpl.gridliner.LATITUDE_FORMATTER
 
     plotHandle = ax.pcolormesh(lon_corner, lat_corner, data_array,
                                cmap=colormap, norm=norm,
-                               transform=projection, zorder=1)
+                               transform=ref_projection, zorder=1)
 
     if plot_land:
         _add_land_lakes_coastline(ax)

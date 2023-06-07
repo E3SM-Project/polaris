@@ -75,7 +75,7 @@ class VizMap(MappingFileStep):
         dlat = section.getfloat('dlat')
         method = section.get('remap_method')
         self.src_from_mpas(filename='mesh.nc', mesh_name=self.mesh_name)
-        self.dst_global_lon_lat(dlon=dlon, dlat=dlat)
+        self.dst_global_lon_lat(dlon=dlon, dlat=dlat, lon_min=0.)
         self.method = method
 
         super().runtime_setup()
