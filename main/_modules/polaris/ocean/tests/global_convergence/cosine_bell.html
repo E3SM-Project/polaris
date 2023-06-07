@@ -131,8 +131,11 @@
 
 <span class="sd">    icosahedral : bool</span>
 <span class="sd">        Whether to use icosahedral, as opposed to less regular, JIGSAW meshes</span>
+
+<span class="sd">    include_viz : bool</span>
+<span class="sd">        Include VizMap and Viz steps for each resolution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CosineBell.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.html#polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
+<div class="viewcode-block" id="CosineBell.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.html#polaris.ocean.tests.global_convergence.cosine_bell.CosineBell.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create test case for creating a global MPAS-Ocean mesh</span>
 
@@ -144,15 +147,21 @@
 <span class="sd">        icosahedral : bool</span>
 <span class="sd">            Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
 <span class="sd">            meshes</span>
+
+<span class="sd">        include_viz : bool</span>
+<span class="sd">            Include VizMap and Viz steps for each resolution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;icos/cosine_bell&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;qu/cosine_bell&#39;</span>
+        <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">_with_viz&#39;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span> <span class="o">=</span> <span class="n">icosahedral</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span> <span class="o">=</span> <span class="n">include_viz</span>
 
         <span class="c1"># add the steps with default resolutions so they can be listed</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
@@ -232,16 +241,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Forward</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                                   <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
 
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_map&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/map&#39;</span>
-            <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_map&#39;</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/map&#39;</span>
+                <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                                 <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
 
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_viz&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/viz&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                              <span class="n">viz_map</span><span class="o">=</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_viz&#39;</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/viz&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                                  <span class="n">viz_map</span><span class="o">=</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                                <span class="n">icosahedral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">))</span></div>

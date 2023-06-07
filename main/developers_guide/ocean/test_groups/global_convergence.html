@@ -143,7 +143,7 @@ only support a fixed set of resolutions described in
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
-determine the rate of convergence.  See <a class="reference internal" href="../../../users_guide/ocean/test_groups/global_convergence.html#ocean-global-convergence-cosine-bell"><span class="std std-ref">cosine_bell</span></a>.
+determine the rate of convergence.  See <a class="reference internal" href="../../../users_guide/ocean/test_groups/global_convergence.html#ocean-global-convergence-cosine-bell"><span class="std std-ref">cosine_bell and cosine_bell_with_viz</span></a>.
 for config options and more details on the test case.</p>
 <section id="mesh">
 <h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
@@ -172,6 +172,9 @@ at each resolution and plotting them in <code class="docutils literal notranslat
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<p>Two visualization steps are available only in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_with_viz</span></code>
+test cases.  They are not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> test cases in order
+to not slow down regression testing when visualization is not desired.</p>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap.html#polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap" title="polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_convergence.cosine_bell.viz.VizMap</span></code></a>
 defines a step for creating a mapping file from the MPAS mesh at a given
 resolution to a lon-lat grid at a resolution and interpolation method

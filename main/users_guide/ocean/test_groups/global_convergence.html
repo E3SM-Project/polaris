@@ -60,7 +60,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Test groups</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">global_convergence</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cosine-bell">cosine_bell</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cosine-bell-and-cosine-bell-with-viz">cosine_bell and cosine_bell_with_viz</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
@@ -126,21 +126,25 @@
 <span id="ocean-global-convergence"></span><h1>global_convergence<a class="headerlink" href="#global-convergence" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">global_convergence</span></code> test group implements convergence studies on the
 full globe.  Currently, the only test case is the advection of a cosine bell.</p>
-<section id="cosine-bell">
-<span id="ocean-global-convergence-cosine-bell"></span><h2>cosine_bell<a class="headerlink" href="#cosine-bell" title="Permalink to this heading"></a></h2>
+<section id="cosine-bell-and-cosine-bell-with-viz">
+<span id="ocean-global-convergence-cosine-bell"></span><h2>cosine_bell and cosine_bell_with_viz<a class="headerlink" href="#cosine-bell-and-cosine-bell-with-viz" title="Permalink to this heading"></a></h2>
 <section id="description">
 <h3>Description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> test case implements the Cosine Bell test case as first
-described in <a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a>
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine_bell_with_viz</span></code> test cases implement the Cosine
+Bell test case as first described in
+<a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a>
 but using the variant from Sec. 3a of
 <a class="reference external" href="https://doi.org/10.1175/MWR-D-10-05056.1">Skamarock and Gassmann</a>.  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
-in a tracer <span class="math notranslate nohighlight">\(psi\)</span> once around the sphere, returning to its initial
-location.</p>
+in a tracer <span class="math notranslate nohighlight">\(psi\)</span> once around the sphere, returning to its initial location.</p>
 <p>The test is a convergence test with time step varying proportionately to grid
 size. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the test case is a plot like the
 following showing convergence as a function of the number of cells:</p>
 <a class="reference internal image-reference" href="../../../_images/cosine_bell_convergence.png"><img alt="../../../_images/cosine_bell_convergence.png" class="align-center" src="../../../_images/cosine_bell_convergence.png" style="width: 500px;" /></a>
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell_with_viz</span></code> variant also includes visualization of the initial
+and final state on a lat-lon grid for each resolution.  The visualization is
+not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> version of the test case in order to not
+slow down regression testing.</p>
 </section>
 <section id="mesh">
 <h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
@@ -307,7 +311,8 @@ the cosine bell and the rest of the sphere, as well as the advection.</p>
 <p>The options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining
 when the convergence rates are not within the expected range.</p>
 <p>The options in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the
-initial and final states on a lon-lat grid.</p>
+initial and final states on a lon-lat grid for <code class="docutils literal notranslate"><span class="pre">cosine_bell_with_viz</span></code> test
+cases.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
