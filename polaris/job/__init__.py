@@ -43,6 +43,63 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
     cores = np.sqrt(target_cores * min_cores)
     nodes = int(np.ceil(cores / cores_per_node))
 
+    partition, qos, constraint, wall_time = get_slurm_options(
+        config, machine, nodes)
+
+    job_name = config.get('job', 'job_name')
+    if job_name == '<<<default>>>':
+        if suite == '':
+            job_name = 'polaris'
+        else:
+            job_name = f'polaris_{suite}'
+
+    template = Template(imp_res.files('polaris.job').joinpath(
+        'job_script.template').read_text())
+
+    text = template.render(job_name=job_name, account=account,
+                           nodes=f'{nodes}', wall_time=wall_time, qos=qos,
+                           partition=partition, constraint=constraint,
+                           suite=suite)
+    text = _clean_up_whitespace(text)
+    if suite == '':
+        script_filename = 'job_script.sh'
+    else:
+        script_filename = f'job_script.{suite}.sh'
+    script_filename = os.path.join(work_dir, script_filename)
+    with open(script_filename, 'w') as handle:
+        handle.write(text)
+
+
+def get_slurm_options(config, machine, nodes):
+    """
+    Get Slurm options
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Config options
+
+    machine : str
+        Name of the machine
+
+    nodes : int
+        Number of nodes
+
+    Returns
+    -------
+    partition : str
+        Slurm partition
+
+    qos : str
+        Slurm quality of service
+
+    constraint : str
+        Slurm constraint
+
+    wall_time : str
+        Slurm wall time
+    """
+
     partition = config.get('job', 'partition')
     if partition == '<<<default>>>':
         if machine == 'anvil':
@@ -75,29 +132,9 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
         else:
             constraint = ''
 
-    job_name = config.get('job', 'job_name')
-    if job_name == '<<<default>>>':
-        if suite == '':
-            job_name = 'polaris'
-        else:
-            job_name = f'polaris_{suite}'
     wall_time = config.get('job', 'wall_time')
 
-    template = Template(imp_res.files('polaris.job').joinpath(
-        'job_script.template').read_text())
-
-    text = template.render(job_name=job_name, account=account,
-                           nodes=f'{nodes}', wall_time=wall_time, qos=qos,
-                           partition=partition, constraint=constraint,
-                           suite=suite)
-    text = _clean_up_whitespace(text)
-    if suite == '':
-        script_filename = 'job_script.sh'
-    else:
-        script_filename = f'job_script.{suite}.sh'
-    script_filename = os.path.join(work_dir, script_filename)
-    with open(script_filename, 'w') as handle:
-        handle.write(text)
+    return partition, qos, constraint, wall_time
 
 
 def _clean_up_whitespace(text):
