@@ -16,11 +16,11 @@ from matplotlib.colors import LogNorm
 from matplotlib.patches import Polygon
 
 
-def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
-                     title=None, t_index=None, z_index=None,
+def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
+                     ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
-                     cmap=None, cmap_set_under=None, cmap_scale='linear'):
-
+                     cmap=None, cmap_set_under=None, cmap_scale='linear',
+                     cmap_title=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -50,6 +50,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
 
     t_index, z_index: int, optional
         The indices of 'Time' and 'nVertLevels' axes to select for plotting
+        The default time index is 0 (initial time)
 
     cmap : Colormap or str, optional
         A color map to plot
@@ -59,15 +60,25 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
 
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
+
+    cmap_title : str
+        Title for color bar
     """
     style_filename = str(
         imp_res.files('polaris.viz') / 'polaris.mplstyle')
     plt.style.use(style_filename)
 
-    try:
-        os.makedirs(os.path.dirname(out_file_name))
-    except OSError:
-        pass
+    create_fig = True
+    if ax is not None:
+        create_fig = False
+
+    if create_fig:
+        if out_file_name is None:
+            out_file_name = f'{field_name}.png'
+        try:
+            os.makedirs(os.path.dirname(out_file_name))
+        except OSError:
+            pass
 
     if title is None:
         title = field_name
@@ -121,18 +132,22 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name,
     legend_width = fig_width / 5
     figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
-    plt.figure(figsize=figsize)
-    ax = plt.subplot(111)
+    if create_fig:
+        plt.figure(figsize=figsize)
+        ax = plt.subplot(111)
     ax.add_collection(ocean_patches)
     ax.set_xlabel('x (km)')
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
-    plt.colorbar(ocean_patches, extend='both', shrink=0.7)
-    plt.title(title)
-    plt.tight_layout(pad=0.5)
-    plt.savefig(out_file_name)
-    plt.close()
+    cbar = plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
+    if cmap_title is not None:
+        cbar.set_label(cmap_title)
+    if create_fig:
+        plt.title(title)
+        plt.tight_layout(pad=0.5)
+        plt.savefig(out_file_name)
+        plt.close()
 
 
 def _remove_boundary_edges_from_mask(ds, mask):
