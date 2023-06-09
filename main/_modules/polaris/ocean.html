@@ -106,6 +106,7 @@
 <span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.global_convergence</span> <span class="kn">import</span> <span class="n">GlobalConvergence</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.inertial_gravity_wave</span> <span class="kn">import</span> <span class="n">InertialGravityWave</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.single_column</span> <span class="kn">import</span> <span class="n">SingleColumn</span>
 
 
@@ -123,6 +124,7 @@
         <span class="c1"># please keep these in alphabetical order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">BaroclinicChannel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">GlobalConvergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">InertialGravityWave</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">SingleColumn</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>

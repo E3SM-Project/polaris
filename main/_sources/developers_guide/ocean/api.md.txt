@@ -58,6 +58,37 @@
    rpe_test.analysis.Analysis.run
 ```
 
+### inertial_gravity_wave 
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tests.inertial_gravity_wave
+
+.. autosummary::
+   :toctree: generated/
+
+   InertialGravityWave 
+
+   analysis.Analysis
+   analysis.Analysis.run
+
+   exact_solution.ExactSolution
+   exact_solution.ExactSolution.ssh
+   exact_solution.ExactSolution.normalVelocity
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   initial_state.InitialState
+   initial_state.InitialState.run
+
+   viz.Viz
+   viz.Viz.run
+
+   convergence.Convergence
+   convergence.Convergence.validate
+```
+
 ### global_convergence
 
 ```{eval-rst}
