@@ -68,13 +68,15 @@ ocean/api
 #### run
 
 ```{eval-rst}
-.. currentmodule:: polaris.run.serial
+.. currentmodule:: polaris.run
 
 .. autosummary::
    :toctree: generated/
 
-   run_tests
-   run_single_step
+   unpickle_suite
+   setup_config
+   serial.run_tests
+   serial.run_single_step
 
 ```
 
