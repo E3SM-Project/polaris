@@ -598,7 +598,10 @@
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># We want to indicate that the step failed by removing the pickle</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;output file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span>
