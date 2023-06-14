@@ -492,7 +492,10 @@ def _run_step(test_case, step, new_log_file, available_resources,
 
     if len(missing_files) > 0:
         # We want to indicate that the step failed by removing the pickle
-        os.remove('step_after_run.pickle')
+        try:
+            os.remove('step_after_run.pickle')
+        except FileNotFoundError:
+            pass
         raise OSError(
             f'output file(s) missing in step {step.name} of '
             f'{step.component.name}/{step.test_group.name}/'
