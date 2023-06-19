@@ -348,6 +348,59 @@
 </table>
 </section>
 </section>
+<section id="manufactured-solution">
+<h3>manufactured_solution<a class="headerlink" href="#manufactured-solution" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tests.manufactured_solution.ManufacturedSolution" title="polaris.ocean.tests.manufactured_solution.ManufacturedSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManufacturedSolution</span></code></a>(component)</p></td>
+<td><p>A test group for manufactured solution test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.analysis.Analysis.html#polaris.ocean.tests.manufactured_solution.analysis.Analysis" title="polaris.ocean.tests.manufactured_solution.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(test_case, resolutions)</p></td>
+<td><p>A step for analysing the output from the manufactured solution test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.analysis.Analysis.run.html#polaris.ocean.tests.manufactured_solution.analysis.Analysis.run" title="polaris.ocean.tests.manufactured_solution.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution.html#polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution" title="polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(config[, ds])</p></td>
+<td><p>Class to compute the exact solution for the manufactured solution test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution.ssh.html#polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution.ssh" title="polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
+<td><p>Exact solution for sea surface height</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.forward.Forward.html#polaris.ocean.tests.manufactured_solution.forward.Forward" title="polaris.ocean.tests.manufactured_solution.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(test_case, resolution[, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of manufactured solution test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count.html#polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count" title="polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>(at_setup)</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Set the model time step from config options at setup and runtime</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.initial_state.InitialState.html#polaris.ocean.tests.manufactured_solution.initial_state.InitialState" title="polaris.ocean.tests.manufactured_solution.initial_state.InitialState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState</span></code></a>(test_case, resolution)</p></td>
+<td><p>A step for creating a mesh and initial condition for the manufactured solution test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.initial_state.InitialState.run.html#polaris.ocean.tests.manufactured_solution.initial_state.InitialState.run" title="polaris.ocean.tests.manufactured_solution.initial_state.InitialState.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_state.InitialState.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.viz.Viz.html#polaris.ocean.tests.manufactured_solution.viz.Viz" title="polaris.ocean.tests.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(test_case, resolutions)</p></td>
+<td><p>A step for visualizing the output from the manufactured solution test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.viz.Viz.run.html#polaris.ocean.tests.manufactured_solution.viz.Viz.run" title="polaris.ocean.tests.manufactured_solution.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.convergence.Convergence.html#polaris.ocean.tests.manufactured_solution.convergence.Convergence" title="polaris.ocean.tests.manufactured_solution.convergence.Convergence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence.Convergence</span></code></a>(test_group)</p></td>
+<td><p>The convergence test case for the manufactured solution test group</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tests.manufactured_solution.convergence.Convergence.validate.html#polaris.ocean.tests.manufactured_solution.convergence.Convergence.validate" title="polaris.ocean.tests.manufactured_solution.convergence.Convergence.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence.Convergence.validate</span></code></a>()</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="single-column">
 <h3>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

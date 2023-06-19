@@ -130,6 +130,37 @@
    viz.Viz.run
 ```
 
+### manufactured_solution
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tests.manufactured_solution
+
+.. autosummary::
+   :toctree: generated/
+
+   ManufacturedSolution
+
+   analysis.Analysis
+   analysis.Analysis.run
+
+   exact_solution.ExactSolution
+   exact_solution.ExactSolution.ssh
+   exact_solution.ExactSolution.normalVelocity
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   initial_state.InitialState
+   initial_state.InitialState.run
+
+   viz.Viz
+   viz.Viz.run
+
+   convergence.Convergence
+   convergence.Convergence.validate
+```
+
 ### single_column
 
 ```{eval-rst}
