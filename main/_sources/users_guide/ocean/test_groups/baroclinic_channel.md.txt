@@ -85,17 +85,17 @@ $$
 T_0(y) = \begin{cases}
     T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
     (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &
-    \text{ if } y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}
-    \le y \ge
-    y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb} &&
-    \frac{4}{6} l_x \le x \ge \frac{5}{6} l_x \\
+    \text{ if } y_{min}(x) \le y \le y_{max}(x); 
+    \frac{4}{6} l_x \le x \le \frac{5}{6} l_x \\
     T_0(z) - \Delta T \: f(y) & \text{otherwise}
 \end{cases}
 $$
 where
 $$
-y_{crest}(x) = \frac{1}{2} \Delta y_{perturb}
-               \sin(\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x))
+y_{crest}(x) = ~ & \frac{1}{2} \Delta y_{perturb}
+               \sin\left[\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x)\right], \\
+y_{min}(x) = ~ & y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}, \\
+y_{max}(x) = ~ & y_{mid} - y_{crest}(x) + \frac{1}{2}\Delta y_{perturb}.
 $$
 
 ```{image} images/baroclinic_channel.png

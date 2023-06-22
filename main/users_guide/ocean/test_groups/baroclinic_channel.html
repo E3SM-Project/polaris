@@ -220,20 +220,20 @@ hard-coded as 0.3, applied over a more limited x-extent.
 T_0(y) = \begin{cases}
     T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
     (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &amp;
-    \text{ if } y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}
-    \le y \ge
-    y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb} &amp;&amp;
-    \frac{4}{6} l_x \le x \ge \frac{5}{6} l_x \\
+    \text{ if } y_{min}(x) \le y \le y_{max}(x); 
+    \frac{4}{6} l_x \le x \le \frac{5}{6} l_x \\
     T_0(z) - \Delta T \: f(y) &amp; \text{otherwise}
 \end{cases}
 \end{split}\]</div>
 
 where
 <div class="math notranslate nohighlight">
-\[
-y_{crest}(x) = \frac{1}{2} \Delta y_{perturb}
-               \sin(\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x))
-\]</div>
+\[\begin{split}
+y_{crest}(x) = ~ &amp; \frac{1}{2} \Delta y_{perturb}
+               \sin\left[\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x)\right], \\
+y_{min}(x) = ~ &amp; y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}, \\
+y_{max}(x) = ~ &amp; y_{mid} - y_{crest}(x) + \frac{1}{2}\Delta y_{perturb}.
+\end{split}\]</div>
 </p>
 <a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" /></a>
 <p>The flow is initially stationary and the Coriolis parameter is uniform across
