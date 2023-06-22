@@ -59,7 +59,7 @@ def bisect(good, bad, e3sm_path, load_script, config_file, first_parent):
                f'  -f {config_file}'
     print('\n')
     print(72 * '-')
-    print('Biscect Initialization')
+    print('Bisect Initialization')
     print(72 * '-')
     print('\nRunning:')
     print_commands = commands.replace(' && ', '\n  ')
@@ -73,7 +73,7 @@ def main():
                     'a given test fails')
     parser.add_argument("-f", "--config_file", dest="config_file",
                         required=True,
-                        help="Configuration file with bisect options",
+                        help="Configuration file with bisect options.",
                         metavar="FILE")
 
     args = parser.parse_args()

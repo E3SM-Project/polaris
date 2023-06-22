@@ -295,44 +295,44 @@ def main():
     parser = argparse.ArgumentParser(
         description='Set up one or more test cases', prog='polaris setup')
     parser.add_argument("-t", "--test", dest="test",
-                        help="Relative path for a test case to set up",
+                        help="Relative path for a test case to set up.",
                         metavar="PATH")
     parser.add_argument("-n", "--case_number", nargs='+', dest="case_num",
                         type=str,
                         help="Case number(s) to setup, as listed from "
-                             "'polaris list'. Can be a space-separated"
-                             "list of case numbers.  A suffix 'c' indicates"
-                             "that all steps in the test should use cached"
+                             "'polaris list'. Can be a space-separated "
+                             "list of case numbers.  A suffix 'c' indicates "
+                             "that all steps in the test should use cached "
                              "outputs.", metavar="NUM")
     parser.add_argument("-f", "--config_file", dest="config_file",
-                        help="Configuration file for test case setup",
+                        help="Configuration file for test case setup.",
                         metavar="FILE")
     parser.add_argument("-m", "--machine", dest="machine",
                         help="The name of the machine for loading machine-"
-                             "related config options", metavar="MACH")
+                             "related config options.", metavar="MACH")
     parser.add_argument("-w", "--work_dir", dest="work_dir", required=True,
                         help="A base directory for setting up test cases.",
                         metavar="PATH")
     parser.add_argument("-b", "--baseline_dir", dest="baseline_dir",
-                        help="Location of baselines that can be compared to",
+                        help="Location of baselines that can be compared to.",
                         metavar="PATH")
     parser.add_argument("-p", "--component_path", dest="component_path",
                         help="The path where the component executable and "
                              "default namelists have been built.",
                         metavar="PATH")
     parser.add_argument("--suite_name", dest="suite_name", default="custom",
-                        help="The name to use for the 'custom' test suite"
+                        help="The name to use for the 'custom' test suite "
                              "containing all setup test cases.",
                         metavar="SUITE")
     parser.add_argument("--cached", dest="cached", nargs='+',
-                        help="A list of steps in the test case supplied with"
+                        help="A list of steps in the test case supplied with "
                              "--test that should use cached outputs, or "
-                             "'_all' if all steps should be cached",
+                             "'_all' if all steps should be cached.",
                         metavar="STEP")
     parser.add_argument("--copy_executable", dest="copy_executable",
                         action="store_true",
                         help="If the model executable should be copied to the "
-                             "work directory")
+                             "work directory.")
 
     args = parser.parse_args(sys.argv[2:])
     cached = None

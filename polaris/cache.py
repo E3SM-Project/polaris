@@ -119,7 +119,7 @@ def main():
     parser.add_argument("-i", "--orig_steps", nargs='+', dest="orig_steps",
                         type=str,
                         help="The relative path of the original (uncached) "
-                             "steps from the base work directory",
+                             "steps from the base work directory.",
                         metavar="STEP")
     parser.add_argument("-d", "--date_string", dest="date_string", type=str,
                         help="The datestamp (YYMMDD) to use on the files.  "

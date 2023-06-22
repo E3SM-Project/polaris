@@ -60,19 +60,19 @@ def main():
     parser = argparse.ArgumentParser(
         description='Set up a regression test suite', prog='polaris suite')
     parser.add_argument("-c", "--component", dest="component",
-                        help="The component for the test suite",
+                        help="The component for the test suite.",
                         metavar="COMPONENT", required=True)
     parser.add_argument("-t", "--test_suite", dest="test_suite",
-                        help="Path to file containing a test suite to setup",
+                        help="Path to file containing a test suite to setup.",
                         metavar="SUITE", required=True)
     parser.add_argument("-f", "--config_file", dest="config_file",
-                        help="Configuration file for test case setup",
+                        help="Configuration file for test case setup.",
                         metavar="FILE")
     parser.add_argument("-m", "--machine", dest="machine",
                         help="The name of the machine for loading machine-"
-                             "related config options", metavar="MACH")
+                             "related config options.", metavar="MACH")
     parser.add_argument("-b", "--baseline_dir", dest="baseline_dir",
-                        help="Location of baseslines that can be compared to",
+                        help="Location of baselines that can be compared to.",
                         metavar="PATH")
     parser.add_argument("-w", "--work_dir", dest="work_dir", required=True,
                         help="If set, script will setup the test suite in "
@@ -85,7 +85,7 @@ def main():
     parser.add_argument("--copy_executable", dest="copy_executable",
                         action="store_true",
                         help="If the model executable should be copied to the "
-                             "work directory")
+                             "work directory.")
     args = parser.parse_args(sys.argv[2:])
 
     setup_suite(component=args.component, suite_name=args.test_suite,

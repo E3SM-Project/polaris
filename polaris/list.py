@@ -130,14 +130,15 @@ def main():
         prog='polaris list')
     parser.add_argument('-t', '--test_expr', dest='test_expr',
                         help='A regular expression for a test path name to '
-                             'search for',
+                             'search for.',
                         metavar='TEST')
     parser.add_argument('-n', '--number', dest='number', type=int,
-                        help='The number of the test to list')
+                        help='The number of the test to list.')
     parser.add_argument('--machines', dest='machines', action='store_true',
-                        help='List supported machines (instead of test cases)')
+                        help='List supported machines (instead of test '
+                             'cases).')
     parser.add_argument('--suites', dest='suites', action='store_true',
-                        help='List test suites (instead of test cases)')
+                        help='List test suites (instead of test cases).')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='List details of each test case, not just the '
                              'path.  When applied to suites, verbose lists '

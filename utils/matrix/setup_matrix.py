@@ -311,13 +311,13 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
 def main():
     parser = argparse.ArgumentParser(
         description='Build MPAS and set up polaris with a matrix of build '
-                    'configs.')
+                    'configs')
     parser.add_argument("-f", "--config_file", dest="config_file",
                         required=True,
-                        help="Configuration file with matrix build options",
+                        help="Configuration file with matrix build options.",
                         metavar="FILE")
     parser.add_argument("--submit", dest="submit", action='store_true',
-                        help="Whether to submit the job scripts for each test"
+                        help="Whether to submit the job scripts for each test "
                              "once setup is complete.")
 
     args = parser.parse_args()

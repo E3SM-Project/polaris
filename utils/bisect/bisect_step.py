@@ -100,7 +100,7 @@ def main():
                     'E3SM commit for which a given test fails')
     parser.add_argument("-f", "--config_file", dest="config_file",
                         required=True,
-                        help="Configuration file with bisect options",
+                        help="Configuration file with bisect options.",
                         metavar="FILE")
 
     args = parser.parse_args()
