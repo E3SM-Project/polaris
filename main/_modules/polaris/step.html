@@ -573,7 +573,7 @@
         <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/step_after_run.pickle&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span> <span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the inputs to and outputs from a step added with</span>
 <span class="sd">        :py:meth:`polaris.Step.add_input_file` and</span>
@@ -610,6 +610,7 @@
             <span class="k">if</span> <span class="n">database_subdirs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">databases_with_downloads</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">database_subdirs</span><span class="p">)</span>
             <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fix_permissions</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">)</span>
