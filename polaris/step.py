@@ -468,7 +468,7 @@ class Step:
         target = f'{step.path}/step_after_run.pickle'
         self.add_input_file(filename=filename, work_dir_target=target)
 
-    def process_inputs_and_outputs(self):  # noqa: C901
+    def process_inputs_and_outputs(self):
         """
         Process the inputs to and outputs from a step added with
         :py:meth:`polaris.Step.add_input_file` and
@@ -505,6 +505,7 @@ class Step:
             if database_subdirs is not None:
                 databases_with_downloads.update(database_subdirs)
             inputs.append(input_file)
+        self.inputs = inputs
 
         if len(databases_with_downloads) > 0:
             self._fix_permissions(databases_with_downloads)
