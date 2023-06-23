@@ -246,7 +246,7 @@ def main():
                     'E3SM-Project (or another) submodule')
     parser.add_argument("-f", "--config_file", dest="config_file",
                         required=True,
-                        help="Configuration file",
+                        help="Configuration file.",
                         metavar="FILE")
 
     args = parser.parse_args()

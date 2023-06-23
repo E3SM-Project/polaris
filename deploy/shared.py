@@ -13,59 +13,59 @@ def parse_args(bootstrap):
         description='Deploy a compass conda environment')
     parser.add_argument("-m", "--machine", dest="machine",
                         help="The name of the machine for loading machine-"
-                             "related config options")
+                             "related config options.")
     parser.add_argument("--conda", dest="conda_base",
-                        help="Path to the conda base")
+                        help="Path to the conda base.")
     parser.add_argument("--spack", dest="spack_base",
-                        help="Path to the spack base")
+                        help="Path to the spack base.")
     parser.add_argument("--env_name", dest="env_name",
                         help="The conda environment name and activation script"
-                             " prefix")
+                             " prefix.")
     parser.add_argument("-p", "--python", dest="python", type=str,
-                        help="The python version to deploy")
+                        help="The python version to deploy.")
     parser.add_argument("-c", "--compiler", dest="compilers", type=str,
-                        nargs="*", help="The name of the compiler(s)")
+                        nargs="*", help="The name of the compiler(s).")
     parser.add_argument("-i", "--mpi", dest="mpis", type=str, nargs="*",
                         help="The MPI library (or libraries) to deploy, see "
-                             "the docs for details")
+                             "the docs for details.")
     parser.add_argument("--conda_env_only", dest="conda_env_only",
                         action='store_true',
                         help="Create only the conda environment for running "
                              "polaris tests (without compilers or libraries "
-                             "for building E3SM components)")
+                             "for building E3SM components).")
     parser.add_argument("--recreate", dest="recreate", action='store_true',
-                        help="Recreate the environment if it exists")
+                        help="Recreate the environment if it exists.")
     parser.add_argument("-f", "--config_file", dest="config_file",
                         help="Config file to override deployment config "
-                             "options")
+                             "options.")
     parser.add_argument("--check", dest="check", action='store_true',
                         help="Check the resulting environment for expected "
-                             "packages")
+                             "packages.")
     parser.add_argument("--use_local", dest="use_local", action='store_true',
                         help="Use locally built conda packages (for testing).")
     parser.add_argument("--mache_fork", dest="mache_fork",
-                        help="Point to a mache fork (and branch) for testing")
+                        help="Point to a mache fork (and branch) for testing.")
     parser.add_argument("--mache_branch", dest="mache_branch",
-                        help="Point to a mache branch (and fork) for testing")
+                        help="Point to a mache branch (and fork) for testing.")
     parser.add_argument("--update_spack", dest="update_spack",
                         action='store_true',
                         help="If the shared spack environment should be "
                              "created or recreated.")
     parser.add_argument("--tmpdir", dest="tmpdir",
                         help="A temporary directory for building spack "
-                             "packages")
+                             "packages.")
     parser.add_argument("--with_albany", dest="with_albany",
                         action='store_true',
                         help="Whether to include albany in the spack "
-                             "environment")
+                             "environment.")
     parser.add_argument("--with_netlib_lapack", dest="with_netlib_lapack",
                         action='store_true',
                         help="Whether to include Netlib-LAPACK in the spack "
-                             "environment")
+                             "environment.")
     parser.add_argument("--with_petsc", dest="with_petsc",
                         action='store_true',
                         help="Whether to include PETSc in the spack "
-                             "environment")
+                             "environment.")
     parser.add_argument("--without_openmp", dest="without_openmp",
                         action='store_true',
                         help="If this flag is included, OPENMP=false will "

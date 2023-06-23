@@ -150,7 +150,7 @@ def main():
                         help="The name of a test suite to run. Can exclude "
                         "or include the .pickle filename suffix.")
     parser.add_argument("--steps", dest="steps", nargs='+',
-                        help="The steps of a test case to run")
+                        help="The steps of a test case to run.")
     parser.add_argument("--skip_steps", dest="skip_steps", nargs='+',
                         help="The steps of a test case not to run, see "
                              "steps_to_run in the config file for defaults.")
@@ -161,7 +161,7 @@ def main():
                              "their own.")
     parser.add_argument("--step_is_subprocess", dest="step_is_subprocess",
                         action="store_true",
-                        help="Used internally by polaris to indicate that"
+                        help="Used internally by polaris to indicate that "
                              "a step is being run as a subprocess.")
     args = parser.parse_args(sys.argv[2:])
     if args.suite is not None:
@@ -547,7 +547,7 @@ def _load_dependencies(test_case, step):
 
 def _pickle_step_after_run(test_case, step):
     """
-    Picle a step after it has run so its dependencies will pick up the changes.
+    Pickle a step after running so its dependencies will pick up the changes.
     """
     if step.is_dependency:
         # pickle the test case and step for use at runtime
