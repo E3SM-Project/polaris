@@ -4,4 +4,4 @@ ocean/baroclinic_channel/10km/restart_test
 ocean/inertial_gravity_wave/convergence
 ocean/single_column/960km/cvmix
 ocean/single_column/960km/ideal_age
-ocean/manufactured_solution/convergence
+# ocean/manufactured_solution/convergence

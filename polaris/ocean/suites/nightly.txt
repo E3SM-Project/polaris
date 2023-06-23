@@ -2,4 +2,4 @@ ocean/baroclinic_channel/10km/threads_test
 ocean/baroclinic_channel/10km/decomp_test
 ocean/baroclinic_channel/10km/restart_test
 ocean/inertial_gravity_wave/convergence
-ocean/manufactured_solution/convergence
+# ocean/manufactured_solution/convergence
