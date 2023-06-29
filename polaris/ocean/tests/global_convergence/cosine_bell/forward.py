@@ -44,7 +44,6 @@ class Forward(OceanModelStep):
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-        self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
         self.add_yaml_file(
             'polaris.ocean.tests.global_convergence.cosine_bell',
             'forward.yaml')
@@ -95,6 +94,14 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup=at_setup)
 
         config = self.config
+
+        vert_levels = config.getfloat('vertical_grid', 'vert_levels')
+        if not at_setup and vert_levels == 1:
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+            self.add_yaml_file(
+                'polaris.ocean.tests.global_convergence.cosine_bell',
+                'forward.yaml')
+
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('cosine_bell', 'dt_per_km')
 
