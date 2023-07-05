@@ -569,8 +569,9 @@ a tools that helps to enforce this standard by checking your code each time you
 make a commit.  It will tell you about various types of problems it finds.
 Internally, it uses <a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> to check PEP8
 compliance, <a class="reference external" href="https://pycqa.github.io/isort/">isort</a> to sort, check and format
-imports, and <a class="reference external" href="https://mypy-lang.org/">mypy</a> to check for consistent variable
-types. An example error might be:</p>
+imports, <a class="reference external" href="https://github.com/ikamensh/flynt">flynt</a> to change any format
+strings to f-strings, and <a class="reference external" href="https://mypy-lang.org/">mypy</a> to check for
+consistent variable types. An example error might be:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>example.py:77:1:<span class="w"> </span>E302<span class="w"> </span>expected<span class="w"> </span><span class="m">2</span><span class="w"> </span>blank<span class="w"> </span>lines,<span class="w"> </span>found<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
