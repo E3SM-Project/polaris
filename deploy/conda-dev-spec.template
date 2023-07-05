@@ -45,6 +45,7 @@ types-requests
 pip
 pytest
 isort
+flynt
 flake8
 mypy
 pre-commit

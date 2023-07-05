@@ -527,8 +527,9 @@ a tools that helps to enforce this standard by checking your code each time you
 make a commit.  It will tell you about various types of problems it finds.
 Internally, it uses [flake8](https://flake8.pycqa.org/en/latest/) to check PEP8 
 compliance, [isort](https://pycqa.github.io/isort/) to sort, check and format 
-imports, and [mypy](https://mypy-lang.org/) to check for consistent variable
-types. An example error might be:
+imports, [flynt](https://github.com/ikamensh/flynt) to change any format 
+strings to f-strings, and [mypy](https://mypy-lang.org/) to check for 
+consistent variable types. An example error might be:
 
 ```bash
 example.py:77:1: E302 expected 2 blank lines, found 1
