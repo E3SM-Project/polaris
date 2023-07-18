@@ -51,21 +51,21 @@ class Init(Step):
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
-        dsMesh = xr.open_dataset('mesh.nc')
-        angleEdge = dsMesh.angleEdge
-        latCell = dsMesh.latCell
-        latEdge = dsMesh.latEdge
-        lonCell = dsMesh.lonCell
-        sphere_radius = dsMesh.sphere_radius
+        ds_mesh = xr.open_dataset('mesh.nc')
+        angleEdge = ds_mesh.angleEdge
+        latCell = ds_mesh.latCell
+        latEdge = ds_mesh.latEdge
+        lonCell = ds_mesh.lonCell
+        sphere_radius = ds_mesh.sphere_radius
 
-        ds = dsMesh.copy()
+        ds = ds_mesh.copy()
 
         ds['bottomDepth'] = bottom_depth * xr.ones_like(latCell)
         ds['ssh'] = xr.zeros_like(latCell)
 
         init_vertical_coord(config, ds)
 
-        temperature_array = temperature * xr.ones_like(ds.latCell)
+        temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
@@ -92,8 +92,8 @@ class Init(Step):
         velocity_array, _ = xr.broadcast(velocity, ds.refZMid)
         ds['normalVelocity'] = velocity_array.expand_dims(dim='Time', axis=0)
 
-        ds['fCell'] = xr.zeros_like(ds.xCell)
-        ds['fEdge'] = xr.zeros_like(ds.xEdge)
-        ds['fVertex'] = xr.zeros_like(ds.xVertex)
+        ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
+        ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
+        ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
         write_netcdf(ds, 'initial_state.nc')

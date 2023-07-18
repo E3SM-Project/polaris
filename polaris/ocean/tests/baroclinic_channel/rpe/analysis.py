@@ -149,5 +149,4 @@ def _plot(nx, ny, lx, ly, filename, nus, rpe):
             ax.set_ylabel('y, km')
         if iCol == num_files - 1:
             fig.colorbar(dis, ax=axs[num_files - 1], aspect=40)
-
     plt.savefig(filename)

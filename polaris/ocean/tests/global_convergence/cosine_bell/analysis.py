@@ -46,6 +46,9 @@ class Analysis(Step):
             else:
                 mesh_name = f'QU{resolution}'
             self.add_input_file(
+                filename=f'{mesh_name}_mesh.nc',
+                target=f'../{mesh_name}/mesh/mesh.nc')
+            self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 target=f'../{mesh_name}/init/initial_state.nc')
             self.add_input_file(
@@ -127,7 +130,8 @@ class Analysis(Step):
         psi0 = config.getfloat('cosine_bell', 'psi0')
         pd = config.getfloat('cosine_bell', 'vel_pd')
 
-        init = xr.open_dataset(f'{mesh_name}_init.nc')
+        ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
+        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
         # find time since the beginning of run
         ds = xr.open_dataset(f'{mesh_name}_output.nc')
         for j in range(len(ds.xtime)):
@@ -142,7 +146,7 @@ class Analysis(Step):
         t = 86400.0 * DY + HR * 3600. + MN
         # find new location of blob center
         # center is based on equatorial velocity
-        R = init.sphere_radius
+        R = ds_mesh.sphere_radius
         distTrav = 2.0 * 3.14159265 * R / (86400.0 * pd) * t
         # distance in radians is
         distRad = distTrav / R
@@ -151,9 +155,9 @@ class Analysis(Step):
             newLon -= 2.0 * np.pi
 
         # construct analytic tracer
-        tracer = np.zeros_like(init.tracer1[0, :, 0].values)
-        latC = init.latCell.values
-        lonC = init.lonCell.values
+        tracer = np.zeros_like(ds_init.tracer1[0, :, 0].values)
+        latC = ds_mesh.latCell.values
+        lonC = ds_mesh.lonCell.values
         temp = R * np.arccos(np.sin(latCent) * np.sin(latC) +
                              np.cos(latCent) * np.cos(latC) * np.cos(
             lonC - newLon))
@@ -165,6 +169,4 @@ class Analysis(Step):
         tracerF = ds.tracer1[sliceTime, :, 0].values
         rmseValue = np.sqrt(np.mean((tracerF - tracer)**2))
 
-        init.close()
-        ds.close()
-        return rmseValue, init.dims['nCells']
+        return rmseValue, ds_init.dims['nCells']
