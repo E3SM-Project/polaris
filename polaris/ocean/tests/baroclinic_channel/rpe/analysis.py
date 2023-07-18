@@ -42,7 +42,7 @@ class Analysis(Step):
         for index, nu in enumerate(nus):
             self.add_input_file(
                 filename=f'output_{index + 1}.nc',
-                target=f'../rpe_test_{index + 1}_nu_{int(nu)}/output.nc')
+                target=f'../rpe_{index + 1}_nu_{int(nu)}/output.nc')
 
         self.add_output_file(
             filename=f'sections_baroclinic_channel_{resolution}.png')

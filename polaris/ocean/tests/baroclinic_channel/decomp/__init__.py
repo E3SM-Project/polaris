@@ -1,15 +1,12 @@
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
-from polaris.ocean.tests.baroclinic_channel.restart_test.restart_step import (
-    RestartStep,
-)
+from polaris.ocean.tests.baroclinic_channel.forward import Forward
 from polaris.validate import compare_variables
 
 
-class RestartTest(BaroclinicChannelTestCase):
+class Decomp(BaroclinicChannelTestCase):
     """
-    A restart test case for the baroclinic channel test group, which makes sure
-    the model produces identical results with one longer run and two shorter
-    runs with a restart in between.
+    A decomposition test case for the baroclinic channel test group, which
+    makes sure the model produces identical results on 1 and 4 cores.
     """
 
     def __init__(self, test_group, resolution):
@@ -24,22 +21,27 @@ class RestartTest(BaroclinicChannelTestCase):
         resolution : float
             The resolution of the test case in km
         """
-        super().__init__(test_group=test_group, resolution=resolution,
-                         name='restart_test')
 
-        for name in ['full_run', 'restart_run']:
-            self.add_step(
-                RestartStep(test_case=self, resolution=resolution,
-                            name=name))
+        super().__init__(test_group=test_group, resolution=resolution,
+                         name='decomp')
+
+        for procs in [4, 8]:
+            name = f'{procs}proc'
+
+            self.add_step(Forward(
+                test_case=self, name=name, subdir=name, ntasks=procs,
+                min_tasks=procs, openmp_threads=1,
+                resolution=resolution, run_time_steps=3))
 
     def validate(self):
         """
         Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``full_run`` and ``restart_run`` steps with
-        each other and with a baseline if one was provided
+        ``normalVelocity`` in the ``4proc`` and ``8proc`` steps with each other
+        and with a baseline if one was provided
         """
+        super().validate()
         variables = ['temperature', 'salinity', 'layerThickness',
                      'normalVelocity']
         compare_variables(test_case=self, variables=variables,
-                          filename1='full_run/output.nc',
-                          filename2='restart_run/output.nc')
+                          filename1='4proc/output.nc',
+                          filename2='8proc/output.nc')
