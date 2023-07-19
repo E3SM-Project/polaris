@@ -27,10 +27,14 @@ class Restart(BaroclinicChannelTestCase):
         super().__init__(test_group=test_group, resolution=resolution,
                          name='restart')
 
-        for name in ['full_run', 'restart_run']:
-            self.add_step(
-                RestartStep(test_case=self, resolution=resolution,
-                            name=name))
+        full = RestartStep(test_case=self, resolution=resolution,
+                           name='full_run')
+        self.add_step(full)
+
+        restart = RestartStep(test_case=self, resolution=resolution,
+                              name='restart_run')
+        restart.add_dependency(full, full.name)
+        self.add_step(restart)
 
     def validate(self):
         """
