@@ -37,7 +37,7 @@ class Analysis(Step):
 
         self.add_input_file(
             filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
+            target='../init/initial_state.nc')
 
         for index, nu in enumerate(nus):
             self.add_input_file(

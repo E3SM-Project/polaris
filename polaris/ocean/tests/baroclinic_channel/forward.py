@@ -81,9 +81,9 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../initial_state/initial_state.nc')
+                            target='../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../initial_state/culled_graph.info')
+                            target='../init/culled_graph.info')
 
         self.add_yaml_file('polaris.ocean.tests.baroclinic_channel',
                            'forward.yaml')
