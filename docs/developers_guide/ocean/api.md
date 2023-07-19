@@ -38,24 +38,24 @@
    default.Default
    default.Default.validate
 
-   decomp_test.DecompTest
-   decomp_test.DecompTest.validate
+   decomp.Decomp
+   decomp.Decomp.validate
 
-   restart_test.RestartTest
-   restart_test.RestartTest.validate
+   restart.Restart
+   restart.Restart.validate
 
-   restart_test.restart_step.RestartStep
-   restart_test.restart_step.RestartStep.dynamic_model_config
+   restart.restart_step.RestartStep
+   restart.restart_step.RestartStep.dynamic_model_config
 
-   threads_test.ThreadsTest
-   threads_test.ThreadsTest.validate
+   threads.Threads
+   threads.Threads.validate
 
-   rpe_test.RpeTest
-   rpe_test.RpeTest.configure
-   rpe_test.RpeTest.validate
-   rpe_test.analysis.Analysis
-   rpe_test.analysis.Analysis.setup
-   rpe_test.analysis.Analysis.run
+   rpe.Rpe
+   rpe.Rpe.configure
+   rpe.Rpe.validate
+   rpe.analysis.Analysis
+   rpe.analysis.Analysis.setup
+   rpe.analysis.Analysis.run
 ```
 
 ### inertial_gravity_wave 

@@ -186,15 +186,15 @@ associated with these steps until the point where the step is being set up in
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
 As an example, here is the constructor from
-{py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest`:
+{py:class}`polaris.ocean.tests.baroclinic_channel.rpe.Rpe`:
 
 ```python
 from polaris import TestCase
 from polaris.ocean.tests.baroclinic_channel.init import Init
 from polaris.ocean.tests.baroclinic_channel.forward import Forward
-from polaris.ocean.tests.baroclinic_channel.rpe_test.analysis import Analysis
+from polaris.ocean.tests.baroclinic_channel.rpe.analysis import Analysis
 
-class RpeTest(TestCase):
+class Rpe(TestCase):
     """
     The reference potential energy (RPE) test case for the baroclinic channel
     test group performs a 20-day integration of the model forward in time at
@@ -218,7 +218,7 @@ class RpeTest(TestCase):
         resolution : str
             The resolution of the test case
         """
-        name = 'rpe_test'
+        name = 'rpe'
         subdir = f'{resolution}/{name}'
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
@@ -242,17 +242,17 @@ class RpeTest(TestCase):
             Init(test_case=self, resolution=resolution))
 
         for index, nu in enumerate(nus):
-            name = 'rpe_test_{}_nu_{}'.format(index + 1, nu)
+            name = 'rpe_{}_nu_{}'.format(index + 1, nu)
             step = Forward(
                 test_case=self, name=name, subdir=name,
                 ntasks=params['ntasks'], min_tasks=params['min_tasks'],
                 resolution=resolution, nu=float(nu))
 
             step.add_namelist_file(
-                'polaris.ocean.tests.baroclinic_channel.rpe_test',
+                'polaris.ocean.tests.baroclinic_channel.rpe',
                 'namelist.forward')
             step.add_streams_file(
-                'polaris.ocean.tests.baroclinic_channel.rpe_test',
+                'polaris.ocean.tests.baroclinic_channel.rpe',
                 'streams.forward')
             self.add_step(step)
 
@@ -266,13 +266,13 @@ full use of {ref}`dev-code-sharing` in a test case.
 The test case imports the classes for its steps --
 {py:class}`polaris.ocean.tests.baroclinic_channel.init.Init`,
 {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward`, and
-{py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis`
+{py:class}`polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis`
 -- so it can create objects for each and add them to itself with
 {py:func}`polaris.TestCase.add_step()`.  After this, the {py:class}`dict` of
 steps will be available in `self.steps`.
 
 By default, the test case will go into a subdirectory with the same name as the
-test case (`rpe_test` in this case).  However, polaris is flexible
+test case (`rpe` in this case).  However, polaris is flexible
 about the subdirectory structure and the names of the subdirectories.  This
 flexibility was an important requirement in polaris' design.  Each test case 
 and step must end up in a unique  directory, so it may be important that the 
@@ -280,14 +280,14 @@ name and subdirectory of each test  case or step depends in some way on the
 arguments passed the constructor.  In  the example above, the resolution is an 
 argument to the constructor, which is  then saved as an attribute 
 (`self.resolution`) and also used to define a unique subdirectory each 
-resolution: `1km/rpe_test`, `4km/rpe_test` and `10km/rpe_test`.
+resolution: `1km/rpe`, `4km/rpe` and `10km/rpe`.
 
 The same `Forward` step is included in the test case 5 times with a different
 viscosity parameter `nu` for each.  The value of
 `nu` is passed to the step's constructor, along with
 the unique `name`, `subdir`, and several other parameters:
 `resolution`, `ntasks`, and `min_tasks`. In this example, the steps are
-given rather clumsy names -- `rpe_test_1_nu_1`, `rpe_test_2_nu_5`, etc. --
+given rather clumsy names -- `rpe_1_nu_1`, `rpe_2_nu_5`, etc. --
 but these could be any unique names.
 
 (dev-test-case-configure)=
@@ -309,7 +309,7 @@ Since many test groups need similar behavior in the `configure()` method for
 each test case, it is common to have a shared function (sometimes also called
 `configure()`) in the test group, as we discussed in {ref}`dev-test-groups`.
 
-{py:meth}`polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure()`
+{py:meth}`polaris.ocean.tests.baroclinic_channel.rpe.Rpe.configure()`
 simply calls the shared function in its test group,
 {py:func}`polaris.ocean.tests.baroclinic_channel.configure()`:
 
