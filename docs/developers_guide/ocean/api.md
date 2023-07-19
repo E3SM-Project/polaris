@@ -28,9 +28,9 @@
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 
-   initial_state.InitialState
-   initial_state.InitialState.setup
-   initial_state.InitialState.run
+   init.Init
+   init.Init.setup
+   init.Init.run
 
    viz.Viz
    viz.Viz.run
@@ -79,8 +79,8 @@
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 
-   initial_state.InitialState
-   initial_state.InitialState.run
+   init.Init
+   init.Init.run
 
    viz.Viz
    viz.Viz.run
@@ -151,8 +151,8 @@
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 
-   initial_state.InitialState
-   initial_state.InitialState.run
+   init.Init
+   init.Init.run
 
    viz.Viz
    viz.Viz.run
@@ -173,8 +173,8 @@
 
    forward.Forward
 
-   initial_state.InitialState
-   initial_state.InitialState.run
+   init.Init
+   init.Init.run
 
    viz.Viz
    viz.Viz.run

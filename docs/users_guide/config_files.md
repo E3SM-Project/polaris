@@ -272,7 +272,7 @@ mesh_max_memory = 1000
 # source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
 mesh_max_disk = 1000
 
-## config options related to the initial_state step
+## config options related to the init step
 # number of cores to use
 # source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
 init_cores = 4

@@ -32,9 +32,9 @@ method, and performs validation of the initial condition in the
 {py:meth}`polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate()`
 method.
 
-### initial_state
+### init
 
-The class {py:class}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState`
+The class {py:class}`polaris.ocean.tests.baroclinic_channel.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -48,7 +48,7 @@ velocity.
 
 The class {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
-the `initial_state` step.  If `nu` is provided as an argument to the
+the `init` step.  If `nu` is provided as an argument to the
 constructor, the associate namelist option (`config_mom_del2`) will be given
 this value. Namelist and streams files are updated in
 {py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config()`

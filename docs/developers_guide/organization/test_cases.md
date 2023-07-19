@@ -190,7 +190,7 @@ As an example, here is the constructor from
 
 ```python
 from polaris import TestCase
-from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
+from polaris.ocean.tests.baroclinic_channel.init import Init
 from polaris.ocean.tests.baroclinic_channel.forward import Forward
 from polaris.ocean.tests.baroclinic_channel.rpe_test.analysis import Analysis
 
@@ -239,7 +239,7 @@ class RpeTest(TestCase):
         self.resolution = resolution
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
         for index, nu in enumerate(nus):
             name = 'rpe_test_{}_nu_{}'.format(index + 1, nu)
@@ -264,7 +264,7 @@ We have deliberately chosen a fairly complex example to demonstrate how to make
 full use of {ref}`dev-code-sharing` in a test case.
 
 The test case imports the classes for its steps --
-{py:class}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState`,
+{py:class}`polaris.ocean.tests.baroclinic_channel.init.Init`,
 {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward`, and
 {py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis`
 -- so it can create objects for each and add them to itself with
@@ -378,7 +378,7 @@ def validate(self):
 
     variables = ['temperature', 'salinity', 'layerThickness']
     compare_variables(test_case=self, variables=variables,
-                      filename1='initial_state/initial_state.nc')
+                      filename1='init/initial_state.nc')
 
     if self.with_bgc:
         variables = [
@@ -390,7 +390,7 @@ def validate(self):
             'phaeoChl', 'phaeoC', 'phaeoFe', 'DMS', 'DMSP', 'PROT',
             'POLY', 'LIP']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
+                          filename1='init/initial_state.nc')
 
     if self.mesh.with_ice_shelf_cavities:
         variables = ['ssh', 'landIcePressure']

@@ -317,9 +317,9 @@ class Forward(ModelStep):
                               'streams.forward')
 
         self.add_input_file(filename='init.nc',
-                            target='../initial_state/ocean.nc')
+                            target='../init/ocean.nc')
         self.add_input_file(filename='graph.info',
-                            target='../initial_state/culled_graph.info')
+                            target='../init/culled_graph.info')
 
         self.add_output_file(filename='output.nc')
 ```
@@ -452,8 +452,8 @@ Okay, we're ready to define how the step will run!
 The contents of `run()` can vary quite a lot between steps.
 
 In the `baroclinic_channel` test group, the `run()` method for
-the `initial_state` step,
-{py:meth}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()`,
+the `init` step,
+{py:meth}`polaris.ocean.tests.baroclinic_channel.init.Init.run()`,
 is quite involved:
 
 ```python
@@ -468,7 +468,7 @@ from polaris.ocean.vertical import generate_grid
 from polaris import Step
 
 
-class InitialState(Step):
+class Init(Step):
     ...
     def run(self):
         """
@@ -726,13 +726,13 @@ def __init__(self, test_case, mesh, init, ...):
         initial_state_target = '{}/ssh_adjustment/adjusted_init.nc'.format(
             init.path)
     else:
-        initial_state_target = '{}/initial_state/initial_state.nc'.format(
+        initial_state_target = '{}/init/initial_state.nc'.format(
             init.path)
     self.add_input_file(filename='init.nc',
                         work_dir_target=initial_state_target)
     self.add_input_file(
         filename='forcing_data.nc',
-        work_dir_target='{}/initial_state/init_mode_forcing_data.nc'
+        work_dir_target='{}/init/init_mode_forcing_data.nc'
                         ''.format(init.path))
     self.add_input_file(
         filename='graph.info',
@@ -782,7 +782,7 @@ self.add_input_file(
 ```
 
 In this example from
-{py:class}`polaris.ocean.tests.global_ocean.init.initial_state.InitialState()`,
+{py:class}`polaris.ocean.tests.global_ocean.init.init.Init()`,
 the file `BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc` is
 slated for later downloaded from the
 [Ocean bathymetry database](https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/).
@@ -891,7 +891,7 @@ to be listed explicitly, as follows:
 ocean/global_ocean/QUwISC240/mesh
     cached: mesh
 ocean/global_ocean/QUwISC240/PHC/init
-    cached: initial_state ssh_adjustment
+    cached: init ssh_adjustment
 ```
 
 The line can be indented for visual clarity, but must begin with `cached:`,
@@ -917,7 +917,7 @@ own with the `-t` and `--cached` flags as follows:
 
 ```none
 polaris setup -t ocean/global_ocean/QU240/mesh --cached mesh ...
-polaris setup -t ocean/global_ocean/QU240/PHC/init --cached initial_state ...
+polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
 ...
 ```
 
