@@ -32,9 +32,9 @@ method, and performs validation of the initial condition in the
 {py:meth}`polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate()`
 method.
 
-### initial_state
+### init
 
-The class {py:class}`polaris.ocean.tests.baroclinic_channel.initial_state.InitialState`
+The class {py:class}`polaris.ocean.tests.baroclinic_channel.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -48,7 +48,7 @@ velocity.
 
 The class {py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
-the `initial_state` step.  If `nu` is provided as an argument to the
+the `init` step.  If `nu` is provided as an argument to the
 constructor, the associate namelist option (`config_mom_del2`) will be given
 this value. Namelist and streams files are updated in
 {py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config()`
@@ -72,9 +72,9 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 (dev-ocean-baroclinic-channel-decomp-test)=
 
-## decomp_test
+## decomp
 
-The {py:class}`polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest`
+The {py:class}`polaris.ocean.tests.baroclinic_channel.decomp.Decomp`
 performs a 15-minute run once on 4 cores and once on 8 cores.  It
 ensures that `temperature`, `salinity`, `layerThickness` and
 `normalVelocity` are identical at the end of the two runs (as well as with a
@@ -82,9 +82,9 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`).
 
 (dev-ocean-baroclinic-channel-restart-test)=
 
-## restart_test
+## restart
 
-The {py:class}`polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest`
+The {py:class}`polaris.ocean.tests.baroclinic_channel.restart.Restart`
 performs a 10-minute run once on 4 cores, saving restart files every time step
 (every 5 minutes), then it performs a restart run starting at minute 5 for 5
 more minutes.  It ensures that `temperature`, `salinity`,
@@ -102,9 +102,9 @@ with a restart at minute 5 and runs for 5 more minutes.
 
 (dev-ocean-baroclinic-channel-thread-test)=
 
-## threads_test
+## threads
 
-The {py:class}`polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest`
+The {py:class}`polaris.ocean.tests.baroclinic_channel.threads.Threads`
 performs a 15-minute run once on 4 cores, each with 1 thread and once on 4
 cores, each with 2 threads.  It ensures that `temperature`, `salinity`,
 `layerThickness` and `normalVelocity` are identical at the end of the two
@@ -112,24 +112,24 @@ runs (as well as with a baseline if one is provided when calling
 {ref}`dev-polaris-setup`).
 
 :::{note}
-The `ocean/baroclinic_channel/10km/thread_test/1thread` step is identical 
+The `ocean/baroclinic_channel/10km/thread/1thread` step is identical 
 to `ocean/baroclinic_channel/10km/default/forward`. If
-`ocean/baroclinic_channel/10km/thread_test` is included in a test suite, 
+`ocean/baroclinic_channel/10km/thread` is included in a test suite, 
 it would be redundant to include `ocean/baroclinic_channel/10km/default` in the
 suite as well.
 :::
 
 (dev-ocean-baroclinic-channel-rpe-test)=
 
-## rpe_test
+## rpe
 
-The {py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest`
+The {py:class}`polaris.ocean.tests.baroclinic_channel.rpe.Rpe`
 performs a longer (20 day) integration of the model forward in time at 5
 different values of the viscosity.  Versions of the test case exist at each of
 the 3 default horizontal resolutions (1, 4 and 10 km).
 
 The `analysis` step defined by
-{py:class}`polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis`
+{py:class}`polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis`
 makes plots of the final results with each value of the viscosity.
 
 This test is resource intensive enough that it is not used in regression

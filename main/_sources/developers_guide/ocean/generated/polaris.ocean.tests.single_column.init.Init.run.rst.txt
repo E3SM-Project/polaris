@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.single\_column.init.Init.run
+================================================
+
+.. currentmodule:: polaris.ocean.tests.single_column.init
+
+.. automethod:: Init.run

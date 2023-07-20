@@ -149,10 +149,10 @@ method computes the SSH field at time <code class="docutils literal notranslate"
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.inertial_gravity_wave.exact_solution.ExactSolution.normalVelocity(t)()</span></code>
 method computes the <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field at time <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
 </section>
-<section id="initial-state">
-<h3>initial_state<a class="headerlink" href="#initial-state" title="Permalink to this heading"></a></h3>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.ocean.tests.inertial_gravity_wave.initial_state.InitialState.html#polaris.ocean.tests.inertial_gravity_wave.initial_state.InitialState" title="polaris.ocean.tests.inertial_gravity_wave.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.inertial_gravity_wave.initial_state.InitialState</span></code></a>
+<a class="reference internal" href="../generated/polaris.ocean.tests.inertial_gravity_wave.init.Init.html#polaris.ocean.tests.inertial_gravity_wave.init.Init" title="polaris.ocean.tests.inertial_gravity_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.inertial_gravity_wave.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
@@ -165,7 +165,7 @@ the exact solution. The tracer and coriolis fields are uniform in space.</p>
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tests.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tests.inertial_gravity_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.inertial_gravity_wave.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in the
-<code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step.  Namelist and streams files are updated in
+<code class="docutils literal notranslate"><span class="pre">init</span></code> step.  Namelist and streams files are updated in
 <a class="reference internal" href="../generated/polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config()</span></code></a>
 with time steps determined algorithmically based on config options.  The number
 of cells is computed from config options in

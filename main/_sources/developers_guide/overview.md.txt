@@ -239,7 +239,7 @@ example, the shared functionality in the {ref}`dev-ocean` is described in
 So far, the most common type of shared code within test group are modules
 defining steps that are used in multiple test cases.  For example, the
 {ref}`dev-ocean-baroclinic-channel` configuration uses shared modules to define
-the `initial_state` and `forward` steps of each test case.  Configurations
+the `init` and `forward` steps of each test case.  Configurations
 also often include namelist and streams files with replacements to use across
 test cases.
 

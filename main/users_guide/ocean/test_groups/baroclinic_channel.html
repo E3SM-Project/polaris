@@ -67,10 +67,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#decomp-test">decomp_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#thread-test">thread_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#restart-test">restart_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rpe-test">rpe_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decomp">decomp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thread">thread</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
@@ -143,7 +143,7 @@
 Baroclinic Eddies test case from
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2011.10.003">Ilicak et al. (2012)</a>.</p>
 <p>The test group includes 5 test cases.  All test cases have 2 steps,
-<code class="docutils literal notranslate"><span class="pre">initial_state</span></code>, which defines the mesh and initial conditions for the model,
+<code class="docutils literal notranslate"><span class="pre">init</span></code>, which defines the mesh and initial conditions for the model,
 and <code class="docutils literal notranslate"><span class="pre">forward</span></code> (given another name in many test cases to distinguish multiple
 forward runs), which performs time integration of the model.</p>
 </section>
@@ -303,7 +303,7 @@ Run duration will be discussed for individual test cases.</p>
 literature, but can be modified by users to suit their needs.</p>
 <p>The config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> are used to determine a
 time steps that is consistent with a given resolution.  Changing these config
-options is likely to break the <code class="docutils literal notranslate"><span class="pre">restart_test</span></code>, since it assumes a time step of
+options is likely to break the <code class="docutils literal notranslate"><span class="pre">restart</span></code>, since it assumes a time step of
 5 minutes at 10 km, consistent with the default <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>.  A user can
 safely modify <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> to control the time step for any
 other baroclinic channel tests.</p>
@@ -348,11 +348,11 @@ steps.</p>
 <p>The number of processors is hard-coded to be 4 for this case.</p>
 </section>
 </section>
-<section id="decomp-test">
-<h2>decomp_test<a class="headerlink" href="#decomp-test" title="Permalink to this heading"></a></h2>
+<section id="decomp">
+<h2>decomp<a class="headerlink" href="#decomp" title="Permalink to this heading"></a></h2>
 <section id="id8">
 <h3>description<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/decomp_test</span></code> runs a short (15 min) integration
+<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/decomp</span></code> runs a short (15 min) integration
 of the model forward in time on 4 (<code class="docutils literal notranslate"><span class="pre">4proc</span></code> step) and then on 8 processors
 (<code class="docutils literal notranslate"><span class="pre">8proc</span></code> step) to make sure the resulting prognostic variables are
 bit-for-bit identical between the two runs.</p>
@@ -389,11 +389,11 @@ steps.</p>
 step.</p>
 </section>
 </section>
-<section id="thread-test">
-<h2>thread_test<a class="headerlink" href="#thread-test" title="Permalink to this heading"></a></h2>
+<section id="thread">
+<h2>thread<a class="headerlink" href="#thread" title="Permalink to this heading"></a></h2>
 <section id="id16">
 <h3>description<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread_test</span></code> runs a short (15 min) integration
+<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread</span></code> runs a short (15 min) integration
 of the model forward in time on 1 threads per processor (<code class="docutils literal notranslate"><span class="pre">1thread</span></code> step) and
 then on 2 threads (<code class="docutils literal notranslate"><span class="pre">2thread</span></code> step) to make sure the resulting prognostic
 variables are bit-for-bit identical between the two runs.</p>
@@ -430,11 +430,11 @@ steps.</p>
 per processor and the <code class="docutils literal notranslate"><span class="pre">2thread</span></code> step is run on 2 threads per processor.</p>
 </section>
 </section>
-<section id="restart-test">
-<h2>restart_test<a class="headerlink" href="#restart-test" title="Permalink to this heading"></a></h2>
+<section id="restart">
+<h2>restart<a class="headerlink" href="#restart" title="Permalink to this heading"></a></h2>
 <section id="id24">
 <h3>description<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/restart_test</span></code> runs a short (10 min)
+<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/restart</span></code> runs a short (10 min)
 integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">full_run</span></code> step), saving a restart
 file every 5 minutes.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart_run</span></code> step) is performed
 from the restart file 5 minutes into the simulation and prognostic variables
@@ -472,13 +472,13 @@ steps and the restart run is one time step long.</p>
 <p>The number of processors is hard-coded to be 4 for this case.</p>
 </section>
 </section>
-<section id="rpe-test">
-<h2>rpe_test<a class="headerlink" href="#rpe-test" title="Permalink to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/1km/rpe_test</span></code>,
-<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/4km/rpe_test</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/rpe_test</span></code> perform longer (20 day) integration
+<section id="rpe">
+<h2>rpe<a class="headerlink" href="#rpe" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/1km/rpe</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/4km/rpe</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/rpe</span></code> perform longer (20 day) integration
 of the model forward in time at 5 different values of the viscosity (with steps
-named <code class="docutils literal notranslate"><span class="pre">rpe_test_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_test_2_nu_5</span></code>, etc.) at any of the 3 supported
+named <code class="docutils literal notranslate"><span class="pre">rpe_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_2_nu_5</span></code>, etc.) at any of the 3 supported
 horizontal resolutions (1, 4 and 10 km).  Results of these tests have been used
 to show that MPAS-Ocean has lower spurious dissipation of reference potential
 energy (RPE) than POP, MOM and MITgcm models

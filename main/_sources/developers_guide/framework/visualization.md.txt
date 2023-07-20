@@ -4,7 +4,7 @@
 
 Visualization is an optional, but desirable aspect of test cases. Often,
 visualization is an optional step of a test case but can also be included
-as part of other steps such as `initial_state` or `analysis`.
+as part of other steps such as `init` or `analysis`.
 
 While developers can write their own visualization scripts associated with
 individual test cases, the following shared visualization routines are

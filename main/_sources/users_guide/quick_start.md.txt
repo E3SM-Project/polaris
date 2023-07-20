@@ -198,13 +198,13 @@ polaris list | grep baroclinic_channel
 ```
 
 ```none
-32: ocean/baroclinic_channel/1km/rpe_test
-33: ocean/baroclinic_channel/4km/rpe_test
-34: ocean/baroclinic_channel/10km/rpe_test
-35: ocean/baroclinic_channel/10km/decomp_test
+32: ocean/baroclinic_channel/1km/rpe
+33: ocean/baroclinic_channel/4km/rpe
+34: ocean/baroclinic_channel/10km/rpe
+35: ocean/baroclinic_channel/10km/decomp
 36: ocean/baroclinic_channel/10km/default
-37: ocean/baroclinic_channel/10km/restart_test
-38: ocean/baroclinic_channel/10km/threads_test
+37: ocean/baroclinic_channel/10km/restart
+38: ocean/baroclinic_channel/10km/threads
 ```
 
 See {ref}`dev-polaris-list` for more information.

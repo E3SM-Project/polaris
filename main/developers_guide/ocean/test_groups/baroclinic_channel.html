@@ -68,10 +68,10 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">baroclinic_channel</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#decomp-test">decomp_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#restart-test">restart_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#threads-test">threads_test</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rpe-test">rpe_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decomp">decomp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#threads">threads</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
@@ -154,9 +154,9 @@ method, and performs validation of the initial condition in the
 <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate.html#polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate" title="polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.BaroclinicChannelTestCase.validate()</span></code></a>
 method.</p>
 </section>
-<section id="initial-state">
-<h3>initial_state<a class="headerlink" href="#initial-state" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState</span></code></a>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.init.Init.html#polaris.ocean.tests.baroclinic_channel.init.Init" title="polaris.ocean.tests.baroclinic_channel.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
@@ -169,7 +169,7 @@ velocity.</p>
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in
-the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step.  If <code class="docutils literal notranslate"><span class="pre">nu</span></code> is provided as an argument to the
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step.  If <code class="docutils literal notranslate"><span class="pre">nu</span></code> is provided as an argument to the
 constructor, the associate namelist option (<code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code>) will be given
 this value. Namelist and streams files are updated in
 <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config()</span></code></a>
@@ -190,17 +190,17 @@ test performs a 15-minute run on 4 cores.  Then, validation of <code class="docu
 <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
 baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
-<section id="decomp-test">
-<span id="dev-ocean-baroclinic-channel-decomp-test"></span><h2>decomp_test<a class="headerlink" href="#decomp-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest.html#polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest" title="polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.decomp_test.DecompTest</span></code></a>
+<section id="decomp">
+<span id="dev-ocean-baroclinic-channel-decomp-test"></span><h2>decomp<a class="headerlink" href="#decomp" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.decomp.Decomp.html#polaris.ocean.tests.baroclinic_channel.decomp.Decomp" title="polaris.ocean.tests.baroclinic_channel.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.decomp.Decomp</span></code></a>
 performs a 15-minute run once on 4 cores and once on 8 cores.  It
 ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and
 <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical at the end of the two runs (as well as with a
 baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>).</p>
 </section>
-<section id="restart-test">
-<span id="dev-ocean-baroclinic-channel-restart-test"></span><h2>restart_test<a class="headerlink" href="#restart-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest.html#polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest" title="polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.restart_test.RestartTest</span></code></a>
+<section id="restart">
+<span id="dev-ocean-baroclinic-channel-restart-test"></span><h2>restart<a class="headerlink" href="#restart" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.restart.Restart.html#polaris.ocean.tests.baroclinic_channel.restart.Restart" title="polaris.ocean.tests.baroclinic_channel.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.restart.Restart</span></code></a>
 performs a 10-minute run once on 4 cores, saving restart files every time step
 (every 5 minutes), then it performs a restart run starting at minute 5 for 5
 more minutes.  It ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
@@ -214,9 +214,9 @@ and <code class="docutils literal notranslate"><span class="pre">restart</span><
 of the full run, while <code class="docutils literal notranslate"><span class="pre">restart.yaml</span></code> makes sure that the restart step begins
 with a restart at minute 5 and runs for 5 more minutes.</p>
 </section>
-<section id="threads-test">
-<span id="dev-ocean-baroclinic-channel-thread-test"></span><h2>threads_test<a class="headerlink" href="#threads-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest.html#polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest" title="polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.threads_test.ThreadsTest</span></code></a>
+<section id="threads">
+<span id="dev-ocean-baroclinic-channel-thread-test"></span><h2>threads<a class="headerlink" href="#threads" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.threads.Threads.html#polaris.ocean.tests.baroclinic_channel.threads.Threads" title="polaris.ocean.tests.baroclinic_channel.threads.Threads"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.threads.Threads</span></code></a>
 performs a 15-minute run once on 4 cores, each with 1 thread and once on 4
 cores, each with 2 threads.  It ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
 <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical at the end of the two
@@ -224,21 +224,21 @@ runs (as well as with a baseline if one is provided when calling
 <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread_test/1thread</span></code> step is identical
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread/1thread</span></code> step is identical
 to <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/default/forward</span></code>. If
-<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread_test</span></code> is included in a test suite,
+<code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread</span></code> is included in a test suite,
 it would be redundant to include <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/default</span></code> in the
 suite as well.</p>
 </div>
 </section>
-<section id="rpe-test">
-<span id="dev-ocean-baroclinic-channel-rpe-test"></span><h2>rpe_test<a class="headerlink" href="#rpe-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code></a>
+<section id="rpe">
+<span id="dev-ocean-baroclinic-channel-rpe-test"></span><h2>rpe<a class="headerlink" href="#rpe" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tests.baroclinic_channel.rpe.Rpe" title="polaris.ocean.tests.baroclinic_channel.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe.Rpe</span></code></a>
 performs a longer (20 day) integration of the model forward in time at 5
 different values of the viscosity.  Versions of the test case exist at each of
 the 3 default horizontal resolutions (1, 4 and 10 km).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step defined by
-<a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code></a>
+<a class="reference internal" href="../generated/polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis</span></code></a>
 makes plots of the final results with each value of the viscosity.</p>
 <p>This test is resource intensive enough that it is not used in regression
 testing.</p>

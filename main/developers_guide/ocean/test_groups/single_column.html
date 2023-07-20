@@ -143,9 +143,9 @@ diffusion and cvmix, as well as defining <code class="docutils literal notransla
 <p>An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is included in the ideal age tracer test case
 for enabeling on the ideal age tracers and ideal age surface forcing, as well as
 for defining <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams</p>
-<section id="initial-state">
-<h3>initial_state<a class="headerlink" href="#initial-state" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.initial_state.InitialState.html#polaris.ocean.tests.single_column.initial_state.InitialState" title="polaris.ocean.tests.single_column.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.initial_state.InitialState</span></code></a>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.init.Init.html#polaris.ocean.tests.single_column.init.Init" title="polaris.ocean.tests.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  A vertical grid is
@@ -161,7 +161,7 @@ also constructed and is equal to zero seconds throughout the column.</p>
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.forward.Forward.html#polaris.ocean.tests.single_column.forward.Forward" title="polaris.ocean.tests.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in
-the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step. The ocean model is run.</p>
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The ocean model is run.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>

@@ -274,13 +274,13 @@ associated with these steps until the point where the step is being set up in</p
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>As an example, here is the constructor from
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest</span></code></a>:</p>
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tests.baroclinic_channel.rpe.Rpe" title="polaris.ocean.tests.baroclinic_channel.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe.Rpe</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.initial_state</span> <span class="kn">import</span> <span class="n">InitialState</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tests.baroclinic_channel.rpe.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
 
-<span class="k">class</span> <span class="nc">RpeTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reference potential energy (RPE) test case for the baroclinic channel</span>
 <span class="sd">    test group performs a 20-day integration of the model forward in time at</span>
@@ -304,7 +304,7 @@ associated with these steps until the point where the step is being set up in</p
 <span class="sd">        resolution : str</span>
 <span class="sd">            The resolution of the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_test&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe&#39;</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
@@ -325,20 +325,20 @@ associated with these steps until the point where the step is being set up in</p
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">InitialState</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+            <span class="n">Init</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">nu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nus</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_test_</span><span class="si">{}</span><span class="s1">_nu_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_</span><span class="si">{}</span><span class="s1">_nu_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ntasks&#39;</span><span class="p">],</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_tasks&#39;</span><span class="p">],</span>
                 <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">nu</span><span class="p">))</span>
 
             <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe_test&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
             <span class="n">step</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe_test&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;polaris.ocean.tests.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
@@ -349,14 +349,14 @@ associated with these steps until the point where the step is being set up in</p
 <p>We have deliberately chosen a fairly complex example to demonstrate how to make
 full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a test case.</p>
 <p>The test case imports the classes for its steps –
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.init.Init.html#polaris.ocean.tests.baroclinic_channel.init.Init" title="polaris.ocean.tests.baroclinic_channel.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.init.Init</span></code></a>,
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward</span></code></a>, and
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.analysis.Analysis</span></code></a>
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis.html#polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis" title="polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe.analysis.Analysis</span></code></a>
 – so it can create objects for each and add them to itself with
 <a class="reference internal" href="../generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.TestCase.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
 steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>.</p>
 <p>By default, the test case will go into a subdirectory with the same name as the
-test case (<code class="docutils literal notranslate"><span class="pre">rpe_test</span></code> in this case).  However, polaris is flexible
+test case (<code class="docutils literal notranslate"><span class="pre">rpe</span></code> in this case).  However, polaris is flexible
 about the subdirectory structure and the names of the subdirectories.  This
 flexibility was an important requirement in polaris’ design.  Each test case
 and step must end up in a unique  directory, so it may be important that the
@@ -364,13 +364,13 @@ name and subdirectory of each test  case or step depends in some way on the
 arguments passed the constructor.  In  the example above, the resolution is an
 argument to the constructor, which is  then saved as an attribute
 (<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>) and also used to define a unique subdirectory each
-resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe_test</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe_test</span></code> and <code class="docutils literal notranslate"><span class="pre">10km/rpe_test</span></code>.</p>
+resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe</span></code> and <code class="docutils literal notranslate"><span class="pre">10km/rpe</span></code>.</p>
 <p>The same <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step is included in the test case 5 times with a different
 viscosity parameter <code class="docutils literal notranslate"><span class="pre">nu</span></code> for each.  The value of
 <code class="docutils literal notranslate"><span class="pre">nu</span></code> is passed to the step’s constructor, along with
 the unique <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">subdir</span></code>, and several other parameters:
 <code class="docutils literal notranslate"><span class="pre">resolution</span></code>, <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>. In this example, the steps are
-given rather clumsy names – <code class="docutils literal notranslate"><span class="pre">rpe_test_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_test_2_nu_5</span></code>, etc. –
+given rather clumsy names – <code class="docutils literal notranslate"><span class="pre">rpe_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_2_nu_5</span></code>, etc. –
 but these could be any unique names.</p>
 </section>
 <section id="configure">
@@ -387,7 +387,7 @@ during test-case setup.</p>
 <p>Since many test groups need similar behavior in the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method for
 each test case, it is common to have a shared function (sometimes also called
 <code class="docutils literal notranslate"><span class="pre">configure()</span></code>) in the test group, as we discussed in <a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a>.</p>
-<p><a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure.html#polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure" title="polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe_test.RpeTest.configure()</span></code></a>
+<p><a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.rpe.Rpe.configure.html#polaris.ocean.tests.baroclinic_channel.rpe.Rpe.configure" title="polaris.ocean.tests.baroclinic_channel.rpe.Rpe.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.rpe.Rpe.configure()</span></code></a>
 simply calls the shared function in its test group,
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.configure()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tests</span> <span class="kn">import</span> <span class="n">baroclinic_channel</span>
@@ -445,7 +445,7 @@ examples of validation of variables from output files:</p>
 
     <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
     <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                      <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+                      <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;init/initial_state.nc&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_bgc</span><span class="p">:</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
@@ -457,7 +457,7 @@ examples of validation of variables from output files:</p>
             <span class="s1">&#39;phaeoChl&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoC&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoFe&#39;</span><span class="p">,</span> <span class="s1">&#39;DMS&#39;</span><span class="p">,</span> <span class="s1">&#39;DMSP&#39;</span><span class="p">,</span> <span class="s1">&#39;PROT&#39;</span><span class="p">,</span>
             <span class="s1">&#39;POLY&#39;</span><span class="p">,</span> <span class="s1">&#39;LIP&#39;</span><span class="p">]</span>
         <span class="n">compare_variables</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;initial_state/initial_state.nc&#39;</span><span class="p">)</span>
+                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;init/initial_state.nc&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;landIcePressure&#39;</span><span class="p">]</span>

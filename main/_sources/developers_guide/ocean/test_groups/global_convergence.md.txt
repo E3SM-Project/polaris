@@ -45,7 +45,7 @@ tracer distributed in a cosine-bell shape.
 
 The class {py:class}`polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
-the `initial_state` step.  The time step is determined from the resolution
+the `init` step.  The time step is determined from the resolution
 based on the `dt_per_km` config option.  Other namelist options are taken
 from the test case's `namelist.forward`.
 

@@ -394,9 +394,9 @@ set up, so each takes a negligible amount of time.</p>
                               <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/ocean.nc&#39;</span><span class="p">)</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/ocean.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../initial_state/culled_graph.info&#39;</span><span class="p">)</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_graph.info&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
 </pre></div>
@@ -507,8 +507,8 @@ These attributes must be altered by overriding
 <p>Okay, we’re ready to define how the step will run!</p>
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary quite a lot between steps.</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for
-the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run.html#polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run" title="polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.initial_state.InitialState.run()</span></code></a>,
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.init.Init.run.html#polaris.ocean.tests.baroclinic_channel.init.Init.run" title="polaris.ocean.tests.baroclinic_channel.init.Init.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.init.Init.run()</span></code></a>,
 is quite involved:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -521,7 +521,7 @@ is quite involved:</p>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 
 
-<span class="k">class</span> <span class="nc">InitialState</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -643,7 +643,7 @@ is quite involved:</p>
 </div>
 <p>Without going into all the details of this method, it creates a mesh that
 is periodic in x (but not y), then adds a vertical grid and an initial
-condition to an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.6.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, which is then written out to
+condition to an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.7.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, which is then written out to
 the file <code class="docutils literal notranslate"><span class="pre">ocean.nc</span></code>.</p>
 <p>In the example <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step we’ve been using, there is no run method at all
 because we let its superclass <code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> define an <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute instead.
@@ -757,13 +757,13 @@ not yet known at init). Here is an example taken from
         <span class="n">initial_state_target</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/ssh_adjustment/adjusted_init.nc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/initial_state/initial_state.nc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/init/initial_state.nc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
                         <span class="n">work_dir_target</span><span class="o">=</span><span class="n">initial_state_target</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing_data.nc&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/initial_state/init_mode_forcing_data.nc&#39;</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/init/init_mode_forcing_data.nc&#39;</span>
                         <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
@@ -805,7 +805,7 @@ a location where they can be shared between users and reused over time.  These
 </pre></div>
 </div>
 <p>In this example from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.init.initial_state.InitialState()</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.init.init.Init()</span></code>,
 the file <code class="docutils literal notranslate"><span class="pre">BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc</span></code> is
 slated for later downloaded from the
 <a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/">Ocean bathymetry database</a>.
@@ -891,7 +891,7 @@ to be listed explicitly, as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_ocean/QUwISC240/mesh
     cached: mesh
 ocean/global_ocean/QUwISC240/PHC/init
-    cached: initial_state ssh_adjustment
+    cached: init ssh_adjustment
 </pre></div>
 </div>
 <p>The line can be indented for visual clarity, but must begin with <code class="docutils literal notranslate"><span class="pre">cached:</span></code>,
@@ -911,7 +911,7 @@ and which do not.</p>
 others do not within a given test case.  Each test case must be set up on its
 own with the <code class="docutils literal notranslate"><span class="pre">-t</span></code> and <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flags as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -t ocean/global_ocean/QU240/mesh --cached mesh ...
-polaris setup -t ocean/global_ocean/QU240/PHC/init --cached initial_state ...
+polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
 ...
 </pre></div>
 </div>

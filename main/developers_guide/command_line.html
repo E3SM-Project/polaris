@@ -283,13 +283,13 @@ any arguments.</p>
 you have two options.  You can either edit the <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> config options
 in the config file:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[test_case]</span>
-<span class="na">steps_to_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">initial_state full_run restart_run</span>
+<span class="na">steps_to_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">init full_run restart_run</span>
 </pre></div>
 </div>
 <p>Or you can use <code class="docutils literal notranslate"><span class="pre">--steps</span></code> to supply a list of steps to run, or <code class="docutils literal notranslate"><span class="pre">--skip_steps</span></code>
 to supply a list of steps you do not want to run (from the defaults given in
 the config file).  For example,</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial --steps initial_state full_run
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris serial --steps init full_run
 </pre></div>
 </div>
 <p>or</p>
@@ -323,7 +323,7 @@ directory onto the LCRC server from these two machines.  Developers run
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> from the base work directory, giving the relative paths of
 the step whose outputs should be cached:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>cache<span class="w"> </span>-i<span class="w"> </span>ocean/global_ocean/QU240/mesh/mesh<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>ocean/global_ocean/QU240/PHC/init/initial_state
+<span class="w">    </span>ocean/global_ocean/QU240/PHC/init/init
 </pre></div>
 </div>
 <p>This will:</p>
@@ -339,8 +339,8 @@ step.</p></li>
 <span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/mesh/mesh/culled_mesh.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/mesh/mesh/culled_mesh.210803.nc&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/mesh/mesh/culled_graph.info&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/mesh/mesh/culled_graph.210803.info&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/mesh/mesh/critical_passages_mask_final.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/mesh/mesh/critical_passages_mask_final.210803.nc&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/PHC/init/initial_state/initial_state.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/PHC/init/initial_state/initial_state.210803.nc&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/PHC/init/initial_state/init_mode_forcing_data.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/PHC/init/initial_state/init_mode_forcing_data.210803.nc&quot;</span>
+<span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/PHC/init/init/initial_state.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/PHC/init/init/initial_state.210803.nc&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ocean/global_ocean/QU240/PHC/init/init/init_mode_forcing_data.nc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global_ocean/QU240/PHC/init/init/init_mode_forcing_data.210803.nc&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
