@@ -11,7 +11,7 @@ from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
 
-class InitialState(Step):
+class Init(Step):
     """
     A step for creating a mesh and initial condition for baroclinic channel
     test cases
@@ -33,7 +33,7 @@ class InitialState(Step):
         resolution : float
             The resolution of the test case in km
         """
-        super().__init__(test_case=test_case, name='initial_state')
+        super().__init__(test_case=test_case, name='init')
         self.resolution = resolution
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',

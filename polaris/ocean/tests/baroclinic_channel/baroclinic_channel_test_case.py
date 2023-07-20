@@ -1,7 +1,7 @@
 import os
 
 from polaris import TestCase
-from polaris.ocean.tests.baroclinic_channel.initial_state import InitialState
+from polaris.ocean.tests.baroclinic_channel.init import Init
 from polaris.validate import compare_variables
 
 
@@ -18,7 +18,7 @@ class BaroclinicChannelTestCase(TestCase):
 
     def __init__(self, test_group, resolution, name):
         """
-        Create the test case, including adding the ``initial_state`` step
+        Create the test case, including adding the ``init`` step
 
         Parameters
         ----------
@@ -41,7 +41,7 @@ class BaroclinicChannelTestCase(TestCase):
                          subdir=subdir)
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
     def validate(self):
         """
@@ -51,4 +51,4 @@ class BaroclinicChannelTestCase(TestCase):
         super().validate()
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
+                          filename1='init/initial_state.nc')

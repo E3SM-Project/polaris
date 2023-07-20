@@ -434,29 +434,29 @@ add new, non-standard resolutions and the tests should still work.
 
 (dev-tutorial-add-test-group-add-init)=
 
-## Adding the initial_state step
+## Adding the init step
 
 In polaris, steps are defined in python modules by classes that descend
 from the {py:class}`polaris.Step` base class.  The modules can be defined
 within the test case package (if they are unique to the test case) or in the
 test group (if they are shared among several test cases).  In this example,
 we have only added one test case (`default`) so far but we anticipate
-adding more.  All test cases will require a similar `initial_state` step, so
-it makes sense for the `initial_state.py` module to be located in the test
+adding more.  All test cases will require a similar `init` step, so
+it makes sense for the `init.py` module to be located in the test
 group's package to promote {ref}`dev-code-sharing`.
 
-The `initial_state` step will create the MPAS mesh and initial condition for
-the test case.  To start with, we'll just create a new `InitialState` class
+The `init` step will create the MPAS mesh and initial condition for
+the test case.  To start with, we'll just create a new `Init` class
 that descends from `Step`:
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```python
 from polaris import Step
 
 
-class InitialState(Step):
+class Init(Step):
     """
     A step for creating a mesh and initial condition for "yet another channel"
     test cases
@@ -478,7 +478,7 @@ class InitialState(Step):
         resolution : float
             The resolution of the test case in km
         """
-        super().__init__(test_case=test_case, name='initial_state')
+        super().__init__(test_case=test_case, name='init')
         self.resolution = resolution
 ```
 
@@ -493,7 +493,7 @@ in the {ref}`dev-ocean-global-convergence-cosine-bell` test case.
 
 ### Creating a horizontal mesh
 
-The `run()` method of the `initial_state` step does the actual work of
+The `run()` method of the `init` step does the actual work of
 creating a mesh and initial condition. Below, We will present the method in 3
 pieces.  Please browse the code yourself to see the complete method.
 
@@ -506,7 +506,7 @@ bottom row of cells in the y direction so the mesh is no longer periodic in
 that direction (`nonperiodic_y=True`).
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```{code-block} python
 :emphasize-lines: 1-4, 6, 13-40
@@ -519,7 +519,7 @@ from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 
 
-class InitialState(Step):
+class Init(Step):
 
     ...
 
@@ -613,7 +613,7 @@ potentially unexpected ways.  You can see an example of this in the
 ### Adding the step to the test case
 
 Returning to the `default` test case, we are now ready to add
-`initial_state`.
+`init`.
  
 ```bash
 $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/default/__init__.py
@@ -624,7 +624,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/default/__init__.py
 import os
 
 from polaris import TestCase
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 
 
 class Default(TestCase):
@@ -632,10 +632,10 @@ class Default(TestCase):
         ...
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 ```
 
-Now we have created a step, `initial_state`, that does something, creating a 
+Now we have created a step, `init`, that does something, creating a 
 mesh. We can first check that the step exists:
 
 ```bash
@@ -649,7 +649,7 @@ $ polaris list -v
       test group:    yet_another_channel
       subdir:        10km/default
       steps:
-       - initial_state
+       - init
 ```
 
 Then we can set up the test case:
@@ -681,8 +681,8 @@ $ cat polaris.o${SLURM_JOBID}
      polaris calling: polaris.run.serial._run_test()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/run/serial.py
      
-     Running steps: initial_state
-       * step: initial_state
+     Running steps: init
+       * step: init
      
      polaris calling: polaris.ocean.tests.yet_another_channel.default.Default.validate()
        inherited from: polaris.testcase.TestCase.validate()
@@ -701,12 +701,12 @@ $ cat polaris.o${SLURM_JOBID}
 Ocean test cases typically need to define a vertical coordinate as we will
 discuss here.  Land ice test cases use a different approach to creating 
 vertical coordinates, so this section will not apply to those tests.  
-Returning to the `run()` method in the `initial_state` step, the code
+Returning to the `run()` method in the `init` step, the code
 snippet below is an example of how to make use of the
 {ref}`dev-ocean-framework-vertical` to create the vertical coordinate:
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```{code-block} python
 :emphasize-lines: 1, 7, 17-26
@@ -720,7 +720,7 @@ from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class InitialState(Step):
+class Init(Step):
     def run(self):
 
         ...
@@ -798,11 +798,11 @@ following fields to `ds`:
 
 ### Creating an initial condition
 
-The next part of the `run()` method in the `initial_state` step is to
+The next part of the `run()` method in the `init` step is to
 define the initial condition:
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```{code-block} python
 :emphasize-lines: 1, 14-88
@@ -814,7 +814,7 @@ from mpas_tools.io import write_netcdf
 from polaris import Step
 
 
-class InitialState(Step):
+class Init(Step):
     def run(self):
 
         ...
@@ -894,7 +894,7 @@ class InitialState(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        write_netcdf(ds, 'init.nc')
 ```
 
 The details aren't critical for the purpose of this tutorial, though you may
@@ -959,7 +959,7 @@ as a sanity check.  We do this using the visualization for
 {ref}`dev-visualization-planar`.
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```{code-block} python
 :emphasize-lines: 1, 6, 19-23
@@ -972,7 +972,7 @@ from polaris import Step
 from polaris.viz import plot_horiz_field
 
 
-class InitialState(Step):
+class Init(Step):
 
     ...
 
@@ -980,7 +980,7 @@ class InitialState(Step):
 
         ...
 
-        write_netcdf(ds, 'initial_state.nc')
+        write_netcdf(ds, 'init.nc')
 
         plot_horiz_field(ds, ds_mesh, 'temperature',
                          'initial_temperature.png')
@@ -1008,14 +1008,14 @@ inputs and outputs.  For this step, we add the following outputs in the
 constructor:
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/initial_state.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/init.py
 ```
 ```{code-block} python
 :emphasize-lines: 12-14
 
 ...
 
-class InitialState(Step):
+class Init(Step):
     ...
 
     def __init__(self, test_case, resolution):
@@ -1055,7 +1055,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/default/__init__.py
 :emphasize-lines: 3, 10-19
 
 from polaris import TestCase
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 from polaris.validate import compare_variables
 
 
@@ -1066,13 +1066,13 @@ class Default(TestCase):
     def validate(self):
         """
         Compare ``temperature``, ``salinity``, and ``layerThickness`` in the 
-        ``initial_state`` step with a baseline if one was provided.
+        ``init`` step with a baseline if one was provided.
         """
         super().validate()
 
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
+                          filename1='init/initial_state.nc')
 ```
 We check salinity, temperature and layer thickness in the initial state step.
 Since we only provide `filename1` in the call to 
@@ -1097,12 +1097,12 @@ $ polaris list
 
 Testcases:
    0: ocean/baroclinic_channel/10km/default
-   1: ocean/baroclinic_channel/10km/decomp_test
-   2: ocean/baroclinic_channel/10km/restart_test
-   3: ocean/baroclinic_channel/10km/threads_test
-   4: ocean/baroclinic_channel/1km/rpe_test
-   5: ocean/baroclinic_channel/4km/rpe_test
-   6: ocean/baroclinic_channel/10km/rpe_test
+   1: ocean/baroclinic_channel/10km/decomp
+   2: ocean/baroclinic_channel/10km/restart
+   3: ocean/baroclinic_channel/10km/threads
+   4: ocean/baroclinic_channel/1km/rpe
+   5: ocean/baroclinic_channel/4km/rpe
+   6: ocean/baroclinic_channel/10km/rpe
    7: ocean/global_convergence/qu/cosine_bell
    8: ocean/global_convergence/icos/cosine_bell
    9: ocean/yet_another_channel/1km/default
@@ -1140,11 +1140,11 @@ Let's navigate into the test case directory and see what it looks like:
 ```
 $ cd ocean/yet_another_channel/10km/default
 $ ls
-default.cfg  load_polaris_env.sh   initial_state  job_script.sh      test_case.pickle
+default.cfg  load_polaris_env.sh   init  job_script.sh      test_case.pickle
 ```
 If we open up `default.cfg` we can see that it contains our newly added 
 `yet_another_channel` section along with a bunch of other sections. Let's go to
-the `test_case` section, where you will see `steps_to_run = initial_state`. 
+the `test_case` section, where you will see `steps_to_run = init`. 
 This means that when we run our case, the initial condition should be generated
 if we didn't make any mistakes in setting up the step (fingers crossed!).
 
@@ -1154,9 +1154,9 @@ $ source load_polaris_env.sh
 $ polaris serial
 ```
 
-Now let's see what's in the `initial_state` directory:
+Now let's see what's in the `init` directory:
 ```
-$ cd initial_state
+$ cd init
 $ ls
 base_mesh.nc               default.cfg                initial_state.nc
 culled_graph.info          initial_normalVelocity.png initial_temperature.png
@@ -1182,8 +1182,8 @@ you might try to stress-test your own test case.
 
 Now that we know that the first step steems to be working, we're ready to add 
 another. We will add a `forward` step for running the MPAS-Ocean model forward
-in time from the initial condition created in `initial_state`.  `forward`
-will be a little more complicated than `initial_state` as we get started.
+in time from the initial condition created in `init`.  `forward`
+will be a little more complicated than `init` as we get started.
 We're going to start from the {py:class}`polaris.ocean.model.OceanModelStep`
 subclass that descends from {py:class}`polaris.ModelStep`, which in turn 
 descends from `Step`.  `ModelStep` adds quite a bit of useful functionality
@@ -1200,7 +1200,7 @@ a `LandiceModelStep` class in the future.
 We start with a `Forward` class that descends from `OceanModelStep` and a 
 constructor with the name of the step.  This time, we also supply the target
 number of MPI tasks (`ntasks`), minimum number of MPI tasks (`min_tasks`), and
-number of threads (the `initial_state` used the default of 1 task, 1 CPU per
+number of threads (the `init` used the default of 1 task, 1 CPU per
 task and 1 thread):
 
 ```bash
@@ -1265,7 +1265,7 @@ the mesh, as well discuss below. There are also 3 parameters that are specific
 to the functionality we anticipate adding to this step:
 * `resolution` - the resolution of the step in km as we already discussed.
 
-Next, we add inputs that are outputs from the `initial_state` test case:
+Next, we add inputs that are outputs from the `init` test case:
 
 ```bash
 $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/forward.py
@@ -1285,9 +1285,9 @@ class Forward(OceanModelStep):
         ...
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../initial_state/initial_state.nc')
+                            target='../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../initial_state/culled_graph.info')
+                            target='../init/culled_graph.info')
 
         self.add_output_file(filename='output.nc')
 ```
@@ -1514,7 +1514,7 @@ Returning to the `default` test case, we are now ready to add
 
 from polaris import TestCase
 from polaris.ocean.tests.yet_another_channel.forward import Forward
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 
 
 class Default(TestCase):
@@ -1522,7 +1522,7 @@ class Default(TestCase):
         ...
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
         self.add_step(
             Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
@@ -1550,14 +1550,14 @@ class Default(TestCase):
     def validate(self):
         """
         Compare ``temperature``, ``salinity`` and ``layerThickness`` in
-        both ``initial_state`` and ``forward`` steps, and ``normalVelocity`` 
+        both ``init`` and ``forward`` steps, and ``normalVelocity`` 
         in the ``forward`` step with a baseline if one was provided.
         """
         super().validate()
 
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
+                          filename1='init/initial_state.nc')
 
         variables = ['temperature', 'salinity', 'layerThickness',
                      'normalVelocity']
@@ -1613,7 +1613,7 @@ class Viz(Step):
         super().__init__(test_case=test_case, name='viz')
         self.add_input_file(
             filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
+            target='../init/initial_state.nc')
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')
@@ -1651,7 +1651,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/default/__init__.py
 
 from polaris import TestCase
 from polaris.ocean.tests.yet_another_channel.forward import Forward
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 from polaris.ocean.tests.yet_another_channel.viz import Viz
 
 
@@ -1660,7 +1660,7 @@ class Default(TestCase):
         ...
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
         self.add_step(
             Forward(test_case=self, ntasks=4, min_tasks=4, openmp_threads=1,
@@ -1691,16 +1691,16 @@ It starts with the same initial condition and does a forward run exactly like
 `default`. 
 
 ```bash
-$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/decomp_test/__init__.py
+$ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/decomp/__init__.py
 ```
 ```python
 import os
 
 from polaris import TestCase
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 
 
-class DecompTest(TestCase):
+class Decomp(TestCase):
     """
     A decomposition test case for the baroclinic channel test group, which
     makes sure the model produces identical results on 1 and 4 cores.
@@ -1733,7 +1733,7 @@ class DecompTest(TestCase):
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 ```
 
 But then it does a second forward run on 8 cores instead of 4 and compares the
@@ -1746,7 +1746,7 @@ from polaris.ocean.tests.yet_another_channel.forward import Forward
 
 ...
 
-class DecompTest(TestCase):
+class Decomp(TestCase):
     def __init__(self, test_group, resolution):
 
         ...
@@ -1768,7 +1768,7 @@ from polaris import TestCase
 from polaris.validate import compare_variables
 
 
-class DecompTest(TestCase):
+class Decomp(TestCase):
 
     ...
 
@@ -1798,7 +1798,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tests/yet_another_channel/__init__.py
 ```
 ```python
 
-from polaris.ocean.tests.yet_another_channel.decomp_test import DecompTest
+from polaris.ocean.tests.yet_another_channel.decomp import Decomp
 from polaris.ocean.tests.yet_another_channel.default import Default
 from polaris import TestGroup
 
@@ -1819,7 +1819,7 @@ class YetAnotherChannel(TestGroup):
             self.add_test_case(
                 Default(test_group=self, resolution=resolution))
             self.add_test_case(
-                DecompTest(test_group=self, resolution=resolution))
+                Decomp(test_group=self, resolution=resolution))
 ```
 
 And we're ready to test once again!
@@ -2146,7 +2146,7 @@ In the file `yet_another_channel_test_case.py` in
 import os
 
 from polaris import TestCase
-from polaris.ocean.tests.yet_another_channel.initial_state import InitialState
+from polaris.ocean.tests.yet_another_channel.init import Init
 from polaris.validate import compare_variables
 
 
@@ -2163,7 +2163,7 @@ class YetAnotherChannelTestCase(TestCase):
 
     def __init__(self, test_group, resolution, name):
         """
-        Create the test case, including adding the ``initial_state`` step
+        Create the test case, including adding the ``init`` step
 
         Parameters
         ----------
@@ -2186,7 +2186,7 @@ class YetAnotherChannelTestCase(TestCase):
                          subdir=subdir)
 
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
     def validate(self):
         """
@@ -2196,7 +2196,7 @@ class YetAnotherChannelTestCase(TestCase):
         super().validate()
         variables = ['temperature', 'salinity', 'layerThickness']
         compare_variables(test_case=self, variables=variables,
-                          filename1='initial_state/initial_state.nc')
+                          filename1='init/initial_state.nc')
 
 ```
 
@@ -2267,21 +2267,21 @@ from the results. We won't cover this example here, in part because a
 resolution study involves both a forward step and an initial condition step for
 each resolution in order to generate unique meshes for each step. You may refer
 to {ref}`dev-ocean-global-convergence-cosine-bell` for these details. Instead, 
-we will explore the `rpe_test` for the `baroclinic_channel` test group, which
+we will explore the `rpe` for the `baroclinic_channel` test group, which
 only requires unique forward runs for different viscosity values. 
 
-The `rpe_test` has been used to show that MPAS-Ocean has lower spurious 
+The `rpe` has been used to show that MPAS-Ocean has lower spurious 
 dissipation of reference potential energy (RPE) than POP, MOM and MITgcm models
 ([Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004)).
 
-We want to define the `rpe_test` at 3 "standard" resolutions that have been
+We want to define the `rpe` at 3 "standard" resolutions that have been
 used in previous testing: 1, 4 or 10 km.  The test case consists of an 
-`initial_state` step exactly like the `default` test case, 5 variants of the 
+`init` step exactly like the `default` test case, 5 variants of the 
 `forward` step with different values of the viscosity (a parameter study), and
 an `analysis` step that is unique to this test case (and thus not part of the 
-"framework" for the test group over all like the `initial_state` and `forward`
+"framework" for the test group over all like the `init` and `forward`
 steps).  Each `forward` step runs for much longer than in the `default` test 
-case (20 days, rather than 3 time steps).  This means that `rpe_test` isn't 
+case (20 days, rather than 3 time steps).  This means that `rpe` isn't 
 appropriate for regression testing, since it is too time consuming to run.  
 Likewise, the higher resolutions (1 and 4 km) are fairly resource heavy, and 
 therefore not as well suit to quick testing.  But this test case was the 
@@ -2289,15 +2289,15 @@ original purpose of the test group as a whole, serving to validate the code in
 a specific context.
 
 In analogy to the `default` test case, we will start by creating a directory
-`rpe_test` within the `yet_another_channel` directory, adding a new file
-`__init__.py`, and adding a class `RpeTest` that descends from the
+`rpe` within the `yet_another_channel` directory, adding a new file
+`__init__.py`, and adding a class `Rpe` that descends from the
 `YetAnotherChannelTestCase` base class:
 
 ```python
 from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     """
     The reference potential energy (RPE) test case for the "yet another channel"
     test group performs a 20-day integration of the model forward in time at
@@ -2317,13 +2317,13 @@ class RpeTest(YetAnotherChannelTestCase):
             The resolution of the test case in km
         """
         super().__init__(test_group=test_group, resolution=resolution,
-                         name='rpe_test')
+                         name='rpe')
 ```
 
 So far, this is identical ot the `default` test case except for the name
 and docstring changes.
 
-Before we add steps, let's add the `rpe_test` test case to the
+Before we add steps, let's add the `rpe` test case to the
 `yet_another_channel` test group so we can compare it with the `default`
 tet case. We add the following to the file `__init__.py` that defines the
 `YetAnotherChannel` test group:
@@ -2336,7 +2336,7 @@ from polaris.ocean.tests.yet_another_channel.yet_another_channel_test_case impor
     YetAnotherChannelTestCase,
 )
 from polaris.ocean.tests.yet_another_channel.default import Default
-from polaris.ocean.tests.yet_another_channel.rpe_test import RpeTest
+from polaris.ocean.tests.yet_another_channel.rpe import Rpe
 
 
 class YetAnotherChannel(TestGroup):
@@ -2357,16 +2357,16 @@ class YetAnotherChannel(TestGroup):
 
         for resolution in [1., 4., 10.]:
             self.add_test_case(
-                RpeTest(test_group=self, resolution=resolution))
+                Rpe(test_group=self, resolution=resolution))
 
 ```
 
 We switch the `default` test case to only support 10 km resolution but now have
-the `rpe_test` test case available at 3 resolutions.
+the `rpe` test case available at 3 resolutions.
 
 #### Adding the steps to the test case
 
-The `initial_state` step has already been added to `rpe_test` because that
+The `init` step has already been added to `rpe` because that
 happens in the `YetAnotherChannelTestCase` superclass.  Now, we will add the 
 variants of the `forward` step and the `analysis` step to the test case.
 Bear with me, as this is where things get a little complicated.
@@ -2390,7 +2390,7 @@ a user has changed these values in a user config file before setting up the
 test case.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
 We will handle this with the following additions to 
-`polaris/ocean/tests/yet_another_channel/rpe_test/__init__.py`:
+`polaris/ocean/tests/yet_another_channel/rpe/__init__.py`:
 
 ```python
 from polaris.config import PolarisConfigParser
@@ -2398,10 +2398,10 @@ from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 from polaris.ocean.tests.yet_another_channel.forward import Forward
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     def __init__(self, test_group, resolution):
         super().__init__(test_group=test_group, resolution=resolution,
-                         name='rpe_test')
+                         name='rpe')
 
         self._add_steps()
 
@@ -2423,7 +2423,7 @@ class RpeTest(YetAnotherChannelTestCase):
             config.add_from_package(package, 'yet_another_channel.cfg')
 
         for step in list(self.steps):
-            if step.startswith('rpe_test') or step == 'analysis':
+            if step.startswith('rpe') or step == 'analysis':
                 # remove previous RPE forward or analysis steps
                 self.steps.pop(step)
 
@@ -2431,14 +2431,14 @@ class RpeTest(YetAnotherChannelTestCase):
 
         nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
-            name = f'rpe_test_{index + 1}_nu_{int(nu)}'
+            name = f'rpe_{index + 1}_nu_{int(nu)}'
             step = Forward(
                 test_case=self, name=name, subdir=name,
                 ntasks=None, min_tasks=None, openmp_threads=1,
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tests.yet_another_channel.rpe_test',
+                'polaris.ocean.tests.yet_another_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 ```
@@ -2456,7 +2456,7 @@ from polaris.config import PolarisConfigParser
 from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         if config is None:
             # get just the default config options for yet_another_channel so
@@ -2473,37 +2473,37 @@ steps in the test case:
 ```
 $ polaris list --verbose
 ...
-   1: path:          ocean/yet_another_channel/1km/rpe_test
-      name:          rpe_test
+   1: path:          ocean/yet_another_channel/1km/rpe
+      name:          rpe
       component:     ocean
       test group:    yet_another_channel
-      subdir:        1km/rpe_test
+      subdir:        1km/rpe
       steps:
-       - initial_state
-       - rpe_test_1_nu_1
-       - rpe_test_2_nu_5
-       - rpe_test_3_nu_10
-       - rpe_test_4_nu_20
-       - rpe_test_5_nu_200
+       - init
+       - rpe_1_nu_1
+       - rpe_2_nu_5
+       - rpe_3_nu_10
+       - rpe_4_nu_20
+       - rpe_5_nu_200
 
 ```
-We only know that there are 5 viscosities for the 5 forward steps `rpe_test_*`
+We only know that there are 5 viscosities for the 5 forward steps `rpe_*`
 and what the viscosity values are by reading the config file.
 
 Next, if this is the second time calling `self._setup_steps()` from
 `configure()` we need to remove the steps we added before so we can add them
 again in case the list of viscosities has changed.  We don't want to remove
-the `initial_state` step added by `YetAnotherChannelTestCase` so we will
-only remove steps that start with `rpe_test`.  To remove an item from a 
+the `init` step added by `YetAnotherChannelTestCase` so we will
+only remove steps that start with `rpe`.  To remove an item from a 
 dictionary, you use {py:meth}`dict.pop()`:
 ```python
 from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         for step in list(self.steps):
-            if step.startswith('rpe_test'):
+            if step.startswith('rpe'):
                 # remove previous RPE forward steps
                 self.steps.pop(step)
 ```
@@ -2514,28 +2514,28 @@ from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 from polaris.ocean.tests.yet_another_channel.forward import Forward
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         ...
         resolution = self.resolution
 
         nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
-            name = f'rpe_test_{index + 1}_nu_{int(nu)}'
+            name = f'rpe_{index + 1}_nu_{int(nu)}'
             step = Forward(
                 test_case=self, name=name, subdir=name,
                 ntasks=None, min_tasks=None, openmp_threads=1,
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tests.yet_another_channel.rpe_test',
+                'polaris.ocean.tests.yet_another_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 ```
 The names of the steps and the number of steps are determined by `nus`.
 
 We also add another file with model config options and streams specific to
-this test case, `rpe_test/forward.yaml`:
+this test case, `rpe/forward.yaml`:
 ```yaml
 omega:
   time_management:
@@ -2559,7 +2559,7 @@ every day.
 
 #### Adding the analysis step
 
-The `rpe_test` includes another step, `analysis` that plots results from
+The `rpe` includes another step, `analysis` that plots results from
 each simulation.  The full analysis step looks like this:
 
 ```python
@@ -2602,12 +2602,12 @@ class Analysis(Step):
 
         self.add_input_file(
             filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
+            target='../init/initial_state.nc')
 
         for index, nu in enumerate(nus):
             self.add_input_file(
                 filename=f'output_{index + 1}.nc',
-                target=f'../rpe_test_{index + 1}_nu_{int(nu)}/output.nc')
+                target=f'../rpe_{index + 1}_nu_{int(nu)}/output.nc')
 
         self.add_output_file(
             filename=f'sections_yet_another_channel_{resolution}.png')
@@ -2672,14 +2672,14 @@ We add the `analysis` step to the test case as follows:
 
 ```python
 from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
-from polaris.ocean.tests.yet_another_channel.rpe_test.analysis import Analysis
+from polaris.ocean.tests.yet_another_channel.rpe.analysis import Analysis
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
     def _add_steps(self, config=None):
         ...
         for step in list(self.steps):
-            if step.startswith('rpe_test') or step == 'analysis':
+            if step.startswith('rpe') or step == 'analysis':
                 # remove previous RPE forward or analysis steps
                 self.steps.pop(step)
 
@@ -2693,14 +2693,14 @@ getting called for the second time from `configure()`.
 
 #### Adding validation
 
-Adding validation to the `rpe_test` is very similar to `default`.  The only
+Adding validation to the `rpe` is very similar to `default`.  The only
 difference is that we need to do it once for each forward test:
 ```python
 from polaris.ocean.tests.yet_another_channel import YetAnotherChannelTestCase
 from polaris.validate import compare_variables
 
 
-class RpeTest(YetAnotherChannelTestCase):
+class Rpe(YetAnotherChannelTestCase):
      def validate(self):
         """
         Compare ``temperature``, ``salinity``, ``layerThickness`` and
@@ -2715,7 +2715,7 @@ class RpeTest(YetAnotherChannelTestCase):
 
         nus = config.getlist('yet_another_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
-            name = f'rpe_test_{index + 1}_nu_{int(nu)}'
+            name = f'rpe_{index + 1}_nu_{int(nu)}'
             compare_variables(test_case=self, variables=variables,
                               filename1=f'{name}/output.nc')
 ```

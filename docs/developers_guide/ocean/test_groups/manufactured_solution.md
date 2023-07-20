@@ -31,9 +31,9 @@ method computes the SSH field at time `t`.  The
 {py:meth}`polaris.ocean.tests.manufactured_solution.exact_solution.ExactSolution.normalVelocity(t)`
 method computes the `normalVelocity` field at time `t`.
 
-### initial_state
+### init
 
-The class {py:class}`polaris.ocean.tests.manufactured_solution.initial_state.InitialState`
+The class {py:class}`polaris.ocean.tests.manufactured_solution.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -47,7 +47,7 @@ the exact solution. The tracer and coriolis fields are uniform in space.
 
 The class {py:class}`polaris.ocean.tests.manufactured_solution.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
-the `initial_state` step.  Namelist and streams files are updated in
+the `init` step.  Namelist and streams files are updated in
 {py:meth}`polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The
 number of cells is computed from config options in

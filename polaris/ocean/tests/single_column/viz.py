@@ -32,7 +32,7 @@ class Viz(Step):
         self.ideal_age = ideal_age
         self.add_input_file(
             filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
+            target='../init/initial_state.nc')
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')

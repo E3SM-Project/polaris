@@ -50,9 +50,9 @@ class Forward(OceanModelStep):
                          openmp_threads=openmp_threads)
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../initial_state/initial_state.nc')
+                            target='../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../initial_state/culled_graph.info')
+                            target='../init/culled_graph.info')
 
         self.add_output_file(filename='output.nc')
 

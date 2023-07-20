@@ -215,7 +215,7 @@ in the config file:
 
 ```cfg
 [test_case]
-steps_to_run = initial_state full_run restart_run
+steps_to_run = init full_run restart_run
 ```
 
 Or you can use `--steps` to supply a list of steps to run, or `--skip_steps`
@@ -223,7 +223,7 @@ to supply a list of steps you do not want to run (from the defaults given in
 the config file).  For example,
 
 ```none
-polaris serial --steps initial_state full_run
+polaris serial --steps init full_run
 ```
 
 or
@@ -266,7 +266,7 @@ the step whose outputs should be cached:
 
 ```bash
 polaris cache -i ocean/global_ocean/QU240/mesh/mesh \
-    ocean/global_ocean/QU240/PHC/init/initial_state
+    ocean/global_ocean/QU240/PHC/init/init
 ```
 
 This will:
@@ -284,8 +284,8 @@ The resulting `ocean_cached_files.json` will look something like:
     "ocean/global_ocean/QU240/mesh/mesh/culled_mesh.nc": "global_ocean/QU240/mesh/mesh/culled_mesh.210803.nc",
     "ocean/global_ocean/QU240/mesh/mesh/culled_graph.info": "global_ocean/QU240/mesh/mesh/culled_graph.210803.info",
     "ocean/global_ocean/QU240/mesh/mesh/critical_passages_mask_final.nc": "global_ocean/QU240/mesh/mesh/critical_passages_mask_final.210803.nc",
-    "ocean/global_ocean/QU240/PHC/init/initial_state/initial_state.nc": "global_ocean/QU240/PHC/init/initial_state/initial_state.210803.nc",
-    "ocean/global_ocean/QU240/PHC/init/initial_state/init_mode_forcing_data.nc": "global_ocean/QU240/PHC/init/initial_state/init_mode_forcing_data.210803.nc"
+    "ocean/global_ocean/QU240/PHC/init/init/initial_state.nc": "global_ocean/QU240/PHC/init/init/initial_state.210803.nc",
+    "ocean/global_ocean/QU240/PHC/init/init/init_mode_forcing_data.nc": "global_ocean/QU240/PHC/init/init/init_mode_forcing_data.210803.nc"
 }
 ```
 

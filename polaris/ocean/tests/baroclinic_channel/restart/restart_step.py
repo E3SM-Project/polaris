@@ -71,7 +71,7 @@ class RestartStep(Forward):
         output_interval_str = time.strftime('0000-00-00_%H:%M:%S',
                                             time.gmtime(output_interval))
 
-        package = 'polaris.ocean.tests.baroclinic_channel.restart_test'
+        package = 'polaris.ocean.tests.baroclinic_channel.restart'
         replacements = dict(
             do_restart=do_restart,
             start_time=start_time_str,

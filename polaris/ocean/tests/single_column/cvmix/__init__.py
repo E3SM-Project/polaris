@@ -2,7 +2,7 @@ import os
 
 from polaris import TestCase
 from polaris.ocean.tests.single_column.forward import Forward
-from polaris.ocean.tests.single_column.initial_state import InitialState
+from polaris.ocean.tests.single_column.init import Init
 from polaris.ocean.tests.single_column.viz import Viz
 from polaris.validate import compare_variables
 
@@ -31,7 +31,7 @@ class CVMix(TestCase):
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
         self.add_step(
-            InitialState(test_case=self, resolution=resolution))
+            Init(test_case=self, resolution=resolution))
 
         self.add_step(
             Forward(test_case=self, ntasks=1, min_tasks=1,

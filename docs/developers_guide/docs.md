@@ -139,9 +139,9 @@ Finally, all functions in the test group that are part of the public API
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 
-   initial_state.InitialState
-   initial_state.InitialState.setup
-   initial_state.InitialState.run
+   init.Init
+   init.Init.setup
+   init.Init.run
 
 ...
 ```

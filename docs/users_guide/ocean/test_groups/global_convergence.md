@@ -104,7 +104,7 @@ $$
 
 where $\psi_0 = 1$, the bell radius $R = a/3$, and $a$ is the radius of the
 sphere. `psi_0` and `radius`, $R$, are given as config options and may be
-altered by the user. In the `initial_state step` we assign `debug_tracers_1`
+altered by the user. In the `init` step we assign `debug_tracers_1`
 to $\psi$.
 
 The initial velocity is equatorial:

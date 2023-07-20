@@ -12,7 +12,7 @@ from polaris.ocean.tests.inertial_gravity_wave.exact_solution import (
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class InitialState(Step):
+class Init(Step):
     """
     A step for creating a mesh and initial condition for the
     inertial gravity wave test cases
@@ -35,8 +35,8 @@ class InitialState(Step):
             The resolution of the test case in km
         """
         super().__init__(test_case=test_case,
-                         name=f'initial_state_{resolution}km',
-                         subdir=f'{resolution}km/initial_state')
+                         name=f'init_{resolution}km',
+                         subdir=f'{resolution}km/init')
         self.resolution = float(resolution)
 
     def run(self):

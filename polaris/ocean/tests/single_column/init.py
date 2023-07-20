@@ -8,7 +8,7 @@ from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class InitialState(Step):
+class Init(Step):
     """
     A step for creating a mesh and initial condition for single column
     test cases
@@ -27,7 +27,7 @@ class InitialState(Step):
         resolution : float
             The resolution of the test case in km
         """
-        super().__init__(test_case=test_case, name='initial_state')
+        super().__init__(test_case=test_case, name='init')
         self.resolution = resolution
         self.ideal_age = ideal_age
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',

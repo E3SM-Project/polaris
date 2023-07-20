@@ -37,7 +37,7 @@ SSH fields.
 
 ### mesh
 
-For each resolution, the `initial_state` step generates and planar hexagonal
+For each resolution, the `init` step generates and planar hexagonal
 mesh that is periodic in both the x and y directions.
 
 ### vertical grid

@@ -23,7 +23,7 @@ class Viz(Step):
         super().__init__(test_case=test_case, name='viz')
         self.add_input_file(
             filename='initial_state.nc',
-            target='../initial_state/initial_state.nc')
+            target='../init/initial_state.nc')
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')

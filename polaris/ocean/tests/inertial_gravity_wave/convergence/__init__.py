@@ -1,9 +1,7 @@
 from polaris import TestCase
 from polaris.ocean.tests.inertial_gravity_wave.analysis import Analysis
 from polaris.ocean.tests.inertial_gravity_wave.forward import Forward
-from polaris.ocean.tests.inertial_gravity_wave.initial_state import (
-    InitialState,
-)
+from polaris.ocean.tests.inertial_gravity_wave.init import Init
 from polaris.ocean.tests.inertial_gravity_wave.viz import Viz
 from polaris.validate import compare_variables
 
@@ -28,7 +26,7 @@ class Convergence(TestCase):
 
         self.resolutions = [200, 100, 50, 25]
         for res in self.resolutions:
-            self.add_step(InitialState(test_case=self, resolution=res))
+            self.add_step(Init(test_case=self, resolution=res))
             self.add_step(Forward(test_case=self, resolution=res))
 
         self.add_step(Analysis(test_case=self, resolutions=self.resolutions))

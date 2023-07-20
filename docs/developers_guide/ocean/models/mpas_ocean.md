@@ -4,7 +4,7 @@ The following are considerations that may be useful in developing a test case fo
 
 ## Initial conditions
 
-The minimal set of initial state variables that must be defined in the `initial_state` step of each test case is:
+The minimal set of initial state variables that must be defined in the `init` step of each test case is:
 
 * `temperature`
 * `salinity`

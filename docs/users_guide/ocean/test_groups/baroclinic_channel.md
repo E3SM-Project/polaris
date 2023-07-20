@@ -9,7 +9,7 @@ Baroclinic Eddies test case from
 [Ilicak et al. (2012)](https://doi.org/10.1016/j.ocemod.2011.10.003).
 
 The test group includes 5 test cases.  All test cases have 2 steps,
-`initial_state`, which defines the mesh and initial conditions for the model,
+`init`, which defines the mesh and initial conditions for the model,
 and `forward` (given another name in many test cases to distinguish multiple
 forward runs), which performs time integration of the model.
 
@@ -173,7 +173,7 @@ literature, but can be modified by users to suit their needs.
 
 The config options `dt_per_km` and `btr_dt_per_km` are used to determine a
 time steps that is consistent with a given resolution.  Changing these config
-options is likely to break the `restart_test`, since it assumes a time step of
+options is likely to break the `restart`, since it assumes a time step of
 5 minutes at 10 km, consistent with the default `dt_per_km`.  A user can
 safely modify `dt_per_km` and `btr_dt_per_km` to control the time step for any
 other baroclinic channel tests.
@@ -218,11 +218,11 @@ See {ref}`ocean-baroclinic-channel`.
 
 The number of processors is hard-coded to be 4 for this case.
 
-## decomp_test
+## decomp
 
 ### description
 
-`ocean/baroclinic_channel/10km/decomp_test` runs a short (15 min) integration
+`ocean/baroclinic_channel/10km/decomp` runs a short (15 min) integration
 of the model forward in time on 4 (`4proc` step) and then on 8 processors
 (`8proc` step) to make sure the resulting prognostic variables are
 bit-for-bit identical between the two runs.
@@ -258,11 +258,11 @@ See {ref}`ocean-baroclinic-channel`.
 This test is run on 4 cores for the `4proc` step and 8 cores for the `8proc`
 step.
 
-## thread_test
+## thread
 
 ### description
 
-`ocean/baroclinic_channel/10km/thread_test` runs a short (15 min) integration
+`ocean/baroclinic_channel/10km/thread` runs a short (15 min) integration
 of the model forward in time on 1 threads per processor (`1thread` step) and
 then on 2 threads (`2thread` step) to make sure the resulting prognostic
 variables are bit-for-bit identical between the two runs.
@@ -298,11 +298,11 @@ See {ref}`ocean-baroclinic-channel`.
 The model steps are run on 4 cores. The `1thread` step is run on 1 thread
 per processor and the `2thread` step is run on 2 threads per processor.
 
-## restart_test
+## restart
 
 ### description
 
-`ocean/baroclinic_channel/10km/restart_test` runs a short (10 min)
+`ocean/baroclinic_channel/10km/restart` runs a short (10 min)
 integration of the model forward in time (`full_run` step), saving a restart
 file every 5 minutes.  Then, a second run (`restart_run` step) is performed
 from the restart file 5 minutes into the simulation and prognostic variables
@@ -339,13 +339,13 @@ See {ref}`ocean-baroclinic-channel`.
 
 The number of processors is hard-coded to be 4 for this case.
 
-## rpe_test
+## rpe
 
-`ocean/baroclinic_channel/1km/rpe_test`,
-`ocean/baroclinic_channel/4km/rpe_test`, and
-`ocean/baroclinic_channel/10km/rpe_test` perform longer (20 day) integration
+`ocean/baroclinic_channel/1km/rpe`,
+`ocean/baroclinic_channel/4km/rpe`, and
+`ocean/baroclinic_channel/10km/rpe` perform longer (20 day) integration
 of the model forward in time at 5 different values of the viscosity (with steps
-named `rpe_test_1_nu_1`, `rpe_test_2_nu_5`, etc.) at any of the 3 supported
+named `rpe_1_nu_1`, `rpe_2_nu_5`, etc.) at any of the 3 supported
 horizontal resolutions (1, 4 and 10 km).  Results of these tests have been used
 to show that MPAS-Ocean has lower spurious dissipation of reference potential
 energy (RPE) than POP, MOM and MITgcm models

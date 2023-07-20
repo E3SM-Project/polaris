@@ -1,11 +1,11 @@
 from polaris.config import PolarisConfigParser
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tests.baroclinic_channel.forward import Forward
-from polaris.ocean.tests.baroclinic_channel.rpe_test.analysis import Analysis
+from polaris.ocean.tests.baroclinic_channel.rpe.analysis import Analysis
 from polaris.validate import compare_variables
 
 
-class RpeTest(BaroclinicChannelTestCase):
+class Rpe(BaroclinicChannelTestCase):
     """
     The reference potential energy (RPE) test case for the baroclinic channel
     test group performs a 20-day integration of the model forward in time at
@@ -25,7 +25,7 @@ class RpeTest(BaroclinicChannelTestCase):
             The resolution of the test case in km
         """
         super().__init__(test_group=test_group, resolution=resolution,
-                         name='rpe_test')
+                         name='rpe')
 
         self._add_steps()
 
@@ -50,7 +50,7 @@ class RpeTest(BaroclinicChannelTestCase):
 
         nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
-            name = f'rpe_test_{index + 1}_nu_{int(nu)}'
+            name = f'rpe_{index + 1}_nu_{int(nu)}'
             compare_variables(test_case=self, variables=variables,
                               filename1=f'{name}/output.nc')
 
@@ -65,7 +65,7 @@ class RpeTest(BaroclinicChannelTestCase):
             config.add_from_package(package, 'baroclinic_channel.cfg')
 
         for step in list(self.steps):
-            if step.startswith('rpe_test') or step == 'analysis':
+            if step.startswith('rpe') or step == 'analysis':
                 # remove previous RPE forward or analysis steps
                 self.steps.pop(step)
 
@@ -73,14 +73,14 @@ class RpeTest(BaroclinicChannelTestCase):
 
         nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
-            name = f'rpe_test_{index + 1}_nu_{int(nu)}'
+            name = f'rpe_{index + 1}_nu_{int(nu)}'
             step = Forward(
                 test_case=self, name=name, subdir=name,
                 ntasks=None, min_tasks=None, openmp_threads=1,
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tests.baroclinic_channel.rpe_test',
+                'polaris.ocean.tests.baroclinic_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 

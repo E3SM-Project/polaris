@@ -41,35 +41,11 @@ As an example, the ocean `nightly` test suite includes the test cases used
 for regression testing of MPAS-Ocean.  Here are the tests included:
 
 ```none
-ocean/baroclinic_channel/10km/default
-ocean/baroclinic_channel/10km/threads_test
-ocean/baroclinic_channel/10km/decomp_test
-ocean/baroclinic_channel/10km/restart_test
+ocean/baroclinic_channel/10km/threads
+ocean/baroclinic_channel/10km/decomp
+ocean/baroclinic_channel/10km/restart
+ocean/inertial_gravity_wave/convergence
 
-ocean/global_ocean/QU240/mesh
-ocean/global_ocean/QU240/PHC/init
-ocean/global_ocean/QU240/PHC/performance_test
-ocean/global_ocean/QU240/PHC/restart_test
-ocean/global_ocean/QU240/PHC/decomp_test
-ocean/global_ocean/QU240/PHC/threads_test
-ocean/global_ocean/QU240/PHC/analysis_test
-
-ocean/global_ocean/QU240/PHC/RK4/performance_test
-ocean/global_ocean/QU240/PHC/RK4/restart_test
-ocean/global_ocean/QU240/PHC/RK4/decomp_test
-ocean/global_ocean/QU240/PHC/RK4/threads_test
-
-ocean/global_ocean/QUwISC240/mesh
-  cached
-ocean/global_ocean/QUwISC240/PHC/init
-  cached
-ocean/global_ocean/QUwISC240/PHC/performance_test
-
-ocean/ice_shelf_2d/5km/z-star/restart_test
-ocean/ice_shelf_2d/5km/z-level/restart_test
-
-ocean/ziso/20km/default
-ocean/ziso/20km/with_frazil
 ```
 
 :::{note}

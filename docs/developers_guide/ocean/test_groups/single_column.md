@@ -25,9 +25,9 @@ An additional `forward.yaml` file is included in the ideal age tracer test case
 for enabeling on the ideal age tracers and ideal age surface forcing, as well as
 for defining `idealAgeTracers` streams
 
-### initial_state
+### init
 
-The class {py:class}`polaris.ocean.tests.single_column.initial_state.InitialState`
+The class {py:class}`polaris.ocean.tests.single_column.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -46,7 +46,7 @@ also constructed and is equal to zero seconds throughout the column.
 
 The class {py:class}`polaris.ocean.tests.single_column.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
-the `initial_state` step. The ocean model is run.
+the `init` step. The ocean model is run.
 
 ### viz
 
