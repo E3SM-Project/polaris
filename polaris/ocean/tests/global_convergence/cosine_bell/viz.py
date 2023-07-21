@@ -87,6 +87,9 @@ class Viz(Step):
         """
         super().__init__(test_case=test_case, name=name, subdir=subdir)
         self.add_input_file(
+            filename='mesh.nc',
+            target='../init/mesh.nc')
+        self.add_input_file(
             filename='initial_state.nc',
             target='../init/initial_state.nc')
         self.add_input_file(
@@ -109,12 +112,13 @@ class Viz(Step):
 
         remapper = viz_map.get_remapper()
 
+        ds_mesh = xr.open_dataset('mesh.nc')
         ds_init = xr.open_dataset('initial_state.nc')
         ds_init = ds_init[['tracer1', ]].isel(Time=0, nVertLevels=0)
         ds_init = remapper.remap(ds_init)
         ds_init.to_netcdf('remapped_init.nc')
 
-        plot_global(ds_init.lon.values, ds_init.lat.values,
+        plot_global(ds_mesh.lon.values, ds_mesh.lat.values,
                     ds_init.tracer1.values,
                     out_filename='init.png', config=config,
                     colormap_section='cosine_bell_viz',
@@ -125,7 +129,7 @@ class Viz(Step):
         ds_out = remapper.remap(ds_out)
         ds_out.to_netcdf('remapped_final.nc')
 
-        plot_global(ds_out.lon.values, ds_out.lat.values,
+        plot_global(ds_mesh.lon.values, ds_mesh.lat.values,
                     ds_out.tracer1.values,
                     out_filename='final.png', config=config,
                     colormap_section='cosine_bell_viz',

@@ -22,8 +22,8 @@ class Viz(Step):
         """
         super().__init__(test_case=test_case, name='viz')
         self.add_input_file(
-            filename='initial_state.nc',
-            target='../init/initial_state.nc')
+            filename='mesh.nc',
+            target='../init/culled_mesh.nc')
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')
@@ -32,7 +32,7 @@ class Viz(Step):
         """
         Run this step of the test case
         """
-        ds_mesh = xr.load_dataset('initial_state.nc')
+        ds_mesh = xr.load_dataset('mesh.nc')
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         plot_horiz_field(ds, ds_mesh, 'temperature',

@@ -39,6 +39,9 @@ class Viz(Step):
 
         for resolution in resolutions:
             self.add_input_file(
+                filename=f'mesh_{resolution}km.nc',
+                target=f'../{resolution}km/initial_state/culled_mesh.nc')
+            self.add_input_file(
                 filename=f'init_{resolution}km.nc',
                 target=f'../{resolution}km/init/initial_state.nc')
             self.add_input_file(
@@ -62,9 +65,10 @@ class Viz(Step):
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
         for i, res in enumerate(resolutions):
-            init = xr.open_dataset(f'init_{res}km.nc')
+            ds_mesh = xr.open_dataset(f'mesh_{res}km.nc')
+            ds_init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
-            exact = ExactSolution(config, init)
+            exact = ExactSolution(config, ds_init)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
                                             '%Y-%m-%d_%H:%M:%S')
@@ -80,13 +84,13 @@ class Viz(Step):
             if i == 0:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
-            plot_horiz_field(ds, init, 'ssh', ax=axes[i, 0],
+            plot_horiz_field(ds, ds_mesh, 'ssh', ax=axes[i, 0],
                              cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
                              vmin=-eta0, vmax=eta0, cmap_title="SSH")
-            plot_horiz_field(ds, init, 'ssh_exact', ax=axes[i, 1],
+            plot_horiz_field(ds, ds_mesh, 'ssh_exact', ax=axes[i, 1],
                              cmap='cmo.balance',
                              vmin=-eta0, vmax=eta0, cmap_title="SSH")
-            plot_horiz_field(ds, init, 'ssh_error', ax=axes[i, 2],
+            plot_horiz_field(ds, ds_mesh, 'ssh_error', ax=axes[i, 2],
                              cmap='cmo.balance', cmap_title="dSSH",
                              vmin=-error_range, vmax=error_range)
 

@@ -70,14 +70,14 @@ class Init(Step):
 
         ds = ds_mesh.copy()
 
-        ds['ssh'] = xr.zeros_like(ds.xCell)
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds_mesh.xCell)
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds_mesh.xCell)
 
         init_vertical_coord(config, ds)
 
-        ds['fCell'] = coriolis_parameter * xr.ones_like(ds.xCell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
+        ds['fCell'] = coriolis_parameter * xr.ones_like(ds_mesh.xCell)
+        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
+        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds_mesh['maxLevelCell'] = ds.maxLevelCell
 

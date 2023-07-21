@@ -140,7 +140,7 @@ class Init(Step):
 
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
-        normal_velocity = xr.zeros_like(ds.xEdge)
+        normal_velocity = xr.zeros_like(ds_mesh.xEdge)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
@@ -149,8 +149,8 @@ class Init(Step):
         ds['salinity'] = salinity * xr.ones_like(temperature)
         ds['normalVelocity'] = normal_velocity
         ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
+        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
+        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny

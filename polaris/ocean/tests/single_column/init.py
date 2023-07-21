@@ -57,7 +57,7 @@ class Init(Step):
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
-        x_cell = ds.xCell
+        x_cell = ds_mesh.xCell
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
         ds['ssh'] = xr.zeros_like(x_cell)
@@ -116,7 +116,7 @@ class Init(Step):
         salinity = salinity.expand_dims(dim='Time', axis=0)
 
         normal_velocity, _ = xr.broadcast(
-            xr.zeros_like(ds.xEdge), ds.refBottomDepth)
+            xr.zeros_like(ds_mesh.xEdge), ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
@@ -127,8 +127,8 @@ class Init(Step):
         ds['salinity'] = salinity
         ds['normalVelocity'] = normal_velocity
         ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
+        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
+        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
