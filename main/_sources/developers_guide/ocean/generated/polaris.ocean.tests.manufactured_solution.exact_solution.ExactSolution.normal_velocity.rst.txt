@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.manufactured\_solution.exact\_solution.ExactSolution.normal\_velocity
+=========================================================================================
+
+.. currentmodule:: polaris.ocean.tests.manufactured_solution.exact_solution
+
+.. automethod:: ExactSolution.normal_velocity

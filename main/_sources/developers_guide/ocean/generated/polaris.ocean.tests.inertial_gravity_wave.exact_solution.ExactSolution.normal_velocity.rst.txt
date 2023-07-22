@@ -1,0 +1,6 @@
+﻿polaris.ocean.tests.inertial\_gravity\_wave.exact\_solution.ExactSolution.normal\_velocity
+==========================================================================================
+
+.. currentmodule:: polaris.ocean.tests.inertial_gravity_wave.exact_solution
+
+.. automethod:: ExactSolution.normal_velocity

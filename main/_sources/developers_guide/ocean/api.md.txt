@@ -73,7 +73,7 @@
 
    exact_solution.ExactSolution
    exact_solution.ExactSolution.ssh
-   exact_solution.ExactSolution.normalVelocity
+   exact_solution.ExactSolution.normal_velocity
 
    forward.Forward
    forward.Forward.compute_cell_count
@@ -145,7 +145,7 @@
 
    exact_solution.ExactSolution
    exact_solution.ExactSolution.ssh
-   exact_solution.ExactSolution.normalVelocity
+   exact_solution.ExactSolution.normal_velocity
 
    forward.Forward
    forward.Forward.compute_cell_count
