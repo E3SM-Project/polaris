@@ -53,7 +53,7 @@ constructor, the associate namelist option (`config_mom_del2`) will be given
 this value. Namelist and streams files are updated in
 {py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The
-number of cells is computed from config options in
+number of cells is approximated from config options in
 {py:meth}`polaris.ocean.tests.baroclinic_channel.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that tests
 have as their target and minimum (if the resources are not explicitly

@@ -50,7 +50,7 @@ defines a step for running MPAS-Ocean from the initial condition produced in the
 `init` step.  Namelist and streams files are updated in
 {py:meth}`polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The number
-of cells is computed from config options in
+of cells is approximated from config options in
 {py:meth}`polaris.ocean.tests.inertial_gravity_wave.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that tests have as
 their target and minimum (if the resources are not explicitly prescribed).  For
