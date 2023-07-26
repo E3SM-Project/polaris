@@ -1,7 +1,5 @@
 import time
 
-import xarray as xr
-
 from polaris.ocean.model import OceanModelStep
 
 
@@ -55,30 +53,18 @@ class Forward(OceanModelStep):
 
         self.add_output_file(filename='output.nc')
 
-    def compute_cell_count(self, at_setup):
+    def compute_cell_count(self):
         """
         Compute the approximate number of cells in the mesh, used to constrain
         resources
-
-        Parameters
-        ----------
-        at_setup : bool
-            Whether this method is being run during setup of the step, as
-            opposed to at runtime
 
         Returns
         -------
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        if at_setup:
-            # use a heuristic based on QU30 (65275 cells) and QU240 (10383
-            # cells)
-            cell_count = 6e8 / self.resolution**2
-        else:
-            # get nCells from the input file
-            with xr.open_dataset('init.nc') as ds:
-                cell_count = ds.sizes['nCells']
+        # use a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
+        cell_count = 6e8 / self.resolution**2
         return cell_count
 
     def dynamic_model_config(self, at_setup):

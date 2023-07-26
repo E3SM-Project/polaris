@@ -1,7 +1,5 @@
 import time
 
-import xarray as xr
-
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep
 
@@ -95,33 +93,21 @@ class Forward(OceanModelStep):
         self.dt = None
         self.btr_dt = None
 
-    def compute_cell_count(self, at_setup):
+    def compute_cell_count(self):
         """
         Compute the approximate number of cells in the mesh, used to constrain
         resources
-
-        Parameters
-        ----------
-        at_setup : bool
-            Whether this method is being run during setup of the step, as
-            opposed to at runtime
 
         Returns
         -------
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        if at_setup:
-            # no file to read from, so we'll compute it based on config options
-            section = self.config['baroclinic_channel']
-            lx = section.getfloat('lx')
-            ly = section.getfloat('ly')
-            nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-            cell_count = nx * ny
-        else:
-            # get nCells from the input file
-            with xr.open_dataset('initial_state.nc') as ds:
-                cell_count = ds.sizes['nCells']
+        section = self.config['baroclinic_channel']
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+        cell_count = nx * ny
         return cell_count
 
     def dynamic_model_config(self, at_setup):
