@@ -134,10 +134,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;restart&#39;</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;full_run&#39;</span><span class="p">,</span> <span class="s1">&#39;restart_run&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-                <span class="n">RestartStep</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
+        <span class="n">full</span> <span class="o">=</span> <span class="n">RestartStep</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="s1">&#39;full_run&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
+
+        <span class="n">restart</span> <span class="o">=</span> <span class="n">RestartStep</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                              <span class="n">name</span><span class="o">=</span><span class="s1">&#39;restart_run&#39;</span><span class="p">)</span>
+        <span class="n">restart</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">full</span><span class="p">,</span> <span class="n">full</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">restart</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Restart.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.baroclinic_channel.restart.Restart.validate.html#polaris.ocean.tests.baroclinic_channel.restart.Restart.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
