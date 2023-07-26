@@ -1,0 +1,12 @@
+<streams>
+
+<immutable_stream name="restart"
+                  filename_template="restarts/restart.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_interval="output_interval"
+                  output_interval="0000-00-00_12:00:00"/>
+
+<stream name="output"
+        output_interval="none">
+</stream>
+
+</streams>
