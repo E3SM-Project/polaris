@@ -68,6 +68,7 @@ class Rpe(BaroclinicChannelTestCase):
             if step.startswith('rpe') or step == 'analysis':
                 # remove previous RPE forward or analysis steps
                 self.steps.pop(step)
+                self.steps_to_run.remove(step)
 
         resolution = self.resolution
 
