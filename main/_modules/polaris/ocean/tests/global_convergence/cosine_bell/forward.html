@@ -110,8 +110,6 @@
   <h1>Source code for polaris.ocean.tests.global_convergence.cosine_bell.forward</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-
 <span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
@@ -165,30 +163,18 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Forward.compute_cell_count"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count">[docs]</a>    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<div class="viewcode-block" id="Forward.compute_cell_count"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.compute_cell_count">[docs]</a>    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        at_setup : bool</span>
-<span class="sd">            Whether this method is being run during setup of the step, as</span>
-<span class="sd">            opposed to at runtime</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cell_count : int or None</span>
 <span class="sd">            The approximate number of cells in the mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">at_setup</span><span class="p">:</span>
-            <span class="c1"># use a heuristic based on QU30 (65275 cells) and QU240 (10383</span>
-            <span class="c1"># cells)</span>
-            <span class="n">cell_count</span> <span class="o">=</span> <span class="mf">6e8</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="o">**</span><span class="mi">2</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># get nCells from the input file</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="n">cell_count</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+        <span class="c1"># use a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)</span>
+        <span class="n">cell_count</span> <span class="o">=</span> <span class="mf">6e8</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">return</span> <span class="n">cell_count</span></div>
 
 <div class="viewcode-block" id="Forward.dynamic_model_config"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.global_convergence.cosine_bell.forward.Forward.dynamic_model_config">[docs]</a>    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>

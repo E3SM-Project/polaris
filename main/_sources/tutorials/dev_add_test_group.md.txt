@@ -1180,7 +1180,7 @@ you might try to stress-test your own test case.
 
 ## Adding the forward step
 
-Now that we know that the first step steems to be working, we're ready to add 
+Now that we know that the first step seems to be working, we're ready to add 
 another. We will add a `forward` step for running the MPAS-Ocean model forward
 in time from the initial condition created in `init`.  `forward`
 will be a little more complicated than `init` as we get started.
@@ -2022,16 +2022,15 @@ dt_per_km = 30
 btr_dt_per_km = 1.5
 ```
 
-Unlike in `compute_cell_count()`, we don't do anything differently in
-`dynamic_model_config()` here whether it's run at setup or at runtime.  The
-reason we run it twice is to update the model config options in case the user
-modified `dt_per_km` or `btr_dt_per_km` in the config file in the work 
-directory before running the step.
+We don't do anything differently in `dynamic_model_config()` here whether it's 
+run at setup or at runtime.  The reason we run it twice is to update the model 
+config options in case the user modified `dt_per_km` or `btr_dt_per_km` in the 
+config file in the work directory before running the step.
 
 ### Computing the cell count
 
 In the ocean component, we have infrastructure for determining good values
-for `ntask` and `min_tasks` (the reasonable range of MPI tasks that a forward
+for `ntasks` and `min_tasks` (the reasonable range of MPI tasks that a forward
 model step should use).  Using this infrastructure requires overriding the
 {py:meth}`polaris.ocean.model.OceanModelStep.compute_cell_count()` method:
 
@@ -2045,7 +2044,7 @@ class Forward(OceanModelStep):
 
     ...
 
-    def compute_cell_count(self, at_setup):
+    def compute_cell_count(self):
         """
         Compute the approximate number of cells in the mesh, used to constrain
         resources
@@ -2061,32 +2060,21 @@ class Forward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        if at_setup:
-            # no file to read from, so we'll compute it based on config options
-            section = self.config['yet_another_channel']
-            lx = section.getfloat('lx')
-            ly = section.getfloat('ly')
-            nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-            cell_count = nx * ny
-        else:
-            # get nCells from the input file
-            with xr.open_dataset('initial_state.nc') as ds:
-                cell_count = ds.sizes['nCells']
+        section = self.config['yet_another_channel']
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+        cell_count = nx * ny
         return cell_count
 ```
-This method gets called once at setup (with `at_setup=True`) and once at
-runtime (with `at_setup=False`).  We do this because we need to compute or 
-estimate the size of the mesh during setup so we have a good guess at the
+We need to estimate the size of the mesh so we have a good guess at the 
 resources it will need when we add it to a test suite and make a job script for
-running it.  Then, at runtime, we may need to revise that size, either because
-it was an estimate only or because it was based on config options that a user
-may have changed after setup.  Here, we use 
+running it.  Here, we use 
 {py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()` to get `nx` and `ny`
 (and thus the total cell count) during setup because we have no other way to
-get them (the initial condition has not yet been created, for example).  But
-at runtime, rather than recomputing them, we look at the initial condition
-file that must exist (otherwise the step already would have failed) to see
-what the actual number of cells ended up being.
+get them.  When using task parallelism, we must use this approximation at 
+runtime, because we cannot rely on any tests being completed to use as a basis 
+for computation. 
 
 `cell_count` is used in `OceanModelStep` to compute `ntasks` and `min_tasks`
 by also using 2 config options:

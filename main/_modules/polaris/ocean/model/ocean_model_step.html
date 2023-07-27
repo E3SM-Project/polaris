@@ -210,7 +210,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">()</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
@@ -219,19 +219,13 @@
 <span class="sd">        Update the number of MPI tasks to use based on the estimated mesh size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_cores</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OceanModelStep.compute_cell_count"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count">[docs]</a>    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<div class="viewcode-block" id="OceanModelStep.compute_cell_count"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count">[docs]</a>    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        at_setup : bool</span>
-<span class="sd">            Whether this method is being run during setup of the step, as</span>
-<span class="sd">            opposed to at runtime</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -301,13 +295,13 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input streams files are not supported in &#39;</span>
                          <span class="s1">&#39;OceanModelStep&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update ``ntasks`` and ``min_tasks`` for the step based on the estimated</span>
 <span class="sd">        mesh size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">cell_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cell_count</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+        <span class="n">cell_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cell_count</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">cell_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ntasks and min_tasks were not set explicitly &#39;</span>
                              <span class="s1">&#39;but they also cannot be computed because &#39;</span>

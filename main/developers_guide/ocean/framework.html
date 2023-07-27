@@ -163,11 +163,7 @@ respectively) are set automatically if <code class="docutils literal notranslate
 already been set explicitly.  In such cases, a subclass of <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>
 must override the
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.compute_cell_count()</span></code></a> method
-to compute the number of cells in the mesh.  Since it is typically not possible
-to read the cell count from a file during setup, this method may need to have
-a heuristic way of approximating the number of cells during setup (i.e. when
-the <code class="docutils literal notranslate"><span class="pre">at_setup</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">True</span></code>.  Then, it can return the exact number of
-cells at runtime (i.e. <code class="docutils literal notranslate"><span class="pre">at_setup</span> <span class="pre">==</span> <span class="pre">False</span></code>).</p>
+to approximate the number of cells in the mesh, using a simple heuristic.</p>
 <p>The algorithm for determining the resources is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ideally, about 200 cells per core</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">goal_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>

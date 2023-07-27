@@ -1208,7 +1208,7 @@ you might try to stress-test your own test case.</p>
 </section>
 <section id="adding-the-forward-step">
 <h2>Adding the forward step<a class="headerlink" href="#adding-the-forward-step" title="Permalink to this heading"></a></h2>
-<p>Now that we know that the first step steems to be working, we’re ready to add
+<p>Now that we know that the first step seems to be working, we’re ready to add
 another. We will add a <code class="docutils literal notranslate"><span class="pre">forward</span></code> step for running the MPAS-Ocean model forward
 in time from the initial condition created in <code class="docutils literal notranslate"><span class="pre">init</span></code>.  <code class="docutils literal notranslate"><span class="pre">forward</span></code>
 will be a little more complicated than <code class="docutils literal notranslate"><span class="pre">init</span></code> as we get started.
@@ -1991,16 +1991,15 @@ as a number of times steps):</p>
 <span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
 </pre></div>
 </div>
-<p>Unlike in <code class="docutils literal notranslate"><span class="pre">compute_cell_count()</span></code>, we don’t do anything differently in
-<code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> here whether it’s run at setup or at runtime.  The
-reason we run it twice is to update the model config options in case the user
-modified <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> or <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> in the config file in the work
-directory before running the step.</p>
+<p>We don’t do anything differently in <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> here whether it’s
+run at setup or at runtime.  The reason we run it twice is to update the model
+config options in case the user modified <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> or <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> in the
+config file in the work directory before running the step.</p>
 </section>
 <section id="computing-the-cell-count">
 <h3>Computing the cell count<a class="headerlink" href="#computing-the-cell-count" title="Permalink to this heading"></a></h3>
 <p>In the ocean component, we have infrastructure for determining good values
-for <code class="docutils literal notranslate"><span class="pre">ntask</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> (the reasonable range of MPI tasks that a forward
+for <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> (the reasonable range of MPI tasks that a forward
 model step should use).  Using this infrastructure requires overriding the
 <a class="reference internal" href="../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.compute_cell_count()</span></code></a> method:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tests/yet_another_channel/forward.py
@@ -2012,7 +2011,7 @@ model step should use).  Using this infrastructure requires overriding the
 
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
@@ -2028,33 +2027,22 @@ model step should use).  Using this infrastructure requires overriding the
 <span class="sd">        cell_count : int or None</span>
 <span class="sd">            The approximate number of cells in the mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">at_setup</span><span class="p">:</span>
-            <span class="c1"># no file to read from, so we&#39;ll compute it based on config options</span>
-            <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
-            <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-            <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
-            <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
-            <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># get nCells from the input file</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="n">cell_count</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;yet_another_channel&#39;</span><span class="p">]</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
         <span class="k">return</span> <span class="n">cell_count</span>
 </pre></div>
 </div>
-<p>This method gets called once at setup (with <code class="docutils literal notranslate"><span class="pre">at_setup=True</span></code>) and once at
-runtime (with <code class="docutils literal notranslate"><span class="pre">at_setup=False</span></code>).  We do this because we need to compute or
-estimate the size of the mesh during setup so we have a good guess at the
+<p>We need to estimate the size of the mesh so we have a good guess at the
 resources it will need when we add it to a test suite and make a job script for
-running it.  Then, at runtime, we may need to revise that size, either because
-it was an estimate only or because it was based on config options that a user
-may have changed after setup.  Here, we use
+running it.  Here, we use
 <a class="reference internal" href="../developers_guide/generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.planar.compute_planar_hex_nx_ny()</span></code></a> to get <code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>
 (and thus the total cell count) during setup because we have no other way to
-get them (the initial condition has not yet been created, for example).  But
-at runtime, rather than recomputing them, we look at the initial condition
-file that must exist (otherwise the step already would have failed) to see
-what the actual number of cells ended up being.</p>
+get them.  When using task parallelism, we must use this approximation at
+runtime, because we cannot rely on any tests being completed to use as a basis
+for computation.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cell_count</span></code> is used in <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> to compute <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>
 by also using 2 config options:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/ocean.cfg

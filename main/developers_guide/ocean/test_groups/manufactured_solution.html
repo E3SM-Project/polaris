@@ -168,7 +168,7 @@ defines a step for running MPAS-Ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step.  Namelist and streams files are updated in
 <a class="reference internal" href="../generated/polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config.html#polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config" title="polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.manufactured_solution.forward.Forward.dynamic_model_config()</span></code></a>
 with time steps determined algorithmically based on config options.  The
-number of cells is computed from config options in
+number of cells is approximated from config options in
 <a class="reference internal" href="../generated/polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count.html#polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count" title="polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.manufactured_solution.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that tests
 have as their target and minimum (if the resources are not explicitly
