@@ -1,0 +1,26 @@
+﻿polaris.seaice.tests.single\_column.exact\_restart.ExactRestart
+===============================================================
+
+.. currentmodule:: polaris.seaice.tests.single_column.exact_restart
+
+.. autoclass:: ExactRestart
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExactRestart.__init__
+      ~ExactRestart.add_step
+      ~ExactRestart.check_validation
+      ~ExactRestart.configure
+      ~ExactRestart.validate
+   
+   
+
+   
+   
+   
