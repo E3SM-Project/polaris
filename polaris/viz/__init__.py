@@ -31,7 +31,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         A data set containing fieldName
 
     ds_mesh : xarray.Dataset
-        A data set containing mesh variables
+        A data set containing horizontal mesh variables
 
     field_name: str
         The name of the variable to plot, which must be present in ds
@@ -83,9 +83,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if title is None:
         title = field_name
 
-    if 'maxLevelCell' not in ds_mesh:
+    if 'maxLevelCell' not in ds:
         raise ValueError(
-            'maxLevelCell must be added to ds_mesh before plotting.')
+            'maxLevelCell must be added to ds before plotting.')
     if field_name not in ds:
         raise ValueError(
             f'{field_name} must be present in ds before plotting.')
@@ -102,7 +102,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         field = field.isel(nVertLevels=z_index)
 
     if 'nCells' in field.dims:
-        ocean_mask = ds_mesh.maxLevelCell - 1 >= 0
+        ocean_mask = ds.maxLevelCell - 1 >= 0
         ocean_patches, ocean_mask = _compute_cell_patches(ds_mesh, ocean_mask)
     elif 'nEdges' in field.dims:
         ocean_mask = np.ones_like(field, dtype='bool')
