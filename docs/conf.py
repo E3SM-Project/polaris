@@ -53,7 +53,8 @@ extensions = [
 
 autosummary_generate = ['developers_guide/api.md',
                         # 'developers_guide/landice/api.md',
-                        'developers_guide/ocean/api.md']
+                        'developers_guide/ocean/api.md',
+                        'developers_guide/seaice/api.md']
 
 # Otherwise, the Return parameter list looks different from the Parameters list
 napoleon_use_rtype = False

@@ -13,6 +13,7 @@ documentation.
 :titlesonly: true
 
 ocean/api
+seaice/api
 ```
 
 ## polaris framework

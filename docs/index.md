@@ -44,6 +44,7 @@ users_guide/test_cases
 users_guide/config_files
 users_guide/test_suites
 users_guide/ocean/index
+users_guide/seaice/index
 users_guide/machines/index
 ```
 
@@ -56,6 +57,7 @@ developers_guide/overview
 developers_guide/command_line
 developers_guide/organization/index
 developers_guide/ocean/index
+developers_guide/seaice/index
 developers_guide/framework/index
 developers_guide/machines/index
 developers_guide/troubleshooting

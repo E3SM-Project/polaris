@@ -1,0 +1,6 @@
+config_nSnowLayers = 5
+
+config_use_velocity_solver = false
+config_use_advection = false
+
+config_use_ocean_mixed_layer = false
