@@ -19,7 +19,7 @@ lxml
 {% if include_mache %}
 mache={{ mache }}
 {% endif %}
-matplotlib-base
+matplotlib-base >=3.6.0,!=3.7.2
 metis
 mpas_tools={{ mpas_tools }}
 nco
