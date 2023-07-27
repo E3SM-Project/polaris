@@ -40,7 +40,7 @@ class Viz(Step):
         for resolution in resolutions:
             self.add_input_file(
                 filename=f'mesh_{resolution}km.nc',
-                target=f'../{resolution}km/initial_state/culled_mesh.nc')
+                target=f'../{resolution}km/init/culled_mesh.nc')
             self.add_input_file(
                 filename=f'init_{resolution}km.nc',
                 target=f'../{resolution}km/init/initial_state.nc')
@@ -69,6 +69,7 @@ class Viz(Step):
             ds_mesh = xr.open_dataset(f'mesh_{res}km.nc')
             ds_init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
+            ds['maxLevelCell'] = ds_init.maxLevelCell
             exact = ExactSolution(ds_init, config)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),

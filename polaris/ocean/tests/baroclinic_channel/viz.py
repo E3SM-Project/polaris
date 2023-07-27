@@ -25,6 +25,9 @@ class Viz(Step):
             filename='mesh.nc',
             target='../init/culled_mesh.nc')
         self.add_input_file(
+            filename='init.nc',
+            target='../init/initial_state.nc')
+        self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')
 
@@ -33,7 +36,9 @@ class Viz(Step):
         Run this step of the test case
         """
         ds_mesh = xr.load_dataset('mesh.nc')
+        ds_init = xr.load_dataset('init.nc')
         ds = xr.load_dataset('output.nc')
+        ds['maxLevelCell'] = ds_init.maxLevelCell
         t_index = ds.sizes['Time'] - 1
         plot_horiz_field(ds, ds_mesh, 'temperature',
                          'final_temperature.png', t_index=t_index)
