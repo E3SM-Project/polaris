@@ -188,8 +188,6 @@
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
 
-        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span>
-
         <span class="c1"># Evaluate the exact solution at time=0</span>
         <span class="n">exact_solution</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
         <span class="n">ssh</span> <span class="o">=</span> <span class="n">exact_solution</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
