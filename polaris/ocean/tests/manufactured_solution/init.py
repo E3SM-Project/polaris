@@ -79,8 +79,6 @@ class Init(Step):
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
-        ds_mesh['maxLevelCell'] = ds.maxLevelCell
-
         # Evaluate the exact solution at time=0
         exact_solution = ExactSolution(config, ds)
         ssh = exact_solution.ssh(0.0)

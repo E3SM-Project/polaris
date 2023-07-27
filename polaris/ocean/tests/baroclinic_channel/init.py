@@ -90,8 +90,6 @@ class Init(Step):
 
         init_vertical_coord(config, ds)
 
-        ds_mesh['maxLevelCell'] = ds.maxLevelCell
-
         x_min = x_cell.min().values
         x_max = x_cell.max().values
         y_min = y_cell.min().values

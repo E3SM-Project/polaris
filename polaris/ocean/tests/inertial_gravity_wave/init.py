@@ -79,7 +79,6 @@ class Init(Step):
         ds['fEdge'] = f0 * xr.ones_like(ds_mesh.xEdge)
         ds['fVertex'] = f0 * xr.ones_like(ds_mesh.xVertex)
 
-        ds_mesh['maxLevelCell'] = ds.maxLevelCell
         exact_solution = ExactSolution(ds, config)
 
         ssh = exact_solution.ssh(0.0)
