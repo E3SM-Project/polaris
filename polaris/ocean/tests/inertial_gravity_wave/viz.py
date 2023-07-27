@@ -69,6 +69,7 @@ class Viz(Step):
             ds_mesh = xr.open_dataset(f'mesh_{res}km.nc')
             ds_init = xr.open_dataset(f'init_{res}km.nc')
             ds = xr.open_dataset(f'output_{res}km.nc')
+            ds['maxLevelCell'] = ds_init.maxLevelCell
             exact = ExactSolution(ds_init, config)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
