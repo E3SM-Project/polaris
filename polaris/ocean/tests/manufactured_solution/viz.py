@@ -40,7 +40,7 @@ class Viz(Step):
         for resolution in resolutions:
             self.add_input_file(
                 filename=f'mesh_{resolution}km.nc',
-                target=f'../{resolution}km/initial_state/culled_mesh.nc')
+                target=f'../{resolution}km/init/culled_mesh.nc')
             self.add_input_file(
                 filename=f'init_{resolution}km.nc',
                 target=f'../{resolution}km/init/initial_state.nc')
