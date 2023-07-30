@@ -173,18 +173,15 @@ def install_mambaforge(conda_base, activate_base, logger):
         check_call(command, logger=logger)
         os.remove(mambaforge)
 
-    backup_bashrc()
-
     print('Doing initial setup\n')
     commands = f'{activate_base} && ' \
                f'conda config --add channels conda-forge && ' \
                f'conda config --set channel_priority strict && ' \
+               f'mamba update -y "mamba>1.3.1" "conda>=23.1.0" && ' \
                f'mamba update -y --all && ' \
-               f'mamba init'
+               f'mamba init --no-user'
 
     check_call(commands, logger=logger)
-
-    restore_bashrc()
 
 
 def backup_bashrc():
