@@ -59,7 +59,7 @@ fortran-compiler
 libnetcdf={{ netcdf_c }}={{ mpi_prefix }}_*
 netcdf-fortran={{ netcdf_fortran }}={{ mpi_prefix }}_*
 libpnetcdf={{ pnetcdf }}={{ mpi_prefix }}_*
-scorpio={{ scorpio }}={{ mpi_prefix }}_*
+parallelio={{ parallelio }}={{ mpi_prefix }}_*
 m4
 make
 {{ mpi }}

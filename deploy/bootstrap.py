@@ -285,7 +285,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
 
         for package in ['esmf', 'geometric_features', 'jigsaw', 'jigsawpy',
                         'mache', 'mpas_tools', 'netcdf_c', 'netcdf_fortran',
-                        'otps', 'pnetcdf', 'scorpio']:
+                        'otps', 'parallelio', 'pnetcdf']:
             replacements[package] = config.get('deploy', package)
 
         spec_file = template.render(**replacements)
@@ -361,6 +361,12 @@ def get_env_vars(machine, compiler, mpilib):
                    f'export I_MPI_F77=ifort\n' \
                    f'export I_MPI_F90=ifort\n'
 
+    if machine.startswith('conda'):
+        # we're using parallelio so we don't have ADIOS support
+        env_vars = \
+            f'{env_vars}' \
+            f'export HAVE_ADIOS=false\n'
+
     if platform.system() == 'Linux' and machine.startswith('conda'):
         env_vars = \
             f'{env_vars}' \
@@ -387,8 +393,9 @@ def get_env_vars(machine, compiler, mpilib):
     return env_vars
 
 
-def build_spack_env(config, update_spack, machine, compiler, mpi, spack_env,
-                    spack_base, spack_template_path, env_vars, tmpdir, logger):
+def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
+                    spack_env, spack_base, spack_template_path, env_vars,
+                    tmpdir, logger):
 
     albany = config.get('deploy', 'albany')
     cmake = config.get('deploy', 'cmake')
