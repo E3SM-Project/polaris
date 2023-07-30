@@ -31,7 +31,7 @@ otps={{ otps }}
 progressbar2
 pyamg>=4.2.2
 pyproj
-pyremap>=0.0.16,<0.1.0
+pyremap>=1.0.0,<2.0.0
 ruamel.yaml
 requests
 scipy>=1.8.0
@@ -76,3 +76,6 @@ sphinx_rtd_theme
 myst-parser
 sphinx-multiversion
 rst-to-myst
+
+# Visualization
+ncview
