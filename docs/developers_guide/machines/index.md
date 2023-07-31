@@ -51,14 +51,10 @@ supported for those configurations with `gnu` compilers.
 | chicoma-cpu  | gnu        | mpich     | gnu-cray          |
 +--------------+------------+-----------+-------------------+
 | chrysalis    | intel      | openmpi   | ifort             |
-|              |            +-----------+-------------------+
-|              |            | impi      | intel-mpi         |
 |              +------------+-----------+-------------------+
 |              | gnu        | openmpi   | gfortran          |
 +--------------+------------+-----------+-------------------+
 | compy        | intel      | impi      | intel-mpi         |
-|              +------------+-----------+-------------------+
-|              | gnu        | openmpi   | gfortran          |
 +--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
 +--------------+------------+-----------+-------------------+

@@ -5,10 +5,12 @@ anvil, gnu, impi
 chicoma-cpu, nvidia, mpich
 chicoma-cpu, aocc, mpich
 chicoma-cpu, amdclang, mpich
+chrysalis, intel, impi
 chrysalis, gnu, impi
 chrysalis, oneapi-ifx, openmpi
 chrysalis, oneapi-ifx, impi
 compy, intel, mvapich2
+compy, gnu, openmpi
 compy, pgi, impi
 compy, pgi, mvapich2
 pm-cpu, nvidia, mpich
