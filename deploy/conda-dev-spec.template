@@ -31,7 +31,7 @@ otps={{ otps }}
 progressbar2
 pyamg>=4.2.2
 pyproj
-pyremap>=0.0.16,<0.1.0
+pyremap>=1.0.0,<2.0.0
 ruamel.yaml
 requests
 scipy>=1.8.0
@@ -59,7 +59,7 @@ fortran-compiler
 libnetcdf={{ netcdf_c }}={{ mpi_prefix }}_*
 netcdf-fortran={{ netcdf_fortran }}={{ mpi_prefix }}_*
 libpnetcdf={{ pnetcdf }}={{ mpi_prefix }}_*
-scorpio={{ scorpio }}={{ mpi_prefix }}_*
+parallelio={{ parallelio }}={{ mpi_prefix }}_*
 m4
 make
 {{ mpi }}
@@ -76,3 +76,6 @@ sphinx_rtd_theme
 myst-parser
 sphinx-multiversion
 rst-to-myst
+
+# Visualization
+ncview

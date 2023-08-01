@@ -58,14 +58,10 @@ def parse_args(bootstrap):
                         action='store_true',
                         help="Whether to include albany in the spack "
                              "environment.")
-    parser.add_argument("--with_netlib_lapack", dest="with_netlib_lapack",
-                        action='store_true',
-                        help="Whether to include Netlib-LAPACK in the spack "
-                             "environment.")
     parser.add_argument("--with_petsc", dest="with_petsc",
                         action='store_true',
-                        help="Whether to include PETSc in the spack "
-                             "environment.")
+                        help="Whether to include PETSc and Netlib-LAPACK in "
+                             "the spack environment.")
     parser.add_argument("--without_openmp", dest="without_openmp",
                         action='store_true',
                         help="If this flag is included, OPENMP=false will "
@@ -177,18 +173,15 @@ def install_mambaforge(conda_base, activate_base, logger):
         check_call(command, logger=logger)
         os.remove(mambaforge)
 
-    backup_bashrc()
-
     print('Doing initial setup\n')
     commands = f'{activate_base} && ' \
                f'conda config --add channels conda-forge && ' \
                f'conda config --set channel_priority strict && ' \
+               f'mamba update -y "mamba>1.3.1" "conda>=23.1.0" && ' \
                f'mamba update -y --all && ' \
-               f'mamba init'
+               f'mamba init --no-user'
 
     check_call(commands, logger=logger)
-
-    restore_bashrc()
 
 
 def backup_bashrc():
