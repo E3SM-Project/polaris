@@ -35,7 +35,7 @@
             Polaris
           </a>
               <div class="version">
-                0.1.0-alpha.3
+                0.2.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -68,6 +68,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
 </ul>
@@ -112,13 +113,12 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">mache</span> <span class="kn">import</span> <span class="n">discover_machine</span>
-
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestCase</span><span class="p">,</span> <span class="n">provenance</span>
 <span class="kn">from</span> <span class="nn">polaris.components</span> <span class="kn">import</span> <span class="n">get_components</span>
 <span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span>
 <span class="kn">from</span> <span class="nn">polaris.job</span> <span class="kn">import</span> <span class="n">write_job_script</span>
+<span class="kn">from</span> <span class="nn">polaris.machines</span> <span class="kn">import</span> <span class="n">discover_machine</span>
 
 
 <div class="viewcode-block" id="setup_cases"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_cases.html#polaris.setup.setup_cases">[docs]</a><span class="k">def</span> <span class="nf">setup_cases</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tests</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -524,7 +524,8 @@
 
     <span class="c1"># add the E3SM config options from mache</span>
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+                                <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># add the polaris machine config file</span>
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
