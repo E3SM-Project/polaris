@@ -76,6 +76,8 @@ seaice/api
 
    unpickle_suite
    setup_config
+   load_dependencies
+   pickle_step_after_run
    serial.run_tests
    serial.run_single_step
 
