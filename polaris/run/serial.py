@@ -118,6 +118,7 @@ def run_single_step(step_is_subprocess=False):
     test_case.steps_to_run = [step.name]
     test_case.new_step_log_file = False
 
+    # This prevents infinite loop of subprocesses
     if step_is_subprocess:
         step.run_as_subprocess = False
 
@@ -169,6 +170,7 @@ def main():
                         help="Used internally by polaris to indicate that "
                              "a step is being run as a subprocess.")
     args = parser.parse_args(sys.argv[2:])
+
     if args.suite is not None:
         # Running a specified suite from the base work directory
         run_tests(args.suite, quiet=args.quiet)
@@ -513,15 +515,17 @@ def _run_step_as_subprocess(test_case, step, new_log_file):
     """
     logger = test_case.logger
     cwd = os.getcwd()
-    test_name = step.path.replace('/', '_')
+    logger_name = step.path.replace('/', '_')
     if new_log_file:
         log_filename = f'{cwd}/{step.name}.log'
-        step.log_filename = log_filename
         step_logger = None
     else:
         step_logger = logger
         log_filename = None
-    with LoggingContext(name=test_name, logger=step_logger,
+
+    step.log_filename = log_filename
+
+    with LoggingContext(name=logger_name, logger=step_logger,
                         log_filename=log_filename) as step_logger:
 
         os.chdir(step.work_dir)
