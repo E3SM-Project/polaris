@@ -14,7 +14,12 @@ from polaris.parallel import (
     run_command,
     set_cores_per_node,
 )
-from polaris.run import setup_config, unpickle_suite
+from polaris.run import (
+    load_dependencies,
+    pickle_step_after_run,
+    setup_config,
+    unpickle_suite,
+)
 
 
 def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
@@ -433,7 +438,7 @@ def _run_step(test_case, step, new_log_file, available_resources,
             f'{step.component.name}/{step.test_group.name}/'
             f'{step.test_case.subdir}: {missing_files}')
 
-    _load_dependencies(test_case, step)
+    load_dependencies(test_case, step)
 
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
@@ -483,7 +488,7 @@ def _run_step(test_case, step, new_log_file, available_resources,
             step_logger.info('')
             step.run()
 
-    _pickle_step_after_run(test_case, step)
+    pickle_step_after_run(test_case, step)
 
     missing_files = list()
     for output_file in step.outputs:
@@ -522,36 +527,3 @@ def _run_step_as_subprocess(test_case, step, new_log_file):
         os.chdir(step.work_dir)
         step_args = ['polaris', 'serial', '--step_is_subprocess']
         check_call(step_args, step_logger)
-
-
-def _load_dependencies(test_case, step):
-    """
-    Load each dependency from its pickle file to pick up changes that may have
-    happened since it ran
-    """
-    for name, old_dependency in step.dependencies.items():
-        if old_dependency.cached:
-            continue
-
-        pickle_filename = os.path.join(old_dependency.work_dir,
-                                       'step_after_run.pickle')
-        if not os.path.exists(pickle_filename):
-            raise ValueError(f'The dependency {name} of '
-                             f'{test_case.path} step {step.name} was '
-                             f'not run.')
-
-        with open(pickle_filename, 'rb') as handle:
-            dep_test_case, dependency = pickle.load(handle)
-            step.dependencies[name] = dependency
-
-
-def _pickle_step_after_run(test_case, step):
-    """
-    Pickle a step after running so its dependencies will pick up the changes.
-    """
-    if step.is_dependency:
-        # pickle the test case and step for use at runtime
-        pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
-        with open(pickle_filename, 'wb') as handle:
-            pickle.dump((test_case, step), handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
