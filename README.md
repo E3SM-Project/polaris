@@ -1,5 +1,7 @@
 # Polaris
 
+![Polaris](docs/_static/polaris_logo_rect.png)
+
 Polaris provides infrastructure, test cases and analysis tasks related to the
 ocean, land-ice and sea-ice components of the Exascale Energy Earth System
 Model ([E3SM](https://e3sm.org/)).
