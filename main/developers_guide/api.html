@@ -335,6 +335,12 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.setup_config.html#polaris.run.setup_config" title="polaris.run.setup_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_config</span></code></a>(config_filename)</p></td>
 <td><p>Set up the config object from the config file</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(test_case, step)</p></td>
+<td><p>Load each dependency from its pickle file to pick up changes that may have happened since it ran</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.pickle_step_after_run.html#polaris.run.pickle_step_after_run" title="polaris.run.pickle_step_after_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_step_after_run</span></code></a>(test_case, step)</p></td>
+<td><p>Pickle a step after it has run so its dependencies will pick up the changes</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tests</span></code></a>(suite_name[, quiet, ...])</p></td>
 <td><p>Run the given test suite or test case</p></td>
 </tr>
