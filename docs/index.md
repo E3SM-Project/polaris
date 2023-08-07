@@ -1,4 +1,9 @@
+(polaris)=
 # Polaris
+```{image} _static/polaris_logo_rect.png
+:align: center
+:width: 384 px
+```
 
 Polaris is a python package that provides an automated system to set up test 
 cases or analysis tasks for several components of the Exascale Energy Earth 
