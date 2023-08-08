@@ -38,6 +38,9 @@ class Init(Step):
                          name=f'init_{resolution}km',
                          subdir=f'{resolution}km/init')
         self.resolution = float(resolution)
+        for filename in ['culled_mesh.nc', 'initial_state.nc',
+                         'culled_graph.info']:
+            self.add_output_file(filename=filename)
 
     def run(self):
         """
