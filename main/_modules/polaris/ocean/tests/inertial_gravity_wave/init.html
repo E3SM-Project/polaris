@@ -147,7 +147,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">km&#39;</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">km/init&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Init.run"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tests.inertial_gravity_wave.init.Init.run.html#polaris.ocean.tests.inertial_gravity_wave.init.Init.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
