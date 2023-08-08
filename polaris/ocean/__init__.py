@@ -1,5 +1,6 @@
 from polaris import Component
 from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
+from polaris.ocean.tests.galewsky_jet import GalewskyJet
 from polaris.ocean.tests.global_convergence import GlobalConvergence
 from polaris.ocean.tests.inertial_gravity_wave import InertialGravityWave
 from polaris.ocean.tests.manufactured_solution import ManufacturedSolution
@@ -19,6 +20,7 @@ class Ocean(Component):
 
         # please keep these in alphabetical order
         self.add_test_group(BaroclinicChannel(component=self))
+        self.add_test_group(GalewskyJet(component=self))
         self.add_test_group(GlobalConvergence(component=self))
         self.add_test_group(InertialGravityWave(component=self))
         self.add_test_group(ManufacturedSolution(component=self))
