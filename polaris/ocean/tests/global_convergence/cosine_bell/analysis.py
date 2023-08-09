@@ -13,8 +13,9 @@ class Analysis(Step):
 
     Attributes
     ----------
-    resolutions : list of int
-        The resolutions of the meshes that have been run
+    resolutions : dict
+        A dictionary with mesh names as the keys and resolutions in km as the
+        values
 
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW
@@ -29,8 +30,9 @@ class Analysis(Step):
         test_case : polaris.ocean.tests.global_convergence.cosine_bell.CosineBell  # noqa: E501
             The test case this step belongs to
 
-        resolutions : list of int
-            The resolutions of the meshes that have been run
+        resolutions : dict
+            A dictionary with mesh names as the keys and resolutions in km as
+            the values
 
         icosahedral : bool
             Whether to use icosahedral, as opposed to less regular, JIGSAW
@@ -40,14 +42,10 @@ class Analysis(Step):
         self.resolutions = resolutions
         self.icosahedral = icosahedral
 
-        for resolution in resolutions:
-            if icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
+        for mesh_name, resolution in resolutions.items():
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
-                target=f'../{mesh_name}/mesh/mesh.nc')
+                target=f'../../meshes/{mesh_name}/mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 target=f'../{mesh_name}/init/initial_state.nc')
@@ -65,11 +63,7 @@ class Analysis(Step):
         resolutions = self.resolutions
         xdata = list()
         ydata = list()
-        for res in resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{res}'
-            else:
-                mesh_name = f'QU{res}'
+        for mesh_name in resolutions.keys():
             rmseValue, nCells = self.rmse(mesh_name)
             xdata.append(nCells)
             ydata.append(rmseValue)

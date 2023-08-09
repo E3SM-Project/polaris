@@ -1,9 +1,4 @@
 from polaris import TestCase
-from polaris.config import PolarisConfigParser
-from polaris.mesh.spherical import (
-    IcosahedralMeshStep,
-    QuasiUniformSphericalMeshStep,
-)
 from polaris.ocean.tests.global_convergence.cosine_bell.analysis import (
     Analysis,
 )
@@ -22,28 +17,30 @@ class CosineBell(TestCase):
     resolutions : list of int
         A list of mesh resolutions
 
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
+    meshes : polaris.ocean.tests.global_convergence.meshes.Meshes
+        The test case defining the meshes for this test case to use
 
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, test_group, icosahedral, include_viz):
+    def __init__(self, test_group, meshes, include_viz):
         """
         Create test case for creating a global MPAS-Ocean mesh
 
         Parameters
         ----------
-        test_group : polaris.ocean.tests.cosine_bell.GlobalOcean
+        test_group : polaris.ocean.tests.global_convergence.GlobalConvergence
             The global ocean test group that this test case belongs to
 
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
+        meshes : polaris.ocean.tests.global_convergence.meshes.Meshes
+            The test case defining the meshes for this test case to use
 
         include_viz : bool
             Include VizMap and Viz steps for each resolution
         """
+        self.meshes = meshes
+        icosahedral = meshes.icosahedral
+
         if icosahedral:
             subdir = 'icos/cosine_bell'
         else:
@@ -52,15 +49,10 @@ class CosineBell(TestCase):
             subdir = f'{subdir}_with_viz'
         super().__init__(test_group=test_group, name='cosine_bell',
                          subdir=subdir)
-        self.resolutions = list()
-        self.icosahedral = icosahedral
         self.include_viz = include_viz
 
-        # add the steps with default resolutions so they can be listed
-        config = PolarisConfigParser()
-        package = 'polaris.ocean.tests.global_convergence.cosine_bell'
-        config.add_from_package(package, 'cosine_bell.cfg')
-        self._setup_steps(config)
+        self.resolutions = dict()
+        self._setup_steps()
 
     def configure(self):
         """
@@ -73,36 +65,20 @@ class CosineBell(TestCase):
         config.set('spherical_mesh', 'mpas_mesh_filename', 'mesh.nc')
 
         # set up the steps again in case a user has provided new resolutions
-        self._setup_steps(config)
+        self._setup_steps()
 
     def validate(self):
         """
         Validate variables against a baseline
         """
-        for resolution in self.resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
+        for mesh_name, resolution in self.resolutions.items():
             compare_variables(test_case=self,
                               variables=['normalVelocity', 'tracer1'],
                               filename1=f'{mesh_name}/forward/output.nc')
 
-    def _setup_steps(self, config):
+    def _setup_steps(self):
         """ setup steps given resolutions """
-        if self.icosahedral:
-            default_resolutions = '60, 120, 240, 480'
-        else:
-            default_resolutions = '60, 90, 120, 150, 180, 210, 240'
-
-        # set the default values that a user may change before setup
-        config.set('cosine_bell', 'resolutions', default_resolutions,
-                   comment='a list of resolutions (km) to test')
-
-        # get the resolutions back, perhaps with values set in the user's
-        # config file, which takes priority over what we just set above
-        resolutions = config.getlist('cosine_bell', 'resolutions', dtype=int)
-
+        resolutions = self.meshes.resolutions
         if self.resolutions == resolutions:
             return
 
@@ -112,24 +88,9 @@ class CosineBell(TestCase):
 
         self.resolutions = resolutions
 
-        for resolution in resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
-
-            name = f'{mesh_name}_mesh'
-            subdir = f'{mesh_name}/mesh'
-            if self.icosahedral:
-                self.add_step(IcosahedralMeshStep(
-                    test_case=self, name=name, subdir=subdir,
-                    cell_width=resolution))
-            else:
-                self.add_step(QuasiUniformSphericalMeshStep(
-                    test_case=self, name=name, subdir=subdir,
-                    cell_width=resolution))
-
-            self.add_step(Init(test_case=self, mesh_name=mesh_name))
+        for mesh_name, resolution in self.resolutions.items():
+            mesh_step = self.meshes.steps[mesh_name]
+            self.add_step(Init(test_case=self, mesh_step=mesh_step))
 
             self.add_step(Forward(test_case=self, resolution=resolution,
                                   mesh_name=mesh_name))
@@ -147,4 +108,4 @@ class CosineBell(TestCase):
                                   viz_map=viz_map, mesh_name=mesh_name))
 
         self.add_step(Analysis(test_case=self, resolutions=resolutions,
-                               icosahedral=self.icosahedral))
+                               icosahedral=self.meshes.icosahedral))

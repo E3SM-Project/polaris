@@ -36,7 +36,8 @@ class VizMap(MappingFileStep):
         super().__init__(test_case=test_case, name=name, subdir=subdir,
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
-        self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
+        self.add_input_file(filename='mesh.nc',
+                            target=f'../../../meshes/{mesh_name}/mesh.nc')
 
     def runtime_setup(self):
         """
@@ -88,7 +89,7 @@ class Viz(Step):
         super().__init__(test_case=test_case, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            target='../init/mesh.nc')
+            target=f'../../../meshes/{mesh_name}/mesh.nc')
         self.add_input_file(
             filename='initial_state.nc',
             target='../init/initial_state.nc')

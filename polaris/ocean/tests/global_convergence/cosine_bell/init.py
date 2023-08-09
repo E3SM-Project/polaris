@@ -10,7 +10,7 @@ class Init(Step):
     """
     A step for an initial condition for for the cosine bell test case
     """
-    def __init__(self, test_case, mesh_name):
+    def __init__(self, test_case, mesh_step):
         """
         Create the step
 
@@ -19,17 +19,20 @@ class Init(Step):
         test_case : polaris.ocean.tests.global_convergence.cosine_bell.CosineBell  # noqa: E501
             The test case this step belongs to
 
-        mesh_name : str
-            The name of the mesh
+        mesh_step : polaris.mesh.spherical.SphericalBaseStep
+            The step that creates the mesh
         """
 
+        mesh_name = mesh_step.name
         super().__init__(test_case=test_case,
                          name=f'{mesh_name}_init',
                          subdir=f'{mesh_name}/init')
 
-        self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
+        self.add_input_file(filename='mesh.nc',
+                            target=f'../../../meshes/{mesh_name}/mesh.nc')
 
-        self.add_input_file(filename='graph.info', target='../mesh/graph.info')
+        self.add_input_file(filename='graph.info',
+                            target=f'../../../meshes/{mesh_name}/graph.info')
 
         self.add_output_file(filename='initial_state.nc')
 
