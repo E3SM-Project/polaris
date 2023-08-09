@@ -1,5 +1,6 @@
 from polaris import TestGroup
 from polaris.ocean.tests.global_convergence.cosine_bell import CosineBell
+from polaris.ocean.tests.global_convergence.meshes import Meshes
 
 
 class GlobalConvergence(TestGroup):
@@ -15,6 +16,8 @@ class GlobalConvergence(TestGroup):
         super().__init__(component=component, name='global_convergence')
 
         for icosahedral in [False, True]:
+            self.add_test_case(Meshes(test_group=self,
+                                      icosahedral=icosahedral))
             for include_viz in [False, True]:
                 self.add_test_case(CosineBell(test_group=self,
                                               icosahedral=icosahedral,
