@@ -1,7 +1,14 @@
+ocean/global_convergence/icos/meshes
+  cached: Icos60 Icos120
+  cached: Icos240 Icos480
 ocean/global_convergence/icos/cosine_bell
-  cached: Icos60_mesh Icos60_init Icos120_mesh Icos120_init
-  cached: Icos240_mesh Icos240_init Icos480_mesh Icos480_init
+  cached: Icos60_init Icos120_init
+  cached: Icos240_init Icos480_init
+ocean/global_convergence/qu/meshes
+  cached: QU60 QU90 QU120
+  cached: QU150 QU180 QU210
+  cached: QU240
 ocean/global_convergence/qu/cosine_bell
-  cached: QU60_mesh QU60_init QU90_mesh QU90_init QU120_mesh QU120_init
-  cached: QU150_mesh QU150_init QU180_mesh QU180_init QU210_mesh QU210_init
-  cached: QU240_mesh QU240_init
+  cached: QU60_init QU90_init QU120_init
+  cached: QU150_init QU180_init QU210_init
+  cached: QU240_init
