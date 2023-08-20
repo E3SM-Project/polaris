@@ -19,7 +19,7 @@ shared steps is clear to users.
 
 ## Requirements
 
-### Requirement: Shared steps are set up once (optional).
+### Desired: Shared steps are set up once.
 
 Ideally, steps used by multiple test cases should be run once per invocation of
 `polaris setup` or `polaris suite`. This requirement may be dropped since step
@@ -27,7 +27,7 @@ set up is not generally resource intensive.
 
 ### Requirement: Shared steps are run once.
 
-Shared steps should be per run once per invocation of `polaris serial` or
+Shared steps should be run once per invocation of `polaris serial` or
 `polaris parallel`.
 
 ### Requirement: Shared steps are run before steps that depend on their output.
@@ -50,6 +50,9 @@ would be set up for each test case.
 
 A step may only be shared across multiple test cases if its output would be
 identical for each test case.
+### Required: test cases do not rely on outputs from steps in other test cases
+
+All test cases are self-contained and rely only on either shared steps or steps they contain.
 
 
 
@@ -58,7 +61,9 @@ identical for each test case.
 ### Implementation: Shared steps are run before steps that depend on their output.
 
 Requirement is already satisfied as part of task parallelism design, which
-makes use of file dependencies.
+makes use of file dependencies.  When running in task-serial mode, the implementation
+will be to make sure shared steps are added to the dictionary of steps before other steps
+that rely on them.
 
 ### Implementation: Output of shared steps may be used by multiple test cases.
 
