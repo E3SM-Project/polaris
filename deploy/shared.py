@@ -31,7 +31,7 @@ def parse_args(bootstrap):
     parser.add_argument("--conda_env_only", dest="conda_env_only",
                         action='store_true',
                         help="Create only the conda environment for running "
-                             "polaris tests (without compilers or libraries "
+                             "polaris tasks (without compilers or libraries "
                              "for building E3SM components).")
     parser.add_argument("--recreate", dest="recreate", action='store_true',
                         help="Recreate the environment if it exists.")

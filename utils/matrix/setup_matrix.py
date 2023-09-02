@@ -47,7 +47,7 @@ def setup_matrix(config_filename, submit):
         the matrix and the test case(s)
 
     submit : bool
-        Whether to submit each suite or set of tests once it has been built
+        Whether to submit each suite or set of tasks once it has been built
         and set up
     """
 
@@ -250,7 +250,7 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
         A suffix related to the machine, compilers, MPI libraries, etc.
 
     submit : bool
-        Whether to submit each suite or set of tests once it has been built
+        Whether to submit each suite or set of tasks once it has been built
         and set up
     """
 
