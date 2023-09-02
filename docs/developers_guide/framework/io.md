@@ -20,19 +20,19 @@ from importlib.resources import path
 from polaris.io import symlink
 
 
-def configure(testcase, config):
+def configure(task, config):
     ...
-    with path('polaris.ocean.tests.global_ocean.files_for_e3sm', 'README') as \
+    with path('polaris.ocean.tasks.global_ocean.files_for_e3sm', 'README') as \
             target:
-        symlink(str(target), '{}/README'.format(testcase['work_dir']))
+        symlink(str(target), '{}/README'.format(task['work_dir']))
 ```
 
 In this example, we get the path to a README file within polaris and make
-a local symlink to it in the test case's work directory.  We did this with
+a local symlink to it in the task's work directory.  We did this with
 `symlink()` rather than `add_input_file()` because we want this link to
-be within the test case's work directory, not the step's work directory.  We
+be within the task's work directory, not the step's work directory.  We
 must do this in `configure()` rather than `collect()` because we do not
-know if the test case will be set up at all (or in what work directory) during
+know if the task will be set up at all (or in what work directory) during
 `collect()`.
 
 (dev-io-download)=
@@ -43,7 +43,7 @@ You can download files more directly if you need to using
 {py:func}`polaris.io.download()`, though we recommend using
 {py:meth}`polaris.Step.add_input_file()` whenever possible because it is more
 flexible and takes care of more of the details of symlinking the local file
-and adding it as an input to the step.  No current test cases use
+and adding it as an input to the step.  No current tasks use
 `download()` directly, but an example might look like this:
 
 ```python

@@ -6,7 +6,7 @@
 
 ## Spherical Meshes
 
-Test cases that use global, spherical meshes can add either
+Tasks that use global, spherical meshes can add either
 {py:class}`polaris.mesh.QuasiUniformSphericalMeshStep` or
 {py:class}`polaris.mesh.IcosahedralMeshStep` in order to creating a base mesh,
 using [JIGSAW](https://github.com/dengwirda/jigsaw).  Alternatively, they can

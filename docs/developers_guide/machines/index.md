@@ -23,12 +23,12 @@ the base of your polaris branch, e.g.:
 source load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
 ```
 
-After loading this environment, you can set up test cases or test suites, and
-a link `load_polaris_env.sh` will be included in each suite or test case
+After loading this environment, you can set up tasks or suites, and
+a link `load_polaris_env.sh` will be included in each suite or task
 work directory.  This is a link to the activation script that you sourced when
 you were setting things up.  You can can source this file on a compute node
 (e.g. in a job script) to get the right polaris conda environment, compilers,
-MPI libraries and environment variables for running polaris tests and
+MPI libraries and environment variables for running polaris tasks and
 the MPAS model.
 
 :::{note}
@@ -206,7 +206,7 @@ The recommended starting point would be `modules_before = False` and
 libraries aren't being found when you try to build an MPAS component.
 
 In the `[paths]` section, you will first give a path where you would like
-to store shared data files used in polaris test cases in `database_root`.
+to store shared data files used in polaris tasks in `database_root`.
 Polaris will create this directory if it doesn't exist.  Then, you can specify
 `polaris_envs` as a path where shared conda environments will be installed
 for polaris releases.  If developers always create their own conda

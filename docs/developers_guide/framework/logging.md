@@ -11,11 +11,11 @@ as well as the APIs for {py:class}`mpas_tools.logging.LoggingContext` and
 {py:func}`mpas_tools.logging.check_call`.
 
 For the most part, the polaris framework handles logging for you, so
-test-case developers won't have to create their own `logger` objects.  They
-are attributes that belong to the step or test case.  If you run a step on its
+task developers won't have to create their own `logger` objects.  They
+are attributes that belong to the step or task.  If you run a step on its
 own, no log file is created and logging happens to `stdout`/`stderr`.  If
-you run a full test case, each step gets logged to its own log file within the
-test case's work directory.  If you run a test suite, each test case and its
+you run a full task, each step gets logged to its own log file within the
+task's work directory.  If you run a suite, each task and its
 steps get logged to a file in the `case_output` directory of the suite's work
 directory.
 
@@ -32,7 +32,7 @@ capture `stdout`/`stderr` to make sure that the `print` statements
 actually go to log files when desired, there is no similar trick for
 automatically capturing the output from direct calls to `subprocess`
 functions.  Here is a code snippet from
-{py:meth}`polaris.landice.tests.dome.setup_mesh.SetupMesh.run()`:
+{py:meth}`polaris.landice.tasks.dome.setup_mesh.SetupMesh.run()`:
 
 ```python
 from mpas_tools.logging import check_call

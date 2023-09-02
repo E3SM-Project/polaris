@@ -2,12 +2,12 @@
 
 # Visualization
 
-Visualization is an optional, but desirable aspect of test cases. Often,
-visualization is an optional step of a test case but can also be included
+Visualization is an optional, but desirable aspect of tasks. Often,
+visualization is an optional step of a task but can also be included
 as part of other steps such as `init` or `analysis`.
 
 While developers can write their own visualization scripts associated with
-individual test cases, the following shared visualization routines are
+individual tasks, the following shared visualization routines are
 provided in `polaris.viz`:
 
 (dev-visualization-planar)=
@@ -86,7 +86,7 @@ The `colormap_section` of the config file must contain config options for
 specifying the colormap:
 
 ```cfg
-# options for visualization for the cosine bell convergence test case
+# options for visualization for the cosine bell convergence task
 [cosine_bell_viz]
 
 # colormap options

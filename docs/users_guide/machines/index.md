@@ -7,7 +7,7 @@ on.  This is a particular advantage for so-called "supported" machines with a
 config file defined for them in the `polaris` package.  But even for "unknown" 
 machines, it is not difficult to set a few config options in your user config 
 file to describe your machine.  Then, polaris can use this data to make sure 
-test cases are configured in a way that is appropriate for your machine.
+tasks are configured in a way that is appropriate for your machine.
 
 ## config options
 
@@ -150,7 +150,7 @@ in your user config file:
 # A root directory where MPAS standalone data can be found
 database_root = /home/xylar/data/mpas/mpas_standalonedata
 
-# The parallel section describes options related to running tests in parallel
+# The parallel section describes options related to running tasks in parallel
 [parallel]
 
 # parallel system of execution: slurm or single_node

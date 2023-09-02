@@ -2,7 +2,7 @@
 
 # Ocean component
 
-The `ocean` component in polaris contains test groups and test cases for the
+The `ocean` component in polaris contains test groups and tasks for the
 [MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and 
 [OMEGA](https://github.com/E3SM-Project/Omega) components of E3SM.  For more
 information on MPAS-Ocean, see the most recent
@@ -17,7 +17,7 @@ Some helpful external links related to MPAS-Ocean:
 - [MPAS-Ocean User's Guide](https://zenodo.org/record/1246893#.WvsFWNMvzMU)
   includes a quick start guide and description of all flags and variables.
 
-- Test cases (not requiring polaris) for latest MPAS-Ocean release:
+- Tasks (not requiring polaris) for latest MPAS-Ocean release:
 
   - <https://mpas-dev.github.io/ocean/releases.html>
   - <https://mpas-dev.github.io/ocean/release_6.0/release_6.0.html>

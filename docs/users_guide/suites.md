@@ -1,24 +1,24 @@
-(test-suites)=
+(suites)=
 
-# Test Suites
+# Suites
 
-In polaris, test suites are simply lists of test cases to be run together
-in one operation.  One common reason for running a test suite is to check for
+In polaris, suites are simply lists of tasks to be run together
+in one operation.  One common reason for running a suite is to check for
 changes in performance or output data compared with a previous run of the
 same suite.  This type of
 [regression testing](https://en.wikipedia.org/wiki/Regression_testing) is one
 of the primary reasons that polaris exists. Another reason to define a test
-suite is simply to make it easier to run a sequence of test cases (e.g. from
+suite is simply to make it easier to run a sequence of tasks (e.g. from
 the same test group) that are often run together.
 
-Test suites are defined by their MPAS core and name.  As you can see by
+Suites are defined by their MPAS core and name.  As you can see by
 running:
 
 ```bash
 polaris list --suites
 ```
 
-the current set of available test suites is:
+the current set of available suites is:
 
 ```none
 Suites:
@@ -37,8 +37,8 @@ Suites:
   -c ocean -t wc14
 ```
 
-As an example, the ocean `nightly` test suite includes the test cases used
-for regression testing of MPAS-Ocean.  Here are the tests included:
+As an example, the ocean `nightly` suite includes the tasks used
+for regression testing of MPAS-Ocean.  Here are the tasks included:
 
 ```none
 ocean/baroclinic_channel/10km/threads
@@ -49,16 +49,16 @@ ocean/inertial_gravity_wave/convergence
 ```
 
 :::{note}
-Some tests have "cached" steps, meaning those steps (or the entire test
+Some tasks have "cached" steps, meaning those steps (or the entire test
 case if no specific steps are listed) aren't run but instead the results
 of a previous run are simply downloaded.  This is used to skip steps that
-are prohibitively time consuming during regression testing, but where the
-results are needed to run subsequent tests.  An example above is the
-`mesh` and `PHC/init` test cases from the `ocean/global_ocean/`
-test group on the `QUwISC240` mesh.  These tests take several minutes to
+are prohibitively time-consuming during regression testing, but where the
+results are needed to run subsequent tasks.  An example above is the
+`mesh` and `PHC/init` tasks from the `ocean/global_ocean/`
+test group on the `QUwISC240` mesh.  These tasks take several minutes to
 run, which is longer than we wish to take for a quick performance test,
 so they are cached instead.
 :::
 
 Including the `-v` verbose argument to `polaris list --suites` will
-print the tests belonging to each given suite.
+print the tasks belonging to each given suite.

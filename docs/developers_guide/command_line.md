@@ -19,14 +19,14 @@ when you call the `polaris` command-line tool.
 
 ## polaris list
 
-The `polaris list` command is used to list test cases, test suites, and
+The `polaris list` command is used to list tasks, suites, and
 supported machines.  The command-line options are:
 
 ```none
 polaris list [-h] [-t TEST] [-n NUMBER] [--machines] [--suites] [-v]
 ```
 
-By default, all test cases are listed:
+By default, all tasks are listed:
 
 ```none
 $ polaris list
@@ -36,28 +36,28 @@ Testcases:
 ...
 ```
 
-The number of each test case is displayed, followed by the relative path that
-will be used for the test case in the work directory.
+The number of each task is displayed, followed by the relative path that
+will be used for the task in the work directory.
 
 The `-h` or `--help` options will display the help message describing the
 command-line options.
 
-The `-t` or `--test_expr` flag can be used to supply a substring or regular
-expression that can be used to list a subset of the tests.  Think of this as
-as search expression within the default list of test-case relative paths.
+The `-t` or `--task_expr` flag can be used to supply a substring or regular
+expression that can be used to list a subset of the tasks.  Think of this as
+as search expression within the default list of task relative paths.
 
 The flags `-n` or `--number` are used to list the name (relative path) of
-a single test case with the given number.
+a single task with the given number.
 
-Instead of listing test cases, you can list all the supported machines that can
+Instead of listing tasks, you can list all the supported machines that can
 be passed to the `polaris setup` and `polaris suite` by using the
 `--machines` flag.
 
-Similarly, you can list all the available test suites for all 
+Similarly, you can list all the available suites for all 
 {ref}`dev-components` by using the `--suites` flag.  The result are the flags 
-that would be passed  to `polaris suite` as part of setting up this test suite.
+that would be passed  to `polaris suite` as part of setting up this suite.
 
-The `-v` or `--verbose` flag lists more detail about each test case,
+The `-v` or `--verbose` flag lists more detail about each task,
 including its description, short name, core, configuration, subdirectory within
 the configuration and the names of its steps:
 
@@ -80,11 +80,11 @@ See {ref}`dev-list` for more about the underlying framework.
 
 ## polaris setup
 
-The `polaris setup` command is used to set up one or more test cases.
+The `polaris setup` command is used to set up one or more tasks.
 
 :::{note}
 You must have built the executable for the standalone MPAS component you
-want to run before setting up a polaris test case.
+want to run before setting up a polaris task.
 :::
 
 The command-line options are:
@@ -97,19 +97,19 @@ polaris setup [-h] -w PATH [-t PATH] [-n NUM [NUM ...]] [-f FILE] [-m MACH]
 The `-h` or `--help` options will display the help message describing the
 command-line options.
 
-The test cases to set up can be specified either by relative path or by number.
+The tasks to set up can be specified either by relative path or by number.
 The `-t` or `--test` flag is used to pass the relative path of the test
 case within the resulting work directory.  The is the path given by
-{ref}`dev-polaris-list`.  Only one test case at a time can be supplied to
+{ref}`dev-polaris-list`.  Only one task at a time can be supplied to
 `polaris setup` this way.
 
-Alternatively, you can supply the test numbers of any number of test cases to
+Alternatively, you can supply the test numbers of any number of tasks to
 the `-n` or `--case_number` flag.  Multiple test numbers are separated by
 spaces.  These are the test numbers  given by {ref}`dev-polaris-list`.
 
 `polaris setup` requires a few basic pieces of information to be able to set
-up a test case.  These include places to download and cache some data files
-used in the test cases and the location where you built the MPAS model.  There
+up a task.  These include places to download and cache some data files
+used in the tasks and the location where you built the MPAS model.  There
 are a few ways to to supply these.  The `-m` -r `--machine` option is used
 to tell `polaris setup` which supported machine you're running on (leave this
 off if you're working on an "unknown" machine).  See {ref}`dev-polaris-list`
@@ -130,26 +130,26 @@ more (see {ref}`config-files` and {ref}`setup-overview`).  Point to your config
 file using the `-f` or `--config_file` flag.
 
 The `-w` or `--work_dir` flags point to a relative or absolute path that
-is the base path where the test case(s) should be set up.  It is required that 
+is the base path where the task(s) should be set up.  It is required that 
 you supply a work directory, and we recommend not using the polaris repo itself
 but instead use a temp or scratch directory to avoid confusing the polaris code
-with test cases setups and output within the branch.
+with tasks setups and output within the branch.
 
-To compare test cases with a previous run of the same test cases, use the
+To compare tasks with a previous run of the same tasks, use the
 `-b` or `--baseline_dir` flag to point to the work directory of the
-previous run.  Many test cases validate variables to make sure they are
+previous run.  Many tasks validate variables to make sure they are
 identical between runs, compare timers to see how much performance has changed,
 or both.  See {ref}`dev-validation`.
 
-The test cases will be included in a "custom" test suite in the order they are
+The tasks will be included in a "custom" suite in the order they are
 named or numbered.  You can give this suite a name with `--suite_name` or
-leave it with the default name `custom`.  You can run this test suite with
-`polaris serial [suite_name]` as with the predefined test suites (see
+leave it with the default name `custom`.  You can run this suite with
+`polaris serial [suite_name]` as with the predefined suites (see
 {ref}`dev-polaris-suite`).
 
-Test cases within the custom suite are run in the order they are supplied to
+Tasks within the custom suite are run in the order they are supplied to
 `polaris setup`, so keep this in mind when providing the list.  Any test
-cases that depend on the output of other test cases must run after their
+cases that depend on the output of other tasks must run after their
 dependencies.
 
 See {ref}`dev-setup` for more about the underlying framework.
@@ -158,7 +158,7 @@ See {ref}`dev-setup` for more about the underlying framework.
 
 ## polaris suite
 
-The `polaris suite` command is used to set up a test suite. The command-line
+The `polaris suite` command is used to set up a suite. The command-line
 options are:
 
 ```none
@@ -170,8 +170,8 @@ The `-h` or `--help` options will display the help message describing the
 command-line options.
 
 The required argument are `-c` or `--component`, one of the {ref}`dev-components`,
-where the test suite and its test cases reside; and `-t` or `--test_suite`,
-the name of the test suite.  These are the options listed when you run
+where the suite and its tasks reside; and `-t` or `--test_suite`,
+the name of the suite.  These are the options listed when you run
 `polaris list --suites`. As with {ref}`dev-polaris-setup`, you must supply a 
 work directory with `-w` or `--work_dir`.
 
@@ -180,7 +180,7 @@ machine with `-m` or `--machine`; a path where you build MPAS model via
 `-p` or `--mpas_model`; and a config file containing config options to
 override the defaults with `-f` or `--config_file`.  As with
 {ref}`dev-polaris-setup`, you may optionally supply a baseline directory for 
-comparison with `-b` or `--baseline_dir`.  If supplied, each test case in the 
+comparison with `-b` or `--baseline_dir`.  If supplied, each task in the 
 suite that includes {ref}`dev-validation` will be validated against the 
 previous run in the baseline.
 
@@ -191,7 +191,7 @@ See {ref}`dev-suite` for more about the underlying framework.
 ## polaris serial
 
 The `polaris serial` command is used to run (in sequence, as opposed to in task
-parallel) a test suite, test case or step  that has been set up in the current
+parallel) a suite, task or step  that has been set up in the current
 directory:
 
 ```none
@@ -202,19 +202,19 @@ polaris serial [-h] [--steps STEPS [STEPS ...]]
 
 Whereas other `polaris` commands are typically run in the local clone of the
 polaris repo, `polaris serial` needs to be run in the appropriate work
-directory. If you are running a test suite, you may need to provide the name
-of the test suite if more than one suite has been set up in the same work
+directory. If you are running a suite, you may need to provide the name
+of the suite if more than one suite has been set up in the same work
 directory.  You can provide either just the suite name or
 `<suite_name>.pickle` (the latter is convenient for tab completion).  If you
-are in the work directory for a test case or step, you do not need to provide
+are in the work directory for a task or step, you do not need to provide
 any arguments.
 
-If you want to explicitly select which steps in a test case you want to run,
+If you want to explicitly select which steps in a task you want to run,
 you have two options.  You can either edit the `steps_to_run` config options
 in the config file:
 
 ```cfg
-[test_case]
+[task]
 steps_to_run = init full_run restart_run
 ```
 
@@ -233,7 +233,7 @@ polaris serial --skip_steps restart_run
 ```
 
 Would both accomplish the same thing in this example -- skipping the
-`restart_run` step of the test case.
+`restart_run` step of the task.
 
 :::{note}
 If changes are made to `steps_to_run` in the config file and `--steps`
@@ -241,7 +241,7 @@ is provided on the command line, the command-line flags take precedence
 over the config option.
 :::
 
-To see which steps are are available in a given test case, you need to run
+To see which steps are are available in a given task, you need to run
 {ref}`dev-polaris-list` with the `-v` or `--verbose` flag.
 
 See {ref}`dev-run` for more about the underlying framework.
@@ -312,4 +312,4 @@ required by the yaml format.  Note that, for the `ocean` component, the `model`
 is a keyword that will be added at the top of the yaml file but is ignored when
 the yaml file gets parsed, so its value doesn't matter.  We recommend using
 `omega` since the yaml file is in OMEGA's format, but it will also be usable
-when the test case is configured for MPAS-Ocean.
+when the task is configured for MPAS-Ocean.

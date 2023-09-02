@@ -4,7 +4,7 @@
 
 Description of the test group.
 
-(component-test-group-name-test-case-name)=
+(component-test-group-name-task-name)=
 
 ## test_case_name
 

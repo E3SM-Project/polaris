@@ -63,7 +63,7 @@ We only support Chicoma-CPU at this time.
 ### config options
 
 Here are the default config options added when you choose `-m chicoma-cpu`
-when setting up test cases or a test suite:
+when setting up tasks or a suite:
 
 ```cfg
 # The paths section describes paths for data and environments

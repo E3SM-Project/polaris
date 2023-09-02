@@ -10,7 +10,7 @@ your ecosystem project.
 ## config options
 
 Here are the default config options added when Anvil is automatically detected
-or when you choose `-m anvil` when setting up test cases or a test suite:
+or when you choose `-m anvil` when setting up tasks or a suite:
 
 ```cfg
 # The paths section describes paths for data and environments

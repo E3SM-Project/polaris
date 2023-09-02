@@ -99,7 +99,7 @@ conda activate polaris
 create_polaris_load_script
 ```
 
-From then on, each time you want to set up test cases or suites with polaris
+From then on, each time you want to set up tasks or suites with polaris
 or build MPAS components, you will need to source that load script, for
 example:
 
@@ -107,8 +107,8 @@ example:
 source load_polaris_1.0.0_mpich.sh
 ```
 
-When you set up tests, a link called `load_polaris_env.sh` will be added to
-each test case or suite work directory.  To run the tests, you may find it
+When you set up tasks, a link called `load_polaris_env.sh` will be added to
+each task or suite work directory.  To run the tasks, you may find it
 more convenient to source that link instead of finding the path to the original
 load script.
 
@@ -140,7 +140,7 @@ MALI can be compiled with or without the Albany library that contains the
 first-order velocity solver.  The Albany first-order velocity solver is the
 only velocity option that is scientifically validated, but the Albany library
 is only available with Gnu compilers.  In some situations it is 
-desirable to compile without Albany to run basic tests.  This basic mode for
+desirable to compile without Albany to run basic tasks.  This basic mode for
 MALI can be compiled similarly to MPAS-Ocean.  Again, first source the
 appropriate load script (see {ref}`conda-env`) then run:
 
@@ -160,15 +160,15 @@ See the last column of the table in {ref}`dev-supported-machines` for the right
 
 (setup-overview)=
 
-## Setting up test cases
+## Setting up tasks
 
-Before you set up a test case with polaris, you will need to build the
+Before you set up a task with polaris, you will need to build the
 MPAS component you wish to test with, see {ref}`build-components` above.
 
 If you have not already done so, you will need to source the appropriate load
 script, see {ref}`conda-env`.
 
-To see all available test cases you can set up in polaris, run:
+To see all available tasks you can set up in polaris, run:
 
 ```bash
 polaris list
@@ -209,15 +209,15 @@ polaris list | grep baroclinic_channel
 
 See {ref}`dev-polaris-list` for more information.
 
-To set up a particular test case, you can either use the full path of the
-test case:
+To set up a particular task, you can either use the full path of the
+task:
 
 ```bash
 polaris setup -t ocean/global_ocean/QU240/mesh -w <workdir> -p <component_path>
 ```
 
 or you can replace the `-t` flag with the simple shortcut: `-n 15`.  You
-can set up several test cases at once by passing test numbers separated by
+can set up several tasks at once by passing test numbers separated by
 spaces: `-n 15 16 17`.  See {ref}`dev-polaris-setup` for more details.
 
 Here, `<workdir>` is a path, usually to your scratch space. For example, on
@@ -268,11 +268,11 @@ in the repository.
 # The paths section describes paths where files are automatically downloaded
 [paths]
 
-# A root directory where data for polaris test cases can be downloaded. This
+# A root directory where data for polaris tasks can be downloaded. This
 # data will be cached for future reuse.
 database_root = </path/to/root>/polaris/data
 
-# The parallel section describes options related to running tests in parallel
+# The parallel section describes options related to running tasks in parallel
 [parallel]
 
 # parallel system of execution: slurm or single_node
@@ -299,9 +299,9 @@ In order to run regression testing that compares the output of the current run
 with that from a previous polaris run, use `-b <previous_workdir>` to specify
 a "baseline".
 
-When you set up one or more test cases, they will also be included in a custom
-test suite, which is called `custom` by default.  (You can give it another
-name with the `--suite_name` flag.)  You can run all the test cases in
+When you set up one or more tasks, they will also be included in a custom
+suite, which is called `custom` by default.  (You can give it another
+name with the `--suite_name` flag.)  You can run all the tasks in
 sequence with one command as described in {ref}`suite-overview` or run them
 one at a time as follows.
 
@@ -315,9 +315,9 @@ deleted.  Another use might be to maintain a long-lived baseline test.
 Again, it is safer to have the executable used to produce the baseline
 preserved.
 
-## Running a test case
+## Running a task
 
-After compiling the code and setting up a test case, you can log into an
+After compiling the code and setting up a task, you can log into an
 interactive node (see {ref}`supported-machines`), load the required conda
 environment and modules, and then
 
@@ -329,15 +329,15 @@ polaris serial
 
 The `<workdir>` is the same path provided to the `-w` flag above.  The
 sequence of subdirectories (`<test_subdir>`) is the same as given when you
-list the test cases.  If the test case was set up properly, the directory
-should contain a file `test_case.pickle` that contains the information
-polaris needs to run the test case.  The load script
+list the tasks.  If the task was set up properly, the directory
+should contain a file `task.pickle` that contains the information
+polaris needs to run the task.  The load script
 `load_polaris_env.sh` is a link to whatever load script you sourced before
-setting up the test case (see {ref}`conda-env`).
+setting up the task (see {ref}`conda-env`).
 
 ## Running with a job script
 
-Alternatively, on supported machines, you can run the test case or suite with
+Alternatively, on supported machines, you can run the task or suite with
 a job script generated automatically during setup, for example:
 
 ```bash
@@ -347,7 +347,7 @@ sbatch job_script.sh
 
 You can edit the job script to change the wall-clock time (1 hour by default)
 or the number of nodes (scaled according to the number of cores require by the
-test cases by default).
+tasks by default).
 
 ```bash
 #!/bin/bash
@@ -400,9 +400,9 @@ constraint =
 
 (suite-overview)=
 
-## Test Suites
+## Suites
 
-Polaris includes several suites of test cases for code regressions and
+Polaris includes several suites of tasks for code regressions and
 bit-for-bit testing, as well as simply to make it easier to run several test
 cases in one call. They can be listed with:
 
@@ -455,4 +455,4 @@ if there are multiple suites in the same `<workdir>`.  You can optionally
 specify a suite like `polaris serial [suitename].pickle`, which is convenient
 for tab completion on the command line. The load script
 `load_polaris_env.sh` is a link to whatever load script you sourced before
-setting up the test case (see {ref}`conda-env`).
+setting up the task (see {ref}`conda-env`).

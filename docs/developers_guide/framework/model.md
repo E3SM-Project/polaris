@@ -26,7 +26,7 @@ available.
 
 ### Adding yaml, namelist and streams files
 
-Components, test groups, and test cases can provide yaml config options, 
+Components, test groups, and tasks can provide yaml config options, 
 namelist and streams files that are used to replace default model config 
 options  and streams definitions before the E3SM component gets run.  Namelist 
 and streams files within the `polaris` package must start with the prefix 
@@ -41,7 +41,7 @@ You can make calls to {py:meth}`polaris.ModelStep.add_namelist_file()`,
 how yaml, namelist and streams file should be built up by modifying the 
 defaults for the  E3SM component.  The yaml, namelists and streams files 
 themselves  are generated  automatically (which of these depends on the E3SM
-component in question) as part of setting up the test case.
+component in question) as part of setting up the task.
 
 (dev-step-add-yaml-file)=
 
@@ -52,7 +52,7 @@ to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
 {py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
 or {ref}`dev-step-setup` method.  Calling one of these methods simply adds the
 file to  a list that will be parsed if and when the step gets set up.  (This 
-way, it is  safe to add namelist files to a step in init even if that test case
+way, it is  safe to add namelist files to a step in init even if that task
 will never  get set up or run.)
 
 The format of the yaml file is a hierarchical list of sections with config
@@ -105,14 +105,14 @@ is located and the name of the input yaml file within that package
 as arguments to {py:meth}`polaris.ModelStep.add_yaml_file()`:
 
 ```python
-self.add_yaml_file('polaris.ocean.tests.global_convergence.cosine_bell',
+self.add_yaml_file('polaris.ocean.tasks.global_convergence.cosine_bell',
                    'forward.yaml')
 ```
 
 Model config values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the model config substitutions
 for  the test group first, and then override those with the replacements for
-the test case or step.
+the task or step.
 
 
 (dev-step-add-namelists-file)=
@@ -124,7 +124,7 @@ to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
 {py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
 or {ref}`dev-step-setup` method.  Calling this method simply adds the file to
 a list that will be parsed if and when the step gets set up.  (This way, it is
-safe to add namelist files to a step in init even if that test case will never
+safe to add namelist files to a step in init even if that task will never
 get set up or run.)
 
 The format of the namelist file is simply a list of namelist options and
@@ -148,14 +148,14 @@ is located and the name of the input namelist file within that package
 as arguments to {py:meth}`polaris.ModelStep.add_namelist_file()`:
 
 ```python
-self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
                        'namelist.forward')
 ```
 
 Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
 the test group first, and then override those with the replacements for
-the test case or step.
+the task or step.
 
 (dev-step-add-model-config-options)=
 
@@ -171,13 +171,13 @@ replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()`
 either  at init or in the `setup()` method of the step.  These replacements are
 parsed, along  with replacements from files, in the order they are added.  
 Thus, you could add replacements from a model config file for the test group, 
-test case, or step, then override them with namelist options in a dictionary 
-for the test case or  step, as in this example:
+task, or step, then override them with namelist options in a dictionary 
+for the task or  step, as in this example:
 
 ```python
-self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
                        'namelist.forward')
-self.add_namelist_file(f'polaris.ocean.tests.baroclinic_channel',
+self.add_namelist_file(f'polaris.ocean.tasks.baroclinic_channel',
                        f'namelist.{step["resolution"]}.forward')
 if self.nu is not None:
     # update the viscosity to the requested value
@@ -187,7 +187,7 @@ if self.nu is not None:
 ```
 
 Here, we get default options for "forward" steps, then for the resolution of
-the test case from namelist files, then update the viscosity `nu`, which is
+the task from namelist files, then update the viscosity `nu`, which is
 an option passed in when creating this step.
 
 :::{note}
@@ -229,7 +229,7 @@ to {py:meth}`polaris.ModelStep.add_streams_file()` within the
 {ref}`dev-step-init` or {ref}`dev-step-setup` method.  Calling this function 
 simply adds the file to a list within the `step` dictionary that will be parsed
 if an when the step gets set up.  (This way, it is safe to add streams files to
-a step at init even if that test case will never get set up or run.)
+a step at init even if that task will never get set up or run.)
 
 The format of the streams file is essentially the same as the default and
 generated streams file, e.g.:
@@ -275,7 +275,7 @@ A typical streams file is added by calling
 file is located and the name of the input streams file within that package:
 
 ```python
-self.add_streams_file('polaris.ocean.tests.baroclinic_channel',
+self.add_streams_file('polaris.ocean.tasks.baroclinic_channel',
                       'streams.forward')
 ```
 
@@ -330,7 +330,7 @@ add_streams_file(step, module, 'streams.template',
 ```
 
 In this example, taken from
-{py:class}`polaris.ocean.tests.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
+{py:class}`polaris.ocean.tasks.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
 we are creating a series of steps that will be used to perform dynamic
 adjustment of the ocean model, each of which might have different durations and
 restart intervals.  Rather than creating a streams file for each step of the
@@ -370,7 +370,7 @@ duration = f'{delta.days:03d}_{hours:02d}:{minutes:02d}:{seconds:02d}'
 stream_replacements = {'output_interval': duration}
 
 self.update_streams_at_runtime(
-    'polaris.ocean.tests.planar_convergence',
+    'polaris.ocean.tasks.planar_convergence',
     'streams.template', template_replacements=stream_replacements,
     out_name='streams.ocean')
 ```
@@ -423,10 +423,10 @@ set `update_pio = False`.
 
 ## Making a graph file
 
-Some polaris test cases take advantage of the fact that the
+Some polaris tasks take advantage of the fact that the
 [MPAS-Tools cell culler](http://mpas-dev.github.io/MPAS-Tools/stable/mesh_conversion.html#cell-culler)
 can produce a graph file as part of the process of culling cells from an
-MPAS mesh.  In test cases that do not require cells to be culled, you can
+MPAS mesh.  In tasks that do not require cells to be culled, you can
 call {py:func}`polaris.model_step.make_graph_file()` to produce a graph file
 from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field 
 on cells in the mesh file that gives different weight to different cells
