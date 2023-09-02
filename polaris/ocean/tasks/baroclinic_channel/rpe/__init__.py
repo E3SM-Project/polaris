@@ -7,24 +7,24 @@ from polaris.validate import compare_variables
 
 class Rpe(BaroclinicChannelTestCase):
     """
-    The reference potential energy (RPE) test case for the baroclinic channel
-    test group performs a 20-day integration of the model forward in time at
-    5 different values of the viscosity at the given resolution.
+    The baroclinic channel reference potential energy (RPE) test case performs
+    a 20-day integration of the model forward in time at 5 different values of
+    the viscosity at the given resolution.
     """
 
-    def __init__(self, test_group, resolution):
+    def __init__(self, component, resolution):
         """
         Create the test case
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel
-            The test group that this test case belongs to
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
         resolution : float
             The resolution of the test case in km
         """
-        super().__init__(test_group=test_group, resolution=resolution,
+        super().__init__(component=component, resolution=resolution,
                          name='rpe')
 
         self._add_steps()

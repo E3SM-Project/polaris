@@ -7,27 +7,23 @@ from polaris.validate import compare_variables
 
 class ExactRestart(Task):
     """
-    A restart test case for the single column test group, which makes sure
-    the model produces identical results with one longer run and two shorter
-    runs with a restart in between.
-
-    Attributes
-    ----------
-
+    A single-column restart test case, which makes sure  the model produces
+    identical results with one longer run and two shorter runs with a restart
+    in between.
     """
 
-    def __init__(self, test_group):
+    def __init__(self, component):
         """
         Create the test case
 
         Parameters
         ----------
-        test_group : polaris.seaice.tasks.single_column.SingleColumn
-            The test group that this test case belongs to
-
+        component : polaris.seaice.Seaice
+            the component that that the task belongs to
         """
         name = 'exact_restart'
-        super().__init__(test_group=test_group, name=name)
+        subdir = os.path.join('single_column', name)
+        super().__init__(component=component, name=name, subdir=subdir)
 
         step = Forward(task=self, name='full_run')
         step.add_output_file(

@@ -8,7 +8,7 @@ from polaris.seaice import SeaIce
 
 def get_components():
     """
-    Get a list of components, which in turn contain lists of test groups
+    Get a list of components, which in turn contain lists tasks
 
     Returns
     -------

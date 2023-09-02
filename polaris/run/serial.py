@@ -442,8 +442,7 @@ def _run_step(task, step, new_log_file, available_resources,
     if len(missing_files) > 0:
         raise OSError(
             f'input file(s) missing in step {step.name} of '
-            f'{step.component.name}/{step.test_group.name}/'
-            f'{step.task.subdir}: {missing_files}')
+            f'{step.component.name}/{step.task.subdir}: {missing_files}')
 
     load_dependencies(task, step)
 
@@ -510,8 +509,7 @@ def _run_step(task, step, new_log_file, available_resources,
             pass
         raise OSError(
             f'output file(s) missing in step {step.name} of '
-            f'{step.component.name}/{step.test_group.name}/'
-            f'{step.task.subdir}: {missing_files}')
+            f'{step.component.name}/{step.task.subdir}: {missing_files}')
 
 
 def _run_step_as_subprocess(task, step, new_log_file):

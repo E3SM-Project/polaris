@@ -9,8 +9,7 @@ from polaris.ocean.rpe import compute_rpe
 
 class Analysis(Step):
     """
-    A step for plotting the results of a series of RPE runs in the baroclinic
-    channel test group
+    A step for plotting the results of a series of baroclinic channel RPE runs
 
     Attributes
     ----------
@@ -115,7 +114,7 @@ def _plot(nx, ny, lx, ly, filename, nus, rpe):
         2.1 * num_files, 5.0), constrained_layout=True)
 
     # ***NOTE***: This is a quick-and-dirty plotting technique for regular
-    # planar hex meshes that we do not recommend adopting in other test groups
+    # planar hex meshes that we do not recommend adopting in other tasks
     for iCol in range(num_files):
         ds = xr.open_dataset(f'output_{iCol + 1}.nc', decode_times=False)
         times = ds.daysSinceStartOfSim.values

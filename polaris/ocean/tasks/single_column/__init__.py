@@ -1,18 +1,13 @@
-from polaris import TestGroup
 from polaris.ocean.tasks.single_column.cvmix import CVMix
 from polaris.ocean.tasks.single_column.ideal_age import IdealAge
 
 
-class SingleColumn(TestGroup):
+def add_single_column_tasks(component):
     """
-    A test group for single column test cases
-    """
-    def __init__(self, component):
-        """
-        component : polaris.ocean.Ocean
-            the ocean component that this test group belongs to
-        """
-        super().__init__(component=component, name='single_column')
+    Add tasks for various single-column tests
 
-        self.add_task(CVMix(test_group=self, resolution=960.))
-        self.add_task(IdealAge(test_group=self, resolution=960.))
+    component : polaris.ocean.Ocean
+        the ocean component that the tasks will be added to
+    """
+    component.add_task(CVMix(component=component, resolution=960.))
+    component.add_task(IdealAge(component=component, resolution=960.))

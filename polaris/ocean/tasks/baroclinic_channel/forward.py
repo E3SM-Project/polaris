@@ -60,7 +60,8 @@ class Forward(OceanModelStep):
             the number of OpenMP threads the step will use
 
         nu : float, optional
-            the viscosity (if different from the default for the test group)
+            the viscosity (if different from the default for baroclinic channel
+            tests)
 
         run_time_steps : int, optional
             Number of time steps to run for

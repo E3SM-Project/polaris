@@ -78,9 +78,8 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
 
     all_tasks = dict()
     for component in components:
-        for test_group in component.test_groups.values():
-            for task in test_group.tasks.values():
-                all_tasks[task.path] = task
+        for task in component.tasks.values():
+            all_tasks[task.path] = task
 
     tasks: Dict[str, Task] = dict()
     cached_steps: Dict[str, List[str]] = dict()
@@ -170,14 +169,8 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
 
     print(f'  {path}')
 
-    component_name = task.component.name
     config = _get_basic_config(config_file, machine, component_path,
                                task.component)
-
-    # add the config options for the test group (if defined)
-    test_group = task.test_group.name
-    config.add_from_package(f'polaris.{component_name}.tasks.{test_group}',
-                            f'{test_group}.cfg', exception=False)
 
     if copy_executable:
         config.set('setup', 'copy_executable', 'True')

@@ -8,25 +8,22 @@ from polaris.validate import compare_variables
 
 class StandardPhysics(Task):
     """
-    The standard physics test case for the "single column" test group creates
-    the mesh and initial condition, then performs a short forward run.
-
-    Attributes
-    ----------
+    The single-column standard physics test case creates the mesh and initial
+    condition, then performs a short forward run.
     """
 
-    def __init__(self, test_group):
+    def __init__(self, component):
         """
         Create the test case
 
         Parameters
         ----------
-        test_group : polaris.seaice.tasks.single_column.SingleColumn
-            The test group that this test case belongs to
-
+        component : polaris.seaice.Seaice
+            the component that that the task belongs to
         """
         name = 'standard_physics'
-        super().__init__(test_group=test_group, name=name)
+        subdir = os.path.join('single_column', name)
+        super().__init__(component=component, name=name, subdir=subdir)
         step = Forward(task=self)
         step.add_namelist_file(
             package='polaris.seaice.tasks.single_column.standard_physics',

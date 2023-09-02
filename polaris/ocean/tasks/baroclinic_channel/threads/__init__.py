@@ -5,24 +5,24 @@ from polaris.validate import compare_variables
 
 class Threads(BaroclinicChannelTestCase):
     """
-    A thread test case for the baroclinic channel test group, which makes sure
-    the model produces identical results with 1 and 2 threads.
+    A baroclinic channel thread test case, which makes sure the model produces
+    identical results with 1 and 2 threads.
     """
 
-    def __init__(self, test_group, resolution):
+    def __init__(self, component, resolution):
         """
         Create the test case
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel
-            The test group that this test case belongs to
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
         resolution : float
             The resolution of the test case in km
         """
 
-        super().__init__(test_group=test_group, resolution=resolution,
+        super().__init__(component=component, resolution=resolution,
                          name='threads')
 
         for openmp_threads in [1, 2]:

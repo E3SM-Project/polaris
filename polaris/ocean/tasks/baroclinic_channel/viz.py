@@ -8,8 +8,7 @@ from polaris.viz import plot_horiz_field
 
 class Viz(Step):
     """
-    A step for plotting the results of a series of RPE runs in the baroclinic
-    channel test group
+    A step for plotting the results of a series of baroclinic channel RPE runs
     """
     def __init__(self, task):
         """

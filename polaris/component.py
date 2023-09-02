@@ -13,18 +13,19 @@ class Component:
     name : str
         the name of the component
 
-    test_groups : dict
-        A dictionary of test groups for the component with their names as keys
+    tasks : dict
+        A dictionary of tasks in the component with the subdirectories of the
+        tasks in the component as keys
 
     cached_files : dict
-        A dictionary that maps from output file names in test cases to cached
-        files in the ``polaris_cache`` database for the component.  These
+        A dictionary that maps from output file names in steps within tasks to
+        cached files in the ``polaris_cache`` database for the component. These
         file mappings are read in from ``cached_files.json`` in the component.
     """
 
     def __init__(self, name):
         """
-        Create a new container for the test groups for a given component
+        Create a new container for the tasks for a given component
 
         Parameters
         ----------
@@ -33,22 +34,22 @@ class Component:
         """
         self.name = name
 
-        # test groups are added with add_test_groups()
-        self.test_groups = dict()
+        # tasks are added with add_task()
+        self.tasks = dict()
 
         self.cached_files = dict()
         self._read_cached_files()
 
-    def add_test_group(self, test_group):
+    def add_task(self, task):
         """
-        Add a test group to the component
+        Add a task to the component
 
         Parameters
         ----------
-        test_group : polaris.TestGroup
-            the test group to add
+        task : polaris.Task
+            The task to add
         """
-        self.test_groups[test_group.name] = test_group
+        self.tasks[task.subdir] = task
 
     def configure(self, config):
         """
