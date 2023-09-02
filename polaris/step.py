@@ -13,11 +13,10 @@ from polaris.io import download, imp_res, symlink
 
 class Step:
     """
-    The base class for a step of a test cases, such as setting up a mesh,
+    The base class for a step of a tasks, such as setting up a mesh,
     creating an initial condition, or running the component forward in time.
     The step is the smallest unit of work in polaris that can be run on its
-    own by a user, though users will typically run full test cases or test
-    suites.
+    own by a user, though users will typically run full tasks or suites.
 
     Below, the terms "input" and "output" refer to inputs and outputs to the
     step itself, not necessarily the MPAS model.  In fact, the MPAS model
@@ -26,13 +25,13 @@ class Step:
     Attributes
     ----------
     name : str
-        the name of the test case
+        the name of the task
 
-    test_case : polaris.TestCase
-        The test case this step belongs to
+    task : polaris.Task
+        The task this step belongs to
 
     test_group : polaris.TestGroup
-        The test group the test case belongs to
+        The test group the task belongs to
 
     component : polaris.Component
         The component the test group belongs to
@@ -42,7 +41,7 @@ class Step:
 
     path : str
         the path within the base work directory of the step, made up of
-        ``component``, ``test_group``, the test case's ``subdir`` and the
+        ``component``, ``test_group``, the task's ``subdir`` and the
         step's ``subdir``
 
     cpus_per_task : int, optional
@@ -85,8 +84,8 @@ class Step:
 
     outputs : list of str
         a list of absolute paths of output files produced by this step (or
-        cached) and available as inputs to other test cases and steps.  These
-        files must exist after the test has run or an exception will be raised
+        cached) and available as inputs to other tasks and steps.  These
+        files must exist after the task has run or an exception will be raised
 
     dependencies : dict of polaris.Step
         A dictionary of steps that this step depends on (i.e. it can't run
@@ -101,7 +100,7 @@ class Step:
         Whether this step is the dependency of one or more other steps.
 
     config : polaris.config.PolarisConfigParser
-        Configuration options for this test case, a combination of the defaults
+        Configuration options for this task, a combination of the defaults
         for the machine, core and configuration
 
     machine_info : mache.MachineInfo
@@ -131,7 +130,7 @@ class Step:
 
     run_as_subprocess : bool
         Whether to run this step as a subprocess, rather than just running
-        it directly from the test case.  It is useful to run a step as a
+        it directly from the task.  It is useful to run a step as a
         subprocess if there is not a good way to redirect output to a log
         file (e.g. if the step calls external code that, in turn, calls
         additional subprocesses).
@@ -140,20 +139,20 @@ class Step:
         A list of command-line arguments to call in parallel
     """
 
-    def __init__(self, test_case, name, subdir=None, cpus_per_task=1,
+    def __init__(self, task, name, subdir=None, cpus_per_task=1,
                  min_cpus_per_task=1, ntasks=1, min_tasks=1,
                  openmp_threads=1, max_memory=None, cached=False,
                  run_as_subprocess=False):
         """
-        Create a new test case
+        Create a new task
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str
-            the name of the test case
+            the name of the task
 
         subdir : str, optional
             the subdirectory for the step.  The default is ``name``
@@ -193,15 +192,15 @@ class Step:
 
         run_as_subprocess : bool
             Whether to run this step as a subprocess, rather than just running
-            it directly from the test case.  It is useful to run a step as a
+            it directly from the task.  It is useful to run a step as a
             subprocess if there is not a good way to redirect output to a log
             file (e.g. if the step calls external code that, in turn, calls
             additional subprocesses).
         """
         self.name = name
-        self.test_case = test_case
-        self.component = test_case.component
-        self.test_group = test_case.test_group
+        self.task = task
+        self.component = task.component
+        self.test_group = task.test_group
         if subdir is not None:
             self.subdir = subdir
         else:
@@ -215,11 +214,11 @@ class Step:
         self.max_memory = max_memory
 
         self.path = os.path.join(self.component.name, self.test_group.name,
-                                 test_case.subdir, self.subdir)
+                                 task.subdir, self.subdir)
 
         self.run_as_subprocess = run_as_subprocess
 
-        # child steps (or test cases) will add to these
+        # child steps (or tasks) will add to these
         self.input_data = list()
         self.inputs = list()
         self.outputs = list()
@@ -247,7 +246,7 @@ class Step:
         """
         Update the resources for the subtask.  This can be done within init,
         ``setup()`` or ``runtime_setup()`` of this step, or init,
-        ``configure()`` or ``run()`` for the test case that this step belongs
+        ``configure()`` or ``run()`` for the task that this step belongs
         to.
 
         Parameters
@@ -330,7 +329,7 @@ class Step:
 
     def setup(self):
         """
-        Set up the test case in the work directory, including downloading any
+        Set up the task in the work directory, including downloading any
         dependencies.  The step should override this function to perform setup
         operations such as generating namelist and streams files, adding inputs
         and outputs.
@@ -424,8 +423,8 @@ class Step:
     def add_output_file(self, filename):
         """
         Add the output file that must be produced by this step and may be made
-        available as an input to steps, perhaps in other test cases.  This file
-        must exist after the test has run or an exception will be raised.
+        available as an input to steps, perhaps in other tasks.  This file
+        must exist after the task has run or an exception will be raised.
 
         Parameters
         ----------

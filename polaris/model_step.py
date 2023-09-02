@@ -59,7 +59,7 @@ class ModelStep(Step):
         instead of MPAS namelist and streams files
 
     """
-    def __init__(self, test_case, name, subdir=None, ntasks=None,
+    def __init__(self, task, name, subdir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, namelist=None, streams=None, yaml=None,
                  update_pio=True, make_graph=False, mesh_filename=None,
@@ -70,8 +70,8 @@ class ModelStep(Step):
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str
             The name of the step
@@ -132,13 +132,13 @@ class ModelStep(Step):
             Whether to create a yaml file with model config options and streams
             instead of MPAS namelist and streams files
         """
-        super().__init__(test_case=test_case, name=name, subdir=subdir,
+        super().__init__(task=task, name=name, subdir=subdir,
                          cpus_per_task=openmp_threads,
                          min_cpus_per_task=openmp_threads, ntasks=ntasks,
                          min_tasks=min_tasks, openmp_threads=openmp_threads,
                          max_memory=max_memory, cached=cached)
 
-        component = test_case.component.name
+        component = task.component.name
         if namelist is None:
             namelist = f'namelist.{component}'
 
@@ -182,7 +182,7 @@ class ModelStep(Step):
         """
         Update the resources for the step.  This can be done within init,
         ``setup()`` or ``runtime_setup()`` for the step that this step
-        belongs to, or init, ``configure()`` or ``run()`` for the test case
+        belongs to, or init, ``configure()`` or ``run()`` for the task
         that this step belongs to.
 
         Parameters

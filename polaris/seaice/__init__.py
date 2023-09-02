@@ -1,5 +1,5 @@
 from polaris import Component
-from polaris.seaice.tests.single_column import SingleColumn
+from polaris.seaice.tasks.single_column import SingleColumn
 
 
 class SeaIce(Component):

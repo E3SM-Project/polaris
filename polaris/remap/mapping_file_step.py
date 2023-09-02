@@ -35,14 +35,14 @@ class MappingFileStep(Step):
         The name of the output mapping file
     """
 
-    def __init__(self, test_case, name, subdir=None, ntasks=None,
+    def __init__(self, task, name, subdir=None, ntasks=None,
                  min_tasks=None, map_filename=None, method='bilinear'):
         """
         Create a new step
 
         Parameters
         ----------
-        test_case : compass.TestCase
+        task : compass.Task
             The test case this step belongs to
 
         name : str
@@ -64,7 +64,7 @@ class MappingFileStep(Step):
         method : {'bilinear', 'neareststod', 'conserve'}, optional
             The method of interpolation used
         """
-        super().__init__(test_case, name=name, subdir=subdir,
+        super().__init__(task, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks)
         self.src_grid_info = dict()
         self.dst_grid_info = dict()
