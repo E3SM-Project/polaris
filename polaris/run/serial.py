@@ -4,6 +4,7 @@ import os
 import pickle
 import sys
 import time
+from datetime import timedelta
 
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
@@ -231,15 +232,11 @@ def _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
     """
     stdout_logger.info('Test Runtimes:')
     for test_name, test_time in test_times.items():
-        secs = round(test_time)
-        mins = secs // 60
-        secs -= 60 * mins
-        stdout_logger.info(f'{mins:02d}:{secs:02d} '
+        test_time_str = str(timedelta(seconds=round(test_time)))
+        stdout_logger.info(f'{test_time_str} '
                            f'{success_strs[test_name]} {test_name}')
-    secs = round(suite_time)
-    mins = secs // 60
-    secs -= 60 * mins
-    stdout_logger.info(f'Total runtime {mins:02d}:{secs:02d}')
+    suite_time_str = str(timedelta(seconds=round(suite_time)))
+    stdout_logger.info(f'Total runtime: {suite_time_str}')
 
     if failures == 0:
         stdout_logger.info('PASS: All passed successfully!')
@@ -380,11 +377,9 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
 
         test_time = time.time() - test_start
 
-        secs = round(test_time)
-        mins = secs // 60
-        secs -= 60 * mins
+        test_time_str = str(timedelta(seconds=round(test_time)))
         stdout_logger.info(f'  test runtime:        '
-                           f'{start_time_color}{mins:02d}:{secs:02d}{end}')
+                           f'{start_time_color}{test_time_str}{end}')
 
         return success_str, success, test_time
 
