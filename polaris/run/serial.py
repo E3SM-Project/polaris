@@ -388,10 +388,15 @@ def _run_test(test_case, available_resources):
     """
     Run each step of the test case
     """
+    start_time_color = '\033[94m'
+    end = '\033[0m'
+
     logger = test_case.logger
     cwd = os.getcwd()
     for step_name in test_case.steps_to_run:
         step = test_case.steps[step_name]
+        step_start = time.time()
+
         if step.cached:
             logger.info(f'  * Cached step: {step_name}')
             continue
@@ -414,6 +419,11 @@ def _run_test(test_case, available_resources):
             _print_to_stdout(test_case, '      Failed')
             raise
         os.chdir(cwd)
+        step_time = time.time() - step_start
+        step_time_str = str(timedelta(seconds=round(step_time)))
+        _print_to_stdout(test_case,
+                         f'          runtime:     '
+                         f'{start_time_color}{step_time_str}{end}')
 
 
 def _run_step(test_case, step, new_log_file, available_resources,
