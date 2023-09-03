@@ -14,7 +14,7 @@ converted automatically to absolute paths.
 The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as
-{py:func}`polaris.setup.setup_case()`. Here is a typical example from
+{py:func}`polaris.setup.setup_task()`. Here is a typical example from
 {py:func}`polaris.ocean.tasks.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()`:
 
 ```python
@@ -37,16 +37,15 @@ default behavior.  In some cases, you would like the code to add the config
 options if the config file exists and do nothing if it does not.  This can
 be useful if a common configure function is being used for all test
 cases in a configuration, as in this example from
-{py:func}`setup.setup_case()`:
+{py:func}`setup.setup_task()`:
 
 ```python
-# add the config options for the test group (if defined)
-test_group = task.test_group.name
-config.add_from_package(f'polaris.{component}.tasks.{test_group}',
-                        f'{test_group}.cfg', exception=False)
+# add the config options for the task (if defined)
+config.add_from_package(task.__module__,
+                        f'{task.name}.cfg', exception=False)
 ```
 
-If a test group doesn't have any config options, nothing will happen.
+If a task doesn't have any config options, nothing will happen.
 
 The `MpasConfigParser` class also includes methods for adding a user
 config file and other config files by file name, but these are largely intended

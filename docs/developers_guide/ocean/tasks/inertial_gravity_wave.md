@@ -2,19 +2,17 @@
 
 # inertial_gravity_wave
 
-The `inertial_gravity_wave` test group
-({py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`)
-implements a linear shallow water test case at 4 resolutions (200, 100, 50, and
-25 km). Here, we describe the shared framework for this test group and the 1
-test case.
+The inertial gravity wave test in `polaris.ocean.tasks.inertial_gravity_wave`
+is a linear shallow water test case at 4 resolutions (200, 100, 50, and
+25 km). Here, we describe the test case and its framework.
 
 ## framework
 
-The shared config options for the `inertial_gravity_wave` test group are
-described in {ref}`ocean-inertial-gravity-wave` in the User's Guide.
+The config options for the `inertial_gravity_wave` test are described in 
+{ref}`ocean-inertial-gravity-wave` in the User's Guide.
 
-Additionally, the test group has a shared `forward.yaml` file with a few common
-model config options related to run duration and default horizontal  and
+Additionally, the test uses a `forward.yaml` file with a few common
+model config options related to run duration and default horizontal and
 vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
 `restart`, and `output` streams.
 

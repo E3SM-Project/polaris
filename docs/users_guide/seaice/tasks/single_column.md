@@ -4,8 +4,7 @@
 
 ## description
 
-The `single_column` test group includes any sea ice tests using only column
-physics.
+The single column tests include any sea ice tests using only column physics.
 
 ## mesh
 

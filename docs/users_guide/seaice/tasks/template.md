@@ -1,22 +1,22 @@
-(component-test-group-name)=
+(seaice-category-of-task)=
 
-# test_group_name
+# <Category of task>
 
-Description of the test group.
+Description of common characteristics of the tasks.
 
-(component-test-group-name-task-name)=
+(seaice-category-of-task-task-name)=
 
-## test_case_name
+## task_name
 
-In cases where the test cases within a test group share many characteristics,
+In cases where the test cases within a category share many characteristics,
 it may be more appropriate to move the certain sections up one level to the
-test group. In that case, the respective section should still be included for
-each task, specifying any or no differences from the section in the test
-group level.
+common subdirectory. In that case, the respective section should still be 
+included for each test case, specifying any or no differences from the section 
+in the shared framework level.
 
 ### description
 
-Description of the task. Images that show the task configuration or
+Description of the test case. Images that show the test case configuration or
 results are particularly welcome here.
 
 ```{image} images/single_cell.png
@@ -30,7 +30,6 @@ Specify whether the mesh is global or planar and the resolution(s) tested. If
 planar, specify the mesh size. If global, specify whether the mesh is
 icosohedral or quasi-uniform. Specify any relevant options in the config file
 pertaining to setting up the mesh.
-
 
 ### initial conditions
 
@@ -50,11 +49,9 @@ case's resolution. The run duration should also be specified.
 
 ### config options
 
-Here, include the config section(s) that is specific to this task. E.g.,
+Here, include the config section(s) that is specific to this test case. E.g.,
 
 ```cfg
-# replace this section with ice variables.
-
 # options for cosine bell convergence test case
 [cosine_bell]
 

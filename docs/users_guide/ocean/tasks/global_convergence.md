@@ -2,7 +2,7 @@
 
 # global_convergence
 
-The `global_convergence` test group implements convergence studies on the
+The global convergence tasks implement convergence studies on the
 full globe.  Currently, the only test case is the advection of a cosine bell.
 
 (ocean-global-convergence-cosine-bell)=

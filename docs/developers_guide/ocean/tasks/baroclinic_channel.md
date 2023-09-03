@@ -2,23 +2,22 @@
 
 # baroclinic_channel
 
-The `baroclinic_channel` test group
-({py:class}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel`)
-implements variants of the Baroclinic Eddies test case
-(see {ref}`ocean-baroclinic-channel`) at 3 resolutions (1, 4 and 10 km).  Here,
-we describe the shared framework for this test group and the 5 test cases.
+The baroclinic channel tests in `polaris.ocean.tasks.baroclinic_channel` are 
+variants of the Baroclinic Eddies test case (see 
+{ref}`ocean-baroclinic-channel`) at 3 resolutions (1, 4 and 10 km).  Here,
+we describe the 5 test cases and their shared framework.
 
 (dev-ocean-baroclinic-channel-framework)=
 
 ## framework
 
-The shared config options for the `baroclinic_channel` test group
-are described in {ref}`ocean-baroclinic-channel` in the User's Guide.
+The shared config options for `baroclinic_channel` tests  are described in 
+{ref}`ocean-baroclinic-channel` in the User's Guide.
 
-Additionally, the test group has a shared `forward.yaml` file with
-a few common model config options related to run duration and default 
-horizontal  and vertical momentum and tracer diffusion, as well as defining 
-`mesh`, `input`, `restart`, and `output` streams.
+Additionally, the tests share a `forward.yaml` file with a few common model 
+config options related to run duration and default horizontal  and vertical 
+momentum and tracer diffusion, as well as defining `mesh`, `input`, `restart`, 
+and `output` streams.
 
 ### baroclinic_channel_test_case
 

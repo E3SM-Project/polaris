@@ -2,18 +2,15 @@
 
 # single_column
 
-The `single_column` test group
-({py:class}`polaris.seaice.tasks.single_column.SingleColumn`)
-implements tasks that exercise column physics only. There are currently
-two task that exercises column physics only. Here, we describe the shared
-framework for this test group and the tasks.
+The `single_column` tests in `polaris.seaice.tasks.single_column` exercise 
+column physics only. Here, we describe the tasks and their shared framework.
 
 (dev-seaice-single-column-framework)=
 
 ## framework
 
-The shared step for the `single_column` test group
-are described in {ref}`seaice-single-column` in the User's Guide.
+The The shared framework is made up of a shared `forward` step and a set of
+shared namelists and streams files.
 
 ### forward
 

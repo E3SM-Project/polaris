@@ -4,7 +4,7 @@
 
 ## description
 
-The `single_column` test group includes any ocean tests of the vertical
+The `single_column` tasks include any ocean tests of the vertical ocean 
 dynamics.
 
 ## mesh
@@ -19,7 +19,7 @@ currently supported.
 
 ## vertical grid
 
-Currently, this test group features a very fine vertical resolution of 4 m
+Currently, these tests feature a very fine vertical resolution of 4 m
 with 100 vertical levels. Future work may want to examine vertical mixing or
 advection at typical vertical resolutions.
 
@@ -222,8 +222,8 @@ duration is 1 day.
 
 ### config options
 
-See {ref}`ocean-single-column`. Currently, config options are only given for
-the test group.
+See {ref}`ocean-single-column`. Currently, config options are only given in the
+shared framework.
 
 ### cores
 
@@ -238,7 +238,9 @@ The `ideal age` test exercises the ideal age tracers.
 
 ### description
 
-Temperature and salinity profiles evolve in the same way as in the {ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age tracer are as follows:
+Temperature and salinity profiles evolve in the same way as in the 
+{ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age 
+tracer are as follows:
 
 ```{image} images/single_column_ideal_age_tracer_10day.png
 :align: center
@@ -259,7 +261,8 @@ See {ref}`ocean-single-column`.
 
 ### forcing
 
-`idealAgeTracers` is set to zero seconds within the first surface grid layer at every time step.
+`idealAgeTracers` is set to zero seconds within the first surface grid layer at
+every time step.
 
 ### time step and run duration
 
@@ -267,8 +270,8 @@ See {ref}`ocean-single-column-cvmix`.
 
 ### config options
 
-See {ref}`ocean-single-column`. Currently, config options are only given for
-the test group.
+See {ref}`ocean-single-column`. Currently, config options are only given in the
+shared framework.
 
 ### cores
 

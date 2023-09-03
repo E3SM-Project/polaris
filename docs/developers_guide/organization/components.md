@@ -11,14 +11,13 @@ that has four major pieces:
 
 1. A class that descends from the {py:class}`polaris.Component` base class.
    The class is defined in `__init__.py` and its `__init__()` method
-   calls the {py:meth}`polaris.Component.add_test_group()` method to add each
-   test group to the component.
-2. A `tasks` package, which contains packages for each
-   test group, each of which contains various packages and modules for
-   tasks and their steps.
+   calls the {py:meth}`polaris.Component.add_tasks()` method (or helper 
+   functions that, in turn, call this method) to add tasks to the component.
+2. A `tasks` package, which contains packages for each category of tasks, each 
+   of which contains various packages and modules for tasks and their steps.
 3. An `<component>.cfg` config file containing any default config options
-   that are universal to all test groups of the component.
-4. Additional "framework" packages and modules shared between test groups.
+   that are universal to all tasks of the component.
+4. Additional "framework" packages and modules shared broadly between tasks.
 
 The core's framework is a mix of shared code and other files (config files,
 namelists, streams files, etc.) that is expected to be used only by modules
@@ -27,39 +26,81 @@ and packages within the core, not by other cores or the main polaris
 
 The constructor (`__init__()` method) for a child class of
 {py:class}`polaris.Component` simply calls the parent class' version
-of the constructor with `super().__init__()`, passing the name of the MPAS
-core.  Then, it creates objects for each test group and adds them to itself, as
+of the constructor with `super().__init__()`, passing the name of the 
+component.  Then, it calls helper functions to add tasks to the component, as
 in this example from {py:class}`polaris.ocean.Ocean`:
 
 ```python
 from polaris import Component
-from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannel
-from polaris.ocean.tasks.global_ocean import GlobalOcean
-from polaris.ocean.tasks.ice_shelf_2d import IceShelf2d
-from polaris.ocean.tasks.ziso import Ziso
+from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
+from polaris.ocean.tasks.global_convergence import add_cosine_bell_tasks
+from polaris.ocean.tasks.inertial_gravity_wave import (
+    add_inertial_gravity_wave_tasks,
+)
+from polaris.ocean.tasks.manufactured_solution import (
+    add_manufactured_solution_tasks,
+)
+from polaris.ocean.tasks.single_column import add_single_column_tasks
 
 
 class Ocean(Component):
-   """
-   The collection of all task for the MPAS-Ocean core
-   """
+    """
+    The collection of all test case for the MPAS-Ocean core
+    """
 
-   def __init__(self):
-      """
-      Construct the collection of MPAS-Ocean tasks
-      """
-      super().__init__(name='ocean')
+    def __init__(self):
+        """
+        Construct the collection of MPAS-Ocean test cases
+        """
+        super().__init__(name='ocean')
 
-      self.add_test_group(BaroclinicChannel(component=self))
-      self.add_test_group(GlobalOcean(component=self))
-      self.add_test_group(IceShelf2d(component=self))
-      self.add_test_group(Ziso(component=self))
+        # please keep these in alphabetical order
+        add_baroclinic_channel_tasks(component=self)
+        add_cosine_bell_tasks(component=self)
+        add_inertial_gravity_wave_tasks(component=self)
+        add_manufactured_solution_tasks(component=self)
+        add_single_column_tasks(component=self)
 ```
 
-The object `self` is always passed to the constructor for each test group
-so test groups are aware of which component they belong to.  This is necessary,
-for example, in order to create the path for each test group, task and
-step in the work directory.
+The object `self` is always passed as the `component` argument to the helper
+function so it can, in turn, be used both to add the task to the component and
+to identify which component the task belongs to in its constructor.
+
+An example of a helper function that adds tasks for baroclinic channel test 
+cases is:
+```python
+from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp
+from polaris.ocean.tasks.baroclinic_channel.default import Default
+from polaris.ocean.tasks.baroclinic_channel.restart import Restart
+from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
+from polaris.ocean.tasks.baroclinic_channel.threads import Threads
+
+
+def add_baroclinic_channel_tasks(component):
+    """
+    Add tasks for different baroclinic channel tests to the ocean component
+
+    component : polaris.ocean.Ocean
+        the ocean component that the tasks will be added to
+    """
+
+    for resolution in [10.]:
+        component.add_task(
+            Default(component=component, resolution=resolution))
+
+        component.add_task(
+            Decomp(component=component, resolution=resolution))
+
+        component.add_task(
+            Restart(component=component, resolution=resolution))
+
+        component.add_task(
+            Threads(component=component, resolution=resolution))
+
+    for resolution in [1., 4., 10.]:
+        component.add_task(
+            Rpe(component=component, resolution=resolution))
+```
 
 The config file for the component should, at the very least, define the
 default value for the `component_path` path in the `[paths]` section.  This

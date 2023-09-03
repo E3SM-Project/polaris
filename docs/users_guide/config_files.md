@@ -81,9 +81,9 @@ sources:
   [extended interpolation](https://docs.python.org/3/library/configparser.html#configparser.ExtendedInterpolation)
   in the config file to use config options within other config
   options, e.g. `component = ${paths:component_path}/ocean_model`.
-- the test group's config file if one is defined.  For idealized test groups,
-  these often include the size and resolution of the mesh as well as the number
-  of vertical levels.
+- a config file shared with other similar tasks if one is defined.  For 
+  idealized tests, these often include the size and resolution of the mesh as 
+  well as (for ocean initial conditions) the number of vertical levels.
 - any number of config files from the task.  There might be different
   config options depending on how the task is configured (e.g. only if a
   certain feature is enabled.  For example, {ref}`ocean-global-ocean` loads 
@@ -93,7 +93,7 @@ sources:
 You are free to add any sections and config options to your config file,
 in which case they will override the values specified in one of the other
 config files listed above. Here is an example of some customization for the
-{ref}`ocean-global-ocean` test group:
+{ref}`ocean-global-ocean` tasks:
 
 ```cfg
 # options for global ocean testcases
@@ -106,7 +106,8 @@ pull_request = https://github.com/E3SM-Project/polaris/pull/28
 ```
 
 In this example, the author's name and email address, and the path to a pull
-request will be included in the metadata for output files from this test group.
+request will be included in the metadata for output files from global ocean
+tasks.
 
 A typical config file resulting from combining all of the sources listed above
 looks like:

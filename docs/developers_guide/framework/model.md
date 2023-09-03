@@ -26,7 +26,7 @@ available.
 
 ### Adding yaml, namelist and streams files
 
-Components, test groups, and tasks can provide yaml config options, 
+Components and tasks can provide yaml config options, 
 namelist and streams files that are used to replace default model config 
 options  and streams definitions before the E3SM component gets run.  Namelist 
 and streams files within the `polaris` package must start with the prefix 
@@ -111,9 +111,8 @@ self.add_yaml_file('polaris.ocean.tasks.global_convergence.cosine_bell',
 
 Model config values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the model config substitutions
-for  the test group first, and then override those with the replacements for
-the task or step.
-
+common to related tasks first, and then override those with the replacements 
+specific to the task or step.
 
 (dev-step-add-namelists-file)=
 
@@ -154,8 +153,8 @@ self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
 
 Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
-the test group first, and then override those with the replacements for
-the task or step.
+that are common to related tasks first, and then override those with the 
+replacements that are specific to the task or step.
 
 (dev-step-add-model-config-options)=
 
@@ -170,9 +169,10 @@ different  values for different resolutions).  Simply create a dictionary
 replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()` 
 either  at init or in the `setup()` method of the step.  These replacements are
 parsed, along  with replacements from files, in the order they are added.  
-Thus, you could add replacements from a model config file for the test group, 
-task, or step, then override them with namelist options in a dictionary 
-for the task or  step, as in this example:
+Thus, you could add replacements from a model config file common to multiple
+tasks, specific to a task, and/or speficic to step.  Then, you could override 
+them with namelist options in a dictionary for the task or step, as in this 
+example:
 
 ```python
 self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',

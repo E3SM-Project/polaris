@@ -11,15 +11,15 @@ on using MyST in Sphinx.
 Another easy way to get started is by taking a look at the existing source
 code for the documentation: <https://github.com/E3SM-Project/polaris/tree/main/docs/>
 
-Each time you add a component, test group or task, the corresponding
+Each time you add a component or task, the corresponding
 documentation must be included with the pull request to add the code.  This
 includes documentation for both the User's Guide and the Developer's Guide.
 For examples, see:
 
 - {ref}`ocean` in the User's Guide
-- {ref}`ocean-baroclinic-channel` test group in the User's Guide
+- {ref}`ocean-baroclinic-channel` tasks in the User's Guide
 - {ref}`dev-ocean` in the Developer's Guide
-- {ref}`dev-ocean-baroclinic-channel` test group in the Developer's Guide
+- {ref}`dev-ocean-baroclinic-channel` tasks in the Developer's Guide
 
 Documentation for each component in the User's guide should include a label 
 with the name of the component:
@@ -34,16 +34,17 @@ with the name of the component:
 In the Developer's Guide, labels have `dev-` prepended to them:
 
 ```markdown
-(def-ocean)=
+(dev-ocean)=
 
 # Ocean component
 ...
 ```
 
-Each test group should have the component prepended to its label (in case
-multiple components have the same test group name), and each task (if
-explicitly labeled) should have the component and test group prepended to it.
-Thus, in the User's guide, we have:
+Each category of tasks (e.g. baroclinic channel) should have its own page in
+the `tasks` subdirectory of the component. The label for the page should have
+have the component name prepended (to make sure it's unique), and each task 
+(if explicitly labeled) should have the component and category of tasks 
+prepended to it. Thus, in the User's guide, we have:
 
 ```markdown
 (ocean-baroclinic-channel)=
@@ -75,16 +76,17 @@ And in the Developer's guide, these become:
 ...
 ```
 
-Documentation for a component, test group or task in the User's Guide
+Documentation for a component or task in the User's Guide
 should contain information that is needed for users who set up and run the test
 case, including:
 
 - Documentation for the component itself (if any)
 
-- A page for each test group with a section for each task:
+- A page for each category of tasks with a section for each task:
 
-  - A citation or link where the test group is defined (if any)
-  - A brief overview of the tasks within the test group
+  - A citation or link where the test case that is the basis for the tasks is 
+    defined (if any)
+  - A brief overview of the common characteristics of the tasks
   - An image showing typical output from one of the tasks
   - A list of (commented) config options that apply to all tasks
   - A (typically brief) description of each task
@@ -98,26 +100,28 @@ case, including:
 
 - A description of each suite, including which tasks are included
 
-A template is available for test groups and tasks in the User's Guide:
-{ref}`component-test-group-name`
+A template is available for documenting groups of related tasks in the User's 
+Guide: {ref}`ocean-category-of-task`
 
 The Developer's guide for each component should contain:
 
 - Relevant technical details about development specific to that component
 
-- A page for each test group:
+- A page for each category of tasks:
 
-  - A description of any development-specific details of that test group
+  - A description of any development-specific details common to all tasks in
+    this category
   - A description of shared config, namelist and streams files
   - A description of shared steps
-  - A description of any other shared framework code for the test group
+  - A description of any other shared framework code shared between the tasks 
+    in that category
   - A description of each task and its steps
 
 - Technical details on the shared framework for the component
 
-Finally, all functions in the test group that are part of the public API
-(i.e. all functions that don't start with an underscore) should be added to
-`docs/<component>/api.md`:
+Finally, all functions in the tasks and their shared framework that are part of
+the public API (i.e. all functions that don't start with an underscore) should 
+be added to `docs/<component>/api.md`:
 
 ````markdown
 

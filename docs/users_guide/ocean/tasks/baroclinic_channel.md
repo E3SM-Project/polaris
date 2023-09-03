@@ -1,17 +1,17 @@
 (ocean-baroclinic-channel)=
 
-# baroclinic_channel
+# Baroclinic channel
 
 ## description
 
-The `ocean/baroclinic_channel` test group implements variants of the
-Baroclinic Eddies test case from
-[Ilicak et al. (2012)](https://doi.org/10.1016/j.ocemod.2011.10.003).
+Baroclinic channel tasks implements variants of the Baroclinic Eddies test case
+from [Ilicak et al. (2012)](https://doi.org/10.1016/j.ocemod.2011.10.003).
 
-The test group includes 5 test cases.  All test cases have 2 steps,
-`init`, which defines the mesh and initial conditions for the model,
-and `forward` (given another name in many test cases to distinguish multiple
-forward runs), which performs time integration of the model.
+Polaris includes includes 5 baroclinic channel test cases.  All test cases have
+at least 2 steps, `init`, which defines the mesh and initial conditions for the
+model, and some variation on `forward` (given another name in many test cases 
+to distinguish multiple forward runs), which performs time integration of the 
+model.
 
 ## mesh
 
@@ -23,7 +23,8 @@ resolution.
 
 ## vertical grid
 
-By default, all tests have 20 vertical layers of 50-m uniform thickness. The domain bottom is flat.
+By default, all tests have 20 vertical layers of 50-m uniform thickness. The 
+domain bottom is flat.
 
 ```cfg
 # Options related to the vertical grid

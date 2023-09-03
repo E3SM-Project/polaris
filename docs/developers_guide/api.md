@@ -51,8 +51,8 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
-   setup_cases
-   setup_case
+   setup_tasks
+   setup_task
 ```
 
 #### suite
@@ -119,19 +119,7 @@ seaice/api
    :toctree: generated/
 
    Component
-   Component.add_test_group
-```
-
-#### TestGroup
-
-```{eval-rst}
-.. currentmodule:: polaris
-
-.. autosummary::
-   :toctree: generated/
-
-   TestGroup
-   TestGroup.add_task
+   Component.add_task
 ```
 
 #### Task

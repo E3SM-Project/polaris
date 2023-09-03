@@ -9,7 +9,7 @@
    SeaIce
 ```
 
-## Test Groups
+## Tasks
 
 ### single_column
 
@@ -19,7 +19,7 @@
 .. autosummary::
    :toctree: generated/
 
-   SingleColumn
+   add_single_column_tasks
 
    forward.Forward
 

@@ -2,10 +2,9 @@
 
 # global_convergence
 
-The `global_convergence` test group
-({py:class}`polaris.ocean.tasks.global_convergence.GlobalConvergence`)
-implements convergence studies on the full globe. Currently, the only test case
-is the advection of a cosine bell.
+The global convergence tests in `polaris.ocean.tasks.global_convergence` are
+convergence studies on the full globe. Currently, the only test case is the 
+advection of a cosine bell.
 
 (dev-ocean-global-convergence-mesh-types)=
 
