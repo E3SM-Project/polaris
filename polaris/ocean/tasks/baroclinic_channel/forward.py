@@ -87,7 +87,10 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')
 
-        self.add_output_file(filename='output.nc')
+        self.add_output_file(
+            filename='output.nc',
+            validate_vars=['temperature', 'salinity', 'layerThickness',
+                           'normalVelocity'])
 
         self.resources_fixed = (ntasks is not None)
 

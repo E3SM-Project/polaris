@@ -36,9 +36,11 @@ class Init(Step):
         super().__init__(task=task, name='init')
         self.resolution = resolution
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'initial_state.nc']:
+        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
+        self.add_output_file('initial_state.nc',
+                             validate_vars=['temperature', 'salinity',
+                                            'layerThickness'])
 
     def run(self):
         """

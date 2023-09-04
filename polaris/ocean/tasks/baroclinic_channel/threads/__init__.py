@@ -1,6 +1,6 @@
 from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.validate import compare_variables
+from polaris.ocean.tasks.baroclinic_channel.validate import Validate
 
 
 class Threads(BaroclinicChannelTestCase):
@@ -25,22 +25,12 @@ class Threads(BaroclinicChannelTestCase):
         super().__init__(component=component, resolution=resolution,
                          name='threads')
 
+        subdirs = list()
         for openmp_threads in [1, 2]:
             name = f'{openmp_threads}thread'
             self.add_step(Forward(
                 task=self, name=name, subdir=name, ntasks=4,
                 min_tasks=4, openmp_threads=openmp_threads,
                 resolution=resolution, run_time_steps=3))
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``1thread`` and ``2thread`` steps with each
-        other and with a baseline if one was provided
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(task=self, variables=variables,
-                          filename1='1thread/output.nc',
-                          filename2='2thread/output.nc')
+            subdirs.append(name)
+        self.add_step(Validate(task=self, step_subdirs=subdirs))

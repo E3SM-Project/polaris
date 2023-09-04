@@ -36,24 +36,6 @@ class Rpe(BaroclinicChannelTestCase):
         super().configure()
         self._add_steps(config=self.config)
 
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``forward`` step with a baseline if one was
-        provided.
-        """
-        super().validate()
-
-        config = self.config
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-
-        nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
-        for index, nu in enumerate(nus):
-            name = f'rpe_{index + 1}_nu_{int(nu)}'
-            compare_variables(task=self, variables=variables,
-                              filename1=f'{name}/output.nc')
-
     def _add_steps(self, config=None):
         """ Add the steps in the test case either at init or set-up """
 

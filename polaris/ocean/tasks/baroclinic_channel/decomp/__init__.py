@@ -1,6 +1,6 @@
 from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.validate import compare_variables
+from polaris.ocean.tasks.baroclinic_channel.validate import Validate
 
 
 class Decomp(BaroclinicChannelTestCase):
@@ -25,6 +25,7 @@ class Decomp(BaroclinicChannelTestCase):
         super().__init__(component=component, resolution=resolution,
                          name='decomp')
 
+        subdirs = list()
         for procs in [4, 8]:
             name = f'{procs}proc'
 
@@ -32,16 +33,5 @@ class Decomp(BaroclinicChannelTestCase):
                 task=self, name=name, subdir=name, ntasks=procs,
                 min_tasks=procs, openmp_threads=1,
                 resolution=resolution, run_time_steps=3))
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``4proc`` and ``8proc`` steps with each other
-        and with a baseline if one was provided
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(task=self, variables=variables,
-                          filename1='4proc/output.nc',
-                          filename2='8proc/output.nc')
+            subdirs.append(name)
+        self.add_step(Validate(task=self, step_subdirs=subdirs))
