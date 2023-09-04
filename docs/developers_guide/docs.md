@@ -137,7 +137,6 @@ be added to `docs/<component>/api.md`:
 
    BaroclinicChannelTestCase
    BaroclinicChannelTestCase.configure
-   BaroclinicChannelTestCase.validate
    
    forward.Forward
    forward.Forward.compute_cell_count

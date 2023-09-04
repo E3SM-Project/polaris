@@ -24,11 +24,9 @@ and `output` streams.
 The class {py:class}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase`
 defines a superclass for all baroclinic channel test cases.  This class sets
 up the appropriate subdirectory for the given resolution, adds an initial
-state step (see the following) used by all test cases, sets some config options
+state step (see the following) used by all test cases, and sets some config options
 related to the mesh size and resolution in the
 {py:meth}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.configure()`
-method, and performs validation of the initial condition in the
-{py:meth}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.validate()`
 method.
 
 ### init

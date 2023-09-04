@@ -22,7 +22,6 @@
    add_baroclinic_channel_tasks
 
    BaroclinicChannelTestCase
-   BaroclinicChannelTestCase.validate
    
    forward.Forward
    forward.Forward.compute_cell_count
@@ -32,27 +31,25 @@
    init.Init.setup
    init.Init.run
 
+   validate.Validate
+   validate.Validate.run
+   
    viz.Viz
    viz.Viz.run
 
    default.Default
-   default.Default.validate
 
    decomp.Decomp
-   decomp.Decomp.validate
 
    restart.Restart
-   restart.Restart.validate
 
    restart.restart_step.RestartStep
    restart.restart_step.RestartStep.dynamic_model_config
 
    threads.Threads
-   threads.Threads.validate
 
    rpe.Rpe
    rpe.Rpe.configure
-   rpe.Rpe.validate
    rpe.analysis.Analysis
    rpe.analysis.Analysis.setup
    rpe.analysis.Analysis.run
@@ -86,7 +83,6 @@
    viz.Viz.run
 
    convergence.Convergence
-   convergence.Convergence.validate
 ```
 
 ### global_convergence
@@ -110,7 +106,6 @@
 
    CosineBell
    CosineBell.configure
-   CosineBell.validate
 
    init.Init
    init.Init.run
@@ -158,7 +153,6 @@
    viz.Viz.run
 
    convergence.Convergence
-   convergence.Convergence.validate
 ```
 
 ### single_column
@@ -180,10 +174,8 @@
    viz.Viz.run
 
    cvmix.CVMix
-   cvmix.CVMix.validate
 
    ideal_age.IdealAge
-   ideal_age.IdealAge.validate
 ```
 
 ## Ocean Framework
