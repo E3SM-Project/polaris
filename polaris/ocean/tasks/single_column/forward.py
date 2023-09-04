@@ -8,9 +8,6 @@ class Forward(OceanModelStep):
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the test case in km
-
     resources_fixed : bool
         Whether resources were set already and shouldn't be updated
         algorithmically
@@ -20,14 +17,10 @@ class Forward(OceanModelStep):
 
     btr_dt : float
         The model barotropic time step in seconds
-
-    run_time_steps : int or None
-        Number of time steps to run for
-        NOTE: not currently used
     """
     def __init__(self, task, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+                 ntasks=None, min_tasks=None, openmp_threads=1,
+                 validate_vars=None):
         """
         Create a new test case
 
@@ -35,9 +28,6 @@ class Forward(OceanModelStep):
         ----------
         task : polaris.Task
             The test case this step belongs to
-
-        resolution : km
-            The resolution of the test case in km
 
         name : str
             the name of the test case
@@ -57,6 +47,9 @@ class Forward(OceanModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
 
+        validate_vars : list, optional
+            A list of variable names to compare with a baseline (if one is
+            provided)
         """
         super().__init__(task=task, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks,
@@ -74,7 +67,7 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tasks.single_column',
                            'forward.yaml')
 
-        self.add_output_file(filename='output.nc')
+        self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
         self.resources_fixed = (ntasks is not None)
 

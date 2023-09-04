@@ -42,8 +42,9 @@ class IdealAge(Task):
             Init(task=self, resolution=resolution,
                  ideal_age=ideal_age))
 
+        validate_vars = ['temperature', 'salinity', 'iAge']
         step = Forward(task=self, ntasks=1, min_tasks=1,
-                       openmp_threads=1)
+                       openmp_threads=1, validate_vars=validate_vars)
 
         step.add_yaml_file('polaris.ocean.tasks.single_column.ideal_age',
                            'forward.yaml')
@@ -60,14 +61,3 @@ class IdealAge(Task):
         self.config.add_from_package(
             'polaris.ocean.tasks.single_column',
             'single_column.cfg')
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, and ``iAge``
-        in the ``forward`` step with a baseline if one was
-        provided.
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'iAge']
-        compare_variables(task=self, variables=variables,
-                          filename1='forward/output.nc')
