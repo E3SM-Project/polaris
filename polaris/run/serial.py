@@ -22,6 +22,16 @@ from polaris.run import (
     unpickle_suite,
 )
 
+# ANSI fail text: https://stackoverflow.com/a/287944/7728169
+start_fail = '\033[91m'
+start_pass = '\033[92m'
+start_time_color = '\033[94m'
+end_color = '\033[0m'
+pass_str = f'{start_pass}PASS{end_color}'
+success_str = f'{start_pass}SUCCESS{end_color}'
+fail_str = f'{start_fail}FAIL{end_color}'
+error_str = f'{start_fail}ERROR{end_color}'
+
 
 def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
               steps_to_skip=None):
@@ -74,7 +84,7 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
         cwd = os.getcwd()
         suite_start = time.time()
         task_times = dict()
-        success_strs = dict()
+        result_strs = dict()
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
@@ -88,11 +98,11 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
                 log_filename = f'{cwd}/case_outputs/{task_prefix}.log'
                 task_logger = None
 
-            success_str, success, task_time = _log_and_run_task(
+            result_str, success, task_time = _log_and_run_task(
                 task, stdout_logger, task_logger, quiet, log_filename,
                 is_task, steps_to_run, steps_to_skip,
                 available_resources)
-            success_strs[task_name] = success_str
+            result_strs[task_name] = result_str
             if not success:
                 failures += 1
             task_times[task_name] = task_time
@@ -100,7 +110,7 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
         suite_time = time.time() - suite_start
 
         os.chdir(cwd)
-        _log_task_runtimes(stdout_logger, task_times, success_strs, suite_time,
+        _log_task_runtimes(stdout_logger, task_times, result_strs, suite_time,
                            failures)
 
 
@@ -139,14 +149,6 @@ def run_single_step(step_is_subprocess=False):
         log_function_call(function=_run_task, logger=stdout_logger)
         stdout_logger.info('')
         _run_task(task, available_resources)
-
-        if not step_is_subprocess:
-            # only perform validation if the step is being run by a user on its
-            # own
-            stdout_logger.info('')
-            log_method_call(method=task.validate, logger=stdout_logger)
-            stdout_logger.info('')
-            task.validate()
 
 
 def main():
@@ -225,7 +227,7 @@ def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
     return steps_to_run
 
 
-def _log_task_runtimes(stdout_logger, task_times, success_strs, suite_time,
+def _log_task_runtimes(stdout_logger, task_times, result_strs, suite_time,
                        failures):
     """
     Log the runtimes for the task(s)
@@ -234,7 +236,7 @@ def _log_task_runtimes(stdout_logger, task_times, success_strs, suite_time,
     for task_name, task_time in task_times.items():
         task_time_str = str(timedelta(seconds=round(task_time)))
         stdout_logger.info(f'{task_time_str} '
-                           f'{success_strs[task_name]} {task_name}')
+                           f'{result_strs[task_name]} {task_name}')
     suite_time_str = str(timedelta(seconds=round(suite_time)))
     stdout_logger.info(f'Total runtime: {suite_time_str}')
 
@@ -263,15 +265,6 @@ def _print_to_stdout(task, message):
 def _log_and_run_task(task, stdout_logger, task_logger, quiet,
                       log_filename, is_task, steps_to_run,
                       steps_to_skip, available_resources):
-    # ANSI fail text: https://stackoverflow.com/a/287944/7728169
-    start_fail = '\033[91m'
-    start_pass = '\033[92m'
-    start_time_color = '\033[94m'
-    end = '\033[0m'
-    pass_str = f'{start_pass}PASS{end}'
-    success_str = f'{start_pass}SUCCESS{end}'
-    fail_str = f'{start_fail}FAIL{end}'
-    error_str = f'{start_fail}ERROR{end}'
 
     task_name = task.path.replace('/', '_')
     with LoggingContext(task_name, logger=task_logger,
@@ -314,83 +307,37 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
             _run_task(task, available_resources)
             run_status = success_str
             task_pass = True
-        except BaseException:
+        except Exception:
             run_status = error_str
             task_pass = False
             task_logger.exception('Exception raised while running '
                                   'the steps of the task')
 
-        if task_pass:
-            task_logger.info('')
-            log_method_call(method=task.validate,
-                            logger=task_logger)
-            task_logger.info('')
-            try:
-                task.validate()
-            except BaseException:
-                run_status = error_str
-                task_pass = False
-                task_logger.exception('Exception raised in the task\'s '
-                                      'validate() method')
-
-        baseline_status = None
-        internal_status = None
-        if task.validation is not None:
-            internal_pass = task.validation['internal_pass']
-            baseline_pass = task.validation['baseline_pass']
-
-            if internal_pass is not None:
-                if internal_pass:
-                    internal_status = pass_str
-                else:
-                    internal_status = fail_str
-                    task_logger.error(
-                        'Internal task validation failed')
-                    task_pass = False
-
-            if baseline_pass is not None:
-                if baseline_pass:
-                    baseline_status = pass_str
-                else:
-                    baseline_status = fail_str
-                    task_logger.error('Baseline validation failed')
-                    task_pass = False
-
-        status = f'  task execution:      {run_status}'
-        if internal_status is not None:
-            status = f'{status}\n' \
-                     f'  task validation:     {internal_status}'
-        if baseline_status is not None:
-            status = f'{status}\n' \
-                     f'  baseline comparison: {baseline_status}'
-
+        status = f'  task execution:   {run_status}'
         if task_pass:
             stdout_logger.info(status)
-            success_str = pass_str
+            result_str = pass_str
             success = True
         else:
             stdout_logger.error(status)
             if not is_task:
                 stdout_logger.error(f'  see: case_outputs/{task_name}.log')
-            success_str = fail_str
+            result_str = fail_str
             success = False
 
         task_time = time.time() - task_start
 
         task_time_str = str(timedelta(seconds=round(task_time)))
-        stdout_logger.info(f'  task runtime:        '
-                           f'{start_time_color}{task_time_str}{end}')
+        stdout_logger.info(f'  task runtime:     '
+                           f'{start_time_color}{task_time_str}{end_color}')
 
-        return success_str, success, task_time
+        return result_str, success, task_time
 
 
 def _run_task(task, available_resources):
     """
     Run each step of the task
     """
-    start_time_color = '\033[94m'
-    end = '\033[0m'
-
     logger = task.logger
     cwd = os.getcwd()
     for step_name in task.steps_to_run:
@@ -415,15 +362,30 @@ def _run_task(task, available_resources):
             else:
                 _run_step(task, step, task.new_step_log_file,
                           available_resources, step_log_filename)
-        except BaseException:
-            _print_to_stdout(task, '      Failed')
+        except Exception:
+            _print_to_stdout(task,
+                             f'          execution:        {error_str}')
             raise
+        _print_to_stdout(task,
+                         f'          execution:        {success_str}')
         os.chdir(cwd)
         step_time = time.time() - step_start
         step_time_str = str(timedelta(seconds=round(step_time)))
+
+        compared, status = step.validate_baselines()
+        if compared:
+            if status:
+                baseline_str = pass_str
+            else:
+                baseline_str = fail_str
+            _print_to_stdout(task,
+                             f'          baseline comp.:   {baseline_str}')
+            if not status:
+                raise ValueError('Baseline comparison failed.')
+
         _print_to_stdout(task,
-                         f'          runtime:     '
-                         f'{start_time_color}{step_time_str}{end}')
+                         f'          runtime:          '
+                         f'{start_time_color}{step_time_str}{end_color}')
 
 
 def _run_step(task, step, new_log_file, available_resources,

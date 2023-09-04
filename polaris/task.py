@@ -48,7 +48,7 @@ class Task:
     base_work_dir : str
         The base work directory
 
-    baseline_dir : str, optional
+    baseline_dir : str
         Location of the same task within the baseline work directory,
         for use in comparing variables and timers
 
@@ -125,13 +125,6 @@ class Task:
         package.  If a task overrides this method, it should assume that
         the ``<self.name>.cfg`` file in its package has already been added
         to the config options prior to calling ``configure()``.
-        """
-        pass
-
-    def validate(self):
-        """
-        Tasks can override this method to perform validation of variables
-        and timers
         """
         pass
 

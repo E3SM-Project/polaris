@@ -242,6 +242,10 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
         # set up the step
         step.setup()
 
+        # add the baseline directory for this step
+        if baseline_dir is not None:
+            step.baseline_dir = os.path.join(baseline_dir, step.path)
+
         # process input, output, namelist and streams files
         step.process_inputs_and_outputs()
 

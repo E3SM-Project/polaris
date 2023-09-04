@@ -9,6 +9,7 @@ from mache import MachineInfo
 
 from polaris.config import PolarisConfigParser
 from polaris.io import download, imp_res, symlink
+from polaris.validate import compare_variables
 
 
 class Step:
@@ -112,6 +113,15 @@ class Step:
 
     base_work_dir : str
         The base work directory
+
+    baseline_dir : str
+        Location of the same task within the baseline work directory,
+        for use in comparing variables and timers
+
+    validate_vars : dict of list
+        A list of variables for each output file for which a baseline
+        comparison should be performed if a baseline run has been provided. The
+        baseline validation is performed after the step has run.
 
     logger : logging.Logger
         A logger for output from the step
@@ -226,6 +236,9 @@ class Step:
         self.config_filename = ""
         self.work_dir = ""
         self.base_work_dir = ""
+        # may be set during setup if there is a baseline for comparison
+        self.baseline_dir = None
+        self.validate_vars = dict()
 
         # these will be set before running the step, dummy placeholders for now
         self.logger = logging.getLogger('dummy')
@@ -414,19 +427,28 @@ class Step:
                                     url=url, work_dir_target=work_dir_target,
                                     package=package, copy=copy))
 
-    def add_output_file(self, filename):
+    def add_output_file(self, filename, validate_vars=None):
         """
         Add the output file that must be produced by this step and may be made
         available as an input to steps, perhaps in other tasks.  This file
         must exist after the task has run or an exception will be raised.
+
+        Optionally, a list of variables can be provided for validation against
+        a baseline (if one is provided), once the step has been run.
 
         Parameters
         ----------
         filename : str
             The relative path of the output file within the step's work
             directory
+
+        validate_vars : list, optional
+            A list of variable names to compare with a baseline (if one is
+            provided)
         """
         self.outputs.append(filename)
+        if validate_vars is not None:
+            self.validate_vars[filename] = validate_vars
 
     def add_dependency(self, step, name=None):
         """
@@ -460,6 +482,37 @@ class Step:
         filename = f'dependencies/{name}_after_run.pickle'
         target = f'{step.path}/step_after_run.pickle'
         self.add_input_file(filename=filename, work_dir_target=target)
+
+    def validate_baselines(self):
+        """
+        Compare variables between output files in this step and in the same
+        step from a baseline run if one was provided.
+
+        Returns
+        -------
+        compared : bool
+            Whether a baseline comparison was performed
+
+        success : bool
+            Whether the outputs were successfully validated against a baseline
+        """
+        if self.work_dir is None:
+            raise ValueError('Baselines cannot be validated before the work '
+                             'directory has been set')
+        compared = False
+        success = True
+        if self.baseline_dir is not None:
+            for filename, variables in self.validate_vars.items():
+                logger = self.logger
+                filename = str(filename)
+
+                this_filename = os.path.join(self.work_dir, filename)
+                baseline_filename = os.path.join(self.baseline_dir, filename)
+                result = compare_variables(
+                    variables, this_filename, baseline_filename, logger=logger)
+                success = success and result
+                compared = True
+        return compared, success
 
     def process_inputs_and_outputs(self):
         """
