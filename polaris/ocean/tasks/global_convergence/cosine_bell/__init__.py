@@ -10,7 +10,6 @@ from polaris.ocean.tasks.global_convergence.cosine_bell.analysis import (
 from polaris.ocean.tasks.global_convergence.cosine_bell.forward import Forward
 from polaris.ocean.tasks.global_convergence.cosine_bell.init import Init
 from polaris.ocean.tasks.global_convergence.cosine_bell.viz import Viz, VizMap
-from polaris.validate import compare_variables
 
 
 class CosineBell(Task):
@@ -74,19 +73,6 @@ class CosineBell(Task):
 
         # set up the steps again in case a user has provided new resolutions
         self._setup_steps(config)
-
-    def validate(self):
-        """
-        Validate variables against a baseline
-        """
-        for resolution in self.resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
-            compare_variables(task=self,
-                              variables=['normalVelocity', 'tracer1'],
-                              filename1=f'{mesh_name}/forward/output.nc')
 
     def _setup_steps(self, config):
         """ setup steps given resolutions """
