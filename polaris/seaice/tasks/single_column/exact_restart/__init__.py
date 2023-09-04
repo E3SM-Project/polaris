@@ -1,8 +1,8 @@
 import os
 
 from polaris import Task
+from polaris.seaice.tasks.single_column.exact_restart.validate import Validate
 from polaris.seaice.tasks.single_column.forward import Forward
-from polaris.validate import compare_variables
 
 
 class ExactRestart(Task):
@@ -25,11 +25,45 @@ class ExactRestart(Task):
         subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
+        validate_vars = ['iceAreaCategory',
+                         'iceVolumeCategory',
+                         'snowVolumeCategory',
+                         'surfaceTemperature',
+                         'iceEnthalpy',
+                         'iceSalinity',
+                         'snowEnthalpy',
+                         'iceAge',
+                         'firstYearIceArea',
+                         'levelIceArea',
+                         'levelIceVolume',
+                         'pondArea',
+                         'pondDepth',
+                         'pondLidThickness',
+                         'uVelocity',
+                         'vVelocity',
+                         'freezeOnset',
+                         'snowfallRate',
+                         'pondSnowDepthDifference',
+                         'pondLidMeltFluxFraction',
+                         'solarZenithAngleCosine',
+                         'shortwaveScalingFactor',
+                         'shortwaveVisibleDirectDown',
+                         'shortwaveVisibleDiffuseDown',
+                         'shortwaveIRDirectDown',
+                         'shortwaveIRDiffuseDown',
+                         'oceanStressCellU',
+                         'oceanStressCellV',
+                         'seaSurfaceTemperature',
+                         'freezingMeltingPotential',
+                         'airOceanDragCoefficientRatio']
+
         step = Forward(task=self, name='full_run')
         step.add_output_file(
-            filename='restarts/restart.2000-01-01_12.00.00.nc')
+            filename='restarts/restart.2000-01-01_12.00.00.nc',
+            validate_vars=validate_vars)
         step.add_output_file(
-            filename='restarts/restart.2000-01-02_00.00.00.nc')
+            filename='restarts/restart.2000-01-02_00.00.00.nc',
+            validate_vars=validate_vars)
 
         step.add_namelist_file(
             package='polaris.seaice.tasks.single_column.exact_restart',
@@ -55,43 +89,8 @@ class ExactRestart(Task):
             streams='streams.restart')
         self.add_step(step)
 
-    def validate(self):
-        """
-        Compare variables in the restart files at the end of each run.
-        """
-        super().validate()
-
-        variables = ['iceAreaCategory',
-                     'iceVolumeCategory',
-                     'snowVolumeCategory',
-                     'surfaceTemperature',
-                     'iceEnthalpy',
-                     'iceSalinity',
-                     'snowEnthalpy',
-                     'iceAge',
-                     'firstYearIceArea',
-                     'levelIceArea',
-                     'levelIceVolume',
-                     'pondArea',
-                     'pondDepth',
-                     'pondLidThickness',
-                     'uVelocity',
-                     'vVelocity',
-                     'freezeOnset',
-                     'snowfallRate',
-                     'pondSnowDepthDifference',
-                     'pondLidMeltFluxFraction',
-                     'solarZenithAngleCosine',
-                     'shortwaveScalingFactor',
-                     'shortwaveVisibleDirectDown',
-                     'shortwaveVisibleDiffuseDown',
-                     'shortwaveIRDirectDown',
-                     'shortwaveIRDiffuseDown',
-                     'oceanStressCellU',
-                     'oceanStressCellV',
-                     'seaSurfaceTemperature',
-                     'freezingMeltingPotential',
-                     'airOceanDragCoefficientRatio']
-        compare_variables(task=self, variables=variables,
-                          filename1='full_run/restarts/restart.2000-01-02_00.00.00.nc',  # noqa: E501
-                          filename2='restart_run/restarts/restart.2000-01-02_00.00.00.nc')  # noqa: E501
+        subdirs = ['full_run', 'restart_run']
+        restart_filename = 'restarts/restart.2000-01-02_00.00.00.nc'
+        self.add_step(Validate(task=self, step_subdirs=subdirs,
+                               variables=validate_vars,
+                               restart_filename=restart_filename))
