@@ -56,7 +56,9 @@ class Forward(OceanModelStep):
         self.add_input_file(filename='graph.info',
                             target='../init/culled_graph.info')
 
-        self.add_output_file(filename='output.nc')
+        self.add_output_file(
+            filename='output.nc',
+            validate_vars=['layerThickness', 'normalVelocity'])
 
         self.add_yaml_file('polaris.ocean.config',
                            'single_layer.yaml')

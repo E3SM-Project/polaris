@@ -44,14 +44,3 @@ class Convergence(Task):
         self.config.add_from_package(
             'polaris.ocean.tasks.manufactured_solution',
             'manufactured_solution.cfg')
-
-    def validate(self):
-        """
-        Compare ``layerThickness`` and ``normalVelocity`` in the ``forward``
-        step with a baseline if one was provided.
-        """
-        super().validate()
-        variables = ['layerThickness', 'normalVelocity']
-        for res in self.resolutions:
-            compare_variables(task=self, variables=variables,
-                              filename1=f'{res}km/forward/output.nc')
