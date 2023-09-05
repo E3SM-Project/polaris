@@ -11,19 +11,22 @@ class Validate(Step):
     step_subdirs : list of str
         The number of processors used in each run
     """
-    def __init__(self, task, step_subdirs):
+    def __init__(self, component, step_subdirs, indir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         step_subdirs : list of str
             The number of processors used in each run
-        """
-        super().__init__(task=task, name='validate')
+
+        indir : str
+            the directory the step is in, to which ``name`` will be appended
+       """
+        super().__init__(component=component, name='validate', indir=indir)
 
         self.step_subdirs = step_subdirs
 

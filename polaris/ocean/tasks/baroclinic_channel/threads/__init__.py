@@ -9,7 +9,7 @@ class Threads(BaroclinicChannelTestCase):
     identical results with 1 and 2 threads.
     """
 
-    def __init__(self, component, resolution):
+    def __init__(self, component, resolution, indir):
         """
         Create the test case
 
@@ -20,17 +20,21 @@ class Threads(BaroclinicChannelTestCase):
 
         resolution : float
             The resolution of the test case in km
+
+        indir : str
+            the directory the task is in, to which ``name`` will be appended
         """
 
         super().__init__(component=component, resolution=resolution,
-                         name='threads')
+                         name='threads', indir=indir)
 
         subdirs = list()
         for openmp_threads in [1, 2]:
             name = f'{openmp_threads}thread'
             self.add_step(Forward(
-                task=self, name=name, subdir=name, ntasks=4,
+                component=component, name=name, indir=self.subdir, ntasks=4,
                 min_tasks=4, openmp_threads=openmp_threads,
                 resolution=resolution, run_time_steps=3))
             subdirs.append(name)
-        self.add_step(Validate(task=self, step_subdirs=subdirs))
+        self.add_step(Validate(component=component, step_subdirs=subdirs,
+                               indir=self.subdir))

@@ -16,14 +16,17 @@ class Analysis(Step):
     nus : list
         A list of viscosities
     """
-    def __init__(self, task, resolution, nus):
+    def __init__(self, component, indir, resolution, nus):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        indir : str
+            the directory the step is in, to which ``name`` will be appended
 
         resolution : float
             The resolution of the test case in km
@@ -31,7 +34,7 @@ class Analysis(Step):
         nus : list
             A list of viscosities
         """
-        super().__init__(task=task, name='analysis')
+        super().__init__(component=component, name='analysis', indir=indir)
         self.nus = nus
 
         self.add_input_file(

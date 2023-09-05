@@ -1,5 +1,3 @@
-import os
-
 from polaris import Task
 from polaris.ocean.tasks.baroclinic_channel.init import Init
 
@@ -15,7 +13,7 @@ class BaroclinicChannelTestCase(Task):
         The resolution of the test case in km
     """
 
-    def __init__(self, component, resolution, name):
+    def __init__(self, component, resolution, name, indir):
         """
         Create the test case, including adding the ``init`` step
 
@@ -29,18 +27,17 @@ class BaroclinicChannelTestCase(Task):
 
         name : str
             The name of the test case
-        """
-        self.resolution = resolution
-        if resolution >= 1.:
-            res_str = f'{resolution:g}km'
-        else:
-            res_str = f'{resolution * 1000.:g}m'
-        subdir = os.path.join('baroclinic_channel', res_str, name)
-        super().__init__(component=component, name=name,
-                         subdir=subdir)
 
+        indir : str
+            the directory the task is in, to which ``name`` will be appended
+        """
+        super().__init__(component=component, name=name,
+                         indir=indir)
+
+        self.resolution = resolution
         self.add_step(
-            Init(task=self, resolution=resolution))
+            Init(component=component, resolution=resolution,
+                 indir=self.subdir))
 
     def configure(self):
         """
