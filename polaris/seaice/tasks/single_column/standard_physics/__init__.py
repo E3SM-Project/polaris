@@ -23,7 +23,7 @@ class StandardPhysics(Task):
         name = 'standard_physics'
         subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
-        step = Forward(task=self)
+        step = Forward(component=component, indir=self.subdir)
         step.add_namelist_file(
             package='polaris.seaice.tasks.single_column.standard_physics',
             namelist='namelist.seaice')
@@ -32,4 +32,4 @@ class StandardPhysics(Task):
         step.add_output_file(filename='output/output.2000.nc',
                              validate_vars=variables)
         self.add_step(step)
-        self.add_step(Viz(task=self))
+        self.add_step(Viz(component=component, indir=self.subdir))
