@@ -35,21 +35,25 @@ class MappingFileStep(Step):
         The name of the output mapping file
     """
 
-    def __init__(self, task, name, subdir=None, ntasks=None,
+    def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, map_filename=None, method='bilinear'):
         """
         Create a new step
 
         Parameters
         ----------
-        task : compass.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str
             the name of the step
 
         subdir : str, optional
-            the subdirectory for the step.  The default is ``name``
+            the subdirectory for the step.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the target number of MPI tasks the step would ideally use
@@ -64,8 +68,8 @@ class MappingFileStep(Step):
         method : {'bilinear', 'neareststod', 'conserve'}, optional
             The method of interpolation used
         """
-        super().__init__(task, name=name, subdir=subdir,
-                         ntasks=ntasks, min_tasks=min_tasks)
+        super().__init__(component=component, name=name, subdir=subdir,
+                         indir=indir, ntasks=ntasks, min_tasks=min_tasks)
         self.src_grid_info = dict()
         self.dst_grid_info = dict()
         self.map_filename = map_filename

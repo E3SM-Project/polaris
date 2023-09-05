@@ -9,6 +9,7 @@ from datetime import timedelta
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
 
+from polaris import Task
 from polaris.logging import log_function_call, log_method_call
 from polaris.parallel import (
     get_available_parallel_resources,
@@ -16,8 +17,8 @@ from polaris.parallel import (
     set_cores_per_node,
 )
 from polaris.run import (
+    complete_step_run,
     load_dependencies,
-    pickle_step_after_run,
     setup_config,
     unpickle_suite,
 )
@@ -125,8 +126,9 @@ def run_single_step(step_is_subprocess=False):
         Whether the step is being run as a subprocess of a task or suite
     """
     with open('step.pickle', 'rb') as handle:
-        task, step = pickle.load(handle)
-    task.steps_to_run = [step.name]
+        step = pickle.load(handle)
+    task = Task(component=step.component, name='dummy_task')
+    task.add_step(step)
     task.new_step_log_file = False
 
     # This prevents infinite loop of subprocesses
@@ -142,8 +144,8 @@ def run_single_step(step_is_subprocess=False):
     mpas_tools.io.default_engine = config.get('io', 'engine')
 
     # start logging to stdout/stderr
-    task_name = step.path.replace('/', '_')
-    with LoggingContext(name=task_name) as stdout_logger:
+    logger_name = step.path.replace('/', '_')
+    with LoggingContext(name=logger_name) as stdout_logger:
         task.logger = stdout_logger
         task.stdout_logger = None
         log_function_call(function=_run_task, logger=stdout_logger)
@@ -342,23 +344,30 @@ def _run_task(task, available_resources):
     cwd = os.getcwd()
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
+        complete_filename = os.path.join(step.work_dir,
+                                         'polaris_step_complete.log')
+
+        _print_to_stdout(task, f'  * step: {step_name}')
+
+        if os.path.exists(complete_filename):
+            _print_to_stdout(task, '          already completed')
+            continue
+        if step.cached:
+            _print_to_stdout(task, '          cached')
+            continue
+
         step_start = time.time()
 
-        if step.cached:
-            logger.info(f'  * Cached step: {step_name}')
-            continue
         step.config = task.config
         if task.log_filename is not None:
             step_log_filename = task.log_filename
         else:
             step_log_filename = None
 
-        _print_to_stdout(task, f'  * step: {step_name}')
-
         try:
             if step.run_as_subprocess:
                 _run_step_as_subprocess(
-                    task, step, task.new_step_log_file)
+                    logger, step, task.new_step_log_file)
             else:
                 _run_step(task, step, task.new_step_log_file,
                           available_resources, step_log_filename)
@@ -403,10 +412,10 @@ def _run_step(task, step, new_log_file, available_resources,
 
     if len(missing_files) > 0:
         raise OSError(
-            f'input file(s) missing in step {step.name} of '
-            f'{step.component.name}/{step.task.subdir}: {missing_files}')
+            f'input file(s) missing in step {step.name} in '
+            f'{step.component.name}/{step.subdir}: {missing_files}')
 
-    load_dependencies(task, step)
+    load_dependencies(step)
 
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
@@ -456,7 +465,7 @@ def _run_step(task, step, new_log_file, available_resources,
             step_logger.info('')
             step.run()
 
-    pickle_step_after_run(task, step)
+    complete_step_run(step)
 
     missing_files = list()
     for output_file in step.outputs:
@@ -470,15 +479,14 @@ def _run_step(task, step, new_log_file, available_resources,
         except FileNotFoundError:
             pass
         raise OSError(
-            f'output file(s) missing in step {step.name} of '
-            f'{step.component.name}/{step.task.subdir}: {missing_files}')
+            f'output file(s) missing in step {step.name} in '
+            f'{step.component.name}/{step.subdir}: {missing_files}')
 
 
-def _run_step_as_subprocess(task, step, new_log_file):
+def _run_step_as_subprocess(logger, step, new_log_file):
     """
     Run the requested step as a subprocess
     """
-    logger = task.logger
     cwd = os.getcwd()
     logger_name = step.path.replace('/', '_')
     if new_log_file:

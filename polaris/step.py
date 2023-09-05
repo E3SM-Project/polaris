@@ -28,9 +28,6 @@ class Step:
     name : str
         the name of the step
 
-    task : polaris.Task
-        The task this step belongs to
-
     component : polaris.Component
         The component the step belongs to
 
@@ -145,8 +142,8 @@ class Step:
         A list of command-line arguments to call in parallel
     """
 
-    def __init__(self, task, name, subdir=None, cpus_per_task=1,
-                 min_cpus_per_task=1, ntasks=1, min_tasks=1,
+    def __init__(self, component, name, subdir=None, indir=None,
+                 cpus_per_task=1, min_cpus_per_task=1, ntasks=1, min_tasks=1,
                  openmp_threads=1, max_memory=None, cached=False,
                  run_as_subprocess=False):
         """
@@ -154,14 +151,18 @@ class Step:
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str
             the name of the task
 
         subdir : str, optional
-            the subdirectory for the step.  The default is ``name``
+            the subdirectory for the step.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         cpus_per_task : int, optional
             the number of cores per task the step would ideally use.  If
@@ -204,10 +205,11 @@ class Step:
             additional subprocesses).
         """
         self.name = name
-        self.task = task
-        self.component = task.component
+        self.component = component
         if subdir is not None:
             self.subdir = subdir
+        elif indir is not None:
+            self.subdir = os.path.join(indir, name)
         else:
             self.subdir = name
 
@@ -218,7 +220,7 @@ class Step:
         self.openmp_threads = openmp_threads
         self.max_memory = max_memory
 
-        self.path = os.path.join(self.component.name, task.subdir, self.subdir)
+        self.path = os.path.join(self.component.name, self.subdir)
 
         self.run_as_subprocess = run_as_subprocess
 
@@ -239,6 +241,7 @@ class Step:
         # may be set during setup if there is a baseline for comparison
         self.baseline_dir = None
         self.validate_vars = dict()
+        self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
         self.logger = logging.getLogger('dummy')

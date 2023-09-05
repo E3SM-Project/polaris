@@ -86,8 +86,8 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
-    # get the component of the first task.  We'll assume all tasks are
-    # for this core
+    # get the component of the first task.  We'll ensure that all tasks are
+    # for this component
     first_path = next(iter(tasks))
     component = tasks[first_path].component
 
@@ -95,6 +95,8 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
                                      component)
 
     provenance.write(work_dir, tasks, config=basic_config)
+
+    _expand_and_mark_cached_steps(tasks, cached_steps)
 
     print('Setting up tasks:')
     for path, task in tasks.items():
@@ -160,8 +162,8 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
         default namelists have been built
 
     cached_steps : list of str
-        Which steps (if any) should be cached.  If all steps should be cached,
-         the first entry is "_all"
+        Which steps (if any) should be cached, identified by a list of
+        subdirectories in the component
 
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
@@ -214,16 +216,15 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     with open(os.path.join(task_dir, task_config), 'w') as f:
         config.write(f)
 
-    if len(cached_steps) > 0 and cached_steps[0] == '_all':
-        cached_steps = list(task.steps.keys())
     if len(cached_steps) > 0:
         print_steps = ' '.join(cached_steps)
         print(f'    steps with cached outputs: {print_steps}')
-    for step_name in cached_steps:
-        task.steps[step_name].cached = True
 
     # iterate over steps
     for step in task.steps.values():
+        if step.setup_complete:
+            # this is a shared step that has already been set up
+            continue
         # make the step directory if it doesn't exist
         step_dir = os.path.join(work_dir, step.path)
         try:
@@ -252,11 +253,14 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     # wait until we've set up all the steps before pickling because steps may
     # need other steps to be set up
     for step in task.steps.values():
+        if step.setup_complete:
+            # this is a shared step that has already been set up
+            continue
 
         # pickle the task and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump((task, step), handle,
+            pickle.dump(step, handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
 
         _symlink_load_script(step.work_dir)
@@ -266,6 +270,7 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
             min_cores = step.min_cpus_per_task * step.min_tasks
             write_job_script(config, machine, cores, min_cores,
                              step.work_dir)
+        step.setup_complete = True
 
     # pickle the task and step for use at runtime
     pickle_filename = os.path.join(task.work_dir, 'task.pickle')
@@ -339,6 +344,20 @@ def main():
                 work_dir=args.work_dir, baseline_dir=args.baseline_dir,
                 component_path=args.component_path, suite_name=args.suite_name,
                 cached=cached, copy_executable=args.copy_executable)
+
+
+def _expand_and_mark_cached_steps(tasks, cached_steps):
+    """
+    Mark any steps that will be cached.  If any task asked for a step to
+    be cached, it will be cached for all tasks that share the step.
+    """
+    for path, task in tasks.items():
+        cached_names = cached_steps[path]
+        if len(cached_names) > 0 and cached_names[0] == '_all':
+            cached_steps[path] = list(task.steps.keys())
+
+        for step_name in cached_steps[path]:
+            task.steps[step_name].cached = True
 
 
 def _get_required_cores(tasks):

@@ -67,14 +67,9 @@ class Task:
         Whether to create a new log file for each step or to log output to a
         common log file for the whole task.  The latter is used when
         running the task as part of a suite
-
-    validation : dict
-        A dictionary with the status of internal and baseline comparisons, used
-        by the ``polaris`` framework to determine whether the task passed
-        or failed internal and baseline validation.
     """
 
-    def __init__(self, component, name, subdir=None):
+    def __init__(self, component, name, subdir=None, indir=None):
         """
         Create a new task
 
@@ -87,12 +82,18 @@ class Task:
             the name of the task
 
         subdir : str, optional
-            the subdirectory for the task.  The default is ``name``
+            the subdirectory for the task.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the task is in, to which ``name`` will be appended
         """
         self.name = name
         self.component = component
         if subdir is not None:
             self.subdir = subdir
+        elif indir is not None:
+            self.subdir = os.path.join(indir, name)
         else:
             self.subdir = name
 
@@ -115,7 +116,6 @@ class Task:
         self.stdout_logger = None
         self.logger = logging.getLogger('dummy')
         self.log_filename = None
-        self.validation = None
 
     def configure(self):
         """
@@ -128,47 +128,62 @@ class Task:
         """
         pass
 
-    def add_step(self, step, run_by_default=True):
+    def add_step(self, step=None, subdir=None, run_by_default=True):
         """
-        Add a step to the task
+        Add a step to the task and component (if not already present)
 
         Parameters
         ----------
-        step : polaris.Step
-            The step to add
+        step : polaris.Step, optional
+            The step to add if adding by Step object, not subdirectory
+
+        subdir : str, optional
+            The subdirectory of the step within the component if wish to add
+            the step by path, and it has already been added to the component
 
         run_by_default : bool, optional
             Whether to add this step to the list of steps to run when the
             ``run()`` method gets called.  If ``run_by_default=False``, users
             would need to run this step manually.
         """
+        if step is None and subdir is None:
+            raise ValueError('One of step or subdir must be provided.')
+        if step is not None and subdir is not None:
+            raise ValueError('Only one of step or subdir should be provided.')
+
+        component = self.component
+
+        if subdir is not None:
+            if subdir not in self.component.steps:
+                raise ValueError(f'Could not find {subdir} in the steps in '
+                                 f'the component.  Add the step to the '
+                                 f'component first, then to the task.')
+            step = component.steps[subdir]
+
+        if step.subdir in self.steps:
+            raise ValueError(f'A step has already been added to this task '
+                             f'with path {step.subdir}')
+
+        # add the step to the component (if it's not already there)
+        component.add_step(step)
+
         self.steps[step.name] = step
         if run_by_default:
             self.steps_to_run.append(step.name)
 
-    def check_validation(self):
+    def remove_step(self, step):
         """
-        Check the task's "validation" dictionary to see if validation
-        failed.
+        Remove the given step from this task and the component
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step to add if adding by Step object, not subdirectory
         """
-        validation = self.validation
-        logger = self.logger
-        if validation is not None:
-            internal_pass = validation['internal_pass']
-            baseline_pass = validation['baseline_pass']
+        if step.name not in self.steps:
+            raise ValueError(f'step {step.name} not in this task {self.name}')
 
-            both_pass = True
-            if internal_pass is not None and not internal_pass:
-                if logger is not None:
-                    logger.error('Comparison failed between files within the '
-                                 'task.')
-                both_pass = False
-
-            if baseline_pass is not None and not baseline_pass:
-                if logger is not None:
-                    logger.error('Comparison failed between the task and '
-                                 'the baseline.')
-                both_pass = False
-
-            if both_pass:
-                raise ValueError('Comparison failed, see above.')
+        self.component.remove_step(step)
+        self.steps.pop(step.name)
+        if step.name in self.steps_to_run:
+            self.steps_to_run.remove(step.name)

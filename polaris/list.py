@@ -65,7 +65,7 @@ def list_cases(task_expr=None, number=None, verbose=False):
                     if step.name == step.subdir:
                         lines.append(f'{prefix} - {step.name}')
                     else:
-                        lines.append(f'{prefix} - {step.name}: {step.subdir}')
+                        lines.append(f'{prefix} - {step.name}: {step.path}')
                 lines.append('')
                 print_string = '\n'.join(lines)
             else:
