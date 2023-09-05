@@ -23,39 +23,39 @@ from polaris.run import (
 )
 
 
-def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
+def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
               steps_to_skip=None):
     """
-    Run the given test suite or test case
+    Run the given suite or task
 
     Parameters
     ----------
     suite_name : str
-        The name of the test suite
+        The name of the suite
 
     quiet : bool, optional
-        Whether step names are not included in the output as the test suite
+        Whether step names are not included in the output as the suite
         progresses
 
-    is_test_case : bool
-        Whether this is a test case instead of a full test suite
+    is_task : bool
+        Whether this is a task instead of a full suite
 
     steps_to_run : list of str, optional
-        A list of the steps to run if this is a test case, not a full suite.
+        A list of the steps to run if this is a task, not a full suite.
         The default behavior is to run the default steps unless they are in
         ``steps_to_skip``
 
     steps_to_skip : list of str, optional
-        A list of steps not to run if this is a test case, not a full suite.
+        A list of steps not to run if this is a task, not a full suite.
         Typically, these are steps to remove from the defaults
     """
 
-    test_suite = unpickle_suite(suite_name)
+    suite = unpickle_suite(suite_name)
 
-    # get the config file for the first test case in the suite
-    test_case = next(iter(test_suite['test_cases'].values()))
-    config_filename = os.path.join(test_case.work_dir,
-                                   test_case.config_filename)
+    # get the config file for the first task in the suite
+    task = next(iter(suite['tasks'].values()))
+    config_filename = os.path.join(task.work_dir,
+                                   task.config_filename)
     config = setup_config(config_filename)
     available_resources = get_available_parallel_resources(config)
 
@@ -64,7 +64,7 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
 
         os.environ['PYTHONUNBUFFERED'] = '1'
 
-        if not is_test_case:
+        if not is_task:
             try:
                 os.makedirs('case_outputs')
             except OSError:
@@ -73,34 +73,34 @@ def run_tests(suite_name, quiet=False, is_test_case=False, steps_to_run=None,
         failures = 0
         cwd = os.getcwd()
         suite_start = time.time()
-        test_times = dict()
+        task_times = dict()
         success_strs = dict()
-        for test_name in test_suite['test_cases']:
-            stdout_logger.info(f'{test_name}')
+        for task_name in suite['tasks']:
+            stdout_logger.info(f'{task_name}')
 
-            test_case = test_suite['test_cases'][test_name]
+            task = suite['tasks'][task_name]
 
-            if is_test_case:
+            if is_task:
                 log_filename = None
-                test_logger = stdout_logger
+                task_logger = stdout_logger
             else:
-                test_prefix = test_case.path.replace('/', '_')
-                log_filename = f'{cwd}/case_outputs/{test_prefix}.log'
-                test_logger = None
+                task_prefix = task.path.replace('/', '_')
+                log_filename = f'{cwd}/case_outputs/{task_prefix}.log'
+                task_logger = None
 
-            success_str, success, test_time = _log_and_run_test(
-                test_case, stdout_logger, test_logger, quiet, log_filename,
-                is_test_case, steps_to_run, steps_to_skip,
+            success_str, success, task_time = _log_and_run_task(
+                task, stdout_logger, task_logger, quiet, log_filename,
+                is_task, steps_to_run, steps_to_skip,
                 available_resources)
-            success_strs[test_name] = success_str
+            success_strs[task_name] = success_str
             if not success:
                 failures += 1
-            test_times[test_name] = test_time
+            task_times[task_name] = task_time
 
         suite_time = time.time() - suite_start
 
         os.chdir(cwd)
-        _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
+        _log_task_runtimes(stdout_logger, task_times, success_strs, suite_time,
                            failures)
 
 
@@ -112,59 +112,59 @@ def run_single_step(step_is_subprocess=False):
     Parameters
     ----------
     step_is_subprocess : bool, optional
-        Whether the step is being run as a subprocess of a test case or suite
+        Whether the step is being run as a subprocess of a task or suite
     """
     with open('step.pickle', 'rb') as handle:
-        test_case, step = pickle.load(handle)
-    test_case.steps_to_run = [step.name]
-    test_case.new_step_log_file = False
+        task, step = pickle.load(handle)
+    task.steps_to_run = [step.name]
+    task.new_step_log_file = False
 
     # This prevents infinite loop of subprocesses
     if step_is_subprocess:
         step.run_as_subprocess = False
 
     config = setup_config(step.config_filename)
-    test_case.config = config
+    task.config = config
     available_resources = get_available_parallel_resources(config)
-    set_cores_per_node(test_case.config, available_resources['cores_per_node'])
+    set_cores_per_node(task.config, available_resources['cores_per_node'])
 
     mpas_tools.io.default_format = config.get('io', 'format')
     mpas_tools.io.default_engine = config.get('io', 'engine')
 
     # start logging to stdout/stderr
-    test_name = step.path.replace('/', '_')
-    with LoggingContext(name=test_name) as stdout_logger:
-        test_case.logger = stdout_logger
-        test_case.stdout_logger = None
-        log_function_call(function=_run_test, logger=stdout_logger)
+    task_name = step.path.replace('/', '_')
+    with LoggingContext(name=task_name) as stdout_logger:
+        task.logger = stdout_logger
+        task.stdout_logger = None
+        log_function_call(function=_run_task, logger=stdout_logger)
         stdout_logger.info('')
-        _run_test(test_case, available_resources)
+        _run_task(task, available_resources)
 
         if not step_is_subprocess:
             # only perform validation if the step is being run by a user on its
             # own
             stdout_logger.info('')
-            log_method_call(method=test_case.validate, logger=stdout_logger)
+            log_method_call(method=task.validate, logger=stdout_logger)
             stdout_logger.info('')
-            test_case.validate()
+            task.validate()
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Run a test suite, test case or step',
+        description='Run a suite, task or step',
         prog='polaris serial')
     parser.add_argument("suite", nargs='?',
-                        help="The name of a test suite to run. Can exclude "
+                        help="The name of a suite to run. Can exclude "
                         "or include the .pickle filename suffix.")
     parser.add_argument("--steps", dest="steps", nargs='+',
-                        help="The steps of a test case to run.")
+                        help="The steps of a task to run.")
     parser.add_argument("--skip_steps", dest="skip_steps", nargs='+',
-                        help="The steps of a test case not to run, see "
+                        help="The steps of a task not to run, see "
                              "steps_to_run in the config file for defaults.")
     parser.add_argument("-q", "--quiet", dest="quiet", action="store_true",
                         help="If set, step names are not included in the "
-                             "output as the test suite progresses.  Has no "
-                             "effect when running test cases or steps on "
+                             "output as the suite progresses.  Has no "
+                             "effect when running tasks or steps on "
                              "their own.")
     parser.add_argument("--step_is_subprocess", dest="step_is_subprocess",
                         action="store_true",
@@ -174,10 +174,10 @@ def main():
 
     if args.suite is not None:
         # Running a specified suite from the base work directory
-        run_tests(args.suite, quiet=args.quiet)
-    elif os.path.exists('test_case.pickle'):
-        # Running a test case inside of its work directory
-        run_tests(suite_name='test_case', quiet=args.quiet, is_test_case=True,
+        run_tasks(args.suite, quiet=args.quiet)
+    elif os.path.exists('task.pickle'):
+        # Running a task inside of its work directory
+        run_tasks(suite_name='task', quiet=args.quiet, is_task=True,
                   steps_to_run=args.steps, steps_to_skip=args.skip_steps)
     elif os.path.exists('step.pickle'):
         # Running a step inside of its work directory
@@ -187,10 +187,10 @@ def main():
         if len(pickles) == 1:
             # Running an unspecified suite from the base work directory
             suite = os.path.splitext(os.path.basename(pickles[0]))[0]
-            run_tests(suite, quiet=args.quiet)
+            run_tasks(suite, quiet=args.quiet)
         elif len(pickles) == 0:
             raise OSError('No pickle files were found. Are you sure this is '
-                          'a polaris suite, test-case or step work directory?')
+                          'a polaris suite, task or step work directory?')
         else:
             raise ValueError('More than one suite was found. Please specify '
                              'which to run: polaris serial <suite>')
@@ -201,14 +201,14 @@ def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
     Update the steps to run
     """
     if steps_to_run is None:
-        steps_to_run = config.get('test_case',
+        steps_to_run = config.get('task',
                                   'steps_to_run').replace(',', ' ').split()
 
     for step in steps_to_run:
         if step not in steps:
             raise ValueError(
                 f'A step "{step}" was requested but is not one of the steps '
-                f'in this test case:'
+                f'in this task:'
                 f'\n{list(steps)}')
 
     if steps_to_skip is not None:
@@ -216,7 +216,7 @@ def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
             if step not in steps:
                 raise ValueError(
                     f'A step "{step}" was flagged not to run but is not one '
-                    f'of the steps in this test case:'
+                    f'of the steps in this task:'
                     f'\n{list(steps)}')
 
         steps_to_run = [step for step in steps_to_run if step not in
@@ -225,16 +225,16 @@ def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
     return steps_to_run
 
 
-def _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
+def _log_task_runtimes(stdout_logger, task_times, success_strs, suite_time,
                        failures):
     """
-    Log the runtimes for the test case(s)
+    Log the runtimes for the task(s)
     """
-    stdout_logger.info('Test Runtimes:')
-    for test_name, test_time in test_times.items():
-        test_time_str = str(timedelta(seconds=round(test_time)))
-        stdout_logger.info(f'{test_time_str} '
-                           f'{success_strs[test_name]} {test_name}')
+    stdout_logger.info('Task Runtimes:')
+    for task_name, task_time in task_times.items():
+        task_time_str = str(timedelta(seconds=round(task_time)))
+        stdout_logger.info(f'{task_time_str} '
+                           f'{success_strs[task_name]} {task_name}')
     suite_time_str = str(timedelta(seconds=round(suite_time)))
     stdout_logger.info(f'Total runtime: {suite_time_str}')
 
@@ -242,26 +242,26 @@ def _log_test_runtimes(stdout_logger, test_times, success_strs, suite_time,
         stdout_logger.info('PASS: All passed successfully!')
     else:
         if failures == 1:
-            message = '1 test'
+            message = '1 task'
         else:
-            message = f'{failures} tests'
+            message = f'{failures} tasks'
         stdout_logger.error(f'FAIL: {message} failed, see above.')
         sys.exit(1)
 
 
-def _print_to_stdout(test_case, message):
+def _print_to_stdout(task, message):
     """
     Write out a message to stdout if we're not running a single step
     """
-    if test_case.stdout_logger is not None:
-        test_case.stdout_logger.info(message)
-        if test_case.logger != test_case.stdout_logger:
+    if task.stdout_logger is not None:
+        task.stdout_logger.info(message)
+        if task.logger != task.stdout_logger:
             # also write it to the log file
-            test_case.logger.info(message)
+            task.logger.info(message)
 
 
-def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
-                      log_filename, is_test_case, steps_to_run,
+def _log_and_run_task(task, stdout_logger, task_logger, quiet,
+                      log_filename, is_task, steps_to_run,
                       steps_to_skip, available_resources):
     # ANSI fail text: https://stackoverflow.com/a/287944/7728169
     start_fail = '\033[91m'
@@ -273,165 +273,165 @@ def _log_and_run_test(test_case, stdout_logger, test_logger, quiet,
     fail_str = f'{start_fail}FAIL{end}'
     error_str = f'{start_fail}ERROR{end}'
 
-    test_name = test_case.path.replace('/', '_')
-    with LoggingContext(test_name, logger=test_logger,
-                        log_filename=log_filename) as test_logger:
+    task_name = task.path.replace('/', '_')
+    with LoggingContext(task_name, logger=task_logger,
+                        log_filename=log_filename) as task_logger:
         if quiet:
             # just log the step names and any failure messages to the
             # log file
-            test_case.stdout_logger = test_logger
+            task.stdout_logger = task_logger
         else:
             # log steps to stdout
-            test_case.stdout_logger = stdout_logger
-        test_case.logger = test_logger
-        test_case.log_filename = log_filename
+            task.stdout_logger = stdout_logger
+        task.logger = task_logger
+        task.log_filename = log_filename
 
-        # If we are running a test case on its own, we want a log file per step
-        # If we are running within a suite, we want a log file per test, with
+        # If we are running a task on its own, we want a log file per step
+        # If we are running within a suite, we want a log file per task, with
         #   output from each of its steps
-        test_case.new_step_log_file = is_test_case
+        task.new_step_log_file = is_task
 
-        os.chdir(test_case.work_dir)
+        os.chdir(task.work_dir)
 
-        config = setup_config(test_case.config_filename)
-        test_case.config = config
-        set_cores_per_node(test_case.config,
+        config = setup_config(task.config_filename)
+        task.config = config
+        set_cores_per_node(task.config,
                            available_resources['cores_per_node'])
 
         mpas_tools.io.default_format = config.get('io', 'format')
         mpas_tools.io.default_engine = config.get('io', 'engine')
 
-        test_case.steps_to_run = _update_steps_to_run(
-            steps_to_run, steps_to_skip, config, test_case.steps)
+        task.steps_to_run = _update_steps_to_run(
+            steps_to_run, steps_to_skip, config, task.steps)
 
-        test_start = time.time()
+        task_start = time.time()
 
-        log_function_call(function=_run_test, logger=test_logger)
-        test_logger.info('')
-        test_list = ', '.join(test_case.steps_to_run)
-        test_logger.info(f'Running steps: {test_list}')
+        log_function_call(function=_run_task, logger=task_logger)
+        task_logger.info('')
+        task_list = ', '.join(task.steps_to_run)
+        task_logger.info(f'Running steps: {task_list}')
         try:
-            _run_test(test_case, available_resources)
+            _run_task(task, available_resources)
             run_status = success_str
-            test_pass = True
+            task_pass = True
         except BaseException:
             run_status = error_str
-            test_pass = False
-            test_logger.exception('Exception raised while running '
-                                  'the steps of the test case')
+            task_pass = False
+            task_logger.exception('Exception raised while running '
+                                  'the steps of the task')
 
-        if test_pass:
-            test_logger.info('')
-            log_method_call(method=test_case.validate,
-                            logger=test_logger)
-            test_logger.info('')
+        if task_pass:
+            task_logger.info('')
+            log_method_call(method=task.validate,
+                            logger=task_logger)
+            task_logger.info('')
             try:
-                test_case.validate()
+                task.validate()
             except BaseException:
                 run_status = error_str
-                test_pass = False
-                test_logger.exception('Exception raised in the test '
-                                      'case\'s validate() method')
+                task_pass = False
+                task_logger.exception('Exception raised in the task\'s '
+                                      'validate() method')
 
         baseline_status = None
         internal_status = None
-        if test_case.validation is not None:
-            internal_pass = test_case.validation['internal_pass']
-            baseline_pass = test_case.validation['baseline_pass']
+        if task.validation is not None:
+            internal_pass = task.validation['internal_pass']
+            baseline_pass = task.validation['baseline_pass']
 
             if internal_pass is not None:
                 if internal_pass:
                     internal_status = pass_str
                 else:
                     internal_status = fail_str
-                    test_logger.error(
-                        'Internal test case validation failed')
-                    test_pass = False
+                    task_logger.error(
+                        'Internal task validation failed')
+                    task_pass = False
 
             if baseline_pass is not None:
                 if baseline_pass:
                     baseline_status = pass_str
                 else:
                     baseline_status = fail_str
-                    test_logger.error('Baseline validation failed')
-                    test_pass = False
+                    task_logger.error('Baseline validation failed')
+                    task_pass = False
 
-        status = f'  test execution:      {run_status}'
+        status = f'  task execution:      {run_status}'
         if internal_status is not None:
             status = f'{status}\n' \
-                     f'  test validation:     {internal_status}'
+                     f'  task validation:     {internal_status}'
         if baseline_status is not None:
             status = f'{status}\n' \
                      f'  baseline comparison: {baseline_status}'
 
-        if test_pass:
+        if task_pass:
             stdout_logger.info(status)
             success_str = pass_str
             success = True
         else:
             stdout_logger.error(status)
-            if not is_test_case:
-                stdout_logger.error(f'  see: case_outputs/{test_name}.log')
+            if not is_task:
+                stdout_logger.error(f'  see: case_outputs/{task_name}.log')
             success_str = fail_str
             success = False
 
-        test_time = time.time() - test_start
+        task_time = time.time() - task_start
 
-        test_time_str = str(timedelta(seconds=round(test_time)))
-        stdout_logger.info(f'  test runtime:        '
-                           f'{start_time_color}{test_time_str}{end}')
+        task_time_str = str(timedelta(seconds=round(task_time)))
+        stdout_logger.info(f'  task runtime:        '
+                           f'{start_time_color}{task_time_str}{end}')
 
-        return success_str, success, test_time
+        return success_str, success, task_time
 
 
-def _run_test(test_case, available_resources):
+def _run_task(task, available_resources):
     """
-    Run each step of the test case
+    Run each step of the task
     """
     start_time_color = '\033[94m'
     end = '\033[0m'
 
-    logger = test_case.logger
+    logger = task.logger
     cwd = os.getcwd()
-    for step_name in test_case.steps_to_run:
-        step = test_case.steps[step_name]
+    for step_name in task.steps_to_run:
+        step = task.steps[step_name]
         step_start = time.time()
 
         if step.cached:
             logger.info(f'  * Cached step: {step_name}')
             continue
-        step.config = test_case.config
-        if test_case.log_filename is not None:
-            step_log_filename = test_case.log_filename
+        step.config = task.config
+        if task.log_filename is not None:
+            step_log_filename = task.log_filename
         else:
             step_log_filename = None
 
-        _print_to_stdout(test_case, f'  * step: {step_name}')
+        _print_to_stdout(task, f'  * step: {step_name}')
 
         try:
             if step.run_as_subprocess:
                 _run_step_as_subprocess(
-                    test_case, step, test_case.new_step_log_file)
+                    task, step, task.new_step_log_file)
             else:
-                _run_step(test_case, step, test_case.new_step_log_file,
+                _run_step(task, step, task.new_step_log_file,
                           available_resources, step_log_filename)
         except BaseException:
-            _print_to_stdout(test_case, '      Failed')
+            _print_to_stdout(task, '      Failed')
             raise
         os.chdir(cwd)
         step_time = time.time() - step_start
         step_time_str = str(timedelta(seconds=round(step_time)))
-        _print_to_stdout(test_case,
+        _print_to_stdout(task,
                          f'          runtime:     '
                          f'{start_time_color}{step_time_str}{end}')
 
 
-def _run_step(test_case, step, new_log_file, available_resources,
+def _run_step(task, step, new_log_file, available_resources,
               step_log_filename):
     """
     Run the requested step
     """
-    logger = test_case.logger
+    logger = task.logger
     cwd = os.getcwd()
 
     missing_files = list()
@@ -443,9 +443,9 @@ def _run_step(test_case, step, new_log_file, available_resources,
         raise OSError(
             f'input file(s) missing in step {step.name} of '
             f'{step.component.name}/{step.test_group.name}/'
-            f'{step.test_case.subdir}: {missing_files}')
+            f'{step.task.subdir}: {missing_files}')
 
-    load_dependencies(test_case, step)
+    load_dependencies(task, step)
 
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
@@ -495,7 +495,7 @@ def _run_step(test_case, step, new_log_file, available_resources,
             step_logger.info('')
             step.run()
 
-    pickle_step_after_run(test_case, step)
+    pickle_step_after_run(task, step)
 
     missing_files = list()
     for output_file in step.outputs:
@@ -511,14 +511,14 @@ def _run_step(test_case, step, new_log_file, available_resources,
         raise OSError(
             f'output file(s) missing in step {step.name} of '
             f'{step.component.name}/{step.test_group.name}/'
-            f'{step.test_case.subdir}: {missing_files}')
+            f'{step.task.subdir}: {missing_files}')
 
 
-def _run_step_as_subprocess(test_case, step, new_log_file):
+def _run_step_as_subprocess(task, step, new_log_file):
     """
     Run the requested step as a subprocess
     """
-    logger = test_case.logger
+    logger = task.logger
     cwd = os.getcwd()
     logger_name = step.path.replace('/', '_')
     if new_log_file:

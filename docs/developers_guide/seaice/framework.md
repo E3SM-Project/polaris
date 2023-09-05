@@ -17,9 +17,9 @@ from {py:class}`polaris.ModelStep`, see {ref}`dev-model`.
 
 #### Setting MPI resources
 
-The MPAS-Seaice tests currently only include single column test cases. 
+The MPAS-Seaice tasks currently only include single column tests. 
 Therefore, there is no concern for setting MPI resources. This may change
-as more complicates test cases are included.
+as more complicates tasks are included.
 
 (dev-seaice-framework-config)=
 

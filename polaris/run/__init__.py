@@ -50,14 +50,14 @@ def setup_config(config_filename):
     return config
 
 
-def load_dependencies(test_case, step):
+def load_dependencies(task, step):
     """
     Load each dependency from its pickle file to pick up changes that may have
     happened since it ran
 
     Parameters
     ----------
-    test_case : polaris.testcase.TestCase
+    task : polaris.task.Task
         The test case object
 
     step : polaris.step.Step
@@ -71,7 +71,7 @@ def load_dependencies(test_case, step):
                                        'step_after_run.pickle')
         if not os.path.exists(pickle_filename):
             raise ValueError(f'The dependency {name} of '
-                             f'{test_case.path} step {step.name} was '
+                             f'{task.path} step {step.name} was '
                              f'not run.')
 
         with open(pickle_filename, 'rb') as handle:
@@ -79,14 +79,14 @@ def load_dependencies(test_case, step):
             step.dependencies[name] = dependency
 
 
-def pickle_step_after_run(test_case, step):
+def pickle_step_after_run(task, step):
     """
     Pickle a step after it has run so its dependencies will pick up the
     changes
 
     Parameters
     ----------
-    test_case : polaris.testcase.TestCase
+    task : polaris.task.Task
         The test case object
 
     step : polaris.step.Step
@@ -96,5 +96,5 @@ def pickle_step_after_run(test_case, step):
         # pickle the test case and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump((test_case, step), handle,
+            pickle.dump((task, step), handle,
                         protocol=pickle.HIGHEST_PROTOCOL)

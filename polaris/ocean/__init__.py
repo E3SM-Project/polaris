@@ -1,9 +1,9 @@
 from polaris import Component
-from polaris.ocean.tests.baroclinic_channel import BaroclinicChannel
-from polaris.ocean.tests.global_convergence import GlobalConvergence
-from polaris.ocean.tests.inertial_gravity_wave import InertialGravityWave
-from polaris.ocean.tests.manufactured_solution import ManufacturedSolution
-from polaris.ocean.tests.single_column import SingleColumn
+from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannel
+from polaris.ocean.tasks.global_convergence import GlobalConvergence
+from polaris.ocean.tasks.inertial_gravity_wave import InertialGravityWave
+from polaris.ocean.tasks.manufactured_solution import ManufacturedSolution
+from polaris.ocean.tasks.single_column import SingleColumn
 
 
 class Ocean(Component):

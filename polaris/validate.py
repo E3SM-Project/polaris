@@ -6,20 +6,20 @@ import numpy
 import xarray
 
 
-def compare_variables(test_case, variables, filename1, filename2=None,
+def compare_variables(task, variables, filename1, filename2=None,
                       l1_norm=0.0, l2_norm=0.0, linf_norm=0.0, quiet=True,
                       check_outputs=True, skip_if_step_not_run=True):
     """
-    Compare variables between files in the current test case and/or with the
+    Compare variables between files in the current task and/or with the
     baseline results.  The results of the comparison are added to the
-    test case's "validation" dictionary, which the framework can use later to
-    log the test case results and/or to raise an exception to indicate that
-    the test case has failed.
+    task's "validation" dictionary, which the framework can use later to
+    log the task results and/or to raise an exception to indicate that
+    the task has failed.
 
     Parameters
     ----------
-    test_case : polaris.TestCase
-        An object describing a test case to validate
+    task : polaris.Task
+        An object describing a task to validate
 
     variables : list
         A list of variable names to compare
@@ -28,13 +28,12 @@ def compare_variables(test_case, variables, filename1, filename2=None,
         The relative path to a file within the ``work_dir``.  If ``filename2``
         is also given, comparison will be performed with ``variables`` in that
         file.  If a baseline directory was provided when setting up the
-        test case, the ``variables`` will be compared between this test case
-        and the same relative filename in the baseline version of the test
-        case.
+        task, the ``variables`` will be compared between this task
+        and the same relative filename in the baseline version of the task.
 
     filename2 : str, optional
         The relative path to another file within the ``work_dir`` if comparing
-        between files within the current test case.  If a baseline directory
+        between files within the current task.  If a baseline directory
         was provided, the ``variables`` from this file will also be compared
         with those in the corresponding baseline file.
 
@@ -58,8 +57,8 @@ def compare_variables(test_case, variables, filename1, filename2=None,
 
     check_outputs : bool, optional
         Whether to check to make sure files are valid outputs of steps in
-        the test case.  This should be set to ``False`` if comparing with an
-        output of a step in another test case.
+        the task.  This should be set to ``False`` if comparing with an
+        output of a step in another task.
 
     skip_if_step_not_run : bool, optional
         Whether to skip the variable comparison if a user did not run one (or
@@ -67,9 +66,9 @@ def compare_variables(test_case, variables, filename1, filename2=None,
         users are running steps individually or has edited ``steps_to_run``
         in the config file to exclude one of the steps.
     """
-    work_dir = test_case.work_dir
+    work_dir = task.work_dir
 
-    logger = test_case.logger
+    logger = task.logger
 
     path1 = os.path.abspath(os.path.join(work_dir, filename1))
     if filename2 is not None:
@@ -79,13 +78,13 @@ def compare_variables(test_case, variables, filename1, filename2=None,
 
     if check_outputs:
         all_steps_run = _check_for_outputs(
-            test_case, logger, path1, path2, filename1, filename2)
+            task, logger, path1, path2, filename1, filename2)
 
     if skip_if_step_not_run and not all_steps_run:
         return
 
-    if test_case.validation is not None:
-        validation = test_case.validation
+    if task.validation is not None:
+        validation = task.validation
     else:
         validation = {'internal_pass': None,
                       'baseline_pass': None}
@@ -101,8 +100,8 @@ def compare_variables(test_case, variables, filename1, filename2=None,
             validation['internal_pass'] = \
                 validation['internal_pass'] and internal_pass
 
-    if test_case.baseline_dir is not None:
-        baseline_root = test_case.baseline_dir
+    if task.baseline_dir is not None:
+        baseline_root = task.baseline_dir
         baseline_pass = True
 
         result = _compare_variables(
@@ -124,18 +123,18 @@ def compare_variables(test_case, variables, filename1, filename2=None,
             validation['baseline_pass'] = \
                 validation['baseline_pass'] and baseline_pass
 
-    test_case.validation = validation
+    task.validation = validation
 
 
-def compare_timers(test_case, timers, rundir1, rundir2=None):
+def compare_timers(task, timers, rundir1, rundir2=None):
     """
-    Compare variables between files in the current test case and/or with the
+    Compare variables between files in the current task and/or with the
     baseline results.
 
     Parameters
     ----------
-    test_case : polaris.TestCase
-        An object describing a test case to validate
+    task : polaris.Task
+        An object describing a task to validate
 
     timers : list
         A list of timer names to compare
@@ -144,19 +143,18 @@ def compare_timers(test_case, timers, rundir1, rundir2=None):
         The relative path to a directory within the ``work_dir``. If
         ``rundir2`` is also given, comparison will be performed with ``timers``
         in that file.  If a baseline directory was provided when setting up the
-        test case, the ``timers`` will be compared between this test case and
-        the same relative directory under the baseline version of the test
-        case.
+        task, the ``timers`` will be compared between this task and
+        the same relative directory under the baseline version of the task.
 
     rundir2 : str, optional
         The relative path to another file within the ``work_dir`` if comparing
-        between files within the current test case.  If a baseline directory
+        between files within the current task.  If a baseline directory
         was provided, the ``timers`` from this file will also be compared with
         those in the corresponding baseline directory.
     """
 
-    work_dir = test_case.work_dir
-    baseline_root = test_case.baseline_dir
+    work_dir = task.work_dir
+    baseline_root = task.baseline_dir
 
     if rundir2 is not None:
         _compute_timers(os.path.join(work_dir, rundir1),
@@ -171,7 +169,7 @@ def compare_timers(test_case, timers, rundir1, rundir2=None):
                             os.path.join(work_dir, rundir2), timers)
 
 
-def _check_for_outputs(test_case, logger, path1, path2, filename1, filename2):
+def _check_for_outputs(task, logger, path1, path2, filename1, filename2):
     """ Check for outputs for each step from one or two run directories """
 
     all_steps_run = True
@@ -179,7 +177,7 @@ def _check_for_outputs(test_case, logger, path1, path2, filename1, filename2):
     file2_found = False
     step_name1 = None
     step_name2 = None
-    for step_name, step in test_case.steps.items():
+    for step_name, step in task.steps.items():
         for output in step.outputs:
             # outputs are already absolute paths combined with the step dir
             if output == path1:
@@ -191,25 +189,23 @@ def _check_for_outputs(test_case, logger, path1, path2, filename1, filename2):
 
     if not file1_found:
         raise ValueError(f'{filename1} does not appear to be an output of any '
-                         'step in this test case.')
+                         'step in this task.')
     if filename2 is not None and not file2_found:
         raise ValueError(f'{filename2} does not appear to be an output of any '
-                         'step in this test case.')
+                         'step in this task.')
 
     step1_not_run = (file1_found and
-                     step_name1 not in test_case.steps_to_run)
+                     step_name1 not in task.steps_to_run)
     step2_not_run = (file2_found and
-                     step_name2 not in test_case.steps_to_run)
+                     step_name2 not in task.steps_to_run)
 
     if step1_not_run and step2_not_run:
-        test_case.logger.info(f'Skipping validation because {step_name1} and '
-                              f'{step_name2} weren\'t  run')
+        logger.info(f'Skipping validation because {step_name1} and '
+                    f'{step_name2} weren\'t  run')
     elif step1_not_run:
-        test_case.logger.info(f'Skipping validation because {step_name1} '
-                              'wasn\'t run')
+        logger.info(f'Skipping validation because {step_name1} wasn\'t run')
     elif step2_not_run:
-        test_case.logger.info(f'Skipping validation because {step_name2} '
-                              'wasn\'t run')
+        logger.info(f'Skipping validation because {step_name2} wasn\'t run')
     if step1_not_run or step2_not_run:
         all_steps_run = False
 

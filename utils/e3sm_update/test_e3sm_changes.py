@@ -117,7 +117,7 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
         worktree = data['worktree']
         setup_worktree(submodule, worktree=worktree, hash=hash)
 
-    print('Building each worktree and submitting comparison tests\n')
+    print('Building each worktree and submitting comparison tasks\n')
 
     print('00: current\n')
     baseline = f'{work_base}/00_current'

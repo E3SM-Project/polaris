@@ -13,7 +13,7 @@ def get_components():
     Returns
     -------
     components : list of polaris.Component
-        A list of components containing all available tests
+        A list of components containing all available tasks
     """
     # add new components here
     components: List[Component] = [

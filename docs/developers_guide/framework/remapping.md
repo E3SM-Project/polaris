@@ -14,24 +14,24 @@ tool, which uses MPI parallelism.  To better support task parallelism, it is
 best to have each MPI task be a separate polaris step.  For this reason, we
 provide {py:class}`polaris.remap.MappingFileStep` to perform remapping.
 
-A remapping step can be added to a test case either by creating a
+A remapping step can be added to a task either by creating a
 {py:class}`polaris.remap.MappingFileStep` object directly or by creating a
 step that descends from the class.  Here is an example of using 
 `MappingFileStep` directly to remap data from a WOA 2023 lon-lat grid to an
-MPAS mesh. This could happen in the test case's `__init__()` or `configure()`
+MPAS mesh. This could happen in the task's `__init__()` or `configure()`
 method:
 
 ```python
 
-from polaris import TestCase
+from polaris import Task
 from polaris.remap import MappingFileStep
 
-class MyTestCase(TestCase):
+class MyTestCase(Task):
     def __int__(self):
-        step = MappingFileStep(test_case=self, name='make_map', ntasks=64, 
+        step = MappingFileStep(task=self, name='make_map', ntasks=64, 
                                min_tasks=1, method='bilinear')
         # indicate the the mesh from another step is an input to this step
-        # note: the target is relative to the step, not the test case.
+        # note: the target is relative to the step, not the task.
         step.add_input_file(filename='woa.nc',
                             target='woa23_decav_0.25_extrap.20230414.nc',
                             database='initial_condition_database')
@@ -51,10 +51,10 @@ want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
 {py:meth}`polaris.remap.MappingFileStep.runtime_setup()`.  In the example, the
 resolution of the lon-lat grid and the remapping method will be set using the
-config options provided while setting up the polaris test case.  We call the
+config options provided while setting up the polaris task.  We call the
 `src_*()` and `dst_*()` methods in the `runtime_setup()` method to make sure
 we pick up any changes to the config options that a user might have made
-before running the test case:
+before running the task:
 
 ```python
 
@@ -62,8 +62,8 @@ from polaris.remap import MappingFileStep
 
 
 class VizMap(MappingFileStep):
-    def __init__(self, test_case, name, subdir, mesh_name):
-        super().__init__(test_case=test_case, name=name, subdir=subdir,
+    def __init__(self, task, name, subdir, mesh_name):
+        super().__init__(task=task, name=name, subdir=subdir,
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')

@@ -3,7 +3,7 @@
 # Config Files
 
 Polaris uses config files (with extension `.cfg`) to allow users to
-control how {ref}`test-cases` and {ref}`test-suites` get set up and run.
+control how {ref}`tasks` and {ref}`suites` get set up and run.
 
 ## A "user" config file
 
@@ -11,13 +11,13 @@ If you're running on one of the supported {ref}`machines`, and you provide a
 path to where you build the MPAS model (with the `-p` flag to
 `polaris setup` and `polaris suite`, see {ref}`setup-overview` and
 {ref}`suite-overview`), you also won't need to create a config file to set up
-test cases or suites.
+tasks or suites.
 
 If you're running on another machine like your own laptop, you will need to
 provide some basic information for polaris to work properly.  Even if
 you're running on one of the supported machines, you might find it convenient
 to make your own changes to config options related to either setting up or
-running test suites and test case.
+running suites and task.
 
 Here is an example:
 
@@ -28,7 +28,7 @@ Here is an example:
 # The paths section describes paths where files are automatically downloaded
 [paths]
 
-# A root directory where data for polaris test cases can be downloaded. This
+# A root directory where data for polaris tasks can be downloaded. This
 # data will be cached for future reuse.
 database_root = /home/xylar/data/polaris/data
 
@@ -57,14 +57,14 @@ polaris setup -f my_machine.cfg ...
 
 ## Test-case config files
 
-Once a test case has been set up, its work directory will contain a config file
-called `<test_case>.cfg`, where `<test_case>` is the name of the test case.
-As a user, you can typically leave the config options in a test case as they
+Once a task has been set up, its work directory will contain a config file
+called `<task>.cfg`, where `<task>` is the name of the task.
+As a user, you can typically leave the config options in a task as they
 are to run the test in its default configuration.  But the config file is meant
-to make it easier to modify the test case to fit your needs without having to
+to make it easier to modify the task to fit your needs without having to
 dig into the polaris code.
 
-Config options for a given test case are built up from a number of different
+Config options for a given task are built up from a number of different
 sources:
 
 - the default config file,
@@ -84,8 +84,8 @@ sources:
 - the test group's config file if one is defined.  For idealized test groups,
   these often include the size and resolution of the mesh as well as the number
   of vertical levels.
-- any number of config files from the test case.  There might be different
-  config options depending on how the test case is configured (e.g. only if a
+- any number of config files from the task.  There might be different
+  config options depending on how the task is configured (e.g. only if a
   certain feature is enabled.  For example, {ref}`ocean-global-ocean` loads 
   different sets of config options for different meshes.
 - a user's config file described above.
@@ -112,8 +112,8 @@ A typical config file resulting from combining all of the sources listed above
 looks like:
 
 ```cfg
-# Options related to the current test case
-[test_case]
+# Options related to the current task
+[task]
 
 # source: /home/xylar/code/polaris/customize_config_parser/polaris/setup.py
 steps_to_run = mesh
@@ -233,7 +233,7 @@ init = /home/xylar/code/polaris/customize_config_parser/E3SM-Project/components/
 
 
 # The executables section defines paths to required executables. These
-# executables are provided for use by specific test cases.  Most tools that
+# executables are provided for use by specific tasks.  Most tools that
 # polaris needs should be in the conda environment, so this is only the path
 # to the MPAS-Ocean executable by default.
 [executables]

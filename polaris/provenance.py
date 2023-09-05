@@ -3,21 +3,21 @@ import subprocess
 import sys
 
 
-def write(work_dir, test_cases, config=None):
+def write(work_dir, tasks, config=None):
     """
     Write a file with provenance, such as the git version, conda packages,
-    command, and test cases, to the work directory
+    command, and tasks, to the work directory
 
     Parameters
     ----------
     work_dir : str
-        The path to the work directory where the test cases will be set up
+        The path to the work directory where the tasks will be set up
 
-    test_cases : dict
-        A dictionary describing all of the test cases and their steps
+    tasks : dict
+        A dictionary describing all of the tasks and their steps
 
     config : polaris.config.PolarisConfigParser
-        Configuration options for this test case, a combination of user configs
+        Configuration options for this task, a combination of user configs
         and the defaults for the machine and component
     """
     polaris_git_version = None
@@ -65,21 +65,21 @@ def write(work_dir, test_cases, config=None):
         provenance_file.write(
             f'component git version: {component_git_version}\n\n')
     provenance_file.write(f'command: {calling_command}\n\n')
-    provenance_file.write('test cases:\n')
+    provenance_file.write('tasks:\n')
 
-    for path, test_case in test_cases.items():
+    for path, task in tasks.items():
         prefix = '  '
         lines = list()
-        to_print = {'path': test_case.path,
-                    'name': test_case.name,
-                    'component': test_case.component.name,
-                    'test group': test_case.test_group.name,
-                    'subdir': test_case.subdir}
+        to_print = {'path': task.path,
+                    'name': task.name,
+                    'component': task.component.name,
+                    'test group': task.test_group.name,
+                    'subdir': task.subdir}
         for key in to_print:
             key_string = f'{key}: '.ljust(15)
             lines.append(f'{prefix}{key_string}{to_print[key]}')
         lines.append(f'{prefix}steps:')
-        for step in test_case.steps.values():
+        for step in task.steps.values():
             if step.name == step.subdir:
                 lines.append(f'{prefix} - {step.name}')
             else:

@@ -13,23 +13,23 @@ converted automatically to absolute paths.
 
 The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
-options. Examples of this can be found in many test cases as well as
+options. Examples of this can be found in many tasks as well as
 {py:func}`polaris.setup.setup_case()`. Here is a typical example from
-{py:func}`polaris.ocean.tests.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()`:
+{py:func}`polaris.ocean.tasks.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()`:
 
 ```python
 def configure(self):
     """
-    Modify the configuration options for this test case
+    Modify the configuration options for this task
     """
     self.config.add_from_package(
-       'polaris.ocean.tests.global_ocean.make_diagnostics_files',
+       'polaris.ocean.tasks.global_ocean.make_diagnostics_files',
        'make_diagnostics_files.cfg', exception=True)
 ```
 
 The first and second arguments are the name of a package containing the config
 file and the name of the config file itself, respectively.  You can see that
-the file is in the path `polaris/ocean/tests/global_ocean/make_diagnostics_files`
+the file is in the path `polaris/ocean/tasks/global_ocean/make_diagnostics_files`
 (replacing the `.` in the module name with `/`).  In this case, we know
 that the config file should always exist, so we would like the code to raise
 an exception (`exception=True`) if the file is not found.  This is the
@@ -41,8 +41,8 @@ cases in a configuration, as in this example from
 
 ```python
 # add the config options for the test group (if defined)
-test_group = test_case.test_group.name
-config.add_from_package(f'polaris.{component}.tests.{test_group}',
+test_group = task.test_group.name
+config.add_from_package(f'polaris.{component}.tasks.{test_group}',
                         f'{test_group}.cfg', exception=False)
 ```
 
@@ -50,7 +50,7 @@ If a test group doesn't have any config options, nothing will happen.
 
 The `MpasConfigParser` class also includes methods for adding a user
 config file and other config files by file name, but these are largely intended
-for use by the framework rather than individual test cases.
+for use by the framework rather than individual tasks.
 
 Other methods for the `MpasConfigParser` are similar to those for
 {py:class}`configparser.ConfigParser`.  In addition to `get()`,

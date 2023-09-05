@@ -1,10 +1,10 @@
 # MPAS-Ocean
 
-The following are considerations that may be useful in developing a test case for MPAS-Ocean
+The following are considerations that may be useful in developing a task for MPAS-Ocean
 
 ## Initial conditions
 
-The minimal set of initial state variables that must be defined in the `init` step of each test case is:
+The minimal set of initial state variables that must be defined in the `init` step of each task is:
 
 * `temperature`
 * `salinity`

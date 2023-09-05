@@ -4,19 +4,19 @@
 
 Description of the test group.
 
-(component-test-group-name-test-case-name)=
+(component-test-group-name-task-name)=
 
 ## test_case_name
 
 In cases where the test cases within a test group share many characteristics,
 it may be more appropriate to move the certain sections up one level to the
 test group. In that case, the respective section should still be included for
-each test case, specifying any or no differences from the section in the test
+each task, specifying any or no differences from the section in the test
 group level.
 
 ### description
 
-Description of the test case. Images that show the test case configuration or
+Description of the task. Images that show the task configuration or
 results are particularly welcome here.
 
 ```{image} images/single_cell.png
@@ -50,7 +50,7 @@ case's resolution. The run duration should also be specified.
 
 ### config options
 
-Here, include the config section(s) that is specific to this test case. E.g.,
+Here, include the config section(s) that is specific to this task. E.g.,
 
 ```cfg
 # replace this section with ice variables.

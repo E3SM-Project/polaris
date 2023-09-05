@@ -110,7 +110,7 @@ The solution is to set the following config option in the `parallel` section
 of your user config file:
 
 ```cfg
-# The parallel section describes options related to running tests in parallel
+# The parallel section describes options related to running tasks in parallel
 [parallel]
 
 # whether to use mpirun or srun to run the model

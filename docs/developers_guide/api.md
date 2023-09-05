@@ -78,7 +78,7 @@ seaice/api
    setup_config
    load_dependencies
    pickle_step_after_run
-   serial.run_tests
+   serial.run_tasks
    serial.run_single_step
 
 ```
@@ -131,10 +131,10 @@ seaice/api
    :toctree: generated/
 
    TestGroup
-   TestGroup.add_test_case
+   TestGroup.add_task
 ```
 
-#### TestCase
+#### Task
 
 ```{eval-rst}
 .. currentmodule:: polaris
@@ -142,10 +142,10 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
-   TestCase
-   TestCase.configure
-   TestCase.validate
-   TestCase.add_step
+   Task
+   Task.configure
+   Task.validate
+   Task.add_step
 ```
 
 #### Step

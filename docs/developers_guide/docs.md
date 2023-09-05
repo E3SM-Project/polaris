@@ -11,7 +11,7 @@ on using MyST in Sphinx.
 Another easy way to get started is by taking a look at the existing source
 code for the documentation: <https://github.com/E3SM-Project/polaris/tree/main/docs/>
 
-Each time you add a component, test group or test case, the corresponding
+Each time you add a component, test group or task, the corresponding
 documentation must be included with the pull request to add the code.  This
 includes documentation for both the User's Guide and the Developer's Guide.
 For examples, see:
@@ -41,7 +41,7 @@ In the Developer's Guide, labels have `dev-` prepended to them:
 ```
 
 Each test group should have the component prepended to its label (in case
-multiple components have the same test group name), and each test case (if
+multiple components have the same test group name), and each task (if
 explicitly labeled) should have the component and test group prepended to it.
 Thus, in the User's guide, we have:
 
@@ -75,30 +75,30 @@ And in the Developer's guide, these become:
 ...
 ```
 
-Documentation for a component, test group or test case in the User's Guide
+Documentation for a component, test group or task in the User's Guide
 should contain information that is needed for users who set up and run the test
 case, including:
 
 - Documentation for the component itself (if any)
 
-- A page for each test group with a section for each test case:
+- A page for each test group with a section for each task:
 
   - A citation or link where the test group is defined (if any)
-  - A brief overview of the test cases within the test group
-  - An image showing typical output from one of the test cases
-  - A list of (commented) config options that apply to all test cases
-  - A (typically brief) description of each test case
+  - A brief overview of the tasks within the test group
+  - An image showing typical output from one of the tasks
+  - A list of (commented) config options that apply to all tasks
+  - A (typically brief) description of each task
   - The following sections as described in the template: description, mesh,
     vertical grid, initial conditions, forcing, time step, config, and cores
 
 - A description of any common framework within the component that the test 
-  group or test case pages may need to refer to.  This should only include
+  group or task pages may need to refer to.  This should only include
   framework that users may need to be aware of, e.g. because of 
   {ref}`config-files` or namelist options they may wish to edit.
 
-- A description of each test suite, including which test cases are included
+- A description of each suite, including which tasks are included
 
-A template is available for test groups and test cases in the User's Guide:
+A template is available for test groups and tasks in the User's Guide:
 {ref}`component-test-group-name`
 
 The Developer's guide for each component should contain:
@@ -111,7 +111,7 @@ The Developer's guide for each component should contain:
   - A description of shared config, namelist and streams files
   - A description of shared steps
   - A description of any other shared framework code for the test group
-  - A description of each test case and its steps
+  - A description of each task and its steps
 
 - Technical details on the shared framework for the component
 
@@ -124,7 +124,7 @@ Finally, all functions in the test group that are part of the public API
 ### baroclinic_channel
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.baroclinic_channel
+.. currentmodule:: polaris.ocean.tasks.baroclinic_channel
 
 .. autosummary::
    :toctree: generated/

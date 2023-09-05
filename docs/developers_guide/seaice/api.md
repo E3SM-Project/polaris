@@ -14,7 +14,7 @@
 ### single_column
 
 ```{eval-rst}
-.. currentmodule:: polaris.seaice.tests.single_column
+.. currentmodule:: polaris.seaice.tasks.single_column
 
 .. autosummary::
    :toctree: generated/

@@ -12,7 +12,7 @@ class OceanModelStep(ModelStep):
         ``min_tasks``) are computed dynamically from the number of cells
         in the mesh
     """
-    def __init__(self, test_case, name, subdir=None, ntasks=None,
+    def __init__(self, task, name, subdir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, yaml=None, update_pio=True, make_graph=False,
                  mesh_filename=None, partition_graph=True,
@@ -22,8 +22,8 @@ class OceanModelStep(ModelStep):
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str
             The name of the step
@@ -75,7 +75,7 @@ class OceanModelStep(ModelStep):
             The name of the graph file to partition
         """
         super().__init__(
-            test_case=test_case, name=name, subdir=subdir, ntasks=ntasks,
+            task=task, name=name, subdir=subdir, ntasks=ntasks,
             min_tasks=min_tasks, openmp_threads=openmp_threads,
             max_memory=max_memory, cached=cached, yaml=yaml,
             update_pio=update_pio, make_graph=make_graph,

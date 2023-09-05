@@ -3,7 +3,7 @@
 # inertial_gravity_wave
 
 The `inertial_gravity_wave` test group
-({py:class}`polaris.ocean.tests.inertial_gravity_wave.InertialGravityWave`)
+({py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`)
 implements a linear shallow water test case at 4 resolutions (200, 100, 50, and
 25 km). Here, we describe the shared framework for this test group and the 1
 test case.
@@ -21,19 +21,19 @@ vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
 ### exact_solution
 
 The class
-{py:class}`polaris.ocean.tests.inertial_gravity_wave.exact_solution.ExactSolution`
+{py:class}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution`
 defines a class for storing attributes and methods relevant to computing the
 exact solution.  The constructor obtains the parameters from the config file.
 The
-{py:meth}`polaris.ocean.tests.inertial_gravity_wave.exact_solution.ExactSolution.ssh(t)`
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh(t)`
 method computes the SSH field at time `t`.  The
-{py:meth}`polaris.ocean.tests.inertial_gravity_wave.exact_solution.ExactSolution.normalVelocity(t)`
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normalVelocity(t)`
 method computes the `normalVelocity` field at time `t`.
 
 ### init
 
 The class
-{py:class}`polaris.ocean.tests.inertial_gravity_wave.init.Init`
+{py:class}`polaris.ocean.tasks.inertial_gravity_wave.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -45,29 +45,30 @@ the exact solution. The tracer and coriolis fields are uniform in space.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tests.inertial_gravity_wave.forward.Forward`
+The class {py:class}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in the
 `init` step.  Namelist and streams files are updated in
-{py:meth}`polaris.ocean.tests.inertial_gravity_wave.forward.Forward.dynamic_model_config()`
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The number
 of cells is approximated from config options in
-{py:meth}`polaris.ocean.tests.inertial_gravity_wave.forward.Forward.compute_cell_count()`
-so that this can be used to constrain the number of MPI tasks that tests have as
-their target and minimum (if the resources are not explicitly prescribed).  For
-MPAS-Ocean, PIO namelist options are modified and a graph partition is generated
-as part of `runtime_setup()`.  Finally, the ocean model is run.
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()`
+so that this can be used to constrain the number of MPI tasks that Polaris 
+tasks have as  their target and minimum (if the resources are not explicitly 
+prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph 
+partition is generated as part of `runtime_setup()`.  Finally, the ocean model 
+is run.
 
 ### analysis
 
 The class
-{py:class}`polaris.ocean.tests.inertial_gravity_wave.analysis.Analysis` defines
+{py:class}`polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis` defines
 a step for computing the root mean-square-error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
 convergence rate falls within acceptable bounds.
 
 ### viz
 
-The class {py:class}`polaris.ocean.tests.inertial_gravity_wave.viz.Viz` defines
+The class {py:class}`polaris.ocean.tasks.inertial_gravity_wave.viz.Viz` defines
 a step for visualization. It produces two plots: the convergence of the RMSE
 with resolution and a plan-view of the simulated, exact, and (simulated - exact)
 SSH fields.
@@ -75,7 +76,7 @@ SSH fields.
 ### convergence
 
 The
-{py:class}`polaris.ocean.tests.inertial_gravity_wave.convergence.Convergence`
+{py:class}`polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence`
 test performs a 10-hour run with a series of resolutions.  The convergence rate
 is calculated and visualizations are generated.  Then, validation of
 `layerThickness` and `normalVelocity` are performed against a baseline if one is

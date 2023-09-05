@@ -3,9 +3,9 @@
 # Steps
 
 Steps are the smallest units of work that can be executed on their own in
-polaris.  All test cases are made up of 1 or more steps, and all steps
-are set up into subdirectories inside of the work directory for the test case.
-Typically, a user will run all steps in a test case but certain test cases may
+polaris.  All tasks are made up of 1 or more steps, and all steps
+are set up into subdirectories inside of the work directory for the task.
+Typically, a user will run all steps in a task but certain tasks may
 prefer to have steps that are not run by default (e.g. a long forward
 simulation or optional visualization) but which are available for a user to
 manually alter and then run on their own.
@@ -19,7 +19,7 @@ the {py:meth}`polaris.Step.setup()` method, described below.
 
 ## Step attributes
 
-As was the case for test cases, the base class {py:class}`polaris.Step` has a
+As was the case for tasks, the base class {py:class}`polaris.Step` has a
 large number of attributes that are useful at different stages (init, setup and
 run) of the step.
 
@@ -28,15 +28,15 @@ Some attributes are available after calling the base class' constructor
 
 `self.name`
 
-: the name of the test case
+: the name of the task
 
-`self.test_case`
+`self.task`
 
-: The test case this step belongs to
+: The task this step belongs to
 
 `self.test_group`
 
-: The test group the test case belongs to
+: The test group the task belongs to
 
 `self.component`
 
@@ -49,7 +49,7 @@ Some attributes are available after calling the base class' constructor
 `self.path`
 
 : the path within the base work directory of the step, made up of
-  `component`, `test_group`, the test case's `subdir` and the
+  `component`, `test_group`, the task's `subdir` and the
   step's `subdir`
 
 `self.ntasks`
@@ -89,7 +89,7 @@ Some attributes are available after calling the base class' constructor
 `self.run_as_subprocess`
 
 : Whether to run this step as a subprocess, rather than just running
-  it directly from the test case.  It is useful to run a step as a
+  it directly from the task.  It is useful to run a step as a
   subprocess if there is not a good way to redirect output to a log
   file (e.g. if the step calls external code that, in turn, calls
   additional subprocesses).
@@ -113,7 +113,7 @@ polaris framework:
 
 `self.config`
 
-: Configuration options for this test case, a combination of the defaults
+: Configuration options for this task, a combination of the defaults
   for the machine, core and configuration
 
 `self.config_filename`
@@ -146,7 +146,7 @@ framework:
 `self.outputs`
 
 : a list of absolute paths of output files produced by this step and
-  available as inputs to other test cases and steps.  These files must
+  available as inputs to other tasks and steps.  These files must
   exist after the test has run or an exception will be raised
 
 `self.logger`
@@ -167,7 +167,7 @@ You can add other attributes to the child class that keeps track of information
 that the step will need.
 
 As an example,
-{py:class}`polaris.landice.tests.dome.setup_mesh.SetupMesh` keeps track of the
+{py:class}`polaris.landice.tasks.dome.setup_mesh.SetupMesh` keeps track of the
 mesh type as an attribute:
 
 ```python
@@ -177,26 +177,26 @@ from polaris import Step
 
 class SetupMesh(Step):
     """
-    A step for creating a mesh and initial condition for dome test cases
+    A step for creating a mesh and initial condition for dome tasks
 
     Attributes
     ----------
     mesh_type : str
-        The resolution or mesh type of the test case
+        The resolution or mesh type of the task
     """
-    def __init__(self, test_case, mesh_type):
+    def __init__(self, task, mesh_type):
         """
         Update the dictionary of step properties
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         mesh_type : str
-            The resolution or mesh type of the test case
+            The resolution or mesh type of the task
         """
-        super().__init__(test_case=test_case, name='setup_mesh')
+        super().__init__(task=task, name='setup_mesh')
         self.mesh_type = mesh_type
 
         if mesh_type == 'variable_resolution':
@@ -216,7 +216,7 @@ class SetupMesh(Step):
 
 The step's constructor (`__init__()` method) should call the base case's
 constructor with `super().__init__()`, passing the name of the step, the
-test case it belongs to, and possibly several optional arguments: the
+task it belongs to, and possibly several optional arguments: the
 subdirectory for the step (if not the same as the name), number of MPI tasks,
 the minimum number of MPI tasks, the number of CPUs per task, the minimum
 number of CPUs per task, the number of OpenMP threads, and (currently as
@@ -225,11 +225,11 @@ placeholders) the amount of memory the step is allowed to use.
 Then, the step can add {ref}`dev-step-inputs-outputs` as well as
 {ref}`dev-step-namelists-and-streams`, as described below.
 
-As with the test case's {ref}`dev-test-case-init`, it is important that the
+As with the task's {ref}`dev-task-init`, it is important that the
 step's constructor doesn't perform any time-consuming calculations, download
 files, or otherwise use significant resources because this function is called
-quite often for every single test case and step: when test cases are listed,
-set up, or cleaned up, and also when test suites are set up or cleaned up.
+quite often for every single task and step: when tasks are listed,
+set up, or cleaned up, and also when suites are set up or cleaned up.
 However, it is okay to add input, output, streams and namelist files to
 the step by calling any of the following methods:
 
@@ -241,11 +241,11 @@ the step by calling any of the following methods:
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
 Each of these functions just caches information about the the inputs, outputs,
-namelists or streams files to be read later if the test case in question gets
+namelists or streams files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.
 
 The following is from
-{py:class}`polaris.ocean.tests.baroclinic_channel.forward.Forward()`:
+{py:class}`polaris.ocean.tasks.baroclinic_channel.forward.Forward()`:
 
 ```python
 from polaris.model_step import ModelStep
@@ -254,28 +254,28 @@ from polaris.model_step import ModelStep
 class Forward(ModelStep):
     """
     A step for performing forward MPAS-Ocean runs as part of baroclinic
-    channel test cases.
+    channel tasks.
 
     Attributes
     ----------
     resolution : str
-        The resolution of the test case
+        The resolution of the task
     """
-    def __init__(self, test_case, resolution, name='forward', subdir=None,
+    def __init__(self, task, resolution, name='forward', subdir=None,
                  ntasks=1, min_tasks=None, openmp_threads=1, nu=None):
         """
-        Create a new test case
+        Create a new task
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         resolution : str
-            The resolution of the test case
+            The resolution of the task
 
         name : str
-            the name of the test case
+            the name of the task
 
         subdir : str, optional
             the subdirectory for the step.  The default is ``name``
@@ -298,12 +298,12 @@ class Forward(ModelStep):
         self.resolution = resolution
         if min_tasks is None:
             min_tasks = ntasks
-        super().__init__(test_case=test_case, name=name, subdir=subdir,
+        super().__init__(task=task, name=name, subdir=subdir,
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
-        self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+        self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
                                'namelist.forward')
-        self.add_namelist_file('polaris.ocean.tests.baroclinic_channel',
+        self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
                                'namelist.{}.forward'.format(resolution))
         if nu is not None:
             # update the viscosity to the requested value
@@ -313,7 +313,7 @@ class Forward(ModelStep):
         # make sure output is double precision
         self.add_streams_file('polaris.ocean.streams', 'streams.output')
 
-        self.add_streams_file('polaris.ocean.tests.baroclinic_channel',
+        self.add_streams_file('polaris.ocean.tasks.baroclinic_channel',
                               'streams.forward')
 
         self.add_input_file(filename='init.nc',
@@ -349,7 +349,7 @@ These performance-related attributes affect how the step runs and must be set
 prior to runtime, whereas other options can be set within `runtime_setup()`.
 
 `constrain_resources()` is called within
-{py:func}`polaris.run.serial.run_tests()`, but can be overridden if desired.
+{py:func}`polaris.run.serial.run_tasks()`, but can be overridden if desired.
 The typical reason to override this function would be to get config options for
 `ntasks`, `min_tasks`, `cpus_per_task`, etc. and set the corresponding
 attributes.  Another reason might be to set these attributes using an algorithm
@@ -410,12 +410,12 @@ other than downloading files.  Time-consuming work should be saved for
 `run()` whenever possible.
 
 As an example, here is
-{py:func}`polaris.ocean.tests.global_ocean.mesh.mesh.MeshStep.setup()`:
+{py:func}`polaris.ocean.tasks.global_ocean.mesh.mesh.MeshStep.setup()`:
 
 ```python
 def setup(self):
     """
-    Set up the test case in the work directory, including downloading any
+    Set up the task in the work directory, including downloading any
     dependencies.
     """
     # get the these properties from the config options
@@ -435,7 +435,7 @@ attributes are set to appropriate values based on config options.
 ## runtime_setup()
 
 The `runtime_setup()` method is used to modify any behaviors of the step at
-runtime, in the way that {py:meth}`polaris.TestCase.run()` was previously used.
+runtime, in the way that {py:meth}`polaris.Task.run()` was previously used.
 This includes things like partitioning an MPAS mesh across processors and
 computing a times step based on config options that might have been modified
 by the user.  It must not include modifying the `ntasks`, `min_tasks`,
@@ -453,7 +453,7 @@ The contents of `run()` can vary quite a lot between steps.
 
 In the `baroclinic_channel` test group, the `run()` method for
 the `init` step,
-{py:meth}`polaris.ocean.tests.baroclinic_channel.init.Init.run()`,
+{py:meth}`polaris.ocean.tasks.baroclinic_channel.init.Init.run()`,
 is quite involved:
 
 ```python
@@ -472,7 +472,7 @@ class Init(Step):
     ...
     def run(self):
         """
-        Run this step of the test case
+        Run this step of the task
         """
         config = self.config
         logger = self.logger
@@ -607,21 +607,21 @@ explore different steps.
 
 ## inputs and outputs
 
-Currently, steps run in sequence in the order they are added to the test case
-(or in the order they appear in the test case's `steps_to_run` attribute).
-There are plans to allow test cases and their steps to run in parallel in the
+Currently, steps run in sequence in the order they are added to the task
+(or in the order they appear in the task's `steps_to_run` attribute).
+There are plans to allow tasks and their steps to run in parallel in the
 future. For this reason, we require that each step defines a list of the
 absolute paths to all input files that could come from other steps (possibly in
-other test cases) and all outputs from the step that might be used by other
-steps (again, possibly in other test cases).  There is no harm in including
+other tasks) and all outputs from the step that might be used by other
+steps (again, possibly in other tasks).  There is no harm in including
 inputs to the step that do not come from other steps (e.g. files that will be
-downloaded when the test case gets set up) as long as they are sure to exist
+downloaded when the task gets set up) as long as they are sure to exist
 before the step runs.  Likewise, there is no harm in including outputs from the
-step that aren't used by any other steps in any test cases as long as the step
+step that aren't used by any other steps in any tasks as long as the step
 will be sure to generate them.
 
 The inputs and outputs need to be defined during init of either the step or
-the test case, or in the step's `setup()` method because they are needed
+the task, or in the step's `setup()` method because they are needed
 before {ref}`dev-step-run` is called (to determine which steps depend on which
 other steps).  Inputs are added with {py:meth}`polaris.Step.add_input_file()`
 and outputs with {py:func}`polaris.Step.add_output_file()`.  Inputs may be
@@ -662,8 +662,8 @@ namelist and streams files:
 
 Typically, a step will add input files with
 {py:meth}`polaris.Step.add_input_file()` during init or in its `setup()`
-method.  It is also possible to add inputs in the test case's
-{ref}`dev-test-case-init`.
+method.  It is also possible to add inputs in the task's
+{ref}`dev-task-init`.
 
 It is possible to simply supply the path to an input file as `filename`
 without any other arguments to {py:meth}`polaris.Step.add_input_file()`.  In
@@ -671,7 +671,7 @@ this case, the file name is either an absolute path or a relative path with
 respect to the step's work directory:
 
 ```python
-def __init__(self, test_case):
+def __init__(self, task):
     ...
     self.add_input_file(filename='../setup_mesh/landice_grid.nc')
 ```
@@ -692,7 +692,7 @@ you to refer to a short, local name for the file rather than its full path:
 ```python
 import xarray
 
-def __init__(self, test_case):
+def __init__(self, task):
     ...
     self.add_input_file(filename='landice_grid.nc',
                         target='../setup_mesh/landice_grid.nc')
@@ -716,10 +716,10 @@ subdirectory for this step or the target's step (or both) depends on
 parameters.  For such cases, there is a `work_dir_target` argument that
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
-{py:class}`polaris.ocean.tests.global_ocean.forward.ForwardStep`:
+{py:class}`polaris.ocean.tasks.global_ocean.forward.ForwardStep`:
 
 ```python
-def __init__(self, test_case, mesh, init, ...):
+def __init__(self, task, mesh, init, ...):
     mesh_path = mesh.mesh_step.path
 
     if mesh.with_ice_shelf_cavities:
@@ -744,17 +744,17 @@ def __init__(self, test_case, mesh, init, ...):
 ### Symlink to input files from polaris
 
 Another common need is to symlink a data file from within the test group or
-test case:
+task:
 
 ```python
 from polaris.io import add_input_file
 
 
-def __init__(self, test_case):
+def __init__(self, task):
     ...
     self.add_input_file(
         filename='enthA_analy_result.mat',
-        package='polaris.landice.tests.enthalpy_benchmark.A')
+        package='polaris.landice.tasks.enthalpy_benchmark.A')
 ```
 
 Here, we supply the name of the package that the file is in.  The polaris
@@ -782,7 +782,7 @@ self.add_input_file(
 ```
 
 In this example from
-{py:class}`polaris.ocean.tests.global_ocean.init.init.Init()`,
+{py:class}`polaris.ocean.tasks.global_ocean.init.init.Init()`,
 the file `BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc` is
 slated for later downloaded from the
 [Ocean bathymetry database](https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/).
@@ -823,7 +823,7 @@ local modifications), simply add the keyword argument `copy=True` to any call
 to `self.add_input_file()`:
 
 ```python
-def __init__(self, test_case):
+def __init__(self, task):
     ...
     self.add_input_file(filename='landice_grid.nc',
                         target='../setup_mesh/landice_grid.nc', copy=True)
@@ -847,7 +847,7 @@ self.add_output_file(filename='output_file.nc')
 
 {py:meth}`polaris.Step.add_output_file()` can be called in a step's
 {ref}`dev-step-init`: or {ref}`dev-step-setup` method or (less commonly)
-in the test case's {ref}`dev-test-case-init`.
+in the task's {ref}`dev-task-init`.
 
 The relative path in `filename` is with respect to the step's work directory,
 and is converted to an absolute path internally before the step is run.
@@ -856,7 +856,7 @@ and is converted to an absolute path internally before the step is run.
 
 ### Cached output files
 
-Many polaris test cases and steps are expensive enough that it can become
+Many polaris tasks and steps are expensive enough that it can become
 time consuming to run full workflows to produce meshes and initial conditions
 in order to test simulations.  Therefore, polaris provides a mechanism for
 caching the outputs of each step in a database so that they can be downloaded
@@ -865,13 +865,13 @@ and symlinked rather than being computed each time.
 Cached output files are be stored in the `polaris_cache` database within each
 component's space on that LCRC server (see {ref}`dev-step-input-download`).
 If the "cached" version of a step is selected, as we will describe below, each
-of the test case's outputs will have a corresponding "input" file added with
+of the task's outputs will have a corresponding "input" file added with
 the `target` being a cache file on the LCRC server and the `filename` being
 the output file.  Polaris uses the `cached_files.json` database to know
 which cache files correspond to which step outputs.
 
-A developer can indicate that polaris test suite includes steps with cached
-outputs in two ways.  First, if all steps in a test case should have cached
+A developer can indicate that polaris suite includes steps with cached
+outputs in two ways.  First, if all steps in a task should have cached
 output, the following notation should be used:
 
 ```none
@@ -881,10 +881,10 @@ ocean/global_ocean/QU240/PHC/init
     cached
 ```
 
-That is, the word `cached` should appear after the test case on its own line.
+That is, the word `cached` should appear after the task on its own line.
 The indentation is for visual clarity and is not required.
 
-Second, ff only some steps in a test case should have cached output, they need
+Second, ff only some steps in a task should have cached output, they need
 to be listed explicitly, as follows:
 
 ```none
@@ -897,22 +897,22 @@ ocean/global_ocean/QUwISC240/PHC/init
 The line can be indented for visual clarity, but must begin with `cached:`,
 followed by a list of steps separated by a single space.
 
-Similarly, a user setting up test cases has two mechanisms for specifying which
-test cases and steps should have cached outputs.  If all steps in a test case
+Similarly, a user setting up tasks has two mechanisms for specifying which
+tasks and steps should have cached outputs.  If all steps in a task
 should have cached outputs, the suffix `c` can be added to the test number:
 
 ```none
 polaris setup -n 90c 91c 92 ...
 ```
 
-In this example, test cases 90 and 91 (`mesh` and `init` test cases from
+In this example, tasks 90 and 91 (`mesh` and `init` tasks from
 the `SOwISC12to60` global ocean mesh, in this case) are set up with cached
 outputs in all steps and 92 (`performance_test`) is not.  This approach is
 efficient but does not provide any control of which steps use cached outputs
 and which do not.
 
 A much more verbose approach is required if some steps use cached outputs and
-others do not within a given test case.  Each test case must be set up on its
+others do not within a given task.  Each task must be set up on its
 own with the `-t` and `--cached` flags as follows:
 
 ```none
@@ -921,7 +921,7 @@ polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
 ...
 ```
 
-Cache files should be generated by first running the test case as normal, then
+Cache files should be generated by first running the task as normal, then
 running the {ref}`dev-polaris-cache` command-line tool at the base of the work
 directory, providing the names of the steps whose outputs should be added to
 the cache.  The resulting `<component>_cached_files.json` should be copied
@@ -952,11 +952,11 @@ Under these circumstances, it is useful to be able to specify that a step
 is a dependency of another (dependent) step.  This is accomplished by passing 
 the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method 
 either  during the creation of the dependent step, within the `configure()` 
-method of  the parent test case, or in the `setup()` method of the dependent
-step.  The  dependency does not need to belong to the same test case as the
+method of  the parent task, or in the `setup()` method of the dependent
+step.  The  dependency does not need to belong to the same task as the
 dependent step.  But the dependent step will fail to run if the dependency
 has not run.  Also all dependencies must be set up along with dependent steps
-(even if they are not run by default, because they are added to the test case
+(even if they are not run by default, because they are added to the task
 with `run_by_default=False`).  This is because a user could modify which steps
 they wish to run and all dependencies should be available if they do so.
 

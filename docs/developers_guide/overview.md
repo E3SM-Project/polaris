@@ -14,7 +14,7 @@ from polaris.io import symlink
 symlink('../initial_condition/initial_condition.nc', 'init.nc')
 ```
 
-Before we dig into the details of how to develop new test cases and other
+Before we dig into the details of how to develop new tasks and other
 infrastructure for polaris, we first give a little bit of background on
 the design philosophy behind the package.
 
@@ -53,7 +53,7 @@ Why a python package?  That sounds complicated.
 Some of the main advantages of polaris being a package instead of a group
 of scripts are that:
 
-1. it is a lot easier to share code between test cases;
+1. it is a lot easier to share code between tasks;
 2. there is no need to create symlinks to individual scripts or use
    [subprocess](https://docs.python.org/3/library/subprocess.html) calls to
    run one python script from within another;
@@ -97,7 +97,7 @@ class Ocean(Component):
 ```
 
 This class contains all of the ocean test groups, which contain all the ocean
-test cases and their steps.  The details aren't important.  The point is that
+tasks and their steps.  The details aren't important.  The point is that
 the class can be imported like so:
 
 ```python
@@ -180,10 +180,10 @@ clumsy set of functions and
 that was equally complex but harder to understand and document than classes.
 
 The outcome of this experience is that we have used classes to define
-components, test groups, test cases and steps.  Each component will "descend"
+components, test groups, tasks and steps.  Each component will "descend"
 from the {py:class}`polaris.Component` base class; each test groups descends
-from {py:class}`polaris.TestGroup`; each test case descends from
-{py:class}`polaris.TestCase`; and each steps descends from
+from {py:class}`polaris.TestGroup`; each task descends from
+{py:class}`polaris.Task`; and each steps descends from
 {py:class}`polaris.Step`.  These base classes contain functionality that can
 be shared with the "child" classes that descend from them and also define
 a few "methods" (functions that belong to a class) that the child class is
@@ -194,7 +194,7 @@ same function).
 We have some tutorials on how to add new components, test groups, test
 cases and steps, and more will be developed in the near future.  These will 
 explain the main features of  classes that developers need to know about.  
-We also hope that the tests currently in the package can provide a starting 
+We also hope that the tasks currently in the package can provide a starting 
 point for new development.
 
 (dev-code-sharing)=
@@ -210,7 +210,7 @@ code sharing in a number of ways.
 ### ...in the polaris framework
 
 The polaris framework (modules and packages not in the component packages)
-has a lot of code that is shared across existing test cases and could be very
+has a lot of code that is shared across existing tasks and could be very
 useful for future ones.
 
 The framework has been broken into modules that make it clear what 
@@ -230,37 +230,37 @@ the number of total cores and nodes available for running steps.
 
 A component in polaris could, theoretically, build out functionality as
 complex as in the E3SM components themselves.  This has already been
-accomplished for several of the idealized test cases included in polaris. As an
+accomplished for several of the idealized tasks included in polaris. As an
 example, the shared functionality in the {ref}`dev-ocean` is described in
 {ref}`dev-ocean-framework`.
 
 ### ...within a test group
 
 So far, the most common type of shared code within test group are modules
-defining steps that are used in multiple test cases.  For example, the
+defining steps that are used in multiple tasks.  For example, the
 {ref}`dev-ocean-baroclinic-channel` configuration uses shared modules to define
-the `init` and `forward` steps of each test case.  Configurations
+the `init` and `forward` steps of each task.  Configurations
 also often include namelist and streams files with replacements to use across
-test cases.
+tasks.
 
 In addition to shared steps, the {ref}`dev-ocean-global-ocean` configuration
 includes some additional shared framework described in
 {ref}`dev-ocean-global-ocean-framework`.
 
 The shared code in `global_ocean` has made it easy to define dozens different
-test cases using the QU240 or QUwISC240 meshes.  This is possible because
+tasks using the QU240 or QUwISC240 meshes.  This is possible because
 the same conceptual test (e.g. restart) can be defined:
 
 > - with or without ice-shelf cavities
 > - with the RK4 or split-explicit time integrators
 
-In theory, we could provide additional variants of these test cases with 
+In theory, we could provide additional variants of these tasks with 
 different  initial conditions and other capabilities such as support for 
 biogeochemistry.
 
-### ...within a test case
+### ...within a task
 
-The main way code is currently reused with a test case is when the same module
-for a step gets used multiple times within a test case.  For example,
-the {ref}`dev-ocean-baroclinic-channel-rpe-test` test case uses the same
+The main way code is currently reused with a task is when the same module
+for a step gets used multiple times within a task.  For example,
+the {ref}`dev-ocean-baroclinic-channel-rpe-test` task uses the same
 forward run with 5 different values of the viscosity.

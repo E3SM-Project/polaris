@@ -3,7 +3,7 @@
 # Ocean component
 
 The `ocean` component is defined by the {py:class}`polaris.ocean.Ocean`
-class. All test cases in the `ocean` component share the following set of
+class. All tasks in the `ocean` component share the following set of
 default config options:
 
 ```cfg
@@ -24,7 +24,7 @@ model = mpas-ocean
 iterations = 10
 ```
 
-MPAS-Ocean test cases also have these config options:
+MPAS-Ocean tasks also have these config options:
 ```cfg
 # This config file has default config options for MPAS-Ocean
 
@@ -55,7 +55,7 @@ init    = ${paths:component_path}/default_inputs/streams.ocean.init
 
 
 # The executables section defines paths to required executables. These
-# executables are provided for use by specific test cases.  Most tools that
+# executables are provided for use by specific tasks.  Most tools that
 # compass needs should be in the conda environment, so this is only the path
 # to the MPAS-Ocean or OMEGA executable by default.
 [executables]

@@ -123,7 +123,7 @@ will be linked in to MPAS-Ocean.
 
 ### Environments with PETSc and Netlib-LAPACK
 
-If you are working with MPAS-Ocean test cases that need PETSC and
+If you are working with MPAS-Ocean tasks that need PETSC and
 Netlib-LAPACK, you should specify `--with_petsc --with_netlib_lapack` to
 point to Spack environments where these libraries are included.  Appropriate
 environment variables for pointing to these libraries will be build into the
@@ -469,27 +469,27 @@ If you follow the procedure above, you can run polaris with the `polaris`
 command-line tool exactly like described in the {ref}`quick-start`
 and as detailed in {ref}`dev-command-line`.
 
-To list test cases you need to run:
+To list tasks you need to run:
 
 ```bash
 polaris list
 ```
 
 The results will be the same as described in {ref}`setup-overview`, but the
-test cases will come from the local polaris directory.
+tasks will come from the local polaris directory.
 
-To set up a test case, you will run something like:
+To set up a task, you will run something like:
 
 ```bash
 polaris setup -t ocean/global_ocean/QU240/mesh -m $MACHINE -w $WORKDIR -p $COMPONENT
 ```
 
 where `$MACHINE` is an ES3M machine, `$WORKDIR` is the location where polaris
-test cases will be set up and `$COMPONENT` is the directory where the E3SM
+tasks will be set up and `$COMPONENT` is the directory where the E3SM
 component executable has been compiled. See {ref}`dev-polaris-setup` for 
 details.
 
-To list available test suites, you would run:
+To list available suites, you would run:
 
 ```bash
 polaris list --suites
@@ -511,8 +511,8 @@ polaris run
 
 The first command will source the same activation script
 (`load_<env_name>_<machine>_<compiler>_<mpi>.sh`) that you used to set
-up the suite or test case (`load_polaris_env.sh` is just a symlink to that
-activation script you sourced before setting up the suite or test case).
+up the suite or task (`load_polaris_env.sh` is just a symlink to that
+activation script you sourced before setting up the suite or task).
 
 (dev-polaris-style)=
 

@@ -5,7 +5,7 @@ from polaris.io import imp_res
 
 class Component:
     """
-    The base class for housing all the tests for a given component, such as
+    The base class for housing all the tasks for a given component, such as
     ocean, landice, or seaice
 
     Attributes

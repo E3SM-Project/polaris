@@ -5,8 +5,8 @@ def log_method_call(method, logger):
     """
     Log the module path and file path of a call to a method, e.g.::
 
-      polaris calling: polaris.landice.tests.dome.decomposition_test.DecompositionTest.run()  # noqa: E501
-        in /turquoise/usr/projects/climate/mhoffman/mpas/polaris/polaris/landice/tests/dome/decomposition_test/__init__.py  # noqa: E501
+      polaris calling: polaris.landice.tasks.dome.decomposition_test.DecompositionTest.run()  # noqa: E501
+        in /turquoise/usr/projects/climate/mhoffman/mpas/polaris/polaris/landice/tasks/dome/decomposition_test/__init__.py  # noqa: E501
 
     Parameters
     ----------

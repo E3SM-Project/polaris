@@ -28,14 +28,14 @@ class SphericalBaseStep(Step):
     opts : jigsawpy.jigsaw_jig_t
         JIGSAW options for creating the mesh
     """
-    def __init__(self, test_case, name, subdir):
+    def __init__(self, task, name, subdir):
         """
         Create a new step
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str
             the name of the step
@@ -43,7 +43,7 @@ class SphericalBaseStep(Step):
         subdir : {str, None}
             the subdirectory for the step.  The default is ``name``
         """
-        super().__init__(test_case, name=name, subdir=subdir)
+        super().__init__(task, name=name, subdir=subdir)
 
         # setup files for JIGSAW
         self.opts = jigsawpy.jigsaw_jig_t()
@@ -184,15 +184,15 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         The approximate cell width in km of the mesh if constant resolution
     """
 
-    def __init__(self, test_case, name='base_mesh', subdir=None,
+    def __init__(self, task, name='base_mesh', subdir=None,
                  cell_width=None):
         """
         Create a new step
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str, optional
             the name of the step
@@ -203,7 +203,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         cell_width : float, optional
             The approximate cell width in km of the mesh if constant resolution
         """
-        super().__init__(test_case=test_case, name=name, subdir=subdir)
+        super().__init__(task=task, name=name, subdir=subdir)
         self.cell_width = cell_width
 
         # build mesh via JIGSAW!
@@ -228,7 +228,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
 
     def run(self):
         """
-        Run this step of the test case
+        Run this step of the task
         """
         cell_width, lon, lat = self.build_cell_width_lat_lon()
         self.save_and_plot_cell_width(lon, lat, cell_width)
@@ -324,15 +324,15 @@ class IcosahedralMeshStep(SphericalBaseStep):
         The number of subdivisions of the icosahedral mesh to perform
     """
 
-    def __init__(self, test_case, name='base_mesh', subdir=None,
+    def __init__(self, task, name='base_mesh', subdir=None,
                  cell_width=None, subdivisions=None):
         """
         Create a new step
 
         Parameters
         ----------
-        test_case : polaris.TestCase
-            The test case this step belongs to
+        task : polaris.Task
+            The task this step belongs to
 
         name : str, optional
             the name of the step
@@ -346,7 +346,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         subdivisions : int, optional
             The number of subdivisions of the icosahedral mesh to perform
         """
-        super().__init__(test_case=test_case, name=name, subdir=subdir)
+        super().__init__(task=task, name=name, subdir=subdir)
 
         # run as a subprocess so output goes to a log file
         self.run_as_subprocess = True
@@ -373,7 +373,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
 
     def run(self):
         """
-        Run this step of the test case
+        Run this step of the task
         """
         logger = self.logger
         logger.info('Generate JIGSAW icosahedral mesh')
