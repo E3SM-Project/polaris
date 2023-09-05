@@ -79,11 +79,15 @@ has a class {py:class}`polaris.ocean.Ocean()` that looks like this (with the
 [docstrings](https://www.python.org/dev/peps/pep-0257/) stripped out):
 
 ```python
+from polaris import Component
+from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
+
+
 class Ocean(Component):
     def __init__(self):
         super().__init__(name='ocean')
 
-        self.add_test_group(GlobalConvergence(component=self))
+        add_baroclinic_channel_tasks(component=self)
 
     def configure(self, config):
         section = config['ocean']
@@ -96,9 +100,8 @@ class Ocean(Component):
         config.add_from_package('polaris.ocean', configs[model])
 ```
 
-This class contains all of the ocean test groups, which contain all the ocean
-tasks and their steps.  The details aren't important.  The point is that
-the class can be imported like so:
+This class contains all of the ocean tasks and steps.  The details aren't 
+important.  The point is that the class can be imported like so:
 
 ```python
 from polaris.ocean import Ocean
@@ -180,9 +183,8 @@ clumsy set of functions and
 that was equally complex but harder to understand and document than classes.
 
 The outcome of this experience is that we have used classes to define
-components, test groups, tasks and steps.  Each component will "descend"
-from the {py:class}`polaris.Component` base class; each test groups descends
-from {py:class}`polaris.TestGroup`; each task descends from
+components, tasks and steps.  Each component will "descend"
+from the {py:class}`polaris.Component` base class; each task descends from
 {py:class}`polaris.Task`; and each steps descends from
 {py:class}`polaris.Step`.  These base classes contain functionality that can
 be shared with the "child" classes that descend from them and also define
@@ -191,11 +193,10 @@ meant to "override" (replace with their own version of the function, or augment
 by replacing the function and then calling the base class's version of the
 same function).
 
-We have some tutorials on how to add new components, test groups, test
-cases and steps, and more will be developed in the near future.  These will 
-explain the main features of  classes that developers need to know about.  
-We also hope that the tasks currently in the package can provide a starting 
-point for new development.
+We have some tutorials on how to add new components, tasks and steps, and more 
+will be developed in the near future.  These will explain the main features of 
+classes that developers need to know about. We also hope that the tasks 
+currently in the package can provide a starting point for new development.
 
 (dev-code-sharing)=
 
@@ -234,9 +235,9 @@ accomplished for several of the idealized tasks included in polaris. As an
 example, the shared functionality in the {ref}`dev-ocean` is described in
 {ref}`dev-ocean-framework`.
 
-### ...within a test group
+### ...within a group of related tasks
 
-So far, the most common type of shared code within test group are modules
+So far, the most common type of shared code between related tasks are modules
 defining steps that are used in multiple tasks.  For example, the
 {ref}`dev-ocean-baroclinic-channel` configuration uses shared modules to define
 the `init` and `forward` steps of each task.  Configurations

@@ -9,7 +9,7 @@
    Ocean
 ```
 
-## Test Groups
+## Tasks
 
 ### baroclinic_channel
 
@@ -19,7 +19,7 @@
 .. autosummary::
    :toctree: generated/
 
-   BaroclinicChannel
+   add_baroclinic_channel_tasks
 
    BaroclinicChannelTestCase
    BaroclinicChannelTestCase.validate
@@ -66,7 +66,7 @@
 .. autosummary::
    :toctree: generated/
 
-   InertialGravityWave 
+   add_inertial_gravity_wave_tasks 
 
    analysis.Analysis
    analysis.Analysis.run
@@ -97,7 +97,7 @@
 .. autosummary::
    :toctree: generated/
 
-   GlobalConvergence
+   add_cosine_bell_tasks
 ```
 
 #### cosine_bell
@@ -138,7 +138,7 @@
 .. autosummary::
    :toctree: generated/
 
-   ManufacturedSolution
+   add_manufactured_solution_tasks
 
    analysis.Analysis
    analysis.Analysis.run
@@ -169,7 +169,7 @@
 .. autosummary::
    :toctree: generated/
 
-   SingleColumn
+   add_single_column_tasks
 
    forward.Forward
 

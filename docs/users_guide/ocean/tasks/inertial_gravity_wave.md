@@ -1,39 +1,48 @@
-(ocean-manufactured-solution)=
+(ocean-inertial-gravity-wave)=
 
-# manufactured_solution
+# inertial gravity wave
 
-The manufactured solution test group implements configurations for surface wave
-propagation with the rotating, nonlinear shallow water equations on a doubly
-periodic domain. This test group is intended to utilize tendency terms embedded
-in the forward ocean model in order to produce the manufactured solution. This
-solution can be then used to assess the numerical accuracy and convergence of
-the discretized nonlinear momentum equation. 
-
-Currently, the test group contains one test case, which is a convergence test
-from
+The inertial gravity wave tasks implement configurations for surface wave
+propagation with the rotating, linear shallow water equations on a doubly
+periodic domain. In this case there is an exact solution which can be used to
+assess the numerical accuracy and convergence of the MPAS-Ocean discretization.
+The implementation is from
 [Bishnu et al.(2023)](https://doi.org/10.22541/essoar.167100170.03833124/v1)
 
-(ocean-manufactured-solution-convergence)=
+Currently, the there is only one task, a convergence test.
+
+(ocean-inertial-gravity-wave-convergence)=
 
 ## convergence
 
 ### description
 
-The `convergence` test case runs the manufactured solution simulation for 4
+The `convergence` test case runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.
- 
+
 The forward step for each resolution runs the simulation for 10 hours. The
 model is configured without vertical advection and mixing. No tracers are enabled
 and the pressure gradient used is the gradient of the sea surface height.
-Horizontal mixing and bottom friction are also neglected.
+Horizontal mixing and bottom friction are also neglected. The nonlinear momentum
+terms are not included and the layer thickness equation is linearized.
 
 The analysis step computes the root mean-square-error of the difference between
 the simulated SSH field and the exact solution at the end of the simulation. It
-also computes the convergence rate with resolution
+also computes the convergence rate with resolution.
 
 The visualization step produces two plots: the convergence of the RMSE with
-resolution and a plan-view of the simulated, exact, and (simulated-exact)
+resolution and a plan-view of the simulated, exact, and (simulated-analytical)
 SSH fields.
+
+```{image} images/inertial_gravity_wave_comparison.png
+:align: center
+:width: 500 px
+```
+
+```{image} images/inertial_gravity_wave_convergence.png
+:align: center
+:width: 500 px
+```
 
 ### mesh
 
@@ -69,11 +78,11 @@ min_pc_fraction = 0.1
 
 ### initial conditions
 
-The initial conditions are set to the following:
+The initial conditions are set to the exact solution at time $t=0$:
 $$
-\eta = \eta_0 \sin(k_x x + k_y y - \omega t)\\
-u = \eta_0 \cos(k_x x + k_y y - \omega t)\\
-v = u
+\eta &= \cos(k_x x + k_y y + \omega t) \\
+u &= \frac{g}{\omega^2 - f^2} [\omega k_x \cos(k_x x + k_y y - \omega t) - f k_y \sin(k_x x + k_y y - \omega t)]\\
+v &= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f k_x \sin(k_x x + k_y y - \omega t)]
 $$
 
 ### forcing
@@ -90,15 +99,16 @@ mesh resolution. The run duration is 10 hours.
 The following config options are availiable for this case:
 
 ```cfg
-[manufactured_solution]
+[inertial_gravity_wave]
 
-# the size of the domain in km in the x and y directions
-lx = 10000.0
+# The size of the domain in km in the x direction, (size in y direction =
+# sqrt(3)/2*lx
+lx = 10000
 
-# the coriolis parameter
-coriolis_parameter = 1.0e-4
+# The Corilois parameter (constant)
+coriolis_parameter = 1e-4
 
-# the amplitude of the sea surface height perturbation
+# Amplitude of the ssh initial condition
 ssh_amplitude = 1.0
 
 # Number of wavelengths in x direction
@@ -107,14 +117,15 @@ n_wavelengths_x = 2
 # Number of wavelengths in y direction
 n_wavelengths_y = 2
 
-# Time step per resolution (s/km), since dt is proportional to resolution
-dt_per_km = 3.0
-
 # Convergence threshold below which the test fails
 conv_thresh = 1.8
 
 # Convergence rate above which a warning is issued
 conv_max = 2.2
+
+# time step per resolution (s/km), since dt is proportional to resolution
+dt_per_km = 3.0
+
 ```
 
 ### cores

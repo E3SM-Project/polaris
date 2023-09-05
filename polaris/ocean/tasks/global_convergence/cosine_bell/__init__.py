@@ -28,14 +28,14 @@ class CosineBell(Task):
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, test_group, icosahedral, include_viz):
+    def __init__(self, component, icosahedral, include_viz):
         """
         Create test case for creating a global MPAS-Ocean mesh
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.cosine_bell.GlobalOcean
-            The global ocean test group that this test case belongs to
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
         icosahedral : bool
             Whether to use icosahedral, as opposed to less regular, JIGSAW
@@ -45,12 +45,12 @@ class CosineBell(Task):
             Include VizMap and Viz steps for each resolution
         """
         if icosahedral:
-            subdir = 'icos/cosine_bell'
+            subdir = 'global_convergence/icos/cosine_bell'
         else:
-            subdir = 'qu/cosine_bell'
+            subdir = 'global_convergence/qu/cosine_bell'
         if include_viz:
             subdir = f'{subdir}_with_viz'
-        super().__init__(test_group=test_group, name='cosine_bell',
+        super().__init__(component=component, name='cosine_bell',
                          subdir=subdir)
         self.resolutions = list()
         self.icosahedral = icosahedral

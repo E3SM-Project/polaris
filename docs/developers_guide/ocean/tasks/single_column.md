@@ -2,27 +2,25 @@
 
 # single_column
 
-The `single_column` test group
-({py:class}`polaris.ocean.tasks.single_column.SingleColumn`)
-implements test cases that exercise vertical dynamics only. There is currently
+The single column tests in `polaris.ocean.tasks.single_column` exercise 
+the vertical dynamics of the ocean model only. There are currently
 two test cases: one that exercises CVMix, the other that exercises ideal age 
-tracers with CVMix. Here, we describe the shared framework for this test group 
-and the CVMix and ideal age test cases.
+tracers with CVMix. Here, we describe the tests and their shared framework.
 
 (dev-ocean-single-column-framework)=
 
 ## framework
 
-The shared config options for the `single_column` test group
+The shared config options for the `single_column` tests
 are described in {ref}`ocean-single-column` in the User's Guide.
 
-Additionally, the test group has a shared `forward.yaml` file with
+Additionally, the tests share a `forward.yaml` file with
 a few common model config options related to run duration and horizontal
 diffusion and cvmix, as well as defining `mesh`, `input`, `restart`, `output`,
 `KPP_testing` and `mixedLayerDepthsOutput` streams.
 
 An additional `forward.yaml` file is included in the ideal age tracer test case
-for enabeling on the ideal age tracers and ideal age surface forcing, as well as
+for enabling on the ideal age tracers and ideal age surface forcing, as well as
 for defining `idealAgeTracers` streams
 
 ### init

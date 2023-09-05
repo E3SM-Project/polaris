@@ -70,7 +70,7 @@ appropriate for whichever of the {ref}`machines` you are using.
 ```{toctree}
 :titlesonly: true
 
-test_groups/index
+tasks/index
 framework
 models/index
 ```

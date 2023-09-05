@@ -1,5 +1,5 @@
 from polaris import Component
-from polaris.seaice.tasks.single_column import SingleColumn
+from polaris.seaice.tasks.single_column import add_single_column_tasks
 
 
 class SeaIce(Component):
@@ -14,4 +14,4 @@ class SeaIce(Component):
         super().__init__(name='seaice')
 
         # please keep these in alphabetical order
-        self.add_test_group(SingleColumn(component=self))
+        add_single_column_tasks(component=self)

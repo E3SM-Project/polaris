@@ -1,16 +1,11 @@
-from polaris import TestGroup
 from polaris.ocean.tasks.inertial_gravity_wave.convergence import Convergence
 
 
-class InertialGravityWave(TestGroup):
+def add_inertial_gravity_wave_tasks(component):
     """
-    A test group for inertial gravity wave test cases
-    """
-    def __init__(self, component):
-        """
-        component : polaris.ocean.Ocean
-            the ocean component that this test group belongs to
-        """
-        super().__init__(component=component, name='inertial_gravity_wave')
+    Add a task that defines a convergence test for inertial gravity waves
 
-        self.add_task(Convergence(test_group=self))
+    component : polaris.ocean.Ocean
+        the ocean component that the task will be added to
+    """
+    component.add_task(Convergence(component=component))

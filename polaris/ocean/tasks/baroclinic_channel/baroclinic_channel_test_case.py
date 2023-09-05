@@ -16,14 +16,14 @@ class BaroclinicChannelTestCase(Task):
         The resolution of the test case in km
     """
 
-    def __init__(self, test_group, resolution, name):
+    def __init__(self, component, resolution, name):
         """
         Create the test case, including adding the ``init`` step
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel
-            The test group that this test case belongs to
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
         resolution : float
             The resolution of the test case in km
@@ -36,12 +36,19 @@ class BaroclinicChannelTestCase(Task):
             res_str = f'{resolution:g}km'
         else:
             res_str = f'{resolution * 1000.:g}m'
-        subdir = os.path.join(res_str, name)
-        super().__init__(test_group=test_group, name=name,
+        subdir = os.path.join('baroclinic_channel', res_str, name)
+        super().__init__(component=component, name=name,
                          subdir=subdir)
 
         self.add_step(
             Init(task=self, resolution=resolution))
+
+    def configure(self):
+        """
+        Add the config file common to baroclinic channel tests
+        """
+        self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+                                     'baroclinic_channel.cfg')
 
     def validate(self):
         """

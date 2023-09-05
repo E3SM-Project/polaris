@@ -1,6 +1,6 @@
-(dev-seaice-test-groups)=
+(seaice-tasks)=
 
-# Test groups
+# Tasks
 
 ```{toctree}
 :titlesonly: true

@@ -30,9 +30,8 @@ def list_cases(task_expr=None, number=None, verbose=False):
 
     tasks = []
     for component in components:
-        for test_group in component.test_groups.values():
-            for task in test_group.tasks.values():
-                tasks.append(task)
+        for task in component.tasks.values():
+            tasks.append(task)
 
     for task_number, task in enumerate(tasks):
         print_number = False
@@ -55,7 +54,6 @@ def list_cases(task_expr=None, number=None, verbose=False):
                 to_print = {'path': task.path,
                             'name': task.name,
                             'component': task.component.name,
-                            'test group': task.test_group.name,
                             'subdir': task.subdir}
                 for key in to_print:
                     key_string = f'{key}: '.ljust(15)

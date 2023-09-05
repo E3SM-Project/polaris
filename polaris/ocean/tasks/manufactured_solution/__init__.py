@@ -1,16 +1,12 @@
-from polaris import TestGroup
 from polaris.ocean.tasks.manufactured_solution.convergence import Convergence
 
 
-class ManufacturedSolution(TestGroup):
+def add_manufactured_solution_tasks(component):
     """
-    A test group for manufactured solution test cases
-    """
-    def __init__(self, component):
-        """
-        component : polaris.ocean.Ocean
-            the ocean component that this test group belongs to
-        """
-        super().__init__(component=component, name='manufactured_solution')
+    Add a task that defines a convergence test that uses the method of
+    manufactured solutions
 
-        self.add_task(Convergence(test_group=self))
+    component : polaris.ocean.Ocean
+        the ocean component that the task will be added to
+    """
+    component.add_task(Convergence(component=component))

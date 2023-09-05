@@ -25,24 +25,20 @@ class Step:
     Attributes
     ----------
     name : str
-        the name of the task
+        the name of the step
 
     task : polaris.Task
         The task this step belongs to
 
-    test_group : polaris.TestGroup
-        The test group the task belongs to
-
     component : polaris.Component
-        The component the test group belongs to
+        The component the step belongs to
 
     subdir : str
         the subdirectory for the step
 
     path : str
         the path within the base work directory of the step, made up of
-        ``component``, ``test_group``, the task's ``subdir`` and the
-        step's ``subdir``
+        ``component``, the task's ``subdir`` and the step's ``subdir``
 
     cpus_per_task : int, optional
         the number of cores per task the step would ideally use.  If
@@ -200,7 +196,6 @@ class Step:
         self.name = name
         self.task = task
         self.component = task.component
-        self.test_group = task.test_group
         if subdir is not None:
             self.subdir = subdir
         else:
@@ -213,8 +208,7 @@ class Step:
         self.openmp_threads = openmp_threads
         self.max_memory = max_memory
 
-        self.path = os.path.join(self.component.name, self.test_group.name,
-                                 task.subdir, self.subdir)
+        self.path = os.path.join(self.component.name, task.subdir, self.subdir)
 
         self.run_as_subprocess = run_as_subprocess
 

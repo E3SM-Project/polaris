@@ -1,18 +1,18 @@
-(component-test-group-name)=
+(ocean-category-of-task)=
 
-# test_group_name
+# <Category of task>
 
-Description of the test group.
+Description of common characteristics of the tasks.
 
-(component-test-group-name-task-name)=
+(ocean-category-of-task-task-name)=
 
-## test_case_name
+## task_name
 
-In cases where the test cases within a test group share many characteristics,
+In cases where the test cases within a category share many characteristics,
 it may be more appropriate to move the certain sections up one level to the
-test group. In that case, the respective section should still be included for
-each test case, specifying any or no differences from the section in the test
-group level.
+common subdirectory. In that case, the respective section should still be 
+included for each test case, specifying any or no differences from the section 
+in the shared framework level.
 
 ### description
 

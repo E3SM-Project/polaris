@@ -34,13 +34,9 @@ Some attributes are available after calling the base class' constructor
 
 : The task this step belongs to
 
-`self.test_group`
-
-: The test group the task belongs to
-
 `self.component`
 
-: The component the test group belongs to
+: The component the task belongs to
 
 `self.subdir`
 
@@ -293,7 +289,7 @@ class Forward(ModelStep):
             the number of OpenMP threads the step will use
 
         nu : float, optional
-            the viscosity (if different from the default for the test group)
+            the viscosity (if different from the default in the shared framework)
         """
         self.resolution = resolution
         if min_tasks is None:
@@ -451,8 +447,7 @@ Okay, we're ready to define how the step will run!
 
 The contents of `run()` can vary quite a lot between steps.
 
-In the `baroclinic_channel` test group, the `run()` method for
-the `init` step,
+In the baroclinic channel's `Init` step, the `run()` method,
 {py:meth}`polaris.ocean.tasks.baroclinic_channel.init.Init.run()`,
 is quite involved:
 
@@ -644,8 +639,8 @@ within {ref}`dev-step-setup` and determine the resulting input or output file
 name.
 
 Both of these issues have arisen for the
-{ref}`dev-ocean-global-ocean-files-for-e3sm` from the
-{ref}`dev-ocean-global-ocean` test group.  Output files are named using the
+{ref}`dev-ocean-global-ocean-files-for-e3sm` from
+{ref}`dev-ocean-global-ocean` tasks.  Output files are named using the
 "short name" of the mesh in E3SM, which depends both on config options and on
 the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
@@ -743,8 +738,8 @@ def __init__(self, task, mesh, init, ...):
 
 ### Symlink to input files from polaris
 
-Another common need is to symlink a data file from within the test group or
-task:
+Another common need is to symlink a data file from within the task or its
+shared framework:
 
 ```python
 from polaris.io import add_input_file

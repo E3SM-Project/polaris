@@ -2,20 +2,19 @@
 
 # manufactured_solution
 
-The `manufactured_solution` test group
-({py:class}`polaris.ocean.tasks.manufactured_solution.ManufacturedSolution`)
-implements a test case according to the Method of Manufactured Solutions
-(see {ref}`ocean-manufactured-solution`) at 4 resolutions (200, 100, 50, and 25 km).  Here,
-we describe the shared framework for this test group and the 1 test case.
+The manufactured solution test in `polaris.ocean.tasks.manufactured_solution`
+uses the Method of Manufactured Solutions (see 
+{ref}`ocean-manufactured-solution`) at 4 resolutions (200, 100, 50, and 25 km).
+Here, we describe the test case and its framework.
 
 (dev-ocean-manufactured-solution)=
 
 ## framework
 
-The shared config options for the `manufactured_solution` test group
-are described in {ref}`ocean-manufactured-solution` in the User's Guide.
+The config options for the `manufactured_solution` test are described in 
+{ref}`ocean-manufactured-solution` in the User's Guide.
 
-Additionally, the test group has a shared `forward.yaml` file with
+Additionally, the test uses a `forward.yaml` file with
 a few common model config options related to run duration and default 
 horizontal  and vertical momentum and tracer diffusion, as well as defining 
 `mesh`, `input`, `restart`, and `output` streams.

@@ -14,11 +14,8 @@ class Task:
     name : str
         the name of the task
 
-    test_group : polaris.TestGroup
-        The test group the task belongs to
-
     component : polaris.Component
-        The component the test group belongs to
+        The component the task belongs to
 
     steps : dict
         A dictionary of steps in the task with step names as keys
@@ -34,7 +31,7 @@ class Task:
 
     path : str
         the path within the base work directory of the task, made up of
-        ``component``, ``test_group``, and the task's ``subdir``
+        ``component`` and the task's ``subdir``
 
     config : polaris.config.PolarisConfigParser
         Configuration options for this task, a combination of the defaults
@@ -77,14 +74,14 @@ class Task:
         or failed internal and baseline validation.
     """
 
-    def __init__(self, test_group, name, subdir=None):
+    def __init__(self, component, name, subdir=None):
         """
         Create a new task
 
         Parameters
         ----------
-        test_group : polaris.TestGroup
-            the test group that this task belongs to
+        component : polaris.Component
+            the component that this task belongs to
 
         name : str
             the name of the task
@@ -93,15 +90,13 @@ class Task:
             the subdirectory for the task.  The default is ``name``
         """
         self.name = name
-        self.component = test_group.component
-        self.test_group = test_group
+        self.component = component
         if subdir is not None:
             self.subdir = subdir
         else:
             self.subdir = name
 
-        self.path = os.path.join(self.component.name, test_group.name,
-                                 self.subdir)
+        self.path = os.path.join(self.component.name, self.subdir)
 
         # steps will be added by calling add_step()
         self.steps = dict()

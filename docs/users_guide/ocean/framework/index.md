@@ -3,7 +3,7 @@
 # Framework
 
 The ocean component includes a small amount of framework code that is shared 
-across test groups.
+across tasks.
 
 ```{toctree}
 :titlesonly: true

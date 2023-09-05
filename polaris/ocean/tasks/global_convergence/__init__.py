@@ -1,21 +1,16 @@
-from polaris import TestGroup
 from polaris.ocean.tasks.global_convergence.cosine_bell import CosineBell
 
 
-class GlobalConvergence(TestGroup):
+def add_cosine_bell_tasks(component):
     """
-    A test group for setting up global initial conditions and performing
-    regression testing and dynamic adjustment for MPAS-Ocean
-    """
-    def __init__(self, component):
-        """
-        component : polaris.ocean.Ocean
-            the ocean component that this test group belongs to
-        """
-        super().__init__(component=component, name='global_convergence')
+    Add tasks that define variants of the cosine bell test case
 
-        for icosahedral in [False, True]:
-            for include_viz in [False, True]:
-                self.add_task(CosineBell(test_group=self,
-                                         icosahedral=icosahedral,
-                                         include_viz=include_viz))
+    component : polaris.ocean.Ocean
+        the ocean component that the tasks will be added to
+    """
+
+    for icosahedral in [False, True]:
+        for include_viz in [False, True]:
+            component.add_task(CosineBell(component=component,
+                                          icosahedral=icosahedral,
+                                          include_viz=include_viz))

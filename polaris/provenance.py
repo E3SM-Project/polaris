@@ -73,7 +73,6 @@ def write(work_dir, tasks, config=None):
         to_print = {'path': task.path,
                     'name': task.name,
                     'component': task.component.name,
-                    'test group': task.test_group.name,
                     'subdir': task.subdir}
         for key in to_print:
             key_string = f'{key}: '.ljust(15)

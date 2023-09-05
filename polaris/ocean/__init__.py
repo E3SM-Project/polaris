@@ -1,9 +1,13 @@
 from polaris import Component
-from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannel
-from polaris.ocean.tasks.global_convergence import GlobalConvergence
-from polaris.ocean.tasks.inertial_gravity_wave import InertialGravityWave
-from polaris.ocean.tasks.manufactured_solution import ManufacturedSolution
-from polaris.ocean.tasks.single_column import SingleColumn
+from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
+from polaris.ocean.tasks.global_convergence import add_cosine_bell_tasks
+from polaris.ocean.tasks.inertial_gravity_wave import (
+    add_inertial_gravity_wave_tasks,
+)
+from polaris.ocean.tasks.manufactured_solution import (
+    add_manufactured_solution_tasks,
+)
+from polaris.ocean.tasks.single_column import add_single_column_tasks
 
 
 class Ocean(Component):
@@ -18,11 +22,11 @@ class Ocean(Component):
         super().__init__(name='ocean')
 
         # please keep these in alphabetical order
-        self.add_test_group(BaroclinicChannel(component=self))
-        self.add_test_group(GlobalConvergence(component=self))
-        self.add_test_group(InertialGravityWave(component=self))
-        self.add_test_group(ManufacturedSolution(component=self))
-        self.add_test_group(SingleColumn(component=self))
+        add_baroclinic_channel_tasks(component=self)
+        add_cosine_bell_tasks(component=self)
+        add_inertial_gravity_wave_tasks(component=self)
+        add_manufactured_solution_tasks(component=self)
+        add_single_column_tasks(component=self)
 
     def configure(self, config):
         """

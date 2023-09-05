@@ -1,6 +1,6 @@
-(ocean-configs)=
+(dev-ocean-tasks)=
 
-# Test groups
+# Tasks
 
 ```{toctree}
 :titlesonly: true
