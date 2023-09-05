@@ -4,7 +4,6 @@ from polaris import Task
 from polaris.ocean.tasks.single_column.forward import Forward
 from polaris.ocean.tasks.single_column.init import Init
 from polaris.ocean.tasks.single_column.viz import Viz
-from polaris.validate import compare_variables
 
 
 class IdealAge(Task):
@@ -39,12 +38,13 @@ class IdealAge(Task):
         super().__init__(component=component, name=name,
                          subdir=subdir)
         self.add_step(
-            Init(task=self, resolution=resolution,
-                 ideal_age=ideal_age))
+            Init(component=component, resolution=resolution,
+                 indir=self.subdir, ideal_age=ideal_age))
 
         validate_vars = ['temperature', 'salinity', 'iAge']
-        step = Forward(task=self, ntasks=1, min_tasks=1,
-                       openmp_threads=1, validate_vars=validate_vars)
+        step = Forward(component=component, indir=self.subdir, ntasks=1,
+                       min_tasks=1, openmp_threads=1,
+                       validate_vars=validate_vars)
 
         step.add_yaml_file('polaris.ocean.tasks.single_column.ideal_age',
                            'forward.yaml')
@@ -52,7 +52,7 @@ class IdealAge(Task):
         self.add_step(step)
 
         self.add_step(
-            Viz(task=self, ideal_age=ideal_age))
+            Viz(component=component, indir=self.subdir, ideal_age=ideal_age))
 
     def configure(self):
         """

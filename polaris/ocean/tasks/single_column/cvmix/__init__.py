@@ -4,7 +4,6 @@ from polaris import Task
 from polaris.ocean.tasks.single_column.forward import Forward
 from polaris.ocean.tasks.single_column.init import Init
 from polaris.ocean.tasks.single_column.viz import Viz
-from polaris.validate import compare_variables
 
 
 class CVMix(Task):
@@ -30,16 +29,18 @@ class CVMix(Task):
         super().__init__(component=component, name=name,
                          subdir=subdir)
         self.add_step(
-            Init(task=self, resolution=resolution))
+            Init(component=component, resolution=resolution,
+                 indir=self.subdir))
 
         validate_vars = ['temperature', 'salinity', 'layerThickness',
                          'normalVelocity']
         self.add_step(
-            Forward(task=self, ntasks=1, min_tasks=1,
-                    openmp_threads=1, validate_vars=validate_vars))
+            Forward(component=component, indir=self.subdir, ntasks=1,
+                    min_tasks=1, openmp_threads=1,
+                    validate_vars=validate_vars))
 
         self.add_step(
-            Viz(task=self))
+            Viz(component=component, indir=self.subdir))
 
     def configure(self):
         """

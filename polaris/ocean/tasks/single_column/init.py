@@ -17,17 +17,26 @@ class Init(Step):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, task, resolution, ideal_age=False):
+    def __init__(self, component, resolution, indir, ideal_age=False):
         """
         Create the step
+
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
         resolution : float
             The resolution of the test case in km
+
+        indir : str
+            The subdirectory that the task belongs to, that this step will
+            go into a subdirectory of
+
+        ideal_age : bool, optional
+            Whether the initial condition should include the ideal age tracer
         """
-        super().__init__(task=task, name='init')
+        super().__init__(component=component, name='init', indir=indir)
         self.resolution = resolution
         self.ideal_age = ideal_age
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
