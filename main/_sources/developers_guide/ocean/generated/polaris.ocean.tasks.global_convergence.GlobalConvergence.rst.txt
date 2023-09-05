@@ -1,0 +1,23 @@
+﻿polaris.ocean.tasks.global\_convergence.GlobalConvergence
+=========================================================
+
+.. currentmodule:: polaris.ocean.tasks.global_convergence
+
+.. autoclass:: GlobalConvergence
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GlobalConvergence.__init__
+      ~GlobalConvergence.add_task
+   
+   
+
+   
+   
+   

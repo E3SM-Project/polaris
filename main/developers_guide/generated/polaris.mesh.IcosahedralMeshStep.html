@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -155,7 +155,7 @@
 <h1>polaris.mesh.IcosahedralMeshStep<a class="headerlink" href="#polaris-mesh-icosahedralmeshstep" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.mesh.IcosahedralMeshStep">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.mesh.</span></span><span class="sig-name descname"><span class="pre">IcosahedralMeshStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'base_mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#IcosahedralMeshStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.IcosahedralMeshStep" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.mesh.</span></span><span class="sig-name descname"><span class="pre">IcosahedralMeshStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'base_mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#IcosahedralMeshStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.IcosahedralMeshStep" title="Permalink to this definition"></a></dt>
 <dd><p>A step for creating an icosahedral JIGSAW mesh</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
@@ -167,12 +167,12 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.mesh.IcosahedralMeshStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'base_mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#IcosahedralMeshStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.IcosahedralMeshStep.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'base_mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#IcosahedralMeshStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.IcosahedralMeshStep.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_case</strong> (<a class="reference internal" href="polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><em>polaris.TestCase</em></a>) – The test case this step belongs to</p></li>
+<li><p><strong>task</strong> (<a class="reference internal" href="polaris.Task.html#polaris.Task" title="polaris.Task"><em>polaris.Task</em></a>) – The task this step belongs to</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – the name of the step</p></li>
 <li><p><strong>subdir</strong> (<em>{str</em><em>, </em><em>None}</em><em>, </em><em>optional</em>) – the subdirectory for the step</p></li>
 <li><p><strong>cell_width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The approximate cell width in km of the mesh if constant resolution</p></li>
@@ -189,7 +189,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.mesh.IcosahedralMeshStep.__init__" title="polaris.mesh.IcosahedralMeshStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(test_case[, name, subdir, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.mesh.IcosahedralMeshStep.__init__" title="polaris.mesh.IcosahedralMeshStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(task[, name, subdir, cell_width, ...])</p></td>
 <td><p>Create a new step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
@@ -199,7 +199,7 @@
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
-<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
+<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon" title="polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_subdivisions_cell_width_lat_lon</span></code></a>()</p></td>
 <td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
@@ -220,7 +220,7 @@
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run" title="polaris.mesh.IcosahedralMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
+<td><p>Run this step of the task</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>

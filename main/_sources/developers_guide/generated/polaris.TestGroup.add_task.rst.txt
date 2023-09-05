@@ -1,0 +1,6 @@
+﻿polaris.TestGroup.add\_task
+===========================
+
+.. currentmodule:: polaris
+
+.. automethod:: TestGroup.add_task

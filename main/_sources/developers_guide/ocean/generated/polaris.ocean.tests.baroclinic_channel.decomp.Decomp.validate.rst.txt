@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.baroclinic\_channel.decomp.Decomp.validate
-==============================================================
-
-.. currentmodule:: polaris.ocean.tests.baroclinic_channel.decomp
-
-.. automethod:: Decomp.validate

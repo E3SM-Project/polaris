@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -84,7 +84,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -231,7 +231,7 @@ will be linked in to MPAS-Ocean.</p>
 </section>
 <section id="environments-with-petsc-and-netlib-lapack">
 <h3>Environments with PETSc and Netlib-LAPACK<a class="headerlink" href="#environments-with-petsc-and-netlib-lapack" title="Permalink to this heading"></a></h3>
-<p>If you are working with MPAS-Ocean test cases that need PETSC and
+<p>If you are working with MPAS-Ocean tasks that need PETSC and
 Netlib-LAPACK, you should specify <code class="docutils literal notranslate"><span class="pre">--with_petsc</span> <span class="pre">--with_netlib_lapack</span></code> to
 point to Spack environments where these libraries are included.  Appropriate
 environment variables for pointing to these libraries will be build into the
@@ -528,21 +528,21 @@ each machine and compiler.</p>
 <p>If you follow the procedure above, you can run polaris with the <code class="docutils literal notranslate"><span class="pre">polaris</span></code>
 command-line tool exactly like described in the <a class="reference internal" href="../users_guide/quick_start.html#quick-start"><span class="std std-ref">Quick Start for Users</span></a>
 and as detailed in <a class="reference internal" href="command_line.html#dev-command-line"><span class="std std-ref">Command-line interface</span></a>.</p>
-<p>To list test cases you need to run:</p>
+<p>To list tasks you need to run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
 </pre></div>
 </div>
-<p>The results will be the same as described in <a class="reference internal" href="../users_guide/quick_start.html#setup-overview"><span class="std std-ref">Setting up test cases</span></a>, but the
-test cases will come from the local polaris directory.</p>
-<p>To set up a test case, you will run something like:</p>
+<p>The results will be the same as described in <a class="reference internal" href="../users_guide/quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a>, but the
+tasks will come from the local polaris directory.</p>
+<p>To set up a task, you will run something like:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/global_ocean/QU240/mesh<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">$MACHINE</span></code> is an ES3M machine, <code class="docutils literal notranslate"><span class="pre">$WORKDIR</span></code> is the location where polaris
-test cases will be set up and <code class="docutils literal notranslate"><span class="pre">$COMPONENT</span></code> is the directory where the E3SM
+tasks will be set up and <code class="docutils literal notranslate"><span class="pre">$COMPONENT</span></code> is the directory where the E3SM
 component executable has been compiled. See <a class="reference internal" href="command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> for
 details.</p>
-<p>To list available test suites, you would run:</p>
+<p>To list available suites, you would run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list<span class="w"> </span>--suites
 </pre></div>
 </div>
@@ -558,8 +558,8 @@ polaris<span class="w"> </span>run
 </div>
 <p>The first command will source the same activation script
 (<code class="docutils literal notranslate"><span class="pre">load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code>) that you used to set
-up the suite or test case (<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is just a symlink to that
-activation script you sourced before setting up the suite or test case).</p>
+up the suite or task (<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is just a symlink to that
+activation script you sourced before setting up the suite or task).</p>
 </section>
 <section id="code-style-for-polaris">
 <span id="dev-polaris-style"></span><h2>Code style for polaris<a class="headerlink" href="#code-style-for-polaris" title="Permalink to this heading"></a></h2>

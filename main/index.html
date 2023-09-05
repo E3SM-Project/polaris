@@ -50,9 +50,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/machines/index.html">Machines</a></li>
@@ -62,7 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/framework/index.html">Framework</a></li>
@@ -116,9 +116,9 @@ System  Model (<a class="reference external" href="https://e3sm.org/">E3SM</a>. 
 of polaris will be kept closely synchronized with the development repositories
 for the components it supports. Release versions will be compatible with
 specific tags of the MPAS components.</p>
-<p>Many polaris test cases are idealized, and are used for things like
+<p>Many polaris tasks are idealized, and are used for things like
 performing convergence tests or regression tests on particular parts of the
-model code.  Many other polaris test cases, such as those under the
+model code.  Many other polaris tasks, such as those under the
 <span class="xref std std-ref">ocean-global-ocean</span> and <span class="xref std std-ref">landice-greenland</span> test
 groups, are “realistic” in the sense that they use data sets from observations
 to create  create global and regional meshes,  initial conditions, and boundary
@@ -131,10 +131,10 @@ initial conditions for future versions of E3SM.</p>
 files needed for full E3SM coupling, a process that requires expert help from
 the E3SM development team.</p>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> python package defines the test cases and analysis tasks along
-with the commands  to list and set up both test cases and suites (groups
-of test cases or analysis tasks).  Polaris currently supports <code class="docutils literal notranslate"><span class="pre">landice</span></code>
-and <code class="docutils literal notranslate"><span class="pre">ocean</span></code> components.  Nearly all test cases include calls that launch one
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> python package defines the tasks and analysis tasks along
+with the commands  to list and set up both tasks and suites (groups
+of tasks or analysis tasks).  Polaris currently supports <code class="docutils literal notranslate"><span class="pre">landice</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ocean</span></code> components.  Nearly all tasks include calls that launch one
 of these E3SM components, built in “standalone” (uncoupled) mode.  These runs
 are configured with config files (e.g. YAML or namelist files) and one of the
 benefits of using polaris over attempting to run one of the components directly
@@ -148,23 +148,23 @@ as the model components themselves evolves and new functionality is added.</p>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/quick_start.html">Quick Start for Users</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#loading-polaris-conda-and-spack-environments">Loading polaris conda and spack environments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#building-supported-e3sm-components-as-standalone-models">Building supported E3SM components as standalone models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#setting-up-test-cases">Setting up test cases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#running-a-test-case">Running a test case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#setting-up-tasks">Setting up tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#running-a-task">Running a task</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#running-with-a-job-script">Running with a job script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#test-suites">Test Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/quick_start.html#suites">Suites</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/config_files.html">Config Files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/config_files.html#a-user-config-file">A “user” config file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/config_files.html#test-case-config-files">Test-case config files</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/test_groups/index.html">Test groups</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/framework/index.html">Framework</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/suites.html">Test suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a><ul>
@@ -212,13 +212,13 @@ as the model components themselves evolves and new functionality is added.</p>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/command_line.html#mpas-to-yaml">mpas_to_yaml</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tests</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/directories.html">Directory structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/components.html">Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/test_groups.html">Test Groups</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/test_cases.html">Test cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/tasks.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/steps.html">Steps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/suites.html">Test Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a><ul>

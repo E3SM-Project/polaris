@@ -1,0 +1,26 @@
+﻿polaris.Task
+============
+
+.. currentmodule:: polaris
+
+.. autoclass:: Task
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Task.__init__
+      ~Task.add_step
+      ~Task.check_validation
+      ~Task.configure
+      ~Task.validate
+   
+   
+
+   
+   
+   

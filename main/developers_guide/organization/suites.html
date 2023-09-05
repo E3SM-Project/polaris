@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test Suites</title>
+  <title>Suites</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,13 +63,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tests</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tasks</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_cases.html">Test cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="steps.html">Steps</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Test Suites</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pull-request-pr-suite">Pull-Request (PR) suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#nightly-suite">Nightly suite</a></li>
 </ul>
@@ -110,8 +110,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Organization of Tests</a></li>
-      <li class="breadcrumb-item active">Test Suites</li>
+          <li class="breadcrumb-item"><a href="index.html">Organization of Tasks</a></li>
+      <li class="breadcrumb-item active">Suites</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/developers_guide/organization/suites.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -121,16 +121,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="test-suites">
-<span id="dev-suites"></span><h1>Test Suites<a class="headerlink" href="#test-suites" title="Permalink to this heading"></a></h1>
-<p>As described in the <a class="reference internal" href="../../users_guide/test_suites.html#test-suites"><span class="std std-ref">Test Suites</span></a> section of the User’s Guide, polaris
-test cases can be organized into test suites.  Each core has separate
+  <section class="tex2jax_ignore mathjax_ignore" id="suites">
+<span id="dev-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Permalink to this heading"></a></h1>
+<p>As described in the <a class="reference internal" href="../../users_guide/suites.html#suites"><span class="std std-ref">Suites</span></a> section of the User’s Guide, polaris
+tasks can be organized into suites.  Each core has separate
 regression suites, and a core can have multiple independent regression suites.<br />
-A developer  defines a test suite by creating a <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file within the
+A developer  defines a suite by creating a <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file within the
 <code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/suites</span></code> directory.  The format of the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file is a
-list of the work directories to  the tests desired to be part of the suite.  A
+list of the work directories to  the tasks desired to be part of the suite.  A
 line starting with <code class="docutils literal notranslate"><span class="pre">#</span></code> will be  treated as a comment line.</p>
-<p>The philosophy and requirements for the test suites are as follows:</p>
+<p>The philosophy and requirements for the suites are as follows:</p>
 <section id="pull-request-pr-suite">
 <h2>Pull-Request (PR) suite<a class="headerlink" href="#pull-request-pr-suite" title="Permalink to this heading"></a></h2>
 <p>The PR suite is intended to be run in the context of its namesake, a pull
@@ -141,7 +141,7 @@ for quicker testing.</p>
 take under 20 minutes on 32 cores. However, a test may exceed these recommended
 limits if it offers significant benefit for catching bugs or performance issues
 or providing code covereage.</p>
-<p>Examples of test cases that may be included in this suite:</p>
+<p>Examples of tasks that may be included in this suite:</p>
 <ul class="simple">
 <li><p>Short tests to compare the solution and timers with a baseline (often called
 performance tests lasting 3-5 timesteps)</p></li>
@@ -163,7 +163,7 @@ duration with a model restart</p></li>
 that no recent merges have resulted in a change in solution for any possible
 combination of config options. It should require no more than 256 cores and
 take no more than 120 minutes of run time on 256 cores.</p>
-<p>Examples of test cases that may be included in this suite:</p>
+<p>Examples of tasks that may be included in this suite:</p>
 <ul class="simple">
 <li><p>More expensive convergence tests</p></li>
 <li><p>Tests that require a longer run to reach steady state.</p></li>

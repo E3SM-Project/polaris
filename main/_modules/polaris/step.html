@@ -48,9 +48,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -60,7 +60,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
@@ -121,11 +121,10 @@
 
 <div class="viewcode-block" id="Step"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step">[docs]</a><span class="k">class</span> <span class="nc">Step</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The base class for a step of a test cases, such as setting up a mesh,</span>
+<span class="sd">    The base class for a step of a tasks, such as setting up a mesh,</span>
 <span class="sd">    creating an initial condition, or running the component forward in time.</span>
 <span class="sd">    The step is the smallest unit of work in polaris that can be run on its</span>
-<span class="sd">    own by a user, though users will typically run full test cases or test</span>
-<span class="sd">    suites.</span>
+<span class="sd">    own by a user, though users will typically run full tasks or suites.</span>
 
 <span class="sd">    Below, the terms &quot;input&quot; and &quot;output&quot; refer to inputs and outputs to the</span>
 <span class="sd">    step itself, not necessarily the MPAS model.  In fact, the MPAS model</span>
@@ -134,13 +133,13 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
-<span class="sd">        the name of the test case</span>
+<span class="sd">        the name of the task</span>
 
-<span class="sd">    test_case : polaris.TestCase</span>
-<span class="sd">        The test case this step belongs to</span>
+<span class="sd">    task : polaris.Task</span>
+<span class="sd">        The task this step belongs to</span>
 
 <span class="sd">    test_group : polaris.TestGroup</span>
-<span class="sd">        The test group the test case belongs to</span>
+<span class="sd">        The test group the task belongs to</span>
 
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        The component the test group belongs to</span>
@@ -150,7 +149,7 @@
 
 <span class="sd">    path : str</span>
 <span class="sd">        the path within the base work directory of the step, made up of</span>
-<span class="sd">        ``component``, ``test_group``, the test case&#39;s ``subdir`` and the</span>
+<span class="sd">        ``component``, ``test_group``, the task&#39;s ``subdir`` and the</span>
 <span class="sd">        step&#39;s ``subdir``</span>
 
 <span class="sd">    cpus_per_task : int, optional</span>
@@ -193,8 +192,8 @@
 
 <span class="sd">    outputs : list of str</span>
 <span class="sd">        a list of absolute paths of output files produced by this step (or</span>
-<span class="sd">        cached) and available as inputs to other test cases and steps.  These</span>
-<span class="sd">        files must exist after the test has run or an exception will be raised</span>
+<span class="sd">        cached) and available as inputs to other tasks and steps.  These</span>
+<span class="sd">        files must exist after the task has run or an exception will be raised</span>
 
 <span class="sd">    dependencies : dict of polaris.Step</span>
 <span class="sd">        A dictionary of steps that this step depends on (i.e. it can&#39;t run</span>
@@ -209,7 +208,7 @@
 <span class="sd">        Whether this step is the dependency of one or more other steps.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for this test case, a combination of the defaults</span>
+<span class="sd">        Configuration options for this task, a combination of the defaults</span>
 <span class="sd">        for the machine, core and configuration</span>
 
 <span class="sd">    machine_info : mache.MachineInfo</span>
@@ -239,7 +238,7 @@
 
 <span class="sd">    run_as_subprocess : bool</span>
 <span class="sd">        Whether to run this step as a subprocess, rather than just running</span>
-<span class="sd">        it directly from the test case.  It is useful to run a step as a</span>
+<span class="sd">        it directly from the task.  It is useful to run a step as a</span>
 <span class="sd">        subprocess if there is not a good way to redirect output to a log</span>
 <span class="sd">        file (e.g. if the step calls external code that, in turn, calls</span>
 <span class="sd">        additional subprocesses).</span>
@@ -248,20 +247,20 @@
 <span class="sd">        A list of command-line arguments to call in parallel</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Step.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="Step.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">run_as_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new test case</span>
+<span class="sd">        Create a new task</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        name : str</span>
-<span class="sd">            the name of the test case</span>
+<span class="sd">            the name of the task</span>
 
 <span class="sd">        subdir : str, optional</span>
 <span class="sd">            the subdirectory for the step.  The default is ``name``</span>
@@ -301,15 +300,15 @@
 
 <span class="sd">        run_as_subprocess : bool</span>
 <span class="sd">            Whether to run this step as a subprocess, rather than just running</span>
-<span class="sd">            it directly from the test case.  It is useful to run a step as a</span>
+<span class="sd">            it directly from the task.  It is useful to run a step as a</span>
 <span class="sd">            subprocess if there is not a good way to redirect output to a log</span>
 <span class="sd">            file (e.g. if the step calls external code that, in turn, calls</span>
 <span class="sd">            additional subprocesses).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_case</span> <span class="o">=</span> <span class="n">test_case</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">test_case</span><span class="o">.</span><span class="n">component</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_group</span> <span class="o">=</span> <span class="n">test_case</span><span class="o">.</span><span class="n">test_group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_group</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">test_group</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span> <span class="o">=</span> <span class="n">subdir</span>
         <span class="k">else</span><span class="p">:</span>
@@ -323,11 +322,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_memory</span> <span class="o">=</span> <span class="n">max_memory</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                                 <span class="n">test_case</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+                                 <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_as_subprocess</span> <span class="o">=</span> <span class="n">run_as_subprocess</span>
 
-        <span class="c1"># child steps (or test cases) will add to these</span>
+        <span class="c1"># child steps (or tasks) will add to these</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -355,7 +354,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the resources for the subtask.  This can be done within init,</span>
 <span class="sd">        ``setup()`` or ``runtime_setup()`` of this step, or init,</span>
-<span class="sd">        ``configure()`` or ``run()`` for the test case that this step belongs</span>
+<span class="sd">        ``configure()`` or ``run()`` for the task that this step belongs</span>
 <span class="sd">        to.</span>
 
 <span class="sd">        Parameters</span>
@@ -438,7 +437,7 @@
 
 <div class="viewcode-block" id="Step.setup"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.setup.html#polaris.Step.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set up the test case in the work directory, including downloading any</span>
+<span class="sd">        Set up the task in the work directory, including downloading any</span>
 <span class="sd">        dependencies.  The step should override this function to perform setup</span>
 <span class="sd">        operations such as generating namelist and streams files, adding inputs</span>
 <span class="sd">        and outputs.</span>
@@ -532,8 +531,8 @@
 <div class="viewcode-block" id="Step.add_output_file"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file">[docs]</a>    <span class="k">def</span> <span class="nf">add_output_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the output file that must be produced by this step and may be made</span>
-<span class="sd">        available as an input to steps, perhaps in other test cases.  This file</span>
-<span class="sd">        must exist after the test has run or an exception will be raised.</span>
+<span class="sd">        available as an input to steps, perhaps in other tasks.  This file</span>
+<span class="sd">        must exist after the task has run or an exception will be raised.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

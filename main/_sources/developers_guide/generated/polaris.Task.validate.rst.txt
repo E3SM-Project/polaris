@@ -1,0 +1,6 @@
+﻿polaris.Task.validate
+=====================
+
+.. currentmodule:: polaris
+
+.. automethod:: Task.validate

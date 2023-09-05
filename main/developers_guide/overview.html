@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -73,13 +73,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#in-the-polaris-framework">…in the polaris framework</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#within-a-component">…within a component</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#within-a-test-group">…within a test group</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#within-a-test-case">…within a test case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#within-a-task">…within a task</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -136,7 +136,7 @@ is the command-line interface with commands like <a class="reference internal" h
 <span class="n">symlink</span><span class="p">(</span><span class="s1">&#39;../initial_condition/initial_condition.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Before we dig into the details of how to develop new test cases and other
+<p>Before we dig into the details of how to develop new tasks and other
 infrastructure for polaris, we first give a little bit of background on
 the design philosophy behind the package.</p>
 <section id="code-style">
@@ -168,7 +168,7 @@ committing your code changes.</p>
 <p>Some of the main advantages of polaris being a package instead of a group
 of scripts are that:</p>
 <ol class="arabic simple">
-<li><p>it is a lot easier to share code between test cases;</p></li>
+<li><p>it is a lot easier to share code between tasks;</p></li>
 <li><p>there is no need to create symlinks to individual scripts or use
 <a class="reference external" href="https://docs.python.org/3/library/subprocess.html">subprocess</a> calls to
 run one python script from within another;</p></li>
@@ -209,7 +209,7 @@ has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Oc
 </pre></div>
 </div>
 <p>This class contains all of the ocean test groups, which contain all the ocean
-test cases and their steps.  The details aren’t important.  The point is that
+tasks and their steps.  The details aren’t important.  The point is that
 the class can be imported like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean</span> <span class="kn">import</span> <span class="n">Ocean</span>
 
@@ -280,10 +280,10 @@ clumsy set of functions and
 <a class="reference external" href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">python dictionaries</a>
 that was equally complex but harder to understand and document than classes.</p>
 <p>The outcome of this experience is that we have used classes to define
-components, test groups, test cases and steps.  Each component will “descend”
+components, test groups, tasks and steps.  Each component will “descend”
 from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each test groups descends
-from <a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>; each test case descends from
-<a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestCase</span></code></a>; and each steps descends from
+from <a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>; each task descends from
+<a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>; and each steps descends from
 <a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  These base classes contain functionality that can
 be shared with the “child” classes that descend from them and also define
 a few “methods” (functions that belong to a class) that the child class is
@@ -293,7 +293,7 @@ same function).</p>
 <p>We have some tutorials on how to add new components, test groups, test
 cases and steps, and more will be developed in the near future.  These will
 explain the main features of  classes that developers need to know about.<br />
-We also hope that the tests currently in the package can provide a starting
+We also hope that the tasks currently in the package can provide a starting
 point for new development.</p>
 </section>
 </section>
@@ -307,7 +307,7 @@ code sharing in a number of ways.</p>
 <section id="in-the-polaris-framework">
 <h3>…in the polaris framework<a class="headerlink" href="#in-the-polaris-framework" title="Permalink to this heading"></a></h3>
 <p>The polaris framework (modules and packages not in the component packages)
-has a lot of code that is shared across existing test cases and could be very
+has a lot of code that is shared across existing tasks and could be very
 useful for future ones.</p>
 <p>The framework has been broken into modules that make it clear what
 functionality each contains, e.g. <code class="docutils literal notranslate"><span class="pre">polaris.namelists</span></code> and
@@ -326,23 +326,23 @@ the number of total cores and nodes available for running steps.</p>
 <h3>…within a component<a class="headerlink" href="#within-a-component" title="Permalink to this heading"></a></h3>
 <p>A component in polaris could, theoretically, build out functionality as
 complex as in the E3SM components themselves.  This has already been
-accomplished for several of the idealized test cases included in polaris. As an
+accomplished for several of the idealized tasks included in polaris. As an
 example, the shared functionality in the <a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> is described in
 <a class="reference internal" href="ocean/framework.html#dev-ocean-framework"><span class="std std-ref">Ocean framework</span></a>.</p>
 </section>
 <section id="within-a-test-group">
 <h3>…within a test group<a class="headerlink" href="#within-a-test-group" title="Permalink to this heading"></a></h3>
 <p>So far, the most common type of shared code within test group are modules
-defining steps that are used in multiple test cases.  For example, the
+defining steps that are used in multiple tasks.  For example, the
 <a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> configuration uses shared modules to define
-the <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps of each test case.  Configurations
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps of each task.  Configurations
 also often include namelist and streams files with replacements to use across
-test cases.</p>
+tasks.</p>
 <p>In addition to shared steps, the <span class="xref std std-ref">dev-ocean-global-ocean</span> configuration
 includes some additional shared framework described in
 <span class="xref std std-ref">dev-ocean-global-ocean-framework</span>.</p>
 <p>The shared code in <code class="docutils literal notranslate"><span class="pre">global_ocean</span></code> has made it easy to define dozens different
-test cases using the QU240 or QUwISC240 meshes.  This is possible because
+tasks using the QU240 or QUwISC240 meshes.  This is possible because
 the same conceptual test (e.g. restart) can be defined:</p>
 <blockquote>
 <div><ul class="simple">
@@ -350,15 +350,15 @@ the same conceptual test (e.g. restart) can be defined:</p>
 <li><p>with the RK4 or split-explicit time integrators</p></li>
 </ul>
 </div></blockquote>
-<p>In theory, we could provide additional variants of these test cases with
+<p>In theory, we could provide additional variants of these tasks with
 different  initial conditions and other capabilities such as support for
 biogeochemistry.</p>
 </section>
-<section id="within-a-test-case">
-<h3>…within a test case<a class="headerlink" href="#within-a-test-case" title="Permalink to this heading"></a></h3>
-<p>The main way code is currently reused with a test case is when the same module
-for a step gets used multiple times within a test case.  For example,
-the <a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> test case uses the same
+<section id="within-a-task">
+<h3>…within a task<a class="headerlink" href="#within-a-task" title="Permalink to this heading"></a></h3>
+<p>The main way code is currently reused with a task is when the same module
+for a step gets used multiple times within a task.  For example,
+the <a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> task uses the same
 forward run with 5 different values of the viscosity.</p>
 </section>
 </section>

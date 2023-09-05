@@ -1,6 +1,0 @@
-﻿polaris.run.serial.run\_tests
-=============================
-
-.. currentmodule:: polaris.run.serial
-
-.. autofunction:: run_tests

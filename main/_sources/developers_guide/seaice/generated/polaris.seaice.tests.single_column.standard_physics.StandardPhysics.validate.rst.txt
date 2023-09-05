@@ -1,6 +1,0 @@
-﻿polaris.seaice.tests.single\_column.standard\_physics.StandardPhysics.validate
-==============================================================================
-
-.. currentmodule:: polaris.seaice.tests.single_column.standard_physics
-
-.. automethod:: StandardPhysics.validate

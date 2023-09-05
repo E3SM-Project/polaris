@@ -1,0 +1,26 @@
+﻿polaris.ocean.tasks.baroclinic\_channel.restart.Restart
+=======================================================
+
+.. currentmodule:: polaris.ocean.tasks.baroclinic_channel.restart
+
+.. autoclass:: Restart
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Restart.__init__
+      ~Restart.add_step
+      ~Restart.check_validation
+      ~Restart.configure
+      ~Restart.validate
+   
+   
+
+   
+   
+   

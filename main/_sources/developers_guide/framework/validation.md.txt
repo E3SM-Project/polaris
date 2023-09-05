@@ -2,8 +2,8 @@
 
 # Validation
 
-Test cases should typically include validation of variables and/or timers.
-This validation is a critical part of running test suites and comparing them
+Tasks should typically include validation of variables and/or timers.
+This validation is a critical part of running suites and comparing them
 to baselines.
 
 ## Validating variables
@@ -16,12 +16,12 @@ As a simple example:
 
 ```python
 variables = ['temperature', 'salinity', 'layerThickness', 'normalVelocity']
-compare_variables(variables, config, work_dir=testcase['work_dir'],
+compare_variables(variables, config, work_dir=task['work_dir'],
                   filename1='forward/output.nc')
 ```
 
 In this case, comparison will only take place if a baseline run is provided
-when the test case is set up (see {ref}`dev-polaris-setup` or
+when the task is set up (see {ref}`dev-polaris-setup` or
 {ref}`dev-polaris-suite`), since the keyword argument `filename2` was not
 provided.  If a baseline is provided, the 4 prognostic variables are compared
 between the file `forward/output.nc` and the same file in the corresponding
@@ -31,7 +31,7 @@ Here is a slightly more complex example:
 
 ```python
 variables = ['temperature', 'salinity', 'layerThickness', 'normalVelocity']
-compare_variables(variables, config, work_dir=testcase['work_dir'],
+compare_variables(variables, config, work_dir=task['work_dir'],
                   filename1='4proc/output.nc',
                   filename2='8proc/output.nc')
 ```
@@ -52,8 +52,8 @@ the keyword argument `skip_if_step_not_run=False` to force validation to run
 not run the step involved in the validation.
 
 In any of these cases, if comparison fails, the failure is stored in the
-`validation` attribute of the test case, and a `ValueError` will be raised
-later by the framework, terminating execution of the test case.
+`validation` attribute of the task, and a `ValueError` will be raised
+later by the framework, terminating execution of the task.
 
 If `quiet=False`, typical output will look like this:
 
@@ -166,8 +166,8 @@ normalVelocity       Time index: 0, 1, 2
 ```
 
 By default, the function checks to make sure `filename1` and, if provided,
-`filename2` are output from one of the steps in the test case.  In general,
-validation should be performed on outputs of the steps in this test case that
+`filename2` are output from one of the steps in the task.  In general,
+validation should be performed on outputs of the steps in this task that
 are explicitly added with {py:meth}`polaris.Step.add_output_file()`.  This
 check can be disabled by setting `check_outputs=False`.
 

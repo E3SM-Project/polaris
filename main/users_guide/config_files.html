@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Test Suites" href="test_suites.html" />
-    <link rel="prev" title="Test Cases" href="test_cases.html" />
+    <link rel="next" title="Suites" href="suites.html" />
+    <link rel="prev" title="Tasks" href="tasks.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -51,13 +51,13 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Config Files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#a-user-config-file">A “user” config file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-case-config-files">Test-case config files</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
@@ -115,19 +115,19 @@
   <section class="tex2jax_ignore mathjax_ignore" id="config-files">
 <span id="id1"></span><h1>Config Files<a class="headerlink" href="#config-files" title="Permalink to this heading"></a></h1>
 <p>Polaris uses config files (with extension <code class="docutils literal notranslate"><span class="pre">.cfg</span></code>) to allow users to
-control how <a class="reference internal" href="test_cases.html#test-cases"><span class="std std-ref">Test Cases</span></a> and <a class="reference internal" href="test_suites.html#test-suites"><span class="std std-ref">Test Suites</span></a> get set up and run.</p>
+control how <a class="reference internal" href="tasks.html#tasks"><span class="std std-ref">Tasks</span></a> and <a class="reference internal" href="suites.html#suites"><span class="std std-ref">Suites</span></a> get set up and run.</p>
 <section id="a-user-config-file">
 <h2>A “user” config file<a class="headerlink" href="#a-user-config-file" title="Permalink to this heading"></a></h2>
 <p>If you’re running on one of the supported <a class="reference internal" href="machines/index.html#machines"><span class="std std-ref">Machines</span></a>, and you provide a
 path to where you build the MPAS model (with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, see <a class="reference internal" href="quick_start.html#setup-overview"><span class="std std-ref">Setting up test cases</span></a> and
-<a class="reference internal" href="quick_start.html#suite-overview"><span class="std std-ref">Test Suites</span></a>), you also won’t need to create a config file to set up
-test cases or suites.</p>
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, see <a class="reference internal" href="quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a> and
+<a class="reference internal" href="quick_start.html#suite-overview"><span class="std std-ref">Suites</span></a>), you also won’t need to create a config file to set up
+tasks or suites.</p>
 <p>If you’re running on another machine like your own laptop, you will need to
 provide some basic information for polaris to work properly.  Even if
 you’re running on one of the supported machines, you might find it convenient
 to make your own changes to config options related to either setting up or
-running test suites and test case.</p>
+running suites and task.</p>
 <p>Here is an example:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This file contains some common config options for machines that polaris</span>
 <span class="c1"># doesn&#39;t recognize automatically</span>
@@ -135,7 +135,7 @@ running test suites and test case.</p>
 <span class="c1"># The paths section describes paths where files are automatically downloaded</span>
 <span class="k">[paths]</span>
 
-<span class="c1"># A root directory where data for polaris test cases can be downloaded. This</span>
+<span class="c1"># A root directory where data for polaris tasks can be downloaded. This</span>
 <span class="c1"># data will be cached for future reuse.</span>
 <span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris/data</span>
 
@@ -162,13 +162,13 @@ the <code class="docutils literal notranslate"><span class="pre">-f</span></code
 </section>
 <section id="test-case-config-files">
 <h2>Test-case config files<a class="headerlink" href="#test-case-config-files" title="Permalink to this heading"></a></h2>
-<p>Once a test case has been set up, its work directory will contain a config file
-called <code class="docutils literal notranslate"><span class="pre">&lt;test_case&gt;.cfg</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;test_case&gt;</span></code> is the name of the test case.
-As a user, you can typically leave the config options in a test case as they
+<p>Once a task has been set up, its work directory will contain a config file
+called <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;.cfg</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;</span></code> is the name of the task.
+As a user, you can typically leave the config options in a task as they
 are to run the test in its default configuration.  But the config file is meant
-to make it easier to modify the test case to fit your needs without having to
+to make it easier to modify the task to fit your needs without having to
 dig into the polaris code.</p>
-<p>Config options for a given test case are built up from a number of different
+<p>Config options for a given task are built up from a number of different
 sources:</p>
 <ul class="simple">
 <li><p>the default config file,
@@ -188,8 +188,8 @@ options, e.g. <code class="docutils literal notranslate"><span class="pre">compo
 <li><p>the test group’s config file if one is defined.  For idealized test groups,
 these often include the size and resolution of the mesh as well as the number
 of vertical levels.</p></li>
-<li><p>any number of config files from the test case.  There might be different
-config options depending on how the test case is configured (e.g. only if a
+<li><p>any number of config files from the task.  There might be different
+config options depending on how the task is configured (e.g. only if a
 certain feature is enabled.  For example, <span class="xref std std-ref">ocean-global-ocean</span> loads
 different sets of config options for different meshes.</p></li>
 <li><p>a user’s config file described above.</p></li>
@@ -211,8 +211,8 @@ config files listed above. Here is an example of some customization for the
 request will be included in the metadata for output files from this test group.</p>
 <p>A typical config file resulting from combining all of the sources listed above
 looks like:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the current test case</span>
-<span class="k">[test_case]</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the current task</span>
+<span class="k">[task]</span>
 
 <span class="c1"># source: /home/xylar/code/polaris/customize_config_parser/polaris/setup.py</span>
 <span class="na">steps_to_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh</span>
@@ -332,7 +332,7 @@ looks like:</p>
 
 
 <span class="c1"># The executables section defines paths to required executables. These</span>
-<span class="c1"># executables are provided for use by specific test cases.  Most tools that</span>
+<span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
 <span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
 <span class="c1"># to the MPAS-Ocean executable by default.</span>
 <span class="k">[executables]</span>
@@ -575,8 +575,8 @@ for users and developers to understand how the config file is built up.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="test_cases.html" class="btn btn-neutral float-left" title="Test Cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="test_suites.html" class="btn btn-neutral float-right" title="Test Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tasks.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="suites.html" class="btn btn-neutral float-right" title="Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

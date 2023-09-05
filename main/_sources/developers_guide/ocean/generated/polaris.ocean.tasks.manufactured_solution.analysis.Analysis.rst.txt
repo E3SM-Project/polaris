@@ -1,0 +1,31 @@
+﻿polaris.ocean.tasks.manufactured\_solution.analysis.Analysis
+============================================================
+
+.. currentmodule:: polaris.ocean.tasks.manufactured_solution.analysis
+
+.. autoclass:: Analysis
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Analysis.__init__
+      ~Analysis.add_dependency
+      ~Analysis.add_input_file
+      ~Analysis.add_output_file
+      ~Analysis.constrain_resources
+      ~Analysis.process_inputs_and_outputs
+      ~Analysis.run
+      ~Analysis.runtime_setup
+      ~Analysis.set_resources
+      ~Analysis.setup
+   
+   
+
+   
+   
+   

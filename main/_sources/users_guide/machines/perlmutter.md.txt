@@ -40,7 +40,7 @@ compilers.  We only support Perlmutter-CPU at this time.
 
 Here are the default
 config options added when you choose `-m pm-cpu` when setting up test
-cases or a test suite:
+cases or a suite:
 
 ```cfg
 # The paths section describes paths for data and environments

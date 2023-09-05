@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.single\_column.ideal\_age.IdealAge.validate
-===============================================================
-
-.. currentmodule:: polaris.ocean.tests.single_column.ideal_age
-
-.. automethod:: IdealAge.validate

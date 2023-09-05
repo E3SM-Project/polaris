@@ -17,10 +17,10 @@ discussion in {ref}`dev-model`.
 
 #### YAML files vs. namelists and streams
 
-In order to have the same test cases support Omega or MPAS-Ocean, we want
+In order to have the same tasks support Omega or MPAS-Ocean, we want
 to be able to produce either the YAML config files used by Omega or the
 namelists and streams files used by MPAS-Ocean.  To support both, we decided
-that polaris would use Omega-style YAML files to configure all ocean test cases
+that polaris would use Omega-style YAML files to configure all ocean tasks
 and convert to MPAS-Ocean's namelists and streams files if needed when steps
 get set up.
 
@@ -74,10 +74,10 @@ and outputting variables related to frazil ice and land-ice fluxes.
 ## Vertical coordinate
 
 The `polaris.ocean.vertical` module provides support for computing general
-vertical coordinates for MPAS-Ocean test cases.
+vertical coordinates for MPAS-Ocean tasks.
 
 The `polaris.ocean.vertical.grid_1d` module provides 1D vertical
-coordinates.  To create 1D vertical grids, test cases should call
+coordinates.  To create 1D vertical grids, tasks should call
 {py:func}`polaris.ocean.vertical.grid_1d.generate_1d_grid()` with the desired
 config options set in the `vertical_grid` section (as described in
 the User's Guide under {ref}`ocean-vertical`).

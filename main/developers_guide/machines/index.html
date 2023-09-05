@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -143,12 +143,12 @@ the base of your polaris branch, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
 </pre></div>
 </div>
-<p>After loading this environment, you can set up test cases or test suites, and
-a link <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> will be included in each suite or test case
+<p>After loading this environment, you can set up tasks or suites, and
+a link <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> will be included in each suite or task
 work directory.  This is a link to the activation script that you sourced when
 you were setting things up.  You can can source this file on a compute node
 (e.g. in a job script) to get the right polaris conda environment, compilers,
-MPI libraries and environment variables for running polaris tests and
+MPI libraries and environment variables for running polaris tasks and
 the MPAS model.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -338,7 +338,7 @@ The recommended starting point would be <code class="docutils literal notranslat
 <code class="docutils literal notranslate"><span class="pre">modules_after</span> <span class="pre">=</span> <span class="pre">True</span></code>, but could be adjusted as needed if the right shared
 libraries aren’t being found when you try to build an MPAS component.</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">[paths]</span></code> section, you will first give a path where you would like
-to store shared data files used in polaris test cases in <code class="docutils literal notranslate"><span class="pre">database_root</span></code>.
+to store shared data files used in polaris tasks in <code class="docutils literal notranslate"><span class="pre">database_root</span></code>.
 Polaris will create this directory if it doesn’t exist.  Then, you can specify
 <code class="docutils literal notranslate"><span class="pre">polaris_envs</span></code> as a path where shared conda environments will be installed
 for polaris releases.  If developers always create their own conda

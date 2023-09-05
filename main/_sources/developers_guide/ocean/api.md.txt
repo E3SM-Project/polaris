@@ -14,7 +14,7 @@
 ### baroclinic_channel
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.baroclinic_channel
+.. currentmodule:: polaris.ocean.tasks.baroclinic_channel
 
 .. autosummary::
    :toctree: generated/
@@ -61,7 +61,7 @@
 ### inertial_gravity_wave 
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.inertial_gravity_wave
+.. currentmodule:: polaris.ocean.tasks.inertial_gravity_wave
 
 .. autosummary::
    :toctree: generated/
@@ -92,7 +92,7 @@
 ### global_convergence
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.global_convergence
+.. currentmodule:: polaris.ocean.tasks.global_convergence
 
 .. autosummary::
    :toctree: generated/
@@ -103,7 +103,7 @@
 #### cosine_bell
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.global_convergence.cosine_bell
+.. currentmodule:: polaris.ocean.tasks.global_convergence.cosine_bell
 
 .. autosummary::
    :toctree: generated/
@@ -133,7 +133,7 @@
 ### manufactured_solution
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.manufactured_solution
+.. currentmodule:: polaris.ocean.tasks.manufactured_solution
 
 .. autosummary::
    :toctree: generated/
@@ -164,7 +164,7 @@
 ### single_column
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tests.single_column
+.. currentmodule:: polaris.ocean.tasks.single_column
 
 .. autosummary::
    :toctree: generated/

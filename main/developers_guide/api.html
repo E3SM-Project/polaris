@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -92,7 +92,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#component">Component</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#testgroup">TestGroup</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#testcase">TestCase</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#task">Task</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#step">Step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#modelstep">ModelStep</a></li>
 </ul>
@@ -278,8 +278,8 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_cases</span></code></a>([test_expr, number, verbose])</p></td>
-<td><p>List the available test cases</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_cases</span></code></a>([task_expr, number, verbose])</p></td>
+<td><p>List the available tasks</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_machines</span></code></a>()</p></td>
 <td><p></p></td>
@@ -298,12 +298,6 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.setup.setup_cases.html#polaris.setup.setup_cases" title="polaris.setup.setup_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_cases</span></code></a>(work_dir[, tests, numbers, ...])</p></td>
-<td><p>Set up one or more test cases</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.setup.setup_case.html#polaris.setup.setup_case" title="polaris.setup.setup_case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_case</span></code></a>(path, test_case, config_file, ...)</p></td>
-<td><p>Set up one or more test cases</p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -316,7 +310,7 @@ documentation.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_suite</span></code></a>(component, suite_name, work_dir)</p></td>
-<td><p>Set up a test suite</p></td>
+<td><p>Set up a suite of tasks</p></td>
 </tr>
 </tbody>
 </table>
@@ -335,14 +329,14 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.setup_config.html#polaris.run.setup_config" title="polaris.run.setup_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_config</span></code></a>(config_filename)</p></td>
 <td><p>Set up the config object from the config file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(test_case, step)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(task, step)</p></td>
 <td><p>Load each dependency from its pickle file to pick up changes that may have happened since it ran</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.pickle_step_after_run.html#polaris.run.pickle_step_after_run" title="polaris.run.pickle_step_after_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_step_after_run</span></code></a>(test_case, step)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.pickle_step_after_run.html#polaris.run.pickle_step_after_run" title="polaris.run.pickle_step_after_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_step_after_run</span></code></a>(task, step)</p></td>
 <td><p>Pickle a step after it has run so its dependencies will pick up the changes</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tests</span></code></a>(suite_name[, quiet, ...])</p></td>
-<td><p>Run the given test suite or test case</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
+<td><p>Run the given suite or task</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess])</p></td>
 <td><p>Used by the framework to run a step when <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> gets called in the step's work directory</p></td>
@@ -390,7 +384,7 @@ documentation.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component</span></code></a>(name)</p></td>
-<td><p>The base class for housing all the tests for a given component, such as ocean, landice, or seaice</p></td>
+<td><p>The base class for housing all the tasks for a given component, such as ocean, landice, or seaice</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.add_test_group.html#polaris.Component.add_test_group" title="polaris.Component.add_test_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_test_group</span></code></a>(test_group)</p></td>
 <td><p>Add a test group to the component</p></td>
@@ -407,33 +401,33 @@ documentation.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup</span></code></a>(component, name)</p></td>
-<td><p>The base class for test groups, which are collections of test cases with a common purpose (e.g.</p></td>
+<td><p>The base class for test groups, which are collections of tasks with a common purpose (e.g.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestGroup.add_test_case.html#polaris.TestGroup.add_test_case" title="polaris.TestGroup.add_test_case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup.add_test_case</span></code></a>(test_case)</p></td>
-<td><p>Add a test case to the test group</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestGroup.add_task.html#polaris.TestGroup.add_task" title="polaris.TestGroup.add_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup.add_task</span></code></a>(task)</p></td>
+<td><p>Add a task to the test group</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="testcase">
-<h4>TestCase<a class="headerlink" href="#testcase" title="Permalink to this heading"></a></h4>
+<section id="task">
+<h4>Task<a class="headerlink" href="#task" title="Permalink to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase</span></code></a>(test_group, name[, subdir])</p></td>
-<td><p>The base class for test cases---such as a decomposition, threading or restart test---that are made up of one or more steps</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code></a>(test_group, name[, subdir])</p></td>
+<td><p>The base class for tasks---such as a decomposition, threading or restart test---that are made up of one or more steps</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestCase.configure.html#polaris.TestCase.configure" title="polaris.TestCase.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.configure</span></code></a>()</p></td>
-<td><p>Modify the configuration options for this test case.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this task.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestCase.validate.html#polaris.TestCase.validate" title="polaris.TestCase.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.validate</span></code></a>()</p></td>
-<td><p>Test cases can override this method to perform validation of variables and timers</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.validate.html#polaris.Task.validate" title="polaris.Task.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.validate</span></code></a>()</p></td>
+<td><p>Tasks can override this method to perform validation of variables and timers</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestCase.add_step.html#polaris.TestCase.add_step" title="polaris.TestCase.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestCase.add_step</span></code></a>(step[, run_by_default])</p></td>
-<td><p>Add a step to the test case</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>(step[, run_by_default])</p></td>
+<td><p>Add a step to the task</p></td>
 </tr>
 </tbody>
 </table>
@@ -446,8 +440,8 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step</span></code></a>(test_case, name[, subdir, ...])</p></td>
-<td><p>The base class for a step of a test cases, such as setting up a mesh, creating an initial condition, or running the component forward in time.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step</span></code></a>(task, name[, subdir, cpus_per_task, ...])</p></td>
+<td><p>The base class for a step of a tasks, such as setting up a mesh, creating an initial condition, or running the component forward in time.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_resources</span></code></a>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
@@ -456,7 +450,7 @@ documentation.</p>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.setup</span></code></a>()</p></td>
-<td><p>Set up the test case in the work directory, including downloading any dependencies.</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.runtime_setup</span></code></a>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
@@ -468,7 +462,7 @@ documentation.</p>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename)</p></td>
-<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other test cases.</p></td>
+<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_dependency</span></code></a>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e.</p></td>
@@ -484,7 +478,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep</span></code></a>(test_case, name[, subdir, ntasks, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep</span></code></a>(task, name[, subdir, ntasks, ...])</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">ivar namelist</dt>
 <dd class="field-odd"><p>The name of the namelist file</p>
@@ -627,7 +621,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
 <td><p>Compute number of grid cells in each direction for the uniform, hexagonal planar mesh with the given physical sizes and resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(test_case, name, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(task, name, subdir)</p></td>
 <td><p>A base class for steps that create a JIGSAW spherical mesh</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.spherical.SphericalBaseStep.setup" title="polaris.mesh.spherical.SphericalBaseStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.setup</span></code></a>()</p></td>
@@ -639,14 +633,14 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.save_and_plot_cell_width</span></code></a>(...)</p></td>
 <td><p>Save the cell width field on a lon/lat grid to <code class="docutils literal notranslate"><span class="pre">self.cell_width_filename</span></code> and plot</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(test_case[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(task[, name, ...])</p></td>
 <td><p>A step for creating a quasi-uniform JIGSAW mesh with a constant approximate cell width.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup" title="polaris.mesh.QuasiUniformSphericalMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.setup</span></code></a>()</p></td>
 <td><p>Add JIGSAW options based on config options</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run" title="polaris.mesh.QuasiUniformSphericalMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
+<td><p>Run this step of the task</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.build_cell_width_lat_lon</span></code></a>()</p></td>
 <td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
@@ -654,14 +648,14 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
 <td><p>Build the JIGSAW mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(test_case[, name, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(task[, name, subdir, ...])</p></td>
 <td><p>A step for creating an icosahedral JIGSAW mesh</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup" title="polaris.mesh.IcosahedralMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.setup</span></code></a>()</p></td>
 <td><p>Add JIGSAW options based on config options</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run" title="polaris.mesh.IcosahedralMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
+<td><p>Run this step of the task</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
 <td><p>Make the JIGSAW mesh.</p></td>
@@ -746,8 +740,8 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(work_dir, test_cases[, config])</p></td>
-<td><p>Write a file with provenance, such as the git version, conda packages, command, and test cases, to the work directory</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(work_dir, tasks[, config])</p></td>
+<td><p>Write a file with provenance, such as the git version, conda packages, command, and tasks, to the work directory</p></td>
 </tr>
 </tbody>
 </table>
@@ -760,7 +754,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep</span></code></a>(test_case, name[, subdir, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep</span></code></a>(task, name[, subdir, ...])</p></td>
 <td><p>A step for creating a mapping file between grids</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas" title="polaris.remap.MappingFileStep.src_from_mpas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.src_from_mpas</span></code></a>(filename, ...)</p></td>
@@ -827,11 +821,11 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_variables</span></code></a>(test_case, variables, ...)</p></td>
-<td><p>Compare variables between files in the current test case and/or with the baseline results.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_variables</span></code></a>(task, variables, filename1)</p></td>
+<td><p>Compare variables between files in the current task and/or with the baseline results.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_timers</span></code></a>(test_case, timers, rundir1[, ...])</p></td>
-<td><p>Compare variables between files in the current test case and/or with the baseline results.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_timers</span></code></a>(task, timers, rundir1[, rundir2])</p></td>
+<td><p>Compare variables between files in the current task and/or with the baseline results.</p></td>
 </tr>
 </tbody>
 </table>

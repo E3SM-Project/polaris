@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.run.serial.run_tests" href="polaris.run.serial.run_tests.html" />
+    <link rel="next" title="polaris.run.serial.run_tasks" href="polaris.run.serial.run_tasks.html" />
     <link rel="prev" title="polaris.run.load_dependencies" href="polaris.run.load_dependencies.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -145,13 +145,13 @@
 <h1>polaris.run.pickle_step_after_run<a class="headerlink" href="#polaris-run-pickle-step-after-run" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.run.pickle_step_after_run">
-<span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">pickle_step_after_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#pickle_step_after_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.pickle_step_after_run" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">pickle_step_after_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#pickle_step_after_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.pickle_step_after_run" title="Permalink to this definition"></a></dt>
 <dd><p>Pickle a step after it has run so its dependencies will pick up the
 changes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_case</strong> (<a class="reference internal" href="polaris.TestCase.html#polaris.TestCase" title="polaris.testcase.TestCase"><em>polaris.testcase.TestCase</em></a>) – The test case object</p></li>
+<li><p><strong>task</strong> (<a class="reference internal" href="polaris.Task.html#polaris.Task" title="polaris.task.Task"><em>polaris.task.Task</em></a>) – The test case object</p></li>
 <li><p><strong>step</strong> (<a class="reference internal" href="polaris.Step.html#polaris.Step" title="polaris.step.Step"><em>polaris.step.Step</em></a>) – The step object</p></li>
 </ul>
 </dd>
@@ -165,7 +165,7 @@ changes</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.run.load_dependencies.html" class="btn btn-neutral float-left" title="polaris.run.load_dependencies" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.run.serial.run_tests.html" class="btn btn-neutral float-right" title="polaris.run.serial.run_tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.run.serial.run_tasks.html" class="btn btn-neutral float-right" title="polaris.run.serial.run_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

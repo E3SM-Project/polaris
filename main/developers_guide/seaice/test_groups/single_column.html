@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Seaice component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Test groups</a><ul class="current">
@@ -126,36 +126,36 @@
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
 <span id="dev-seaice-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> test group
-(<a class="reference internal" href="../generated/polaris.seaice.tests.single_column.SingleColumn.html#polaris.seaice.tests.single_column.SingleColumn" title="polaris.seaice.tests.single_column.SingleColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tests.single_column.SingleColumn</span></code></a>)
-implements test cases that exercise column physics only. There are currently
-two test case that exercises column physics only. Here, we describe the shared
-framework for this test group and the test cases.</p>
+(<a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.SingleColumn.html#polaris.seaice.tasks.single_column.SingleColumn" title="polaris.seaice.tasks.single_column.SingleColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.SingleColumn</span></code></a>)
+implements tasks that exercise column physics only. There are currently
+two task that exercises column physics only. Here, we describe the shared
+framework for this test group and the tasks.</p>
 <section id="framework">
 <span id="dev-seaice-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
 <p>The shared step for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> test group
 are described in <a class="reference internal" href="../../../users_guide/seaice/test_groups/single_column.html#seaice-single-column"><span class="std std-ref">single_column</span></a> in the User’s Guide.</p>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.seaice.tests.single_column.forward.Forward.html#polaris.seaice.tests.single_column.forward.Forward" title="polaris.seaice.tests.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tests.single_column.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.forward.Forward.html#polaris.seaice.tasks.single_column.forward.Forward" title="polaris.seaice.tasks.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.forward.Forward</span></code></a>
 defines a step for running MPAS-Seaice. The step stages the forcing files,
-namelist and streams files for each test case.</p>
+namelist and streams files for each task.</p>
 </section>
 </section>
 <section id="standard-physics-test">
 <h2>standard_physics_test<a class="headerlink" href="#standard-physics-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.seaice.tests.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tests.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tests.single_column.standard_physics.StandardPhysics"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tests.single_column.standard_physics.StandardPhysics</span></code></a></p>
+<p>The <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.standard_physics.StandardPhysics</span></code></a></p>
 <p>The test runs for one year, using year 2000 conditions, as specified in the
 <code class="docutils literal notranslate"><span class="pre">namelist.seaice</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.seaice</span></code> files. The test will compare the contents
 of the output file for year 2000 against a baseline if provided.</p>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.seaice.tests.single_column.standard_physics.viz.Viz.html#polaris.seaice.tests.single_column.standard_physics.viz.Viz" title="polaris.seaice.tests.single_column.standard_physics.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tests.single_column.standard_physics.viz.Viz</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.standard_physics.viz.Viz</span></code></a>
 produces time series of sea ice volume, snow volume, and surface temperature.</p>
 </section>
 </section>
 <section id="exact-restart-test">
 <h2>exact_restart_test<a class="headerlink" href="#exact-restart-test" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.seaice.tests.single_column.exact_restart.ExactRestart.html#polaris.seaice.tests.single_column.exact_restart.ExactRestart" title="polaris.seaice.tests.single_column.exact_restart.ExactRestart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tests.single_column.exact_restart.ExactRestart</span></code></a></p>
+<p>The <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.exact_restart.ExactRestart</span></code></a></p>
 <p>The test runs a <code class="docutils literal notranslate"><span class="pre">full_run</span></code> for one day, writing restarts every 12 hours, as
 specified by <code class="docutils literal notranslate"><span class="pre">namelist.full</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.full</span></code>. The test then runs a
 <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> from the full run’s 12 hour restart file, for 12 hours, writing

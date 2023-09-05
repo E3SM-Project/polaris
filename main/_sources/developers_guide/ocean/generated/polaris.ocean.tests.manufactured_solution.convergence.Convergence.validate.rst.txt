@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.manufactured\_solution.convergence.Convergence.validate
-===========================================================================
-
-.. currentmodule:: polaris.ocean.tests.manufactured_solution.convergence
-
-.. automethod:: Convergence.validate

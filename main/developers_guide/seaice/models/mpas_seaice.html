@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Seaice component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../test_groups/index.html">Test groups</a></li>
@@ -123,11 +123,11 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="mpas-seaice">
 <h1>MPAS-Seaice<a class="headerlink" href="#mpas-seaice" title="Permalink to this heading"></a></h1>
-<p>The following are considerations that may be useful in developing a new test case for MPAS-Seaice.</p>
+<p>The following are considerations that may be useful in developing a new task for MPAS-Seaice.</p>
 <section id="initial-conditions">
 <h2>Initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
 <p>MPAS-Seaice has no specific requirements for defining the sea ice inital conditions.
-The current default setting for the single column test cases is a solid 1m thick disc
+The current default setting for the single column tasks is a solid 1m thick disc
 of sea ice that covers the single-grid cell domain.<br />
 The MPAS-Seaice initial conditions are defined in the default namelist file contained
 within the component directory:
@@ -140,7 +140,7 @@ config options within in the namelist file:</p>
 </pre></div>
 </div>
 <p>To define alternative sea ice inital conditions, modifications should be made to the
-namelist file placed within the test case directory.</p>
+namelist file placed within the task directory.</p>
 </section>
 <section id="forcing">
 <h2>Forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
@@ -159,8 +159,8 @@ These default settings are defined in the namelist file within the component dir
 <span class="o">/</span>
 </pre></div>
 </div>
-<p>If modifications to the forcing are needed for test cases, they should be added to
-the namelist file placed within the test case directory.</p>
+<p>If modifications to the forcing are needed for tasks, they should be added to
+the namelist file placed within the task directory.</p>
 </section>
 </section>
 

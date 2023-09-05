@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.baroclinic\_channel.init.Init.setup
-=======================================================
-
-.. currentmodule:: polaris.ocean.tests.baroclinic_channel.init
-
-.. automethod:: Init.setup

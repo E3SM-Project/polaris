@@ -5,7 +5,7 @@
 ## config options
 
 Here are the default config options added when CompyMcNodeFace is automatically
-detected or when you choose `-m compy` when setting up test cases or a test
+detected or when you choose `-m compy` when setting up tasks or a test
 suite:
 
 ```cfg

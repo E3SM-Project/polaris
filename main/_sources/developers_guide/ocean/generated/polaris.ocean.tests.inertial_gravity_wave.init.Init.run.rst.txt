@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.inertial\_gravity\_wave.init.Init.run
-=========================================================
-
-.. currentmodule:: polaris.ocean.tests.inertial_gravity_wave.init
-
-.. automethod:: Init.run

@@ -12,9 +12,9 @@ of polaris will be kept closely synchronized with the development repositories
 for the components it supports. Release versions will be compatible with 
 specific tags of the MPAS components.
 
-Many polaris test cases are idealized, and are used for things like
+Many polaris tasks are idealized, and are used for things like
 performing convergence tests or regression tests on particular parts of the
-model code.  Many other polaris test cases, such as those under the
+model code.  Many other polaris tasks, such as those under the
 {ref}`ocean-global-ocean` and {ref}`landice-greenland` test 
 groups, are "realistic" in the sense that they use data sets from observations 
 to create  create global and regional meshes,  initial conditions, and boundary
@@ -28,10 +28,10 @@ files needed for full E3SM coupling, a process that requires expert help from
 the E3SM development team.
 ```
 
-The ``polaris`` python package defines the test cases and analysis tasks along 
-with the commands  to list and set up both test cases and suites (groups 
-of test cases or analysis tasks).  Polaris currently supports ``landice`` 
-and ``ocean`` components.  Nearly all test cases include calls that launch one
+The ``polaris`` python package defines the tasks and analysis tasks along 
+with the commands  to list and set up both tasks and suites (groups 
+of tasks or analysis tasks).  Polaris currently supports ``landice`` 
+and ``ocean`` components.  Nearly all tasks include calls that launch one
 of these E3SM components, built in "standalone" (uncoupled) mode.  These runs 
 are configured with config files (e.g. YAML or namelist files) and one of the 
 benefits of using polaris over attempting to run one of the components directly
@@ -45,9 +45,9 @@ as the model components themselves evolves and new functionality is added.
 :maxdepth: 2
 
 users_guide/quick_start
-users_guide/test_cases
+users_guide/tasks
 users_guide/config_files
-users_guide/test_suites
+users_guide/suites
 users_guide/ocean/index
 users_guide/seaice/index
 users_guide/machines/index

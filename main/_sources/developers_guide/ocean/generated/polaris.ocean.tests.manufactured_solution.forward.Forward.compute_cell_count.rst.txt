@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.manufactured\_solution.forward.Forward.compute\_cell\_count
-===============================================================================
-
-.. currentmodule:: polaris.ocean.tests.manufactured_solution.forward
-
-.. automethod:: Forward.compute_cell_count

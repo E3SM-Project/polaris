@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.manufactured\_solution.forward.Forward.dynamic\_model\_config
-=================================================================================
-
-.. currentmodule:: polaris.ocean.tests.manufactured_solution.forward
-
-.. automethod:: Forward.dynamic_model_config

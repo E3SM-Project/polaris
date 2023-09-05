@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.manufactured\_solution.analysis.Analysis.run
+================================================================
+
+.. currentmodule:: polaris.ocean.tasks.manufactured_solution.analysis
+
+.. automethod:: Analysis.run

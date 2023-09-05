@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
@@ -140,19 +140,19 @@ README file that the user might want to have available) using
 <span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span>
 
 
-<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">testcase</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="k">with</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.global_ocean.files_for_e3sm&#39;</span><span class="p">,</span> <span class="s1">&#39;README&#39;</span><span class="p">)</span> <span class="k">as</span> \
+    <span class="k">with</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.global_ocean.files_for_e3sm&#39;</span><span class="p">,</span> <span class="s1">&#39;README&#39;</span><span class="p">)</span> <span class="k">as</span> \
             <span class="n">target</span><span class="p">:</span>
-        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/README&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">testcase</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">]))</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/README&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">]))</span>
 </pre></div>
 </div>
 <p>In this example, we get the path to a README file within polaris and make
-a local symlink to it in the test case’s work directory.  We did this with
+a local symlink to it in the task’s work directory.  We did this with
 <code class="docutils literal notranslate"><span class="pre">symlink()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> because we want this link to
-be within the test case’s work directory, not the step’s work directory.  We
+be within the task’s work directory, not the step’s work directory.  We
 must do this in <code class="docutils literal notranslate"><span class="pre">configure()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">collect()</span></code> because we do not
-know if the test case will be set up at all (or in what work directory) during
+know if the task will be set up at all (or in what work directory) during
 <code class="docutils literal notranslate"><span class="pre">collect()</span></code>.</p>
 </section>
 <section id="download">
@@ -161,7 +161,7 @@ know if the test case will be set up at all (or in what work directory) during
 <a class="reference internal" href="../generated/polaris.io.download.html#polaris.io.download" title="polaris.io.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.download()</span></code></a>, though we recommend using
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> whenever possible because it is more
 flexible and takes care of more of the details of symlinking the local file
-and adding it as an input to the step.  No current test cases use
+and adding it as an input to the step.  No current tasks use
 <code class="docutils literal notranslate"><span class="pre">download()</span></code> directly, but an example might look like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">download</span>

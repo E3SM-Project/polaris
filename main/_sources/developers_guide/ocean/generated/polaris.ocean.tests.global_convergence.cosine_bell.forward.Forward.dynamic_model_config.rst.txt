@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.global\_convergence.cosine\_bell.forward.Forward.dynamic\_model\_config
-===========================================================================================
-
-.. currentmodule:: polaris.ocean.tests.global_convergence.cosine_bell.forward
-
-.. automethod:: Forward.dynamic_model_config

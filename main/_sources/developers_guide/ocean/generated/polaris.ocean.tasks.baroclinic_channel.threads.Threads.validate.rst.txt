@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.baroclinic\_channel.threads.Threads.validate
+================================================================
+
+.. currentmodule:: polaris.ocean.tasks.baroclinic_channel.threads
+
+.. automethod:: Threads.validate

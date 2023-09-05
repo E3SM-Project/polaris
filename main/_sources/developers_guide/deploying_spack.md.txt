@@ -361,7 +361,7 @@ cd components/mpas-ocean
 # this will build with PIO, Netlib LAPACK and PETSc
 make ifort
 polaris list | grep nonhydro
-# update these numbers for the 2 nonhydro test cases
+# update these numbers for the 2 nonhydro tasks
 polaris setup -n 245 246 -p . \
     -w /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/nonhydro_chrys_intel_openmpi
 cd /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/nonhydro_chrys_intel_openmpi

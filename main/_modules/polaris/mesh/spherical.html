@@ -48,9 +48,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,7 +60,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
@@ -136,14 +136,14 @@
 <span class="sd">    opts : jigsawpy.jigsaw_jig_t</span>
 <span class="sd">        JIGSAW options for creating the mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SphericalBaseStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalBaseStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the step</span>
@@ -151,7 +151,7 @@
 <span class="sd">        subdir : {str, None}</span>
 <span class="sd">            the subdirectory for the step.  The default is ``name``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="c1"># setup files for JIGSAW</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_jig_t</span><span class="p">()</span></div>
@@ -292,15 +292,15 @@
 <span class="sd">        The approximate cell width in km of the mesh if constant resolution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        name : str, optional</span>
 <span class="sd">            the name of the step</span>
@@ -311,7 +311,7 @@
 <span class="sd">        cell_width : float, optional</span>
 <span class="sd">            The approximate cell width in km of the mesh if constant resolution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span>
 
         <span class="c1"># build mesh via JIGSAW!</span>
@@ -336,7 +336,7 @@
 
 <div class="viewcode-block" id="QuasiUniformSphericalMeshStep.run"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run this step of the test case</span>
+<span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_cell_width_lat_lon</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_and_plot_cell_width</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">)</span>
@@ -432,15 +432,15 @@
 <span class="sd">        The number of subdivisions of the icosahedral mesh to perform</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="IcosahedralMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdivisions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        name : str, optional</span>
 <span class="sd">            the name of the step</span>
@@ -454,7 +454,7 @@
 <span class="sd">        subdivisions : int, optional</span>
 <span class="sd">            The number of subdivisions of the icosahedral mesh to perform</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="c1"># run as a subprocess so output goes to a log file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_as_subprocess</span> <span class="o">=</span> <span class="kc">True</span>
@@ -481,7 +481,7 @@
 
 <div class="viewcode-block" id="IcosahedralMeshStep.run"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run this step of the test case</span>
+<span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Generate JIGSAW icosahedral mesh&#39;</span><span class="p">)</span>

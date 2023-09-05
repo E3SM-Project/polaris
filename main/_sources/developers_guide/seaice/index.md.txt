@@ -3,7 +3,7 @@
 # Seaice component
 
 The `seaice` component is defined by the {py:class}`polaris.seaice.Seaice`
-class. All test cases in the `seaice` component  are single column tests 
+class. All tasks in the `seaice` component  are single column tests 
 and contain very simple config options as follows:
 
 ```cfg
@@ -39,7 +39,7 @@ forward = ${paths:component_path}/default_inputs/streams.seaice
 processed = ${paths:component_path}/src/Registry_processed.xml
 
 # The executables section defines paths to required executables. These
-# executables are provided for use by specific test cases.  Most tools that
+# executables are provided for use by specific tasks.  Most tools that
 # polaris needs should be in the conda environment, so this is only the path
 # to the MPAS-Seaice executable by default.
 [executables]

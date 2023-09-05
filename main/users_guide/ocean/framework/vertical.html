@@ -22,7 +22,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Test suites" href="../suites.html" />
+    <link rel="next" title="Suites" href="../suites.html" />
     <link rel="prev" title="Framework" href="index.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -53,9 +53,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../test_groups/index.html">Test groups</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
@@ -66,7 +66,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html">Test suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
@@ -77,7 +77,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
@@ -126,7 +126,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="vertical-coordinate">
 <span id="ocean-vertical"></span><h1>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h1>
-<p>The vertical coordinate used in most ocean test cases is determined by
+<p>The vertical coordinate used in most ocean tasks is determined by
 config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section of the config file:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
@@ -291,7 +291,7 @@ it must either be expanded to the minimum or collapsed to the next adjacent
 valid layer (whichever would cause the smallest change).</p>
 <section id="z-star">
 <span id="ocean-z-star"></span><h3>z-star<a class="headerlink" href="#z-star" title="Permalink to this heading"></a></h3>
-<p>Most ocean test cases currently use the z* vertical coordinate
+<p>Most ocean tasks currently use the z* vertical coordinate
 (<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2003.09.003">Adcroft and Campin, 2004</a>)
 by default.  Typically (in the absence of ice-shelf cavities), the initial
 “resting” grid uses a <a class="reference internal" href="#ocean-z-level"><span class="std std-ref">z-level</span></a> coordinate.  As the sea-surface
@@ -322,7 +322,7 @@ in exactly the same way as at the seafloor.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Framework" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../suites.html" class="btn btn-neutral float-right" title="Test suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../suites.html" class="btn btn-neutral float-right" title="Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

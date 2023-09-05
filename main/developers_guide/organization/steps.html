@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Test Suites" href="suites.html" />
-    <link rel="prev" title="Test cases" href="test_cases.html" />
+    <link rel="next" title="Suites" href="suites.html" />
+    <link rel="prev" title="Tasks" href="tasks.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,11 +63,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tests</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tasks</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_cases.html">Test cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
@@ -88,7 +88,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="suites.html">Test Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
@@ -125,7 +125,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Organization of Tests</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Organization of Tasks</a></li>
       <li class="breadcrumb-item active">Steps</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/developers_guide/organization/steps.md.txt" rel="nofollow"> View page source</a>
@@ -139,9 +139,9 @@
   <section class="tex2jax_ignore mathjax_ignore" id="steps">
 <span id="dev-steps"></span><h1>Steps<a class="headerlink" href="#steps" title="Permalink to this heading"></a></h1>
 <p>Steps are the smallest units of work that can be executed on their own in
-polaris.  All test cases are made up of 1 or more steps, and all steps
-are set up into subdirectories inside of the work directory for the test case.
-Typically, a user will run all steps in a test case but certain test cases may
+polaris.  All tasks are made up of 1 or more steps, and all steps
+are set up into subdirectories inside of the work directory for the task.
+Typically, a user will run all steps in a task but certain tasks may
 prefer to have steps that are not run by default (e.g. a long forward
 simulation or optional visualization) but which are available for a user to
 manually alter and then run on their own.</p>
@@ -151,24 +151,24 @@ The child class must override the constructor and the
 the <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method, described below.</p>
 <section id="step-attributes">
 <span id="dev-step-attributes"></span><h2>Step attributes<a class="headerlink" href="#step-attributes" title="Permalink to this heading"></a></h2>
-<p>As was the case for test cases, the base class <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
+<p>As was the case for tasks, the base class <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
 large number of attributes that are useful at different stages (init, setup and
 run) of the step.</p>
 <p>Some attributes are available after calling the base class’ constructor
 <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>.  These include:</p>
 <dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the test case</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the task</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.test_case</span></code></dt><dd><p>The test case this step belongs to</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.task</span></code></dt><dd><p>The task this step belongs to</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.test_group</span></code></dt><dd><p>The test group the test case belongs to</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.test_group</span></code></dt><dd><p>The test group the task belongs to</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the test group belongs to</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the step</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.path</span></code></dt><dd><p>the path within the base work directory of the step, made up of
-<code class="docutils literal notranslate"><span class="pre">component</span></code>, <code class="docutils literal notranslate"><span class="pre">test_group</span></code>, the test case’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">component</span></code>, <code class="docutils literal notranslate"><span class="pre">test_group</span></code>, the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> and the
 step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.ntasks</span></code></dt><dd><p>the number of parallel (MPI) tasks the step would ideally use.  Too few
@@ -194,7 +194,7 @@ is being used, in which case <code class="docutils literal notranslate"><span cl
 cached outputs for the component that this step belongs to</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.run_as_subprocess</span></code></dt><dd><p>Whether to run this step as a subprocess, rather than just running
-it directly from the test case.  It is useful to run a step as a
+it directly from the task.  It is useful to run a step as a
 subprocess if there is not a good way to redirect output to a log
 file (e.g. if the step calls external code that, in turn, calls
 additional subprocesses).</p>
@@ -216,7 +216,7 @@ file even when the inner one does not).</p>
 <p>Another set of attributes is not useful until <code class="docutils literal notranslate"><span class="pre">setup()</span></code> is called by the
 polaris framework:</p>
 <dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">self.config</span></code></dt><dd><p>Configuration options for this test case, a combination of the defaults
+<dt><code class="docutils literal notranslate"><span class="pre">self.config</span></code></dt><dd><p>Configuration options for this task, a combination of the defaults
 for the machine, core and configuration</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.config_filename</span></code></dt><dd><p>The local name of the config file that <code class="docutils literal notranslate"><span class="pre">config</span></code> has been written to
@@ -239,7 +239,7 @@ step.  These input files must all exist at run time or the step will raise
 an exception</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.outputs</span></code></dt><dd><p>a list of absolute paths of output files produced by this step and
-available as inputs to other test cases and steps.  These files must
+available as inputs to other tasks and steps.  These files must
 exist after the test has run or an exception will be raised</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.logger</span></code></dt><dd><p>A logger for output from the step.  This gets passed on to other
@@ -255,7 +255,7 @@ names to read or write.</p>
 <p>You can add other attributes to the child class that keeps track of information
 that the step will need.</p>
 <p>As an example,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.setup_mesh.SetupMesh</span></code> keeps track of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tasks.dome.setup_mesh.SetupMesh</span></code> keeps track of the
 mesh type as an attribute:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">make_graph_file</span>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
@@ -263,26 +263,26 @@ mesh type as an attribute:</p>
 
 <span class="k">class</span> <span class="nc">SetupMesh</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A step for creating a mesh and initial condition for dome test cases</span>
+<span class="sd">    A step for creating a mesh and initial condition for dome tasks</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mesh_type : str</span>
-<span class="sd">        The resolution or mesh type of the test case</span>
+<span class="sd">        The resolution or mesh type of the task</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the dictionary of step properties</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        mesh_type : str</span>
-<span class="sd">            The resolution or mesh type of the test case</span>
+<span class="sd">            The resolution or mesh type of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;setup_mesh&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;setup_mesh&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
 
         <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;variable_resolution&#39;</span><span class="p">:</span>
@@ -301,18 +301,18 @@ mesh type as an attribute:</p>
 <span id="dev-step-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
 <p>The step’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) should call the base case’s
 constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the step, the
-test case it belongs to, and possibly several optional arguments: the
+task it belongs to, and possibly several optional arguments: the
 subdirectory for the step (if not the same as the name), number of MPI tasks,
 the minimum number of MPI tasks, the number of CPUs per task, the minimum
 number of CPUs per task, the number of OpenMP threads, and (currently as
 placeholders) the amount of memory the step is allowed to use.</p>
 <p>Then, the step can add <a class="reference internal" href="#dev-step-inputs-outputs"><span class="std std-ref">inputs and outputs</span></a> as well as
 <a class="reference internal" href="../framework/model.html#dev-step-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>, as described below.</p>
-<p>As with the test case’s <a class="reference internal" href="test_cases.html#dev-test-case-init"><span class="std std-ref">constructor</span></a>, it is important that the
+<p>As with the task’s <a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>, it is important that the
 step’s constructor doesn’t perform any time-consuming calculations, download
 files, or otherwise use significant resources because this function is called
-quite often for every single test case and step: when test cases are listed,
-set up, or cleaned up, and also when test suites are set up or cleaned up.
+quite often for every single task and step: when tasks are listed,
+set up, or cleaned up, and also when suites are set up or cleaned up.
 However, it is okay to add input, output, streams and namelist files to
 the step by calling any of the following methods:</p>
 <ul class="simple">
@@ -324,38 +324,38 @@ the step by calling any of the following methods:</p>
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>Each of these functions just caches information about the the inputs, outputs,
-namelists or streams files to be read later if the test case in question gets
+namelists or streams files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.</p>
 <p>The following is from
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.forward.Forward.html#polaris.ocean.tests.baroclinic_channel.forward.Forward" title="polaris.ocean.tests.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.forward.Forward()</span></code></a>:</p>
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.forward.Forward()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">ModelStep</span>
 
 
 <span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">ModelStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for performing forward MPAS-Ocean runs as part of baroclinic</span>
-<span class="sd">    channel test cases.</span>
+<span class="sd">    channel tasks.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    resolution : str</span>
-<span class="sd">        The resolution of the test case</span>
+<span class="sd">        The resolution of the task</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new test case</span>
+<span class="sd">        Create a new task</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_case : polaris.TestCase</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task this step belongs to</span>
 
 <span class="sd">        resolution : str</span>
-<span class="sd">            The resolution of the test case</span>
+<span class="sd">            The resolution of the task</span>
 
 <span class="sd">        name : str</span>
-<span class="sd">            the name of the test case</span>
+<span class="sd">            the name of the task</span>
 
 <span class="sd">        subdir : str, optional</span>
 <span class="sd">            the subdirectory for the step.  The default is ``name``</span>
@@ -378,12 +378,12 @@ set up, so each takes a negligible amount of time.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_case</span><span class="o">=</span><span class="n">test_case</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
                          <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                                <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                                <span class="s1">&#39;namelist.</span><span class="si">{}</span><span class="s1">.forward&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resolution</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value</span>
@@ -393,7 +393,7 @@ set up, so each takes a negligible amount of time.</p>
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.streams&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.output&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                               <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
@@ -423,7 +423,7 @@ running the step, in case the user has modified these in the config options.
 These performance-related attributes affect how the step runs and must be set
 prior to runtime, whereas other options can be set within <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> is called within
-<a class="reference internal" href="../generated/polaris.run.serial.run_tests.html#polaris.run.serial.run_tests" title="polaris.run.serial.run_tests"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tests()</span></code></a>, but can be overridden if desired.
+<a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a>, but can be overridden if desired.
 The typical reason to override this function would be to get config options for
 <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, etc. and set the corresponding
 attributes.  Another reason might be to set these attributes using an algorithm
@@ -476,10 +476,10 @@ files to the step by calling any of the following methods:</p>
 other than downloading files.  Time-consuming work should be saved for
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> whenever possible.</p>
 <p>As an example, here is
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.mesh.mesh.MeshStep.setup()</span></code>:</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.mesh.mesh.MeshStep.setup()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Set up the test case in the work directory, including downloading any</span>
+<span class="sd">    Set up the task in the work directory, including downloading any</span>
 <span class="sd">    dependencies.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the these properties from the config options</span>
@@ -497,7 +497,7 @@ attributes are set to appropriate values based on config options.</p>
 <section id="runtime-setup">
 <span id="dev-step-runtime-setup"></span><h2>runtime_setup()<a class="headerlink" href="#runtime-setup" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method is used to modify any behaviors of the step at
-runtime, in the way that <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.TestCase.run()</span></code> was previously used.
+runtime, in the way that <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.run()</span></code> was previously used.
 This includes things like partitioning an MPAS mesh across processors and
 computing a times step based on config options that might have been modified
 by the user.  It must not include modifying the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
@@ -511,7 +511,7 @@ These attributes must be altered by overriding
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary quite a lot between steps.</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tests.baroclinic_channel.init.Init.run.html#polaris.ocean.tests.baroclinic_channel.init.Init.run" title="polaris.ocean.tests.baroclinic_channel.init.Init.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tests.baroclinic_channel.init.Init.run()</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.init.Init.run.html#polaris.ocean.tasks.baroclinic_channel.init.Init.run" title="polaris.ocean.tasks.baroclinic_channel.init.Init.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.init.Init.run()</span></code></a>,
 is quite involved:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -528,7 +528,7 @@ is quite involved:</p>
     <span class="o">...</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run this step of the test case</span>
+<span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
@@ -659,20 +659,20 @@ explore different steps.</p>
 </section>
 <section id="inputs-and-outputs">
 <span id="dev-step-inputs-outputs"></span><h2>inputs and outputs<a class="headerlink" href="#inputs-and-outputs" title="Permalink to this heading"></a></h2>
-<p>Currently, steps run in sequence in the order they are added to the test case
-(or in the order they appear in the test case’s <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> attribute).
-There are plans to allow test cases and their steps to run in parallel in the
+<p>Currently, steps run in sequence in the order they are added to the task
+(or in the order they appear in the task’s <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> attribute).
+There are plans to allow tasks and their steps to run in parallel in the
 future. For this reason, we require that each step defines a list of the
 absolute paths to all input files that could come from other steps (possibly in
-other test cases) and all outputs from the step that might be used by other
-steps (again, possibly in other test cases).  There is no harm in including
+other tasks) and all outputs from the step that might be used by other
+steps (again, possibly in other tasks).  There is no harm in including
 inputs to the step that do not come from other steps (e.g. files that will be
-downloaded when the test case gets set up) as long as they are sure to exist
+downloaded when the task gets set up) as long as they are sure to exist
 before the step runs.  Likewise, there is no harm in including outputs from the
-step that aren’t used by any other steps in any test cases as long as the step
+step that aren’t used by any other steps in any tasks as long as the step
 will be sure to generate them.</p>
 <p>The inputs and outputs need to be defined during init of either the step or
-the test case, or in the step’s <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method because they are needed
+the task, or in the step’s <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method because they are needed
 before <a class="reference internal" href="#dev-step-run"><span class="std std-ref">run()</span></a> is called (to determine which steps depend on which
 other steps).  Inputs are added with <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>
 and outputs with <a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  Inputs may be
@@ -706,13 +706,13 @@ namelist and streams files:</p>
 <span id="dev-step-input"></span><h3>Input files<a class="headerlink" href="#input-files" title="Permalink to this heading"></a></h3>
 <p>Typically, a step will add input files with
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> during init or in its <code class="docutils literal notranslate"><span class="pre">setup()</span></code>
-method.  It is also possible to add inputs in the test case’s
-<a class="reference internal" href="test_cases.html#dev-test-case-init"><span class="std std-ref">constructor</span></a>.</p>
+method.  It is also possible to add inputs in the task’s
+<a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>.</p>
 <p>It is possible to simply supply the path to an input file as <code class="docutils literal notranslate"><span class="pre">filename</span></code>
 without any other arguments to <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>.  In
 this case, the file name is either an absolute path or a relative path with
 respect to the step’s work directory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">)</span>
 </pre></div>
@@ -729,7 +729,7 @@ see if the file is missing (because symlink will show up as broken) and allows
 you to refer to a short, local name for the file rather than its full path:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
 
-<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">,</span>
                         <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">)</span>
@@ -752,8 +752,8 @@ subdirectory for this step or the target’s step (or both) depends on
 parameters.  For such cases, there is a <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> argument that
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.forward.ForwardStep</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.forward.ForwardStep</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
     <span class="n">mesh_path</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">mesh_step</span><span class="o">.</span><span class="n">path</span>
 
     <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
@@ -777,15 +777,15 @@ not yet known at init). Here is an example taken from
 <section id="symlink-to-input-files-from-polaris">
 <span id="dev-step-input-polaris"></span><h3>Symlink to input files from polaris<a class="headerlink" href="#symlink-to-input-files-from-polaris" title="Permalink to this heading"></a></h3>
 <p>Another common need is to symlink a data file from within the test group or
-test case:</p>
+task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">add_input_file</span>
 
 
-<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;enthA_analy_result.mat&#39;</span><span class="p">,</span>
-        <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.landice.tests.enthalpy_benchmark.A&#39;</span><span class="p">)</span>
+        <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.landice.tasks.enthalpy_benchmark.A&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here, we supply the name of the package that the file is in.  The polaris
@@ -808,7 +808,7 @@ a location where they can be shared between users and reused over time.  These
 </pre></div>
 </div>
 <p>In this example from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.init.init.Init()</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.init.init.Init()</span></code>,
 the file <code class="docutils literal notranslate"><span class="pre">BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc</span></code> is
 slated for later downloaded from the
 <a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/">Ocean bathymetry database</a>.
@@ -840,7 +840,7 @@ file, usually either from the <code class="docutils literal notranslate"><span c
 If you wish to copy the file instead of symlinking it (e.g. so a user can make
 local modifications), simply add the keyword argument <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> to any call
 to <code class="docutils literal notranslate"><span class="pre">self.add_input_file()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">,</span>
                         <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -860,13 +860,13 @@ don’t depend on each other.  Adding an output file is pretty straightforward:<
 </div>
 <p><a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> can be called in a step’s
 <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>: or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method or (less commonly)
-in the test case’s <a class="reference internal" href="test_cases.html#dev-test-case-init"><span class="std std-ref">constructor</span></a>.</p>
+in the task’s <a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>.</p>
 <p>The relative path in <code class="docutils literal notranslate"><span class="pre">filename</span></code> is with respect to the step’s work directory,
 and is converted to an absolute path internally before the step is run.</p>
 </section>
 <section id="cached-output-files">
 <span id="dev-step-cached-output"></span><h3>Cached output files<a class="headerlink" href="#cached-output-files" title="Permalink to this heading"></a></h3>
-<p>Many polaris test cases and steps are expensive enough that it can become
+<p>Many polaris tasks and steps are expensive enough that it can become
 time consuming to run full workflows to produce meshes and initial conditions
 in order to test simulations.  Therefore, polaris provides a mechanism for
 caching the outputs of each step in a database so that they can be downloaded
@@ -874,12 +874,12 @@ and symlinked rather than being computed each time.</p>
 <p>Cached output files are be stored in the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database within each
 component’s space on that LCRC server (see <a class="reference internal" href="#dev-step-input-download"><span class="std std-ref">Downloading and symlinking input files</span></a>).
 If the “cached” version of a step is selected, as we will describe below, each
-of the test case’s outputs will have a corresponding “input” file added with
+of the task’s outputs will have a corresponding “input” file added with
 the <code class="docutils literal notranslate"><span class="pre">target</span></code> being a cache file on the LCRC server and the <code class="docutils literal notranslate"><span class="pre">filename</span></code> being
 the output file.  Polaris uses the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> database to know
 which cache files correspond to which step outputs.</p>
-<p>A developer can indicate that polaris test suite includes steps with cached
-outputs in two ways.  First, if all steps in a test case should have cached
+<p>A developer can indicate that polaris suite includes steps with cached
+outputs in two ways.  First, if all steps in a task should have cached
 output, the following notation should be used:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_ocean/QU240/mesh
     cached
@@ -887,9 +887,9 @@ ocean/global_ocean/QU240/PHC/init
     cached
 </pre></div>
 </div>
-<p>That is, the word <code class="docutils literal notranslate"><span class="pre">cached</span></code> should appear after the test case on its own line.
+<p>That is, the word <code class="docutils literal notranslate"><span class="pre">cached</span></code> should appear after the task on its own line.
 The indentation is for visual clarity and is not required.</p>
-<p>Second, ff only some steps in a test case should have cached output, they need
+<p>Second, ff only some steps in a task should have cached output, they need
 to be listed explicitly, as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_ocean/QUwISC240/mesh
     cached: mesh
@@ -899,26 +899,26 @@ ocean/global_ocean/QUwISC240/PHC/init
 </div>
 <p>The line can be indented for visual clarity, but must begin with <code class="docutils literal notranslate"><span class="pre">cached:</span></code>,
 followed by a list of steps separated by a single space.</p>
-<p>Similarly, a user setting up test cases has two mechanisms for specifying which
-test cases and steps should have cached outputs.  If all steps in a test case
+<p>Similarly, a user setting up tasks has two mechanisms for specifying which
+tasks and steps should have cached outputs.  If all steps in a task
 should have cached outputs, the suffix <code class="docutils literal notranslate"><span class="pre">c</span></code> can be added to the test number:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -n 90c 91c 92 ...
 </pre></div>
 </div>
-<p>In this example, test cases 90 and 91 (<code class="docutils literal notranslate"><span class="pre">mesh</span></code> and <code class="docutils literal notranslate"><span class="pre">init</span></code> test cases from
+<p>In this example, tasks 90 and 91 (<code class="docutils literal notranslate"><span class="pre">mesh</span></code> and <code class="docutils literal notranslate"><span class="pre">init</span></code> tasks from
 the <code class="docutils literal notranslate"><span class="pre">SOwISC12to60</span></code> global ocean mesh, in this case) are set up with cached
 outputs in all steps and 92 (<code class="docutils literal notranslate"><span class="pre">performance_test</span></code>) is not.  This approach is
 efficient but does not provide any control of which steps use cached outputs
 and which do not.</p>
 <p>A much more verbose approach is required if some steps use cached outputs and
-others do not within a given test case.  Each test case must be set up on its
+others do not within a given task.  Each task must be set up on its
 own with the <code class="docutils literal notranslate"><span class="pre">-t</span></code> and <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flags as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -t ocean/global_ocean/QU240/mesh --cached mesh ...
 polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
 ...
 </pre></div>
 </div>
-<p>Cache files should be generated by first running the test case as normal, then
+<p>Cache files should be generated by first running the task as normal, then
 running the <a class="reference internal" href="../command_line.html#dev-polaris-cache"><span class="std std-ref">polaris cache</span></a> command-line tool at the base of the work
 directory, providing the names of the steps whose outputs should be added to
 the cache.  The resulting <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;_cached_files.json</span></code> should be copied
@@ -944,11 +944,11 @@ on that output file as an input use <a class="reference internal" href="../gener
 is a dependency of another (dependent) step.  This is accomplished by passing
 the  dependency to the step’s <a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> method
 either  during the creation of the dependent step, within the <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
-method of  the parent test case, or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the dependent
-step.  The  dependency does not need to belong to the same test case as the
+method of  the parent task, or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the dependent
+step.  The  dependency does not need to belong to the same task as the
 dependent step.  But the dependent step will fail to run if the dependency
 has not run.  Also all dependencies must be set up along with dependent steps
-(even if they are not run by default, because they are added to the test case
+(even if they are not run by default, because they are added to the task
 with <code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>).  This is because a user could modify which steps
 they wish to run and all dependencies should be available if they do so.</p>
 <p>When a step is added as a dependency, after it runs, its state will be stored
@@ -969,8 +969,8 @@ dependencies so it is preferable to use file-based dependencies where possible.<
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="test_cases.html" class="btn btn-neutral float-left" title="Test cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="suites.html" class="btn btn-neutral float-right" title="Test Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tasks.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="suites.html" class="btn btn-neutral float-right" title="Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

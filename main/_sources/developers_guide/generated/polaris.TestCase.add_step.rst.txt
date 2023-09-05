@@ -1,6 +1,0 @@
-﻿polaris.TestCase.add\_step
-==========================
-
-.. currentmodule:: polaris
-
-.. automethod:: TestCase.add_step

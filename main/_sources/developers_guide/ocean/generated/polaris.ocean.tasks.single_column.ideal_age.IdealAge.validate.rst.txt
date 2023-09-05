@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.single\_column.ideal\_age.IdealAge.validate
+===============================================================
+
+.. currentmodule:: polaris.ocean.tasks.single_column.ideal_age
+
+.. automethod:: IdealAge.validate

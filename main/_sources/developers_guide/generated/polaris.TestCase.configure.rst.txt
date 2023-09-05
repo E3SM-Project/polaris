@@ -1,6 +1,0 @@
-﻿polaris.TestCase.configure
-==========================
-
-.. currentmodule:: polaris
-
-.. automethod:: TestCase.configure

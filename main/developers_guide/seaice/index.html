@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Seaice component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="test_groups/index.html">Test groups</a></li>
@@ -116,7 +116,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="seaice-component">
 <span id="dev-seaice"></span><h1>Seaice component<a class="headerlink" href="#seaice-component" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component is defined by the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.Seaice</span></code>
-class. All test cases in the <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component  are single column tests
+class. All tasks in the <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component  are single column tests
 and contain very simple config options as follows:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for MPAS-Seaice</span>
 
@@ -150,7 +150,7 @@ and contain very simple config options as follows:</p>
 <span class="na">processed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/src/Registry_processed.xml</span>
 
 <span class="c1"># The executables section defines paths to required executables. These</span>
-<span class="c1"># executables are provided for use by specific test cases.  Most tools that</span>
+<span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
 <span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
 <span class="c1"># to the MPAS-Seaice executable by default.</span>
 <span class="k">[executables]</span>

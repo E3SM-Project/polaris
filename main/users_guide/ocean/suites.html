@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test suites</title>
+  <title>Suites</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -51,14 +51,14 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="test_groups/index.html">Test groups</a></li>
 <li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Test suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cosine-bell-and-cosine-bell-cached-init-test-suite">cosine_bell and cosine_bell_cached_init test suite</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cosine-bell-and-cosine-bell-cached-init-suite">cosine_bell and cosine_bell_cached_init suite</a></li>
 </ul>
 </li>
 </ul>
@@ -71,7 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
@@ -107,7 +107,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Ocean component</a></li>
-      <li class="breadcrumb-item active">Test suites</li>
+      <li class="breadcrumb-item active">Suites</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/users_guide/ocean/suites.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -117,25 +117,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="test-suites">
-<span id="ocean-suites"></span><h1>Test suites<a class="headerlink" href="#test-suites" title="Permalink to this heading"></a></h1>
-<p>The ocean component includes a number of <a class="reference internal" href="../test_suites.html#test-suites"><span class="std std-ref">Test Suites</span></a> that can be used to
-run a series of ocean test cases and optionally compare them against a baseline
-run of the same tests.</p>
-<section id="cosine-bell-and-cosine-bell-cached-init-test-suite">
-<span id="ocean-suite-cosine-bell"></span><h2>cosine_bell and cosine_bell_cached_init test suite<a class="headerlink" href="#cosine-bell-and-cosine-bell-cached-init-test-suite" title="Permalink to this heading"></a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="suites">
+<span id="ocean-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Permalink to this heading"></a></h1>
+<p>The ocean component includes a number of <a class="reference internal" href="../suites.html#suites"><span class="std std-ref">Suites</span></a> that can be used to
+run a series of ocean tasks and optionally compare them against a baseline
+run of the same tasks.</p>
+<section id="cosine-bell-and-cosine-bell-cached-init-suite">
+<span id="ocean-suite-cosine-bell"></span><h2>cosine_bell and cosine_bell_cached_init suite<a class="headerlink" href="#cosine-bell-and-cosine-bell-cached-init-suite" title="Permalink to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>cosine_bell<span class="w"> </span>...
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>cosine_bell_cached_init<span class="w"> </span>...
 </pre></div>
 </div>
-<p>Both <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> test suites include the following test cases:</p>
+<p>Both <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suites include the following tasks:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_convergence/icos/cosine_bell
 ocean/global_convergence/qu/cosine_bell
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suite runs both tests from
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suite runs both tasks from
 <a class="reference internal" href="test_groups/global_convergence.html#ocean-global-convergence-cosine-bell"><span class="std std-ref">cosine_bell and cosine_bell_with_viz</span></a> in full, whereas the
 <code class="docutils literal notranslate"><span class="pre">cosine_bell_cached_init</span></code> suite only runs the ocean simulations from as set
 of meshes and initial conditions that have been saved from a previous run

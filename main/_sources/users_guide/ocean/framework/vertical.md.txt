@@ -2,7 +2,7 @@
 
 # Vertical coordinate
 
-The vertical coordinate used in most ocean test cases is determined by
+The vertical coordinate used in most ocean tasks is determined by
 config options in the `vertical_grid` section of the config file:
 
 ```cfg
@@ -188,7 +188,7 @@ valid layer (whichever would cause the smallest change).
 
 ### z-star
 
-Most ocean test cases currently use the z\* vertical coordinate
+Most ocean tasks currently use the z\* vertical coordinate
 ([Adcroft and Campin, 2004](https://doi.org/10.1016/j.ocemod.2003.09.003))
 by default.  Typically (in the absence of ice-shelf cavities), the initial
 "resting" grid uses a {ref}`ocean-z-level` coordinate.  As the sea-surface

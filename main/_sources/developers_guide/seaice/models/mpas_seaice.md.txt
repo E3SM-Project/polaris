@@ -1,10 +1,10 @@
 # MPAS-Seaice
 
-The following are considerations that may be useful in developing a new test case for MPAS-Seaice.
+The following are considerations that may be useful in developing a new task for MPAS-Seaice.
 
 ## Initial conditions
 MPAS-Seaice has no specific requirements for defining the sea ice inital conditions. 
-The current default setting for the single column test cases is a solid 1m thick disc 
+The current default setting for the single column tasks is a solid 1m thick disc 
 of sea ice that covers the single-grid cell domain.  
 The MPAS-Seaice initial conditions are defined in the default namelist file contained 
 within the component directory: 
@@ -19,7 +19,7 @@ config options within in the namelist file:
 ```
 
 To define alternative sea ice inital conditions, modifications should be made to the
-namelist file placed within the test case directory. 
+namelist file placed within the task directory. 
 
 
 ## Forcing
@@ -41,5 +41,5 @@ These default settings are defined in the namelist file within the component dir
 /
 ```
 
-If modifications to the forcing are needed for test cases, they should be added to
-the namelist file placed within the test case directory.
+If modifications to the forcing are needed for tasks, they should be added to
+the namelist file placed within the task directory.

@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -140,25 +140,24 @@
 <h1>polaris.validate.compare_variables<a class="headerlink" href="#polaris-validate-compare-variables" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.validate.compare_variables">
-<span class="sig-prename descclassname"><span class="pre">polaris.validate.</span></span><span class="sig-name descname"><span class="pre">compare_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linf_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_step_not_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/validate.html#compare_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.validate.compare_variables" title="Permalink to this definition"></a></dt>
-<dd><p>Compare variables between files in the current test case and/or with the
+<span class="sig-prename descclassname"><span class="pre">polaris.validate.</span></span><span class="sig-name descname"><span class="pre">compare_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linf_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_step_not_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/validate.html#compare_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.validate.compare_variables" title="Permalink to this definition"></a></dt>
+<dd><p>Compare variables between files in the current task and/or with the
 baseline results.  The results of the comparison are added to the
-test case’s “validation” dictionary, which the framework can use later to
-log the test case results and/or to raise an exception to indicate that
-the test case has failed.</p>
+task’s “validation” dictionary, which the framework can use later to
+log the task results and/or to raise an exception to indicate that
+the task has failed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_case</strong> (<a class="reference internal" href="polaris.TestCase.html#polaris.TestCase" title="polaris.TestCase"><em>polaris.TestCase</em></a>) – An object describing a test case to validate</p></li>
+<li><p><strong>task</strong> (<a class="reference internal" href="polaris.Task.html#polaris.Task" title="polaris.Task"><em>polaris.Task</em></a>) – An object describing a task to validate</p></li>
 <li><p><strong>variables</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – A list of variable names to compare</p></li>
 <li><p><strong>filename1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The relative path to a file within the <code class="docutils literal notranslate"><span class="pre">work_dir</span></code>.  If <code class="docutils literal notranslate"><span class="pre">filename2</span></code>
 is also given, comparison will be performed with <code class="docutils literal notranslate"><span class="pre">variables</span></code> in that
 file.  If a baseline directory was provided when setting up the
-test case, the <code class="docutils literal notranslate"><span class="pre">variables</span></code> will be compared between this test case
-and the same relative filename in the baseline version of the test
-case.</p></li>
+task, the <code class="docutils literal notranslate"><span class="pre">variables</span></code> will be compared between this task
+and the same relative filename in the baseline version of the task.</p></li>
 <li><p><strong>filename2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The relative path to another file within the <code class="docutils literal notranslate"><span class="pre">work_dir</span></code> if comparing
-between files within the current test case.  If a baseline directory
+between files within the current task.  If a baseline directory
 was provided, the <code class="docutils literal notranslate"><span class="pre">variables</span></code> from this file will also be compared
 with those in the corresponding baseline file.</p></li>
 <li><p><strong>l1_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The maximum allowed L1 norm difference between the variables in
@@ -172,8 +171,8 @@ tolerance values being compared against will be printed when the
 comparison is made.  This is generally desirable when using nonzero
 norm tolerance values.</p></li>
 <li><p><strong>check_outputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to check to make sure files are valid outputs of steps in
-the test case.  This should be set to <code class="docutils literal notranslate"><span class="pre">False</span></code> if comparing with an
-output of a step in another test case.</p></li>
+the task.  This should be set to <code class="docutils literal notranslate"><span class="pre">False</span></code> if comparing with an
+output of a step in another task.</p></li>
 <li><p><strong>skip_if_step_not_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to skip the variable comparison if a user did not run one (or
 both) of the steps involved in the comparison.  This would happen if
 users are running steps individually or has edited <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code>

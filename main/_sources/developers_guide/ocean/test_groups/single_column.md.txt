@@ -3,7 +3,7 @@
 # single_column
 
 The `single_column` test group
-({py:class}`polaris.ocean.tests.single_column.SingleColumn`)
+({py:class}`polaris.ocean.tasks.single_column.SingleColumn`)
 implements test cases that exercise vertical dynamics only. There is currently
 two test cases: one that exercises CVMix, the other that exercises ideal age 
 tracers with CVMix. Here, we describe the shared framework for this test group 
@@ -27,7 +27,7 @@ for defining `idealAgeTracers` streams
 
 ### init
 
-The class {py:class}`polaris.ocean.tests.single_column.init.Init`
+The class {py:class}`polaris.ocean.tasks.single_column.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -44,13 +44,13 @@ also constructed and is equal to zero seconds throughout the column.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tests.single_column.forward.Forward`
+The class {py:class}`polaris.ocean.tasks.single_column.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
 the `init` step. The ocean model is run.
 
 ### viz
 
-The class {py:class}`polaris.ocean.tests.single_column.viz.Viz`
+The class {py:class}`polaris.ocean.tasks.single_column.viz.Viz`
 produces figures comparing the initial and final profiles of temperature and
 salinity.
 
@@ -58,16 +58,16 @@ salinity.
 
 ## cvmix
 
-The {py:class}`polaris.ocean.tests.single_column.cvmix.CVMix`
+The {py:class}`polaris.ocean.tasks.single_column.cvmix.CVMix`
 test performs a 1-day run on 1 cores.  Then, validation of `temperature`, 
 `salinity`, `layerThickness` and `normalVelocity` are performed against a
 baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 ## ideal age
 
-The {py:class}`polaris.ocean.tests.single_column.cvmix.IdealAge` test
+The {py:class}`polaris.ocean.tasks.single_column.cvmix.IdealAge` test
 performs the same 1-day run on 1 cores as the 
-{py:class}`polaris.ocean.tests.single_column.cvmix.CVMix` test, but with a
+{py:class}`polaris.ocean.tasks.single_column.cvmix.CVMix` test, but with a
 single ideal age tracer included. An additional `forward.yaml` file is 
 included in the ideal age tracer test case for enabeling on the ideal age 
 tracers and ideal age surface forcing, as well as for defining 

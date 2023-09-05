@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.global\_convergence.cosine\_bell.viz.VizMap.run
+===================================================================
+
+.. currentmodule:: polaris.ocean.tasks.global_convergence.cosine_bell.viz
+
+.. automethod:: VizMap.run

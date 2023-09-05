@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.manufactured\_solution.viz.Viz.run
-======================================================
-
-.. currentmodule:: polaris.ocean.tests.manufactured_solution.viz
-
-.. automethod:: Viz.run

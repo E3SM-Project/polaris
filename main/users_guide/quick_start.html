@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Test Cases" href="test_cases.html" />
+    <link rel="next" title="Tasks" href="tasks.html" />
     <link rel="prev" title="Polaris" href="../index.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -57,15 +57,15 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#building-supported-e3sm-components-as-standalone-models">Building supported E3SM components as standalone models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-test-cases">Setting up test cases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-a-test-case">Running a test case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-tasks">Setting up tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-task">Running a task</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-with-a-job-script">Running with a job script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-suites">Test Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#suites">Suites</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
@@ -75,7 +75,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
@@ -207,14 +207,14 @@ script, run:</p>
 create_polaris_load_script
 </pre></div>
 </div>
-<p>From then on, each time you want to set up test cases or suites with polaris
+<p>From then on, each time you want to set up tasks or suites with polaris
 or build MPAS components, you will need to source that load script, for
 example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_1.0.0_mpich.sh
 </pre></div>
 </div>
-<p>When you set up tests, a link called <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> will be added to
-each test case or suite work directory.  To run the tests, you may find it
+<p>When you set up tasks, a link called <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> will be added to
+each task or suite work directory.  To run the tasks, you may find it
 more convenient to source that link instead of finding the path to the original
 load script.</p>
 </section>
@@ -240,7 +240,7 @@ have not yet been determined for building it.</p>
 first-order velocity solver.  The Albany first-order velocity solver is the
 only velocity option that is scientifically validated, but the Albany library
 is only available with Gnu compilers.  In some situations it is
-desirable to compile without Albany to run basic tests.  This basic mode for
+desirable to compile without Albany to run basic tasks.  This basic mode for
 MALI can be compiled similarly to MPAS-Ocean.  Again, first source the
 appropriate load script (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>) then run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>components/mpas-albany-landice
@@ -255,13 +255,13 @@ MALI is available at
 <p>See the last column of the table in <a class="reference internal" href="../developers_guide/machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> for the right
 <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for each machine and compiler.</p>
 </section>
-<section id="setting-up-test-cases">
-<span id="setup-overview"></span><h2>Setting up test cases<a class="headerlink" href="#setting-up-test-cases" title="Permalink to this heading"></a></h2>
-<p>Before you set up a test case with polaris, you will need to build the
+<section id="setting-up-tasks">
+<span id="setup-overview"></span><h2>Setting up tasks<a class="headerlink" href="#setting-up-tasks" title="Permalink to this heading"></a></h2>
+<p>Before you set up a task with polaris, you will need to build the
 MPAS component you wish to test with, see <a class="reference internal" href="#build-components"><span class="std std-ref">Building supported E3SM components as standalone models</span></a> above.</p>
 <p>If you have not already done so, you will need to source the appropriate load
 script, see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>.</p>
-<p>To see all available test cases you can set up in polaris, run:</p>
+<p>To see all available tasks you can set up in polaris, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
 </pre></div>
 </div>
@@ -294,13 +294,13 @@ content:</p>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-list"><span class="std std-ref">polaris list</span></a> for more information.</p>
-<p>To set up a particular test case, you can either use the full path of the
-test case:</p>
+<p>To set up a particular task, you can either use the full path of the
+task:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/global_ocean/QU240/mesh<span class="w"> </span>-w<span class="w"> </span>&lt;workdir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;component_path&gt;
 </pre></div>
 </div>
 <p>or you can replace the <code class="docutils literal notranslate"><span class="pre">-t</span></code> flag with the simple shortcut: <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">15</span></code>.  You
-can set up several test cases at once by passing test numbers separated by
+can set up several tasks at once by passing test numbers separated by
 spaces: <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">15</span> <span class="pre">16</span> <span class="pre">17</span></code>.  See <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> for more details.</p>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">&lt;workdir&gt;</span></code> is a path, usually to your scratch space. For example, on
 Chrysalis at LCRC, you might use:</p>
@@ -339,11 +339,11 @@ in the repository.</p>
 <span class="c1"># The paths section describes paths where files are automatically downloaded</span>
 <span class="k">[paths]</span>
 
-<span class="c1"># A root directory where data for polaris test cases can be downloaded. This</span>
+<span class="c1"># A root directory where data for polaris tasks can be downloaded. This</span>
 <span class="c1"># data will be cached for future reuse.</span>
 <span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;/path/to/root&gt;/polaris/data</span>
 
-<span class="c1"># The parallel section describes options related to running tests in parallel</span>
+<span class="c1"># The parallel section describes options related to running tasks in parallel</span>
 <span class="k">[parallel]</span>
 
 <span class="c1"># parallel system of execution: slurm or single_node</span>
@@ -367,10 +367,10 @@ use fewer cores.</p>
 <p>In order to run regression testing that compares the output of the current run
 with that from a previous polaris run, use <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;previous_workdir&gt;</span></code> to specify
 a “baseline”.</p>
-<p>When you set up one or more test cases, they will also be included in a custom
-test suite, which is called <code class="docutils literal notranslate"><span class="pre">custom</span></code> by default.  (You can give it another
-name with the <code class="docutils literal notranslate"><span class="pre">--suite_name</span></code> flag.)  You can run all the test cases in
-sequence with one command as described in <a class="reference internal" href="#suite-overview"><span class="std std-ref">Test Suites</span></a> or run them
+<p>When you set up one or more tasks, they will also be included in a custom
+suite, which is called <code class="docutils literal notranslate"><span class="pre">custom</span></code> by default.  (You can give it another
+name with the <code class="docutils literal notranslate"><span class="pre">--suite_name</span></code> flag.)  You can run all the tasks in
+sequence with one command as described in <a class="reference internal" href="#suite-overview"><span class="std std-ref">Suites</span></a> or run them
 one at a time as follows.</p>
 <p>If you want to copy the MPAS executable over to the work directory, you can
 use the <code class="docutils literal notranslate"><span class="pre">--copy_executable</span></code> flag or set the config option
@@ -382,9 +382,9 @@ deleted.  Another use might be to maintain a long-lived baseline test.
 Again, it is safer to have the executable used to produce the baseline
 preserved.</p>
 </section>
-<section id="running-a-test-case">
-<h2>Running a test case<a class="headerlink" href="#running-a-test-case" title="Permalink to this heading"></a></h2>
-<p>After compiling the code and setting up a test case, you can log into an
+<section id="running-a-task">
+<h2>Running a task<a class="headerlink" href="#running-a-task" title="Permalink to this heading"></a></h2>
+<p>After compiling the code and setting up a task, you can log into an
 interactive node (see <a class="reference internal" href="machines/index.html#supported-machines"><span class="std std-ref">Supported Machines</span></a>), load the required conda
 environment and modules, and then</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;workdir&gt;/&lt;test_subdir&gt;
@@ -394,15 +394,15 @@ polaris<span class="w"> </span>serial
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">&lt;workdir&gt;</span></code> is the same path provided to the <code class="docutils literal notranslate"><span class="pre">-w</span></code> flag above.  The
 sequence of subdirectories (<code class="docutils literal notranslate"><span class="pre">&lt;test_subdir&gt;</span></code>) is the same as given when you
-list the test cases.  If the test case was set up properly, the directory
-should contain a file <code class="docutils literal notranslate"><span class="pre">test_case.pickle</span></code> that contains the information
-polaris needs to run the test case.  The load script
+list the tasks.  If the task was set up properly, the directory
+should contain a file <code class="docutils literal notranslate"><span class="pre">task.pickle</span></code> that contains the information
+polaris needs to run the task.  The load script
 <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is a link to whatever load script you sourced before
-setting up the test case (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>).</p>
+setting up the task (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>).</p>
 </section>
 <section id="running-with-a-job-script">
 <h2>Running with a job script<a class="headerlink" href="#running-with-a-job-script" title="Permalink to this heading"></a></h2>
-<p>Alternatively, on supported machines, you can run the test case or suite with
+<p>Alternatively, on supported machines, you can run the task or suite with
 a job script generated automatically during setup, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;workdir&gt;/&lt;test_subdir&gt;
 sbatch<span class="w"> </span>job_script.sh
@@ -410,7 +410,7 @@ sbatch<span class="w"> </span>job_script.sh
 </div>
 <p>You can edit the job script to change the wall-clock time (1 hour by default)
 or the number of nodes (scaled according to the number of cores require by the
-test cases by default).</p>
+tasks by default).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#SBATCH  --job-name=polaris</span>
 <span class="c1">#SBATCH  --account=condo</span>
@@ -458,9 +458,9 @@ The following are the config options that are relevant to job scripts:</p>
 </pre></div>
 </div>
 </section>
-<section id="test-suites">
-<span id="suite-overview"></span><h2>Test Suites<a class="headerlink" href="#test-suites" title="Permalink to this heading"></a></h2>
-<p>Polaris includes several suites of test cases for code regressions and
+<section id="suites">
+<span id="suite-overview"></span><h2>Suites<a class="headerlink" href="#suites" title="Permalink to this heading"></a></h2>
+<p>Polaris includes several suites of tasks for code regressions and
 bit-for-bit testing, as well as simply to make it easier to run several test
 cases in one call. They can be listed with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list<span class="w"> </span>--suites
@@ -504,7 +504,7 @@ if there are multiple suites in the same <code class="docutils literal notransla
 specify a suite like <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span> <span class="pre">[suitename].pickle</span></code>, which is convenient
 for tab completion on the command line. The load script
 <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is a link to whatever load script you sourced before
-setting up the test case (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>).</p>
+setting up the task (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>).</p>
 </section>
 </section>
 
@@ -513,7 +513,7 @@ setting up the test case (see <a class="reference internal" href="#conda-env"><s
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Polaris" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="test_cases.html" class="btn btn-neutral float-right" title="Test Cases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tasks.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

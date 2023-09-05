@@ -1,6 +1,0 @@
-﻿polaris.ocean.tests.baroclinic\_channel.rpe.Rpe.validate
-========================================================
-
-.. currentmodule:: polaris.ocean.tests.baroclinic_channel.rpe
-
-.. automethod:: Rpe.validate

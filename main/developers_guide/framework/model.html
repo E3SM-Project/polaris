@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
@@ -152,7 +152,7 @@ so that  the polaris framework  can ensure that the required resources are
 available.</p>
 <section id="adding-yaml-namelist-and-streams-files">
 <span id="dev-step-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Permalink to this heading"></a></h3>
-<p>Components, test groups, and test cases can provide yaml config options,
+<p>Components, test groups, and tasks can provide yaml config options,
 namelist and streams files that are used to replace default model config
 options  and streams definitions before the E3SM component gets run.  Namelist
 and streams files within the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix
@@ -166,7 +166,7 @@ same reason.</p>
 how yaml, namelist and streams file should be built up by modifying the
 defaults for the  E3SM component.  The yaml, namelists and streams files
 themselves  are generated  automatically (which of these depends on the E3SM
-component in question) as part of setting up the test case.</p>
+component in question) as part of setting up the task.</p>
 <section id="adding-a-yaml-file">
 <span id="dev-step-add-yaml-file"></span><h4>Adding a yaml file<a class="headerlink" href="#adding-a-yaml-file" title="Permalink to this heading"></a></h4>
 <p>Typically, a step that runs an E3SM component will include one or more calls
@@ -174,7 +174,7 @@ to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namel
 <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
 or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling one of these methods simply adds the
 file to  a list that will be parsed if and when the step gets set up.  (This
-way, it is  safe to add namelist files to a step in init even if that test case
+way, it is  safe to add namelist files to a step in init even if that task
 will never  get set up or run.)</p>
 <p>The format of the yaml file is a hierarchical list of sections with config
 options and values, followed by streams:</p>
@@ -221,14 +221,14 @@ config options must have unique names.</p>
 <p>A typical yaml file is added by passing a package where the yaml file
 is located and the name of the input yaml file within that package
 as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.global_convergence.cosine_bell&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.global_convergence.cosine_bell&#39;</span><span class="p">,</span>
                    <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Model config values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the model config substitutions
 for  the test group first, and then override those with the replacements for
-the test case or step.</p>
+the task or step.</p>
 </section>
 <section id="adding-a-namelist-file">
 <span id="dev-step-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Permalink to this heading"></a></h4>
@@ -237,7 +237,7 @@ to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namel
 <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
 or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this method simply adds the file to
 a list that will be parsed if and when the step gets set up.  (This way, it is
-safe to add namelist files to a step in init even if that test case will never
+safe to add namelist files to a step in init even if that task will never
 get set up or run.)</p>
 <p>The format of the namelist file is simply a list of namelist options and
 the replacement values:</p>
@@ -255,14 +255,14 @@ which specific namelist within the file each belongs to.</p>
 <p>A typical namelist file is added by passing a package where the namelist file
 is located and the name of the input namelist file within that package
 as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
 the test group first, and then override those with the replacements for
-the test case or step.</p>
+the task or step.</p>
 </section>
 <section id="adding-model-config-options">
 <span id="dev-step-add-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#adding-model-config-options" title="Permalink to this heading"></a></h4>
@@ -276,11 +276,11 @@ replacements and call <a class="reference internal" href="../generated/polaris.M
 either  at init or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are
 parsed, along  with replacements from files, in the order they are added.<br />
 Thus, you could add replacements from a model config file for the test group,
-test case, or step, then override them with namelist options in a dictionary
-for the test case or  step, as in this example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+task, or step, then override them with namelist options in a dictionary
+for the task or  step, as in this example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="n">step</span><span class="p">[</span><span class="s2">&quot;resolution&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.forward&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># update the viscosity to the requested value</span>
@@ -290,7 +290,7 @@ for the test case or  step, as in this example:</p>
 </pre></div>
 </div>
 <p>Here, we get default options for “forward” steps, then for the resolution of
-the test case from namelist files, then update the viscosity <code class="docutils literal notranslate"><span class="pre">nu</span></code>, which is
+the task from namelist files, then update the viscosity <code class="docutils literal notranslate"><span class="pre">nu</span></code>, which is
 an option passed in when creating this step.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -326,7 +326,7 @@ to <a class="reference internal" href="../generated/polaris.ModelStep.add_stream
 <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a> or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function
 simply adds the file to a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed
 if an when the step gets set up.  (This way, it is safe to add streams files to
-a step at init even if that test case will never get set up or run.)</p>
+a step at init even if that task will never get set up or run.)</p>
 <p>The format of the streams file is essentially the same as the default and
 generated streams file, e.g.:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
@@ -366,7 +366,7 @@ confusing and difficult to keep synchronized with the E3SM code.)</p>
 <p>A typical streams file is added by calling
 <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with a package where the streams
 file is located and the name of the input streams file within that package:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tests.baroclinic_channel&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -414,7 +414,7 @@ file:</p>
 </pre></div>
 </div>
 <p>In this example, taken from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment</span></code>,
 we are creating a series of steps that will be used to perform dynamic
 adjustment of the ocean model, each of which might have different durations and
 restart intervals.  Rather than creating a streams file for each step of the
@@ -450,7 +450,7 @@ with the new run duration:</p>
 <span class="n">stream_replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;output_interval&#39;</span><span class="p">:</span> <span class="n">duration</span><span class="p">}</span>
 
 <span class="bp">self</span><span class="o">.</span><span class="n">update_streams_at_runtime</span><span class="p">(</span>
-    <span class="s1">&#39;polaris.ocean.tests.planar_convergence&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;polaris.ocean.tasks.planar_convergence&#39;</span><span class="p">,</span>
     <span class="s1">&#39;streams.template&#39;</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">,</span>
     <span class="n">out_name</span><span class="o">=</span><span class="s1">&#39;streams.ocean&#39;</span><span class="p">)</span>
 </pre></div>
@@ -503,10 +503,10 @@ set <code class="docutils literal notranslate"><span class="pre">update_pio</spa
 </section>
 <section id="making-a-graph-file">
 <h2>Making a graph file<a class="headerlink" href="#making-a-graph-file" title="Permalink to this heading"></a></h2>
-<p>Some polaris test cases take advantage of the fact that the
+<p>Some polaris tasks take advantage of the fact that the
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_conversion.html#cell-culler">MPAS-Tools cell culler</a>
 can produce a graph file as part of the process of culling cells from an
-MPAS mesh.  In test cases that do not require cells to be culled, you can
+MPAS mesh.  In tasks that do not require cells to be culled, you can
 call <a class="reference internal" href="../generated/polaris.model_step.make_graph_file.html#polaris.model_step.make_graph_file" title="polaris.model_step.make_graph_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model_step.make_graph_file()</span></code></a> to produce a graph file
 from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
 on cells in the mesh file that gives different weight to different cells

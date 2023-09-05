@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Test groups</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
@@ -130,7 +130,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
 <span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> test group
-(<a class="reference internal" href="../generated/polaris.ocean.tests.single_column.SingleColumn.html#polaris.ocean.tests.single_column.SingleColumn" title="polaris.ocean.tests.single_column.SingleColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.SingleColumn</span></code></a>)
+(<a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.SingleColumn.html#polaris.ocean.tasks.single_column.SingleColumn" title="polaris.ocean.tasks.single_column.SingleColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.SingleColumn</span></code></a>)
 implements test cases that exercise vertical dynamics only. There is currently
 two test cases: one that exercises CVMix, the other that exercises ideal age
 tracers with CVMix. Here, we describe the shared framework for this test group
@@ -148,7 +148,7 @@ for enabeling on the ideal age tracers and ideal age surface forcing, as well as
 for defining <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams</p>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.init.Init.html#polaris.ocean.tests.single_column.init.Init" title="polaris.ocean.tests.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.init.Init</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init" title="polaris.ocean.tasks.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  A vertical grid is
@@ -162,29 +162,29 @@ also constructed and is equal to zero seconds throughout the column.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.forward.Forward.html#polaris.ocean.tests.single_column.forward.Forward" title="polaris.ocean.tests.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.forward.Forward.html#polaris.ocean.tasks.single_column.forward.Forward" title="polaris.ocean.tasks.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The ocean model is run.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.viz.Viz.html#polaris.ocean.tests.single_column.viz.Viz" title="polaris.ocean.tests.single_column.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.viz.Viz</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.viz.Viz.html#polaris.ocean.tasks.single_column.viz.Viz" title="polaris.ocean.tasks.single_column.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.viz.Viz</span></code></a>
 produces figures comparing the initial and final profiles of temperature and
 salinity.</p>
 </section>
 </section>
 <section id="cvmix">
 <span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tests.single_column.cvmix.CVMix.html#polaris.ocean.tests.single_column.cvmix.CVMix" title="polaris.ocean.tests.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.cvmix.CVMix</span></code></a>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a>
 test performs a 1-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
 <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
 baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="ideal-age">
 <h2>ideal age<a class="headerlink" href="#ideal-age" title="Permalink to this heading"></a></h2>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.cvmix.IdealAge</span></code> test
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.IdealAge</span></code> test
 performs the same 1-day run on 1 cores as the
-<a class="reference internal" href="../generated/polaris.ocean.tests.single_column.cvmix.CVMix.html#polaris.ocean.tests.single_column.cvmix.CVMix" title="polaris.ocean.tests.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.single_column.cvmix.CVMix</span></code></a> test, but with a
+<a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a> test, but with a
 single ideal age tracer included. An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is
 included in the ideal age tracer test case for enabeling on the ideal age
 tracers and ideal age surface forcing, as well as for defining

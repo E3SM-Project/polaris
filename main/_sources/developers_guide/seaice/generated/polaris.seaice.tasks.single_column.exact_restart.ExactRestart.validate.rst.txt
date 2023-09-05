@@ -1,0 +1,6 @@
+﻿polaris.seaice.tasks.single\_column.exact\_restart.ExactRestart.validate
+========================================================================
+
+.. currentmodule:: polaris.seaice.tasks.single_column.exact_restart
+
+.. automethod:: ExactRestart.validate

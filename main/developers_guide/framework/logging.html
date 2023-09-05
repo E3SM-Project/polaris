@@ -51,9 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_cases.html">Test Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide/test_suites.html">Test Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
@@ -131,11 +131,11 @@ either stdout/stderr or to a log file is needed between polaris and
 as well as the APIs for <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.logging.LoggingContext.html#mpas_tools.logging.LoggingContext" title="(in mpas_tools vstable)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.logging.LoggingContext</span></code></a> and
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.logging.check_call.html#mpas_tools.logging.check_call" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.logging.check_call()</span></code></a>.</p>
 <p>For the most part, the polaris framework handles logging for you, so
-test-case developers won’t have to create their own <code class="docutils literal notranslate"><span class="pre">logger</span></code> objects.  They
-are attributes that belong to the step or test case.  If you run a step on its
+task developers won’t have to create their own <code class="docutils literal notranslate"><span class="pre">logger</span></code> objects.  They
+are attributes that belong to the step or task.  If you run a step on its
 own, no log file is created and logging happens to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>/<code class="docutils literal notranslate"><span class="pre">stderr</span></code>.  If
-you run a full test case, each step gets logged to its own log file within the
-test case’s work directory.  If you run a test suite, each test case and its
+you run a full task, each step gets logged to its own log file within the
+task’s work directory.  If you run a suite, each task and its
 steps get logged to a file in the <code class="docutils literal notranslate"><span class="pre">case_output</span></code> directory of the suite’s work
 directory.</p>
 <p>Although the logger will capture <code class="docutils literal notranslate"><span class="pre">print</span></code> statements, anywhere with a
@@ -150,7 +150,7 @@ capture <code class="docutils literal notranslate"><span class="pre">stdout</spa
 actually go to log files when desired, there is no similar trick for
 automatically capturing the output from direct calls to <code class="docutils literal notranslate"><span class="pre">subprocess</span></code>
 functions.  Here is a code snippet from
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.landice.tests.dome.setup_mesh.SetupMesh.run()</span></code>:</p>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.landice.tasks.dome.setup_mesh.SetupMesh.run()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mpas_tools.logging</span> <span class="kn">import</span> <span class="n">check_call</span>
 
 
