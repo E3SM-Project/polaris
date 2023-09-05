@@ -76,7 +76,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../../api.html#components">Components</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html">ocean</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#test-groups">Test Groups</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
 </ul>
 </li>
@@ -159,7 +159,8 @@ tasks as long as this is not below <code class="docutils literal notranslate"><s
 <li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has fewer
 than this number of tasks, the step will fail</p></li>
 <li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads the step will use</p></li>
-<li><p><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – the viscosity (if different from the default for the test group)</p></li>
+<li><p><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – the viscosity (if different from the default for baroclinic channel
+tests)</p></li>
 <li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of time steps to run for</p></li>
 </ul>
 </dd>

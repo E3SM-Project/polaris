@@ -66,7 +66,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tasks</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories_of_tasks.html">Categories of tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
@@ -161,9 +161,7 @@ run) of the step.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.task</span></code></dt><dd><p>The task this step belongs to</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.test_group</span></code></dt><dd><p>The test group the task belongs to</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the test group belongs to</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the task belongs to</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the step</p>
 </dd>
@@ -373,7 +371,7 @@ set up, so each takes a negligible amount of time.</p>
 <span class="sd">            the number of OpenMP threads the step will use</span>
 
 <span class="sd">        nu : float, optional</span>
-<span class="sd">            the viscosity (if different from the default for the test group)</span>
+<span class="sd">            the viscosity (if different from the default in the shared framework)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -509,8 +507,7 @@ These attributes must be altered by overriding
 <span id="dev-step-run"></span><h2>run()<a class="headerlink" href="#run" title="Permalink to this heading"></a></h2>
 <p>Okay, we’re ready to define how the step will run!</p>
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary quite a lot between steps.</p>
-<p>In the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for
-the <code class="docutils literal notranslate"><span class="pre">init</span></code> step,
+<p>In the baroclinic channel’s <code class="docutils literal notranslate"><span class="pre">Init</span></code> step, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method,
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.init.Init.run.html#polaris.ocean.tasks.baroclinic_channel.init.Init.run" title="polaris.ocean.tasks.baroclinic_channel.init.Init.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.init.Init.run()</span></code></a>,
 is quite involved:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
@@ -692,8 +689,8 @@ file does not exist, there is no way to read the file with the dependency
 within <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> and determine the resulting input or output file
 name.</p>
 <p>Both of these issues have arisen for the
-<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span> from the
-<span class="xref std std-ref">dev-ocean-global-ocean</span> test group.  Output files are named using the
+<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span> from
+<span class="xref std std-ref">dev-ocean-global-ocean</span> tasks.  Output files are named using the
 “short name” of the mesh in E3SM, which depends both on config options and on
 the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
@@ -776,8 +773,8 @@ not yet known at init). Here is an example taken from
 </section>
 <section id="symlink-to-input-files-from-polaris">
 <span id="dev-step-input-polaris"></span><h3>Symlink to input files from polaris<a class="headerlink" href="#symlink-to-input-files-from-polaris" title="Permalink to this heading"></a></h3>
-<p>Another common need is to symlink a data file from within the test group or
-task:</p>
+<p>Another common need is to symlink a data file from within the task or its
+shared framework:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">add_input_file</span>
 
 

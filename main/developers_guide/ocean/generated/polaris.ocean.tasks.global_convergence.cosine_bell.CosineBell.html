@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure" href="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure.html" />
-    <link rel="prev" title="polaris.ocean.tasks.global_convergence.GlobalConvergence" href="polaris.ocean.tasks.global_convergence.GlobalConvergence.html" />
+    <link rel="prev" title="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks" href="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -76,7 +76,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../../api.html#components">Components</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html">ocean</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#test-groups">Test Groups</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
 </ul>
 </li>
@@ -127,7 +127,7 @@
 <h1>polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell<a class="headerlink" href="#polaris-ocean-tasks-global-convergence-cosine-bell-cosinebell" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.</span></span><span class="sig-name descname"><span class="pre">CosineBell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/global_convergence/cosine_bell.html#CosineBell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.</span></span><span class="sig-name descname"><span class="pre">CosineBell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/global_convergence/cosine_bell.html#CosineBell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell" title="Permalink to this definition"></a></dt>
 <dd><p>A test case for creating a global MPAS-Ocean mesh</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
@@ -140,12 +140,12 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/global_convergence/cosine_bell.html#CosineBell.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/global_convergence/cosine_bell.html#CosineBell.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create test case for creating a global MPAS-Ocean mesh</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_group</strong> (<em>polaris.ocean.tasks.cosine_bell.GlobalOcean</em>) – The global ocean test group that this test case belongs to</p></li>
+<li><p><strong>component</strong> (<a class="reference internal" href="polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><em>polaris.ocean.Ocean</em></a>) – The ocean component that this task belongs to</p></li>
 <li><p><strong>icosahedral</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to use icosahedral, as opposed to less regular, JIGSAW
 meshes</p></li>
 <li><p><strong>include_viz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Include VizMap and Viz steps for each resolution</p></li>
@@ -161,7 +161,7 @@ meshes</p></li>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(test_group, icosahedral, include_viz)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, icosahedral, include_viz)</p></td>
 <td><p>Create test case for creating a global MPAS-Ocean mesh</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>(step[, run_by_default])</p></td>
@@ -186,7 +186,7 @@ meshes</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.global_convergence.GlobalConvergence.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.global_convergence.GlobalConvergence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

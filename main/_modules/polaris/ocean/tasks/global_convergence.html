@@ -107,27 +107,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.global_convergence</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell</span> <span class="kn">import</span> <span class="n">CosineBell</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell</span> <span class="kn">import</span> <span class="n">CosineBell</span>
 
 
-<div class="viewcode-block" id="GlobalConvergence"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.global_convergence.GlobalConvergence.html#polaris.ocean.tasks.global_convergence.GlobalConvergence">[docs]</a><span class="k">class</span> <span class="nc">GlobalConvergence</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<div class="viewcode-block" id="add_cosine_bell_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks.html#polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A test group for setting up global initial conditions and performing</span>
-<span class="sd">    regression testing and dynamic adjustment for MPAS-Ocean</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="GlobalConvergence.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.global_convergence.GlobalConvergence.html#polaris.ocean.tasks.global_convergence.GlobalConvergence.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        component : polaris.ocean.Ocean</span>
-<span class="sd">            the ocean component that this test group belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;global_convergence&#39;</span><span class="p">)</span>
+<span class="sd">    Add tasks that define variants of the cosine bell test case</span>
 
-        <span class="k">for</span> <span class="n">icosahedral</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">include_viz</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CosineBell</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                                         <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
-                                         <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">))</span></div></div>
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the tasks will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">icosahedral</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">include_viz</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CosineBell</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                                          <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                                          <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

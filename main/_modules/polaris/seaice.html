@@ -107,7 +107,7 @@
              
   <h1>Source code for polaris.seaice</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
-<span class="kn">from</span> <span class="nn">polaris.seaice.tasks.single_column</span> <span class="kn">import</span> <span class="n">SingleColumn</span>
+<span class="kn">from</span> <span class="nn">polaris.seaice.tasks.single_column</span> <span class="kn">import</span> <span class="n">add_single_column_tasks</span>
 
 
 <div class="viewcode-block" id="SeaIce"><a class="viewcode-back" href="../../developers_guide/seaice/generated/polaris.seaice.SeaIce.html#polaris.seaice.SeaIce">[docs]</a><span class="k">class</span> <span class="nc">SeaIce</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
@@ -122,7 +122,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seaice&#39;</span><span class="p">)</span>
 
         <span class="c1"># please keep these in alphabetical order</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">SingleColumn</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div></div>
+        <span class="n">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

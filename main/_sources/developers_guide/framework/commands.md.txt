@@ -16,7 +16,7 @@ in polaris.
 
 ## setup module
 
-The {py:func}`polaris.setup.setup_cases()` and {py:func}`polaris.setup.setup_case()`
+The {py:func}`polaris.setup.setup_tasks()` and {py:func}`polaris.setup.setup_task()`
 functions are used by `polaris setup` and `polaris suite` to set up a list
 of tasks and a single task, respectively, in a work directory.
 Subdirectories will be created for each task and its steps; input,

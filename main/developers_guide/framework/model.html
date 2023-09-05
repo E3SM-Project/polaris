@@ -152,7 +152,7 @@ so that  the polaris framework  can ensure that the required resources are
 available.</p>
 <section id="adding-yaml-namelist-and-streams-files">
 <span id="dev-step-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Permalink to this heading"></a></h3>
-<p>Components, test groups, and tasks can provide yaml config options,
+<p>Components and tasks can provide yaml config options,
 namelist and streams files that are used to replace default model config
 options  and streams definitions before the E3SM component gets run.  Namelist
 and streams files within the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix
@@ -227,8 +227,8 @@ as arguments to <a class="reference internal" href="../generated/polaris.ModelSt
 </div>
 <p>Model config values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the model config substitutions
-for  the test group first, and then override those with the replacements for
-the task or step.</p>
+common to related tasks first, and then override those with the replacements
+specific to the task or step.</p>
 </section>
 <section id="adding-a-namelist-file">
 <span id="dev-step-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Permalink to this heading"></a></h4>
@@ -261,8 +261,8 @@ as arguments to <a class="reference internal" href="../generated/polaris.ModelSt
 </div>
 <p>Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
-the test group first, and then override those with the replacements for
-the task or step.</p>
+that are common to related tasks first, and then override those with the
+replacements that are specific to the task or step.</p>
 </section>
 <section id="adding-model-config-options">
 <span id="dev-step-add-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#adding-model-config-options" title="Permalink to this heading"></a></h4>
@@ -275,9 +275,10 @@ different  values for different resolutions).  Simply create a dictionary
 replacements and call <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>
 either  at init or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are
 parsed, along  with replacements from files, in the order they are added.<br />
-Thus, you could add replacements from a model config file for the test group,
-task, or step, then override them with namelist options in a dictionary
-for the task or  step, as in this example:</p>
+Thus, you could add replacements from a model config file common to multiple
+tasks, specific to a task, and/or speficic to step.  Then, you could override
+them with namelist options in a dictionary for the task or step, as in this
+example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>

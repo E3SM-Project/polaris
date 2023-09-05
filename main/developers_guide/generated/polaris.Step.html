@@ -78,7 +78,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#command-line-interface">Command-line interface</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#base-classes">Base Classes</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../api.html#component">Component</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#testgroup">TestGroup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#task">Task</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../api.html#step">Step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#modelstep">ModelStep</a></li>
@@ -154,14 +153,12 @@ itself is often an input to the step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the task</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the step</p></li>
 <li><p><strong>task</strong> (<a class="reference internal" href="polaris.Task.html#polaris.Task" title="polaris.Task"><em>polaris.Task</em></a>) – The task this step belongs to</p></li>
-<li><p><strong>test_group</strong> (<a class="reference internal" href="polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><em>polaris.TestGroup</em></a>) – The test group the task belongs to</p></li>
-<li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the test group belongs to</p></li>
+<li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the subdirectory for the step</p></li>
 <li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the path within the base work directory of the step, made up of
-<code class="docutils literal notranslate"><span class="pre">component</span></code>, <code class="docutils literal notranslate"><span class="pre">test_group</span></code>, the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> and the
-step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p></li>
+<code class="docutils literal notranslate"><span class="pre">component</span></code>, the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> and the step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p></li>
 <li><p><strong>cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores per task the step would ideally use.  If
 fewer cores per node are available on the system, the step will
 run on all available cores as long as this is not below

@@ -34,13 +34,9 @@ Some attributes are available after calling the base class' constructor
 
 : the name of the task
 
-`self.test_group`
-
-: The test group the task belongs to
-
 `self.component`
 
-: The component the test group belongs to
+: The component the task belongs to
 
 `self.subdir`
 
@@ -108,8 +104,8 @@ mesh type and the velocity solver an attributes:
 ```python
 class SmokeTest(Task):
     """
-    The default task for the dome test group simply creates the mesh and
-    initial condition, then performs a short forward run on 4 cores.
+    The default dome task creates the mesh and initial condition, then performs
+    a short forward run on 4 cores.
 
     Attributes
     ----------
@@ -120,14 +116,14 @@ class SmokeTest(Task):
         The velocity solver to use for the task
     """
 
-    def __init__(self, test_group, velo_solver, mesh_type):
+    def __init__(self, component, velo_solver, mesh_type):
         """
         Create the task
 
         Parameters
         ----------
-        test_group : polaris.landice.tasks.dome.Dome
-            The test group that this task belongs to
+        component : polaris.landice.Landice
+            The land-ice component that this task belongs to
 
         velo_solver : {'sia', 'FO'}
             The velocity solver to use for the task
@@ -139,7 +135,7 @@ class SmokeTest(Task):
         self.mesh_type = mesh_type
         self.velo_solver = velo_solver
         subdir = '{}/{}_{}'.format(mesh_type, velo_solver.lower(), name)
-        super().__init__(test_group=test_group, name=name,
+        super().__init__(component=component, name=name,
                          subdir=subdir)
 
         self.add_step(
@@ -162,7 +158,7 @@ class SmokeTest(Task):
 ## constructor
 
 The `__init__()` method must first call the base constructor
-`super().__init__()`, passing the name of the task, the test group it
+`super().__init__()`, passing the name of the task, the component it
 will belong to, and the subdirectory (if different from the name of the test
 case).  Then, it should create an object for each step and add them to itself
 using call {py:func}`polaris.Task.add_step()`.
@@ -185,111 +181,135 @@ associated with these steps until the point where the step is being set up in
 - {py:meth}`polaris.ModelStep.add_namelist_file()`
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
-As an example, here is the constructor from
-{py:class}`polaris.ocean.tasks.baroclinic_channel.rpe.Rpe`:
+We will demonstrate with a fairly complex example,
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell`,
+to demonstrate how to make full use of {ref}`dev-code-sharing` in a task:
 
 ```python
 from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
+from polaris.config import PolarisConfigParser
+from polaris.mesh.spherical import (
+    IcosahedralMeshStep,
+    QuasiUniformSphericalMeshStep,
+)
+from polaris.ocean.tasks.global_convergence.cosine_bell.analysis import (
+    Analysis,
+)
+from polaris.ocean.tasks.global_convergence.cosine_bell.forward import Forward
+from polaris.ocean.tasks.global_convergence.cosine_bell.init import Init
+from polaris.ocean.tasks.global_convergence.cosine_bell.viz import Viz, VizMap
 
 
-class Rpe(Task):
-    """
-    The reference potential energy (RPE) task for the baroclinic channel
-    test group performs a 20-day integration of the model forward in time at
-    5 different values of the viscosity at the given resolution.
-
-    Attributes
-    ----------
-    resolution : str
-        The resolution of the task
-    """
-
-    def __init__(self, test_group, resolution):
-        """
-        Create the task
-
-        Parameters
-        ----------
-        test_group : polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel
-            The test group that this task belongs to
-
-        resolution : str
-            The resolution of the task
-        """
-        name = 'rpe'
-        subdir = f'{resolution}/{name}'
-        super().__init__(test_group=test_group, name=name,
+class CosineBell(Task):
+    def __init__(self, component, icosahedral, include_viz):
+        if icosahedral:
+            subdir = 'global_convergence/icos/cosine_bell'
+        else:
+            subdir = 'global_convergence/qu/cosine_bell'
+        if include_viz:
+            subdir = f'{subdir}_with_viz'
+        super().__init__(component=component, name='cosine_bell',
                          subdir=subdir)
+        self.resolutions = list()
+        self.icosahedral = icosahedral
+        self.include_viz = include_viz
 
-        nus = [1, 5, 10, 20, 200]
+        # add the steps with default resolutions so they can be listed
+        config = PolarisConfigParser()
+        package = 'polaris.ocean.tasks.global_convergence.cosine_bell'
+        config.add_from_package(package, 'cosine_bell.cfg')
+        self._setup_steps(config)
 
-        res_params = {'1km': {'ntasks': 144, 'min_tasks': 36},
-                      '4km': {'ntasks': 36, 'min_tasks': 8},
-                      '10km': {'ntasks': 8, 'min_tasks': 4}}
+    def _setup_steps(self, config):
+        """ setup steps given resolutions """
+        if self.icosahedral:
+            default_resolutions = '60, 120, 240, 480'
+        else:
+            default_resolutions = '60, 90, 120, 150, 180, 210, 240'
 
-        if resolution not in res_params:
-            raise ValueError(
-                f'Unsupported resolution {resolution}. Supported values are: '
-                f'{list(res_params)}')
+        # set the default values that a user may change before setup
+        config.set('cosine_bell', 'resolutions', default_resolutions,
+                   comment='a list of resolutions (km) to test')
 
-        params = res_params[resolution]
+        # get the resolutions back, perhaps with values set in the user's
+        # config file, which takes priority over what we just set above
+        resolutions = config.getlist('cosine_bell', 'resolutions', dtype=int)
 
-        self.resolution = resolution
+        if self.resolutions == resolutions:
+            return
 
-        self.add_step(
-            Init(task=self, resolution=resolution))
+        # start fresh with no steps
+        self.steps = dict()
+        self.steps_to_run = list()
 
-        for index, nu in enumerate(nus):
-            name = 'rpe_{}_nu_{}'.format(index + 1, nu)
-            step = Forward(
-                task=self, name=name, subdir=name,
-                ntasks=params['ntasks'], min_tasks=params['min_tasks'],
-                resolution=resolution, nu=float(nu))
+        self.resolutions = resolutions
 
-            step.add_namelist_file(
-                'polaris.ocean.tasks.baroclinic_channel.rpe',
-                'namelist.forward')
-            step.add_streams_file(
-                'polaris.ocean.tasks.baroclinic_channel.rpe',
-                'streams.forward')
-            self.add_step(step)
+        for resolution in resolutions:
+            if self.icosahedral:
+                mesh_name = f'Icos{resolution}'
+            else:
+                mesh_name = f'QU{resolution}'
 
-        self.add_step(
-            Analysis(task=self, resolution=resolution, nus=nus))
+            name = f'{mesh_name}_mesh'
+            subdir = f'{mesh_name}/mesh'
+            if self.icosahedral:
+                self.add_step(IcosahedralMeshStep(
+                    task=self, name=name, subdir=subdir,
+                    cell_width=resolution))
+            else:
+                self.add_step(QuasiUniformSphericalMeshStep(
+                    task=self, name=name, subdir=subdir,
+                    cell_width=resolution))
+
+            self.add_step(Init(task=self, mesh_name=mesh_name))
+
+            self.add_step(Forward(task=self, resolution=resolution,
+                                  mesh_name=mesh_name))
+
+            if self.include_viz:
+                name = f'{mesh_name}_map'
+                subdir = f'{mesh_name}/map'
+                viz_map = VizMap(task=self, name=name, subdir=subdir,
+                                 mesh_name=mesh_name)
+                self.add_step(viz_map)
+
+                name = f'{mesh_name}_viz'
+                subdir = f'{mesh_name}/viz'
+                self.add_step(Viz(task=self, name=name, subdir=subdir,
+                                  viz_map=viz_map, mesh_name=mesh_name))
+
+        self.add_step(Analysis(task=self, resolutions=resolutions,
+                               icosahedral=self.icosahedral))
+
 ```
 
-We have deliberately chosen a fairly complex example to demonstrate how to make
-full use of {ref}`dev-code-sharing` in a task.
+By default, the task will go into a subdirectory within the component with the
+same name as the task (`cosine_bell` in this case).  However, this is rarely 
+desirable and polaris is flexible about the subdirectory structure and the 
+names of the subdirectories.  This flexibility was an important requirement in 
+polaris' design.  Each task and step must end up in a unique  directory, so it 
+is nearly always important that the name and subdirectory of each test case or 
+step depends in some way on the arguments passed the constructor.  In the 
+example above, whether the mesh is icosahedral or quasi-uniform is an argument
+(`icosahedral`) to the constructor, which is then saved as an attribute 
+(`self.icosahedral`) and also used to define a unique subdirectory: 
+`global_convergence/icos/cosine_bell` or `global_convergence/qu/cosine_bell`.
 
-The task imports the classes for its steps --
-{py:class}`polaris.ocean.tasks.baroclinic_channel.init.Init`,
-{py:class}`polaris.ocean.tasks.baroclinic_channel.forward.Forward`, and
-{py:class}`polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis`
+The task imports classes for each step --
+{py:class}`polaris.mesh.spherical.IcosahedralMeshStep`,
+{py:class}`polaris.mesh.spherical.QuasiUniformSphericalMeshStep`,
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.init.Init`,
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward`,
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.rpe.analysis.Analysis`,
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap`, and
+{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz`
 -- so it can create objects for each and add them to itself with
 {py:func}`polaris.Task.add_step()`.  After this, the {py:class}`dict` of
-steps will be available in `self.steps`.
-
-By default, the task will go into a subdirectory with the same name as the
-task (`rpe` in this case).  However, polaris is flexible
-about the subdirectory structure and the names of the subdirectories.  This
-flexibility was an important requirement in polaris' design.  Each task 
-and step must end up in a unique  directory, so it may be important that the 
-name and subdirectory of each test  case or step depends in some way on the 
-arguments passed the constructor.  In  the example above, the resolution is an 
-argument to the constructor, which is  then saved as an attribute 
-(`self.resolution`) and also used to define a unique subdirectory each 
-resolution: `1km/rpe`, `4km/rpe` and `10km/rpe`.
-
-The same `Forward` step is included in the task 5 times with a different
-viscosity parameter `nu` for each.  The value of
-`nu` is passed to the step's constructor, along with
-the unique `name`, `subdir`, and several other parameters:
-`resolution`, `ntasks`, and `min_tasks`. In this example, the steps are
-given rather clumsy names -- `rpe_1_nu_1`, `rpe_2_nu_5`, etc. --
-but these could be any unique names.
+steps will be available in `self.steps`, and a list of steps to run by default
+will be in `self.steps_to_run`.  This example reads resolutions form a config
+option and uses them to make `mesh`, `init`, `forward`, `viz_map` and `viz`
+steps for each resolution, and then a final `analysis` step to compare all
+resolutions.
 
 (dev-task-configure)=
 
@@ -297,7 +317,7 @@ but these could be any unique names.
 
 The {py:meth}`polaris.Task.configure()` method can be overridden by a
 child class to set config options or build them up from defaults stored in
-config files within the task or its test group. The `self.config`
+config files within the task or its shared framework. The `self.config`
 attribute that is modified in this function will be written to a config file
 for the task (see {ref}`config-files`).
 
@@ -306,30 +326,28 @@ If you override this method in a task, you should assume that the
 config options prior to calling `configure()`.  This happens automatically
 during task setup.
 
-Since many test groups need similar behavior in the `configure()` method for
-each task, it is common to have a shared function (sometimes also called
-`configure()`) in the test group, as we discussed in {ref}`dev-test-groups`.
+Since many tasks may need similar behavior in their `configure()` methods, it 
+is common to have either a parent class that defines the `configure()` method,
+as we discussed in {ref}`dev-categories-of-tasks`, or all tasks or a shared 
+function (sometimes also called `configure()`) in the shared framework.
 
-{py:meth}`polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure()`
-simply calls the shared function in its test group,
-{py:func}`polaris.ocean.tasks.baroclinic_channel.configure()`:
+As an example, {py:meth}`polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure()`
+first calls the parent class' version of the method, 
+{py:meth}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.configure()`:
 
 ```python
-from polaris.ocean.tasks import baroclinic_channel
-
-
-def configure(self):
-    """
-    Modify the configuration options for this task.
-    """
-    baroclinic_channel.configure(self.resolution, self.config)
+  def configure(self):
+      """
+      Modify the configuration options for this test case.
+      """
+      super().configure()
+      self._add_steps(config=self.config)
 ```
 
-{py:func}`polaris.ocean.tasks.baroclinic_channel.configure()` was already
-shown in {ref}`dev-test-groups` above.  It sets parameters for the number of
-cells in the mesh in the x and y directions and the resolution of those cells.
+The parent class `BaroclinicChannelTestCase` is shown in 
+{ref}`dev-categories-of-tasks`.
 
-The `configure()` method can also be used to perform other operations at the
+A `configure()` method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
 creating a symlink to a README file that is shared across the whole task,
 as in {py:meth}`polaris.ocean.tasks.global_ocean.files_for_e3sm.FilesForE3SM.configure()`:

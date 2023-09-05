@@ -107,24 +107,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.single_column</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.single_column.cvmix</span> <span class="kn">import</span> <span class="n">CVMix</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.single_column.cvmix</span> <span class="kn">import</span> <span class="n">CVMix</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.single_column.ideal_age</span> <span class="kn">import</span> <span class="n">IdealAge</span>
 
 
-<div class="viewcode-block" id="SingleColumn"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.SingleColumn.html#polaris.ocean.tasks.single_column.SingleColumn">[docs]</a><span class="k">class</span> <span class="nc">SingleColumn</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<div class="viewcode-block" id="add_single_column_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.add_single_column_tasks.html#polaris.ocean.tasks.single_column.add_single_column_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A test group for single column test cases</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SingleColumn.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.SingleColumn.html#polaris.ocean.tasks.single_column.SingleColumn.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        component : polaris.ocean.Ocean</span>
-<span class="sd">            the ocean component that this test group belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;single_column&#39;</span><span class="p">)</span>
+<span class="sd">    Add tasks for various single-column tests</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CVMix</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">IdealAge</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span></div></div>
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the tasks will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CVMix</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">IdealAge</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">960.</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

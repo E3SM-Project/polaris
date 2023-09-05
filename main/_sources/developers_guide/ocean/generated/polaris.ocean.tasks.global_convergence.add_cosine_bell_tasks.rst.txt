@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.global\_convergence.add\_cosine\_bell\_tasks
+================================================================
+
+.. currentmodule:: polaris.ocean.tasks.global_convergence
+
+.. autofunction:: add_cosine_bell_tasks

@@ -118,25 +118,25 @@
 
 <div class="viewcode-block" id="Convergence"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence">[docs]</a><span class="k">class</span> <span class="nc">Convergence</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The convergence test case for the manufactured solution test group</span>
+<span class="sd">    The convergence test case using the method of manufactured solutions</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    resolutions : list of floats</span>
 <span class="sd">        The resolutions of the test case in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Convergence.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">):</span>
+<div class="viewcode-block" id="Convergence.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.ocean.tasks.manufactured_solution.</span>
-<span class="sd">                     ManufacturedSolution</span>
-<span class="sd">            The test group that this test case belongs to</span>
+<span class="sd">        component : polaris.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;convergence&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;manufactured_solution/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
@@ -147,11 +147,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">),</span>
                       <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the config file common to manufactured solution tests</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;manufactured_solution.cfg&#39;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="Convergence.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.validate.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare ``layerThickness`` and</span>
-<span class="sd">        ``normalVelocity`` in the ``forward`` step with a baseline if one was</span>
-<span class="sd">        provided.</span>
+<span class="sd">        Compare ``layerThickness`` and ``normalVelocity`` in the ``forward``</span>
+<span class="sd">        step with a baseline if one was provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>

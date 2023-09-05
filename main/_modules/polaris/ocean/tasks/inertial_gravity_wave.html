@@ -107,22 +107,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.inertial_gravity_wave</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.inertial_gravity_wave.convergence</span> <span class="kn">import</span> <span class="n">Convergence</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.inertial_gravity_wave.convergence</span> <span class="kn">import</span> <span class="n">Convergence</span>
 
 
-<div class="viewcode-block" id="InertialGravityWave"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave">[docs]</a><span class="k">class</span> <span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<div class="viewcode-block" id="add_inertial_gravity_wave_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks.html#polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_inertial_gravity_wave_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A test group for inertial gravity wave test cases</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="InertialGravityWave.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        component : polaris.ocean.Ocean</span>
-<span class="sd">            the ocean component that this test group belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;inertial_gravity_wave&#39;</span><span class="p">)</span>
+<span class="sd">    Add a task that defines a convergence test for inertial gravity waves</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Convergence</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div></div>
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the task will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Convergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

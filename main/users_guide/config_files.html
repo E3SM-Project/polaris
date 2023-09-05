@@ -185,9 +185,9 @@ uses
 <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ExtendedInterpolation">extended interpolation</a>
 in the config file to use config options within other config
 options, e.g. <code class="docutils literal notranslate"><span class="pre">component</span> <span class="pre">=</span> <span class="pre">${paths:component_path}/ocean_model</span></code>.</p></li>
-<li><p>the test group’s config file if one is defined.  For idealized test groups,
-these often include the size and resolution of the mesh as well as the number
-of vertical levels.</p></li>
+<li><p>a config file shared with other similar tasks if one is defined.  For
+idealized tests, these often include the size and resolution of the mesh as
+well as (for ocean initial conditions) the number of vertical levels.</p></li>
 <li><p>any number of config files from the task.  There might be different
 config options depending on how the task is configured (e.g. only if a
 certain feature is enabled.  For example, <span class="xref std std-ref">ocean-global-ocean</span> loads
@@ -197,7 +197,7 @@ different sets of config options for different meshes.</p></li>
 <p>You are free to add any sections and config options to your config file,
 in which case they will override the values specified in one of the other
 config files listed above. Here is an example of some customization for the
-<span class="xref std std-ref">ocean-global-ocean</span> test group:</p>
+<span class="xref std std-ref">ocean-global-ocean</span> tasks:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for global ocean testcases</span>
 <span class="k">[global_ocean]</span>
 
@@ -208,7 +208,8 @@ config files listed above. Here is an example of some customization for the
 </pre></div>
 </div>
 <p>In this example, the author’s name and email address, and the path to a pull
-request will be included in the metadata for output files from this test group.</p>
+request will be included in the metadata for output files from global ocean
+tasks.</p>
 <p>A typical config file resulting from combining all of the sources listed above
 looks like:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the current task</span>

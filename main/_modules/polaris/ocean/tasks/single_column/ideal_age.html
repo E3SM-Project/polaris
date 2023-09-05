@@ -119,22 +119,22 @@
 
 <div class="viewcode-block" id="IdealAge"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge">[docs]</a><span class="k">class</span> <span class="nc">IdealAge</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The default test case for the single column test group simply creates</span>
-<span class="sd">    the mesh and initial condition, then performs a short forward run on 4</span>
-<span class="sd">    cores.</span>
+<span class="sd">    The ideal-age single-column test case creates the mesh and initial</span>
+<span class="sd">    condition, then performs a short forward run evolving the ideal-age tracer</span>
+<span class="sd">    on 1 core.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    -------------</span>
 <span class="sd">    resolution : float</span>
 <span class="sd">        The horizontal resolution in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="IdealAge.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="IdealAge.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.ocean.tasks.single_column.SingleColumn</span>
-<span class="sd">            The test group that this test case belongs to</span>
+<span class="sd">        component : polaris.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
 
 <span class="sd">        resolution : float</span>
 <span class="sd">            The horizontal resolution in km</span>
@@ -145,8 +145,8 @@
             <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">km&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">res_str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Init</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
@@ -162,6 +162,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Viz</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="n">ideal_age</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the config file common to single-column tests</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.ocean.tasks.single_column&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;single_column.cfg&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="IdealAge.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.validate.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

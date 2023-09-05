@@ -107,22 +107,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.manufactured_solution</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.convergence</span> <span class="kn">import</span> <span class="n">Convergence</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.convergence</span> <span class="kn">import</span> <span class="n">Convergence</span>
 
 
-<div class="viewcode-block" id="ManufacturedSolution"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution">[docs]</a><span class="k">class</span> <span class="nc">ManufacturedSolution</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<div class="viewcode-block" id="add_manufactured_solution_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks.html#polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_manufactured_solution_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A test group for manufactured solution test cases</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ManufacturedSolution.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        component : polaris.ocean.Ocean</span>
-<span class="sd">            the ocean component that this test group belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;manufactured_solution&#39;</span><span class="p">)</span>
+<span class="sd">    Add a task that defines a convergence test that uses the method of</span>
+<span class="sd">    manufactured solutions</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Convergence</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div></div>
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the task will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Convergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

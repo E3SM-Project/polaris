@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.Component.add_test_group" href="polaris.Component.add_test_group.html" />
+    <link rel="next" title="polaris.Component.add_task" href="polaris.Component.add_task.html" />
     <link rel="prev" title="polaris.yaml.main_mpas_to_yaml" href="polaris.yaml.main_mpas_to_yaml.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -78,7 +78,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#command-line-interface">Command-line interface</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#base-classes">Base Classes</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="../api.html#component">Component</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#testgroup">TestGroup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#task">Task</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#step">Step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api.html#modelstep">ModelStep</a></li>
@@ -150,9 +149,10 @@ ocean, landice, or seaice</p>
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the component</p></li>
-<li><p><strong>test_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of test groups for the component with their names as keys</p></li>
-<li><p><strong>cached_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary that maps from output file names in test cases to cached
-files in the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database for the component.  These
+<li><p><strong>tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of tasks in the component with the subdirectories of the
+tasks in the component as keys</p></li>
+<li><p><strong>cached_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary that maps from output file names in steps within tasks to
+cached files in the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database for the component. These
 file mappings are read in from <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> in the component.</p></li>
 </ul>
 </dd>
@@ -160,7 +160,7 @@ file mappings are read in from <code class="docutils literal notranslate"><span 
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Component.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/component.html#Component.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Component.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new container for the test groups for a given component</p>
+<dd><p>Create a new container for the tasks for a given component</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the component</p>
@@ -176,10 +176,10 @@ file mappings are read in from <code class="docutils literal notranslate"><span 
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.Component.__init__" title="polaris.Component.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name)</p></td>
-<td><p>Create a new container for the test groups for a given component</p></td>
+<td><p>Create a new container for the tasks for a given component</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Component.add_test_group.html#polaris.Component.add_test_group" title="polaris.Component.add_test_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_test_group</span></code></a>(test_group)</p></td>
-<td><p>Add a test group to the component</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Component.add_task.html#polaris.Component.add_task" title="polaris.Component.add_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_task</span></code></a>(task)</p></td>
+<td><p>Add a task to the component</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>(config)</p></td>
 <td><p>Configure the component</p></td>
@@ -195,7 +195,7 @@ file mappings are read in from <code class="docutils literal notranslate"><span 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.yaml.main_mpas_to_yaml.html" class="btn btn-neutral float-left" title="polaris.yaml.main_mpas_to_yaml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.Component.add_test_group.html" class="btn btn-neutral float-right" title="polaris.Component.add_test_group" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.Component.add_task.html" class="btn btn-neutral float-right" title="polaris.Component.add_task" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

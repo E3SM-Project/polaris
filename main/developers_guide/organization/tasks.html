@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Steps" href="steps.html" />
-    <link rel="prev" title="Test Groups" href="test_groups.html" />
+    <link rel="prev" title="Categories of tasks" href="categories_of_tasks.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -66,7 +66,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Organization of Tasks</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="directories.html">Directory structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_groups.html">Test Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories_of_tasks.html">Categories of tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#task-attributes">Task attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
@@ -149,9 +149,7 @@ case.</p>
 <dl class="simple myst">
 <dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the task</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.test_group</span></code></dt><dd><p>The test group the task belongs to</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the test group belongs to</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the task belongs to</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the task</p>
 </dd>
@@ -202,8 +200,8 @@ that the task or its steps will need.  As an example,
 mesh type and the velocity solver an attributes:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SmokeTest</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The default task for the dome test group simply creates the mesh and</span>
-<span class="sd">    initial condition, then performs a short forward run on 4 cores.</span>
+<span class="sd">    The default dome task creates the mesh and initial condition, then performs</span>
+<span class="sd">    a short forward run on 4 cores.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -214,14 +212,14 @@ mesh type and the velocity solver an attributes:</p>
 <span class="sd">        The velocity solver to use for the task</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.landice.tasks.dome.Dome</span>
-<span class="sd">            The test group that this task belongs to</span>
+<span class="sd">        component : polaris.landice.Landice</span>
+<span class="sd">            The land-ice component that this task belongs to</span>
 
 <span class="sd">        velo_solver : {&#39;sia&#39;, &#39;FO&#39;}</span>
 <span class="sd">            The velocity solver to use for the task</span>
@@ -233,7 +231,7 @@ mesh type and the velocity solver an attributes:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">velo_solver</span> <span class="o">=</span> <span class="n">velo_solver</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_type</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
@@ -255,7 +253,7 @@ mesh type and the velocity solver an attributes:</p>
 <section id="constructor">
 <span id="dev-task-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method must first call the base constructor
-<code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the task, the test group it
+<code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the task, the component it
 will belong to, and the subdirectory (if different from the name of the test
 case).  Then, it should create an object for each step and add them to itself
 using call <a class="reference internal" href="../generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Task.add_step()</span></code></a>.</p>
@@ -276,138 +274,162 @@ associated with these steps until the point where the step is being set up in</p
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
-<p>As an example, here is the constructor from
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe" title="polaris.ocean.tasks.baroclinic_channel.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.rpe.Rpe</span></code></a>:</p>
+<p>We will demonstrate with a fairly complex example,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.html#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell</span></code></a>,
+to demonstrate how to make full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span> <span class="nn">polaris.mesh.spherical</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
+    <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell.analysis</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Analysis</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The reference potential energy (RPE) task for the baroclinic channel</span>
-<span class="sd">    test group performs a 20-day integration of the model forward in time at</span>
-<span class="sd">    5 different values of the viscosity at the given resolution.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    resolution : str</span>
-<span class="sd">        The resolution of the task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create the task</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.ocean.tasks.baroclinic_channel.BaroclinicChannel</span>
-<span class="sd">            The test group that this task belongs to</span>
-
-<span class="sd">        resolution : str</span>
-<span class="sd">            The resolution of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+<span class="k">class</span> <span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;global_convergence/icos/cosine_bell&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;global_convergence/qu/cosine_bell&#39;</span>
+        <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">_with_viz&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span> <span class="o">=</span> <span class="n">icosahedral</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span> <span class="o">=</span> <span class="n">include_viz</span>
 
-        <span class="n">nus</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+        <span class="c1"># add the steps with default resolutions so they can be listed</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.global_convergence.cosine_bell&#39;</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="n">res_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;1km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">},</span>
-                      <span class="s1">&#39;4km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
-                      <span class="s1">&#39;10km&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;min_tasks&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}}</span>
+    <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; setup steps given resolutions &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
+            <span class="n">default_resolutions</span> <span class="o">=</span> <span class="s1">&#39;60, 120, 240, 480&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default_resolutions</span> <span class="o">=</span> <span class="s1">&#39;60, 90, 120, 150, 180, 210, 240&#39;</span>
 
-        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">res_params</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Unsupported resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">. Supported values are: &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">res_params</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># set the default values that a user may change before setup</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;resolutions&#39;</span><span class="p">,</span> <span class="n">default_resolutions</span><span class="p">,</span>
+                   <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;a list of resolutions (km) to test&#39;</span><span class="p">)</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="n">res_params</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+        <span class="c1"># get the resolutions back, perhaps with values set in the user&#39;s</span>
+        <span class="c1"># config file, which takes priority over what we just set above</span>
+        <span class="n">resolutions</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;resolutions&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">==</span> <span class="n">resolutions</span><span class="p">:</span>
+            <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Init</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+        <span class="c1"># start fresh with no steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">nu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nus</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rpe_</span><span class="si">{}</span><span class="s1">_nu_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">ntasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ntasks&#39;</span><span class="p">],</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_tasks&#39;</span><span class="p">],</span>
-                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">nu</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
 
-            <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
+                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Icos</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;QU</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Analysis</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nus</span><span class="o">=</span><span class="n">nus</span><span class="p">))</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/mesh&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">IcosahedralMeshStep</span><span class="p">(</span>
+                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">(</span>
+                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Init</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Forward</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                                  <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_map&#39;</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/map&#39;</span>
+                <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                                 <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
+
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_viz&#39;</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/viz&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                                  <span class="n">viz_map</span><span class="o">=</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
+                               <span class="n">icosahedral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">))</span>
+
 </pre></div>
 </div>
-<p>We have deliberately chosen a fairly complex example to demonstrate how to make
-full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a task.</p>
-<p>The task imports the classes for its steps –
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.init.Init.html#polaris.ocean.tasks.baroclinic_channel.init.Init" title="polaris.ocean.tasks.baroclinic_channel.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.init.Init</span></code></a>,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.forward.Forward</span></code></a>, and
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.html#polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis" title="polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis</span></code></a>
+<p>By default, the task will go into a subdirectory within the component with the
+same name as the task (<code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> in this case).  However, this is rarely
+desirable and polaris is flexible about the subdirectory structure and the
+names of the subdirectories.  This flexibility was an important requirement in
+polaris’ design.  Each task and step must end up in a unique  directory, so it
+is nearly always important that the name and subdirectory of each test case or
+step depends in some way on the arguments passed the constructor.  In the
+example above, whether the mesh is icosahedral or quasi-uniform is an argument
+(<code class="docutils literal notranslate"><span class="pre">icosahedral</span></code>) to the constructor, which is then saved as an attribute
+(<code class="docutils literal notranslate"><span class="pre">self.icosahedral</span></code>) and also used to define a unique subdirectory:
+<code class="docutils literal notranslate"><span class="pre">global_convergence/icos/cosine_bell</span></code> or <code class="docutils literal notranslate"><span class="pre">global_convergence/qu/cosine_bell</span></code>.</p>
+<p>The task imports classes for each step –
+<a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.spherical.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.IcosahedralMeshStep</span></code></a>,
+<a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.spherical.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.QuasiUniformSphericalMeshStep</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.global_convergence.cosine_bell.init.Init.html#polaris.ocean.tasks.global_convergence.cosine_bell.init.Init" title="polaris.ocean.tasks.global_convergence.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.init.Init</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward.html#polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward" title="polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.rpe.analysis.Analysis</span></code>,
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap</span></code></a>, and
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz.html#polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz" title="polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz</span></code></a>
 – so it can create objects for each and add them to itself with
 <a class="reference internal" href="../generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Task.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
-steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>.</p>
-<p>By default, the task will go into a subdirectory with the same name as the
-task (<code class="docutils literal notranslate"><span class="pre">rpe</span></code> in this case).  However, polaris is flexible
-about the subdirectory structure and the names of the subdirectories.  This
-flexibility was an important requirement in polaris’ design.  Each task
-and step must end up in a unique  directory, so it may be important that the
-name and subdirectory of each test  case or step depends in some way on the
-arguments passed the constructor.  In  the example above, the resolution is an
-argument to the constructor, which is  then saved as an attribute
-(<code class="docutils literal notranslate"><span class="pre">self.resolution</span></code>) and also used to define a unique subdirectory each
-resolution: <code class="docutils literal notranslate"><span class="pre">1km/rpe</span></code>, <code class="docutils literal notranslate"><span class="pre">4km/rpe</span></code> and <code class="docutils literal notranslate"><span class="pre">10km/rpe</span></code>.</p>
-<p>The same <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step is included in the task 5 times with a different
-viscosity parameter <code class="docutils literal notranslate"><span class="pre">nu</span></code> for each.  The value of
-<code class="docutils literal notranslate"><span class="pre">nu</span></code> is passed to the step’s constructor, along with
-the unique <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">subdir</span></code>, and several other parameters:
-<code class="docutils literal notranslate"><span class="pre">resolution</span></code>, <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>. In this example, the steps are
-given rather clumsy names – <code class="docutils literal notranslate"><span class="pre">rpe_1_nu_1</span></code>, <code class="docutils literal notranslate"><span class="pre">rpe_2_nu_5</span></code>, etc. –
-but these could be any unique names.</p>
+steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>, and a list of steps to run by default
+will be in <code class="docutils literal notranslate"><span class="pre">self.steps_to_run</span></code>.  This example reads resolutions form a config
+option and uses them to make <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">forward</span></code>, <code class="docutils literal notranslate"><span class="pre">viz_map</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code>
+steps for each resolution, and then a final <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step to compare all
+resolutions.</p>
 </section>
 <section id="configure">
 <span id="dev-task-configure"></span><h2>configure()<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.configure()</span></code></a> method can be overridden by a
 child class to set config options or build them up from defaults stored in
-config files within the task or its test group. The <code class="docutils literal notranslate"><span class="pre">self.config</span></code>
+config files within the task or its shared framework. The <code class="docutils literal notranslate"><span class="pre">self.config</span></code>
 attribute that is modified in this function will be written to a config file
 for the task (see <a class="reference internal" href="../../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a>).</p>
 <p>If you override this method in a task, you should assume that the
 <code class="docutils literal notranslate"><span class="pre">&lt;task.name&gt;.cfg</span></code> file in its package has already been added to the
 config options prior to calling <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.  This happens automatically
 during task setup.</p>
-<p>Since many test groups need similar behavior in the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method for
-each task, it is common to have a shared function (sometimes also called
-<code class="docutils literal notranslate"><span class="pre">configure()</span></code>) in the test group, as we discussed in <a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a>.</p>
-<p><a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure" title="polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure()</span></code></a>
-simply calls the shared function in its test group,
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.configure()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks</span> <span class="kn">import</span> <span class="n">baroclinic_channel</span>
-
-
-<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Modify the configuration options for this task.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">baroclinic_channel</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+<p>Since many tasks may need similar behavior in their <code class="docutils literal notranslate"><span class="pre">configure()</span></code> methods, it
+is common to have either a parent class that defines the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method,
+as we discussed in <a class="reference internal" href="categories_of_tasks.html#dev-categories-of-tasks"><span class="std std-ref">Categories of tasks</span></a>, or all tasks or a shared
+function (sometimes also called <code class="docutils literal notranslate"><span class="pre">configure()</span></code>) in the shared framework.</p>
+<p>As an example, <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure" title="polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure()</span></code></a>
+first calls the parent class’ version of the method,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.configure()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">      </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      Modify the configuration options for this test case.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_add_steps</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.configure()</span></code> was already
-shown in <a class="reference internal" href="test_groups.html#dev-test-groups"><span class="std std-ref">Test Groups</span></a> above.  It sets parameters for the number of
-cells in the mesh in the x and y directions and the resolution of those cells.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method can also be used to perform other operations at the
+<p>The parent class <code class="docutils literal notranslate"><span class="pre">BaroclinicChannelTestCase</span></code> is shown in
+<a class="reference internal" href="categories_of_tasks.html#dev-categories-of-tasks"><span class="std std-ref">Categories of tasks</span></a>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
 creating a symlink to a README file that is shared across the whole task,
 as in <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.files_for_e3sm.FilesForE3SM.configure()</span></code>:</p>
@@ -479,7 +501,7 @@ involved in the comparison was not run.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="test_groups.html" class="btn btn-neutral float-left" title="Test Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="categories_of_tasks.html" class="btn btn-neutral float-left" title="Categories of tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="steps.html" class="btn btn-neutral float-right" title="Steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

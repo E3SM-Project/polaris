@@ -2,7 +2,7 @@
 
 # Ocean component
 
-The `ocean` component in polaris contains test groups and tasks for the
+The `ocean` component in polaris contains tasks for the
 [MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and 
 [OMEGA](https://github.com/E3SM-Project/Omega) components of E3SM.  For more
 information on MPAS-Ocean, see the most recent
@@ -25,7 +25,7 @@ Some helpful external links related to MPAS-Ocean:
 ```{toctree}
 :titlesonly: true
 
-test_groups/index
+tasks/index
 framework/index
 suites
 ```

@@ -91,7 +91,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#component">Component</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#testgroup">TestGroup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#task">Task</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#step">Step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#modelstep">ModelStep</a></li>
@@ -298,6 +297,12 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks" title="polaris.setup.setup_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_tasks</span></code></a>(work_dir[, task_list, numbers, ...])</p></td>
+<td><p>Set up one or more tasks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_task</span></code></a>(path, task, config_file, machine, ...)</p></td>
+<td><p>Set up one or more tasks</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -386,25 +391,8 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component</span></code></a>(name)</p></td>
 <td><p>The base class for housing all the tasks for a given component, such as ocean, landice, or seaice</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.add_test_group.html#polaris.Component.add_test_group" title="polaris.Component.add_test_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_test_group</span></code></a>(test_group)</p></td>
-<td><p>Add a test group to the component</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="testgroup">
-<h4>TestGroup<a class="headerlink" href="#testgroup" title="Permalink to this heading"></a></h4>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup</span></code></a>(component, name)</p></td>
-<td><p>The base class for test groups, which are collections of tasks with a common purpose (e.g.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.TestGroup.add_task.html#polaris.TestGroup.add_task" title="polaris.TestGroup.add_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGroup.add_task</span></code></a>(task)</p></td>
-<td><p>Add a task to the test group</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.add_task.html#polaris.Component.add_task" title="polaris.Component.add_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_task</span></code></a>(task)</p></td>
+<td><p>Add a task to the component</p></td>
 </tr>
 </tbody>
 </table>
@@ -417,7 +405,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code></a>(test_group, name[, subdir])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code></a>(component, name[, subdir])</p></td>
 <td><p>The base class for tasks---such as a decomposition, threading or restart test---that are made up of one or more steps</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.configure</span></code></a>()</p></td>
@@ -535,7 +523,7 @@ documentation.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.components.get_components.html#polaris.components.get_components" title="polaris.components.get_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_components</span></code></a>()</p></td>
-<td><p>Get a list of components, which in turn contain lists of test groups</p></td>
+<td><p>Get a list of components, which in turn contain lists tasks</p></td>
 </tr>
 </tbody>
 </table>

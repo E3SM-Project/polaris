@@ -118,25 +118,22 @@
 
 <div class="viewcode-block" id="StandardPhysics"><a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics">[docs]</a><span class="k">class</span> <span class="nc">StandardPhysics</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The standard physics test case for the &quot;single column&quot; test group creates</span>
-<span class="sd">    the mesh and initial condition, then performs a short forward run.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
+<span class="sd">    The single-column standard physics test case creates the mesh and initial</span>
+<span class="sd">    condition, then performs a short forward run.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="StandardPhysics.__init__"><a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">):</span>
+<div class="viewcode-block" id="StandardPhysics.__init__"><a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.seaice.tasks.single_column.SingleColumn</span>
-<span class="sd">            The test group that this test case belongs to</span>
-
+<span class="sd">        component : polaris.seaice.Seaice</span>
+<span class="sd">            the component that that the task belongs to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;standard_physics&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
             <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.seaice.tasks.single_column.standard_physics&#39;</span><span class="p">,</span>

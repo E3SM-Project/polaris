@@ -72,7 +72,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#code-sharing">Code sharing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#in-the-polaris-framework">…in the polaris framework</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#within-a-component">…within a component</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#within-a-test-group">…within a test group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#within-a-group-of-related-tasks">…within a group of related tasks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#within-a-task">…within a task</a></li>
 </ul>
 </li>
@@ -191,11 +191,15 @@ the polaris file
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>
 has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code></a> that looks like this (with the
 <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">docstrings</a> stripped out):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel</span> <span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
+
+
+<span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_test_group</span><span class="p">(</span><span class="n">GlobalConvergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
@@ -208,9 +212,8 @@ has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Oc
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>This class contains all of the ocean test groups, which contain all the ocean
-tasks and their steps.  The details aren’t important.  The point is that
-the class can be imported like so:</p>
+<p>This class contains all of the ocean tasks and steps.  The details aren’t
+important.  The point is that the class can be imported like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean</span> <span class="kn">import</span> <span class="n">Ocean</span>
 
 
@@ -280,9 +283,8 @@ clumsy set of functions and
 <a class="reference external" href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">python dictionaries</a>
 that was equally complex but harder to understand and document than classes.</p>
 <p>The outcome of this experience is that we have used classes to define
-components, test groups, tasks and steps.  Each component will “descend”
-from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each test groups descends
-from <a class="reference internal" href="generated/polaris.TestGroup.html#polaris.TestGroup" title="polaris.TestGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code></a>; each task descends from
+components, tasks and steps.  Each component will “descend”
+from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each task descends from
 <a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>; and each steps descends from
 <a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  These base classes contain functionality that can
 be shared with the “child” classes that descend from them and also define
@@ -290,11 +292,10 @@ a few “methods” (functions that belong to a class) that the child class is
 meant to “override” (replace with their own version of the function, or augment
 by replacing the function and then calling the base class’s version of the
 same function).</p>
-<p>We have some tutorials on how to add new components, test groups, test
-cases and steps, and more will be developed in the near future.  These will
-explain the main features of  classes that developers need to know about.<br />
-We also hope that the tasks currently in the package can provide a starting
-point for new development.</p>
+<p>We have some tutorials on how to add new components, tasks and steps, and more
+will be developed in the near future.  These will explain the main features of
+classes that developers need to know about. We also hope that the tasks
+currently in the package can provide a starting point for new development.</p>
 </section>
 </section>
 <section id="code-sharing">
@@ -330,11 +331,11 @@ accomplished for several of the idealized tasks included in polaris. As an
 example, the shared functionality in the <a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> is described in
 <a class="reference internal" href="ocean/framework.html#dev-ocean-framework"><span class="std std-ref">Ocean framework</span></a>.</p>
 </section>
-<section id="within-a-test-group">
-<h3>…within a test group<a class="headerlink" href="#within-a-test-group" title="Permalink to this heading"></a></h3>
-<p>So far, the most common type of shared code within test group are modules
+<section id="within-a-group-of-related-tasks">
+<h3>…within a group of related tasks<a class="headerlink" href="#within-a-group-of-related-tasks" title="Permalink to this heading"></a></h3>
+<p>So far, the most common type of shared code between related tasks are modules
 defining steps that are used in multiple tasks.  For example, the
-<a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> configuration uses shared modules to define
+<a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> configuration uses shared modules to define
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps of each task.  Configurations
 also often include namelist and streams files with replacements to use across
 tasks.</p>
@@ -358,7 +359,7 @@ biogeochemistry.</p>
 <h3>…within a task<a class="headerlink" href="#within-a-task" title="Permalink to this heading"></a></h3>
 <p>The main way code is currently reused with a task is when the same module
 for a step gets used multiple times within a task.  For example,
-the <a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> task uses the same
+the <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> task uses the same
 forward run with 5 different values of the viscosity.</p>
 </section>
 </section>

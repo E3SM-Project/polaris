@@ -116,8 +116,8 @@ changes in performance or output data compared with a previous run of the
 same suite.  This type of
 <a class="reference external" href="https://en.wikipedia.org/wiki/Regression_testing">regression testing</a> is one
 of the primary reasons that polaris exists. Another reason to define a test
-suite is simply to make it easier to run a sequence of tasks (e.g. from
-the same test group) that are often run together.</p>
+suite is simply to make it easier to run a sequence of tasks that are often run
+together.</p>
 <p>Suites are defined by their MPAS core and name.  As you can see by
 running:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list<span class="w"> </span>--suites
@@ -125,19 +125,10 @@ running:</p>
 </div>
 <p>the current set of available suites is:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Suites:
-  -c landice -t fo_integration
-  -c landice -t full_integration
-  -c landice -t sia_integration
+  -c ocean -t cosine_bell
   -c ocean -t cosine_bell_cached_init
-  -c ocean -t ec30to60
-  -c ocean -t ecwisc30to60
   -c ocean -t nightly
   -c ocean -t pr
-  -c ocean -t qu240_for_e3sm
-  -c ocean -t quwisc240
-  -c ocean -t quwisc240_for_e3sm
-  -c ocean -t sowisc12to60
-  -c ocean -t wc14
 </pre></div>
 </div>
 <p>As an example, the ocean <code class="docutils literal notranslate"><span class="pre">nightly</span></code> suite includes the tasks used
@@ -146,7 +137,6 @@ for regression testing of MPAS-Ocean.  Here are the tasks included:</p>
 ocean/baroclinic_channel/10km/decomp
 ocean/baroclinic_channel/10km/restart
 ocean/inertial_gravity_wave/convergence
-
 </pre></div>
 </div>
 <div class="admonition note">
@@ -155,11 +145,12 @@ ocean/inertial_gravity_wave/convergence
 case if no specific steps are listed) aren’t run but instead the results
 of a previous run are simply downloaded.  This is used to skip steps that
 are prohibitively time-consuming during regression testing, but where the
-results are needed to run subsequent tasks.  An example above is the
-<code class="docutils literal notranslate"><span class="pre">mesh</span></code> and <code class="docutils literal notranslate"><span class="pre">PHC/init</span></code> tasks from the <code class="docutils literal notranslate"><span class="pre">ocean/global_ocean/</span></code>
-test group on the <code class="docutils literal notranslate"><span class="pre">QUwISC240</span></code> mesh.  These tasks take several minutes to
-run, which is longer than we wish to take for a quick performance test,
-so they are cached instead.</p>
+results are needed to run subsequent tasks.  An example in the
+<code class="docutils literal notranslate"><span class="pre">cosine_bell_cached_init</span></code> suite listed above is the
+<code class="docutils literal notranslate"><span class="pre">global_convergence/icos/cosine_bell</span></code> and <code class="docutils literal notranslate"><span class="pre">global_convergence/qu/cosine_bell</span></code>
+tasks from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component.  These tasks take several minutes to
+create their meshes and initial conditions, so to speed things up we sometimes
+run with cached meshes and initial conditions.</p>
 </div>
 <p>Including the <code class="docutils literal notranslate"><span class="pre">-v</span></code> verbose argument to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--suites</span></code> will
 print the tasks belonging to each given suite.</p>

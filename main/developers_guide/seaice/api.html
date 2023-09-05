@@ -77,7 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../ocean/api.html">ocean</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seaice</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.seaice.SeaIce.html">polaris.seaice.SeaIce</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#test-groups">Test Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
 </ul>
 </li>
 </ul>
@@ -134,8 +134,8 @@
 </tr>
 </tbody>
 </table>
-<section id="test-groups">
-<h2>Test Groups<a class="headerlink" href="#test-groups" title="Permalink to this heading"></a></h2>
+<section id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this heading"></a></h2>
 <section id="single-column">
 <h3>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -144,20 +144,20 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.SingleColumn.html#polaris.seaice.tasks.single_column.SingleColumn" title="polaris.seaice.tasks.single_column.SingleColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleColumn</span></code></a>(component)</p></td>
-<td><p>A test group for &quot;single column&quot; test cases</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.add_single_column_tasks.html#polaris.seaice.tasks.single_column.add_single_column_tasks" title="polaris.seaice.tasks.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
+<td><p>Add various tasks that define single-column tests</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.forward.Forward.html#polaris.seaice.tasks.single_column.forward.Forward" title="polaris.seaice.tasks.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(task[, name])</p></td>
 <td><p>A step for staging a mesh for “single column” test cases</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.ExactRestart</span></code></a>(test_group)</p></td>
-<td><p>A restart test case for the single column test group, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.ExactRestart</span></code></a>(component)</p></td>
+<td><p>A single-column restart test case, which makes sure  the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.validate.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart.validate" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.ExactRestart.validate</span></code></a>()</p></td>
 <td><p>Compare variables in the restart files at the end of each run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.StandardPhysics</span></code></a>(test_group)</p></td>
-<td><p>The standard physics test case for the &quot;single column&quot; test group creates the mesh and initial condition, then performs a short forward run.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.StandardPhysics</span></code></a>(component)</p></td>
+<td><p>The single-column standard physics test case creates the mesh and initial condition, then performs a short forward run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.StandardPhysics.validate</span></code></a>()</p></td>
 <td><p>Compare six output variables in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step with a baseline if one was provided.</p></td>

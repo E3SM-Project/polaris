@@ -107,25 +107,21 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.seaice.tasks.single_column</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.seaice.tasks.single_column.exact_restart</span> <span class="kn">import</span> <span class="n">ExactRestart</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.seaice.tasks.single_column.exact_restart</span> <span class="kn">import</span> <span class="n">ExactRestart</span>
 <span class="kn">from</span> <span class="nn">polaris.seaice.tasks.single_column.standard_physics</span> <span class="kn">import</span> <span class="n">StandardPhysics</span>
 
 
-<div class="viewcode-block" id="SingleColumn"><a class="viewcode-back" href="../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.SingleColumn.html#polaris.seaice.tasks.single_column.SingleColumn">[docs]</a><span class="k">class</span> <span class="nc">SingleColumn</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<div class="viewcode-block" id="add_single_column_tasks"><a class="viewcode-back" href="../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.add_single_column_tasks.html#polaris.seaice.tasks.single_column.add_single_column_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A test group for &quot;single column&quot; test cases</span>
+<span class="sd">    Add various tasks that define single-column tests</span>
+
+<span class="sd">    component : polaris.seaice.Seaice</span>
+<span class="sd">        the component that that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SingleColumn.__init__"><a class="viewcode-back" href="../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.SingleColumn.html#polaris.seaice.tasks.single_column.SingleColumn.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        component : polaris.seaice</span>
-<span class="sd">            the component that this test group belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;single_column&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="n">StandardPhysics</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="n">ExactRestart</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span></div></div>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+        <span class="n">StandardPhysics</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+        <span class="n">ExactRestart</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

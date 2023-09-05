@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>single_column</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Ocean framework" href="../framework.html" />
+    <link rel="prev" title="manufactured_solution" href="manufactured_solution.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ideal-age">ideal age</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">single_column</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/single_column.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="single-column">
+<span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
+<p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column</span></code> exercise
+the vertical dynamics of the ocean model only. There are currently
+two test cases: one that exercises CVMix, the other that exercises ideal age
+tracers with CVMix. Here, we describe the tests and their shared framework.</p>
+<section id="framework">
+<span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests
+are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single_column</span></a> in the User’s Guide.</p>
+<p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
+a few common model config options related to run duration and horizontal
+diffusion and cvmix, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, <code class="docutils literal notranslate"><span class="pre">output</span></code>,
+<code class="docutils literal notranslate"><span class="pre">KPP_testing</span></code> and <code class="docutils literal notranslate"><span class="pre">mixedLayerDepthsOutput</span></code> streams.</p>
+<p>An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is included in the ideal age tracer test case
+for enabling on the ideal age tracers and ideal age surface forcing, as well as
+for defining <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams</p>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init" title="polaris.ocean.tasks.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.init.Init</span></code></a>
+defines a step for setting up the initial state for each test case.</p>
+<p>First, a mesh appropriate for the resolution is generated using
+<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  A vertical grid is
+generated, with 100 layers of 4 m thickness each by default.  Finally, the
+initial temperature and salinity field are computed with variability in the
+vertical dimension only.</p>
+<p>A forcing netCDF file is also created based on the config options given in the
+<code class="docutils literal notranslate"><span class="pre">single_column_forcing</span></code> section.</p>
+<p>For cases with ideal age tracers, an initial profile for the ideal age tracer is
+also constructed and is equal to zero seconds throughout the column.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.forward.Forward.html#polaris.ocean.tasks.single_column.forward.Forward" title="polaris.ocean.tasks.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.forward.Forward</span></code></a>
+defines a step for running MPAS-Ocean from the initial condition produced in
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The ocean model is run.</p>
+</section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.viz.Viz.html#polaris.ocean.tasks.single_column.viz.Viz" title="polaris.ocean.tasks.single_column.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.viz.Viz</span></code></a>
+produces figures comparing the initial and final profiles of temperature and
+salinity.</p>
+</section>
+</section>
+<section id="cvmix">
+<span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a>
+test performs a 1-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
+baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+<section id="ideal-age">
+<h2>ideal age<a class="headerlink" href="#ideal-age" title="Permalink to this heading"></a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.IdealAge</span></code> test
+performs the same 1-day run on 1 cores as the
+<a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a> test, but with a
+single ideal age tracer included. An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is
+included in the ideal age tracer test case for enabeling on the ideal age
+tracers and ideal age surface forcing, as well as for defining
+<code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams. Validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> are performed against a baseline if one is provided
+when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="manufactured_solution.html" class="btn btn-neutral float-left" title="manufactured_solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../framework.html" class="btn btn-neutral float-right" title="Ocean framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="single_column.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

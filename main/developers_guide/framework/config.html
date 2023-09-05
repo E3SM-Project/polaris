@@ -136,7 +136,7 @@ converted automatically to absolute paths.</p>
 <p>The <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools vstable)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_case()</span></code>. Here is a typical example from
+<a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>. Here is a typical example from
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -157,14 +157,13 @@ default behavior.  In some cases, you would like the code to add the config
 options if the config file exists and do nothing if it does not.  This can
 be useful if a common configure function is being used for all test
 cases in a configuration, as in this example from
-<code class="xref py py-func docutils literal notranslate"><span class="pre">setup.setup_case()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># add the config options for the test group (if defined)</span>
-<span class="n">test_group</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span>
-<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.tasks.</span><span class="si">{</span><span class="n">test_group</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">test_group</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">setup.setup_task()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># add the config options for the task (if defined)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If a test group doesn’t have any config options, nothing will happen.</p>
+<p>If a task doesn’t have any config options, nothing will happen.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> class also includes methods for adding a user
 config file and other config files by file name, but these are largely intended
 for use by the framework rather than individual tasks.</p>

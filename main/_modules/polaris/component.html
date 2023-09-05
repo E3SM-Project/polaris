@@ -121,18 +121,19 @@
 <span class="sd">    name : str</span>
 <span class="sd">        the name of the component</span>
 
-<span class="sd">    test_groups : dict</span>
-<span class="sd">        A dictionary of test groups for the component with their names as keys</span>
+<span class="sd">    tasks : dict</span>
+<span class="sd">        A dictionary of tasks in the component with the subdirectories of the</span>
+<span class="sd">        tasks in the component as keys</span>
 
 <span class="sd">    cached_files : dict</span>
-<span class="sd">        A dictionary that maps from output file names in test cases to cached</span>
-<span class="sd">        files in the ``polaris_cache`` database for the component.  These</span>
+<span class="sd">        A dictionary that maps from output file names in steps within tasks to</span>
+<span class="sd">        cached files in the ``polaris_cache`` database for the component. These</span>
 <span class="sd">        file mappings are read in from ``cached_files.json`` in the component.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Component.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.html#polaris.Component.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new container for the test groups for a given component</span>
+<span class="sd">        Create a new container for the tasks for a given component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -141,22 +142,22 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-        <span class="c1"># test groups are added with add_test_groups()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_groups</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="c1"># tasks are added with add_task()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_cached_files</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Component.add_test_group"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.add_test_group.html#polaris.Component.add_test_group">[docs]</a>    <span class="k">def</span> <span class="nf">add_test_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">):</span>
+<div class="viewcode-block" id="Component.add_task"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.add_task.html#polaris.Component.add_task">[docs]</a>    <span class="k">def</span> <span class="nf">add_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a test group to the component</span>
+<span class="sd">        Add a task to the component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_group : polaris.TestGroup</span>
-<span class="sd">            the test group to add</span>
+<span class="sd">        task : polaris.Task</span>
+<span class="sd">            The task to add</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_groups</span><span class="p">[</span><span class="n">test_group</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_group</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span></div>
 
     <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

@@ -120,15 +120,15 @@ format.  We recommend these <a class="reference external" href="https://myst-par
 on using MyST in Sphinx.</p>
 <p>Another easy way to get started is by taking a look at the existing source
 code for the documentation: <a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/docs/">https://github.com/E3SM-Project/polaris/tree/main/docs/</a></p>
-<p>Each time you add a component, test group or task, the corresponding
+<p>Each time you add a component or task, the corresponding
 documentation must be included with the pull request to add the code.  This
 includes documentation for both the User’s Guide and the Developer’s Guide.
 For examples, see:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../users_guide/ocean/index.html#ocean"><span class="std std-ref">Ocean component</span></a> in the User’s Guide</p></li>
-<li><p><a class="reference internal" href="../users_guide/ocean/test_groups/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> test group in the User’s Guide</p></li>
+<li><p><a class="reference internal" href="../users_guide/ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> tasks in the User’s Guide</p></li>
 <li><p><a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> in the Developer’s Guide</p></li>
-<li><p><a class="reference internal" href="ocean/test_groups/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> test group in the Developer’s Guide</p></li>
+<li><p><a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> tasks in the Developer’s Guide</p></li>
 </ul>
 <p>Documentation for each component in the User’s guide should include a label
 with the name of the component:</p>
@@ -139,16 +139,17 @@ with the name of the component:</p>
 </pre></div>
 </div>
 <p>In the Developer’s Guide, labels have <code class="docutils literal notranslate"><span class="pre">dev-</span></code> prepended to them:</p>
-<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>(def-ocean)=
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>(dev-ocean)=
 
 <span class="gh"># Ocean component</span>
 ...
 </pre></div>
 </div>
-<p>Each test group should have the component prepended to its label (in case
-multiple components have the same test group name), and each task (if
-explicitly labeled) should have the component and test group prepended to it.
-Thus, in the User’s guide, we have:</p>
+<p>Each category of tasks (e.g. baroclinic channel) should have its own page in
+the <code class="docutils literal notranslate"><span class="pre">tasks</span></code> subdirectory of the component. The label for the page should have
+have the component name prepended (to make sure it’s unique), and each task
+(if explicitly labeled) should have the component and category of tasks
+prepended to it. Thus, in the User’s guide, we have:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>(ocean-baroclinic-channel)=
 
 <span class="gh"># baroclinic_channel</span>
@@ -176,15 +177,16 @@ Thus, in the User’s guide, we have:</p>
 ...
 </pre></div>
 </div>
-<p>Documentation for a component, test group or task in the User’s Guide
+<p>Documentation for a component or task in the User’s Guide
 should contain information that is needed for users who set up and run the test
 case, including:</p>
 <ul class="simple">
 <li><p>Documentation for the component itself (if any)</p></li>
-<li><p>A page for each test group with a section for each task:</p>
+<li><p>A page for each category of tasks with a section for each task:</p>
 <ul>
-<li><p>A citation or link where the test group is defined (if any)</p></li>
-<li><p>A brief overview of the tasks within the test group</p></li>
+<li><p>A citation or link where the test case that is the basis for the tasks is
+defined (if any)</p></li>
+<li><p>A brief overview of the common characteristics of the tasks</p></li>
 <li><p>An image showing typical output from one of the tasks</p></li>
 <li><p>A list of (commented) config options that apply to all tasks</p></li>
 <li><p>A (typically brief) description of each task</p></li>
@@ -198,25 +200,27 @@ framework that users may need to be aware of, e.g. because of
 <a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a> or namelist options they may wish to edit.</p></li>
 <li><p>A description of each suite, including which tasks are included</p></li>
 </ul>
-<p>A template is available for test groups and tasks in the User’s Guide:
-<a class="reference internal" href="../users_guide/seaice/test_groups/template.html#component-test-group-name"><span class="std std-ref">test_group_name</span></a></p>
+<p>A template is available for documenting groups of related tasks in the User’s
+Guide: <a class="reference internal" href="../users_guide/ocean/tasks/template.html#ocean-category-of-task"><span class="std std-ref"></span></a></p>
 <p>The Developer’s guide for each component should contain:</p>
 <ul class="simple">
 <li><p>Relevant technical details about development specific to that component</p></li>
-<li><p>A page for each test group:</p>
+<li><p>A page for each category of tasks:</p>
 <ul>
-<li><p>A description of any development-specific details of that test group</p></li>
+<li><p>A description of any development-specific details common to all tasks in
+this category</p></li>
 <li><p>A description of shared config, namelist and streams files</p></li>
 <li><p>A description of shared steps</p></li>
-<li><p>A description of any other shared framework code for the test group</p></li>
+<li><p>A description of any other shared framework code shared between the tasks
+in that category</p></li>
 <li><p>A description of each task and its steps</p></li>
 </ul>
 </li>
 <li><p>Technical details on the shared framework for the component</p></li>
 </ul>
-<p>Finally, all functions in the test group that are part of the public API
-(i.e. all functions that don’t start with an underscore) should be added to
-<code class="docutils literal notranslate"><span class="pre">docs/&lt;component&gt;/api.md</span></code>:</p>
+<p>Finally, all functions in the tasks and their shared framework that are part of
+the public API (i.e. all functions that don’t start with an underscore) should
+be added to <code class="docutils literal notranslate"><span class="pre">docs/&lt;component&gt;/api.md</span></code>:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">### baroclinic_channel</span>
 
 ```{eval-rst}
