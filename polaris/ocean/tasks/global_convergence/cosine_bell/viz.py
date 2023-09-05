@@ -15,25 +15,25 @@ class VizMap(MappingFileStep):
     mesh_name : str
         The name of the mesh
     """
-    def __init__(self, task, name, subdir, mesh_name):
+    def __init__(self, component, name, subdir, mesh_name):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str
             The name of the step
 
         subdir : str
-            The subdirectory in the test case's work directory for the step
+            The subdirectory for the step
 
         mesh_name : str
             The name of the mesh
         """
-        super().__init__(task=task, name=name, subdir=subdir,
+        super().__init__(component=component, name=name, subdir=subdir,
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
@@ -63,14 +63,14 @@ class Viz(Step):
     mesh_name : str
         The name of the mesh
     """
-    def __init__(self, task, name, subdir, viz_map, mesh_name):
+    def __init__(self, component, name, subdir, viz_map, mesh_name):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str
             The name of the step
@@ -85,7 +85,7 @@ class Viz(Step):
         mesh_name : str
             The name of the mesh
         """
-        super().__init__(task=task, name=name, subdir=subdir)
+        super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
             target='../init/mesh.nc')

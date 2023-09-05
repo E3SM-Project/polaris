@@ -10,22 +10,22 @@ class Init(Step):
     """
     A step for an initial condition for for the cosine bell test case
     """
-    def __init__(self, task, mesh_name):
+    def __init__(self, component, name, subdir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell  # noqa: E501
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
-        mesh_name : str
-            The name of the mesh
+        name : str
+            The name of the step
+
+        subdir : str
+            The subdirectory for the step
         """
-
-        super().__init__(task=task,
-                         name=f'{mesh_name}_init',
-                         subdir=f'{mesh_name}/init')
+        super().__init__(component=component, name=name, subdir=subdir)
 
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
