@@ -110,7 +110,7 @@
   <h1>Source code for polaris.ocean.tasks.baroclinic_channel.threads</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannelTestCase</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.validate</span> <span class="kn">import</span> <span class="n">Validate</span>
 
 
 <div class="viewcode-block" id="Threads"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.threads.Threads.html#polaris.ocean.tasks.baroclinic_channel.threads.Threads">[docs]</a><span class="k">class</span> <span class="nc">Threads</span><span class="p">(</span><span class="n">BaroclinicChannelTestCase</span><span class="p">):</span>
@@ -135,25 +135,15 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;threads&#39;</span><span class="p">)</span>
 
+        <span class="n">subdirs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">openmp_threads</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1">thread&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Forward</span><span class="p">(</span>
                 <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="Threads.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.threads.Threads.validate.html#polaris.ocean.tasks.baroclinic_channel.threads.Threads.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
-<span class="sd">        ``normalVelocity`` in the ``1thread`` and ``2thread`` steps with each</span>
-<span class="sd">        other and with a baseline if one was provided</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-        <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;1thread/output.nc&#39;</span><span class="p">,</span>
-                          <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;2thread/output.nc&#39;</span><span class="p">)</span></div></div>
+                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">subdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Validate</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_subdirs</span><span class="o">=</span><span class="n">subdirs</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

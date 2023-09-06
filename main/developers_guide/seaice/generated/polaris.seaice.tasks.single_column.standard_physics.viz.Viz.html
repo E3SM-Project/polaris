@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run" href="polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run.html" />
-    <link rel="prev" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate" href="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate.html" />
+    <link rel="prev" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" href="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -155,7 +155,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
@@ -176,6 +176,9 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -186,7 +189,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate.html" class="btn btn-neutral float-left" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.validate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html" class="btn btn-neutral float-left" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run.html" class="btn btn-neutral float-right" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

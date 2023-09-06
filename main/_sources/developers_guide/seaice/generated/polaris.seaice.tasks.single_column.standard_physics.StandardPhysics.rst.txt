@@ -17,7 +17,6 @@
       ~StandardPhysics.add_step
       ~StandardPhysics.check_validation
       ~StandardPhysics.configure
-      ~StandardPhysics.validate
    
    
 

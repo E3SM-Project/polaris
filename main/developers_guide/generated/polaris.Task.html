@@ -165,7 +165,7 @@ during setup and read from during run</p></li>
 <li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The task’s work directory, defined during setup as the combination
 of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p></li>
 <li><p><strong>base_work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The base work directory</p></li>
-<li><p><strong>baseline_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Location of the same task within the baseline work directory,
+<li><p><strong>baseline_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Location of the same task within the baseline work directory,
 for use in comparing variables and timers</p></li>
 <li><p><strong>stdout_logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.11)"><em>logging.Logger</em></a>) – A logger for output from the task that goes to stdout regardless
 of whether <code class="docutils literal notranslate"><span class="pre">logger</span></code> is a log file or stdout</p></li>
@@ -214,9 +214,6 @@ or failed internal and baseline validation.</p></li>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this task.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Task.validate.html#polaris.Task.validate" title="polaris.Task.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>()</p></td>
-<td><p>Tasks can override this method to perform validation of variables and timers</p></td>
 </tr>
 </tbody>
 </table>

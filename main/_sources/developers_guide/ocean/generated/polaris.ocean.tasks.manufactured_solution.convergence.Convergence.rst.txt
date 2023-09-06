@@ -17,7 +17,6 @@
       ~Convergence.add_step
       ~Convergence.check_validation
       ~Convergence.configure
-      ~Convergence.validate
    
    
 

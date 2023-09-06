@@ -1,0 +1,32 @@
+﻿polaris.ocean.tasks.baroclinic\_channel.validate.Validate
+=========================================================
+
+.. currentmodule:: polaris.ocean.tasks.baroclinic_channel.validate
+
+.. autoclass:: Validate
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Validate.__init__
+      ~Validate.add_dependency
+      ~Validate.add_input_file
+      ~Validate.add_output_file
+      ~Validate.constrain_resources
+      ~Validate.process_inputs_and_outputs
+      ~Validate.run
+      ~Validate.runtime_setup
+      ~Validate.set_resources
+      ~Validate.setup
+      ~Validate.validate_baselines
+   
+   
+
+   
+   
+   

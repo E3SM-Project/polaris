@@ -76,9 +76,9 @@
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#validating-variables-against-a-baseline">Validating variables against a baseline</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#validating-variables">Validating variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#norms">Norms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#validating-timers">Validating timers</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
@@ -131,47 +131,69 @@
 <p>Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.</p>
+<section id="validating-variables-against-a-baseline">
+<h2>Validating variables against a baseline<a class="headerlink" href="#validating-variables-against-a-baseline" title="Permalink to this heading"></a></h2>
+<p>The easiest type of validation you can add is against a baseline if one is
+provided during setup (see <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or
+<a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>).  To do this, simply add a list of variables in
+the keyword argument <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> to the
+:py:meth:<code class="docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code> method.  As an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+
+
+<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+                             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;layerThickness&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Here, we add <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> as an output of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, and indicated
+that the variables <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> should
+be compared against a baseline, if one is provided, after the step as run.</p>
+</section>
 <section id="validating-variables">
 <h2>Validating variables<a class="headerlink" href="#validating-variables" title="Permalink to this heading"></a></h2>
-<p>The function <a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> can be used to
-compare variables in a file with a given relative path (<code class="docutils literal notranslate"><span class="pre">filename1</span></code>) with
-the same variables in another file (<code class="docutils literal notranslate"><span class="pre">filename2</span></code>) and/or against a baseline.</p>
-<p>As a simple example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-<span class="n">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">],</span>
-                  <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;forward/output.nc&#39;</span><span class="p">)</span>
+<p>In addition to baseline validation, it is often useful to compare files between
+steps of a run.  This is done by adding later step to perform the validation.
+This validation step will use the function
+<a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> to compare variables in a file
+with a given relative path (<code class="docutils literal notranslate"><span class="pre">filename1</span></code>) with the same variables in another
+file (<code class="docutils literal notranslate"><span class="pre">filename2</span></code>).</p>
+<p>As a compact example of creating a validate step for a restart run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+
+<span class="k">class</span> <span class="nc">Validate</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;validate&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_full_run.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../full_run/output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_restart_run.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../restart_run/output.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
+        <span class="n">all_pass</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> 
+                                     <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;output_full_run.nc&#39;</span><span class="p">,</span>
+                                     <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;output_restart_run.nc&#39;</span><span class="p">,</span>
+                                     <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_pass</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Validation failed comparing outputs between &#39;</span>
+                             <span class="s1">&#39;full_run and restart_run&#39;</span><span class="p">)</span>
+
 </pre></div>
 </div>
-<p>In this case, comparison will only take place if a baseline run is provided
-when the task is set up (see <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or
-<a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>), since the keyword argument <code class="docutils literal notranslate"><span class="pre">filename2</span></code> was not
-provided.  If a baseline is provided, the 4 prognostic variables are compared
-between the file <code class="docutils literal notranslate"><span class="pre">forward/output.nc</span></code> and the same file in the corresponding
-location within the baseline.</p>
-<p>Here is a slightly more complex example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-<span class="n">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">],</span>
-                  <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;4proc/output.nc&#39;</span><span class="p">,</span>
-                  <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;8proc/output.nc&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>In this case, we compare the 4 prognostic variables in <code class="docutils literal notranslate"><span class="pre">4proc/output.nc</span></code>
-with the same in <code class="docutils literal notranslate"><span class="pre">8proc/output.nc</span></code> to make sure they are identical.  If
-a baseline directory was provided, these 4 variables in each file will also be
-compared with those in the corresponding files in the baseline.</p>
-<p>By default, the comparison will only be performed if both the <code class="docutils literal notranslate"><span class="pre">4proc</span></code> and
-<code class="docutils literal notranslate"><span class="pre">8proc</span></code> steps have been run (otherwise, we cannot be sure the data we want
-will be available).  If one of the steps was not run (if the user is running
-steps one at a time or has altered the <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> config option to remove
-some steps), the function will skip validation, logging a message that
-validation was not performed because of the missing step(s).  You can pass
-the keyword argument <code class="docutils literal notranslate"><span class="pre">skip_if_step_not_run=False</span></code> to force validation to run
-(and possibly to fail because the output is not available) even if the user did
-not run the step involved in the validation.</p>
-<p>In any of these cases, if comparison fails, the failure is stored in the
-<code class="docutils literal notranslate"><span class="pre">validation</span></code> attribute of the task, and a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> will be raised
-later by the framework, terminating execution of the task.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>, typical output will look like this:</p>
+<p>The 2 files <code class="docutils literal notranslate"><span class="pre">../full_run/output.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">../restart_run/output.nc</span></code> are
+symlinked locally and compared to make sure the variables <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical between the
+two.</p>
+<p>By default, the output is “quiet”.  If you set <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>, typical output
+will look like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Beginning variable comparisons for all time levels of field &#39;temperature&#39;. Note any time levels reported are 0-based.
     Pass thresholds are:
        L1: 0.00000000000000e+00
@@ -277,53 +299,23 @@ normalVelocity       Time index: 0, 1, 2
        /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
 </pre></div>
 </div>
-<p>By default, the function checks to make sure <code class="docutils literal notranslate"><span class="pre">filename1</span></code> and, if provided,
-<code class="docutils literal notranslate"><span class="pre">filename2</span></code> are output from one of the steps in the task.  In general,
-validation should be performed on outputs of the steps in this task that
-are explicitly added with <a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  This
-check can be disabled by setting <code class="docutils literal notranslate"><span class="pre">check_outputs=False</span></code>.</p>
 </section>
 <section id="norms">
 <h2>Norms<a class="headerlink" href="#norms" title="Permalink to this heading"></a></h2>
-<p>In the unlikely circumstance that you would like to allow comparison to pass
-with non-zero differences between variables, you can supply keyword arguments
+<p>In circumstance where you would like to allow comparison to pass with non-zero
+differences between variables, you can supply keyword arguments
 <code class="docutils literal notranslate"><span class="pre">l1_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">l2_norm</span></code> and/or <code class="docutils literal notranslate"><span class="pre">linf_norm</span></code> to give the desired maximum
 values for these norms, above which the comparison will fail, raising a
-<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.  These norms only affect the comparison between <code class="docutils literal notranslate"><span class="pre">filename1</span></code>
-and <code class="docutils literal notranslate"><span class="pre">filename2</span></code>, not with the baseline (which always uses 0.0 for these
-norms).  If you do want certain norms checked, you can pass their value as
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.  If you do want certain norms checked, you can pass their value as
 <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <p>If you want different nonzero norm values for different variables,
 the easiest solution is to call <a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a>
-separately for each variable and  with different norm values specified.
-<a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> can safely be called multiple
-times without clobbering a previous result.  When you specify a nonzero norm,
-you may want polaris to print the norm values it is using for comparison
+separately for each variable and with different norm values specified.
+You will need to “and” together the results from calling
+<a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a>.  When you specify a nonzero
+norm, you may want polaris to print the norm values it is using for comparison
 when the results are printed.  To do so, use the optional <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>
 argument.</p>
-</section>
-<section id="validating-timers">
-<h2>Validating timers<a class="headerlink" href="#validating-timers" title="Permalink to this heading"></a></h2>
-<p>Timer validation is qualitatively similar to variable validation except that
-no errors are raised, meaning that the user must manually look at the
-comparison and make a judgment call about whether any changes in timing are
-large enough to indicate performance problems.</p>
-<p>Calls to <a class="reference internal" href="../generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_timers()</span></code></a> include a list of MPAS
-timers to compare and at least 1 directory where MPAS has been run and timers
-for the run are available.</p>
-<p>Here is a typical call:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">timers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time integration&#39;</span><span class="p">]</span>
-<span class="n">compare_timers</span><span class="p">(</span><span class="n">timers</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">rundir1</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Typical output will look like:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Comparing timer time integration:
-             Base: 0.92264
-          Compare: 0.82317
-   Percent Change: -10.781019682649793%
-          Speedup: 1.1208377370409515
-</pre></div>
-</div>
 </section>
 </section>
 

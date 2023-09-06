@@ -23,6 +23,7 @@
       ~Step.runtime_setup
       ~Step.set_resources
       ~Step.setup
+      ~Step.validate_baselines
    
    
 

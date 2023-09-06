@@ -142,14 +142,20 @@
 <h1>polaris.Step.add_output_file<a class="headerlink" href="#polaris-step-add-output-file" title="Permalink to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Step.add_output_file">
-<span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">add_output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.add_output_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.add_output_file" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">add_output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.add_output_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.add_output_file" title="Permalink to this definition"></a></dt>
 <dd><p>Add the output file that must be produced by this step and may be made
 available as an input to steps, perhaps in other tasks.  This file
 must exist after the task has run or an exception will be raised.</p>
+<p>Optionally, a list of variables can be provided for validation against
+a baseline (if one is provided), once the step has been run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The relative path of the output file within the step’s work
-directory</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The relative path of the output file within the step’s work
+directory</p></li>
+<li><p><strong>validate_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – A list of variable names to compare with a baseline (if one is
+provided)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

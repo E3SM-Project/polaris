@@ -350,6 +350,10 @@
         <span class="c1"># set up the step</span>
         <span class="n">step</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
+        <span class="c1"># add the baseline directory for this step</span>
+        <span class="k">if</span> <span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
         <span class="c1"># process input, output, namelist and streams files</span>
         <span class="n">step</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span>
 

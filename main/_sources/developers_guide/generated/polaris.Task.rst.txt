@@ -17,7 +17,6 @@
       ~Task.add_step
       ~Task.check_validation
       ~Task.configure
-      ~Task.validate
    
    
 

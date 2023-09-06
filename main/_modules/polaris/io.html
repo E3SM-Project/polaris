@@ -299,7 +299,7 @@
             <span class="k">raise</span> <span class="ne">IsADirectoryError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Cannot symlink over existing directory: &#39;</span><span class="si">{</span><span class="n">link_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">temp_link_name</span><span class="p">,</span> <span class="n">link_name</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">temp_link_name</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">temp_link_name</span><span class="p">)</span>
         <span class="k">raise</span></div>

@@ -23,6 +23,7 @@
       ~Viz.runtime_setup
       ~Viz.set_resources
       ~Viz.setup
+      ~Viz.validate_baselines
    
    
 

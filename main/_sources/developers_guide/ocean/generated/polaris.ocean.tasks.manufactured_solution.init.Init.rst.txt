@@ -23,6 +23,7 @@
       ~Init.runtime_setup
       ~Init.set_resources
       ~Init.setup
+      ~Init.validate_baselines
    
    
 

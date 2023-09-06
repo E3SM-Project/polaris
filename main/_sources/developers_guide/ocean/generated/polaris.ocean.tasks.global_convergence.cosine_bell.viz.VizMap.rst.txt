@@ -32,6 +32,7 @@
       ~VizMap.src_from_lon_lat
       ~VizMap.src_from_mpas
       ~VizMap.src_from_proj
+      ~VizMap.validate_baselines
    
    
 

@@ -83,11 +83,12 @@ Output from tasks and their steps are stored in log files in the
 `case_output` subdirectory of the base work directory. If the function is
 used for a single task, it will run the steps of that task, writing
 output for each step to a log file starting with the step's name. In either
-case (suite or individual test), it displays a `PASS` or `FAIL` message for
-the test execution, as well as similar messages for validation involving output
-within the task or suite and validation against a baseline (depending on
-the implementation of the `validate()` method in the task and whether a
-baseline was provided during setup).
+case (suite or individual test), it displays a `SUCCESS` or `ERROR` message for
+the execution of each step, indicates whether baseline comparisons `PASS` or
+`FAIL` for any steps that include them (and if a baseline was provided), 
+and finally indicates if the overall task execution was `SUCCESS` or `ERROR`.
+Execution times are provided for individual steps, tasks and the suite as a
+whole.
 
 {py:func}`polaris.run.run_single_step()` runs only the selected step from a
 given task, skipping any others, displaying the output in the terminal

@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.single\_column.cvmix.CVMix.validate
-=======================================================
-
-.. currentmodule:: polaris.ocean.tasks.single_column.cvmix
-
-.. automethod:: CVMix.validate

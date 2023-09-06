@@ -184,7 +184,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#validate">validate</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_variables.html">polaris.validate.compare_variables</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.validate.compare_timers.html">polaris.validate.compare_timers</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#viz">viz</a><ul>
@@ -411,10 +410,7 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this task.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.validate.html#polaris.Task.validate" title="polaris.Task.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.validate</span></code></a>()</p></td>
-<td><p>Tasks can override this method to perform validation of variables and timers</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>(step[, run_by_default])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>(step[, run_by_default])</p></td>
 <td><p>Add a step to the task</p></td>
 </tr>
 </tbody>
@@ -449,7 +445,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_input_file</span></code></a>([filename, target, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename[, validate_vars])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_dependency</span></code></a>(step[, name])</p></td>
@@ -809,11 +805,8 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_variables</span></code></a>(task, variables, filename1)</p></td>
-<td><p>Compare variables between files in the current task and/or with the baseline results.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.validate.compare_timers.html#polaris.validate.compare_timers" title="polaris.validate.compare_timers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_timers</span></code></a>(task, timers, rundir1[, rundir2])</p></td>
-<td><p>Compare variables between files in the current task and/or with the baseline results.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_variables</span></code></a>(variables, filename1, ...)</p></td>
+<td><p>compare variables in the two files</p></td>
 </tr>
 </tbody>
 </table>

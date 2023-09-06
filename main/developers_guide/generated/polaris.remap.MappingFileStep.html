@@ -197,7 +197,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
@@ -244,6 +244,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.remap.MappingFileStep.src_from_proj.html#polaris.remap.MappingFileStep.src_from_proj" title="polaris.remap.MappingFileStep.src_from_proj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src_from_proj</span></code></a>(filename, mesh_name[, x_var, ...])</p></td>
 <td><p>Set the source grid from a file with a projection grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>
 </table>

@@ -17,7 +17,6 @@
       ~Threads.add_step
       ~Threads.check_validation
       ~Threads.configure
-      ~Threads.validate
    
    
 

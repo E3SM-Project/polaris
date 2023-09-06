@@ -200,11 +200,12 @@ Output from tasks and their steps are stored in log files in the
 <code class="docutils literal notranslate"><span class="pre">case_output</span></code> subdirectory of the base work directory. If the function is
 used for a single task, it will run the steps of that task, writing
 output for each step to a log file starting with the step’s name. In either
-case (suite or individual test), it displays a <code class="docutils literal notranslate"><span class="pre">PASS</span></code> or <code class="docutils literal notranslate"><span class="pre">FAIL</span></code> message for
-the test execution, as well as similar messages for validation involving output
-within the task or suite and validation against a baseline (depending on
-the implementation of the <code class="docutils literal notranslate"><span class="pre">validate()</span></code> method in the task and whether a
-baseline was provided during setup).</p>
+case (suite or individual test), it displays a <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code> message for
+the execution of each step, indicates whether baseline comparisons <code class="docutils literal notranslate"><span class="pre">PASS</span></code> or
+<code class="docutils literal notranslate"><span class="pre">FAIL</span></code> for any steps that include them (and if a baseline was provided),
+and finally indicates if the overall task execution was <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.
+Execution times are provided for individual steps, tasks and the suite as a
+whole.</p>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.run_single_step()</span></code> runs only the selected step from a
 given task, skipping any others, displaying the output in the terminal
 window rather than a log file.</p>

@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config" href="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html" />
-    <link rel="prev" title="polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate" href="polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate.html" />
+    <link rel="prev" title="polaris.ocean.tasks.baroclinic_channel.restart.Restart" href="polaris.ocean.tasks.baroclinic_channel.restart.Restart.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -166,7 +166,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
@@ -211,6 +211,9 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -221,7 +224,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tasks.baroclinic_channel.restart.Restart.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.baroclinic_channel.restart.Restart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -71,7 +71,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#task-attributes">Task attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configure">configure()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#validate">validate()</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="steps.html">Steps</a></li>
@@ -132,13 +131,8 @@ steps one at a time).</p>
 incorporate modules for its steps and/or config files, namelists, and streams
 files.  The task must include a class that descends from
 <a class="reference internal" href="../generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>.  In addition to a constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code>),
-the class will often override the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> and <code class="docutils literal notranslate"><span class="pre">validate()</span></code> methods of
-the base class, as described below.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in <a class="reference internal" href="../generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a> is deprecated; behaviors
-at runtime can instead be handled by individual steps by overriding the
-<a class="reference internal" href="../generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code></a> and
-<a class="reference internal" href="../generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code></a> methods.  Details about these methods
-are described further in <a class="reference internal" href="steps.html#dev-steps"><span class="std std-ref">Steps</span></a>.</p>
+the class will often override the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method of the base class, as
+described below.</p>
 <section id="task-attributes">
 <span id="dev-task-class"></span><h2>Task attributes<a class="headerlink" href="#task-attributes" title="Permalink to this heading"></a></h2>
 <p>The base class <a class="reference internal" href="../generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a> has a large number of attributes
@@ -454,46 +448,6 @@ that belong to a task.  Steps should be added during init and altered only
 in their own <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> methods.</p>
 <p>Tasks that don’t need to change config options don’t need to override
 <code class="docutils literal notranslate"><span class="pre">configure()</span></code> at all.</p>
-</section>
-<section id="validate">
-<span id="dev-task-validate"></span><h2>validate()<a class="headerlink" href="#validate" title="Permalink to this heading"></a></h2>
-<p>The base class’s <a class="reference internal" href="../generated/polaris.Task.validate.html#polaris.Task.validate" title="polaris.Task.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.validate()</span></code></a> can be overridden to
-perform <a class="reference internal" href="../framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a> of variables in output files from a step and/or
-timers from the E3SM component.</p>
-<p>In  <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.init.Init.validate()</span></code>, we see
-examples of validation of variables from output files:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tasks can override this method to perform validation of variables</span>
-<span class="sd">    and timers</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span>
-
-    <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
-    <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                      <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;init/initial_state.nc&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_bgc</span><span class="p">:</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;PO4&#39;</span><span class="p">,</span> <span class="s1">&#39;NO3&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;SiO3&#39;</span><span class="p">,</span> <span class="s1">&#39;NH4&#39;</span><span class="p">,</span> <span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;O2&#39;</span><span class="p">,</span> <span class="s1">&#39;DIC&#39;</span><span class="p">,</span> <span class="s1">&#39;DIC_ALT_CO2&#39;</span><span class="p">,</span> <span class="s1">&#39;ALK&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;DOC&#39;</span><span class="p">,</span> <span class="s1">&#39;DON&#39;</span><span class="p">,</span> <span class="s1">&#39;DOFe&#39;</span><span class="p">,</span> <span class="s1">&#39;DOP&#39;</span><span class="p">,</span> <span class="s1">&#39;DOPr&#39;</span><span class="p">,</span> <span class="s1">&#39;DONr&#39;</span><span class="p">,</span> <span class="s1">&#39;zooC&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;spChl&#39;</span><span class="p">,</span> <span class="s1">&#39;spC&#39;</span><span class="p">,</span> <span class="s1">&#39;spFe&#39;</span><span class="p">,</span> <span class="s1">&#39;spCaCO3&#39;</span><span class="p">,</span> <span class="s1">&#39;diatChl&#39;</span><span class="p">,</span> <span class="s1">&#39;diatC&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;diatFe&#39;</span><span class="p">,</span> <span class="s1">&#39;diatSi&#39;</span><span class="p">,</span> <span class="s1">&#39;diazChl&#39;</span><span class="p">,</span> <span class="s1">&#39;diazC&#39;</span><span class="p">,</span> <span class="s1">&#39;diazFe&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;phaeoChl&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoC&#39;</span><span class="p">,</span> <span class="s1">&#39;phaeoFe&#39;</span><span class="p">,</span> <span class="s1">&#39;DMS&#39;</span><span class="p">,</span> <span class="s1">&#39;DMSP&#39;</span><span class="p">,</span> <span class="s1">&#39;PROT&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;POLY&#39;</span><span class="p">,</span> <span class="s1">&#39;LIP&#39;</span><span class="p">]</span>
-        <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;init/initial_state.nc&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;landIcePressure&#39;</span><span class="p">]</span>
-        <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;ssh_adjustment/adjusted_init.nc&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>If you leave the default keyword argument <code class="docutils literal notranslate"><span class="pre">skip_if_step_not_run=True</span></code>,
-comparison will be skipped (logging a message) if one or more of the steps
-involved in the comparison was not run.</p>
 </section>
 </section>
 

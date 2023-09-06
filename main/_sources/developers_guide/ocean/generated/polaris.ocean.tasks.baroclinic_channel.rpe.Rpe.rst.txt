@@ -17,7 +17,6 @@
       ~Rpe.add_step
       ~Rpe.check_validation
       ~Rpe.configure
-      ~Rpe.validate
    
    
 

@@ -112,7 +112,7 @@
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.restart.restart_step</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">RestartStep</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.validate</span> <span class="kn">import</span> <span class="n">Validate</span>
 
 
 <div class="viewcode-block" id="Restart"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.Restart.html#polaris.ocean.tasks.baroclinic_channel.restart.Restart">[docs]</a><span class="k">class</span> <span class="nc">Restart</span><span class="p">(</span><span class="n">BaroclinicChannelTestCase</span><span class="p">):</span>
@@ -144,19 +144,10 @@
         <span class="n">restart</span> <span class="o">=</span> <span class="n">RestartStep</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                               <span class="n">name</span><span class="o">=</span><span class="s1">&#39;restart_run&#39;</span><span class="p">)</span>
         <span class="n">restart</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">full</span><span class="p">,</span> <span class="n">full</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">restart</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">restart</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Restart.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate.html#polaris.ocean.tasks.baroclinic_channel.restart.Restart.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
-<span class="sd">        ``normalVelocity`` in the ``full_run`` and ``restart_run`` steps with</span>
-<span class="sd">        each other and with a baseline if one was provided</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-        <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                          <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;full_run/output.nc&#39;</span><span class="p">,</span>
-                          <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;restart_run/output.nc&#39;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Validate</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                               <span class="n">step_subdirs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;full_run&#39;</span><span class="p">,</span> <span class="s1">&#39;restart_run&#39;</span><span class="p">]))</span></div></div>
 </pre></div>
 
            </div>

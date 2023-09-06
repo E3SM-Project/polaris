@@ -32,6 +32,7 @@
       ~ModelStep.set_resources
       ~ModelStep.setup
       ~ModelStep.update_namelist_pio
+      ~ModelStep.validate_baselines
    
    
 

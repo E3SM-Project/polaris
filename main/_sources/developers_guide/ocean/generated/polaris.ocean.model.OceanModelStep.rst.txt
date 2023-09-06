@@ -33,6 +33,7 @@
       ~OceanModelStep.set_resources
       ~OceanModelStep.setup
       ~OceanModelStep.update_namelist_pio
+      ~OceanModelStep.validate_baselines
    
    
 

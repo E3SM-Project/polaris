@@ -32,6 +32,7 @@
       ~MappingFileStep.src_from_lon_lat
       ~MappingFileStep.src_from_mpas
       ~MappingFileStep.src_from_proj
+      ~MappingFileStep.validate_baselines
    
    
 

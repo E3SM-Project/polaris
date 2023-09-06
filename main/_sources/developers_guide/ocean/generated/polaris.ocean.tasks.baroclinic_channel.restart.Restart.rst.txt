@@ -17,7 +17,6 @@
       ~Restart.add_step
       ~Restart.check_validation
       ~Restart.configure
-      ~Restart.validate
    
    
 

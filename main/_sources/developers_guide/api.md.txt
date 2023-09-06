@@ -132,7 +132,6 @@ seaice/api
 
    Task
    Task.configure
-   Task.validate
    Task.add_step
 ```
 
@@ -363,7 +362,6 @@ seaice/api
    :toctree: generated/
 
    compare_variables
-   compare_timers
 ```
 
 ### viz

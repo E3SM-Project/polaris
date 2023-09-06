@@ -118,9 +118,6 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    resolution : float</span>
-<span class="sd">        The resolution of the test case in km</span>
-
 <span class="sd">    resources_fixed : bool</span>
 <span class="sd">        Whether resources were set already and shouldn&#39;t be updated</span>
 <span class="sd">        algorithmically</span>
@@ -130,14 +127,10 @@
 
 <span class="sd">    btr_dt : float</span>
 <span class="sd">        The model barotropic time step in seconds</span>
-
-<span class="sd">    run_time_steps : int or None</span>
-<span class="sd">        Number of time steps to run for</span>
-<span class="sd">        NOTE: not currently used</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Forward.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.forward.Forward.html#polaris.ocean.tasks.single_column.forward.Forward.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">validate_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -145,9 +138,6 @@
 <span class="sd">        ----------</span>
 <span class="sd">        task : polaris.Task</span>
 <span class="sd">            The test case this step belongs to</span>
-
-<span class="sd">        resolution : km</span>
-<span class="sd">            The resolution of the test case in km</span>
 
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the test case</span>
@@ -167,6 +157,9 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads the step will use</span>
 
+<span class="sd">        validate_vars : list, optional</span>
+<span class="sd">            A list of variable names to compare with a baseline (if one is</span>
+<span class="sd">            provided)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
@@ -184,7 +177,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.single_column&#39;</span><span class="p">,</span>
                            <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">resources_fixed</span> <span class="o">=</span> <span class="p">(</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 

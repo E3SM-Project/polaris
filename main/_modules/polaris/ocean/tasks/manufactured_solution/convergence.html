@@ -153,18 +153,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;manufactured_solution.cfg&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Convergence.validate"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.validate.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare ``layerThickness`` and ``normalVelocity`` in the ``forward``</span>
-<span class="sd">        step with a baseline if one was provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
-            <span class="n">compare_variables</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
-                              <span class="n">filename1</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s1">km/forward/output.nc&#39;</span><span class="p">)</span></div></div>
+            <span class="s1">&#39;manufactured_solution.cfg&#39;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

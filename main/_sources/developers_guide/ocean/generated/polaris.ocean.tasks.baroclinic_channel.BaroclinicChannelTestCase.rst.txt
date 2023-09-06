@@ -17,7 +17,6 @@
       ~BaroclinicChannelTestCase.add_step
       ~BaroclinicChannelTestCase.check_validation
       ~BaroclinicChannelTestCase.configure
-      ~BaroclinicChannelTestCase.validate
    
    
 

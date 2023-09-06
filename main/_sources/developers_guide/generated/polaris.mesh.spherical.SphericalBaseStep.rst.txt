@@ -24,6 +24,7 @@
       ~SphericalBaseStep.save_and_plot_cell_width
       ~SphericalBaseStep.set_resources
       ~SphericalBaseStep.setup
+      ~SphericalBaseStep.validate_baselines
    
    
 

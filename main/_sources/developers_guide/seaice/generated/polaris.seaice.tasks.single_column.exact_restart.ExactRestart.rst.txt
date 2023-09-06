@@ -17,7 +17,6 @@
       ~ExactRestart.add_step
       ~ExactRestart.check_validation
       ~ExactRestart.configure
-      ~ExactRestart.validate
    
    
 

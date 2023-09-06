@@ -24,10 +24,11 @@
    forward.Forward
 
    exact_restart.ExactRestart
-   exact_restart.ExactRestart.validate
+
+   exact_restart.validate.Validate
+   exact_restart.validate.Validate.run
 
    standard_physics.StandardPhysics
-   standard_physics.StandardPhysics.validate
 
    standard_physics.viz.Viz
    standard_physics.viz.Viz.run

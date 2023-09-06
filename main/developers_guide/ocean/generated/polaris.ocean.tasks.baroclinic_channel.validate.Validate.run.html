@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate</title>
+  <title>polaris.ocean.tasks.baroclinic_channel.validate.Validate.run</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks" href="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks.html" />
-    <link rel="prev" title="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence" href="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.html" />
+    <link rel="next" title="polaris.ocean.tasks.baroclinic_channel.viz.Viz" href="polaris.ocean.tasks.baroclinic_channel.viz.Viz.html" />
+    <link rel="prev" title="polaris.ocean.tasks.baroclinic_channel.validate.Validate" href="polaris.ocean.tasks.baroclinic_channel.validate.Validate.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -113,9 +113,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate</li>
+      <li class="breadcrumb-item active">polaris.ocean.tasks.baroclinic_channel.validate.Validate.run</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.validate.Validate.run.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -123,13 +123,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-tasks-inertial-gravity-wave-convergence-convergence-validate">
-<h1>polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate<a class="headerlink" href="#polaris-ocean-tasks-inertial-gravity-wave-convergence-convergence-validate" title="Permalink to this heading"></a></h1>
+  <section id="polaris-ocean-tasks-baroclinic-channel-validate-validate-run">
+<h1>polaris.ocean.tasks.baroclinic_channel.validate.Validate.run<a class="headerlink" href="#polaris-ocean-tasks-baroclinic-channel-validate-validate-run" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate">
-<span class="sig-prename descclassname"><span class="pre">Convergence.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/inertial_gravity_wave/convergence.html#Convergence.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate" title="Permalink to this definition"></a></dt>
-<dd><p>Compare <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">forward</span></code>
-step with a baseline if one was provided.</p>
+<dt class="sig sig-object py" id="polaris.ocean.tasks.baroclinic_channel.validate.Validate.run">
+<span class="sig-prename descclassname"><span class="pre">Validate.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/baroclinic_channel/validate.html#Validate.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.baroclinic_channel.validate.Validate.run" title="Permalink to this definition"></a></dt>
+<dd><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the outputs of two previous steps with each other</p>
 </dd></dl>
 
 </section>
@@ -138,8 +138,8 @@ step with a baseline if one was provided.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.global_convergence.add_cosine_bell_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.tasks.baroclinic_channel.validate.Validate.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.baroclinic_channel.validate.Validate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tasks.baroclinic_channel.viz.Viz.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.baroclinic_channel.viz.Viz" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -168,7 +168,7 @@ step with a baseline if one was provided.</p>
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence.validate.html">main</a></dd>
+      <dd><a href="polaris.ocean.tasks.baroclinic_channel.validate.Validate.run.html">main</a></dd>
     </dl>
   </div>
 </div><script>

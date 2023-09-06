@@ -17,7 +17,6 @@
       ~Decomp.add_step
       ~Decomp.check_validation
       ~Decomp.configure
-      ~Decomp.validate
    
    
 

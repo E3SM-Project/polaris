@@ -114,7 +114,6 @@ import os
 
 from polaris import Task
 from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.validate import compare_variables
 
 
 class BaroclinicChannelTestCase(Task):
@@ -134,12 +133,6 @@ class BaroclinicChannelTestCase(Task):
     def configure(self):
         self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
                                      'baroclinic_channel.cfg')
-
-    def validate(self):
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness']
-        compare_variables(task=self, variables=variables,
-                          filename1='init/initial_state.nc')
 ```
 
 This parent class takes care of defining the subdirectory for other tests,

@@ -33,6 +33,7 @@
       ~RestartStep.set_resources
       ~RestartStep.setup
       ~RestartStep.update_namelist_pio
+      ~RestartStep.validate_baselines
    
    
 
