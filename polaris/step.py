@@ -497,8 +497,8 @@ class Step:
             Whether the outputs were successfully validated against a baseline
         """
         if self.work_dir is None:
-            raise ValueError('Baselines cannot be validated before the work '
-                             'directory has been set')
+            raise ValueError('The work directory must be set before the step '
+                             'outputs can be validated against baselines.')
         compared = False
         success = True
         if self.baseline_dir is not None:
