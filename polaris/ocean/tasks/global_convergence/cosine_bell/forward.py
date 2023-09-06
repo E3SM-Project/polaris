@@ -51,7 +51,8 @@ class Forward(OceanModelStep):
         self.add_input_file(filename='graph.info',
                             target='../mesh/graph.info')
 
-        self.add_output_file(filename='output.nc')
+        self.add_output_file(filename='output.nc',
+                             validate_vars=['normalVelocity', 'tracer1'])
 
     def compute_cell_count(self):
         """

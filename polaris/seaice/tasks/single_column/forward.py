@@ -4,18 +4,16 @@ from polaris import ModelStep
 class Forward(ModelStep):
     """
     A step for staging a mesh for “single column” test cases
-
-    Attributes
-    ----------
-
     """
     def __init__(self, task, name='forward'):
         """
         Create the step
+
         Parameters
         ----------
         task : polaris.Task
           The test case this step belongs to
+
         name : str, optional
           The name of the step
         """

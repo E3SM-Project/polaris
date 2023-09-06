@@ -2,7 +2,7 @@ from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tasks.baroclinic_channel.restart.restart_step import (
     RestartStep,
 )
-from polaris.validate import compare_variables
+from polaris.ocean.tasks.baroclinic_channel.validate import Validate
 
 
 class Restart(BaroclinicChannelTestCase):
@@ -36,14 +36,5 @@ class Restart(BaroclinicChannelTestCase):
         restart.add_dependency(full, full.name)
         self.add_step(restart)
 
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``full_run`` and ``restart_run`` steps with
-        each other and with a baseline if one was provided
-        """
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(task=self, variables=variables,
-                          filename1='full_run/output.nc',
-                          filename2='restart_run/output.nc')
+        self.add_step(Validate(task=self,
+                               step_subdirs=['full_run', 'restart_run']))

@@ -3,7 +3,6 @@ from polaris.ocean.tasks.inertial_gravity_wave.analysis import Analysis
 from polaris.ocean.tasks.inertial_gravity_wave.forward import Forward
 from polaris.ocean.tasks.inertial_gravity_wave.init import Init
 from polaris.ocean.tasks.inertial_gravity_wave.viz import Viz
-from polaris.validate import compare_variables
 
 
 class Convergence(Task):
@@ -40,14 +39,3 @@ class Convergence(Task):
         self.config.add_from_package(
             'polaris.ocean.tasks.inertial_gravity_wave',
             'inertial_gravity_wave.cfg')
-
-    def validate(self):
-        """
-        Compare ``layerThickness`` and ``normalVelocity`` in the ``forward``
-        step with a baseline if one was provided.
-        """
-        super().validate()
-        variables = ['layerThickness', 'normalVelocity']
-        for res in self.resolutions:
-            compare_variables(task=self, variables=variables,
-                              filename1=f'{res}km/forward/output.nc')

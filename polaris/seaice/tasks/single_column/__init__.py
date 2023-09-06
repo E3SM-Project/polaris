@@ -6,6 +6,8 @@ def add_single_column_tasks(component):
     """
     Add various tasks that define single-column tests
 
+    Parameters
+    ----------
     component : polaris.seaice.Seaice
         the component that that the tasks will be added to
     """

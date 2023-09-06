@@ -31,15 +31,3 @@ class Default(BaroclinicChannelTestCase):
 
         self.add_step(
             Viz(task=self))
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``forward`` step with a baseline if one was
-        provided.
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(task=self, variables=variables,
-                          filename1='forward/output.nc')

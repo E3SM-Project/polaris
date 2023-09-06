@@ -10,14 +10,8 @@ A task can be a module but is usually a python package so it can
 incorporate modules for its steps and/or config files, namelists, and streams
 files.  The task must include a class that descends from
 {py:class}`polaris.Task`.  In addition to a constructor (`__init__()`),
-the class will often override the `configure()` and `validate()` methods of
-the base class, as described below.
-
-The `run()` method in {py:class}`polaris.Task` is deprecated; behaviors
-at runtime can instead be handled by individual steps by overriding the
-{py:meth}`polaris.Step.constrain_resources()` and
-{py:meth}`polaris.Step.runtime_setup()` methods.  Details about these methods
-are described further in {ref}`dev-steps`.
+the class will often override the `configure()` method of the base class, as 
+described below.
 
 (dev-task-class)=
 
@@ -375,48 +369,3 @@ in their own `setup()` or `runtime_setup()` methods.
 
 Tasks that don't need to change config options don't need to override
 `configure()` at all.
-
-(dev-task-validate)=
-
-## validate()
-
-The base class's {py:meth}`polaris.Task.validate()` can be overridden to
-perform {ref}`dev-validation` of variables in output files from a step and/or
-timers from the E3SM component.
-
-In  {py:meth}`polaris.ocean.tasks.global_ocean.init.Init.validate()`, we see
-examples of validation of variables from output files:
-
-```python
-def validate(self):
-    """
-    Tasks can override this method to perform validation of variables
-    and timers
-    """
-    steps = self.steps_to_run
-
-    variables = ['temperature', 'salinity', 'layerThickness']
-    compare_variables(task=self, variables=variables,
-                      filename1='init/initial_state.nc')
-
-    if self.with_bgc:
-        variables = [
-            'temperature', 'salinity', 'layerThickness', 'PO4', 'NO3',
-            'SiO3', 'NH4', 'Fe', 'O2', 'DIC', 'DIC_ALT_CO2', 'ALK',
-            'DOC', 'DON', 'DOFe', 'DOP', 'DOPr', 'DONr', 'zooC',
-            'spChl', 'spC', 'spFe', 'spCaCO3', 'diatChl', 'diatC',
-            'diatFe', 'diatSi', 'diazChl', 'diazC', 'diazFe',
-            'phaeoChl', 'phaeoC', 'phaeoFe', 'DMS', 'DMSP', 'PROT',
-            'POLY', 'LIP']
-        compare_variables(task=self, variables=variables,
-                          filename1='init/initial_state.nc')
-
-    if self.mesh.with_ice_shelf_cavities:
-        variables = ['ssh', 'landIcePressure']
-        compare_variables(task=self, variables=variables,
-                          filename1='ssh_adjustment/adjusted_init.nc')
-```
-
-If you leave the default keyword argument `skip_if_step_not_run=True`,
-comparison will be skipped (logging a message) if one or more of the steps
-involved in the comparison was not run.

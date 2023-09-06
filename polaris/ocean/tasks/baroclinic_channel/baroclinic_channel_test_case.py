@@ -2,7 +2,6 @@ import os
 
 from polaris import Task
 from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.validate import compare_variables
 
 
 class BaroclinicChannelTestCase(Task):
@@ -49,13 +48,3 @@ class BaroclinicChannelTestCase(Task):
         """
         self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
                                      'baroclinic_channel.cfg')
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity`` and ``layerThickness`` from the
-        initial condition with a baseline if one was provided
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness']
-        compare_variables(task=self, variables=variables,
-                          filename1='init/initial_state.nc')

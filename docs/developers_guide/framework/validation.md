@@ -6,56 +6,75 @@ Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.
 
+## Validating variables against a baseline
+
+The easiest type of validation you can add is against a baseline if one is
+provided during setup (see {ref}`dev-polaris-setup` or
+{ref}`dev-polaris-suite`).  To do this, simply add a list of variables in
+the keyword argument `validate_vars` to the
+:py:meth:`polaris.Step.add_output_file()` method.  As an example:
+
+```python
+from polaris import Step
+
+
+class Init(Step):
+    def __init__(self, task):
+        super().__init__(task=task, name='init')
+
+        self.add_output_file('initial_state.nc',
+                             validate_vars=['temperature', 'salinity',
+                                            'layerThickness'])
+```
+
+Here, we add `initial_state.nc` as an output of the `init` step, and indicated
+that the variables `temperature`, `salinity`, and `layerThickness` should
+be compared against a baseline, if one is provided, after the step as run.
+
 ## Validating variables
 
-The function {py:func}`polaris.validate.compare_variables()` can be used to
-compare variables in a file with a given relative path (`filename1`) with
-the same variables in another file (`filename2`) and/or against a baseline.
+In addition to baseline validation, it is often useful to compare files between
+steps of a run.  This is done by adding later step to perform the validation.
+This validation step will use the function 
+{py:func}`polaris.validate.compare_variables()` to compare variables in a file 
+with a given relative path (`filename1`) with the same variables in another 
+file (`filename2`).
 
-As a simple example:
-
-```python
-variables = ['temperature', 'salinity', 'layerThickness', 'normalVelocity']
-compare_variables(variables, config, work_dir=task['work_dir'],
-                  filename1='forward/output.nc')
-```
-
-In this case, comparison will only take place if a baseline run is provided
-when the task is set up (see {ref}`dev-polaris-setup` or
-{ref}`dev-polaris-suite`), since the keyword argument `filename2` was not
-provided.  If a baseline is provided, the 4 prognostic variables are compared
-between the file `forward/output.nc` and the same file in the corresponding
-location within the baseline.
-
-Here is a slightly more complex example:
+As a compact example of creating a validate step for a restart run:
 
 ```python
-variables = ['temperature', 'salinity', 'layerThickness', 'normalVelocity']
-compare_variables(variables, config, work_dir=task['work_dir'],
-                  filename1='4proc/output.nc',
-                  filename2='8proc/output.nc')
+from polaris import Step
+from polaris.validate import compare_variables
+
+class Validate(Step):
+    def __init__(self, task):
+        super().__init__(task=task, name='validate')
+        self.add_input_file(filename='output_full_run.nc',
+                            target=f'../full_run/output.nc')
+        self.add_input_file(filename='output_restart_run.nc',
+                            target=f'../restart_run/output.nc')
+
+    def run(self):
+        super().run()
+        variables = ['temperature', 'salinity', 'layerThickness',
+                     'normalVelocity']
+        all_pass = compare_variables(variables, 
+                                     filename1='output_full_run.nc',
+                                     filename2='output_restart_run.nc',
+                                     logger=self.logger)
+        if not all_pass:
+            raise ValueError('Validation failed comparing outputs between '
+                             'full_run and restart_run')
+
 ```
 
-In this case, we compare the 4 prognostic variables in `4proc/output.nc`
-with the same in `8proc/output.nc` to make sure they are identical.  If
-a baseline directory was provided, these 4 variables in each file will also be
-compared with those in the corresponding files in the baseline.
+The 2 files `../full_run/output.nc` and `../restart_run/output.nc` are 
+symlinked locally and compared to make sure the variables `temperature`, 
+`salinity`, `layerThickness`, and `normalVelocity` are identical between the
+two.
 
-By default, the comparison will only be performed if both the `4proc` and
-`8proc` steps have been run (otherwise, we cannot be sure the data we want
-will be available).  If one of the steps was not run (if the user is running
-steps one at a time or has altered the `steps_to_run` config option to remove
-some steps), the function will skip validation, logging a message that
-validation was not performed because of the missing step(s).  You can pass
-the keyword argument `skip_if_step_not_run=False` to force validation to run
-(and possibly to fail because the output is not available) even if the user did
-not run the step involved in the validation.
-
-In any of these cases, if comparison fails, the failure is stored in the
-`validation` attribute of the task, and a `ValueError` will be raised
-later by the framework, terminating execution of the task.
-
-If `quiet=False`, typical output will look like this:
+By default, the output is "quiet".  If you set `quiet=False`, typical output 
+will look like this:
 
 ```none
 Beginning variable comparisons for all time levels of field 'temperature'. Note any time levels reported are 0-based.
@@ -165,56 +184,20 @@ normalVelocity       Time index: 0, 1, 2
        /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
 ```
 
-By default, the function checks to make sure `filename1` and, if provided,
-`filename2` are output from one of the steps in the task.  In general,
-validation should be performed on outputs of the steps in this task that
-are explicitly added with {py:meth}`polaris.Step.add_output_file()`.  This
-check can be disabled by setting `check_outputs=False`.
-
 ## Norms
 
-In the unlikely circumstance that you would like to allow comparison to pass
-with non-zero differences between variables, you can supply keyword arguments
+In circumstance where you would like to allow comparison to pass with non-zero 
+differences between variables, you can supply keyword arguments
 `l1_norm`, `l2_norm` and/or `linf_norm` to give the desired maximum
 values for these norms, above which the comparison will fail, raising a
-`ValueError`.  These norms only affect the comparison between `filename1`
-and `filename2`, not with the baseline (which always uses 0.0 for these
-norms).  If you do want certain norms checked, you can pass their value as
+`ValueError`.  If you do want certain norms checked, you can pass their value as
 `None`.
 
 If you want different nonzero norm values for different variables,
 the easiest solution is to call {py:func}`polaris.validate.compare_variables()`
-separately for each variable and  with different norm values specified.
-{py:func}`polaris.validate.compare_variables()` can safely be called multiple
-times without clobbering a previous result.  When you specify a nonzero norm,
-you may want polaris to print the norm values it is using for comparison
+separately for each variable and with different norm values specified.
+You will need to "and" together the results from calling 
+{py:func}`polaris.validate.compare_variables()`.  When you specify a nonzero 
+norm, you may want polaris to print the norm values it is using for comparison
 when the results are printed.  To do so, use the optional `quiet=False`
 argument.
-
-## Validating timers
-
-Timer validation is qualitatively similar to variable validation except that
-no errors are raised, meaning that the user must manually look at the
-comparison and make a judgment call about whether any changes in timing are
-large enough to indicate performance problems.
-
-Calls to {py:func}`polaris.validate.compare_timers()` include a list of MPAS
-timers to compare and at least 1 directory where MPAS has been run and timers
-for the run are available.
-
-Here is a typical call:
-
-```python
-timers = ['time integration']
-compare_timers(timers, config, work_dir, rundir1='forward')
-```
-
-Typical output will look like:
-
-```none
-Comparing timer time integration:
-             Base: 0.92264
-          Compare: 0.82317
-   Percent Change: -10.781019682649793%
-          Speedup: 1.1208377370409515
-```

@@ -32,9 +32,11 @@ class CVMix(Task):
         self.add_step(
             Init(task=self, resolution=resolution))
 
+        validate_vars = ['temperature', 'salinity', 'layerThickness',
+                         'normalVelocity']
         self.add_step(
             Forward(task=self, ntasks=1, min_tasks=1,
-                    openmp_threads=1))
+                    openmp_threads=1, validate_vars=validate_vars))
 
         self.add_step(
             Viz(task=self))
@@ -46,15 +48,3 @@ class CVMix(Task):
         self.config.add_from_package(
             'polaris.ocean.tasks.single_column',
             'single_column.cfg')
-
-    def validate(self):
-        """
-        Compare ``temperature``, ``salinity``, ``layerThickness`` and
-        ``normalVelocity`` in the ``forward`` step with a baseline if one was
-        provided.
-        """
-        super().validate()
-        variables = ['temperature', 'salinity', 'layerThickness',
-                     'normalVelocity']
-        compare_variables(task=self, variables=variables,
-                          filename1='forward/output.nc')
