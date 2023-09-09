@@ -1,6 +1,7 @@
 import argparse
 import os
 import pickle
+import shutil
 import sys
 import warnings
 from typing import Dict, List
@@ -15,7 +16,8 @@ from polaris.machines import discover_machine
 
 def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
                 machine=None, baseline_dir=None, component_path=None,
-                suite_name='custom', cached=None, copy_executable=False):
+                suite_name='custom', cached=None, copy_executable=False,
+                clean=False):
     """
     Set up one or more tasks
 
@@ -59,6 +61,10 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
 
+    clean : bool, optional
+        Whether to delete the contents of the base work directory before
+        setting up tasks
+
     Returns
     -------
     tasks : dict of polaris.Task
@@ -72,7 +78,17 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         print('Warning: no base work directory was provided so setting up in '
               'the current directory.')
         work_dir = os.getcwd()
+        if clean:
+            print('Warning: Polaris refuses to clean the current directory---'
+                  'too dangerous!')
+            clean = False
     work_dir = os.path.abspath(work_dir)
+
+    if clean:
+        try:
+            shutil.rmtree(work_dir)
+        except FileNotFoundError:
+            pass
 
     components = get_components()
 
@@ -330,6 +346,9 @@ def main():
                         action="store_true",
                         help="If the model executable should be copied to the "
                              "work directory.")
+    parser.add_argument("--clean", dest="clean", action="store_true",
+                        help="If the base work directory should be deleted "
+                             "before setting up the tasks.")
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -343,7 +362,8 @@ def main():
                 config_file=args.config_file, machine=args.machine,
                 work_dir=args.work_dir, baseline_dir=args.baseline_dir,
                 component_path=args.component_path, suite_name=args.suite_name,
-                cached=cached, copy_executable=args.copy_executable)
+                cached=cached, copy_executable=args.copy_executable,
+                clean=args.clean)
 
 
 def _expand_and_mark_cached_steps(tasks, cached_steps):
