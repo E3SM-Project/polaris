@@ -1,5 +1,5 @@
-ocean/baroclinic_channel/10km/threads
-ocean/baroclinic_channel/10km/decomp
-ocean/baroclinic_channel/10km/restart
+ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
 ocean/inertial_gravity_wave/convergence
 # ocean/manufactured_solution/convergence

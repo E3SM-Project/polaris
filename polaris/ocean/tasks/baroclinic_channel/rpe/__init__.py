@@ -1,18 +1,22 @@
+from polaris import Task
 from polaris.config import PolarisConfigParser
-from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannelTestCase
 from polaris.ocean.tasks.baroclinic_channel.forward import Forward
 from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
-from polaris.validate import compare_variables
 
 
-class Rpe(BaroclinicChannelTestCase):
+class Rpe(Task):
     """
     The baroclinic channel reference potential energy (RPE) test case performs
     a 20-day integration of the model forward in time at 5 different values of
     the viscosity at the given resolution.
+
+    Attributes
+    ----------
+    resolution : float
+        The resolution of the test case in km
     """
 
-    def __init__(self, component, resolution, indir):
+    def __init__(self, component, resolution, indir, init):
         """
         Create the test case
 
@@ -25,21 +29,27 @@ class Rpe(BaroclinicChannelTestCase):
             The resolution of the test case in km
 
         indir : str
-            the directory the task is in, to which ``name`` will be appended
-        """
-        super().__init__(component=component, resolution=resolution,
-                         name='rpe', indir=indir)
+            The directory the task is in, to which ``name`` will be appended
 
-        self._add_steps()
+        init : polaris.ocean.tasks.baroclinic_channel.init.Init
+            A shared step for creating the initial state
+        """
+        super().__init__(component=component, name='rpe', indir=indir)
+        self.resolution = resolution
+
+        self.add_step(init, symlink='init')
+        self._add_rpe_and_analysis_steps()
 
     def configure(self):
         """
         Modify the configuration options for this test case.
         """
         super().configure()
-        self._add_steps(config=self.config)
+        self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+                                     'baroclinic_channel.cfg')
+        self._add_rpe_and_analysis_steps(config=self.config)
 
-    def _add_steps(self, config=None):
+    def _add_rpe_and_analysis_steps(self, config=None):
         """ Add the steps in the test case either at init or set-up """
 
         if config is None:
@@ -51,7 +61,7 @@ class Rpe(BaroclinicChannelTestCase):
 
         for step_name in list(self.steps.keys()):
             step = self.steps[step_name]
-            if step_name.startswith('rpe') or step_name == 'analysis':
+            if step_name.startswith('nu') or step_name == 'analysis':
                 # remove previous RPE forward or analysis steps
                 self.remove_step(step)
 
@@ -59,12 +69,12 @@ class Rpe(BaroclinicChannelTestCase):
         resolution = self.resolution
 
         nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
-        for index, nu in enumerate(nus):
-            name = f'rpe_{index + 1}_nu_{int(nu)}'
+        for nu in nus:
+            name = f'nu_{nu:g}'
             step = Forward(
                 component=component, name=name, indir=self.subdir,
                 ntasks=None, min_tasks=None, openmp_threads=1,
-                resolution=resolution, nu=float(nu))
+                resolution=resolution, nu=nu)
 
             step.add_yaml_file(
                 'polaris.ocean.tasks.baroclinic_channel.rpe',

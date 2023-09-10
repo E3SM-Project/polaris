@@ -14,10 +14,6 @@ class Forward(OceanModelStep):
     resolution : float
         The resolution of the task in km
 
-    resources_fixed : bool
-        Whether resources were set already and shouldn't be updated
-        algorithmically
-
     dt : float
         The model time step in seconds
 
@@ -84,9 +80,9 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../init/initial_state.nc')
+                            target='../../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
+                            target='../../init/culled_graph.info')
 
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')
@@ -95,8 +91,6 @@ class Forward(OceanModelStep):
             filename='output.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness',
                            'normalVelocity'])
-
-        self.resources_fixed = (ntasks is not None)
 
         self.dt = None
         self.btr_dt = None
