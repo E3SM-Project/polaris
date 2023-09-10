@@ -38,8 +38,7 @@ Shared steps are not daughters of test cases.
 
 ### Requirement: Working directory structure is intuitive.
 
-The working directory structure should not have shared step directories as
-subdirectories of test cases.
+Shared step directories should be located at the highest level in the working directory structure where all test cases that use that step are run at or below that level.
 
 ### Requirement: Working directory step paths are easily discoverable by users.
 
