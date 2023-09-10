@@ -61,11 +61,12 @@ def list_cases(task_expr=None, number=None, verbose=False):
                     if print_number:
                         prefix = '      '
                 lines.append(f'{prefix}steps:')
+                longest = 0
                 for step in task.steps.values():
-                    if step.name == step.subdir:
-                        lines.append(f'{prefix} - {step.name}')
-                    else:
-                        lines.append(f'{prefix} - {step.name}: {step.path}')
+                    longest = max(longest, len(step.name))
+                for step in task.steps.values():
+                    step_name = f'{step.name}: '.ljust(longest + 2)
+                    lines.append(f'{prefix} - {step_name}{step.path}')
                 lines.append('')
                 print_string = '\n'.join(lines)
             else:
