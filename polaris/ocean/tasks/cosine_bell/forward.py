@@ -47,13 +47,15 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
         self.add_yaml_file(
-            'polaris.ocean.tasks.global_convergence.cosine_bell',
+            'polaris.ocean.tasks.cosine_bell',
             'forward.yaml')
 
-        self.add_input_file(filename='init.nc',
-                            target='../init/initial_state.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../mesh/graph.info')
+        self.add_input_file(
+            filename='init.nc',
+            target=f'../../init/{mesh_name}/initial_state.nc')
+        self.add_input_file(
+            filename='graph.info',
+            target=f'../../../base_mesh/{mesh_name}/graph.info')
 
         self.add_output_file(filename='output.nc',
                              validate_vars=['normalVelocity', 'tracer1'])
@@ -90,7 +92,7 @@ class Forward(OceanModelStep):
         if not at_setup and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
             self.add_yaml_file(
-                'polaris.ocean.tasks.global_convergence.cosine_bell',
+                'polaris.ocean.tasks.cosine_bell',
                 'forward.yaml')
 
         # dt is proportional to resolution: default 30 seconds per km

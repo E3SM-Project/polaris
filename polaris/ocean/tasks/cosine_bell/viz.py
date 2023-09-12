@@ -36,7 +36,9 @@ class VizMap(MappingFileStep):
         super().__init__(component=component, name=name, subdir=subdir,
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
-        self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
+        self.add_input_file(
+            filename='mesh.nc',
+            target=f'../../../../base_mesh/{mesh_name}/base_mesh.nc')
 
     def runtime_setup(self):
         """
@@ -78,7 +80,7 @@ class Viz(Step):
         subdir : str
             The subdirectory in the test case's work directory for the step
 
-        viz_map : polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap
+        viz_map : polaris.ocean.tasks.cosine_bell.viz.VizMap
             The step for creating a mapping files, also used to remap data
             from the MPAS mesh to a lon-lat grid
 
@@ -88,13 +90,13 @@ class Viz(Step):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            target='../init/mesh.nc')
+            target=f'../../../../base_mesh/{mesh_name}/base_mesh.nc')
         self.add_input_file(
             filename='initial_state.nc',
-            target='../init/initial_state.nc')
+            target=f'../../../init/{mesh_name}/initial_state.nc')
         self.add_input_file(
             filename='output.nc',
-            target='../forward/output.nc')
+            target=f'../../../forward/{mesh_name}/output.nc')
         self.add_dependency(viz_map, name='viz_map')
         self.mesh_name = mesh_name
         self.add_output_file('init.png')

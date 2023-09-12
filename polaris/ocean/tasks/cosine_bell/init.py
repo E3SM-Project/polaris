@@ -10,7 +10,7 @@ class Init(Step):
     """
     A step for an initial condition for for the cosine bell test case
     """
-    def __init__(self, component, name, subdir):
+    def __init__(self, component, name, subdir, mesh_name):
         """
         Create the step
 
@@ -24,12 +24,19 @@ class Init(Step):
 
         subdir : str
             The subdirectory for the step
+
+        mesh_name : str
+            The name of the mesh
         """
         super().__init__(component=component, name=name, subdir=subdir)
 
-        self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
+        self.add_input_file(
+            filename='mesh.nc',
+            target=f'../../../base_mesh/{mesh_name}/base_mesh.nc')
 
-        self.add_input_file(filename='graph.info', target='../mesh/graph.info')
+        self.add_input_file(
+            filename='graph.info',
+            target=f'../../../base_mesh/{mesh_name}/graph.info')
 
         self.add_output_file(filename='initial_state.nc')
 
