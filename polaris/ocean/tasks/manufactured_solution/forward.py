@@ -4,6 +4,7 @@ import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -48,16 +49,17 @@ class Forward(OceanModelStep):
             the number of OpenMP threads the step will use
         """
         self.resolution = resolution
+        mesh_name = resolution_to_subdir(resolution)
         super().__init__(component=component,
-                         name=f'forward_{resolution}km',
-                         subdir=f'{taskdir}/{resolution}km/forward',
+                         name=f'forward_{mesh_name}',
+                         subdir=f'{taskdir}/forward/{mesh_name}',
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../init/initial_state.nc')
+                            target=f'../../init/{mesh_name}/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
+                            target=f'../../init/{mesh_name}/culled_graph.info')
 
         self.add_output_file(
             filename='output.nc',

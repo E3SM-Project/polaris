@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -18,7 +19,7 @@ class Analysis(Step):
 
     Attributes
     ----------
-    resolutions : list of int
+    resolutions : list of float
         The resolutions of the meshes that have been run
     """
     def __init__(self, component, resolutions, taskdir):
@@ -30,7 +31,7 @@ class Analysis(Step):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of int
+        resolutions : list of float
             The resolutions of the meshes that have been run
 
         taskdir : str
@@ -40,12 +41,13 @@ class Analysis(Step):
         self.resolutions = resolutions
 
         for resolution in resolutions:
+            mesh_name = resolution_to_subdir(resolution)
             self.add_input_file(
-                filename=f'init_{resolution}km.nc',
-                target=f'../{resolution}km/init/initial_state.nc')
+                filename=f'init_{mesh_name}.nc',
+                target=f'../init/{mesh_name}/initial_state.nc')
             self.add_input_file(
-                filename=f'output_{resolution}km.nc',
-                target=f'../{resolution}km/forward/output.nc')
+                filename=f'output_{mesh_name}.nc',
+                target=f'../forward/{mesh_name}/output.nc')
 
     def run(self):
         """
@@ -60,8 +62,9 @@ class Analysis(Step):
 
         rmse = []
         for i, res in enumerate(resolutions):
-            init = xr.open_dataset(f'init_{res}km.nc')
-            ds = xr.open_dataset(f'output_{res}km.nc')
+            mesh_name = f'{res:g}km'
+            init = xr.open_dataset(f'init_{mesh_name}.nc')
+            ds = xr.open_dataset(f'output_{mesh_name}.nc')
             exact = ExactSolution(config, init)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
