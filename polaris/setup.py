@@ -238,11 +238,16 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
 
     # iterate over steps
     for step in task.steps.values():
+        # make the step directory if it doesn't exist
+        step_dir = os.path.join(work_dir, step.path)
+
+        if step.name in task.step_symlinks:
+            symlink(step_dir,
+                    os.path.join(task_dir, task.step_symlinks[step.name]))
+
         if step.setup_complete:
             # this is a shared step that has already been set up
             continue
-        # make the step directory if it doesn't exist
-        step_dir = os.path.join(work_dir, step.path)
         try:
             os.makedirs(step_dir)
         except OSError:

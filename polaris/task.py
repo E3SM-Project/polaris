@@ -20,6 +20,10 @@ class Task:
     steps : dict
         A dictionary of steps in the task with step names as keys
 
+    step_symlinks : dict
+        A dictionary of symlink paths within the test case's work directory
+        to shared steps outside the test case
+
     steps_to_run : list
         A list of the steps to run when ``run()`` gets called.  This list
         includes all steps by default but can be replaced with a list of only
@@ -101,6 +105,7 @@ class Task:
 
         # steps will be added by calling add_step()
         self.steps = dict()
+        self.step_symlinks = dict()
         self.steps_to_run = list()
 
         # these will be set during setup, dummy values for now
@@ -128,7 +133,8 @@ class Task:
         """
         pass
 
-    def add_step(self, step=None, subdir=None, run_by_default=True):
+    def add_step(self, step=None, subdir=None, symlink=None,
+                 run_by_default=True):
         """
         Add a step to the task and component (if not already present)
 
@@ -140,6 +146,11 @@ class Task:
         subdir : str, optional
             The subdirectory of the step within the component if wish to add
             the step by path, and it has already been added to the component
+
+        symlink : str, optional
+            A location for a symlink to the step, relative to the test case's
+            work directory. This is typically used for a shared step that lives
+            outside of the test case
 
         run_by_default : bool, optional
             Whether to add this step to the list of steps to run when the
@@ -168,6 +179,8 @@ class Task:
         component.add_step(step)
 
         self.steps[step.name] = step
+        if symlink:
+            self.step_symlinks[step.name] = symlink
         if run_by_default:
             self.steps_to_run.append(step.name)
 
@@ -185,5 +198,7 @@ class Task:
 
         self.component.remove_step(step)
         self.steps.pop(step.name)
+        if step.name in self.step_symlinks:
+            self.step_symlinks.pop(step.name)
         if step.name in self.steps_to_run:
             self.steps_to_run.remove(step.name)
