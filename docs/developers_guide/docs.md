@@ -133,11 +133,8 @@ be added to `docs/<component>/api.md`:
 .. autosummary::
    :toctree: generated/
 
-   BaroclinicChannel
+   add_baroclinic_channel_tasks
 
-   BaroclinicChannelTestCase
-   BaroclinicChannelTestCase.configure
-   
    forward.Forward
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config

@@ -23,16 +23,17 @@ The `polaris list` command is used to list tasks, suites, and
 supported machines.  The command-line options are:
 
 ```none
-polaris list [-h] [-t TEST] [-n NUMBER] [--machines] [--suites] [-v]
+$ polaris list --help
+usage: polaris list [-h] [-t TASK] [-n NUMBER] [--machines] [--suites] [-v]
 ```
 
 By default, all tasks are listed:
 
 ```none
 $ polaris list
-Testcases:
-   0: examples/example_compact/1km/test1
-   1: examples/example_compact/1km/test2
+Tasks:
+   0: ocean/planar/baroclinic_channel/10km/default
+   1: ocean/planar/baroclinic_channel/10km/decomp
 ...
 ```
 
@@ -63,15 +64,14 @@ the configuration and the names of its steps:
 
 ```none
 $ polaris list -n 0 -v
-path:          examples/example_compact/1km/test1
-description:   Tempate 1km test1
-name:          test1
-core:          examples
-configuration: example_compact
-subdir:        1km/test1
+path:          ocean/planar/baroclinic_channel/10km/default
+name:          default
+component:     ocean
+subdir:        planar/baroclinic_channel/10km/default
 steps:
- - step1
- - step2
+ - init:    ocean/planar/baroclinic_channel/10km/init
+ - forward: ocean/planar/baroclinic_channel/10km/default/forward
+ - viz:     ocean/planar/baroclinic_channel/10km/default/viz
 ```
 
 See {ref}`dev-list` for more about the underlying framework.
@@ -90,21 +90,24 @@ want to run before setting up a polaris task.
 The command-line options are:
 
 ```none
-polaris setup [-h] -w PATH [-t PATH] [-n NUM [NUM ...]] [-f FILE] [-m MACH]
-               [-b PATH] [-p PATH] [--suite_name SUITE]
+$ polaris setup --help
+usage: polaris setup [-h] [-t PATH] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
+                     PATH [-b PATH] [-p PATH] [--suite_name SUITE]
+                     [--cached STEP [STEP ...]] [--copy_executable] [--clean]
+
 ```
 
 The `-h` or `--help` options will display the help message describing the
 command-line options.
 
 The tasks to set up can be specified either by relative path or by number.
-The `-t` or `--test` flag is used to pass the relative path of the test
-case within the resulting work directory.  The is the path given by
+The `-t` or `--task` flag is used to pass the relative path of the task
+within the resulting work directory.  The is the path given by
 {ref}`dev-polaris-list`.  Only one task at a time can be supplied to
 `polaris setup` this way.
 
-Alternatively, you can supply the test numbers of any number of tasks to
-the `-n` or `--case_number` flag.  Multiple test numbers are separated by
+Alternatively, you can supply the task numbers of any number of tasks to
+the `-n` or `--task_number` flag.  Multiple test numbers are separated by
 spaces.  These are the test numbers  given by {ref}`dev-polaris-list`.
 
 `polaris setup` requires a few basic pieces of information to be able to set
@@ -152,6 +155,19 @@ Tasks within the custom suite are run in the order they are supplied to
 cases that depend on the output of other tasks must run after their
 dependencies.
 
+You can uses `--cached` to specify steps of a test case to download from
+pre-generated files if they are available (see {ref}`dev-polaris-cache`.)
+
+If you specify `--copy_executable`, the model executable will be copied to the 
+work directory rather than just symlinked.  This is useful if wish to run
+the tasks again later but anticipate that you may have removed (or replaced)
+the model code.
+
+Finally, if you specify `--clean`. The base work directory pointed to with the
+`-w` flag will be deleted before setting up the tasks.  This is useful if you
+want to do a fresh run, since polaris will not rerun steps that have already
+been run.
+
 See {ref}`dev-setup` for more about the underlying framework.
 
 (dev-polaris-suite)=
@@ -162,8 +178,9 @@ The `polaris suite` command is used to set up a suite. The command-line
 options are:
 
 ```none
-polaris suite [-h] -c COMPONENT -t SUITE -w PATH [-f FILE] [-v]
-              [-m MACH] [-b PATH] [-p PATH]
+$ polaris suite --help
+usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
+                     -w PATH [-p PATH] [--copy_executable] [--clean]
 ```
 
 The `-h` or `--help` options will display the help message describing the
@@ -184,6 +201,9 @@ comparison with `-b` or `--baseline_dir`.  If supplied, each task in the
 suite that includes {ref}`dev-validation` will be validated against the 
 previous run in the baseline.
 
+The flags `--copy_executable`and `--clean` are the same as in 
+{ref}`dev-polaris-setup`.
+
 See {ref}`dev-suite` for more about the underlying framework.
 
 (dev-polaris-run)=
@@ -195,9 +215,11 @@ parallel) a suite, task or step  that has been set up in the current
 directory:
 
 ```none
-polaris serial [-h] [--steps STEPS [STEPS ...]]
-                 [--skip_steps SKIP_STEPS [SKIP_STEPS ...]]
-                 [suite]
+$ polaris serial --help
+usage: polaris serial [-h] [--steps STEPS [STEPS ...]]
+                      [--skip_steps SKIP_STEPS [SKIP_STEPS ...]] [-q]
+                      [--step_is_subprocess]
+                      [suite]
 ```
 
 Whereas other `polaris` commands are typically run in the local clone of the
@@ -244,29 +266,37 @@ over the config option.
 To see which steps are are available in a given task, you need to run
 {ref}`dev-polaris-list` with the `-v` or `--verbose` flag.
 
+The `--step_is_subprocess` flag is for internal use by the framework so you
+shouldn't need to use that flag.
+
 See {ref}`dev-run` for more about the underlying framework.
 
 (dev-polaris-cache)=
 
 ## polaris cache
 
-`polaris` supports caching outputs from any step in a special database
+Polaris supports caching outputs from any step in a special database
 called `polaris_cache` (see {ref}`dev-step-input-download`). Files in this
 database have a directory structure similar to the work directory (but without
 the component subdirectory, which is redundant). The files include a date stamp
 so that new revisions can be added without removing older ones (supported by
 older polaris versions).  See {ref}`dev-step-cached-output` for more details.
 
-A new command, `polaris cache` has been added to aid in updating the file
-`cached_files.json` within a component.  This command is only available on
-Anvil and Chrysalis, since developers can only copy files from a polaris work
-directory onto the LCRC server from these two machines.  Developers run
-`polaris cache` from the base work directory, giving the relative paths of
-the step whose outputs should be cached:
+The command `polaris cache` is used to update the file `cached_files.json` 
+within a component.  This command is only available on Anvil and Chrysalis, 
+since developers can only copy files from a Polaris work directory onto the 
+LCRC server from these two machines.
+```none
+$ polaris cache --help
+usage: polaris cache [-h] [-i STEP [STEP ...]] [-d DATE] [-r]
+```
+
+Developers run `polaris cache` from the base work directory, giving the 
+relative paths of the step whose outputs should be cached:
 
 ```bash
-polaris cache -i ocean/global_ocean/QU240/mesh/mesh \
-    ocean/global_ocean/QU240/PHC/init/init
+polaris cache -i ocean/spherical/*/base_mesh/* \
+    ocean/spherical/*/cosine_bell/init/*
 ```
 
 This will:
@@ -281,11 +311,18 @@ The resulting `ocean_cached_files.json` will look something like:
 
 ```json
 {
-    "ocean/global_ocean/QU240/mesh/mesh/culled_mesh.nc": "global_ocean/QU240/mesh/mesh/culled_mesh.210803.nc",
-    "ocean/global_ocean/QU240/mesh/mesh/culled_graph.info": "global_ocean/QU240/mesh/mesh/culled_graph.210803.info",
-    "ocean/global_ocean/QU240/mesh/mesh/critical_passages_mask_final.nc": "global_ocean/QU240/mesh/mesh/critical_passages_mask_final.210803.nc",
-    "ocean/global_ocean/QU240/PHC/init/init/initial_state.nc": "global_ocean/QU240/PHC/init/init/initial_state.210803.nc",
-    "ocean/global_ocean/QU240/PHC/init/init/init_mode_forcing_data.nc": "global_ocean/QU240/PHC/init/init/init_mode_forcing_data.210803.nc"
+    "ocean/spherical/icos/base_mesh/120km/mesh.msh": "spherical/icos/base_mesh/120km/mesh.230914.msh",
+    "ocean/spherical/icos/base_mesh/120km/base_mesh.nc": "spherical/icos/base_mesh/120km/base_mesh.230914.nc",
+    "ocean/spherical/icos/base_mesh/120km/cellWidthVsLatLon.nc": "spherical/icos/base_mesh/120km/cellWidthVsLatLon.230914.nc",
+    "ocean/spherical/icos/base_mesh/120km/graph.info": "spherical/icos/base_mesh/120km/graph.230914.info",
+    "ocean/spherical/icos/base_mesh/240km/mesh.msh": "spherical/icos/base_mesh/240km/mesh.230914.msh",
+    "ocean/spherical/icos/base_mesh/240km/base_mesh.nc": "spherical/icos/base_mesh/240km/base_mesh.230914.nc",
+    "ocean/spherical/icos/base_mesh/240km/cellWidthVsLatLon.nc": "spherical/icos/base_mesh/240km/cellWidthVsLatLon.230914.nc",
+    "ocean/spherical/icos/base_mesh/240km/graph.info": "spherical/icos/base_mesh/240km/graph.230914.info",
+    "ocean/spherical/qu/cosine_bell/init/210km/initial_state.nc": "spherical/qu/cosine_bell/init/210km/initial_state.230914.nc",
+    "ocean/spherical/qu/cosine_bell/init/240km/initial_state.nc": "spherical/qu/cosine_bell/init/240km/initial_state.230914.nc",
+    "ocean/spherical/qu/cosine_bell/init/60km/initial_state.nc": "spherical/qu/cosine_bell/init/60km/initial_state.230914.nc",
+    "ocean/spherical/qu/cosine_bell/init/90km/initial_state.nc": "spherical/qu/cosine_bell/init/90km/initial_state.230914.nc"
 }
 ```
 

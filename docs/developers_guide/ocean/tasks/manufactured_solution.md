@@ -5,9 +5,9 @@
 The manufactured solution test in `polaris.ocean.tasks.manufactured_solution`
 uses the Method of Manufactured Solutions (see 
 {ref}`ocean-manufactured-solution`) at 4 resolutions (200, 100, 50, and 25 km).
-Here, we describe the test case and its framework.
 
-(dev-ocean-manufactured-solution)=
+The {py:class}`polaris.ocean.tasks.manufactured_solution.ManufacturedSolution`
+test performs a 10-hour run. 
 
 ## framework
 
@@ -25,10 +25,10 @@ The class {py:class}`polaris.ocean.tasks.manufactured_solution.exact_solution.Ex
 defines a class for storing attributes and methods relevant to computing the
 exact manufactured solution.  The constructor obtains the parameters from the
 config file. The
-{py:meth}`polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh(t)`
-method computes the SSH field at time `t`.  The
-{py:meth}`polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normalVelocity(t)`
-method computes the `normalVelocity` field at time `t`.
+{py:meth}`polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh()`
+method computes the SSH field.  The
+{py:meth}`polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity()`
+method computes the `normalVelocity` field.
 
 ### init
 
@@ -54,8 +54,10 @@ number of cells is approximated from config options in
 so that this can be used to constrain the number of MPI tasks that Polaris tasks
 have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of `runtime_setup()`.  Finally, the ocean 
-model is run.
+graph partition is generated as part of `runtime_setup()`.  Next, the ocean 
+model is run.  Finally, validation of `temperature`, `layerThickness` and 
+`normalVelocity` are performed against a baseline if one is provided when 
+calling {ref}`dev-polaris-setup`.
 
 ### analysis
 
@@ -71,11 +73,3 @@ defines a step for visualization. It produces two plots: the convergence of the
 RMSE with resolution and a plan-view of the simulated, exact, and (simulated -
 exact) SSH fields.
 
-(dev-ocean-manufactured-solution-convergence)=
-
-### convergence
-
-The {py:class}`polaris.ocean.tasks.manufactured_solution.convergence.Convergence`
-test performs a 10-hour run.  Then, validation of `temperature`, 
-`layerThickness` and `normalVelocity` are performed against a
-baseline if one is provided when calling {ref}`dev-polaris-setup`.
