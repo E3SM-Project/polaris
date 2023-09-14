@@ -4,7 +4,6 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
-from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 
 
@@ -12,12 +11,8 @@ class Init(Step):
     """
     A step for creating a mesh and initial condition for single column
     test cases
-    Attributes
-    ----------
-    resolution : float
-        The resolution of the test case in km
     """
-    def __init__(self, component, resolution, indir, ideal_age=False):
+    def __init__(self, component, indir, ideal_age=False):
         """
         Create the step
 
@@ -25,9 +20,6 @@ class Init(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolution : float
-            The resolution of the test case in km
 
         indir : str
             The subdirectory that the task belongs to, that this step will
@@ -37,7 +29,6 @@ class Init(Step):
             Whether the initial condition should include the ideal age tracer
         """
         super().__init__(component=component, name='init', indir=indir)
-        self.resolution = resolution
         self.ideal_age = ideal_age
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
                      'initial_state.nc', 'forcing.nc']:
@@ -50,11 +41,10 @@ class Init(Step):
         logger = self.logger
         config = self.config
         section = config['single_column']
-        resolution = self.resolution
         ideal_age = self.ideal_age
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+        resolution = section.getfloat('resolution')
+        nx = section.getint('nx')
+        ny = section.getint('ny')
         dc = 1e3 * resolution
         ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
                                        nonperiodic_x=False,
