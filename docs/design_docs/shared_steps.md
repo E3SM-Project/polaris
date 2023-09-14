@@ -21,14 +21,14 @@ shared steps is clear to users.
 
 ### Desired: Shared steps are set up once.
 
-Ideally, steps used by multiple test cases should be run once per invocation of
+Ideally, steps used by multiple test cases should be set up once per invocation of
 `polaris setup` or `polaris suite`. This requirement may be dropped since step
 set up is not generally resource intensive.
 
 ### Requirement: Shared steps are run once.
 
 Shared steps should be run once per invocation of `polaris serial` or
-`polaris parallel`.
+`polaris run`.
 
 ### Requirement: Shared steps are run before steps that depend on their output.
 
@@ -38,7 +38,8 @@ Shared steps are not daughters of test cases.
 
 ### Requirement: Working directory structure is intuitive.
 
-Shared step directories should be located at the highest level in the working directory structure where all test cases that use that step are run at or below that level.
+Shared step directories should be located at the highest level in the working directory 
+structure where all test cases that use that step are run at or below that level.
 
 ### Requirement: Working directory step paths are easily discoverable by users.
 
@@ -49,7 +50,8 @@ would be set up for each test case.
 
 A step may only be shared across multiple test cases if its output would be
 identical for each test case.
-### Required: test cases do not rely on outputs from steps in other test cases
+
+### Requirement: test cases do not rely on outputs from steps in other test cases
 
 All test cases are self-contained and rely only on either shared steps or steps they contain.
 
