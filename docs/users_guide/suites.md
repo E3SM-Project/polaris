@@ -32,10 +32,10 @@ As an example, the ocean `nightly` suite includes the tasks used
 for regression testing of MPAS-Ocean.  Here are the tasks included:
 
 ```none
-ocean/baroclinic_channel/10km/threads
-ocean/baroclinic_channel/10km/decomp
-ocean/baroclinic_channel/10km/restart
-ocean/inertial_gravity_wave/convergence
+ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/inertial_gravity_wave
 ```
 
 :::{note}
@@ -45,7 +45,7 @@ of a previous run are simply downloaded.  This is used to skip steps that
 are prohibitively time-consuming during regression testing, but where the
 results are needed to run subsequent tasks.  An example in the 
 `cosine_bell_cached_init` suite listed above is the
-`global_convergence/icos/cosine_bell` and `global_convergence/qu/cosine_bell` 
+`spherical/icos/cosine_bell` and `spherical/qu/cosine_bell` 
 tasks from the `ocean` component.  These tasks take several minutes to
 create their meshes and initial conditions, so to speed things up we sometimes
 run with cached meshes and initial conditions.

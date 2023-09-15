@@ -1,6 +1,6 @@
 (seaice-single-column)=
 
-# single_column
+# single column
 
 ## description
 

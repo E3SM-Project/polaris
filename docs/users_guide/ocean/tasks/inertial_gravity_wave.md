@@ -2,22 +2,16 @@
 
 # inertial gravity wave
 
-The inertial gravity wave tasks implement configurations for surface wave
+The inertial gravity wave task implements a test of surface wave
 propagation with the rotating, linear shallow water equations on a doubly
-periodic domain. In this case there is an exact solution which can be used to
+periodic domain. This test has an exact solution which is used to
 assess the numerical accuracy and convergence of the MPAS-Ocean discretization.
 The implementation is from
 [Bishnu et al.(2023)](https://doi.org/10.22541/essoar.167100170.03833124/v1)
 
-Currently, the there is only one task, a convergence test.
+## description
 
-(ocean-inertial-gravity-wave-convergence)=
-
-## convergence
-
-### description
-
-The `convergence` test case runs the inertial gravity wave simulation for 4
+The `inertial_gravity_wave` task runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.
 
 The forward step for each resolution runs the simulation for 10 hours. The
@@ -44,14 +38,14 @@ SSH fields.
 :width: 500 px
 ```
 
-### mesh
+## mesh
 
 For each resolution, the `init` step generates and planar hexagonal
 mesh that is periodic in both the x and y directions.
 
-### vertical grid
+## vertical grid
 
-Since this test case is a shallow water case, the vertical grid is set to a
+Since this task is a shallow water case, the vertical grid is set to a
 single layer configuration.
 
 ```cfg
@@ -76,7 +70,7 @@ partial_cell_type = None
 min_pc_fraction = 0.1
 ```
 
-### initial conditions
+## initial conditions
 
 The initial conditions are set to the exact solution at time $t=0$:
 $$
@@ -85,16 +79,16 @@ u &= \frac{g}{\omega^2 - f^2} [\omega k_x \cos(k_x x + k_y y - \omega t) - f k_y
 v &= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f k_x \sin(k_x x + k_y y - \omega t)]
 $$
 
-### forcing
+## forcing
 
 N/A
 
-### time step and run duration
+## time step and run duration
 
 The time step is determined by the config option ``dt_per_km`` according to the
 mesh resolution. The run duration is 10 hours.
 
-### config options
+## config options
 
 The following config options are availiable for this case:
 
@@ -128,7 +122,7 @@ dt_per_km = 3.0
 
 ```
 
-### cores
+## cores
 
 The number of cores is determined according to the config options
 ``max_cells_per_core`` and ``goal_cells_per_core``.
