@@ -52,10 +52,6 @@ class Task:
     base_work_dir : str
         The base work directory
 
-    baseline_dir : str
-        Location of the same task within the baseline work directory,
-        for use in comparing variables and timers
-
     stdout_logger : logging.Logger
         A logger for output from the task that goes to stdout regardless
         of whether ``logger`` is a log file or stdout
@@ -113,8 +109,6 @@ class Task:
         self.config_filename = ''
         self.work_dir = ''
         self.base_work_dir = ''
-        # may be set during setup if there is a baseline for comparison
-        self.baseline_dir = None
 
         # these will be set when running the task, dummy values for now
         self.new_step_log_file = True
