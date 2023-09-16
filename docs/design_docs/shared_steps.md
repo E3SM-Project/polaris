@@ -40,8 +40,8 @@ level.
 ### Requirement: Working directory step paths are easily discoverable by users.
 
 There should be a way to list the paths within the work directory of all steps
- in each task.  There should also be a way for a user to find the steps
- in a task from the task's work directory.
+in each task.  There should also be a way for a user to find the steps
+in a task from the task's work directory.
 
 ### Requirement: The output of shared steps may be used by multiple tasks.
 
