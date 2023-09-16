@@ -15,6 +15,8 @@ def resolution_to_subdir(resolution):
     """
     if resolution >= 1.:
         res_str = f'{resolution:g}km'
+    elif resolution < 0.001:
+        res_str = f'{resolution * 1.e5:g}cm'
     else:
         res_str = f'{resolution * 1000.:g}m'
     return res_str
