@@ -78,17 +78,7 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         print('Warning: no base work directory was provided so setting up in '
               'the current directory.')
         work_dir = os.getcwd()
-        if clean:
-            print('Warning: Polaris refuses to clean the current directory---'
-                  'too dangerous!')
-            clean = False
     work_dir = os.path.abspath(work_dir)
-
-    if clean:
-        try:
-            shutil.rmtree(work_dir)
-        except FileNotFoundError:
-            pass
 
     components = get_components()
 
@@ -113,6 +103,12 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     provenance.write(work_dir, tasks, config=basic_config)
 
     _expand_and_mark_cached_steps(tasks, cached_steps)
+
+    if clean:
+        print('')
+        print('Cleaning task and step work directories:')
+        _clean_tasks_and_steps(tasks, work_dir)
+        print('')
 
     print('Setting up tasks:')
     for path, task in tasks.items():
@@ -383,6 +379,28 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
         for step_name in cached_steps[path]:
             task.steps[step_name].cached = True
+
+
+def _clean_tasks_and_steps(tasks, base_work_dir):
+    """
+    Remove contents of task and step work directories to start fresh
+    """
+    print(f'{base_work_dir}:')
+    for path, task in tasks.items():
+        task_work_dir = os.path.join(base_work_dir, path)
+        try:
+            shutil.rmtree(task_work_dir)
+            print(f' {path}')
+        except FileNotFoundError:
+            pass
+
+        for step in task.steps.values():
+            step_work_dir = os.path.join(base_work_dir, step.path)
+            try:
+                shutil.rmtree(step_work_dir)
+                print(f'  {step.path}')
+            except FileNotFoundError:
+                pass
 
 
 def _get_required_cores(tasks):
