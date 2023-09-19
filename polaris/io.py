@@ -168,7 +168,7 @@ def symlink(target, link_name, overwrite=True):
     directory = os.path.dirname(os.path.abspath(link_name))
     try:
         os.makedirs(directory)
-    except OSError:
+    except FileExistsError:
         pass
 
     if not overwrite:
