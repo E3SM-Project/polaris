@@ -115,7 +115,7 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
                            failures)
 
 
-def run_single_step(step_is_subprocess=False):
+def run_single_step(step_is_subprocess=False, quiet=False):
     """
     Used by the framework to run a step when ``polaris serial`` gets called in
     the step's work directory
@@ -124,6 +124,10 @@ def run_single_step(step_is_subprocess=False):
     ----------
     step_is_subprocess : bool, optional
         Whether the step is being run as a subprocess of a task or suite
+
+    quiet : bool, optional
+        Whether step names are not included in the output as the suite
+        progresses
     """
     with open('step.pickle', 'rb') as handle:
         step = pickle.load(handle)
@@ -147,9 +151,13 @@ def run_single_step(step_is_subprocess=False):
     logger_name = step.path.replace('/', '_')
     with LoggingContext(name=logger_name) as stdout_logger:
         task.logger = stdout_logger
-        task.stdout_logger = None
-        log_function_call(function=_run_task, logger=stdout_logger)
-        stdout_logger.info('')
+        if quiet:
+            task.stdout_logger = None
+        else:
+            task.stdout_logger = stdout_logger
+            log_function_call(function=_run_task, logger=stdout_logger)
+            stdout_logger.info('')
+            stdout_logger.info(f'Running step: {step.name}')
         _run_task(task, available_resources)
 
 
@@ -185,7 +193,8 @@ def main():
                   steps_to_run=args.steps, steps_to_skip=args.skip_steps)
     elif os.path.exists('step.pickle'):
         # Running a step inside of its work directory
-        run_single_step(args.step_is_subprocess)
+        run_single_step(step_is_subprocess=args.step_is_subprocess,
+                        quiet=args.quiet)
     else:
         pickles = glob.glob('*.pickle')
         if len(pickles) == 1:
