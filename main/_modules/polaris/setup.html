@@ -109,6 +109,7 @@
 <span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
@@ -123,7 +124,8 @@
 
 <div class="viewcode-block" id="setup_tasks"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks">[docs]</a><span class="k">def</span> <span class="nf">setup_tasks</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">task_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -167,6 +169,10 @@
 <span class="sd">    copy_executable : bool, optional</span>
 <span class="sd">        Whether to copy the model executable to the work directory</span>
 
+<span class="sd">    clean : bool, optional</span>
+<span class="sd">        Whether to delete the contents of the base work directory before</span>
+<span class="sd">        setting up tasks</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tasks : dict of polaris.Task</span>
@@ -194,8 +200,8 @@
     <span class="n">_add_tasks_by_number</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
     <span class="n">_add_tasks_by_name</span><span class="p">(</span><span class="n">task_list</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">cached</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
-    <span class="c1"># get the component of the first task.  We&#39;ll assume all tasks are</span>
-    <span class="c1"># for this core</span>
+    <span class="c1"># get the component of the first task.  We&#39;ll ensure that all tasks are</span>
+    <span class="c1"># for this component</span>
     <span class="n">first_path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">first_path</span><span class="p">]</span><span class="o">.</span><span class="n">component</span>
 
@@ -203,6 +209,14 @@
                                      <span class="n">component</span><span class="p">)</span>
 
     <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">)</span>
+
+    <span class="n">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleaning task and step work directories:&#39;</span><span class="p">)</span>
+        <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up tasks:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -268,8 +282,8 @@
 <span class="sd">        default namelists have been built</span>
 
 <span class="sd">    cached_steps : list of str</span>
-<span class="sd">        Which steps (if any) should be cached.  If all steps should be cached,</span>
-<span class="sd">         the first entry is &quot;_all&quot;</span>
+<span class="sd">        Which steps (if any) should be cached, identified by a list of</span>
+<span class="sd">        subdirectories in the component</span>
 
 <span class="sd">    copy_executable : bool, optional</span>
 <span class="sd">        Whether to copy the model executable to the work directory</span>
@@ -322,18 +336,22 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task_config</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cached_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_all&#39;</span><span class="p">:</span>
-        <span class="n">cached_steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    steps with cached outputs: </span><span class="si">{</span><span class="n">print_steps</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">:</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># iterate over steps</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="c1"># make the step directory if it doesn&#39;t exist</span>
         <span class="n">step_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
+            <span class="n">symlink</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span><span class="p">:</span>
+            <span class="c1"># this is a shared step that has already been set up</span>
+            <span class="k">continue</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">step_dir</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
@@ -360,11 +378,14 @@
     <span class="c1"># wait until we&#39;ve set up all the steps before pickling because steps may</span>
     <span class="c1"># need other steps to be set up</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span><span class="p">:</span>
+            <span class="c1"># this is a shared step that has already been set up</span>
+            <span class="k">continue</span>
 
         <span class="c1"># pickle the task and step for use at runtime</span>
         <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;step.pickle&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">),</span> <span class="n">handle</span><span class="p">,</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span>
                         <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
         <span class="n">_symlink_load_script</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
@@ -374,6 +395,7 @@
             <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
             <span class="n">write_job_script</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">min_cores</span><span class="p">,</span>
                              <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># pickle the task and step for use at runtime</span>
     <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;task.pickle&#39;</span><span class="p">)</span>
@@ -433,6 +455,9 @@
                         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the model executable should be copied to the &quot;</span>
                              <span class="s2">&quot;work directory.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--clean&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;clean&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the base work directory should be deleted &quot;</span>
+                             <span class="s2">&quot;before setting up the tasks.&quot;</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
@@ -446,7 +471,44 @@
                 <span class="n">config_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">machine</span><span class="p">,</span>
                 <span class="n">work_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span>
                 <span class="n">component_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">component_path</span><span class="p">,</span> <span class="n">suite_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span>
-                <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">copy_executable</span><span class="p">)</span>
+                <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">copy_executable</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mark any steps that will be cached.  If any task asked for a step to</span>
+<span class="sd">    be cached, it will be cached for all tasks that share the step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">cached_names</span> <span class="o">=</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cached_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_all&#39;</span><span class="p">:</span>
+            <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove contents of task and step work directories to start fresh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">task_work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">task_work_dir</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">step_work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
 
 <span class="k">def</span> <span class="nf">_get_required_cores</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>

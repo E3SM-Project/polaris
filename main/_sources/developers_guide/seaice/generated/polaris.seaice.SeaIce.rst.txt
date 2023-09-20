@@ -14,8 +14,10 @@
    .. autosummary::
    
       ~SeaIce.__init__
+      ~SeaIce.add_step
       ~SeaIce.add_task
       ~SeaIce.configure
+      ~SeaIce.remove_step
    
    
 

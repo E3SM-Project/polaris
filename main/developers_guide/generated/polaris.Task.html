@@ -142,7 +142,7 @@
 <h1>polaris.Task<a class="headerlink" href="#polaris-task" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.Task">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/task.html#Task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Task" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/task.html#Task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Task" title="Permalink to this definition"></a></dt>
 <dd><p>The base class for tasks—such as a decomposition, threading or
 restart test—that are made up of one or more steps</p>
 <dl class="field-list simple">
@@ -151,6 +151,8 @@ restart test—that are made up of one or more steps</p>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the task</p></li>
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the task belongs to</p></li>
 <li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of steps in the task with step names as keys</p></li>
+<li><p><strong>step_symlinks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary of symlink paths within the test case’s work directory
+to shared steps outside the test case</p></li>
 <li><p><strong>steps_to_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – A list of the steps to run when <code class="docutils literal notranslate"><span class="pre">run()</span></code> gets called.  This list
 includes all steps by default but can be replaced with a list of only
 those tasks that should run by default if some steps are optional and
@@ -165,8 +167,6 @@ during setup and read from during run</p></li>
 <li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The task’s work directory, defined during setup as the combination
 of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p></li>
 <li><p><strong>base_work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The base work directory</p></li>
-<li><p><strong>baseline_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Location of the same task within the baseline work directory,
-for use in comparing variables and timers</p></li>
 <li><p><strong>stdout_logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.11)"><em>logging.Logger</em></a>) – A logger for output from the task that goes to stdout regardless
 of whether <code class="docutils literal notranslate"><span class="pre">logger</span></code> is a log file or stdout</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.11)"><em>logging.Logger</em></a>) – A logger for output from the task</p></li>
@@ -175,22 +175,24 @@ are being logged, or <code class="docutils literal notranslate"><span class="pre
 <li><p><strong>new_step_log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to create a new log file for each step or to log output to a
 common log file for the whole task.  The latter is used when
 running the task as part of a suite</p></li>
-<li><p><strong>validation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A dictionary with the status of internal and baseline comparisons, used
-by the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> framework to determine whether the task passed
-or failed internal and baseline validation.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Task.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/task.html#Task.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Task.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/task.html#Task.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Task.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new task</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – the component that this task belongs to</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the task</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – the subdirectory for the task.  The default is <code class="docutils literal notranslate"><span class="pre">name</span></code></p></li>
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>the subdirectory for the task.  If neither this nor <code class="docutils literal notranslate"><span class="pre">indir</span></code></dt><dd><p>are provided, the directory is the <code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the task is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
 </ul>
 </dd>
 </dl>
@@ -203,17 +205,17 @@ or failed internal and baseline validation.</p></li>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.Task.__init__" title="polaris.Task.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name[, subdir])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.Task.__init__" title="polaris.Task.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name[, subdir, indir])</p></td>
 <td><p>Create a new task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code></a>(step[, run_by_default])</p></td>
-<td><p>Add a step to the task</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code></a>([step, subdir, symlink, run_by_default])</p></td>
+<td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_validation</span></code>()</p></td>
-<td><p>Check the task's &quot;validation&quot; dictionary to see if validation failed.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this task.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
+<td><p>Remove the given step from this task and the component</p></td>
 </tr>
 </tbody>
 </table>

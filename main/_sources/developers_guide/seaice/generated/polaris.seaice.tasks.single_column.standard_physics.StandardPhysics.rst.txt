@@ -15,8 +15,8 @@
    
       ~StandardPhysics.__init__
       ~StandardPhysics.add_step
-      ~StandardPhysics.check_validation
       ~StandardPhysics.configure
+      ~StandardPhysics.remove_step
    
    
 

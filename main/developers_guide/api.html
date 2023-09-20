@@ -333,16 +333,13 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.setup_config.html#polaris.run.setup_config" title="polaris.run.setup_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_config</span></code></a>(config_filename)</p></td>
 <td><p>Set up the config object from the config file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(task, step)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(step)</p></td>
 <td><p>Load each dependency from its pickle file to pick up changes that may have happened since it ran</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.pickle_step_after_run.html#polaris.run.pickle_step_after_run" title="polaris.run.pickle_step_after_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_step_after_run</span></code></a>(task, step)</p></td>
-<td><p>Pickle a step after it has run so its dependencies will pick up the changes</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
 <td><p>Run the given suite or task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess, ...])</p></td>
 <td><p>Used by the framework to run a step when <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> gets called in the step's work directory</p></td>
 </tr>
 </tbody>
@@ -404,14 +401,14 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code></a>(component, name[, subdir])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code></a>(component, name[, subdir, indir])</p></td>
 <td><p>The base class for tasks---such as a decomposition, threading or restart test---that are made up of one or more steps</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this task.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>(step[, run_by_default])</p></td>
-<td><p>Add a step to the task</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>([step, subdir, symlink, ...])</p></td>
+<td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
 </tbody>
 </table>
@@ -424,7 +421,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step</span></code></a>(task, name[, subdir, cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step</span></code></a>(component, name[, subdir, indir, ...])</p></td>
 <td><p>The base class for a step of a tasks, such as setting up a mesh, creating an initial condition, or running the component forward in time.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_resources</span></code></a>([cpus_per_task, ...])</p></td>
@@ -462,7 +459,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep</span></code></a>(task, name[, subdir, ntasks, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep</span></code></a>(component, name[, subdir, indir, ...])</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">ivar namelist</dt>
 <dd class="field-odd"><p>The name of the namelist file</p>
@@ -605,7 +602,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
 <td><p>Compute number of grid cells in each direction for the uniform, hexagonal planar mesh with the given physical sizes and resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(task, name, subdir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(component, name, ...)</p></td>
 <td><p>A base class for steps that create a JIGSAW spherical mesh</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.spherical.SphericalBaseStep.setup" title="polaris.mesh.spherical.SphericalBaseStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.setup</span></code></a>()</p></td>
@@ -617,7 +614,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.save_and_plot_cell_width</span></code></a>(...)</p></td>
 <td><p>Save the cell width field on a lon/lat grid to <code class="docutils literal notranslate"><span class="pre">self.cell_width_filename</span></code> and plot</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(task[, name, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(component[, ...])</p></td>
 <td><p>A step for creating a quasi-uniform JIGSAW mesh with a constant approximate cell width.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup" title="polaris.mesh.QuasiUniformSphericalMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.setup</span></code></a>()</p></td>
@@ -632,7 +629,7 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
 <td><p>Build the JIGSAW mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(task[, name, subdir, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(component[, name, ...])</p></td>
 <td><p>A step for creating an icosahedral JIGSAW mesh</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup" title="polaris.mesh.IcosahedralMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.setup</span></code></a>()</p></td>
@@ -738,7 +735,7 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep</span></code></a>(task, name[, subdir, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep</span></code></a>(component, name[, subdir, ...])</p></td>
 <td><p>A step for creating a mapping file between grids</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas" title="polaris.remap.MappingFileStep.src_from_mpas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MappingFileStep.src_from_mpas</span></code></a>(filename, ...)</p></td>

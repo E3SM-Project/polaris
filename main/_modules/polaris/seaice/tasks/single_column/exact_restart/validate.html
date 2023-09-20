@@ -125,17 +125,22 @@
 <span class="sd">    variables : list of str</span>
 <span class="sd">        The variables to validate</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Validate.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.exact_restart.validate.Validate.html#polaris.seaice.tasks.single_column.exact_restart.validate.Validate.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">step_subdirs</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">restart_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Validate.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.exact_restart.validate.Validate.html#polaris.seaice.tasks.single_column.exact_restart.validate.Validate.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">step_subdirs</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span>
+                 <span class="n">restart_filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The task this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
 
 <span class="sd">        step_subdirs : list of str</span>
 <span class="sd">            The number of processors used in each run</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            the directory the step is in, to which the name of the step will</span>
+<span class="sd">            be appended</span>
 
 <span class="sd">        variables : list of str</span>
 <span class="sd">            The variables to validate</span>
@@ -143,7 +148,7 @@
 <span class="sd">        restart_filename : str</span>
 <span class="sd">            The relative path to the restart file to compare in the 2 subdirs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;validate&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;validate&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">step_subdirs</span> <span class="o">=</span> <span class="n">step_subdirs</span>
 

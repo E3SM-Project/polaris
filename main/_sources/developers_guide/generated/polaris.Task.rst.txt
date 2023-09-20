@@ -15,8 +15,8 @@
    
       ~Task.__init__
       ~Task.add_step
-      ~Task.check_validation
       ~Task.configure
+      ~Task.remove_step
    
    
 

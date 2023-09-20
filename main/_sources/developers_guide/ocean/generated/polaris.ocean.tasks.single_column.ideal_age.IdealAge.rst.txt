@@ -15,8 +15,8 @@
    
       ~IdealAge.__init__
       ~IdealAge.add_step
-      ~IdealAge.check_validation
       ~IdealAge.configure
+      ~IdealAge.remove_step
    
    
 

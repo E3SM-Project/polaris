@@ -128,6 +128,10 @@
 <span class="sd">    steps : dict</span>
 <span class="sd">        A dictionary of steps in the task with step names as keys</span>
 
+<span class="sd">    step_symlinks : dict</span>
+<span class="sd">        A dictionary of symlink paths within the test case&#39;s work directory</span>
+<span class="sd">        to shared steps outside the test case</span>
+
 <span class="sd">    steps_to_run : list</span>
 <span class="sd">        A list of the steps to run when ``run()`` gets called.  This list</span>
 <span class="sd">        includes all steps by default but can be replaced with a list of only</span>
@@ -156,10 +160,6 @@
 <span class="sd">    base_work_dir : str</span>
 <span class="sd">        The base work directory</span>
 
-<span class="sd">    baseline_dir : str</span>
-<span class="sd">        Location of the same task within the baseline work directory,</span>
-<span class="sd">        for use in comparing variables and timers</span>
-
 <span class="sd">    stdout_logger : logging.Logger</span>
 <span class="sd">        A logger for output from the task that goes to stdout regardless</span>
 <span class="sd">        of whether ``logger`` is a log file or stdout</span>
@@ -175,14 +175,9 @@
 <span class="sd">        Whether to create a new log file for each step or to log output to a</span>
 <span class="sd">        common log file for the whole task.  The latter is used when</span>
 <span class="sd">        running the task as part of a suite</span>
-
-<span class="sd">    validation : dict</span>
-<span class="sd">        A dictionary with the status of internal and baseline comparisons, used</span>
-<span class="sd">        by the ``polaris`` framework to determine whether the task passed</span>
-<span class="sd">        or failed internal and baseline validation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Task.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.html#polaris.Task.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Task.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.html#polaris.Task.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
 
@@ -195,12 +190,18 @@
 <span class="sd">            the name of the task</span>
 
 <span class="sd">        subdir : str, optional</span>
-<span class="sd">            the subdirectory for the task.  The default is ``name``</span>
+<span class="sd">            the subdirectory for the task.  If neither this nor ``indir``</span>
+<span class="sd">             are provided, the directory is the ``name``</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the task is in, to which ``name`` will be appended</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span> <span class="o">=</span> <span class="n">subdir</span>
+        <span class="k">elif</span> <span class="n">indir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span> <span class="o">=</span> <span class="n">name</span>
 
@@ -208,6 +209,7 @@
 
         <span class="c1"># steps will be added by calling add_step()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="c1"># these will be set during setup, dummy values for now</span>
@@ -215,15 +217,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="c1"># may be set during setup if there is a baseline for comparison</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># these will be set when running the task, dummy values for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_step_log_file</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stdout_logger</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;dummy&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Task.configure"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.configure.html#polaris.Task.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -236,50 +235,75 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Task.add_step"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.add_step.html#polaris.Task.add_step">[docs]</a>    <span class="k">def</span> <span class="nf">add_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Task.add_step"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.add_step.html#polaris.Task.add_step">[docs]</a>    <span class="k">def</span> <span class="nf">add_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">run_by_default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a step to the task</span>
+<span class="sd">        Add a step to the task and component (if not already present)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        step : polaris.Step</span>
-<span class="sd">            The step to add</span>
+<span class="sd">        step : polaris.Step, optional</span>
+<span class="sd">            The step to add if adding by Step object, not subdirectory</span>
+
+<span class="sd">        subdir : str, optional</span>
+<span class="sd">            The subdirectory of the step within the component if wish to add</span>
+<span class="sd">            the step by path, and it has already been added to the component</span>
+
+<span class="sd">        symlink : str, optional</span>
+<span class="sd">            A location for a symlink to the step, relative to the test case&#39;s</span>
+<span class="sd">            work directory. This is typically used for a shared step that lives</span>
+<span class="sd">            outside of the test case</span>
 
 <span class="sd">        run_by_default : bool, optional</span>
 <span class="sd">            Whether to add this step to the list of steps to run when the</span>
 <span class="sd">            ``run()`` method gets called.  If ``run_by_default=False``, users</span>
 <span class="sd">            would need to run this step manually.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;One of step or subdir must be provided.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only one of step or subdir should be provided.&#39;</span><span class="p">)</span>
+
+        <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
+
+        <span class="k">if</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find </span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1"> in the steps in &#39;</span>
+                                 <span class="sa">f</span><span class="s1">&#39;the component.  Add the step to the &#39;</span>
+                                 <span class="sa">f</span><span class="s1">&#39;component first, then to the task.&#39;</span><span class="p">)</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A step has already been added to this task &#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;with path </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add the step to the component (if it&#39;s not already there)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="k">if</span> <span class="n">symlink</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">symlink</span>
         <span class="k">if</span> <span class="n">run_by_default</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">check_validation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check the task&#39;s &quot;validation&quot; dictionary to see if validation</span>
-<span class="sd">        failed.</span>
+<span class="sd">        Remove the given step from this task and the component</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step to add if adding by Step object, not subdirectory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">validation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="k">if</span> <span class="n">validation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">internal_pass</span> <span class="o">=</span> <span class="n">validation</span><span class="p">[</span><span class="s1">&#39;internal_pass&#39;</span><span class="p">]</span>
-            <span class="n">baseline_pass</span> <span class="o">=</span> <span class="n">validation</span><span class="p">[</span><span class="s1">&#39;baseline_pass&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> not in this task </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-            <span class="n">both_pass</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="n">internal_pass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">internal_pass</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Comparison failed between files within the &#39;</span>
-                                 <span class="s1">&#39;task.&#39;</span><span class="p">)</span>
-                <span class="n">both_pass</span> <span class="o">=</span> <span class="kc">False</span>
-
-            <span class="k">if</span> <span class="n">baseline_pass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">baseline_pass</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Comparison failed between the task and &#39;</span>
-                                 <span class="s1">&#39;the baseline.&#39;</span><span class="p">)</span>
-                <span class="n">both_pass</span> <span class="o">=</span> <span class="kc">False</span>
-
-            <span class="k">if</span> <span class="n">both_pass</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Comparison failed, see above.&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -15,8 +15,8 @@
    
       ~Threads.__init__
       ~Threads.add_step
-      ~Threads.check_validation
       ~Threads.configure
+      ~Threads.remove_step
    
    
 

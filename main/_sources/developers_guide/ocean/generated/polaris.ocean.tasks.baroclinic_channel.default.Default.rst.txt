@@ -15,8 +15,8 @@
    
       ~Default.__init__
       ~Default.add_step
-      ~Default.check_validation
       ~Default.configure
+      ~Default.remove_step
    
    
 

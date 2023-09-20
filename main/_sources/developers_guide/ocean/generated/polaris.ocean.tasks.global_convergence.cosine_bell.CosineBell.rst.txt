@@ -15,8 +15,8 @@
    
       ~CosineBell.__init__
       ~CosineBell.add_step
-      ~CosineBell.check_validation
       ~CosineBell.configure
+      ~CosineBell.remove_step
    
    
 

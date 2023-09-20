@@ -127,7 +127,7 @@
 <h1>polaris.ocean.tasks.single_column.init.Init<a class="headerlink" href="#polaris-ocean-tasks-single-column-init-init" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.single_column.init.Init">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.single_column.init.</span></span><span class="sig-name descname"><span class="pre">Init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideal_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/single_column/init.html#Init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.single_column.init.Init" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.single_column.init.</span></span><span class="sig-name descname"><span class="pre">Init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideal_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/single_column/init.html#Init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.single_column.init.Init" title="Permalink to this definition"></a></dt>
 <dd><p>A step for creating a mesh and initial condition for single column
 test cases
 :ivar resolution: The resolution of the test case in km</p>
@@ -135,12 +135,19 @@ test cases
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.single_column.init.Init.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideal_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/single_column/init.html#Init.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.single_column.init.Init.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create the step
-:param task: The test case this step belongs to
-:type task: polaris.Task
-:param resolution: The resolution of the test case in km
-:type resolution: float</p>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideal_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/single_column/init.html#Init.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.single_column.init.Init.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create the step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
+<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The resolution of the test case in km</p></li>
+<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The subdirectory that the task belongs to, that this step will
+go into a subdirectory of</p></li>
+<li><p><strong>ideal_age</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the initial condition should include the ideal age tracer</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -150,8 +157,8 @@ test cases
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.single_column.init.Init.__init__" title="polaris.ocean.tasks.single_column.init.Init.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(task, resolution[, ideal_age])</p></td>
-<td><p>Create the step :param task: The test case this step belongs to :type task: polaris.Task :param resolution: The resolution of the test case in km :type resolution: float</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.single_column.init.Init.__init__" title="polaris.ocean.tasks.single_column.init.Init.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, resolution, indir[, ...])</p></td>
+<td><p>Create the step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e.</p></td>

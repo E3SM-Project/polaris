@@ -15,8 +15,8 @@
    
       ~Convergence.__init__
       ~Convergence.add_step
-      ~Convergence.check_validation
       ~Convergence.configure
+      ~Convergence.remove_step
    
    
 

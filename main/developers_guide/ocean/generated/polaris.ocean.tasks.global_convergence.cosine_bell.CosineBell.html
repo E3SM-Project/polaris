@@ -164,14 +164,14 @@ meshes</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, icosahedral, include_viz)</p></td>
 <td><p>Create test case for creating a global MPAS-Ocean mesh</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>(step[, run_by_default])</p></td>
-<td><p>Add a step to the task</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
+<td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_validation</span></code>()</p></td>
-<td><p>Check the task's &quot;validation&quot; dictionary to see if validation failed.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure" title="polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
+<td><p>Remove the given step from this task and the component</p></td>
 </tr>
 </tbody>
 </table>

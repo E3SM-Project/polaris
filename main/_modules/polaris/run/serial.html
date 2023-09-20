@@ -118,6 +118,7 @@
 <span class="kn">import</span> <span class="nn">mpas_tools.io</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.logging</span> <span class="kn">import</span> <span class="n">LoggingContext</span><span class="p">,</span> <span class="n">check_call</span>
 
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
 <span class="kn">from</span> <span class="nn">polaris.logging</span> <span class="kn">import</span> <span class="n">log_function_call</span><span class="p">,</span> <span class="n">log_method_call</span>
 <span class="kn">from</span> <span class="nn">polaris.parallel</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_available_parallel_resources</span><span class="p">,</span>
@@ -125,8 +126,8 @@
     <span class="n">set_cores_per_node</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">polaris.run</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">complete_step_run</span><span class="p">,</span>
     <span class="n">load_dependencies</span><span class="p">,</span>
-    <span class="n">pickle_step_after_run</span><span class="p">,</span>
     <span class="n">setup_config</span><span class="p">,</span>
     <span class="n">unpickle_suite</span><span class="p">,</span>
 <span class="p">)</span>
@@ -223,7 +224,7 @@
                            <span class="n">failures</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="run_single_step"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step">[docs]</a><span class="k">def</span> <span class="nf">run_single_step</span><span class="p">(</span><span class="n">step_is_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="run_single_step"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step">[docs]</a><span class="k">def</span> <span class="nf">run_single_step</span><span class="p">(</span><span class="n">step_is_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used by the framework to run a step when ``polaris serial`` gets called in</span>
 <span class="sd">    the step&#39;s work directory</span>
@@ -232,10 +233,15 @@
 <span class="sd">    ----------</span>
 <span class="sd">    step_is_subprocess : bool, optional</span>
 <span class="sd">        Whether the step is being run as a subprocess of a task or suite</span>
+
+<span class="sd">    quiet : bool, optional</span>
+<span class="sd">        Whether step names are not included in the output as the suite</span>
+<span class="sd">        progresses</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;step.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="n">task</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-    <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;dummy_task&#39;</span><span class="p">)</span>
+    <span class="n">task</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
     <span class="n">task</span><span class="o">.</span><span class="n">new_step_log_file</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="c1"># This prevents infinite loop of subprocesses</span>
@@ -251,12 +257,16 @@
     <span class="n">mpas_tools</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">default_engine</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;io&#39;</span><span class="p">,</span> <span class="s1">&#39;engine&#39;</span><span class="p">)</span>
 
     <span class="c1"># start logging to stdout/stderr</span>
-    <span class="n">task_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">task_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout_logger</span><span class="p">:</span>
+    <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout_logger</span><span class="p">:</span>
         <span class="n">task</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">stdout_logger</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">stdout_logger</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">log_function_call</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">_run_task</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">stdout_logger</span><span class="p">)</span>
-        <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">stdout_logger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">stdout_logger</span> <span class="o">=</span> <span class="n">stdout_logger</span>
+            <span class="n">log_function_call</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">_run_task</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">stdout_logger</span><span class="p">)</span>
+            <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running step: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">_run_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">)</span></div>
 
 
@@ -292,7 +302,8 @@
                   <span class="n">steps_to_run</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">skip_steps</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;step.pickle&#39;</span><span class="p">):</span>
         <span class="c1"># Running a step inside of its work directory</span>
-        <span class="n">run_single_step</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">step_is_subprocess</span><span class="p">)</span>
+        <span class="n">run_single_step</span><span class="p">(</span><span class="n">step_is_subprocess</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">step_is_subprocess</span><span class="p">,</span>
+                        <span class="n">quiet</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pickles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.pickle&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pickles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -451,23 +462,30 @@
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">:</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span>
+        <span class="n">complete_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
+                                         <span class="s1">&#39;polaris_step_complete.log&#39;</span><span class="p">)</span>
+
+        <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;  * step: </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">complete_filename</span><span class="p">):</span>
+            <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">&#39;          already completed&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
+            <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">&#39;          cached&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
         <span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  * Cached step: </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">continue</span>
         <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">log_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">step_log_filename</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">log_filename</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">step_log_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;  * step: </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">run_as_subprocess</span><span class="p">:</span>
                 <span class="n">_run_step_as_subprocess</span><span class="p">(</span>
-                    <span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">_run_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">,</span>
                           <span class="n">available_resources</span><span class="p">,</span> <span class="n">step_log_filename</span><span class="p">)</span>
@@ -512,10 +530,10 @@
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;input file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;input file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> in &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="n">load_dependencies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="n">load_dependencies</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
     <span class="c1"># each logger needs a unique name</span>
     <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
@@ -565,7 +583,7 @@
             <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="n">step</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="n">pickle_step_after_run</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="n">complete_step_run</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
     <span class="n">missing_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">output_file</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
@@ -579,15 +597,14 @@
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;output file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;output file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> in &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_run_step_as_subprocess</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_run_step_as_subprocess</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the requested step as a subprocess</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">logger</span>
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">new_log_file</span><span class="p">:</span>

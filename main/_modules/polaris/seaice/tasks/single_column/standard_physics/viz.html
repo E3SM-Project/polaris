@@ -128,16 +128,20 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for plotting the results of a single column test</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            the directory the step is in, to which the name of the step will</span>
+<span class="sd">            be appended</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.2000.nc&#39;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output/output.2000.nc&#39;</span><span class="p">)</span></div>
@@ -151,7 +155,6 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output.2000.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">daysSinceStartOfSim</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">iceVolumeCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">iceVolumeCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">snowVolumeCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">snowVolumeCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">iceVolumeCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">iceVolumeCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">surfaceTemperatureCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">surfaceTemperatureCell</span><span class="o">.</span><span class="n">values</span>

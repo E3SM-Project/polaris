@@ -15,8 +15,8 @@
    
       ~Restart.__init__
       ~Restart.add_step
-      ~Restart.check_validation
       ~Restart.configure
+      ~Restart.remove_step
    
    
 

@@ -1,6 +1,0 @@
-﻿polaris.run.pickle\_step\_after\_run
-====================================
-
-.. currentmodule:: polaris.run
-
-.. autofunction:: pickle_step_after_run

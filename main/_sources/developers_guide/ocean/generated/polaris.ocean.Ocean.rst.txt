@@ -14,8 +14,10 @@
    .. autosummary::
    
       ~Ocean.__init__
+      ~Ocean.add_step
       ~Ocean.add_task
       ~Ocean.configure
+      ~Ocean.remove_step
    
    
 

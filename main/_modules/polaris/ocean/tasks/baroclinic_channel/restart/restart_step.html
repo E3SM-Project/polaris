@@ -118,23 +118,26 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A forward model step in the restart test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="RestartStep.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="RestartStep.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The test case this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
 
 <span class="sd">        resolution : km</span>
 <span class="sd">            The resolution of the test case in km</span>
 
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the test case</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                          <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                          <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span></div>
 

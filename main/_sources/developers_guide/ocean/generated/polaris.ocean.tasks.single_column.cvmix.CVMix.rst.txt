@@ -15,8 +15,8 @@
    
       ~CVMix.__init__
       ~CVMix.add_step
-      ~CVMix.check_validation
       ~CVMix.configure
+      ~CVMix.remove_step
    
    
 

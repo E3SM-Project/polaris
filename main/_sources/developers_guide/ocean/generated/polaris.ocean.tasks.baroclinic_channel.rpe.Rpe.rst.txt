@@ -15,8 +15,8 @@
    
       ~Rpe.__init__
       ~Rpe.add_step
-      ~Rpe.check_validation
       ~Rpe.configure
+      ~Rpe.remove_step
    
    
 

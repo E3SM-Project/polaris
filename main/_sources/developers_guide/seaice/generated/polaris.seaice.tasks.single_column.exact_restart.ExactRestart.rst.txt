@@ -15,8 +15,8 @@
    
       ~ExactRestart.__init__
       ~ExactRestart.add_step
-      ~ExactRestart.check_validation
       ~ExactRestart.configure
+      ~ExactRestart.remove_step
    
    
 

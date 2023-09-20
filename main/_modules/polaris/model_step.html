@@ -167,7 +167,7 @@
 <span class="sd">        instead of MPAS namelist and streams files</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ModelStep.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ModelStep.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -178,14 +178,18 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The task this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            the component that the step belongs to</span>
 
 <span class="sd">        name : str</span>
 <span class="sd">            The name of the step</span>
 
 <span class="sd">        subdir : str, optional</span>
-<span class="sd">            the subdirectory for the step.  The default is ``name``</span>
+<span class="sd">            the subdirectory for the step.  If neither this nor ``indir``</span>
+<span class="sd">             are provided, the directory is the ``name``</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
 
 <span class="sd">        ntasks : int, optional</span>
 <span class="sd">            the target number of tasks the step would ideally use.  If too</span>
@@ -240,21 +244,20 @@
 <span class="sd">            Whether to create a yaml file with model config options and streams</span>
 <span class="sd">            instead of MPAS namelist and streams files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
                          <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
                          <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
                          <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">)</span>
 
-        <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">namelist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">namelist</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">namelist</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="k">if</span> <span class="n">streams</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">streams</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;streams.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">streams</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;streams.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="k">if</span> <span class="n">yaml</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">yaml</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.yaml&#39;</span>
+            <span class="n">yaml</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.yaml&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span> <span class="o">=</span> <span class="n">namelist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="n">streams</span>
@@ -280,8 +283,8 @@
 <div class="viewcode-block" id="ModelStep.setup"><a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.setup.html#polaris.ModelStep.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Setup the command-line arguments &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">component</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
-        <span class="n">model_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
+        <span class="n">model_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;./</span><span class="si">{</span><span class="n">model_basename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="p">,</span>
                      <span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">]</span></div>
 
