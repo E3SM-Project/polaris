@@ -17,6 +17,10 @@ class Component:
         A dictionary of tasks in the component with the subdirectories of the
         tasks in the component as keys
 
+    steps : dict
+        A dictionary of steps in the component with the subdirectories of the
+        steps in the component as keys
+
     cached_files : dict
         A dictionary that maps from output file names in steps within tasks to
         cached files in the ``polaris_cache`` database for the component. These
@@ -36,6 +40,8 @@ class Component:
 
         # tasks are added with add_task()
         self.tasks = dict()
+        # steps are added with add_step()
+        self.steps = dict()
 
         self.cached_files = dict()
         self._read_cached_files()
@@ -49,7 +55,38 @@ class Component:
         task : polaris.Task
             The task to add
         """
+        if task.subdir in self.tasks:
+            raise ValueError(f'A task has already been added with path '
+                             f'{task.subdir}')
         self.tasks[task.subdir] = task
+
+    def add_step(self, step):
+        """
+        Add a step to the component
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step to add
+        """
+        if step.subdir in self.steps and self.steps[step.subdir] != step:
+            raise ValueError(f'A different step has already been added with '
+                             f'path {step.subdir}')
+        self.steps[step.subdir] = step
+
+    def remove_step(self, step):
+        """
+        Remove the given step from this component
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step to add if adding by Step object, not subdirectory
+        """
+        if step.subdir not in self.steps:
+            raise ValueError(f'step {step.name} not in this component '
+                             f'{self.name}')
+        self.steps.pop(step.subdir)
 
     def configure(self, config):
         """

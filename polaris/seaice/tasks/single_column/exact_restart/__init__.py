@@ -57,7 +57,7 @@ class ExactRestart(Task):
                          'freezingMeltingPotential',
                          'airOceanDragCoefficientRatio']
 
-        step = Forward(task=self, name='full_run')
+        step = Forward(component=component, name='full_run', indir=self.subdir)
         step.add_output_file(
             filename='restarts/restart.2000-01-01_12.00.00.nc',
             validate_vars=validate_vars)
@@ -73,7 +73,8 @@ class ExactRestart(Task):
             streams='streams.full')
         self.add_step(step)
 
-        step = Forward(task=self, name='restart_run')
+        step = Forward(component=component, name='restart_run',
+                       indir=self.subdir)
         step.add_input_file(
             filename='restarts/restart.2000-01-01_12.00.00.nc',
             target='../../full_run/restarts/restart.2000-01-01_12.00.00.nc')
@@ -91,6 +92,6 @@ class ExactRestart(Task):
 
         subdirs = ['full_run', 'restart_run']
         restart_filename = 'restarts/restart.2000-01-02_00.00.00.nc'
-        self.add_step(Validate(task=self, step_subdirs=subdirs,
-                               variables=validate_vars,
+        self.add_step(Validate(component=component, step_subdirs=subdirs,
+                               indir=self.subdir, variables=validate_vars,
                                restart_filename=restart_filename))

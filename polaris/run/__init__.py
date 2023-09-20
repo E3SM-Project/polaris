@@ -50,16 +50,13 @@ def setup_config(config_filename):
     return config
 
 
-def load_dependencies(task, step):
+def load_dependencies(step):
     """
     Load each dependency from its pickle file to pick up changes that may have
     happened since it ran
 
     Parameters
     ----------
-    task : polaris.task.Task
-        The test case object
-
     step : polaris.step.Step
         The step object
     """
@@ -71,30 +68,29 @@ def load_dependencies(task, step):
                                        'step_after_run.pickle')
         if not os.path.exists(pickle_filename):
             raise ValueError(f'The dependency {name} of '
-                             f'{task.path} step {step.name} was '
-                             f'not run.')
+                             f'step {step.path} was not run.')
 
         with open(pickle_filename, 'rb') as handle:
-            _, dependency = pickle.load(handle)
+            dependency = pickle.load(handle)
             step.dependencies[name] = dependency
 
 
-def pickle_step_after_run(task, step):
+def complete_step_run(step):
     """
-    Pickle a step after it has run so its dependencies will pick up the
-    changes
+    Write a file to indicate that the step has completed. If this step is a
+    dependency of other steps, pickle the step after it has run so its
+    dependencies will pick up any changes in its attributes
 
     Parameters
     ----------
-    task : polaris.task.Task
-        The test case object
-
     step : polaris.step.Step
         The step object
     """
+    with open('polaris_step_complete.log', 'w') as log_file:
+        log_file.write(f'{step.path} finished successfully.')
     if step.is_dependency:
         # pickle the test case and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump((task, step), handle,
+            pickle.dump(step, handle,
                         protocol=pickle.HIGHEST_PROTOCOL)

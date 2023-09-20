@@ -19,18 +19,21 @@ class Forward(OceanModelStep):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, task, resolution,
+    def __init__(self, component, resolution, taskdir,
                  ntasks=None, min_tasks=None, openmp_threads=1):
         """
         Create a new test case
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolution : km
             The resolution of the test case in km
+
+        taskdir : str
+            The subdirectory that the task belongs to
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
@@ -45,9 +48,9 @@ class Forward(OceanModelStep):
             the number of OpenMP threads the step will use
         """
         self.resolution = resolution
-        super().__init__(task=task,
+        super().__init__(component=component,
                          name=f'forward_{resolution}km',
-                         subdir=f'{resolution}km/forward',
+                         subdir=f'{taskdir}/{resolution}km/forward',
                          ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 

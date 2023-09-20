@@ -21,19 +21,22 @@ class Analysis(Step):
     resolutions : list of int
         The resolutions of the meshes that have been run
     """
-    def __init__(self, task, resolutions):
+    def __init__(self, component, resolutions, taskdir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolutions : list of int
             The resolutions of the meshes that have been run
+
+        taskdir : str
+            The subdirectory that the task belongs to
         """
-        super().__init__(task=task, name='analysis')
+        super().__init__(component=component, name='analysis', indir=taskdir)
         self.resolutions = resolutions
 
         for resolution in resolutions:

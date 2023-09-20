@@ -1,6 +1,7 @@
 import argparse
 import os
 import pickle
+import shutil
 import sys
 import warnings
 from typing import Dict, List
@@ -15,7 +16,8 @@ from polaris.machines import discover_machine
 
 def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
                 machine=None, baseline_dir=None, component_path=None,
-                suite_name='custom', cached=None, copy_executable=False):
+                suite_name='custom', cached=None, copy_executable=False,
+                clean=False):
     """
     Set up one or more tasks
 
@@ -59,6 +61,10 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
 
+    clean : bool, optional
+        Whether to delete the contents of the base work directory before
+        setting up tasks
+
     Returns
     -------
     tasks : dict of polaris.Task
@@ -86,8 +92,8 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
-    # get the component of the first task.  We'll assume all tasks are
-    # for this core
+    # get the component of the first task.  We'll ensure that all tasks are
+    # for this component
     first_path = next(iter(tasks))
     component = tasks[first_path].component
 
@@ -95,6 +101,14 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
                                      component)
 
     provenance.write(work_dir, tasks, config=basic_config)
+
+    _expand_and_mark_cached_steps(tasks, cached_steps)
+
+    if clean:
+        print('')
+        print('Cleaning task and step work directories:')
+        _clean_tasks_and_steps(tasks, work_dir)
+        print('')
 
     print('Setting up tasks:')
     for path, task in tasks.items():
@@ -160,8 +174,8 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
         default namelists have been built
 
     cached_steps : list of str
-        Which steps (if any) should be cached.  If all steps should be cached,
-         the first entry is "_all"
+        Which steps (if any) should be cached, identified by a list of
+        subdirectories in the component
 
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
@@ -214,18 +228,22 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     with open(os.path.join(task_dir, task_config), 'w') as f:
         config.write(f)
 
-    if len(cached_steps) > 0 and cached_steps[0] == '_all':
-        cached_steps = list(task.steps.keys())
     if len(cached_steps) > 0:
         print_steps = ' '.join(cached_steps)
         print(f'    steps with cached outputs: {print_steps}')
-    for step_name in cached_steps:
-        task.steps[step_name].cached = True
 
     # iterate over steps
     for step in task.steps.values():
         # make the step directory if it doesn't exist
         step_dir = os.path.join(work_dir, step.path)
+
+        if step.name in task.step_symlinks:
+            symlink(step_dir,
+                    os.path.join(task_dir, task.step_symlinks[step.name]))
+
+        if step.setup_complete:
+            # this is a shared step that has already been set up
+            continue
         try:
             os.makedirs(step_dir)
         except OSError:
@@ -252,11 +270,14 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     # wait until we've set up all the steps before pickling because steps may
     # need other steps to be set up
     for step in task.steps.values():
+        if step.setup_complete:
+            # this is a shared step that has already been set up
+            continue
 
         # pickle the task and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump((task, step), handle,
+            pickle.dump(step, handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
 
         _symlink_load_script(step.work_dir)
@@ -266,6 +287,7 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
             min_cores = step.min_cpus_per_task * step.min_tasks
             write_job_script(config, machine, cores, min_cores,
                              step.work_dir)
+        step.setup_complete = True
 
     # pickle the task and step for use at runtime
     pickle_filename = os.path.join(task.work_dir, 'task.pickle')
@@ -325,6 +347,9 @@ def main():
                         action="store_true",
                         help="If the model executable should be copied to the "
                              "work directory.")
+    parser.add_argument("--clean", dest="clean", action="store_true",
+                        help="If the base work directory should be deleted "
+                             "before setting up the tasks.")
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -338,7 +363,44 @@ def main():
                 config_file=args.config_file, machine=args.machine,
                 work_dir=args.work_dir, baseline_dir=args.baseline_dir,
                 component_path=args.component_path, suite_name=args.suite_name,
-                cached=cached, copy_executable=args.copy_executable)
+                cached=cached, copy_executable=args.copy_executable,
+                clean=args.clean)
+
+
+def _expand_and_mark_cached_steps(tasks, cached_steps):
+    """
+    Mark any steps that will be cached.  If any task asked for a step to
+    be cached, it will be cached for all tasks that share the step.
+    """
+    for path, task in tasks.items():
+        cached_names = cached_steps[path]
+        if len(cached_names) > 0 and cached_names[0] == '_all':
+            cached_steps[path] = list(task.steps.keys())
+
+        for step_name in cached_steps[path]:
+            task.steps[step_name].cached = True
+
+
+def _clean_tasks_and_steps(tasks, base_work_dir):
+    """
+    Remove contents of task and step work directories to start fresh
+    """
+    print(f'{base_work_dir}:')
+    for path, task in tasks.items():
+        task_work_dir = os.path.join(base_work_dir, path)
+        try:
+            shutil.rmtree(task_work_dir)
+            print(f' {path}')
+        except FileNotFoundError:
+            pass
+
+        for step in task.steps.values():
+            step_work_dir = os.path.join(base_work_dir, step.path)
+            try:
+                shutil.rmtree(step_work_dir)
+                print(f'  {step.path}')
+            except FileNotFoundError:
+                pass
 
 
 def _get_required_cores(tasks):

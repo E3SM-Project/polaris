@@ -17,14 +17,20 @@ class Forward(OceanModelStep):
         The name of the mesh
     """
 
-    def __init__(self, task, resolution, mesh_name):
+    def __init__(self, component, name, subdir, resolution, mesh_name):
         """
         Create a new step
 
         Parameters
         ----------
-        task : polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell  # noqa: E501
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        name : str
+            The name of the step
+
+        subdir : str
+            The subdirectory for the step
 
         resolution : int
             The resolution of the (uniform) mesh in km
@@ -32,9 +38,7 @@ class Forward(OceanModelStep):
         mesh_name : str
             The name of the mesh
         """
-        super().__init__(task=task,
-                         name=f'{mesh_name}_forward',
-                         subdir=f'{mesh_name}/forward',
+        super().__init__(component=component, name=name, subdir=subdir,
                          openmp_threads=1)
 
         self.resolution = resolution

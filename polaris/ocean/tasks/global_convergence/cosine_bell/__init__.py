@@ -93,10 +93,12 @@ class CosineBell(Task):
             return
 
         # start fresh with no steps
-        self.steps = dict()
-        self.steps_to_run = list()
+        for step in list(self.steps.values()):
+            self.remove_step(step)
 
         self.resolutions = resolutions
+
+        component = self.component
 
         for resolution in resolutions:
             if self.icosahedral:
@@ -104,33 +106,42 @@ class CosineBell(Task):
             else:
                 mesh_name = f'QU{resolution}'
 
+            meshdir = f'{self.subdir}/{mesh_name}'
+
             name = f'{mesh_name}_mesh'
-            subdir = f'{mesh_name}/mesh'
+            subdir = f'{meshdir}/mesh'
             if self.icosahedral:
                 self.add_step(IcosahedralMeshStep(
-                    task=self, name=name, subdir=subdir,
+                    component=component, name=name, subdir=subdir,
                     cell_width=resolution))
             else:
                 self.add_step(QuasiUniformSphericalMeshStep(
-                    task=self, name=name, subdir=subdir,
+                    component=component, name=name, subdir=subdir,
                     cell_width=resolution))
 
-            self.add_step(Init(task=self, mesh_name=mesh_name))
+            name = f'{mesh_name}_init'
+            subdir = f'{meshdir}/init'
+            self.add_step(Init(component=component, name=name, subdir=subdir))
 
-            self.add_step(Forward(task=self, resolution=resolution,
+            name = f'{mesh_name}_forward'
+            subdir = f'{meshdir}/forward'
+            self.add_step(Forward(component=component, name=name,
+                                  subdir=subdir, resolution=resolution,
                                   mesh_name=mesh_name))
 
             if self.include_viz:
                 name = f'{mesh_name}_map'
-                subdir = f'{mesh_name}/map'
-                viz_map = VizMap(task=self, name=name, subdir=subdir,
+                subdir = f'{meshdir}/map'
+                viz_map = VizMap(component=component, name=name, subdir=subdir,
                                  mesh_name=mesh_name)
                 self.add_step(viz_map)
 
                 name = f'{mesh_name}_viz'
-                subdir = f'{mesh_name}/viz'
-                self.add_step(Viz(task=self, name=name, subdir=subdir,
-                                  viz_map=viz_map, mesh_name=mesh_name))
+                subdir = f'{meshdir}/viz'
+                self.add_step(Viz(component=component, name=name,
+                                  subdir=subdir, viz_map=viz_map,
+                                  mesh_name=mesh_name))
 
-        self.add_step(Analysis(task=self, resolutions=resolutions,
-                               icosahedral=self.icosahedral))
+        self.add_step(Analysis(component=component, resolutions=resolutions,
+                               icosahedral=self.icosahedral,
+                               taskdir=self.subdir))

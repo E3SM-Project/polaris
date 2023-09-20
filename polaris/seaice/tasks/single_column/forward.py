@@ -5,19 +5,22 @@ class Forward(ModelStep):
     """
     A step for staging a mesh for “single column” test cases
     """
-    def __init__(self, task, name='forward'):
+    def __init__(self, component, name='forward', indir=None):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-          The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str, optional
           The name of the step
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
         """
-        super().__init__(task=task, name=name,
+        super().__init__(component=component, name=name, indir=indir,
                          ntasks=1, min_tasks=1, openmp_threads=1)
 
         self.add_input_file(filename='grid.nc',

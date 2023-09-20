@@ -9,7 +9,7 @@ class Decomp(BaroclinicChannelTestCase):
     produces identical results on 1 and 4 cores.
     """
 
-    def __init__(self, component, resolution):
+    def __init__(self, component, resolution, indir):
         """
         Create the task
 
@@ -20,18 +20,22 @@ class Decomp(BaroclinicChannelTestCase):
 
         resolution : float
             The resolution of the task in km
+
+        indir : str
+            the directory the task is in, to which ``name`` will be appended
         """
 
         super().__init__(component=component, resolution=resolution,
-                         name='decomp')
+                         name='decomp', indir=indir)
 
         subdirs = list()
         for procs in [4, 8]:
             name = f'{procs}proc'
 
             self.add_step(Forward(
-                task=self, name=name, subdir=name, ntasks=procs,
-                min_tasks=procs, openmp_threads=1,
+                component=component, name=name, indir=self.subdir,
+                ntasks=procs, min_tasks=procs, openmp_threads=1,
                 resolution=resolution, run_time_steps=3))
             subdirs.append(name)
-        self.add_step(Validate(task=self, step_subdirs=subdirs))
+        self.add_step(Validate(component=component, step_subdirs=subdirs,
+                               indir=self.subdir))

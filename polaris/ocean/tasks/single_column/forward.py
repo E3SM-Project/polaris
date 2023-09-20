@@ -18,7 +18,7 @@ class Forward(OceanModelStep):
     btr_dt : float
         The model barotropic time step in seconds
     """
-    def __init__(self, task, name='forward', subdir=None,
+    def __init__(self, component, name='forward', subdir=None, indir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1,
                  validate_vars=None):
         """
@@ -26,14 +26,18 @@ class Forward(OceanModelStep):
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         name : str
             the name of the test case
 
         subdir : str, optional
-            the subdirectory for the step.  The default is ``name``
+            the subdirectory for the step.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
@@ -51,8 +55,8 @@ class Forward(OceanModelStep):
             A list of variable names to compare with a baseline (if one is
             provided)
         """
-        super().__init__(task=task, name=name, subdir=subdir,
-                         ntasks=ntasks, min_tasks=min_tasks,
+        super().__init__(component=component, name=name, subdir=subdir,
+                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')

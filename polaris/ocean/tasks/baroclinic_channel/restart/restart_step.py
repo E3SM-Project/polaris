@@ -7,23 +7,26 @@ class RestartStep(Forward):
     """
     A forward model step in the restart test case
     """
-    def __init__(self, task, resolution, name):
+    def __init__(self, component, resolution, name, indir):
         """
         Create a new test case
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolution : km
             The resolution of the test case in km
 
         name : str
             the name of the test case
+
+        indir : str
+            the directory the step is in, to which ``name`` will be appended
         """
         self.resolution = resolution
-        super().__init__(task=task, name=name, subdir=name, ntasks=4,
+        super().__init__(component=component, name=name, indir=indir, ntasks=4,
                          min_tasks=4, openmp_threads=1,
                          resolution=resolution)
 

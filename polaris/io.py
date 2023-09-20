@@ -164,6 +164,13 @@ def symlink(target, link_name, overwrite=True):
         Whether to replace an existing link if one already exists
     """
 
+    # make the directory that the link is in if it doesn't exist
+    directory = os.path.dirname(os.path.abspath(link_name))
+    try:
+        os.makedirs(directory)
+    except FileExistsError:
+        pass
+
     if not overwrite:
         os.symlink(target, link_name)
         return

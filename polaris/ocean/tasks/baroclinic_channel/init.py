@@ -21,19 +21,22 @@ class Init(Step):
     resolution : float
         The resolution of the task in km
     """
-    def __init__(self, task, resolution):
+    def __init__(self, component, resolution, indir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolution : float
             The resolution of the task in km
+
+        indir : str
+            the directory the step is in, to which ``name`` will be appended
         """
-        super().__init__(task=task, name='init')
+        super().__init__(component=component, name='init', indir=indir)
         self.resolution = resolution
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:

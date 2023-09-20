@@ -8,7 +8,7 @@ from polaris.setup import setup_tasks
 
 def setup_suite(component, suite_name, work_dir, config_file=None,
                 machine=None, baseline_dir=None, component_path=None,
-                copy_executable=False):
+                copy_executable=False, clean=False):
     """
     Set up a suite of tasks
 
@@ -43,6 +43,10 @@ def setup_suite(component, suite_name, work_dir, config_file=None,
 
     copy_executable : bool, optional
         Whether to copy the MPAS executable to the work directory
+
+    clean : bool, optional
+        Whether to delete the contents of the base work directory before
+        setting up the suite
     """
 
     text = imp_res.files(f'polaris.{component}.suites').joinpath(
@@ -53,7 +57,7 @@ def setup_suite(component, suite_name, work_dir, config_file=None,
     setup_tasks(work_dir, tasks, config_file=config_file, machine=machine,
                 baseline_dir=baseline_dir, component_path=component_path,
                 suite_name=suite_name, cached=cached,
-                copy_executable=copy_executable)
+                copy_executable=copy_executable, clean=clean)
 
 
 def main():
@@ -86,13 +90,16 @@ def main():
                         action="store_true",
                         help="If the model executable should be copied to the "
                              "work directory.")
+    parser.add_argument("--clean", dest="clean", action="store_true",
+                        help="If the base work directory should be deleted "
+                             "before setting up the suite.")
     args = parser.parse_args(sys.argv[2:])
 
     setup_suite(component=args.component, suite_name=args.task_suite,
                 work_dir=args.work_dir, config_file=args.config_file,
                 machine=args.machine, baseline_dir=args.baseline_dir,
                 component_path=args.component_path,
-                copy_executable=args.copy_executable)
+                copy_executable=args.copy_executable, clean=args.clean)
 
 
 def _parse_suite(text):

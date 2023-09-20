@@ -17,16 +17,20 @@ class Viz(Step):
     """
     A step for plotting the results of a single column test
     """
-    def __init__(self, task):
+    def __init__(self, component, indir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        indir : str
+            the directory the step is in, to which the name of the step will
+            be appended
         """
-        super().__init__(task=task, name='viz')
+        super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(
             filename='output.2000.nc',
             target='../forward/output/output.2000.nc')
@@ -40,7 +44,6 @@ class Viz(Step):
         plt.style.use(style_filename)
         ds = xr.open_dataset('output.2000.nc', decode_times=False)
         daysSinceStartOfSim = ds.daysSinceStartOfSim.values
-        iceVolumeCell = ds.iceVolumeCell.values
         snowVolumeCell = ds.snowVolumeCell.values
         iceVolumeCell = ds.iceVolumeCell.values
         surfaceTemperatureCell = ds.surfaceTemperatureCell.values

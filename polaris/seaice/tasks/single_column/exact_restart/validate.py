@@ -14,17 +14,22 @@ class Validate(Step):
     variables : list of str
         The variables to validate
     """
-    def __init__(self, task, step_subdirs, variables, restart_filename):
+    def __init__(self, component, step_subdirs, indir, variables,
+                 restart_filename):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         step_subdirs : list of str
             The number of processors used in each run
+
+        indir : str
+            the directory the step is in, to which the name of the step will
+            be appended
 
         variables : list of str
             The variables to validate
@@ -32,7 +37,7 @@ class Validate(Step):
         restart_filename : str
             The relative path to the restart file to compare in the 2 subdirs
         """
-        super().__init__(task=task, name='validate')
+        super().__init__(component=component, name='validate', indir=indir)
 
         self.step_subdirs = step_subdirs
 

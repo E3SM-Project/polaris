@@ -20,14 +20,14 @@ class Analysis(Step):
         Whether to use icosahedral, as opposed to less regular, JIGSAW
         meshes
     """
-    def __init__(self, task, resolutions, icosahedral):
+    def __init__(self, component, resolutions, icosahedral, taskdir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell  # noqa: E501
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolutions : list of int
             The resolutions of the meshes that have been run
@@ -35,8 +35,12 @@ class Analysis(Step):
         icosahedral : bool
             Whether to use icosahedral, as opposed to less regular, JIGSAW
             meshes
+
+        taskdir : str
+            The subdirectory that of the task, onto which the name of this
+            step will be added
         """
-        super().__init__(task=task, name='analysis')
+        super().__init__(component=component, name='analysis', indir=taskdir)
         self.resolutions = resolutions
         self.icosahedral = icosahedral
 

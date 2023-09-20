@@ -18,16 +18,23 @@ class Viz(Step):
     """
     A step for plotting the results of a single-column test
     """
-    def __init__(self, task, ideal_age=False):
+    def __init__(self, component, indir, ideal_age=False):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        indir : str
+            The subdirectory that the task belongs to, that this step will
+            go into a subdirectory of
+
+        ideal_age : bool, optional
+            Whether the initial condition should include the ideal age tracer
         """
-        super().__init__(task=task, name='viz')
+        super().__init__(component=component, name='viz', indir=indir)
         self.ideal_age = ideal_age
         self.add_input_file(
             filename='initial_state.nc',
@@ -59,7 +66,6 @@ class Viz(Step):
         for field_name, field_units in fields.items():
             if field_name not in ds.keys():
                 raise ValueError(f'{field_name} not present in output.nc')
-                continue
             var = ds[field_name].mean(dim='nCells')
             var_init = var.isel(Time=0)
             var_final = var.isel(Time=t_index)

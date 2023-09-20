@@ -50,7 +50,7 @@ def update_cache(step_paths, date_string=None, dry_run=False):
     steps: Dict[str, List[Step]] = dict()
     for path in step_paths:
         with open(f'{path}/step.pickle', 'rb') as handle:
-            _, step = pickle.load(handle)
+            step = pickle.load(handle)
 
         component = step.component.name
 

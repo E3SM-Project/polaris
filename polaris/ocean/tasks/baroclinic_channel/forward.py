@@ -27,16 +27,16 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, task, resolution, name='forward', subdir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1, nu=None,
-                 run_time_steps=None):
+    def __init__(self, component, resolution, name='forward', subdir=None,
+                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
+                 nu=None, run_time_steps=None):
         """
         Create a new task
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
         resolution : km
             The resolution of the task in km
@@ -45,7 +45,11 @@ class Forward(OceanModelStep):
             the name of the task
 
         subdir : str, optional
-            the subdirectory for the step.  The default is ``name``
+            the subdirectory for the step.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
@@ -68,8 +72,8 @@ class Forward(OceanModelStep):
         """
         self.resolution = resolution
         self.run_time_steps = run_time_steps
-        super().__init__(task=task, name=name, subdir=subdir,
-                         ntasks=ntasks, min_tasks=min_tasks,
+        super().__init__(component=component, name=name, subdir=subdir,
+                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
         if nu is not None:

@@ -12,7 +12,7 @@ class Rpe(BaroclinicChannelTestCase):
     the viscosity at the given resolution.
     """
 
-    def __init__(self, component, resolution):
+    def __init__(self, component, resolution, indir):
         """
         Create the test case
 
@@ -23,9 +23,12 @@ class Rpe(BaroclinicChannelTestCase):
 
         resolution : float
             The resolution of the test case in km
+
+        indir : str
+            the directory the task is in, to which ``name`` will be appended
         """
         super().__init__(component=component, resolution=resolution,
-                         name='rpe')
+                         name='rpe', indir=indir)
 
         self._add_steps()
 
@@ -46,19 +49,20 @@ class Rpe(BaroclinicChannelTestCase):
             package = 'polaris.ocean.tasks.baroclinic_channel'
             config.add_from_package(package, 'baroclinic_channel.cfg')
 
-        for step in list(self.steps):
-            if step.startswith('rpe') or step == 'analysis':
+        for step_name in list(self.steps.keys()):
+            step = self.steps[step_name]
+            if step_name.startswith('rpe') or step_name == 'analysis':
                 # remove previous RPE forward or analysis steps
-                self.steps.pop(step)
-                self.steps_to_run.remove(step)
+                self.remove_step(step)
 
+        component = self.component
         resolution = self.resolution
 
         nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
         for index, nu in enumerate(nus):
             name = f'rpe_{index + 1}_nu_{int(nu)}'
             step = Forward(
-                task=self, name=name, subdir=name,
+                component=component, name=name, indir=self.subdir,
                 ntasks=None, min_tasks=None, openmp_threads=1,
                 resolution=resolution, nu=float(nu))
 
@@ -68,4 +72,5 @@ class Rpe(BaroclinicChannelTestCase):
             self.add_step(step)
 
         self.add_step(
-            Analysis(task=self, resolution=resolution, nus=nus))
+            Analysis(component=component, resolution=resolution, nus=nus,
+                     indir=self.subdir))

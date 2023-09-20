@@ -3,7 +3,6 @@ from polaris.ocean.tasks.manufactured_solution.analysis import Analysis
 from polaris.ocean.tasks.manufactured_solution.forward import Forward
 from polaris.ocean.tasks.manufactured_solution.init import Init
 from polaris.ocean.tasks.manufactured_solution.viz import Viz
-from polaris.validate import compare_variables
 
 
 class Convergence(Task):
@@ -30,11 +29,16 @@ class Convergence(Task):
 
         self.resolutions = [200, 100, 50, 25]
         for res in self.resolutions:
-            self.add_step(Init(task=self, resolution=res))
-            self.add_step(Forward(task=self, resolution=res))
+            self.add_step(Init(component=component, resolution=res,
+                               taskdir=self.subdir))
+            self.add_step(Forward(component=component, resolution=res,
+                                  taskdir=self.subdir))
 
-        self.add_step(Analysis(task=self, resolutions=self.resolutions))
-        self.add_step(Viz(task=self, resolutions=self.resolutions),
+        self.add_step(Analysis(component=component,
+                               resolutions=self.resolutions,
+                               taskdir=self.subdir))
+        self.add_step(Viz(component=component, resolutions=self.resolutions,
+                          taskdir=self.subdir),
                       run_by_default=False)
 
     def configure(self):

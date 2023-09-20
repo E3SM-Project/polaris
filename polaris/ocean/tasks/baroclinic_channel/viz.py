@@ -10,16 +10,19 @@ class Viz(Step):
     """
     A step for plotting the results of a series of baroclinic channel RPE runs
     """
-    def __init__(self, task):
+    def __init__(self, component, indir):
         """
         Create the step
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        indir : str
+            the directory the step is in, to which ``name`` will be appended
         """
-        super().__init__(task=task, name='viz')
+        super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(
             filename='mesh.nc',
             target='../init/culled_mesh.nc')
