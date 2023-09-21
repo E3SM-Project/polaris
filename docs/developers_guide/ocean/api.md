@@ -169,7 +169,18 @@
 
 ## Ocean Framework
 
-### OceanModelStep
+### Spherical Convergence Tests
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. autosummary::
+   :toctree: generated/
+
+   SphericalConvergenceForward
+```
+
+### Ocean Model
 
 ```{eval-rst}
 .. currentmodule:: polaris.ocean.model
@@ -182,6 +193,8 @@
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_to_namelist
+   
+   get_time_interval_string
 ```
 
 ### Spherical Base Mesh Step

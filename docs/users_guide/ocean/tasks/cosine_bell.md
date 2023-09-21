@@ -41,24 +41,33 @@ The default resolutions used in the task depends on the mesh type.
 For the `icos` mesh type, the defaults are:
 
 ```cfg
-resolutions = 60, 120, 240, 480
+# config options for spherical convergence tests
+[spherical_convergence]
+
+# a list of icosahedral mesh resolutions (km) to test
+icos_resolutions = 60, 120, 240, 480
 ```
 
 for the `qu` mesh type, they are:
 
 ```cfg
-resolutions = 60, 90, 120, 150, 180, 210, 240
+# config options for spherical convergence tests
+[spherical_convergence]
+
+# a list of quasi-uniform mesh resolutions (km) to test
+qu_resolutions = 60, 90, 120, 150, 180, 210, 240
 ```
 
 To alter the resolutions used in this task, you will need to create your own
-config file (or add a `cosine_bell` section to a config file if you're
-already using one).  The resolutions are a comma-separated list of the
+config file (or add a `spherical_convergence` section to a config file if 
+you're already using one).  The resolutions are a comma-separated list of the
 resolution of the mesh in km.  If you specify a different list
 before setting up `cosine_bell`, steps will be generated with the requested
-resolutions.  (If you alter `resolutions` in the task's config file in
-the work directory, nothing will happen.)  For `icos` meshes, make sure you
-use a resolution close to those listed in {ref}`dev-spherical-meshes`.  Each
-resolution will be rounded to the nearest allowed icosahedral resolution.
+resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the 
+task's config file in the work directory, nothing will happen.)  For `icos` 
+meshes, make sure you use a resolution close to those listed in 
+{ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest 
+allowed icosahedral resolution.
 
 The `base_mesh` steps are shared with other tasks so they are not housed in
 the `cosine_bell` work directory.  Instead, they are in work directories like:
@@ -146,11 +155,45 @@ field remains at the initial velocity $u_0$.
 
 ## time step and run duration
 
-The time step for forward integration is determined by multiplying the
-resolution by `dt_per_km`, so that coarser meshes have longer time steps.
-You can alter this before setup (in a user config file) or before running the
-task (in the config file in the work directory). The run duration is 24
-days.
+This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step 
+for forward integration is determined by multiplying the resolution by a config
+option, `rk4_dt_per_km`, so that coarser meshes have longer time steps. You can
+alter this before setup (in a user config file) or before running the task (in 
+the config file in the work directory). 
+
+```cfg
+# config options for spherical convergence tests
+[spherical_convergence_forward]
+
+# time integrator: {'split_explicit', 'RK4'}
+time_integrator = RK4
+
+# RK4 time step per resolution (s/km), since dt is proportional to resolution
+rk4_dt_per_km = 3.0
+```
+
+The convergence_eval_time, run duration and output interval are the period for 
+advection to make a full rotation around the globe, 24 days:
+
+```cfg
+# config options for spherical convergence tests
+[spherical_convergence]
+
+# Evaluation time for convergence analysis (in days)
+convergence_eval_time = ${cosine_bell:vel_pd}
+
+# config options for spherical convergence tests
+[spherical_convergence_forward]
+
+# Run duration in days
+run_duration = ${cosine_bell:vel_pd}
+
+# Output interval in days
+output_interval = ${cosine_bell:vel_pd}
+```
+
+Her, `${cosine_bell:vel_pd}` means that the same value is used as in the 
+option `vel_pd` in section `[cosine_bell]`, see below.
 
 ## config options
 
@@ -159,9 +202,6 @@ The `cosine_bell` config options include:
 ```cfg
 # options for cosine bell convergence test case
 [cosine_bell]
-
-# time step per resolution (s/km), since dt is proportional to resolution
-dt_per_km = 30
 
 # the constant temperature of the domain
 temperature = 15.0
@@ -220,9 +260,6 @@ norm_args = {'vmin': 0., 'vmax': 1.}
 # We could provide colorbar tick marks but we'll leave the defaults
 # colorbar_ticks = np.linspace(0., 1., 9)
 ```
-
-The `dt_per_km` option `[cosine_bell]` is used to control the time step, as
-discussed above in more detail.
 
 The 7 options from `temperature` to `vel_pd` are used to control properties of
 the cosine bell and the rest of the sphere, as well as the advection.

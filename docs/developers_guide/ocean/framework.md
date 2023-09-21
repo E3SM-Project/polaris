@@ -60,6 +60,57 @@ The config options `goal_cells_per_core` and `max_cells_per_core` in the
 the planar mesh.  By default,  the number of MPI tasks tries to apportion 200 
 cells to each core, but it will allow as many as 2000. 
 
+### Setting time intervals in model config options
+
+It is often useful to be able to convert a `float` time interval in days or
+seconds to a model config option in the form `DDDD_HH:MM:SS.S`.  The
+{py:func}`polaris.ocean.model.get_time_interval_string()` function will do this
+for you.  For example, if you have `resolution` in km and a config `section`
+with options `dt_per_km` (in s/km) and `run_duration` (in days), you can use
+the function to get appropriate strings for filling in a template model config
+file:
+```python
+from polaris.ocean.model import get_time_interval_string
+
+
+dt_per_km = section.getfloat('dt_per_km')
+dt_str = get_time_interval_string(seconds=dt_per_km * resolution)
+
+run_duration = section.getfloat('run_duration')
+run_duration_str = get_time_interval_string(days=run_duration)
+
+output_interval = section.getfloat('output_interval')
+output_interval_str = get_time_interval_string(days=output_interval)
+
+replacements = dict(
+    dt=dt_str,
+    run_duration=run_duration_str,
+    output_interval=output_interval_str
+)
+
+self.add_yaml_file(package, yaml_filename,
+                   template_replacements=replacements)
+```
+where the YAML file might include:
+```
+omega:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+  streams:
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - xtime
+      - normalVelocity
+      - layerThickness
+```
+
 (dev-ocean-framework-config)=
 
 ## Model config options and streams
@@ -84,6 +135,178 @@ created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the
 The function {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()`
 returns a step for for a spherical `qu` or `icos` mesh of a given resolution 
 (in km).  The step can be shared between tasks.
+
+(dev-ocean-spherical-convergence)=
+
+## Spherical Convergence Tests
+
+Several tests that are in Polaris or which we plan to add are convergence
+tests on {ref}`dev-ocean-spherical-meshes`. The ocean framework includes
+shared config options and a base class for forward steps that are expected
+to be useful across these tests.
+
+The shared config options are:
+```cfg
+# config options for spherical convergence tests
+[spherical_convergence]
+
+# a list of icosahedral mesh resolutions (km) to test
+icos_resolutions = 60, 120, 240, 480
+
+# a list of quasi-uniform mesh resolutions (km) to test
+qu_resolutions = 60, 90, 120, 150, 180, 210, 240
+
+# Evaluation time for convergence analysis (in days)
+convergence_eval_time = 1.0
+
+
+# config options for spherical convergence forward steps
+[spherical_convergence_forward]
+
+# time integrator: {'split_explicit', 'RK4'}
+time_integrator = RK4
+
+# RK4 time step per resolution (s/km), since dt is proportional to resolution
+rk4_dt_per_km = 3.0
+
+# split time step per resolution (s/km), since dt is proportional to resolution
+split_dt_per_km = 30.0
+
+# the barotropic time step (s/km) for simulations using split time stepping,
+# since btr_dt is proportional to resolution
+btr_dt_per_km = 1.5
+
+# Run duration in days
+run_duration = ${spherical_convergence:convergence_eval_time}
+
+# Output interval in days
+output_interval = ${run_duration}
+```
+The first 2 are the default resolutions for icosahedral and quasi-uniform
+base meshes, respectively.  The `time_integrator` will typically be overridden
+by the specific convergence task's config options, and indicates which time
+integrator to use for the forward run.  Depending on the time integrator,
+either `rk4_dt_per_km` or `split_dt_per_km` will be used to determine an
+appropriate time step for each mesh resolution (proportional to the cell size).
+For split time integrators, `btr_dt_per_km` will be used to compute the
+barotropic time step in a similar way.  The `run_duration` and 
+`output_interval` are typically the same, and they are given in days.
+
+Each convergence test can override these defaults with its own defaults by 
+defining them in its own config file.  Convergence tests should bring in this
+config file in their `configure()` methods, then add its own config options
+after that to make sure they take precedence, e.g.:
+
+```python
+from polaris import Task
+class CosineBell(Task):
+    def configure(self):
+        super().configure()
+        config = self.config
+        config.add_from_package('polaris.mesh', 'mesh.cfg')
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
+        config.add_from_package('polaris.ocean.tasks.cosine_bell',
+                                'cosine_bell.cfg')
+```
+
+In addition, the {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`
+step can serve as a parent class for forward steps in convergence tests.  This
+parent class takes care of setting the time step based on the `dt_per_km`
+config option and computes the approximate number of cells in the mesh, used
+for determining the computational resources required, using a heuristic 
+appropriate for approximately uniform spherical meshes.  A convergence test's
+`Forward` step should descend from this class like in this example:
+
+```python
+from polaris.ocean.convergence.spherical import SphericalConvergenceForward
+
+
+class Forward(SphericalConvergenceForward):
+    """
+    A step for performing forward ocean component runs as part of the cosine
+    bell test case
+    """
+
+    def __init__(self, component, name, subdir, resolution, base_mesh, init):
+        """
+        Create a new step
+
+        Parameters
+        ----------
+        component : polaris.Component
+            The component the step belongs to
+
+        name : str
+            The name of the step
+
+        subdir : str
+            The subdirectory for the step
+
+        resolution : float
+            The resolution of the (uniform) mesh in km
+
+        base_mesh : polaris.Step
+            The base mesh step
+
+        init : polaris.Step
+            The init step
+        """
+        package = 'polaris.ocean.tasks.cosine_bell'
+        validate_vars = ['normalVelocity', 'tracer1']
+        super().__init__(component=component, name=name, subdir=subdir,
+                         resolution=resolution, base_mesh=base_mesh,
+                         init=init, package=package,
+                         yaml_filename='forward.yaml',
+                         output_filename='output.nc',
+                         validate_vars=validate_vars)
+```
+Each convergence test must define a YAML file with model config options, called
+`forward.yaml` by default.  The `package` parameter is the location of this
+file within the Polaris code (using python package syntax).  Although it is
+not used here, the `options` parameter can be used to pass model config options
+as a python dictionary so that they are added to with 
+{py:meth}`polaris.ModelStep.add_model_config_options()`. The
+`output_filename` is an output file that will have fields to validate and
+analyze.  The `validate_vars` are a list of variables to compare against a
+baseline (if one is provided), and can be `None` if baseline validation should
+not be performed.
+
+The `base_mesh` step should be created with the function described in
+{ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a file
+`initial_state.nc` that will be the initial condition for the forward run.
+
+The `forward.yaml` file should be a YAML file with Jinja templating for the 
+time integrator, time step, run duration and output interval, e.g.:
+```
+omega:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    restart: {}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - xtime
+      - normalVelocity
+      - layerThickness
+```
+`SphericalConvergenceForward` takes care of filling in the template based
+on the associated config options (first at setup and again at runtime in case
+the config options have changed).
 
 (dev-ocean-framework-vertical)=
 
