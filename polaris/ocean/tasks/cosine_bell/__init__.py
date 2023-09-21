@@ -1,4 +1,6 @@
-from polaris import Task
+from typing import Dict
+
+from polaris import Step, Task
 from polaris.config import PolarisConfigParser
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
@@ -24,11 +26,11 @@ def add_cosine_bell_tasks(component):
 
 class CosineBell(Task):
     """
-    A test case for creating a global MPAS-Ocean mesh
+    A convergence test for the advection of a cosine-bell tracer
 
     Attributes
     ----------
-    resolutions : list of int
+    resolutions : list of float
         A list of mesh resolutions
 
     icosahedral : bool
@@ -39,7 +41,7 @@ class CosineBell(Task):
     """
     def __init__(self, component, icosahedral, include_viz):
         """
-        Create test case for creating a global MPAS-Ocean mesh
+        Create the convergence test
 
         Parameters
         ----------
@@ -67,8 +69,8 @@ class CosineBell(Task):
 
         # add the steps with default resolutions so they can be listed
         config = PolarisConfigParser()
-        package = 'polaris.ocean.tasks.cosine_bell'
-        config.add_from_package(package, 'cosine_bell.cfg')
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
         self._setup_steps(config)
 
     def configure(self):
@@ -78,6 +80,8 @@ class CosineBell(Task):
         super().configure()
         config = self.config
         config.add_from_package('polaris.mesh', 'mesh.cfg')
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
                                 'cosine_bell.cfg')
 
@@ -86,18 +90,14 @@ class CosineBell(Task):
 
     def _setup_steps(self, config):
         """ setup steps given resolutions """
-        if self.icosahedral:
-            default_resolutions = '60, 120, 240, 480'
+        icosahedral = self.icosahedral
+        if icosahedral:
+            prefix = 'icos'
         else:
-            default_resolutions = '60, 90, 120, 150, 180, 210, 240'
+            prefix = 'qu'
 
-        # set the default values that a user may change before setup
-        config.set('cosine_bell', 'resolutions', default_resolutions,
-                   comment='a list of resolutions (km) to test')
-
-        # get the resolutions back, perhaps with values set in the user's
-        # config file, which takes priority over what we just set above
-        resolutions = config.getlist('cosine_bell', 'resolutions', dtype=int)
+        resolutions = config.getlist('spherical_convergence',
+                                     f'{prefix}_resolutions', dtype=float)
 
         if self.resolutions == resolutions:
             return
@@ -109,16 +109,14 @@ class CosineBell(Task):
         self.resolutions = resolutions
 
         component = self.component
-        icosahedral = self.icosahedral
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
 
+        analysis_dependencies: Dict[str, Dict[str, Step]] = (
+            dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in resolutions:
-            base_mesh, mesh_name = add_spherical_base_mesh_step(
+            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
                 component, resolution, icosahedral)
-            self.add_step(base_mesh, symlink=f'base_mesh/{mesh_name}')
+            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+            analysis_dependencies['mesh'][resolution] = base_mesh_step
 
             cos_bell_dir = f'spherical/{prefix}/cosine_bell'
 
@@ -129,11 +127,12 @@ class CosineBell(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                init_step = component.steps[subdir]
             else:
-                step = Init(component=component, name=name, subdir=subdir,
-                            mesh_name=mesh_name)
-            self.add_step(step, symlink=symlink)
+                init_step = Init(component=component, name=name, subdir=subdir,
+                                 base_mesh=base_mesh_step)
+            self.add_step(init_step, symlink=symlink)
+            analysis_dependencies['init'][resolution] = init_step
 
             name = f'{prefix}_forward_{mesh_name}'
             subdir = f'{cos_bell_dir}/forward/{mesh_name}'
@@ -142,12 +141,14 @@ class CosineBell(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                forward_step = component.steps[subdir]
             else:
-                step = Forward(component=component, name=name,
-                               subdir=subdir, resolution=resolution,
-                               mesh_name=mesh_name)
-            self.add_step(step, symlink=symlink)
+                forward_step = Forward(component=component, name=name,
+                                       subdir=subdir, resolution=resolution,
+                                       base_mesh=base_mesh_step,
+                                       init=init_step)
+            self.add_step(forward_step, symlink=symlink)
+            analysis_dependencies['forward'][resolution] = forward_step
 
             if self.include_viz:
                 with_viz_dir = f'spherical/{prefix}/cosine_bell/with_viz'
@@ -155,14 +156,16 @@ class CosineBell(Task):
                 name = f'{prefix}_map_{mesh_name}'
                 subdir = f'{with_viz_dir}/map/{mesh_name}'
                 viz_map = VizMap(component=component, name=name,
-                                 subdir=subdir, mesh_name=mesh_name)
+                                 subdir=subdir, base_mesh=base_mesh_step,
+                                 mesh_name=mesh_name)
                 self.add_step(viz_map)
 
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
-                           subdir=subdir, viz_map=viz_map,
-                           mesh_name=mesh_name)
+                           subdir=subdir, base_mesh=base_mesh_step,
+                           init=init_step, forward=forward_step,
+                           viz_map=viz_map, mesh_name=mesh_name)
                 self.add_step(step)
 
         subdir = f'spherical/{prefix}/cosine_bell/analysis'
@@ -174,5 +177,6 @@ class CosineBell(Task):
             step = component.steps[subdir]
         else:
             step = Analysis(component=component, resolutions=resolutions,
-                            icosahedral=icosahedral, subdir=subdir)
+                            icosahedral=icosahedral, subdir=subdir,
+                            dependencies=analysis_dependencies)
         self.add_step(step, symlink=symlink)
