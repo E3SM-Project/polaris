@@ -189,10 +189,6 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     if copy_executable:
         config.set('setup', 'copy_executable', 'True')
 
-    # add the config options for the task (if defined)
-    config.add_from_package(task.__module__,
-                            f'{task.name}.cfg', exception=False)
-
     if 'POLARIS_BRANCH' in os.environ:
         polaris_branch = os.environ['POLARIS_BRANCH']
         config.set('paths', 'polaris_branch', polaris_branch)
