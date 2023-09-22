@@ -1,0 +1,40 @@
+omega:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  debug:
+    config_check_ssh_consistency: false
+  bottom_drag:
+    config_bottom_drag_mode: implicit
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 0.0
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    restart: {}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - ssh
+      - velocityZonal
+      - velocityMeridional
+    globalStatsOutput:
+      precision: double
+      output_interval: 0001_00:00:0
