@@ -5,5 +5,6 @@
 ```{toctree}
 :titlesonly: true
 
+shared_steps
 template
 ```
