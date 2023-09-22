@@ -62,7 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -123,10 +123,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    resolution : float</span>
 <span class="sd">        The resolution of the task in km</span>
-
-<span class="sd">    resources_fixed : bool</span>
-<span class="sd">        Whether resources were set already and shouldn&#39;t be updated</span>
-<span class="sd">        algorithmically</span>
 
 <span class="sd">    dt : float</span>
 <span class="sd">        The model time step in seconds</span>
@@ -194,9 +190,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/initial_state.nc&#39;</span><span class="p">)</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/initial_state.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_graph.info&#39;</span><span class="p">)</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/culled_graph.info&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                            <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
@@ -205,8 +201,6 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
                            <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">resources_fixed</span> <span class="o">=</span> <span class="p">(</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span></div>

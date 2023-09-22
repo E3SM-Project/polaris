@@ -10,8 +10,7 @@ Then, run the following script to build the docs:
 
 ```bash
 cd docs
-rm -rf developers_guide/generated/ developers_guide/*/generated/ _build/
-make html
+make clean && make html
 ```
 
 You can view the documentation by opening `_build/html/index.html`.

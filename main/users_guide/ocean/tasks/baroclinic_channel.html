@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Baroclinic channel</title>
+  <title>baroclinic channel</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -22,7 +22,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="global_convergence" href="global_convergence.html" />
+    <link rel="next" title="cosine bell" href="cosine_bell.html" />
     <link rel="prev" title="Tasks" href="index.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -58,7 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Baroclinic channel</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">baroclinic channel</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
@@ -73,10 +73,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -93,7 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -128,7 +128,7 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
           <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
-      <li class="breadcrumb-item active">Baroclinic channel</li>
+      <li class="breadcrumb-item active">baroclinic channel</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/users_guide/ocean/tasks/baroclinic_channel.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -139,7 +139,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="baroclinic-channel">
-<span id="ocean-baroclinic-channel"></span><h1>Baroclinic channel<a class="headerlink" href="#baroclinic-channel" title="Permalink to this heading"></a></h1>
+<span id="ocean-baroclinic-channel"></span><h1>baroclinic channel<a class="headerlink" href="#baroclinic-channel" title="Permalink to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
 <p>Baroclinic channel tasks implements variants of the Baroclinic Eddies test case
@@ -323,29 +323,29 @@ prognostic variables for regression testing.</p>
 </section>
 <section id="id2">
 <h3>mesh<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>. Currently, only 10-km horizontal
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id3">
 <h3>vertical grid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id4">
 <h3>initial conditions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id5">
 <h3>forcing<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id6">
 <h3>time step and run duration<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> for time step. The run duration is 3 time
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id7">
 <h3>config options<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
@@ -363,29 +363,29 @@ bit-for-bit identical between the two runs.</p>
 </section>
 <section id="id9">
 <h3>mesh<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>. Currently, only 10-km horizontal
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id10">
 <h3>vertical grid<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id11">
 <h3>initial conditions<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id12">
 <h3>forcing<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id13">
 <h3>time step and run duration<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> for time step. The run duration is 3 time
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id14">
 <h3>config options<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id15">
 <h3>cores<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
@@ -404,29 +404,29 @@ variables are bit-for-bit identical between the two runs.</p>
 </section>
 <section id="id17">
 <h3>mesh<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>. Currently, only 10-km horizontal
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id18">
 <h3>vertical grid<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id19">
 <h3>initial conditions<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id20">
 <h3>forcing<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id21">
 <h3>time step and run duration<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> for time step. The run duration is 3 time
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id22">
 <h3>config options<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id23">
 <h3>cores<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
@@ -447,29 +447,29 @@ they are bit-for-bit identical.</p>
 </section>
 <section id="id25">
 <h3>mesh<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>. Currently, only 10-km horizontal
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id26">
 <h3>vertical grid<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id27">
 <h3>initial conditions<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id28">
 <h3>forcing<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id29">
 <h3>time step and run duration<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> for time step. The full run is two time
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The full run is two time
 steps and the restart run is one time step long.</p>
 </section>
 <section id="id30">
 <h3>config options<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id31">
 <h3>cores<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
@@ -489,27 +489,27 @@ energy (RPE) than POP, MOM and MITgcm models
 (<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a>).</p>
 <section id="id32">
 <h3>mesh<a class="headerlink" href="#id32" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id33">
 <h3>vertical grid<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id34">
 <h3>initial conditions<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id35">
 <h3>forcing<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id36">
 <h3>time step and run duration<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> for time step. Each run lasts 20 days.</p>
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. Each run lasts 20 days.</p>
 </section>
 <section id="id37">
 <h3>config options<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a>. The config option that is specific to
+<p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. The config option that is specific to
 this case is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Viscosity values to test for rpe test case</span>
 <span class="n">viscosities</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span>
@@ -529,7 +529,7 @@ this case is:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="global_convergence.html" class="btn btn-neutral float-right" title="global_convergence" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cosine_bell.html" class="btn btn-neutral float-right" title="cosine bell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

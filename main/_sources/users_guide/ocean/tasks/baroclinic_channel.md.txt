@@ -1,6 +1,6 @@
 (ocean-baroclinic-channel)=
 
-# Baroclinic channel
+# baroclinic channel
 
 ## description
 

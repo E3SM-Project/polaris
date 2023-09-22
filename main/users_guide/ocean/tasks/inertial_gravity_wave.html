@@ -22,8 +22,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="manufactured_solution" href="manufactured_solution.html" />
-    <link rel="prev" title="global_convergence" href="global_convergence.html" />
+    <link rel="next" title="manufactured solution" href="manufactured_solution.html" />
+    <link rel="prev" title="cosine bell" href="cosine_bell.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -58,14 +58,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">Baroclinic channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">inertial gravity wave</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#convergence">convergence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -82,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -129,18 +136,15 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="inertial-gravity-wave">
 <span id="ocean-inertial-gravity-wave"></span><h1>inertial gravity wave<a class="headerlink" href="#inertial-gravity-wave" title="Permalink to this heading"></a></h1>
-<p>The inertial gravity wave tasks implement configurations for surface wave
+<p>The inertial gravity wave task implements a test of surface wave
 propagation with the rotating, linear shallow water equations on a doubly
-periodic domain. In this case there is an exact solution which can be used to
+periodic domain. This test has an exact solution which is used to
 assess the numerical accuracy and convergence of the MPAS-Ocean discretization.
 The implementation is from
 <a class="reference external" href="https://doi.org/10.22541/essoar.167100170.03833124/v1">Bishnu et al.(2023)</a></p>
-<p>Currently, the there is only one task, a convergence test.</p>
-<section id="convergence">
-<span id="ocean-inertial-gravity-wave-convergence"></span><h2>convergence<a class="headerlink" href="#convergence" title="Permalink to this heading"></a></h2>
 <section id="description">
-<h3>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">convergence</span></code> test case runs the inertial gravity wave simulation for 4
+<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">inertial_gravity_wave</span></code> task runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.</p>
 <p>The forward step for each resolution runs the simulation for 10 hours. The
 model is configured without vertical advection and mixing. No tracers are enabled
@@ -157,13 +161,13 @@ SSH fields.</p>
 <a class="reference internal image-reference" href="../../../_images/inertial_gravity_wave_convergence.png"><img alt="../../../_images/inertial_gravity_wave_convergence.png" class="align-center" src="../../../_images/inertial_gravity_wave_convergence.png" style="width: 500px;" /></a>
 </section>
 <section id="mesh">
-<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
 <p>For each resolution, the <code class="docutils literal notranslate"><span class="pre">init</span></code> step generates and planar hexagonal
 mesh that is periodic in both the x and y directions.</p>
 </section>
 <section id="vertical-grid">
-<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h3>
-<p>Since this test case is a shallow water case, the vertical grid is set to a
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<p>Since this task is a shallow water case, the vertical grid is set to a
 single layer configuration.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
 
@@ -188,7 +192,7 @@ single layer configuration.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h3>
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
 <p>The initial conditions are set to the exact solution at time <span class="math notranslate nohighlight">\(t=0\)</span>:
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -199,16 +203,16 @@ v &amp;= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f
 </p>
 </section>
 <section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
 <p>The time step is determined by the config option <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> according to the
 mesh resolution. The run duration is 10 hours.</p>
 </section>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
 <p>The following config options are availiable for this case:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[inertial_gravity_wave]</span>
 
@@ -240,10 +244,9 @@ mesh resolution. The run duration is 10 hours.</p>
 </div>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>
 <p>The number of cores is determined according to the config options
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
-</section>
 </section>
 </section>
 
@@ -251,8 +254,8 @@ mesh resolution. The run duration is 10 hours.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="global_convergence.html" class="btn btn-neutral float-left" title="global_convergence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="manufactured_solution.html" class="btn btn-neutral float-right" title="manufactured_solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cosine_bell.html" class="btn btn-neutral float-left" title="cosine bell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manufactured_solution.html" class="btn btn-neutral float-right" title="manufactured solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

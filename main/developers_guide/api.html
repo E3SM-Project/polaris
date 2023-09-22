@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
@@ -336,10 +336,13 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies" title="polaris.run.load_dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dependencies</span></code></a>(step)</p></td>
 <td><p>Load each dependency from its pickle file to pick up changes that may have happened since it ran</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.complete_step_run.html#polaris.run.complete_step_run" title="polaris.run.complete_step_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">complete_step_run</span></code></a>(step)</p></td>
+<td><p>Write a file to indicate that the step has completed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
 <td><p>Run the given suite or task</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess, ...])</p></td>
 <td><p>Used by the framework to run a step when <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> gets called in the step's work directory</p></td>
 </tr>
 </tbody>

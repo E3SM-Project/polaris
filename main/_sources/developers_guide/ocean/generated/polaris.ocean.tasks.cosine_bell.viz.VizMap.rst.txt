@@ -1,0 +1,41 @@
+﻿polaris.ocean.tasks.cosine\_bell.viz.VizMap
+===========================================
+
+.. currentmodule:: polaris.ocean.tasks.cosine_bell.viz
+
+.. autoclass:: VizMap
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VizMap.__init__
+      ~VizMap.add_dependency
+      ~VizMap.add_input_file
+      ~VizMap.add_output_file
+      ~VizMap.constrain_resources
+      ~VizMap.dst_from_lon_lat
+      ~VizMap.dst_from_mpas
+      ~VizMap.dst_from_points
+      ~VizMap.dst_from_proj
+      ~VizMap.dst_global_lon_lat
+      ~VizMap.get_remapper
+      ~VizMap.process_inputs_and_outputs
+      ~VizMap.run
+      ~VizMap.runtime_setup
+      ~VizMap.set_resources
+      ~VizMap.setup
+      ~VizMap.src_from_lon_lat
+      ~VizMap.src_from_mpas
+      ~VizMap.src_from_proj
+      ~VizMap.validate_baselines
+   
+   
+
+   
+   
+   

@@ -67,7 +67,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
 <li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
@@ -82,7 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
@@ -136,7 +136,7 @@ tracers with CVMix. Here, we describe the tests and their shared framework.</p>
 <section id="framework">
 <span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
 <p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests
-are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single_column</span></a> in the User’s Guide.</p>
+are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single column</span></a> in the User’s Guide.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
 a few common model config options related to run duration and horizontal
 diffusion and cvmix, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, <code class="docutils literal notranslate"><span class="pre">output</span></code>,
@@ -149,7 +149,7 @@ for defining <code class="docutils literal notranslate"><span class="pre">idealA
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init" title="polaris.ocean.tasks.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
-<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  A vertical grid is
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  A vertical grid is
 generated, with 100 layers of 4 m thickness each by default.  Finally, the
 initial temperature and salinity field are computed with variability in the
 vertical dimension only.</p>

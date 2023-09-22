@@ -62,7 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -121,7 +121,7 @@
 <span class="sd">    The CVMix single-column test case creates the mesh and initial condition,</span>
 <span class="sd">    then performs a short forward run testing vertical mixing on 1 core.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CVMix.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<div class="viewcode-block" id="CVMix.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 <span class="sd">        Parameters</span>
@@ -130,17 +130,11 @@
 <span class="sd">            The ocean component that this task belongs to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;cvmix&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
-        <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">:</span>
-            <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">km&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">res_str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                 <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
+            <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
 
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
                          <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>

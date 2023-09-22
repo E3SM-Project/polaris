@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.global\_convergence.cosine\_bell.forward.Forward.compute\_cell\_count
-=========================================================================================
-
-.. currentmodule:: polaris.ocean.tasks.global_convergence.cosine_bell.forward
-
-.. automethod:: Forward.compute_cell_count

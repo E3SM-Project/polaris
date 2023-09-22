@@ -67,7 +67,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">manufactured_solution</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
@@ -80,7 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
@@ -129,12 +129,13 @@
 <span id="dev-ocean-manufactured-solution"></span><h1>manufactured_solution<a class="headerlink" href="#manufactured-solution" title="Permalink to this heading"></a></h1>
 <p>The manufactured solution test in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution</span></code>
 uses the Method of Manufactured Solutions (see
-<a class="reference internal" href="../../../users_guide/ocean/tasks/manufactured_solution.html#ocean-manufactured-solution"><span class="std std-ref">manufactured_solution</span></a>) at 4 resolutions (200, 100, 50, and 25 km).
-Here, we describe the test case and its framework.</p>
+<a class="reference internal" href="../../../users_guide/ocean/tasks/manufactured_solution.html#ocean-manufactured-solution"><span class="std std-ref">manufactured solution</span></a>) at 4 resolutions (200, 100, 50, and 25 km).</p>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution" title="polaris.ocean.tasks.manufactured_solution.ManufacturedSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.ManufacturedSolution</span></code></a>
+test performs a 10-hour run.</p>
 <section id="framework">
-<span id="id1"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
 <p>The config options for the <code class="docutils literal notranslate"><span class="pre">manufactured_solution</span></code> test are described in
-<a class="reference internal" href="../../../users_guide/ocean/tasks/manufactured_solution.html#ocean-manufactured-solution"><span class="std std-ref">manufactured_solution</span></a> in the User’s Guide.</p>
+<a class="reference internal" href="../../../users_guide/ocean/tasks/manufactured_solution.html#ocean-manufactured-solution"><span class="std std-ref">manufactured solution</span></a> in the User’s Guide.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
 a few common model config options related to run duration and default
 horizontal  and vertical momentum and tracer diffusion, as well as defining
@@ -145,17 +146,17 @@ horizontal  and vertical momentum and tracer diffusion, as well as defining
 defines a class for storing attributes and methods relevant to computing the
 exact manufactured solution.  The constructor obtains the parameters from the
 config file. The
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh(t)()</span></code>
-method computes the SSH field at time <code class="docutils literal notranslate"><span class="pre">t</span></code>.  The
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normalVelocity(t)()</span></code>
-method computes the <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field at time <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<a class="reference internal" href="../generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh()</span></code></a>
+method computes the SSH field.  The
+<a class="reference internal" href="../generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity()</span></code></a>
+method computes the <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field.</p>
 </section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.manufactured_solution.init.Init.html#polaris.ocean.tasks.manufactured_solution.init.Init" title="polaris.ocean.tasks.manufactured_solution.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
-<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
 culled to remove periodicity in the y direction.  A vertical grid is generated
 with 1 layer.  Finally, the initial layerThickness field is computed from the
 exact solution for the SSH field and the initial velocity is also assigned to
@@ -173,8 +174,10 @@ number of cells is approximated from config options in
 so that this can be used to constrain the number of MPI tasks that Polaris tasks
 have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Finally, the ocean
-model is run.</p>
+graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Next, the ocean
+model is run.  Finally, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a baseline if one is provided when
+calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>
@@ -189,13 +192,6 @@ whether the convergence rate falls within acceptable bounds.</p>
 defines a step for visualization. It produces two plots: the convergence of the
 RMSE with resolution and a plan-view of the simulated, exact, and (simulated -
 exact) SSH fields.</p>
-</section>
-<section id="convergence">
-<span id="dev-ocean-manufactured-solution-convergence"></span><h3>convergence<a class="headerlink" href="#convergence" title="Permalink to this heading"></a></h3>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.manufactured_solution.convergence.Convergence.html#polaris.ocean.tasks.manufactured_solution.convergence.Convergence" title="polaris.ocean.tasks.manufactured_solution.convergence.Convergence"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.manufactured_solution.convergence.Convergence</span></code></a>
-test performs a 10-hour run.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
-<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
-baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 </section>
 </section>

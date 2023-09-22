@@ -22,12 +22,12 @@ for quicker testing.
 In order to achieve this performance, each test in the suite should preferably
 take under 20 minutes on 32 cores. However, a test may exceed these recommended
 limits if it offers significant benefit for catching bugs or performance issues
-or providing code covereage.
+or providing code coverage.
 
 Examples of tasks that may be included in this suite:
 
 * Short tests to compare the solution and timers with a baseline (often called
-performance tests lasting 3-5 timesteps)
+performance tests lasting 3-5 time steps)
 * Variants on the above with different combinations of config options
 * Tests of all common config option combinations
 * Tests that verify identical behavior:

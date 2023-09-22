@@ -62,7 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -119,11 +119,11 @@
 <li><a href="polaris/model_step.html">polaris.model_step</a></li>
 <li><a href="polaris/namelist.html">polaris.namelist</a></li>
 <li><a href="polaris/ocean.html">polaris.ocean</a></li>
-<ul><li><a href="polaris/ocean/model/ocean_model_step.html">polaris.ocean.model.ocean_model_step</a></li>
+<ul><li><a href="polaris/ocean/mesh/spherical.html">polaris.ocean.mesh.spherical</a></li>
+<li><a href="polaris/ocean/model/ocean_model_step.html">polaris.ocean.model.ocean_model_step</a></li>
 <li><a href="polaris/ocean/rpe.html">polaris.ocean.rpe</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel.html">polaris.ocean.tasks.baroclinic_channel</a></li>
-<ul><li><a href="polaris/ocean/tasks/baroclinic_channel/baroclinic_channel_test_case.html">polaris.ocean.tasks.baroclinic_channel.baroclinic_channel_test_case</a></li>
-<li><a href="polaris/ocean/tasks/baroclinic_channel/decomp.html">polaris.ocean.tasks.baroclinic_channel.decomp</a></li>
+<ul><li><a href="polaris/ocean/tasks/baroclinic_channel/decomp.html">polaris.ocean.tasks.baroclinic_channel.decomp</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel/default.html">polaris.ocean.tasks.baroclinic_channel.default</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel/forward.html">polaris.ocean.tasks.baroclinic_channel.forward</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel/init.html">polaris.ocean.tasks.baroclinic_channel.init</a></li>
@@ -134,22 +134,19 @@
 </ul><li><a href="polaris/ocean/tasks/baroclinic_channel/threads.html">polaris.ocean.tasks.baroclinic_channel.threads</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel/validate.html">polaris.ocean.tasks.baroclinic_channel.validate</a></li>
 <li><a href="polaris/ocean/tasks/baroclinic_channel/viz.html">polaris.ocean.tasks.baroclinic_channel.viz</a></li>
-</ul><li><a href="polaris/ocean/tasks/global_convergence.html">polaris.ocean.tasks.global_convergence</a></li>
-<ul><li><a href="polaris/ocean/tasks/global_convergence/cosine_bell.html">polaris.ocean.tasks.global_convergence.cosine_bell</a></li>
-<ul><li><a href="polaris/ocean/tasks/global_convergence/cosine_bell/analysis.html">polaris.ocean.tasks.global_convergence.cosine_bell.analysis</a></li>
-<li><a href="polaris/ocean/tasks/global_convergence/cosine_bell/forward.html">polaris.ocean.tasks.global_convergence.cosine_bell.forward</a></li>
-<li><a href="polaris/ocean/tasks/global_convergence/cosine_bell/init.html">polaris.ocean.tasks.global_convergence.cosine_bell.init</a></li>
-<li><a href="polaris/ocean/tasks/global_convergence/cosine_bell/viz.html">polaris.ocean.tasks.global_convergence.cosine_bell.viz</a></li>
-</ul></ul><li><a href="polaris/ocean/tasks/inertial_gravity_wave.html">polaris.ocean.tasks.inertial_gravity_wave</a></li>
+</ul><li><a href="polaris/ocean/tasks/cosine_bell.html">polaris.ocean.tasks.cosine_bell</a></li>
+<ul><li><a href="polaris/ocean/tasks/cosine_bell/analysis.html">polaris.ocean.tasks.cosine_bell.analysis</a></li>
+<li><a href="polaris/ocean/tasks/cosine_bell/forward.html">polaris.ocean.tasks.cosine_bell.forward</a></li>
+<li><a href="polaris/ocean/tasks/cosine_bell/init.html">polaris.ocean.tasks.cosine_bell.init</a></li>
+<li><a href="polaris/ocean/tasks/cosine_bell/viz.html">polaris.ocean.tasks.cosine_bell.viz</a></li>
+</ul><li><a href="polaris/ocean/tasks/inertial_gravity_wave.html">polaris.ocean.tasks.inertial_gravity_wave</a></li>
 <ul><li><a href="polaris/ocean/tasks/inertial_gravity_wave/analysis.html">polaris.ocean.tasks.inertial_gravity_wave.analysis</a></li>
-<li><a href="polaris/ocean/tasks/inertial_gravity_wave/convergence.html">polaris.ocean.tasks.inertial_gravity_wave.convergence</a></li>
 <li><a href="polaris/ocean/tasks/inertial_gravity_wave/exact_solution.html">polaris.ocean.tasks.inertial_gravity_wave.exact_solution</a></li>
 <li><a href="polaris/ocean/tasks/inertial_gravity_wave/forward.html">polaris.ocean.tasks.inertial_gravity_wave.forward</a></li>
 <li><a href="polaris/ocean/tasks/inertial_gravity_wave/init.html">polaris.ocean.tasks.inertial_gravity_wave.init</a></li>
 <li><a href="polaris/ocean/tasks/inertial_gravity_wave/viz.html">polaris.ocean.tasks.inertial_gravity_wave.viz</a></li>
 </ul><li><a href="polaris/ocean/tasks/manufactured_solution.html">polaris.ocean.tasks.manufactured_solution</a></li>
 <ul><li><a href="polaris/ocean/tasks/manufactured_solution/analysis.html">polaris.ocean.tasks.manufactured_solution.analysis</a></li>
-<li><a href="polaris/ocean/tasks/manufactured_solution/convergence.html">polaris.ocean.tasks.manufactured_solution.convergence</a></li>
 <li><a href="polaris/ocean/tasks/manufactured_solution/exact_solution.html">polaris.ocean.tasks.manufactured_solution.exact_solution</a></li>
 <li><a href="polaris/ocean/tasks/manufactured_solution/forward.html">polaris.ocean.tasks.manufactured_solution.forward</a></li>
 <li><a href="polaris/ocean/tasks/manufactured_solution/init.html">polaris.ocean.tasks.manufactured_solution.init</a></li>

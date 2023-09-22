@@ -73,7 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
@@ -120,8 +120,9 @@
   <figure class="align-right" id="id1" style="width: 50%">
 <a class="reference internal image-reference" href="../../_images/org_in_package.png"><img alt="../../_images/org_in_package.png" src="../../_images/org_in_package.png" style="width: 311px;" /></a>
 <figcaption>
-<p><span class="caption-text">Figure 1: The organization of components (green), categories of tasks (blue),
-tasks (orange) and steps (red) in the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Figure 1: An out-of-date diagram of the organization of components (green),
+categories of tasks (blue), tasks (orange) and steps (red) in the <code class="docutils literal notranslate"><span class="pre">polaris</span></code>
+package.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <section class="tex2jax_ignore mathjax_ignore" id="directory-structure">
@@ -130,10 +131,10 @@ tasks (orange) and steps (red) in the <code class="docutils literal notranslate"
 components, tasks and steps are laid out like shown in Fig 1.</p>
 <p>Each component has its directory with the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package directory. Among
 other contents of the component’s directory is a <code class="docutils literal notranslate"><span class="pre">tasks</span></code> directory that
-contains all of the tasks, sorted into categories.  Each subdirectory has
-directories or modules for the tasks and typically also python modules that
-define the shared steps. Any steps that are specific to a task would have a
-module within that task’s subdirectory.</p>
+contains all of the tasks, typically sorted into categories.  Each subdirectory
+has directories or modules for the tasks and typically also python modules that
+define the step classes shared between tasks. Any step classes that are
+specific to a task would have a module within that task’s subdirectory.</p>
 <p>More details on each of these organizational concepts – <a class="reference internal" href="components.html#dev-components"><span class="std std-ref">Components</span></a>,
 <a class="reference internal" href="categories_of_tasks.html#dev-categories-of-tasks"><span class="std std-ref">Categories of tasks</span></a>, <a class="reference internal" href="tasks.html#dev-tasks"><span class="std std-ref">Tasks</span></a>, and <a class="reference internal" href="steps.html#dev-steps"><span class="std std-ref">Steps</span></a> – are
 provided below.</p>
@@ -142,8 +143,9 @@ provided below.</p>
 <figure class="align-right" id="id2" style="width: 50%">
 <a class="reference internal image-reference" href="../../_images/org_in_work_dir.png"><img alt="../../_images/org_in_work_dir.png" src="../../_images/org_in_work_dir.png" style="width: 283px;" /></a>
 <figcaption>
-<p><span class="caption-text">Figure 2: The organization of components (green), categories of tasks (blue),
-tasks (orange) and steps (red) in an example work directory.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Figure 2: An out-of-date diagram of the organization of components (green),
+categories of tasks (blue), tasks (orange) and steps (red) in an example work
+directory.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>At the top level are directories for the components.  There is no <code class="docutils literal notranslate"><span class="pre">tasks</span></code>
@@ -152,8 +154,13 @@ within the components’ directory.  The organization of tasks within component
 can include many additional subdirectories that help sort different categories
 of tasks and versions of each task.  In the examples shown above, each task is
 in a subdirectory indicating the category of task and then the resolution of
-the mesh used in the task. Finally, steps are in subdirectories of each task.
-In some cases, additional subdirectories are used to sort steps within a task
+the mesh used in the task. Steps that are shared between tasks are also in
+subdirectories of the component.  Often, shared steps are outside of any task
+work directory, perhaps at the same level as the tasks that share them.
+Sometimes, it is appropriate for shared steps to be inside of a task (e.g. if
+all steps of one task are also steps of another task).  Steps that are not
+shared between tasks should reside in subdirectories of that task. In some
+cases, additional subdirectories are used to sort steps within a task
 (e.g. if the same step will be run at different mesh resolutions in a
 convergence test).</p>
 </section>

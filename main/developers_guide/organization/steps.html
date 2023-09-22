@@ -71,8 +71,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#setup">setup()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runtime-setup">runtime_setup()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run">run()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#inputs-and-outputs">inputs and outputs</a><ul>
@@ -92,7 +92,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
@@ -140,15 +140,18 @@
 <span id="dev-steps"></span><h1>Steps<a class="headerlink" href="#steps" title="Permalink to this heading"></a></h1>
 <p>Steps are the smallest units of work that can be executed on their own in
 polaris.  All tasks are made up of 1 or more steps, and all steps
-are set up into subdirectories inside of the work directory for the task.
-Typically, a user will run all steps in a task but certain tasks may
-prefer to have steps that are not run by default (e.g. a long forward
-simulation or optional visualization) but which are available for a user to
-manually alter and then run on their own.</p>
+are set up into subdirectories inside of the work directory for the component.
+Shared steps should reside somewhere in the work directory above (or possibly
+inside of) all tasks that share the steps.  Steps that belong to only one
+task should be inside of that task’s work directory. Typically, a user will run
+all steps in a task but certain tasks may prefer to have steps that are not run
+by default (e.g. a long forward simulation or optional visualization) but which
+are available for a user to manually alter and then run on their own.</p>
 <p>A step is defined by a class that descends from <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.
-The child class must override the constructor and the
-<a class="reference internal" href="../generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code></a> method, and will sometimes also wish to override
-the <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method, described below.</p>
+The child class must override the constructor and must also either override the
+<a class="reference internal" href="../generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code></a> method or define the <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute.  It will
+sometimes also wish to override the <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method,
+described below.</p>
 <section id="step-attributes">
 <span id="dev-step-attributes"></span><h2>Step attributes<a class="headerlink" href="#step-attributes" title="Permalink to this heading"></a></h2>
 <p>As was the case for tasks, the base class <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
@@ -157,17 +160,14 @@ run) of the step.</p>
 <p>Some attributes are available after calling the base class’ constructor
 <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>.  These include:</p>
 <dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the task</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.name</span></code></dt><dd><p>the name of the step</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.task</span></code></dt><dd><p>The task this step belongs to</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the step belongs to</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.component</span></code></dt><dd><p>The component the task belongs to</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the step</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.subdir</span></code></dt><dd><p>the subdirectory for the step within the component</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.path</span></code></dt><dd><p>the path within the base work directory of the step, made up of
-<code class="docutils literal notranslate"><span class="pre">component</span></code>, <code class="docutils literal notranslate"><span class="pre">test_group</span></code>, the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> and the
-step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p>
+the name of the component and the step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.ntasks</span></code></dt><dd><p>the number of parallel (MPI) tasks the step would ideally use.  Too few
 cores are available on the system to run <code class="docutils literal notranslate"><span class="pre">ntasks</span> <span class="pre">*</span> <span class="pre">cpus_per_task</span></code>, the
@@ -187,6 +187,9 @@ is being used, in which case <code class="docutils literal notranslate"><span cl
 <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> much be the same as <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.openmp_threads</span></code></dt><dd><p>the number of OpenMP threads the step will use</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.max_memory</span></code></dt><dd><p>An aspirational attribute that will be used in the future to indicate the
+amount of memory that the step is allowed to use in MB</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.cached</span></code></dt><dd><p>Whether to get all of the outputs for the step from the database of
 cached outputs for the component that this step belongs to</p>
@@ -209,6 +212,22 @@ if we call a given polaris step as a subprocess while redirecting its
 output to a log file, we can prevent unwanted output from ending up
 in the terminal (the “outer” subprocess call gets redirected to a log
 file even when the inner one does not).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.dependencies</span></code></dt><dd><p>A dictionary of steps that this step depends on (i.e. it can’t run until they
+have finished). Dependencies are used when the names of the files produced by
+the dependency aren’t known at setup (e.g. because they depend on config
+options or data read in from files). If the names of this step’s input files
+are known at setup, it is sufficient (and preferable) to indicate that an
+output file from another step is an input of this step to establish a
+dependency.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.is_dependency</span></code></dt><dd><p>Whether this step is the dependency of one or more other steps</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.args</span></code></dt><dd><p>A list of command-line arguments to call in parallel.  This attribute should
+be defined as an alternative to overriding the <code class="docutils literal notranslate"><span class="pre">run()</span></code>.  <code class="docutils literal notranslate"><span class="pre">args</span></code> should not
+include calls to a parallel executable like <code class="docutils literal notranslate"><span class="pre">srun</span></code> or the associated flags
+for number of MPI tasks, nodes, etc., since these will be added internally by
+Polaris.</p>
 </dd>
 </dl>
 <p>Another set of attributes is not useful until <code class="docutils literal notranslate"><span class="pre">setup()</span></code> is called by the
@@ -247,16 +266,28 @@ file.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">self.log_filename</span></code></dt><dd><p>The name of a log file where output/errors from the step are being logged,
 or <code class="docutils literal notranslate"><span class="pre">None</span></code> if output is to stdout/stderr</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.machine_info</span></code></dt><dd><p>Information about E3SM supported machines</p>
+</dd>
 </dl>
 <p>The inputs and outputs should not be altered but they may be used to get file
 names to read or write.</p>
+<p>Some attributes are also used by the framework to validate variables in
+output files against a baseline in one is provided:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">self.baseline_dir</span></code></dt><dd><p>Location of the same step within the baseline work directory, for use in
+comparing variables and timers</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.validate_vars</span></code></dt><dd><p>A list of variables for each output file for which a baseline comparison
+should be performed if a baseline run has been provided. The baseline
+validation is performed after the step has run.</p>
+</dd>
+</dl>
 <p>You can add other attributes to the child class that keeps track of information
 that the step will need.</p>
 <p>As an example,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tasks.dome.setup_mesh.SetupMesh</span></code> keeps track of the
 mesh type as an attribute:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">make_graph_file</span>
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 
 
 <span class="k">class</span> <span class="nc">SetupMesh</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -268,19 +299,19 @@ mesh type as an attribute:</p>
 <span class="sd">    mesh_type : str</span>
 <span class="sd">        The resolution or mesh type of the task</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the dictionary of step properties</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The task this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component this step belongs to</span>
 
 <span class="sd">        mesh_type : str</span>
 <span class="sd">            The resolution or mesh type of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;setup_mesh&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;setup_mesh&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
 
         <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;variable_resolution&#39;</span><span class="p">:</span>
@@ -297,7 +328,7 @@ mesh type as an attribute:</p>
 </section>
 <section id="constructor">
 <span id="dev-step-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
-<p>The step’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) should call the base case’s
+<p>The step’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) should call the base class’
 constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the step, the
 task it belongs to, and possibly several optional arguments: the
 subdirectory for the step (if not the same as the name), number of MPI tasks,
@@ -305,7 +336,7 @@ the minimum number of MPI tasks, the number of CPUs per task, the minimum
 number of CPUs per task, the number of OpenMP threads, and (currently as
 placeholders) the amount of memory the step is allowed to use.</p>
 <p>Then, the step can add <a class="reference internal" href="#dev-step-inputs-outputs"><span class="std std-ref">inputs and outputs</span></a> as well as
-<a class="reference internal" href="../framework/model.html#dev-step-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>, as described below.</p>
+<span class="xref std std-ref">dev-step-namelists-and-streams</span>, as described below.</p>
 <p>As with the task’s <a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>, it is important that the
 step’s constructor doesn’t perform any time-consuming calculations, download
 files, or otherwise use significant resources because this function is called
@@ -322,41 +353,55 @@ the step by calling any of the following methods:</p>
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>Each of these functions just caches information about the the inputs, outputs,
-namelists or streams files to be read later if the task in question gets
+namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.</p>
 <p>The following is from
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.forward.Forward()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">ModelStep</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">ModelStep</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A step for performing forward MPAS-Ocean runs as part of baroclinic</span>
+<span class="sd">    A step for performing forward ocean component runs as part of baroclinic</span>
 <span class="sd">    channel tasks.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    resolution : str</span>
-<span class="sd">        The resolution of the task</span>
+<span class="sd">    resolution : float</span>
+<span class="sd">        The resolution of the task in km</span>
+
+<span class="sd">    dt : float</span>
+<span class="sd">        The model time step in seconds</span>
+
+<span class="sd">    btr_dt : float</span>
+<span class="sd">        The model barotropic time step in seconds</span>
+
+<span class="sd">    run_time_steps : int or None</span>
+<span class="sd">        Number of time steps to run for</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        task : polaris.Task</span>
-<span class="sd">            The task this step belongs to</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
 
-<span class="sd">        resolution : str</span>
-<span class="sd">            The resolution of the task</span>
+<span class="sd">        resolution : km</span>
+<span class="sd">            The resolution of the task in km</span>
 
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the task</span>
 
 <span class="sd">        subdir : str, optional</span>
-<span class="sd">            the subdirectory for the step.  The default is ``name``</span>
+<span class="sd">            the subdirectory for the step.  If neither this nor ``indir``</span>
+<span class="sd">             are provided, the directory is the ``name``</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
 
 <span class="sd">        ntasks : int, optional</span>
 <span class="sd">            the number of tasks the step would ideally use.  If fewer tasks</span>
@@ -371,90 +416,55 @@ set up, so each takes a negligible amount of time.</p>
 <span class="sd">            the number of OpenMP threads the step will use</span>
 
 <span class="sd">        nu : float, optional</span>
-<span class="sd">            the viscosity (if different from the default in the shared framework)</span>
+<span class="sd">            the viscosity (if different from the default for baroclinic channel</span>
+<span class="sd">            tests)</span>
+
+<span class="sd">        run_time_steps : int, optional</span>
+<span class="sd">            Number of time steps to run for</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
-        <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">=</span> <span class="n">run_time_steps</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
                          <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;namelist.</span><span class="si">{}</span><span class="s1">.forward&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resolution</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value</span>
-            <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_mom_del2&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nu</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
 
         <span class="c1"># make sure output is double precision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.streams&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.output&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                              <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/ocean.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/initial_state.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_graph.info&#39;</span><span class="p">)</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/culled_graph.info&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 </div>
 <p>Several parameters are passed into the constructor (with defaults if they
 are not included) and then passed on to the base class’ constructor: <code class="docutils literal notranslate"><span class="pre">name</span></code>,
-<code class="docutils literal notranslate"><span class="pre">subdir</span></code>, <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>,
-<code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>, and <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code>.</p>
-<p>Then, two files with modifications to the namelist options are added (for
-later processing), and an additional config option is set manually via
-a python dictionary of namelist options.</p>
-<p>Then, a file with modifications to the default streams is also added (again,
-for later processing).</p>
-<p>Finally, two input and one output file are added.</p>
-</section>
-<section id="constrain-resources">
-<span id="dev-step-constrain-resources"></span><h2>constrain_resources()<a class="headerlink" href="#constrain-resources" title="Permalink to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> method is used to update the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>,
-<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> attributes prior to
-running the step, in case the user has modified these in the config options.
-These performance-related attributes affect how the step runs and must be set
-prior to runtime, whereas other options can be set within <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> is called within
-<a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a>, but can be overridden if desired.
-The typical reason to override this function would be to get config options for
-<code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, etc. and set the corresponding
-attributes.  Another reason might be to set these attributes using an algorithm
-(e.g. based on the number of cells in the mesh used in the step.)
-When overriding <code class="docutils literal notranslate"><span class="pre">constrain_resources</span></code>, it is important to also call the base
-class’ version of the method with <code class="docutils literal notranslate"><span class="pre">super().constrain_resources()</span></code>.</p>
-<p>The names of the resources are related to the
-<a class="reference external" href="https://slurm.schedmd.com/srun.html">Slurm</a> naming conventions:</p>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">ntasks</span></code></dt><dd><p>The target number of MPI tasks that a step will use if the resources
-are available.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">min_tasks</span></code></dt><dd><p>The minimum number of MPI tasks for a step.  If too few resources are
-available, the step will not run.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">ntasks</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, this is typically a number of threads used by each
-MPI task (e.g. with OpenMP threading).  If <code class="docutils literal notranslate"><span class="pre">ntasks</span> <span class="pre">==</span> <span class="pre">1</span></code>, this may
-be the number of target cores used in on-node parallelism like python or
-c++ threading, or python multiprocessing.  <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> will
-automatically be constrained to be less than or equal to the number of cores on a node
-(and the total available cores).  So it may be appropriate to set it to a
-high value appropriate for machines with large nodes, knowing that it will
-be constrained to fit on one node.</p>
-</dd>
-</dl>
-<p>For MPI applications without threading, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> will always be
-<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default.</p>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code></dt><dd><p>The minimum number of cores for on-node parallelism (threading,
-multiprocessing, etc.).  If too few resources are available, the step
-will fail with an error message.</p>
-</dd>
-</dl>
+<code class="docutils literal notranslate"><span class="pre">subdir</span></code>, <code class="docutils literal notranslate"><span class="pre">indir</span></code>, <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>,
+<code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>, and <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code>.  Additional parameters <code class="docutils literal notranslate"><span class="pre">nu</span></code> and
+<code class="docutils literal notranslate"><span class="pre">run_time_steps</span></code> are used to determine settings for running the model.</p>
+<p>Then, two yaml files with modifications to the model config options are added
+(for later processing).  An additional model config option, <code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code>
+is set manually via a python dictionary of namelist options.</p>
+<p>Additionally, two input and one output file are added.  By providing
+<code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> to <a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>, validation of
+these 4 variables in the <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> output file will automatically be
+performed after the step has run if a baseline was provided as part of the call
+to <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="setup">
 <span id="dev-step-setup"></span><h2>setup()<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
@@ -492,33 +502,78 @@ other than downloading files.  Time-consuming work should be saved for
 python multiprocessing, so the <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>
 attributes are set to appropriate values based on config options.</p>
 </section>
+<section id="constrain-resources">
+<span id="dev-step-constrain-resources"></span><h2>constrain_resources()<a class="headerlink" href="#constrain-resources" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> method is used to update the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>,
+<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> attributes prior to
+running the step, in case the user has modified these in the config options.
+These performance-related attributes affect how the step runs and must be set
+prior to runtime, whereas other options can be set within <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.</p>
+<p>The framework calls <code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> within
+<a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a>, and a step can override this method
+if desired, typically to get <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, etc. from
+config options or compute them using an algorithm and set the corresponding
+attributes. When overriding <code class="docutils literal notranslate"><span class="pre">constrain_resources</span></code>, it is important to also call
+the base class’ version of the method with <code class="docutils literal notranslate"><span class="pre">super().constrain_resources()</span></code>.</p>
+<p>The names of the resources are related to the
+<a class="reference external" href="https://slurm.schedmd.com/srun.html">Slurm</a> naming conventions:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">ntasks</span></code></dt><dd><p>The target number of MPI tasks that a step will use if the resources
+are available.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">min_tasks</span></code></dt><dd><p>The minimum number of MPI tasks for a step.  If too few resources are
+available, the step will not run.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">ntasks</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, this is typically a number of threads used by each
+MPI task (e.g. with OpenMP threading).  If <code class="docutils literal notranslate"><span class="pre">ntasks</span> <span class="pre">==</span> <span class="pre">1</span></code>, this may
+be the number of target cores used in on-node parallelism like python or
+c++ threading, or python multiprocessing.  <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> will
+automatically be constrained to be less than or equal to the number of cores on a node
+(and the total available cores).  So it may be appropriate to set it to a
+high value appropriate for machines with large nodes, knowing that it will
+be constrained to fit on one node.</p>
+</dd>
+</dl>
+<p>For MPI applications without threading, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> will always be
+<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default.</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code></dt><dd><p>The minimum number of cores for on-node parallelism (threading,
+multiprocessing, etc.).  If too few resources are available, the step
+will fail with an error message.</p>
+</dd>
+</dl>
+</section>
 <section id="runtime-setup">
 <span id="dev-step-runtime-setup"></span><h2>runtime_setup()<a class="headerlink" href="#runtime-setup" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method is used to modify any behaviors of the step at
-runtime, in the way that <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.run()</span></code> was previously used.
-This includes things like partitioning an MPAS mesh across processors and
-computing a times step based on config options that might have been modified
-by the user.  It must not include modifying the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
+runtime. This includes things like partitioning an MPAS mesh across processors
+and computing a times step based on config options that might have been
+modified by the user.  It must not include modifying the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
 <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> or <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.
 These attributes must be altered by overriding
 <a class="reference internal" href="#dev-step-constrain-resources"><span class="std std-ref">constrain_resources()</span></a>.</p>
+<p>Typically, <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> will only be needed when the <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute is
+being defined instead of a <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.  This lets you run a small amount
+of python code before launching an command, often using MPI parallelism.</p>
 </section>
 <section id="run">
 <span id="dev-step-run"></span><h2>run()<a class="headerlink" href="#run" title="Permalink to this heading"></a></h2>
-<p>Okay, we’re ready to define how the step will run!</p>
-<p>The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary quite a lot between steps.</p>
+<p>This method defines how the step will run. The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary
+quite a lot between steps.</p>
 <p>In the baroclinic channel’s <code class="docutils literal notranslate"><span class="pre">Init</span></code> step, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method,
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.init.Init.run.html#polaris.ocean.tasks.baroclinic_channel.init.Init.run" title="polaris.ocean.tasks.baroclinic_channel.init.Init.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.init.Init.run()</span></code></a>,
 is quite involved:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-
-<span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
+<span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">generate_grid</span>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">init_vertical_coord</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
 <span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -531,18 +586,26 @@ is quite involved:</p>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">]</span>
-        <span class="n">nx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;nx&#39;</span><span class="p">)</span>
-        <span class="n">ny</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;ny&#39;</span><span class="p">)</span>
-        <span class="n">dc</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dc&#39;</span><span class="p">)</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
 
-        <span class="n">dsMesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                      <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">dsMesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
 
-        <span class="n">dsMesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">dsMesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">dsMesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">dsMesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
-                         <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">dsMesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="c1"># these could be hard-coded as functions of specific supported</span>
+        <span class="c1"># resolutions but it is preferable to make them algorithmic like here</span>
+        <span class="c1"># for greater flexibility</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+        <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
+                                       <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+                          <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">]</span>
         <span class="n">use_distances</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;use_distances&#39;</span><span class="p">)</span>
@@ -554,105 +617,102 @@ is quite involved:</p>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
         <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
 
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">dsMesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
+        <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
 
-        <span class="n">interfaces</span> <span class="o">=</span> <span class="n">generate_grid</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
 
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">interfaces</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">vert_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interfaces</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;refBottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;refZMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">interfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
-        <span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
-        <span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
+        <span class="n">x_min</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">x_max</span> <span class="o">=</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y_min</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="n">y_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="n">xMin</span> <span class="o">=</span> <span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">xMax</span> <span class="o">=</span> <span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">yMin</span> <span class="o">=</span> <span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">yMax</span> <span class="o">=</span> <span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="n">yMid</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">yMin</span> <span class="o">+</span> <span class="n">yMax</span><span class="p">)</span>
-        <span class="n">xPerturbMin</span> <span class="o">=</span> <span class="n">xMin</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">xMax</span> <span class="o">-</span> <span class="n">xMin</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
-        <span class="n">xPerturbMax</span> <span class="o">=</span> <span class="n">xMin</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">xMax</span> <span class="o">-</span> <span class="n">xMin</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
+        <span class="n">y_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_min</span> <span class="o">+</span> <span class="n">y_max</span><span class="p">)</span>
+        <span class="n">x_perturb_min</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
+        <span class="n">x_perturb_max</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span>
 
         <span class="k">if</span> <span class="n">use_distances</span><span class="p">:</span>
-            <span class="n">perturbationWidth</span> <span class="o">=</span> <span class="n">gradient_width_dist</span>
+            <span class="n">perturb_width</span> <span class="o">=</span> <span class="n">gradient_width_dist</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">perturbationWidth</span> <span class="o">=</span> <span class="p">(</span><span class="n">yMax</span> <span class="o">-</span> <span class="n">yMin</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient_width_frac</span>
+            <span class="n">perturb_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient_width_frac</span>
 
-        <span class="n">yOffset</span> <span class="o">=</span> <span class="n">perturbationWidth</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
-            <span class="mf">6.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">xCell</span> <span class="o">-</span> <span class="n">xMin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">xMax</span> <span class="o">-</span> <span class="n">xMin</span><span class="p">))</span>
+        <span class="n">y_offset</span> <span class="o">=</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="mf">6.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">))</span>
 
         <span class="n">temp_vert</span> <span class="o">=</span> <span class="p">(</span><span class="n">bottom_temperature</span> <span class="o">+</span>
                      <span class="p">(</span><span class="n">surface_temperature</span> <span class="o">-</span> <span class="n">bottom_temperature</span><span class="p">)</span> <span class="o">*</span>
                      <span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span> <span class="o">+</span> <span class="n">bottom_depth</span><span class="p">)</span> <span class="o">/</span> <span class="n">bottom_depth</span><span class="p">))</span>
 
-        <span class="n">frac</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">yCell</span> <span class="o">&lt;</span> <span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">yCell</span> <span class="o">&gt;=</span> <span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span><span class="p">,</span>
-                                 <span class="n">yCell</span> <span class="o">&lt;</span> <span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span> <span class="o">+</span> <span class="n">perturbationWidth</span><span class="p">)</span>
-        <span class="n">frac</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span>
-                            <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">yCell</span> <span class="o">-</span> <span class="p">(</span><span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span><span class="p">))</span> <span class="o">/</span> <span class="n">perturbationWidth</span><span class="p">,</span>
-                            <span class="n">frac</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">,</span>
+                              <span class="n">y_cell</span> <span class="o">&lt;</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="n">perturb_width</span><span class="p">)</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span>
+                        <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span> <span class="n">perturb_width</span><span class="p">,</span>
+                        <span class="n">frac</span><span class="p">)</span>
 
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temp_vert</span> <span class="o">-</span> <span class="n">temperature_difference</span> <span class="o">*</span> <span class="n">frac</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Determine yOffset for 3rd crest in sin wave</span>
-        <span class="n">yOffset</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturbationWidth</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">xCell</span> <span class="o">-</span> <span class="n">xPerturbMin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">xPerturbMax</span> <span class="o">-</span> <span class="n">xPerturbMin</span><span class="p">))</span>
+        <span class="c1"># Determine y_offset for 3rd crest in sin wave</span>
+        <span class="n">y_offset</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_perturb_max</span> <span class="o">-</span> <span class="n">x_perturb_min</span><span class="p">))</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">yCell</span> <span class="o">&gt;=</span> <span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturbationWidth</span><span class="p">,</span>
-                              <span class="n">yCell</span> <span class="o">&lt;=</span> <span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturbationWidth</span><span class="p">),</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">xCell</span> <span class="o">&gt;=</span> <span class="n">xPerturbMin</span><span class="p">,</span>
-                              <span class="n">xCell</span> <span class="o">&lt;=</span> <span class="n">xPerturbMax</span><span class="p">))</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y_cell</span> <span class="o">&gt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">,</span>
+                           <span class="n">y_cell</span> <span class="o">&lt;=</span> <span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">x_cell</span> <span class="o">&gt;=</span> <span class="n">x_perturb_min</span><span class="p">,</span>
+                           <span class="n">x_cell</span> <span class="o">&lt;=</span> <span class="n">x_perturb_max</span><span class="p">))</span>
 
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">+</span>
-                       <span class="n">mask</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">((</span><span class="n">yCell</span> <span class="o">-</span> <span class="p">(</span><span class="n">yMid</span> <span class="o">-</span> <span class="n">yOffset</span><span class="p">))</span> <span class="o">/</span>
-                                           <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturbationWidth</span><span class="p">))))</span>
+                       <span class="n">mask</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">((</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span>
+                                           <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">))))</span>
 
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">layerThickness</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">interfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                                          <span class="n">dims</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">layerThickness</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">xCell</span><span class="p">,</span> <span class="n">layerThickness</span><span class="p">)</span>
-        <span class="n">layerThickness</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-        <span class="n">layerThickness</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
-        <span class="n">normalVelocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normalVelocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
-        <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">normalVelocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-        <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">normalVelocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
+        <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normal_velocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalVelocity</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layerThickness</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layerThickness</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xCell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vert_levels</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xCell</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xCell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_velocity</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;ocean.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;dc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;initial_temperature.png&#39;</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;initial_normal_velocity.png&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                         <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Without going into all the details of this method, it creates a mesh that
 is periodic in x (but not y), then adds a vertical grid and an initial
 condition to an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.8.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, which is then written out to
 the file <code class="docutils literal notranslate"><span class="pre">ocean.nc</span></code>.</p>
-<p>In the example <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step we’ve been using, there is no run method at all
+<p>In the example <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step we showed above, there is no run method at all
 because we let its superclass <code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> define an <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute instead.
 Rather than call the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method, the command given by these arguments
 will be run on the commandline.  This is capability important for supporting
 task parallelism, since each such command may need to run with its own set of
 MPI, threading and memory resources.</p>
 <p>To get a feel for different types of <code class="docutils literal notranslate"><span class="pre">run()</span></code> methods, it may be best to
-explore different steps.</p>
+explore different steps that are already implemented in Polaris.</p>
 </section>
 <section id="inputs-and-outputs">
 <span id="dev-step-inputs-outputs"></span><h2>inputs and outputs<a class="headerlink" href="#inputs-and-outputs" title="Permalink to this heading"></a></h2>
@@ -666,8 +726,8 @@ steps (again, possibly in other tasks).  There is no harm in including
 inputs to the step that do not come from other steps (e.g. files that will be
 downloaded when the task gets set up) as long as they are sure to exist
 before the step runs.  Likewise, there is no harm in including outputs from the
-step that aren’t used by any other steps in any tasks as long as the step
-will be sure to generate them.</p>
+step that aren’t used by any other steps as long as the step will be sure to
+generate them.</p>
 <p>The inputs and outputs need to be defined during init of either the step or
 the task, or in the step’s <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method because they are needed
 before <a class="reference internal" href="#dev-step-run"><span class="std std-ref">run()</span></a> is called (to determine which steps depend on which
@@ -696,7 +756,9 @@ the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
 steps so it is safe to simply omit them, but this could become problematic in
 the future if new steps are added that depend on
-<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span>.</p>
+<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span>.  These steps would need to add
+the appropriate shared step from <code class="docutils literal notranslate"><span class="pre">files_for_e3sm</span></code> as a dependency using
+<a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a>.</p>
 <p><a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> includes several methods for adding input, output,
 namelist and streams files:</p>
 <section id="input-files">
@@ -750,24 +812,21 @@ parameters.  For such cases, there is a <code class="docutils literal notranslat
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.global_ocean.forward.ForwardStep</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
     <span class="n">mesh_path</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">mesh_step</span><span class="o">.</span><span class="n">path</span>
 
     <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
-        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/ssh_adjustment/adjusted_init.nc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/ssh_adjustment/adjusted_init.nc&#39;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/init/initial_state.nc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init/initial_state.nc&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
                         <span class="n">work_dir_target</span><span class="o">=</span><span class="n">initial_state_target</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing_data.nc&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/init/init_mode_forcing_data.nc&#39;</span>
-                        <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init/init_mode_forcing_data.nc&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/culled_graph.info&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">))</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -775,10 +834,7 @@ not yet known at init). Here is an example taken from
 <span id="dev-step-input-polaris"></span><h3>Symlink to input files from polaris<a class="headerlink" href="#symlink-to-input-files-from-polaris" title="Permalink to this heading"></a></h3>
 <p>Another common need is to symlink a data file from within the task or its
 shared framework:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">add_input_file</span>
-
-
-<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;enthA_analy_result.mat&#39;</span><span class="p">,</span>
@@ -856,10 +912,22 @@ don’t depend on each other.  Adding an output file is pretty straightforward:<
 </pre></div>
 </div>
 <p><a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> can be called in a step’s
-<a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>: or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method or (less commonly)
+<a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a> or <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> method or (less commonly)
 in the task’s <a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>.</p>
 <p>The relative path in <code class="docutils literal notranslate"><span class="pre">filename</span></code> is with respect to the step’s work directory,
 and is converted to an absolute path internally before the step is run.</p>
+<p>You can specify a list of variables to validate against a baseline (if one
+is provided) using the <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> attribute:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+    <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If a baseline is provided during <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, then after the step
+runs, the variables <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the file <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> will be checked against the same
+variables in the same file in the baseline run to make sure they are identical.</p>
 </section>
 <section id="cached-output-files">
 <span id="dev-step-cached-output"></span><h3>Cached output files<a class="headerlink" href="#cached-output-files" title="Permalink to this heading"></a></h3>

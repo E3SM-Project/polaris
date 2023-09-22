@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -582,7 +582,7 @@ By default, the subdirectory for the step is the same as the step name, but
 just like for a task, you can give the step a more complicated
 subdirectory name, possibly with multiple levels of directories.  This is
 particularly important for parameter studies, an example of which can be seen
-in the <a class="reference internal" href="../developers_guide/ocean/tasks/global_convergence.html#dev-ocean-global-convergence-cosine-bell"><span class="std std-ref">cosine_bell</span></a> task.</p>
+in the <span class="xref std std-ref">dev-ocean-global-convergence-cosine-bell</span> task.</p>
 <section id="creating-a-horizontal-mesh">
 <h3>Creating a horizontal mesh<a class="headerlink" href="#creating-a-horizontal-mesh" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step does the actual work of
@@ -640,7 +640,7 @@ that direction (<code class="docutils literal notranslate"><span class="pre">non
 </span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
 </span></pre></div>
 </div>
-<p>We use <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a> to compute the
+<p>We use <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a> to compute the
 number of grid cells in x and y from the physical sizes and the resolution.</p>
 <p>We will continue with the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method below, but first it is worth
 discussing how to set the config options used to generate the horizontal mesh.</p>
@@ -1319,8 +1319,8 @@ to the functionality we anticipate adding to this step:</p>
 <span id="dev-tutorial-add-test-group-model-config-and-streams"></span><h3>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Permalink to this heading"></a></h3>
 <p>The E3SM components supported by polaris require both model config options
 and streams definitions (namelist and streams files for MPAS components,
-see <a class="reference internal" href="../developers_guide/framework/model.html#dev-step-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>, and yaml files for Omega, see
-<a class="reference internal" href="../developers_guide/framework/model.html#dev-step-add-yaml-file"><span class="std std-ref">Adding a yaml file</span></a>) to work properly.  An important part of polaris’
+see <span class="xref std std-ref">dev-step-namelists-and-streams</span>, and yaml files for Omega, see
+<span class="xref std std-ref">dev-step-add-yaml-file</span>) to work properly.  An important part of polaris’
 functionality is that it takes the default model config options and E3SM
 component and modifies only those options that are specific to the task to
 produce the final model config files used to run the model.</p>
@@ -2211,7 +2211,7 @@ combination is run and then an analysis step computes the rate of convergence
 from the results. We won’t cover this example here, in part because a
 resolution study involves both a forward step and an initial condition step for
 each resolution in order to generate unique meshes for each step. You may refer
-to <a class="reference internal" href="../developers_guide/ocean/tasks/global_convergence.html#dev-ocean-global-convergence-cosine-bell"><span class="std std-ref">cosine_bell</span></a> for these details. Instead,
+to <span class="xref std std-ref">dev-ocean-global-convergence-cosine-bell</span> for these details. Instead,
 we will explore the <code class="docutils literal notranslate"><span class="pre">rpe</span></code> for the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, which
 only requires unique forward runs for different viscosity values.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> has been used to show that MPAS-Ocean has lower spurious

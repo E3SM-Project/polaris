@@ -31,23 +31,14 @@ pickle files are not intended for users (or developers) to read or modify.
 Properties of the task and step objects are not intended to change between
 setting up and running a suite, task or step.
 
-(dev-clean)=
-
-## clean module
-
-The {py:func}`polaris.clean.clean_cases()` function is used by
-`polaris clean` and `polaris suite` to delete the constants of a task
-subdirectory in the work directory.
-
 (dev-suite)=
 
 ## suite module
 
-The {py:func}`polaris.suite.setup_suite()` and {py:func}`polaris.suite.clean_suite()`
-functions are used by `polaris suite` to set up or clean up a suite in a
-work directory.  Setting up a suite includes setting up the tasks
-(see {ref}`dev-setup`), writing out a {ref}`dev-provenance` file, and saving
-a pickle file containing a python dictionary that defines the suite for
+The {py:func}`polaris.suite.setup_suite()` function is used by `polaris suite`
+to set up a suite in a work directory.  Setting up a suite includes setting up 
+the tasks (see {ref}`dev-setup`), writing out a {ref}`dev-provenance` file, and
+saving a pickle file containing a python dictionary that defines the suite for
 later use by `polaris run`.  The "target" and "minimum" number of cores
 required for running the suite are displayed.  The "target" is determined
 based on the maximum product of the `ntasks` and `cpus_per_task`
@@ -90,8 +81,8 @@ and finally indicates if the overall task execution was `SUCCESS` or `ERROR`.
 Execution times are provided for individual steps, tasks and the suite as a
 whole.
 
-{py:func}`polaris.run.run_single_step()` runs only the selected step from a
-given task, skipping any others, displaying the output in the terminal
+{py:func}`polaris.run.serial.run_single_step()` runs only the selected step 
+from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.
 
 (dev-cache)=

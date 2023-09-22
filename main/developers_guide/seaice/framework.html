@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seaice framework</title>
+  <title>SeaIce framework</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Models" href="models/index.html" />
+    <link rel="next" title="Supported Model: MPAS-Seaice" href="mpas_seaice.html" />
     <link rel="prev" title="single_column" href="tasks/single_column.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -65,17 +65,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Seaice component</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">SeaIce component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Seaice framework</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#model">Model</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SeaIce framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas_seaice.html">Supported Model: MPAS-Seaice</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -110,8 +103,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Seaice component</a></li>
-      <li class="breadcrumb-item active">Seaice framework</li>
+          <li class="breadcrumb-item"><a href="index.html">SeaIce component</a></li>
+      <li class="breadcrumb-item active">SeaIce framework</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/developers_guide/seaice/framework.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -122,28 +115,8 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="seaice-framework">
-<span id="dev-seaice-framework"></span><h1>Seaice framework<a class="headerlink" href="#seaice-framework" title="Permalink to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component contains an ever expanding set of shared framework code.</p>
-<section id="model">
-<span id="dev-seaice-model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this heading"></a></h2>
-<section id="running-an-e3sm-component">
-<h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Permalink to this heading"></a></h3>
-<p>Steps that run MPAS-Seaice should descend from the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.model.SeaiceModelStep</span></code> class.  This class descends
-from <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>, see <a class="reference internal" href="../framework/model.html#dev-model"><span class="std std-ref">Model</span></a>.</p>
-<section id="setting-mpi-resources">
-<h4>Setting MPI resources<a class="headerlink" href="#setting-mpi-resources" title="Permalink to this heading"></a></h4>
-<p>The MPAS-Seaice tasks currently only include single column tests.
-Therefore, there is no concern for setting MPI resources. This may change
-as more complicates tasks are included.</p>
-</section>
-</section>
-</section>
-<section id="model-config-options-and-streams">
-<span id="dev-seaice-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Permalink to this heading"></a></h2>
-<p>There is currently no generic module setup for MPAS-Seaice model config options.
-The namelist and streams files are located within each test group and/or case.</p>
-</section>
+<span id="dev-seaice-framework"></span><h1>SeaIce framework<a class="headerlink" href="#seaice-framework" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component currently does not contain any shared framework code.</p>
 </section>
 
 
@@ -151,7 +124,7 @@ The namelist and streams files are located within each test group and/or case.</
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tasks/single_column.html" class="btn btn-neutral float-left" title="single_column" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="models/index.html" class="btn btn-neutral float-right" title="Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mpas_seaice.html" class="btn btn-neutral float-right" title="Supported Model: MPAS-Seaice" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

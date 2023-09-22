@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
@@ -115,8 +115,7 @@ up your conda environment, you will already have the packages available that
 you need to build the documentation.</p>
 <p>Then, run the following script to build the docs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
-rm<span class="w"> </span>-rf<span class="w"> </span>developers_guide/generated/<span class="w"> </span>developers_guide/*/generated/<span class="w"> </span>_build/
-make<span class="w"> </span>html
+make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>You can view the documentation by opening <code class="docutils literal notranslate"><span class="pre">_build/html/index.html</span></code>.</p>

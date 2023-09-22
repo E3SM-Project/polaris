@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -133,10 +133,10 @@ running:</p>
 </div>
 <p>As an example, the ocean <code class="docutils literal notranslate"><span class="pre">nightly</span></code> suite includes the tasks used
 for regression testing of MPAS-Ocean.  Here are the tasks included:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/baroclinic_channel/10km/threads
-ocean/baroclinic_channel/10km/decomp
-ocean/baroclinic_channel/10km/restart
-ocean/inertial_gravity_wave/convergence
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/inertial_gravity_wave
 </pre></div>
 </div>
 <div class="admonition note">
@@ -147,7 +147,7 @@ of a previous run are simply downloaded.  This is used to skip steps that
 are prohibitively time-consuming during regression testing, but where the
 results are needed to run subsequent tasks.  An example in the
 <code class="docutils literal notranslate"><span class="pre">cosine_bell_cached_init</span></code> suite listed above is the
-<code class="docutils literal notranslate"><span class="pre">global_convergence/icos/cosine_bell</span></code> and <code class="docutils literal notranslate"><span class="pre">global_convergence/qu/cosine_bell</span></code>
+<code class="docutils literal notranslate"><span class="pre">spherical/icos/cosine_bell</span></code> and <code class="docutils literal notranslate"><span class="pre">spherical/qu/cosine_bell</span></code>
 tasks from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component.  These tasks take several minutes to
 create their meshes and initial conditions, so to speed things up we sometimes
 run with cached meshes and initial conditions.</p>

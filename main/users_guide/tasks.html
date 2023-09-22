@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -119,7 +119,7 @@ convenience and shared framework.  These groupings of tasks have some common
 purpose or concept. Under <code class="docutils literal notranslate"><span class="pre">landice</span></code>, these include “idealized” setups like
 <span class="xref std std-ref">landice-dome</span> and <span class="xref std std-ref">landice-hydro-radial</span> as well as “realistic”
 domains as in <span class="xref std std-ref">landice-greenland</span>.  The same is true for the ocean, with
-“idealized” tasks like <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> and
+“idealized” tasks like <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> and
 <span class="xref std std-ref">ocean-ziso</span>, and a “realistic” tasks in <span class="xref std std-ref">ocean-global-ocean</span>.</p>
 <p>Idealized tasks typically use analytic functions to define their
 topography, initial conditions and forcing data (i.e. boundary conditions),
@@ -135,9 +135,9 @@ as plotting or other forms of analysis, may be intended for you to run them
 manually if you want to see the plots.</p>
 <p>In polaris, tasks are identified by their subdirectory relative to a base
 work directory that you choose during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>.  For example, the
-default task from the <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">Baroclinic channel</span></a> configuration at
+default task from the <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> configuration at
 10-km resolution is identified as:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/baroclinic_channel/10km/default
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/default
 </pre></div>
 </div>
 <p>When you list tasks:</p>

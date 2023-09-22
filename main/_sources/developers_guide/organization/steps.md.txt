@@ -4,16 +4,19 @@
 
 Steps are the smallest units of work that can be executed on their own in
 polaris.  All tasks are made up of 1 or more steps, and all steps
-are set up into subdirectories inside of the work directory for the task.
-Typically, a user will run all steps in a task but certain tasks may
-prefer to have steps that are not run by default (e.g. a long forward
-simulation or optional visualization) but which are available for a user to
-manually alter and then run on their own.
+are set up into subdirectories inside of the work directory for the component.
+Shared steps should reside somewhere in the work directory above (or possibly
+inside of) all tasks that share the steps.  Steps that belong to only one
+task should be inside of that task's work directory. Typically, a user will run
+all steps in a task but certain tasks may prefer to have steps that are not run
+by default (e.g. a long forward simulation or optional visualization) but which
+are available for a user to manually alter and then run on their own.
 
 A step is defined by a class that descends from {py:class}`polaris.Step`.
-The child class must override the constructor and the
-{py:meth}`polaris.Step.run()` method, and will sometimes also wish to override
-the {py:meth}`polaris.Step.setup()` method, described below.
+The child class must override the constructor and must also either override the
+{py:meth}`polaris.Step.run()` method or define the `args` attribute.  It will 
+sometimes also wish to override the {py:meth}`polaris.Step.setup()` method, 
+described below.
 
 (dev-step-attributes)=
 
@@ -28,25 +31,20 @@ Some attributes are available after calling the base class' constructor
 
 `self.name`
 
-: the name of the task
-
-`self.task`
-
-: The task this step belongs to
+: the name of the step
 
 `self.component`
 
-: The component the task belongs to
+: The component the step belongs to
 
 `self.subdir`
 
-: the subdirectory for the step
+: the subdirectory for the step within the component
 
 `self.path`
 
 : the path within the base work directory of the step, made up of
-  `component`, `test_group`, the task's `subdir` and the
-  step's `subdir`
+  the name of the component and the step's `subdir`
 
 `self.ntasks`
 
@@ -77,6 +75,11 @@ Some attributes are available after calling the base class' constructor
 
 : the number of OpenMP threads the step will use
 
+`self.max_memory`
+
+: An aspirational attribute that will be used in the future to indicate the 
+  amount of memory that the step is allowed to use in MB
+
 `self.cached`
 
 : Whether to get all of the outputs for the step from the database of
@@ -103,6 +106,28 @@ Some attributes are available after calling the base class' constructor
   output to a log file, we can prevent unwanted output from ending up
   in the terminal (the "outer" subprocess call gets redirected to a log
   file even when the inner one does not).
+
+`self.dependencies`
+
+: A dictionary of steps that this step depends on (i.e. it can't run until they
+  have finished). Dependencies are used when the names of the files produced by
+  the dependency aren't known at setup (e.g. because they depend on config 
+  options or data read in from files). If the names of this step's input files
+  are known at setup, it is sufficient (and preferable) to indicate that an 
+  output file from another step is an input of this step to establish a 
+  dependency.
+
+`self.is_dependency`
+
+: Whether this step is the dependency of one or more other steps
+
+`self.args`
+
+: A list of command-line arguments to call in parallel.  This attribute should
+  be defined as an alternative to overriding the `run()`.  `args` should not
+  include calls to a parallel executable like `srun` or the associated flags
+  for number of MPI tasks, nodes, etc., since these will be added internally by
+  Polaris.
 
 Another set of attributes is not useful until `setup()` is called by the
 polaris framework:
@@ -156,8 +181,26 @@ framework:
 : The name of a log file where output/errors from the step are being logged,
   or `None` if output is to stdout/stderr
 
+`self.machine_info`
+
+: Information about E3SM supported machines
+
 The inputs and outputs should not be altered but they may be used to get file
 names to read or write.
+
+Some attributes are also used by the framework to validate variables in
+output files against a baseline in one is provided:
+
+`self.baseline_dir`
+
+: Location of the same step within the baseline work directory, for use in 
+  comparing variables and timers
+
+`self.validate_vars`
+
+: A list of variables for each output file for which a baseline comparison 
+  should be performed if a baseline run has been provided. The baseline 
+  validation is performed after the step has run.
 
 You can add other attributes to the child class that keeps track of information
 that the step will need.
@@ -167,7 +210,6 @@ As an example,
 mesh type as an attribute:
 
 ```python
-from polaris.model_step import make_graph_file
 from polaris import Step
 
 
@@ -180,19 +222,19 @@ class SetupMesh(Step):
     mesh_type : str
         The resolution or mesh type of the task
     """
-    def __init__(self, task, mesh_type):
+    def __init__(self, component, mesh_type):
         """
         Update the dictionary of step properties
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component this step belongs to
 
         mesh_type : str
             The resolution or mesh type of the task
         """
-        super().__init__(task=task, name='setup_mesh')
+        super().__init__(component=component, name='setup_mesh')
         self.mesh_type = mesh_type
 
         if mesh_type == 'variable_resolution':
@@ -210,7 +252,7 @@ class SetupMesh(Step):
 
 ## constructor
 
-The step's constructor (`__init__()` method) should call the base case's
+The step's constructor (`__init__()` method) should call the base class'
 constructor with `super().__init__()`, passing the name of the step, the
 task it belongs to, and possibly several optional arguments: the
 subdirectory for the step (if not the same as the name), number of MPI tasks,
@@ -237,44 +279,58 @@ the step by calling any of the following methods:
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
 Each of these functions just caches information about the the inputs, outputs,
-namelists or streams files to be read later if the task in question gets
+namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.
 
 The following is from
 {py:class}`polaris.ocean.tasks.baroclinic_channel.forward.Forward()`:
 
 ```python
-from polaris.model_step import ModelStep
+from polaris.ocean.model import OceanModelStep
 
 
-class Forward(ModelStep):
+class Forward(OceanModelStep):
     """
-    A step for performing forward MPAS-Ocean runs as part of baroclinic
+    A step for performing forward ocean component runs as part of baroclinic
     channel tasks.
 
     Attributes
     ----------
-    resolution : str
-        The resolution of the task
+    resolution : float
+        The resolution of the task in km
+
+    dt : float
+        The model time step in seconds
+
+    btr_dt : float
+        The model barotropic time step in seconds
+
+    run_time_steps : int or None
+        Number of time steps to run for
     """
-    def __init__(self, task, resolution, name='forward', subdir=None,
-                 ntasks=1, min_tasks=None, openmp_threads=1, nu=None):
+    def __init__(self, component, resolution, name='forward', subdir=None,
+                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
+                 nu=None, run_time_steps=None):
         """
         Create a new task
 
         Parameters
         ----------
-        task : polaris.Task
-            The task this step belongs to
+        component : polaris.Component
+            The component the step belongs to
 
-        resolution : str
-            The resolution of the task
+        resolution : km
+            The resolution of the task in km
 
         name : str
             the name of the task
 
         subdir : str, optional
-            the subdirectory for the step.  The default is ``name``
+            the subdirectory for the step.  If neither this nor ``indir``
+             are provided, the directory is the ``name``
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
@@ -289,101 +345,57 @@ class Forward(ModelStep):
             the number of OpenMP threads the step will use
 
         nu : float, optional
-            the viscosity (if different from the default in the shared framework)
+            the viscosity (if different from the default for baroclinic channel
+            tests)
+
+        run_time_steps : int, optional
+            Number of time steps to run for
         """
         self.resolution = resolution
-        if min_tasks is None:
-            min_tasks = ntasks
-        super().__init__(task=task, name=name, subdir=subdir,
-                         ntasks=ntasks, min_tasks=min_tasks,
+        self.run_time_steps = run_time_steps
+        super().__init__(component=component, name=name, subdir=subdir,
+                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
-        self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
-                               'namelist.forward')
-        self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
-                               'namelist.{}.forward'.format(resolution))
+
         if nu is not None:
             # update the viscosity to the requested value
-            options = {'config_mom_del2': '{}'.format(nu)}
-            self.add_model_config_options(options)
+            self.add_model_config_options(options=dict(config_mom_del2=nu))
 
         # make sure output is double precision
-        self.add_streams_file('polaris.ocean.streams', 'streams.output')
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_streams_file('polaris.ocean.tasks.baroclinic_channel',
-                              'streams.forward')
-
-        self.add_input_file(filename='init.nc',
-                            target='../init/ocean.nc')
+        self.add_input_file(filename='initial_state.nc',
+                            target='../../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
+                            target='../../init/culled_graph.info')
 
-        self.add_output_file(filename='output.nc')
+        self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
+                           'forward.yaml')
+
+        self.add_output_file(
+            filename='output.nc',
+            validate_vars=['temperature', 'salinity', 'layerThickness',
+                           'normalVelocity'])
+
+        self.dt = None
+        self.btr_dt = None
 ```
 
 Several parameters are passed into the constructor (with defaults if they
 are not included) and then passed on to the base class' constructor: `name`,
-`subdir`, `ntasks`, `min_tasks`, `cpus_per_task`,
-`min_cpus_per_task`, and `openmp_threads`.
+`subdir`, `indir`, `ntasks`, `min_tasks`, `cpus_per_task`,
+`min_cpus_per_task`, and `openmp_threads`.  Additional parameters `nu` and
+`run_time_steps` are used to determine settings for running the model.
 
-Then, two files with modifications to the namelist options are added (for
-later processing), and an additional config option is set manually via
-a python dictionary of namelist options.
+Then, two yaml files with modifications to the model config options are added 
+(for later processing).  An additional model config option, `config_mom_del2` 
+is set manually via a python dictionary of namelist options.
 
-Then, a file with modifications to the default streams is also added (again,
-for later processing).
-
-Finally, two input and one output file are added.
-
-(dev-step-constrain-resources)=
-
-## constrain_resources()
-
-The `constrain_resources()` method is used to update the `ntasks`,
-`min_tasks`, `cpus_per_task`, and `min_cpus_per_task` attributes prior to
-running the step, in case the user has modified these in the config options.
-These performance-related attributes affect how the step runs and must be set
-prior to runtime, whereas other options can be set within `runtime_setup()`.
-
-`constrain_resources()` is called within
-{py:func}`polaris.run.serial.run_tasks()`, but can be overridden if desired.
-The typical reason to override this function would be to get config options for
-`ntasks`, `min_tasks`, `cpus_per_task`, etc. and set the corresponding
-attributes.  Another reason might be to set these attributes using an algorithm
-(e.g. based on the number of cells in the mesh used in the step.)
-When overriding `constrain_resources`, it is important to also call the base
-class' version of the method with `super().constrain_resources()`.
-
-The names of the resources are related to the
-[Slurm](https://slurm.schedmd.com/srun.html) naming conventions:
-
-`ntasks`
-
-: The target number of MPI tasks that a step will use if the resources 
-  are available.
-
-`min_tasks`
-
-: The minimum number of MPI tasks for a step.  If too few resources are
-  available, the step will not run.
-
-`cpus_per_task`
-
-: If `ntasks > 1`, this is typically a number of threads used by each
-  MPI task (e.g. with OpenMP threading).  If `ntasks == 1`, this may
-  be the number of target cores used in on-node parallelism like python or
-  c++ threading, or python multiprocessing.  `cpus_per_task` will
-  automatically be constrained to be less than or equal to the number of cores on a node
-  (and the total available cores).  So it may be appropriate to set it to a
-  high value appropriate for machines with large nodes, knowing that it will
-  be constrained to fit on one node.
-
-For MPI applications without threading, `cpus_per_task` will always be
-`1`, the default.
-
-`min_cpus_per_task`
-: The minimum number of cores for on-node parallelism (threading,
-  multiprocessing, etc.).  If too few resources are available, the step
-  will fail with an error message.
+Additionally, two input and one output file are added.  By providing
+`validate_vars` to {py:meth}`polaris.Step.add_output_file()`, validation of
+these 4 variables in the `output.nc` output file will automatically be
+performed after the step has run if a baseline was provided as part of the call
+to {ref}`dev-polaris-setup`.
 
 (dev-step-setup)=
 
@@ -426,41 +438,94 @@ Some parts of the mesh computation (creating masks for culling) are done using
 python multiprocessing, so the `cpus_per_task` and `min_cpus_per_task`
 attributes are set to appropriate values based on config options.
 
+(dev-step-constrain-resources)=
+
+## constrain_resources()
+
+The `constrain_resources()` method is used to update the `ntasks`,
+`min_tasks`, `cpus_per_task`, and `min_cpus_per_task` attributes prior to
+running the step, in case the user has modified these in the config options.
+These performance-related attributes affect how the step runs and must be set
+prior to runtime, whereas other options can be set within `runtime_setup()`.
+
+The framework calls `constrain_resources()` within
+{py:func}`polaris.run.serial.run_tasks()`, and a step can override this method
+if desired, typically to get `ntasks`, `min_tasks`, `cpus_per_task`, etc. from 
+config options or compute them using an algorithm and set the corresponding 
+attributes. When overriding `constrain_resources`, it is important to also call
+the base class' version of the method with `super().constrain_resources()`.
+
+The names of the resources are related to the
+[Slurm](https://slurm.schedmd.com/srun.html) naming conventions:
+
+`ntasks`
+
+: The target number of MPI tasks that a step will use if the resources 
+  are available.
+
+`min_tasks`
+
+: The minimum number of MPI tasks for a step.  If too few resources are
+  available, the step will not run.
+
+`cpus_per_task`
+
+: If `ntasks > 1`, this is typically a number of threads used by each
+  MPI task (e.g. with OpenMP threading).  If `ntasks == 1`, this may
+  be the number of target cores used in on-node parallelism like python or
+  c++ threading, or python multiprocessing.  `cpus_per_task` will
+  automatically be constrained to be less than or equal to the number of cores on a node
+  (and the total available cores).  So it may be appropriate to set it to a
+  high value appropriate for machines with large nodes, knowing that it will
+  be constrained to fit on one node.
+
+For MPI applications without threading, `cpus_per_task` will always be
+`1`, the default.
+
+`min_cpus_per_task`
+: The minimum number of cores for on-node parallelism (threading,
+  multiprocessing, etc.).  If too few resources are available, the step
+  will fail with an error message.
+
 (dev-step-runtime-setup)=
 
 ## runtime_setup()
 
 The `runtime_setup()` method is used to modify any behaviors of the step at
-runtime, in the way that {py:meth}`polaris.Task.run()` was previously used.
-This includes things like partitioning an MPAS mesh across processors and
-computing a times step based on config options that might have been modified
-by the user.  It must not include modifying the `ntasks`, `min_tasks`,
+runtime. This includes things like partitioning an MPAS mesh across processors
+and computing a times step based on config options that might have been 
+modified by the user.  It must not include modifying the `ntasks`, `min_tasks`,
 `cpus_per_task`, `min_cpus_per_task` or `openmp_threads` attributes.
 These attributes must be altered by overriding
 {ref}`dev-step-constrain-resources`.
+
+Typically, `runtime_setup()` will only be needed when the `args` attribute is
+being defined instead of a `run()` method.  This lets you run a small amount
+of python code before launching an command, often using MPI parallelism.
 
 (dev-step-run)=
 
 ## run()
 
-Okay, we're ready to define how the step will run!
-
-The contents of `run()` can vary quite a lot between steps.
+This method defines how the step will run. The contents of `run()` can vary 
+quite a lot between steps.
 
 In the baroclinic channel's `Init` step, the `run()` method,
 {py:meth}`polaris.ocean.tasks.baroclinic_channel.init.Init.run()`,
 is quite involved:
 
 ```python
-import xarray
-import numpy
-
-from mpas_tools.planar_hex import make_planar_hex_mesh
+import cmocean  # noqa: F401
+import numpy as np
+import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
+from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris.ocean.vertical import generate_grid
 from polaris import Step
+from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.vertical import init_vertical_coord
+from polaris.viz import plot_horiz_field
 
 
 class Init(Step):
@@ -473,18 +538,26 @@ class Init(Step):
         logger = self.logger
 
         section = config['baroclinic_channel']
-        nx = section.getint('nx')
-        ny = section.getint('ny')
-        dc = section.getfloat('dc')
+        resolution = self.resolution
 
-        dsMesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc, nonperiodic_x=False,
-                                      nonperiodic_y=True)
-        write_netcdf(dsMesh, 'base_mesh.nc')
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
 
-        dsMesh = cull(dsMesh, logger=logger)
-        dsMesh = convert(dsMesh, graphInfoFileName='culled_graph.info',
-                         logger=logger)
-        write_netcdf(dsMesh, 'culled_mesh.nc')
+        # these could be hard-coded as functions of specific supported
+        # resolutions but it is preferable to make them algorithmic like here
+        # for greater flexibility
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+        dc = 1e3 * resolution
+
+        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
+                                       nonperiodic_x=False,
+                                       nonperiodic_y=True)
+        write_netcdf(ds_mesh, 'base_mesh.nc')
+
+        ds_mesh = cull(ds_mesh, logger=logger)
+        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
+                          logger=logger)
+        write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         section = config['baroclinic_channel']
         use_distances = section.getboolean('use_distances')
@@ -496,91 +569,88 @@ class Init(Step):
         salinity = section.getfloat('salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
 
-        ds = dsMesh.copy()
+        ds = ds_mesh.copy()
+        x_cell = ds.xCell
+        y_cell = ds.yCell
 
-        interfaces = generate_grid(config=config)
+        bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
-        bottom_depth = interfaces[-1]
-        vert_levels = len(interfaces) - 1
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
+        ds['ssh'] = xr.zeros_like(x_cell)
 
-        ds['refBottomDepth'] = ('nVertLevels', interfaces[1:])
-        ds['refZMid'] = ('nVertLevels', -0.5 * (interfaces[1:] + interfaces[0:-1]))
-        ds['vertCoordMovementWeights'] = xarray.ones_like(ds.refBottomDepth)
+        init_vertical_coord(config, ds)
 
-        xCell = ds.xCell
-        yCell = ds.yCell
+        x_min = x_cell.min().values
+        x_max = x_cell.max().values
+        y_min = y_cell.min().values
+        y_max = y_cell.max().values
 
-        xMin = xCell.min().values
-        xMax = xCell.max().values
-        yMin = yCell.min().values
-        yMax = yCell.max().values
-
-        yMid = 0.5*(yMin + yMax)
-        xPerturbMin = xMin + 4.0 * (xMax - xMin) / 6.0
-        xPerturbMax = xMin + 5.0 * (xMax - xMin) / 6.0
+        y_mid = 0.5 * (y_min + y_max)
+        x_perturb_min = x_min + 4.0 * (x_max - x_min) / 6.0
+        x_perturb_max = x_min + 5.0 * (x_max - x_min) / 6.0
 
         if use_distances:
-            perturbationWidth = gradient_width_dist
+            perturb_width = gradient_width_dist
         else:
-            perturbationWidth = (yMax - yMin) * gradient_width_frac
+            perturb_width = (y_max - y_min) * gradient_width_frac
 
-        yOffset = perturbationWidth * numpy.sin(
-            6.0 * numpy.pi * (xCell - xMin) / (xMax - xMin))
+        y_offset = perturb_width * np.sin(
+            6.0 * np.pi * (x_cell - x_min) / (x_max - x_min))
 
         temp_vert = (bottom_temperature +
                      (surface_temperature - bottom_temperature) *
                      ((ds.refZMid + bottom_depth) / bottom_depth))
 
-        frac = xarray.where(yCell < yMid - yOffset, 1., 0.)
+        frac = xr.where(y_cell < y_mid - y_offset, 1., 0.)
 
-        mask = numpy.logical_and(yCell >= yMid - yOffset,
-                                 yCell < yMid - yOffset + perturbationWidth)
-        frac = xarray.where(mask,
-                            1. - (yCell - (yMid - yOffset)) / perturbationWidth,
-                            frac)
+        mask = np.logical_and(y_cell >= y_mid - y_offset,
+                              y_cell < y_mid - y_offset + perturb_width)
+        frac = xr.where(mask,
+                        1. - (y_cell - (y_mid - y_offset)) / perturb_width,
+                        frac)
 
         temperature = temp_vert - temperature_difference * frac
         temperature = temperature.transpose('nCells', 'nVertLevels')
 
-        # Determine yOffset for 3rd crest in sin wave
-        yOffset = 0.5 * perturbationWidth * numpy.sin(
-            numpy.pi * (xCell - xPerturbMin) / (xPerturbMax - xPerturbMin))
+        # Determine y_offset for 3rd crest in sin wave
+        y_offset = 0.5 * perturb_width * np.sin(
+            np.pi * (x_cell - x_perturb_min) / (x_perturb_max - x_perturb_min))
 
-        mask = numpy.logical_and(
-            numpy.logical_and(yCell >= yMid - yOffset - 0.5 * perturbationWidth,
-                              yCell <= yMid - yOffset + 0.5 * perturbationWidth),
-            numpy.logical_and(xCell >= xPerturbMin,
-                              xCell <= xPerturbMax))
+        mask = np.logical_and(
+            np.logical_and(y_cell >= y_mid - y_offset - 0.5 * perturb_width,
+                           y_cell <= y_mid - y_offset + 0.5 * perturb_width),
+            np.logical_and(x_cell >= x_perturb_min,
+                           x_cell <= x_perturb_max))
 
         temperature = (temperature +
-                       mask * 0.3 * (1. - ((yCell - (yMid - yOffset)) /
-                                           (0.5 * perturbationWidth))))
+                       mask * 0.3 * (1. - ((y_cell - (y_mid - y_offset)) /
+                                           (0.5 * perturb_width))))
 
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
-        layerThickness = xarray.DataArray(data=interfaces[1:] - interfaces[0:-1],
-                                          dims='nVertLevels')
-        _, layerThickness = xarray.broadcast(xCell, layerThickness)
-        layerThickness = layerThickness.transpose('nCells', 'nVertLevels')
-        layerThickness = layerThickness.expand_dims(dim='Time', axis=0)
-
-        normalVelocity = xarray.zeros_like(ds.xEdge)
-        normalVelocity, _ = xarray.broadcast(normalVelocity, ds.refBottomDepth)
-        normalVelocity = normalVelocity.transpose('nEdges', 'nVertLevels')
-        normalVelocity = normalVelocity.expand_dims(dim='Time', axis=0)
+        normal_velocity = xr.zeros_like(ds_mesh.xEdge)
+        normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
+        normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
+        normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
         ds['temperature'] = temperature
-        ds['salinity'] = salinity * xarray.ones_like(temperature)
-        ds['normalVelocity'] = normalVelocity
-        ds['layerThickness'] = layerThickness
-        ds['restingThickness'] = layerThickness
-        ds['bottomDepth'] = bottom_depth * xarray.ones_like(xCell)
-        ds['maxLevelCell'] = vert_levels * xarray.ones_like(xCell, dtype=int)
-        ds['fCell'] = coriolis_parameter * xarray.ones_like(xCell)
-        ds['fEdge'] = coriolis_parameter * xarray.ones_like(ds.xEdge)
-        ds['fVertex'] = coriolis_parameter * xarray.ones_like(ds.xVertex)
+        ds['salinity'] = salinity * xr.ones_like(temperature)
+        ds['normalVelocity'] = normal_velocity
+        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
+        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
+        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
-        write_netcdf(ds, 'ocean.nc')
+        ds.attrs['nx'] = nx
+        ds.attrs['ny'] = ny
+        ds.attrs['dc'] = dc
+
+        write_netcdf(ds, 'initial_state.nc')
+
+        plot_horiz_field(ds, ds_mesh, 'temperature',
+                         'initial_temperature.png')
+        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+                         'initial_normal_velocity.png', cmap='cmo.balance',
+                         show_patch_edges=True)
 ```
 
 Without going into all the details of this method, it creates a mesh that
@@ -588,7 +658,7 @@ is periodic in x (but not y), then adds a vertical grid and an initial
 condition to an {py:class}`xarray.Dataset`, which is then written out to
 the file `ocean.nc`.
 
-In the example `Forward` step we've been using, there is no run method at all
+In the example `Forward` step we showed above, there is no run method at all
 because we let its superclass `ModelStep` define an `args` attribute instead.
 Rather than call the `run()` method, the command given by these arguments
 will be run on the commandline.  This is capability important for supporting 
@@ -596,7 +666,7 @@ task parallelism, since each such command may need to run with its own set of
 MPI, threading and memory resources.
 
 To get a feel for different types of `run()` methods, it may be best to
-explore different steps.
+explore different steps that are already implemented in Polaris.
 
 (dev-step-inputs-outputs)=
 
@@ -612,8 +682,8 @@ steps (again, possibly in other tasks).  There is no harm in including
 inputs to the step that do not come from other steps (e.g. files that will be
 downloaded when the task gets set up) as long as they are sure to exist
 before the step runs.  Likewise, there is no harm in including outputs from the
-step that aren't used by any other steps in any tasks as long as the step
-will be sure to generate them.
+step that aren't used by any other steps as long as the step will be sure to 
+generate them.
 
 The inputs and outputs need to be defined during init of either the step or
 the task, or in the step's `setup()` method because they are needed
@@ -646,7 +716,9 @@ the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
 steps so it is safe to simply omit them, but this could become problematic in
 the future if new steps are added that depend on
-{ref}`dev-ocean-global-ocean-files-for-e3sm`.
+{ref}`dev-ocean-global-ocean-files-for-e3sm`.  These steps would need to add
+the appropriate shared step from `files_for_e3sm` as a dependency using
+{py:meth}`polaris.Step.add_dependency()`.
 
 {py:class}`polaris.Step` includes several methods for adding input, output,
 namelist and streams files:
@@ -714,24 +786,21 @@ not yet known at init). Here is an example taken from
 {py:class}`polaris.ocean.tasks.global_ocean.forward.ForwardStep`:
 
 ```python
-def __init__(self, task, mesh, init, ...):
+def __init__(self, component, mesh, init):
     mesh_path = mesh.mesh_step.path
 
     if mesh.with_ice_shelf_cavities:
-        initial_state_target = '{}/ssh_adjustment/adjusted_init.nc'.format(
-            init.path)
+        initial_state_target = f'{init.path}/ssh_adjustment/adjusted_init.nc'
     else:
-        initial_state_target = '{}/init/initial_state.nc'.format(
-            init.path)
+        initial_state_target = f'{init.path}/init/initial_state.nc'
     self.add_input_file(filename='init.nc',
                         work_dir_target=initial_state_target)
     self.add_input_file(
         filename='forcing_data.nc',
-        work_dir_target='{}/init/init_mode_forcing_data.nc'
-                        ''.format(init.path))
+        work_dir_target=f'{init.path}/init/init_mode_forcing_data.nc')
     self.add_input_file(
         filename='graph.info',
-        work_dir_target='{}/culled_graph.info'.format(mesh_path))
+        work_dir_target=f'{mesh_path}/culled_graph.info')
 ```
 
 (dev-step-input-polaris)=
@@ -742,10 +811,7 @@ Another common need is to symlink a data file from within the task or its
 shared framework:
 
 ```python
-from polaris.io import add_input_file
-
-
-def __init__(self, task):
+def __init__(self, component):
     ...
     self.add_input_file(
         filename='enthA_analy_result.mat',
@@ -841,11 +907,26 @@ self.add_output_file(filename='output_file.nc')
 ```
 
 {py:meth}`polaris.Step.add_output_file()` can be called in a step's
-{ref}`dev-step-init`: or {ref}`dev-step-setup` method or (less commonly)
+{ref}`dev-step-init` or {ref}`dev-step-setup` method or (less commonly)
 in the task's {ref}`dev-task-init`.
 
 The relative path in `filename` is with respect to the step's work directory,
 and is converted to an absolute path internally before the step is run.
+
+You can specify a list of variables to validate against a baseline (if one
+is provided) using the `validate_vars` attribute:
+
+```python
+self.add_output_file(
+    filename='output.nc',
+    validate_vars=['temperature', 'salinity', 'layerThickness',
+                   'normalVelocity'])
+```
+
+If a baseline is provided during {ref}`dev-polaris-setup`, then after the step 
+runs, the variables `temperature`, `salinity`, `layerThickness`, and
+`normalVelocity` in the file `output.nc` will be checked against the same
+variables in the same file in the baseline run to make sure they are identical.
 
 (dev-step-cached-output)=
 

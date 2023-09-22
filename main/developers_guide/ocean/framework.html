@@ -74,6 +74,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
 </ul>
@@ -81,7 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
@@ -186,6 +187,18 @@ config options and configuring streams.  These include things like setting
 output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.</p>
 </section>
+<section id="quasi-uniform-and-icosahedral-spherical-meshes">
+<span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Permalink to this heading"></a></h2>
+<p>Many ocean tasks support two types of meshes: <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes created with the
+<a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> step and <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes
+created with <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a>.  In general, the
+<code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes are more uniform but the <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes are more flexible.  The
+<code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes only support a fixed set of resolutions described in
+<a class="reference internal" href="../framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.</p>
+<p>The function <a class="reference internal" href="generated/polaris.ocean.mesh.spherical.add_spherical_base_mesh_step.html#polaris.ocean.mesh.spherical.add_spherical_base_mesh_step" title="polaris.ocean.mesh.spherical.add_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()</span></code></a>
+returns a step for for a spherical <code class="docutils literal notranslate"><span class="pre">qu</span></code> or <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh of a given resolution
+(in km).  The step can be shared between tasks.</p>
+</section>
 <section id="vertical-coordinate">
 <span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
@@ -205,7 +218,7 @@ as config options from <code class="docutils literal notranslate"><span class="p
 </section>
 <section id="reference-resting-potential-energy-rpe">
 <span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Permalink to this heading"></a></h2>
-<p>The module <code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
 resting) potential energy for an entire model domain.  The RPE as given in
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a> is:</p>
 <div class="math notranslate nohighlight">

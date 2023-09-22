@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>single_column</title>
+  <title>single column</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Framework" href="../framework/index.html" />
-    <link rel="prev" title="manufactured_solution" href="manufactured_solution.html" />
+    <link rel="prev" title="manufactured solution" href="manufactured_solution.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -58,11 +58,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">Baroclinic channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="global_convergence.html">global_convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">single column</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -125,7 +125,7 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
           <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
-      <li class="breadcrumb-item active">single_column</li>
+      <li class="breadcrumb-item active">single column</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/users_guide/ocean/tasks/single_column.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
-<span id="ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
+<span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tasks include any ocean tests of the vertical ocean
@@ -209,15 +209,12 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
 <span class="k">[single_column]</span>
 
-<span class="c1"># the size of the domain in km in the x dimension</span>
-<span class="c1"># we want to use the minimum number of cells so we set the dimensions to be</span>
-<span class="c1"># less than or equal to the minimum expected resolution</span>
-<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+<span class="c1"># size of the domain (typically the minimum allowed size of 4x4 cells)</span>
+<span class="na">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
 
-<span class="c1"># the size of the domain in km in the x dimension</span>
-<span class="c1"># we want to use the minimum number of cells so we set the dimensions to be</span>
-<span class="c1"># less than or equal to the minimum expected resolution</span>
-<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+<span class="c1"># resolution in km</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">960.0</span>
 
 <span class="c1"># Surface temperature</span>
 <span class="na">surface_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
@@ -269,15 +266,15 @@ day duration of the test, so the 10-day profiles are shown here:</p>
 </section>
 <section id="id3">
 <h3>mesh<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
 <section id="id4">
 <h2>vertical grid<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 <section id="id5">
 <h3>initial conditions<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
@@ -339,7 +336,7 @@ duration is 1 day.</p>
 </section>
 <section id="id6">
 <h3>config options<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>. Currently, config options are only given in the
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
 <section id="cores">
@@ -360,11 +357,11 @@ tracer are as follows:</p>
 </section>
 <section id="id8">
 <h3>mesh<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id9">
 <h3>vertical grid<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>.</p>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id10">
 <h3>initial conditions<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
@@ -381,7 +378,7 @@ every time step.</p>
 </section>
 <section id="id13">
 <h3>config options<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single_column</span></a>. Currently, config options are only given in the
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
 <section id="id14">
@@ -395,7 +392,7 @@ shared framework.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="manufactured_solution.html" class="btn btn-neutral float-left" title="manufactured_solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manufactured_solution.html" class="btn btn-neutral float-left" title="manufactured solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../framework/index.html" class="btn btn-neutral float-right" title="Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

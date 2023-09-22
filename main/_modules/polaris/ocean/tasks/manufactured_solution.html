@@ -62,7 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Seaice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">SeaIce component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
@@ -107,7 +107,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.manufactured_solution</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.convergence</span> <span class="kn">import</span> <span class="n">Convergence</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
 
 
 <div class="viewcode-block" id="add_manufactured_solution_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks.html#polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_manufactured_solution_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
@@ -118,7 +122,52 @@
 <span class="sd">    component : polaris.ocean.Ocean</span>
 <span class="sd">        the ocean component that the task will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Convergence</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">ManufacturedSolution</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ManufacturedSolution"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution">[docs]</a><span class="k">class</span> <span class="nc">ManufacturedSolution</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The convergence test case using the method of manufactured solutions</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolutions : list of floats</span>
+<span class="sd">        The resolutions of the test case in km</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ManufacturedSolution.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the test case</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;manufactured_solution&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">200.</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">,</span> <span class="mf">25.</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">res</span><span class="p">,</span>
+                               <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">res</span><span class="p">,</span>
+                                  <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                               <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">,</span>
+                               <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">,</span>
+                          <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span>
+                      <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the config file common to manufactured solution tests</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;manufactured_solution.cfg&#39;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
