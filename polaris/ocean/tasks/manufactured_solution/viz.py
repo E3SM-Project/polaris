@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -19,7 +20,7 @@ class Viz(Step):
 
     Attributes
     ----------
-    resolutions : list of int
+    resolutions : list of float
         The resolutions of the meshes that have been run
     """
     def __init__(self, component, resolutions, taskdir):
@@ -31,7 +32,7 @@ class Viz(Step):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of int
+        resolutions : list of float
             The resolutions of the meshes that have been run
 
         taskdir : str
@@ -41,15 +42,16 @@ class Viz(Step):
         self.resolutions = resolutions
 
         for resolution in resolutions:
+            mesh_name = resolution_to_subdir(resolution)
             self.add_input_file(
-                filename=f'mesh_{resolution}km.nc',
-                target=f'../{resolution}km/init/culled_mesh.nc')
+                filename=f'mesh_{mesh_name}.nc',
+                target=f'../init/{mesh_name}/culled_mesh.nc')
             self.add_input_file(
-                filename=f'init_{resolution}km.nc',
-                target=f'../{resolution}km/init/initial_state.nc')
+                filename=f'init_{mesh_name}.nc',
+                target=f'../init/{mesh_name}/initial_state.nc')
             self.add_input_file(
-                filename=f'output_{resolution}km.nc',
-                target=f'../{resolution}km/forward/output.nc')
+                filename=f'output_{mesh_name}.nc',
+                target=f'../forward/{mesh_name}/output.nc')
 
         self.add_output_file('convergence.png')
 
@@ -67,6 +69,7 @@ class Viz(Step):
 
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
+        error_range = None
         for i, res in enumerate(resolutions):
             ds_mesh = xr.open_dataset(f'mesh_{res}km.nc')
             ds_init = xr.open_dataset(f'init_{res}km.nc')
@@ -85,7 +88,7 @@ class Viz(Step):
             # Comparison plots
             ds['ssh_exact'] = exact.ssh(t)
             ds['ssh_error'] = ssh_model - exact.ssh(t)
-            if i == 0:
+            if error_range is None:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
             plot_horiz_field(ds, ds_mesh, 'ssh', ax=axes[i, 0],

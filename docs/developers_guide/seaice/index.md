@@ -1,8 +1,8 @@
 (dev-seaice)=
 
-# Seaice component
+# SeaIce component
 
-The `seaice` component is defined by the {py:class}`polaris.seaice.Seaice`
+The `seaice` component is defined by the {py:class}`polaris.seaice.SeaIce`
 class. All tasks in the `seaice` component  are single column tests 
 and contain very simple config options as follows:
 
@@ -72,5 +72,5 @@ appropriate for whichever of the {ref}`machines` you are using.
 
 tasks/index
 framework
-models/index
+mpas_seaice
 ```

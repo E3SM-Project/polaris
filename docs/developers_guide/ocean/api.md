@@ -21,8 +21,6 @@
 
    add_baroclinic_channel_tasks
 
-   BaroclinicChannelTestCase
-   
    forward.Forward
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
@@ -63,7 +61,9 @@
 .. autosummary::
    :toctree: generated/
 
-   add_inertial_gravity_wave_tasks 
+   add_inertial_gravity_wave_tasks
+   
+   InertialGravityWave
 
    analysis.Analysis
    analysis.Analysis.run
@@ -81,28 +81,17 @@
 
    viz.Viz
    viz.Viz.run
-
-   convergence.Convergence
 ```
 
-### global_convergence
+### cosine_bell
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.global_convergence
+.. currentmodule:: polaris.ocean.tasks.cosine_bell
 
 .. autosummary::
    :toctree: generated/
 
    add_cosine_bell_tasks
-```
-
-#### cosine_bell
-
-```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.global_convergence.cosine_bell
-
-.. autosummary::
-   :toctree: generated/
 
    CosineBell
    CosineBell.configure
@@ -134,6 +123,8 @@
    :toctree: generated/
 
    add_manufactured_solution_tasks
+   
+   ManufacturedSolution
 
    analysis.Analysis
    analysis.Analysis.run
@@ -151,8 +142,6 @@
 
    viz.Viz
    viz.Viz.run
-
-   convergence.Convergence
 ```
 
 ### single_column
@@ -193,6 +182,17 @@
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_to_namelist
+```
+
+### Spherical Base Mesh Step
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.mesh.spherical
+
+.. autosummary::
+   :toctree: generated/
+
+   add_spherical_base_mesh_step
 ```
 
 ### Reference Potential Energy (RPE)

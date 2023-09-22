@@ -11,7 +11,7 @@ class CVMix(Task):
     The CVMix single-column test case creates the mesh and initial condition,
     then performs a short forward run testing vertical mixing on 1 core.
     """
-    def __init__(self, component, resolution):
+    def __init__(self, component):
         """
         Create the test case
         Parameters
@@ -20,17 +20,11 @@ class CVMix(Task):
             The ocean component that this task belongs to
         """
         name = 'cvmix'
-        self.resolution = resolution
-        if resolution >= 1.:
-            res_str = f'{resolution:g}km'
-        else:
-            res_str = f'{resolution * 1000.:g}m'
-        subdir = os.path.join('single_column', res_str, name)
+        subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name,
                          subdir=subdir)
         self.add_step(
-            Init(component=component, resolution=resolution,
-                 indir=self.subdir))
+            Init(component=component, indir=self.subdir))
 
         validate_vars = ['temperature', 'salinity', 'layerThickness',
                          'normalVelocity']

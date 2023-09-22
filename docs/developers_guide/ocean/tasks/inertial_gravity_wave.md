@@ -4,7 +4,11 @@
 
 The inertial gravity wave test in `polaris.ocean.tasks.inertial_gravity_wave`
 is a linear shallow water test case at 4 resolutions (200, 100, 50, and
-25 km). Here, we describe the test case and its framework.
+25 km).
+
+The {py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`
+test performs a 10-hour run with a series of resolutions.  The convergence rate
+is calculated and visualizations are generated.  
 
 ## framework
 
@@ -23,10 +27,10 @@ The class
 defines a class for storing attributes and methods relevant to computing the
 exact solution.  The constructor obtains the parameters from the config file.
 The
-{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh(t)`
-method computes the SSH field at time `t`.  The
-{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normalVelocity(t)`
-method computes the `normalVelocity` field at time `t`.
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh()`
+method computes the SSH field.  The
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity()`
+method computes the `normalVelocity` field.
 
 ### init
 
@@ -53,8 +57,10 @@ of cells is approximated from config options in
 so that this can be used to constrain the number of MPI tasks that Polaris 
 tasks have as  their target and minimum (if the resources are not explicitly 
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph 
-partition is generated as part of `runtime_setup()`.  Finally, the ocean model 
-is run.
+partition is generated as part of `runtime_setup()`.  Then, the ocean model 
+is run. Finally, validation of `layerThickness` and `normalVelocity` are 
+performed against a baseline if one is provided when calling 
+{ref}`dev-polaris-setup`.
 
 ### analysis
 
@@ -70,13 +76,3 @@ The class {py:class}`polaris.ocean.tasks.inertial_gravity_wave.viz.Viz` defines
 a step for visualization. It produces two plots: the convergence of the RMSE
 with resolution and a plan-view of the simulated, exact, and (simulated - exact)
 SSH fields.
-
-### convergence
-
-The
-{py:class}`polaris.ocean.tasks.inertial_gravity_wave.convergence.Convergence`
-test performs a 10-hour run with a series of resolutions.  The convergence rate
-is calculated and visualizations are generated.  Then, validation of
-`layerThickness` and `normalVelocity` are performed against a baseline if one is
-provided when calling {ref}`dev-polaris-setup`.
-

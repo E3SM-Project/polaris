@@ -31,7 +31,7 @@ class Analysis(Step):
         resolution : float
             The resolution of the test case in km
 
-        nus : list
+        nus : list of float
             A list of viscosities
         """
         super().__init__(component=component, name='analysis', indir=indir)
@@ -39,12 +39,12 @@ class Analysis(Step):
 
         self.add_input_file(
             filename='initial_state.nc',
-            target='../init/initial_state.nc')
+            target='../../init/initial_state.nc')
 
-        for index, nu in enumerate(nus):
+        for nu in nus:
             self.add_input_file(
-                filename=f'output_{index + 1}.nc',
-                target=f'../rpe_{index + 1}_nu_{int(nu)}/output.nc')
+                filename=f'output_nu_{nu:g}.nc',
+                target=f'../nu_{nu:g}/output.nc')
 
         self.add_output_file(
             filename=f'sections_baroclinic_channel_{resolution}.png')
@@ -99,7 +99,7 @@ def _plot(nx, ny, lx, ly, filename, nus, rpe):
     num_files = len(nus)
     time = 20
 
-    ds = xr.open_dataset('output_1.nc', decode_times=False)
+    ds = xr.open_dataset(f'output_nu_{nus[0]:g}.nc', decode_times=False)
     times = ds.daysSinceStartOfSim.values
 
     fig = plt.figure()
@@ -118,8 +118,8 @@ def _plot(nx, ny, lx, ly, filename, nus, rpe):
 
     # ***NOTE***: This is a quick-and-dirty plotting technique for regular
     # planar hex meshes that we do not recommend adopting in other tasks
-    for iCol in range(num_files):
-        ds = xr.open_dataset(f'output_{iCol + 1}.nc', decode_times=False)
+    for iCol, nu in enumerate(nus):
+        ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
         times = ds.daysSinceStartOfSim.values
         time_index = np.argmin(np.abs(times - time))
         var = ds.temperature.values

@@ -2,8 +2,8 @@
 
 # Framework
 
-All of the {ref}`dev-packages` that are not in the two components (`landice`
-and `ocean`) belong to the polaris framework.  Some of these
+All of the {ref}`dev-packages` that are not in the two components (`ocean`
+and `seaice`) belong to the polaris framework.  Some of these
 modules and packages are used by the {ref}`dev-command-line`, while others are
 meant to be called within tasks and steps to simplify tasks like adding
 input and output files, downloading data sets, building up config files,

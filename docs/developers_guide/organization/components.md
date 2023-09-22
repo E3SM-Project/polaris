@@ -2,9 +2,8 @@
 
 # Components
 
-Currently, there are two components, `landice`, which has tasks for
-MALI, and `ocean`, which encompasses all the tasks for MPAS-Ocean and 
-OMEGA.
+Currently, there are two components, `ocean`, which encompasses all the tasks 
+for MPAS-Ocean and OMEGA, and `seaice`, which implements tasks for MPAS-Seaice.
 
 From a developer's perspective, a component is a package within polaris
 that has four major pieces:
@@ -13,16 +12,19 @@ that has four major pieces:
    The class is defined in `__init__.py` and its `__init__()` method
    calls the {py:meth}`polaris.Component.add_tasks()` method (or helper 
    functions that, in turn, call this method) to add tasks to the component.
-2. A `tasks` package, which contains packages for each category of tasks, each 
-   of which contains various packages and modules for tasks and their steps.
+2. A `tasks` package, which contains packages for individual tasks and their 
+   steps, possibly within packages that help to sort them into broader 
+   categories.
 3. An `<component>.cfg` config file containing any default config options
    that are universal to all tasks of the component.
 4. Additional "framework" packages and modules shared broadly between tasks.
 
-The core's framework is a mix of shared code and other files (config files,
-namelists, streams files, etc.) that is expected to be used only by modules
-and packages within the core, not by other cores or the main polaris
-{ref}`dev-framework`.
+The component's framework is a mix of shared code and other files (config 
+files, YAML files for model config options, etc.) that is expected to be used 
+only by modules and packages within the component, not by other components or 
+the main polaris {ref}`dev-framework`.
+
+## Constructor
 
 The constructor (`__init__()` method) for a child class of
 {py:class}`polaris.Component` simply calls the parent class' version
@@ -33,7 +35,7 @@ in this example from {py:class}`polaris.ocean.Ocean`:
 ```python
 from polaris import Component
 from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
-from polaris.ocean.tasks.global_convergence import add_cosine_bell_tasks
+from polaris.ocean.tasks.cosine_bell import add_cosine_bell_tasks
 from polaris.ocean.tasks.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks,
 )
@@ -69,8 +71,10 @@ to identify which component the task belongs to in its constructor.
 An example of a helper function that adds tasks for baroclinic channel test 
 cases is:
 ```python
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp
 from polaris.ocean.tasks.baroclinic_channel.default import Default
+from polaris.ocean.tasks.baroclinic_channel.init import Init
 from polaris.ocean.tasks.baroclinic_channel.restart import Restart
 from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
 from polaris.ocean.tasks.baroclinic_channel.threads import Threads
@@ -83,24 +87,35 @@ def add_baroclinic_channel_tasks(component):
     component : polaris.ocean.Ocean
         the ocean component that the tasks will be added to
     """
+    for resolution in [10., 4., 1.]:
+        resdir = resolution_to_subdir(resolution)
+        resdir = f'planar/baroclinic_channel/{resdir}'
 
-    for resolution in [10.]:
-        component.add_task(
-            Default(component=component, resolution=resolution))
-
-        component.add_task(
-            Decomp(component=component, resolution=resolution))
+        init = Init(component=component, resolution=resolution, indir=resdir)
 
         component.add_task(
-            Restart(component=component, resolution=resolution))
+            Default(component=component, resolution=resolution,
+                    indir=resdir, init=init))
+
+        if resolution == 10.:
+            component.add_task(
+                Decomp(component=component, resolution=resolution,
+                       indir=resdir, init=init))
+
+            component.add_task(
+                Restart(component=component, resolution=resolution,
+                        indir=resdir, init=init))
+
+            component.add_task(
+                Threads(component=component, resolution=resolution,
+                        indir=resdir, init=init))
 
         component.add_task(
-            Threads(component=component, resolution=resolution))
-
-    for resolution in [1., 4., 10.]:
-        component.add_task(
-            Rpe(component=component, resolution=resolution))
+            Rpe(component=component, resolution=resolution,
+                indir=resdir, init=init))
 ```
+
+## Config file
 
 The config file for the component should, at the very least, define the
 default value for the `component_path` path in the `[paths]` section.  This

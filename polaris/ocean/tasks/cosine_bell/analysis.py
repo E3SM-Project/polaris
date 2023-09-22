@@ -20,7 +20,7 @@ class Analysis(Step):
         Whether to use icosahedral, as opposed to less regular, JIGSAW
         meshes
     """
-    def __init__(self, component, resolutions, icosahedral, taskdir):
+    def __init__(self, component, resolutions, icosahedral, subdir):
         """
         Create the step
 
@@ -36,28 +36,24 @@ class Analysis(Step):
             Whether to use icosahedral, as opposed to less regular, JIGSAW
             meshes
 
-        taskdir : str
-            The subdirectory that of the task, onto which the name of this
-            step will be added
+        subdir : str
+            The subdirectory that the step resides in
         """
-        super().__init__(component=component, name='analysis', indir=taskdir)
+        super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
         self.icosahedral = icosahedral
 
         for resolution in resolutions:
-            if icosahedral:
-                mesh_name = f'Icos{resolution}'
-            else:
-                mesh_name = f'QU{resolution}'
+            mesh_name = f'{resolution:g}km'
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
-                target=f'../{mesh_name}/mesh/mesh.nc')
+                target=f'../base_mesh/{mesh_name}/base_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
-                target=f'../{mesh_name}/init/initial_state.nc')
+                target=f'../init/{mesh_name}/initial_state.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_output.nc',
-                target=f'../{mesh_name}/forward/output.nc')
+                target=f'../forward/{mesh_name}/output.nc')
 
         self.add_output_file('convergence.png')
 
@@ -70,10 +66,7 @@ class Analysis(Step):
         xdata = list()
         ydata = list()
         for res in resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{res}'
-            else:
-                mesh_name = f'QU{res}'
+            mesh_name = f'{res:g}km'
             rmseValue, nCells = self.rmse(mesh_name)
             xdata.append(nCells)
             ydata.append(rmseValue)

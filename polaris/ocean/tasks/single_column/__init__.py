@@ -9,5 +9,5 @@ def add_single_column_tasks(component):
     component : polaris.ocean.Ocean
         the ocean component that the tasks will be added to
     """
-    component.add_task(CVMix(component=component, resolution=960.))
-    component.add_task(IdealAge(component=component, resolution=960.))
+    component.add_task(CVMix(component=component))
+    component.add_task(IdealAge(component=component))

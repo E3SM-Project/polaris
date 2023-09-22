@@ -1,2 +1,2 @@
-ocean/global_convergence/icos/cosine_bell
-ocean/global_convergence/qu/cosine_bell
+ocean/spherical/icos/cosine_bell
+ocean/spherical/qu/cosine_bell

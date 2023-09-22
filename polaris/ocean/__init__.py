@@ -1,6 +1,6 @@
 from polaris import Component
 from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
-from polaris.ocean.tasks.global_convergence import add_cosine_bell_tasks
+from polaris.ocean.tasks.cosine_bell import add_cosine_bell_tasks
 from polaris.ocean.tasks.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks,
 )

@@ -25,10 +25,10 @@ class Viz(Step):
         super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(
             filename='mesh.nc',
-            target='../init/culled_mesh.nc')
+            target='../../init/culled_mesh.nc')
         self.add_input_file(
             filename='init.nc',
-            target='../init/initial_state.nc')
+            target='../../init/initial_state.nc')
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')

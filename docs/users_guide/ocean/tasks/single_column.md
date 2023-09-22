@@ -1,6 +1,6 @@
 (ocean-single-column)=
 
-# single_column
+# single column
 
 ## description
 
@@ -46,7 +46,6 @@ partial_cell_type = None
 
 # The minimum fraction of a layer for partial cells
 min_pc_fraction = 0.1
-
 ```
 
 ## initial conditions
@@ -80,15 +79,12 @@ The Coriolis parameter is spatially constant and set equal to
 # config options for single column testcases
 [single_column]
 
-# the size of the domain in km in the x dimension
-# we want to use the minimum number of cells so we set the dimensions to be
-# less than or equal to the minimum expected resolution
-lx = 1.0
+# size of the domain (typically the minimum allowed size of 4x4 cells)
+nx = 4
+ny = 4
 
-# the size of the domain in km in the x dimension
-# we want to use the minimum number of cells so we set the dimensions to be
-# less than or equal to the minimum expected resolution
-ly = 1.0
+# resolution in km
+resolution = 960.0
 
 # Surface temperature
 surface_temperature = 20.0

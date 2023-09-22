@@ -69,6 +69,22 @@ config options and configuring streams.  These include things like setting
 output to double precision, adjusting sea surface height in ice-shelf cavities, 
 and outputting variables related to frazil ice and land-ice fluxes.
 
+
+(dev-ocean-spherical-meshes)=
+
+## Quasi-uniform and Icosahedral Spherical Meshes
+
+Many ocean tasks support two types of meshes: `qu` meshes created with the 
+{py:class}`polaris.mesh.QuasiUniformSphericalMeshStep` step and `icos` meshes 
+created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the 
+`icos` meshes are more uniform but the `qu` meshes are more flexible.  The 
+`icos` meshes only support a fixed set of resolutions described in
+{ref}`dev-spherical-meshes`.
+
+The function {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()`
+returns a step for for a spherical `qu` or `icos` mesh of a given resolution 
+(in km).  The step can be shared between tasks.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
@@ -94,7 +110,7 @@ as config options from `vertical_grid`.
 
 ## reference (resting) potential energy (RPE)
 
-The module {py:mod}`polaris.ocean.rpe` is used to compute the reference (or 
+The module `polaris.ocean.rpe` is used to compute the reference (or 
 resting) potential energy for an entire model domain.  The RPE as given in
 [Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004) is:
 

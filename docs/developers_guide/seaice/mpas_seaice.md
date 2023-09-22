@@ -1,16 +1,19 @@
-# MPAS-Seaice
+(dev-seaice-mpas-seaice)=
+
+# Supported Model: MPAS-Seaice
 
 The following are considerations that may be useful in developing a new task for MPAS-Seaice.
 
 ## Initial conditions
-MPAS-Seaice has no specific requirements for defining the sea ice inital conditions. 
+
+MPAS-Seaice has no specific requirements for defining the sea ice initial conditions. 
 The current default setting for the single column tasks is a solid 1m thick disc 
 of sea ice that covers the single-grid cell domain.  
 The MPAS-Seaice initial conditions are defined in the default namelist file contained 
 within the component directory: 
 `e3sm_submodules/E3SM-Project/components/mpas-seaice/namelist.seaice`
 
-The 1m thick sea ice disc (the default inital condidions) are set through the following 
+The 1m thick sea ice disc (the default initial conditions) are set through the following 
 config options within in the namelist file:
 ```
 &initialize
@@ -18,7 +21,7 @@ config options within in the namelist file:
     config_initial_ice_volume = 1.0
 ```
 
-To define alternative sea ice inital conditions, modifications should be made to the
+To define alternative sea ice initial conditions, modifications should be made to the
 namelist file placed within the task directory. 
 
 

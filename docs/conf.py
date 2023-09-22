@@ -72,14 +72,14 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     'geometric_features':
-        ('http://mpas-dev.github.io/geometric_features/stable', None),
-    'matplotlib': ('http://matplotlib.org/stable', None),
-    'mpas_tools': ('http://mpas-dev.github.io/MPAS-Tools/stable', None),
+        ('https://mpas-dev.github.io/geometric_features/stable', None),
+    'matplotlib': ('https://matplotlib.org/stable', None),
+    'mpas_tools': ('https://mpas-dev.github.io/MPAS-Tools/stable', None),
     'numpy': ('https://numpy.org/doc/stable', None),
     'python': ('https://docs.python.org', None),
-    'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
-    'xarray': ('http://xarray.pydata.org/en/stable', None)
+    'xarray': ('https://xarray.pydata.org/en/stable', None)
 }
 
 # -- MyST settings ---------------------------------------------------

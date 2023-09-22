@@ -7,8 +7,8 @@ user can't set up an individual step of task (though they can run the
 steps one at a time).
 
 A task can be a module but is usually a python package so it can
-incorporate modules for its steps and/or config files, namelists, and streams
-files.  The task must include a class that descends from
+incorporate modules for its steps and/or config files, namelists, streams, and
+YAML files.  The task must include a class that descends from
 {py:class}`polaris.Task`.  In addition to a constructor (`__init__()`),
 the class will often override the `configure()` method of the base class, as 
 described below.
@@ -18,8 +18,7 @@ described below.
 ## Task attributes
 
 The base class {py:class}`polaris.Task` has a large number of attributes
-that are useful at different stages (init, configuration and run) of the test
-case.
+that are useful at different stages (init, configuration and run) of the task.
 
 Some attributes are available after calling the base class' constructor
 `super().__init__()`.  These include:
@@ -34,19 +33,23 @@ Some attributes are available after calling the base class' constructor
 
 `self.subdir`
 
-: the subdirectory for the task
+: the subdirectory for the task within the component's work directory
 
 `self.path`
 
 : the path within the base work directory of the task, made up of
-  `component`, `test_group`, and the task's `subdir`
+  the name of the component and the task's `subdir`
 
-Other attributes become useful only after steps have been added to the test
-case:
+Other attributes become useful only after steps have been added to the task:
 
 `self.steps`
 
 : A dictionary of steps in the task with step names as keys
+
+`self.step_symlinks`
+
+: A dictionary of relative paths within the step for symlinks to shared steps
+  with step names as keys
 
 `self.steps_to_run`
 
@@ -80,7 +83,7 @@ polaris framework:
 These can be used to make further alterations to the config options or to add
 symlinks files in the task's work directory.
 
-Finally, one attribute is available only when the
+Finally, several attributes are available only when the
 {py:func}`polaris.run.serial.run_tasks()` function gets called by the
 framework:
 
@@ -90,12 +93,30 @@ framework:
   methods and functions that use the logger to write their output to the log
   file.
 
+`self.stdout_logger`
+
+: A logger for output from the task that goes to stdout regardless of whether 
+  `logger` is a log file or stdout
+
+`self.log_filename`
+
+: At run time, the name of a log file where output/errors from the task are 
+  being logged, or ``None`` if output is to stdout/stderr
+
+`self.new_step_log_file`
+
+: Used by the framework to know whether to create a new log file for each step 
+  or log output to a common log file for the whole task
+
 You can add other attributes to the child class that keeps track of information
 that the task or its steps will need.  As an example,
 {py:class}`polaris.landice.tasks.dome.smoke_test.SmokeTest` keeps track of the
 mesh type and the velocity solver an attributes:
 
 ```python
+from polaris import Task
+
+
 class SmokeTest(Task):
     """
     The default dome task creates the mesh and initial condition, then performs
@@ -153,9 +174,10 @@ class SmokeTest(Task):
 
 The `__init__()` method must first call the base constructor
 `super().__init__()`, passing the name of the task, the component it
-will belong to, and the subdirectory (if different from the name of the test
-case).  Then, it should create an object for each step and add them to itself
-using call {py:func}`polaris.Task.add_step()`.
+will belong to, and the subdirectory within the component.  (The default is
+the name of the task, which is typically not what you want.) Then, it should 
+create an object for each step (or make use of existing objects for shared
+steps) and add them to itself using call {py:func}`polaris.Task.add_step()`.
 
 It is important that `__init__()` doesn't perform any time-consuming
 calculations, download files, or otherwise use significant resources because
@@ -176,32 +198,27 @@ associated with these steps until the point where the step is being set up in
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
 We will demonstrate with a fairly complex example,
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell`,
+{py:class}`polaris.ocean.tasks.cosine_bell.CosineBell`,
 to demonstrate how to make full use of {ref}`dev-code-sharing` in a task:
 
 ```python
 from polaris import Task
 from polaris.config import PolarisConfigParser
-from polaris.mesh.spherical import (
-    IcosahedralMeshStep,
-    QuasiUniformSphericalMeshStep,
-)
-from polaris.ocean.tasks.global_convergence.cosine_bell.analysis import (
-    Analysis,
-)
-from polaris.ocean.tasks.global_convergence.cosine_bell.forward import Forward
-from polaris.ocean.tasks.global_convergence.cosine_bell.init import Init
-from polaris.ocean.tasks.global_convergence.cosine_bell.viz import Viz, VizMap
+from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
+from polaris.ocean.tasks.cosine_bell.analysis import Analysis
+from polaris.ocean.tasks.cosine_bell.forward import Forward
+from polaris.ocean.tasks.cosine_bell.init import Init
+from polaris.ocean.tasks.cosine_bell.viz import Viz, VizMap
 
 
 class CosineBell(Task):
     def __init__(self, component, icosahedral, include_viz):
         if icosahedral:
-            subdir = 'global_convergence/icos/cosine_bell'
+            subdir = 'spherical/icos/cosine_bell'
         else:
-            subdir = 'global_convergence/qu/cosine_bell'
+            subdir = 'spherical/qu/cosine_bell'
         if include_viz:
-            subdir = f'{subdir}_with_viz'
+            subdir = f'{subdir}/with_viz'
         super().__init__(component=component, name='cosine_bell',
                          subdir=subdir)
         self.resolutions = list()
@@ -210,7 +227,7 @@ class CosineBell(Task):
 
         # add the steps with default resolutions so they can be listed
         config = PolarisConfigParser()
-        package = 'polaris.ocean.tasks.global_convergence.cosine_bell'
+        package = 'polaris.ocean.tasks.cosine_bell'
         config.add_from_package(package, 'cosine_bell.cfg')
         self._setup_steps(config)
 
@@ -233,77 +250,204 @@ class CosineBell(Task):
             return
 
         # start fresh with no steps
-        self.steps = dict()
-        self.steps_to_run = list()
+        for step in list(self.steps.values()):
+            self.remove_step(step)
 
         self.resolutions = resolutions
 
+        component = self.component
+        icosahedral = self.icosahedral
+        if icosahedral:
+            prefix = 'icos'
+        else:
+            prefix = 'qu'
+
         for resolution in resolutions:
-            if self.icosahedral:
-                mesh_name = f'Icos{resolution}'
+            base_mesh, mesh_name = add_spherical_base_mesh_step(
+                component, resolution, icosahedral)
+            self.add_step(base_mesh, symlink=f'base_mesh/{mesh_name}')
+
+            cos_bell_dir = f'spherical/{prefix}/cosine_bell'
+
+            name = f'{prefix}_init_{mesh_name}'
+            subdir = f'{cos_bell_dir}/init/{mesh_name}'
+            if self.include_viz:
+                symlink = f'init/{mesh_name}'
             else:
-                mesh_name = f'QU{resolution}'
-
-            name = f'{mesh_name}_mesh'
-            subdir = f'{mesh_name}/mesh'
-            if self.icosahedral:
-                self.add_step(IcosahedralMeshStep(
-                    task=self, name=name, subdir=subdir,
-                    cell_width=resolution))
+                symlink = None
+            if subdir in component.steps:
+                step = component.steps[subdir]
             else:
-                self.add_step(QuasiUniformSphericalMeshStep(
-                    task=self, name=name, subdir=subdir,
-                    cell_width=resolution))
+                step = Init(component=component, name=name, subdir=subdir,
+                            mesh_name=mesh_name)
+            self.add_step(step, symlink=symlink)
 
-            self.add_step(Init(task=self, mesh_name=mesh_name))
-
-            self.add_step(Forward(task=self, resolution=resolution,
-                                  mesh_name=mesh_name))
+            name = f'{prefix}_forward_{mesh_name}'
+            subdir = f'{cos_bell_dir}/forward/{mesh_name}'
+            if self.include_viz:
+                symlink = f'forward/{mesh_name}'
+            else:
+                symlink = None
+            if subdir in component.steps:
+                step = component.steps[subdir]
+            else:
+                step = Forward(component=component, name=name,
+                               subdir=subdir, resolution=resolution,
+                               mesh_name=mesh_name)
+            self.add_step(step, symlink=symlink)
 
             if self.include_viz:
-                name = f'{mesh_name}_map'
-                subdir = f'{mesh_name}/map'
-                viz_map = VizMap(task=self, name=name, subdir=subdir,
-                                 mesh_name=mesh_name)
+                with_viz_dir = f'spherical/{prefix}/cosine_bell/with_viz'
+
+                name = f'{prefix}_map_{mesh_name}'
+                subdir = f'{with_viz_dir}/map/{mesh_name}'
+                viz_map = VizMap(component=component, name=name,
+                                 subdir=subdir, mesh_name=mesh_name)
                 self.add_step(viz_map)
 
-                name = f'{mesh_name}_viz'
-                subdir = f'{mesh_name}/viz'
-                self.add_step(Viz(task=self, name=name, subdir=subdir,
-                                  viz_map=viz_map, mesh_name=mesh_name))
+                name = f'{prefix}_viz_{mesh_name}'
+                subdir = f'{with_viz_dir}/viz/{mesh_name}'
+                step = Viz(component=component, name=name,
+                           subdir=subdir, viz_map=viz_map,
+                           mesh_name=mesh_name)
+                self.add_step(step)
 
-        self.add_step(Analysis(task=self, resolutions=resolutions,
-                               icosahedral=self.icosahedral))
-
+        subdir = f'spherical/{prefix}/cosine_bell/analysis'
+        if self.include_viz:
+            symlink = 'analysis'
+        else:
+            symlink = None
+        if subdir in component.steps:
+            step = component.steps[subdir]
+        else:
+            step = Analysis(component=component, resolutions=resolutions,
+                            icosahedral=icosahedral, subdir=subdir)
+        self.add_step(step, symlink=symlink)
 ```
 
 By default, the task will go into a subdirectory within the component with the
 same name as the task (`cosine_bell` in this case).  However, this is rarely 
 desirable and polaris is flexible about the subdirectory structure and the 
 names of the subdirectories.  This flexibility was an important requirement in 
-polaris' design.  Each task and step must end up in a unique  directory, so it 
-is nearly always important that the name and subdirectory of each test case or 
+polaris' design.  Each task and step must end up in a unique directory, so it 
+is nearly always important that the name and subdirectory of each task or 
 step depends in some way on the arguments passed the constructor.  In the 
 example above, whether the mesh is icosahedral or quasi-uniform is an argument
 (`icosahedral`) to the constructor, which is then saved as an attribute 
 (`self.icosahedral`) and also used to define a unique subdirectory: 
 `global_convergence/icos/cosine_bell` or `global_convergence/qu/cosine_bell`.
 
-The task imports classes for each step --
+The task imports a function -- 
+{py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()` --
+and classes --
 {py:class}`polaris.mesh.spherical.IcosahedralMeshStep`,
 {py:class}`polaris.mesh.spherical.QuasiUniformSphericalMeshStep`,
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.init.Init`,
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.forward.Forward`,
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.rpe.analysis.Analysis`,
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.viz.VizMap`, and
-{py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.viz.Viz`
--- so it can create objects for each and add them to itself with
+{py:class}`polaris.ocean.tasks.cosine_bell.init.Init`,
+{py:class}`polaris.ocean.tasks.cosine_bell.forward.Forward`,
+{py:class}`polaris.ocean.tasks.cosine_bell.analysis.Analysis`,
+{py:class}`polaris.ocean.tasks.cosine_bell.viz.VizMap`, and
+{py:class}`polaris.ocean.tasks.cosine_bell.viz.Viz`
+-- for creating objects for each step.  The step objects are added to itself
+and the {py:class}`polaris.ocean.Ocean` component with calls to
 {py:func}`polaris.Task.add_step()`.  After this, the {py:class}`dict` of
 steps will be available in `self.steps`, and a list of steps to run by default
-will be in `self.steps_to_run`.  This example reads resolutions form a config
-option and uses them to make `mesh`, `init`, `forward`, `viz_map` and `viz`
-steps for each resolution, and then a final `analysis` step to compare all
-resolutions.
+will be in `self.steps_to_run`.  This example reads resolutions from a config
+option and uses them to make `base_mesh`, `init`, `forward`, `viz_map` and 
+`viz` steps for each resolution, and then a final `analysis` step to compare 
+all resolutions.
+
+This example takes advantage of shared steps.  The `base_mesh` step resides
+outside of the `cosine_bell` work directory so it could be used by any task
+that needs a quasi-uniform (`qu`) or subdivided icosahedral (`icos`) mesh of
+the given resolution.  A path within the task for a symlink is provided using 
+the `symlink` argument to make it easier for users and developers to find the
+shared step.  Here's what the work directory structure will look like for the
+`ocean/spherical/icos/cosine_bell` task:
+
+ * ocean
+   * spherical
+     * icos
+       * base_mesh
+         * 60km
+         * 120km
+         * 240km
+         * 480km
+       * cosine_bell
+         * base_mesh
+           * **60km**
+           * **120km**
+           * **240km**
+           * **480km**
+         * init
+           * 60km
+           * 120km
+           * 240km
+           * 480km
+         * forward
+           * 60km
+           * 120km
+           * 240km
+           * 480km
+         * analysis
+
+The directories in bold are symlinks.
+
+Similarly, the `init` and `forward` steps for each resolution are shared
+between the `cosine_bell` and the `cosine_bell/with_viz` tasks.  Since the 
+steps reside in `cosine_bell`, we don't create symlinks to the shared steps for
+that version of the task, but we do for `cosine_bell/with_viz`, since the
+shared steps are outside its work directory.  Here is what the
+`ocean/spherical/icos/cosine_bell/with_viz` task looks like, where symlinks to
+the shared steps (which always reside lower in the tree, closer to the 
+component directory) are again in bold:
+
+ * ocean
+   * spherical
+     * icos
+       * base_mesh
+         * 60km
+         * 120km
+         * 240km
+         * 480km
+       * cosine_bell
+         * init
+           * 60km
+           * 120km
+           * 240km
+           * 480km
+         * forward
+           * 60km
+           * 120km
+           * 240km
+           * 480km
+         * analysis
+         * with_viz
+           * base_mesh
+             * **60km**
+             * **120km**
+             * **240km**
+             * **480km**
+           * init
+             * **60km**
+             * **120km**
+             * **240km**
+             * **480km**
+           * forward
+             * **60km**
+             * **120km**
+             * **240km**
+             * **480km**
+           * map
+             * 60km
+             * 120km
+             * 240km
+             * 480km
+           * viz
+             * 60km
+             * 120km
+             * 240km
+             * 480km
+           * **analysis**
 
 (dev-task-configure)=
 
@@ -318,28 +462,13 @@ for the task (see {ref}`config-files`).
 If you override this method in a task, you should assume that the
 `<task.name>.cfg` file in its package has already been added to the
 config options prior to calling `configure()`.  This happens automatically
-during task setup.
+before running the task.
 
 Since many tasks may need similar behavior in their `configure()` methods, it 
-is common to have either a parent class that defines the `configure()` method,
-as we discussed in {ref}`dev-categories-of-tasks`, or all tasks or a shared 
-function (sometimes also called `configure()`) in the shared framework.
-
-As an example, {py:meth}`polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure()`
-first calls the parent class' version of the method, 
-{py:meth}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.configure()`:
-
-```python
-  def configure(self):
-      """
-      Modify the configuration options for this test case.
-      """
-      super().configure()
-      self._add_steps(config=self.config)
-```
-
-The parent class `BaroclinicChannelTestCase` is shown in 
-{ref}`dev-categories-of-tasks`.
+is sometimes useful to define a parent class that overrides the 
+`configure()` method.  Then, tasks that descend from this parent class will
+will inherit these configuration changes, and can add to them by overriding
+the `configure()` method with their own additional changes.
 
 A `configure()` method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
@@ -364,8 +493,10 @@ def configure(self):
 ```
 
 The `configure()` method is not the right place for adding or modifying steps
-that belong to a task.  Steps should be added during init and altered only
-in their own `setup()` or `runtime_setup()` methods.
+that belong to a task.  Steps should be added during init if possible and in
+`configure()` if they need config options to define them (e.g. there is a step
+for each of a list of resolutions from a config option).  Steps should 
+typically be altered only in their own `setup()` or `runtime_setup()` methods.
 
 Tasks that don't need to change config options don't need to override
 `configure()` at all.

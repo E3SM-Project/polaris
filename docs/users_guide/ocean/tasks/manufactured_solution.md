@@ -1,6 +1,6 @@
 (ocean-manufactured-solution)=
 
-# manufactured_solution
+# manufactured solution
 
 The manufactured solution tasks implement configurations for surface wave
 propagation with the rotating, nonlinear shallow water equations on a doubly

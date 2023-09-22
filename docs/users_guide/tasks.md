@@ -34,7 +34,7 @@ default task from the {ref}`ocean-baroclinic-channel` configuration at
 10-km resolution is identified as:
 
 ```none
-ocean/baroclinic_channel/10km/default
+ocean/planar/baroclinic_channel/10km/default
 ```
 
 When you list tasks:

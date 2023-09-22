@@ -1,17 +1,10 @@
-(ocean-global-convergence)=
+(ocean-cosine-bell)=
 
-# global_convergence
+# cosine bell
 
-The global convergence tasks implement convergence studies on the
-full globe.  Currently, the only test case is the advection of a cosine bell.
+## description
 
-(ocean-global-convergence-cosine-bell)=
-
-## cosine_bell and cosine_bell_with_viz
-
-### Description
-
-The `cosine_bell` and `cosine_bell_with_viz` test cases implement the Cosine 
+The `cosine_bell` and `cosine_bell/with_viz` tasks implement the Cosine 
 Bell test case as first described in 
 [Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
 but using the variant from Sec. 3a of
@@ -19,8 +12,8 @@ but using the variant from Sec. 3a of
 field representing solid-body rotation transports a bell-shaped perturbation
 in a tracer $psi$ once around the sphere, returning to its initial location.
 
-The test is a convergence test with time step varying proportionately to grid
-size. The result of the `analysis` step of the test case is a plot like the
+The task is a convergence test with time step varying proportionately to grid
+size. The result of the `analysis` step of the task is a plot like the
 following showing convergence as a function of the number of cells:
 
 ```{image} images/cosine_bell_convergence.png
@@ -28,15 +21,22 @@ following showing convergence as a function of the number of cells:
 :width: 500 px
 ```
 
-The `cosine_bell_with_viz` variant also includes visualization of the initial
+The `cosine_bell/with_viz` variant also includes visualization of the initial
 and final state on a lat-lon grid for each resolution.  The visualization is
-not included in the `cosine_bell` version of the test case in order to not
-slow down regression testing.
+not included in the `cosine_bell` version of the task in order to not slow down
+regression testing.
 
-### mesh
+## mesh
 
-Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. The
-default resolutions used in the test case depends on the mesh type.
+Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
+there are 4 variants of the task:
+```
+ocean/spherical/icos/cosine_bell
+ocean/spherical/icos/cosine_bell/with_viz
+ocean/spherical/qu/cosine_bell
+ocean/spherical/qu/cosine_bell/with_viz
+```
+The default resolutions used in the task depends on the mesh type.
 
 For the `icos` mesh type, the defaults are:
 
@@ -50,19 +50,36 @@ for the `qu` mesh type, they are:
 resolutions = 60, 90, 120, 150, 180, 210, 240
 ```
 
-To alter the resolutions used in this test, you will need to create your own
+To alter the resolutions used in this task, you will need to create your own
 config file (or add a `cosine_bell` section to a config file if you're
 already using one).  The resolutions are a comma-separated list of the
 resolution of the mesh in km.  If you specify a different list
 before setting up `cosine_bell`, steps will be generated with the requested
-resolutions.  (If you alter `resolutions` in the test case's config file in
+resolutions.  (If you alter `resolutions` in the task's config file in
 the work directory, nothing will happen.)  For `icos` meshes, make sure you
 use a resolution close to those listed in {ref}`dev-spherical-meshes`.  Each
 resolution will be rounded to the nearest allowed icosahedral resolution.
 
-### vertical grid
+The `base_mesh` steps are shared with other tasks so they are not housed in
+the `cosine_bell` work directory.  Instead, they are in work directories like:
 
-This test case only exercises the shallow water dynamics. As such, a single
+```
+ocean/spherical/icos/base_mesh/60km
+ocean/spherical/qu/base_mesh/60km
+```
+
+For convenience, there are symlinks inside of the `cosine_bell` and
+`cosine_bell/with_viz` work directories, e.g.:
+```
+ocean/spherical/icos/cosine_bell/base_mesh/60km
+ocean/spherical/qu/cosine_bell/base_mesh/60km
+ocean/spherical/icos/cosine_bell/with_viz/base_mesh/60km
+ocean/spherical/qu/cosine_bell/with_viz/base_mesh/60km
+```
+
+## vertical grid
+
+This task only exercises the shallow water dynamics. As such, a single
 vertical level may be used. The bottom depth is constant and the
 results should be insensitive to the choice of `bottom_depth`.
 
@@ -89,7 +106,7 @@ partial_cell_type = None
 min_pc_fraction = 0.1
 ```
 
-### initial conditions
+## initial conditions
 
 The initial bell is defined by any passive tracer $\psi$:
 
@@ -116,26 +133,26 @@ $$
 Where $\tau$ is the time it takes to transit the equator. The default is 24
 days, and can be altered by the user using the config option `vel_pd`.
 
-Temperature and salinity are not evolved in this test case and are given
+Temperature and salinity are not evolved in this task and are given
 constant values determined by config options `temperature` and `salinity`.
 
 The Coriolis parameters `fCell`, `fEdge`, and `fVertex` do not need to be
 specified for a global mesh and are initialized as zeros.
 
-### forcing
+## forcing
 
 N/A. This case is run with all velocity tendencies disabled so the velocity
 field remains at the initial velocity $u_0$.
 
-### time step and run duration
+## time step and run duration
 
 The time step for forward integration is determined by multiplying the
 resolution by `dt_per_km`, so that coarser meshes have longer time steps.
 You can alter this before setup (in a user config file) or before running the
-test case (in the config file in the work directory). The run duration is 24
+task (in the config file in the work directory). The run duration is 24
 days.
 
-### config options
+## config options
 
 The `cosine_bell` config options include:
 
@@ -214,10 +231,9 @@ The options `qu_conv_thresh` to `icos_conv_max` are thresholds for determining
 when the convergence rates are not within the expected range.
 
 The options in the `cosine_bell_viz` section are used in visualizing the
-initial and final states on a lon-lat grid for `cosine_bell_with_viz` test
-cases.
+initial and final states on a lon-lat grid for `cosine_bell/with_viz` tasks.
 
-### cores
+## cores
 
 The target and minimum number of cores are determined by `goal_cells_per_core`
 and `max_cells_per_core` from the `ocean` section of the config file,

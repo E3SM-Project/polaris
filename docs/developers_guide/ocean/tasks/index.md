@@ -6,7 +6,7 @@
 :titlesonly: true
 
 baroclinic_channel
-global_convergence
+cosine_bell
 inertial_gravity_wave
 manufactured_solution
 single_column

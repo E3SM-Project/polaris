@@ -15,21 +15,20 @@ The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as
 {py:func}`polaris.setup.setup_task()`. Here is a typical example from
-{py:func}`polaris.ocean.tasks.global_ocean.make_diagnostics_files.MakeDiagnosticsFiles.configure()`:
+{py:func}`polaris.ocean.tasks.baroclinic_channel.decomp.Decomp.configure()`:
 
 ```python
 def configure(self):
     """
-    Modify the configuration options for this task
+    Add the config file common to baroclinic channel tests
     """
-    self.config.add_from_package(
-       'polaris.ocean.tasks.global_ocean.make_diagnostics_files',
-       'make_diagnostics_files.cfg', exception=True)
+    self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+                                 'baroclinic_channel.cfg')
 ```
 
 The first and second arguments are the name of a package containing the config
 file and the name of the config file itself, respectively.  You can see that
-the file is in the path `polaris/ocean/tasks/global_ocean/make_diagnostics_files`
+the file is in the path `polaris/ocean/tasks/baroclinic_channel`
 (replacing the `.` in the module name with `/`).  In this case, we know
 that the config file should always exist, so we would like the code to raise
 an exception (`exception=True`) if the file is not found.  This is the

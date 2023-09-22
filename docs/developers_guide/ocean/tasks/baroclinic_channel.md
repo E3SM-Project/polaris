@@ -19,16 +19,6 @@ config options related to run duration and default horizontal  and vertical
 momentum and tracer diffusion, as well as defining `mesh`, `input`, `restart`, 
 and `output` streams.
 
-### baroclinic_channel_test_case
-
-The class {py:class}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase`
-defines a superclass for all baroclinic channel test cases.  This class sets
-up the appropriate subdirectory for the given resolution, adds an initial
-state step (see the following) used by all test cases, and sets some config options
-related to the mesh size and resolution in the
-{py:meth}`polaris.ocean.tasks.baroclinic_channel.BaroclinicChannelTestCase.configure()`
-method.
-
 ### init
 
 The class {py:class}`polaris.ocean.tasks.baroclinic_channel.init.Init`
@@ -37,9 +27,13 @@ defines a step for setting up the initial state for each test case.
 First, a mesh appropriate for the resolution is generated using
 {py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`.  Then, the mesh is
 culled to remove periodicity in the y direction.  A vertical grid is generated,
-with 20 layers of 50-m thickness each by default.  Finally, the initial
+with 20 layers of 50-m thickness each by default.  Next, the initial
 temperature field is computed along with uniform salinity and zero initial
-velocity.
+velocity.  Finally, if a baseline is available, the step ensures that of 
+`temperature`, `salinity` and `layerThickness` in the `initial_state.nc` file
+identical to those same fields from the baseline run.
+
+The same `init` step is shared by all tasks at a given resolution.
 
 ### forward
 
@@ -55,27 +49,32 @@ number of cells is approximated from config options in
 so that this can be used to constrain the number of MPI tasks that Polaris 
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of `runtime_setup()`.  Finally, the ocean 
-model is run.
+graph partition is generated as part of `runtime_setup()`.  Next, the ocean 
+model is run. Finally, validation of `temperature`, `salinity`, 
+`layerThickness` and `normalVelocity` in the `output.nc` file are performed 
+against a baseline if one is provided when calling {ref}`dev-polaris-setup`.
+
+### validate
+
+The class {py:class}`polaris.ocean.tasks.baroclinic_channel.validate.Validate`
+defines a step for validating outputs in two step directories against one
+another.  This step ensures that `temperature`, `salinity`, `layerThickness` 
+and `normalVelocity` are identical in `output.nc` files in the two steps.
 
 (dev-ocean-baroclinic-channel-default)=
 
 ## default
 
 The {py:class}`polaris.ocean.tasks.baroclinic_channel.default.Default`
-test performs a 15-minute run on 4 cores.  Then, validation of `temperature`, 
-`salinity`, `layerThickness` and `normalVelocity` are performed against a
-baseline if one is provided when calling {ref}`dev-polaris-setup`.
+test performs a 3-time-step run on 4 cores.  
 
 (dev-ocean-baroclinic-channel-decomp-test)=
 
 ## decomp
 
 The {py:class}`polaris.ocean.tasks.baroclinic_channel.decomp.Decomp`
-performs a 15-minute run once on 4 cores and once on 8 cores.  It
-ensures that `temperature`, `salinity`, `layerThickness` and
-`normalVelocity` are identical at the end of the two runs (as well as with a
-baseline if one is provided when calling {ref}`dev-polaris-setup`).
+performs a 15-minute run once on 4 cores and once on 8 cores. The 
+`validate` step ensures that the two runs produce identical results.
 
 (dev-ocean-baroclinic-channel-restart-test)=
 
@@ -84,10 +83,8 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`).
 The {py:class}`polaris.ocean.tasks.baroclinic_channel.restart.Restart`
 performs a 10-minute run once on 4 cores, saving restart files every time step
 (every 5 minutes), then it performs a restart run starting at minute 5 for 5
-more minutes.  It ensures that `temperature`, `salinity`,
-`layerThickness` and `normalVelocity` are identical at the end of the two
-runs (as well as with a baseline if one is provided when calling
-{ref}`dev-polaris-setup`).
+more minutes. The `validate` step ensures that the two runs produce identical 
+results.
 
 Restart files are saved at the task level in the `restarts` directory,
 rather than within each step, since they will be used across both the `full`
@@ -103,10 +100,8 @@ with a restart at minute 5 and runs for 5 more minutes.
 
 The {py:class}`polaris.ocean.tasks.baroclinic_channel.threads.Threads`
 performs a 15-minute run once on 4 cores, each with 1 thread and once on 4
-cores, each with 2 threads.  It ensures that `temperature`, `salinity`,
-`layerThickness` and `normalVelocity` are identical at the end of the two
-runs (as well as with a baseline if one is provided when calling
-{ref}`dev-polaris-setup`).
+cores, each with 2 threads. The `validate` step ensures that the two runs 
+produce identical results.
 
 :::{note}
 The `ocean/baroclinic_channel/10km/thread/1thread` step is identical 

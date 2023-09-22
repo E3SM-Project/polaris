@@ -22,7 +22,7 @@ in the  {ref}`dev-step-setup` method (i.e. before calling {ref}`dev-step-run`)
 so that  the polaris framework  can ensure that the required resources are 
 available.
 
-(dev-step-namelists-and-streams)=
+(dev-model-yaml-namelists-and-streams)=
 
 ### Adding yaml, namelist and streams files
 
@@ -43,7 +43,7 @@ defaults for the  E3SM component.  The yaml, namelists and streams files
 themselves  are generated  automatically (which of these depends on the E3SM
 component in question) as part of setting up the task.
 
-(dev-step-add-yaml-file)=
+(dev-model-add-yaml-file)=
 
 #### Adding a yaml file
 
@@ -114,7 +114,7 @@ sequence they are given.  This way, you can add the model config substitutions
 common to related tasks first, and then override those with the replacements 
 specific to the task or step.
 
-(dev-step-add-namelists-file)=
+(dev-model-add-namelists-file)=
 
 #### Adding a namelist file
 
@@ -156,7 +156,7 @@ sequence they are given.  This way, you can add the namelist substitutions for
 that are common to related tasks first, and then override those with the 
 replacements that are specific to the task or step.
 
-(dev-step-add-model-config-options)=
+(dev-model-add-model-config-options)=
 
 #### Adding model config options
 
@@ -170,25 +170,26 @@ replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()`
 either  at init or in the `setup()` method of the step.  These replacements are
 parsed, along  with replacements from files, in the order they are added.  
 Thus, you could add replacements from a model config file common to multiple
-tasks, specific to a task, and/or speficic to step.  Then, you could override 
+tasks, specific to a task, and/or specific to step.  Then, you could override 
 them with namelist options in a dictionary for the task or step, as in this 
 example:
 
 ```python
-self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
-                       'namelist.forward')
-self.add_namelist_file(f'polaris.ocean.tasks.baroclinic_channel',
-                       f'namelist.{step["resolution"]}.forward')
-if self.nu is not None:
+if nu is not None:
     # update the viscosity to the requested value
-    options = {'hmix': 
-                 {'config_mom_del2': self.nu}}
-    self.add_model_config_options(options)
+    self.add_model_config_options(options=dict(config_mom_del2=nu))
+
+# make sure output is double precision
+self.add_yaml_file('polaris.ocean.config', 'output.yaml')
+
+self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
+                   'forward.yaml')
+
 ```
 
-Here, we get default options for "forward" steps, then for the resolution of
-the task from namelist files, then update the viscosity `nu`, which is
-an option passed in when creating this step.
+Here, we set the viscosity `nu`, which is an option passed in when creating 
+this step.  Then, we get default model config options for ocean model output
+(`output.yaml`) and for baroclinic channel forward steps (`forward.yaml`).
 
 :::{note}
 Model config options can have values of type `bool`, `int`, `float` or `str`,
@@ -196,27 +197,61 @@ and are automatically converted to the appropriate type in the yaml or namelist
 file.
 :::
 
-(dev-step-update-namelist-options)=
+(dev-model-dynamic-model-config-options)=
 
-#### Updating namelist or yaml options at runtime
+#### Dynamic model config options
 
-It is sometimes useful to update namelist options after a namelist has already
-been generated as part of setting up.  This typically happens within a step's
-`run()` method for options that cannot be known beforehand, particularly
-options related to the number of MPI tasks, CPUs per task, and OpenMP threads.
-In such cases, call {py:meth}`polaris.ModelStep.update_namelist_at_runtime()` or
-{py:meth}`polaris.ModelStep.update_yaml_at_runtime()`:
+It is sometimes useful to have model config options that are based on Polaris
+config options and/or algorithms.  In such cases, the model config options
+need to be computed once at setup and again (possibly based on updated
+config options) at runtime.  A step needs to override the 
+{py:meth}`polaris.ModelStep.dynamic_model_config()` method, e.g.:
 
 ```python
-...
+def dynamic_model_config(self, at_setup):
+    """
+    Add model config options, namelist, streams and yaml files using config
+    options or template replacements that need to be set both during step
+    setup and at runtime
 
-replacements = {'config_pio_num_iotasks': '{}'.format(pio_num_iotasks),
-                'config_pio_stride': '{}'.format(pio_stride)}
+    Parameters
+    ----------
+    at_setup : bool
+        Whether this method is being run during setup of the step, as
+        opposed to at runtime
+    """
+    super().dynamic_model_config(at_setup)
 
-self.update_namelist_at_runtime(options=replacements, out_name=namelist)
+    config = self.config
+
+    options = dict()
+
+    # dt is proportional to resolution: default 30 seconds per km
+    dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
+    dt = dt_per_km * self.resolution
+    # https://stackoverflow.com/a/1384565/7728169
+    options['config_dt'] = \
+        time.strftime('%H:%M:%S', time.gmtime(dt))
+
+    if self.run_time_steps is not None:
+        # default run duration is a few time steps
+        run_seconds = self.run_time_steps * dt
+        options['config_run_duration'] = \
+            time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+
+    # btr_dt is also proportional to resolution: default 1.5 seconds per km
+    btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
+    btr_dt = btr_dt_per_km * self.resolution
+    options['config_btr_dt'] = \
+        time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+
+    self.dt = dt
+    self.btr_dt = btr_dt
+
+    self.add_model_config_options(options=options)
 ```
 
-(dev-step-add-streams-file)=
+(dev-model-add-streams-file)=
 
 #### Adding a streams file
 
@@ -284,7 +319,7 @@ If the streams file should have a different name than the default
 argument.   If `init` mode is desired, rather than the default, `forward`
 mode, this can also be specified.
 
-(dev-step-add-streams-file-template)=
+(dev-model-add-streams-file-template)=
 
 #### Adding a template streams file
 
@@ -338,42 +373,6 @@ spin up, we reuse the same template with just a few appropriate replacements.
 Thus, calls to {py:meth}`polaris.ModelStep.add_streams_file()` with
 `template_replacements` are qualitatively similar to namelist calls to
 {py:meth}`polaris.ModelStep.add_model_config_options()`.
-
-(dev-step-update-streams)=
-
-#### Updating a streams file at runtime
-
-Just as with namelist options, it is sometimes useful to update streams files
-after it has already been generated as part of setting up.  This typically
-happens within a step's `run()` method for properties of the stream that
-may be affected by config options that a user may have changed.  In such
-cases, call {py:meth}`polaris.Step.update_streams_at_runtime()`.  In this
-fairly complicated example, the duration of the run in hours is a config option
-that we turn into a string.  A dictionary of replacements together with a
-template streams file, as described above, are used to update the streams file
-with the new run duration:
-
-```python
-import time
-from datetime import datetime, timedelta
-...
-
-config = self.config
-# the duration (hours) of the run
-duration = int(3600 * config.getfloat('planar_convergence', 'duration'))
-delta = timedelta(seconds=duration)
-hours = delta.seconds//3600
-minutes = delta.seconds//60 % 60
-seconds = delta.seconds % 60
-duration = f'{delta.days:03d}_{hours:02d}:{minutes:02d}:{seconds:02d}'
-
-stream_replacements = {'output_interval': duration}
-
-self.update_streams_at_runtime(
-    'polaris.ocean.tasks.planar_convergence',
-    'streams.template', template_replacements=stream_replacements,
-    out_name='streams.ocean')
-```
 
 ### Adding E3SM component as an input
 
