@@ -87,10 +87,7 @@ class Init(Step):
         xyz_cells = Vector(x_cells, y_cells, z_cells)
         ang_dist_from_center = xyz_cells.angular_distance(xyz_center)
         distance_from_center = ang_dist_from_center * sphere_radius
-        # TODO replace with cosine_bell from utils
-        bell_value = psi0 / 2.0 * (
-            1.0 + np.cos(np.pi *
-                         np.divide(distance_from_center, radius)))
+        bell_value = cosine_bell(psi0, distance_from_center, radius)
         debug_tracers = xr.where(distance_from_center < radius,
                                  bell_value,
                                  0.0)
@@ -111,3 +108,7 @@ class Init(Step):
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
         write_netcdf(ds, 'initial_state.nc')
+
+
+def cosine_bell(max_value, ri, r):
+    return max_value / 2.0 * (1.0 + np.cos(np.pi * np.divide(ri, r)))
