@@ -8,3 +8,11 @@ ocean/spherical/qu/cosine_bell
   cached: qu_base_mesh_120km qu_init_120km qu_base_mesh_150km qu_init_150km
   cached: qu_base_mesh_180km qu_init_180km qu_base_mesh_210km qu_init_210km
   cached: qu_base_mesh_240km qu_init_240km
+ocean/spherical/icos/geostrophic
+  cached: icos_base_mesh_60km icos_init_60km icos_base_mesh_120km icos_init_120km
+  cached: icos_base_mesh_240km icos_init_240km icos_base_mesh_480km icos_init_480km
+ocean/spherical/qu/geostrophic
+  cached: qu_base_mesh_60km qu_init_60km qu_base_mesh_90km qu_init_90km
+  cached: qu_base_mesh_120km qu_init_120km qu_base_mesh_150km qu_init_150km
+  cached: qu_base_mesh_180km qu_init_180km qu_base_mesh_210km qu_init_210km
+  cached: qu_base_mesh_240km qu_init_240km
