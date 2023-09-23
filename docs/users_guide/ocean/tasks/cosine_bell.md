@@ -26,6 +26,7 @@ and final state on a lat-lon grid for each resolution.  The visualization is
 not included in the `cosine_bell` version of the task in order to not slow down
 regression testing.
 
+(ocean-cosine-bell-mesh)=
 ## mesh
 
 Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
@@ -86,6 +87,7 @@ ocean/spherical/icos/cosine_bell/with_viz/base_mesh/60km
 ocean/spherical/qu/cosine_bell/with_viz/base_mesh/60km
 ```
 
+(ocean-cosine-bell-vertical)=
 ## vertical grid
 
 This task only exercises the shallow water dynamics. As such, a single
@@ -158,6 +160,7 @@ specified for a global mesh and are initialized as zeros.
 N/A. This case is run with all velocity tendencies disabled so the velocity
 field remains at the initial velocity $u_0$.
 
+(ocean-cosine-bell-time-step)=
 ## time step and run duration
 
 This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step 
@@ -278,6 +281,7 @@ convergence_thresh = ${cosine_bell:convergence_thresh}
 error_type = l2
 ```
 
+(ocean-cosine-bell-cores)=
 ## cores
 
 The target and minimum number of cores are determined by `goal_cells_per_core`

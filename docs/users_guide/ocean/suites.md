@@ -26,7 +26,7 @@ ocean/global_convergence/qu/cosine_bell
 ```
 
 The `cosine_bell` suite runs both tasks from 
-{ref}`ocean-global-convergence-cosine-bell` in full, whereas the
+{ref}`ocean-cosine-bell` in full, whereas the
 `cosine_bell_cached_init` suite only runs the ocean simulations from as set
 of meshes and initial conditions that have been saved from a previous run
 (see {ref}`dev-cache`).

@@ -2,7 +2,7 @@
 
 # cosine_bell
 
-The {py:class}`polaris.ocean.tasks.global_convergence.cosine_bell.CosineBell`
+The {py:class}`polaris.ocean.tasks.cosine_bell.CosineBell`
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
