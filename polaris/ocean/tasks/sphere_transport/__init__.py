@@ -1,16 +1,12 @@
-from polaris import Task
+from typing import Dict
+
+from polaris import Step, Task
 from polaris.config import PolarisConfigParser
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
-from polaris.ocean.tasks.sphere_transport.convergence import (
-    Convergence,
-    ConvergenceViz,
-)
+from polaris.ocean.tasks.sphere_transport.analysis import Analysis
 from polaris.ocean.tasks.sphere_transport.forward import Forward
 from polaris.ocean.tasks.sphere_transport.init import Init
 from polaris.ocean.tasks.sphere_transport.viz import Viz, VizMap
-from polaris.ocean.tests.sphere_transport.sphere_transport_test_case import (
-    SphereTransportTestCase,
-)
 
 
 def add_sphere_transport_tasks(component):
@@ -35,7 +31,7 @@ class SphereTransport(Task):
 
     Attributes
     ----------
-    resolutions : list of int
+    resolutions : list of float
         A list of mesh resolutions
 
     icosahedral : bool
@@ -65,12 +61,12 @@ class SphereTransport(Task):
             Include VizMap and Viz steps for each resolution
         """
         if icosahedral:
-            subdir = 'spherical/icos/sphere_transport'
+            subdir = f'spherical/icos/{case_name}'
         else:
-            subdir = 'spherical/qu/sphere_transport'
+            subdir = f'spherical/qu/{case_name}'
         if include_viz:
             subdir = f'{subdir}/with_viz'
-        super().__init__(component=component, name='sphere_transport',
+        super().__init__(component=component, name=case_name,
                          subdir=subdir)
         self.resolutions = list()
         self.icosahedral = icosahedral
@@ -79,8 +75,8 @@ class SphereTransport(Task):
 
         # add the steps with default resolutions so they can be listed
         config = PolarisConfigParser()
-        package = 'polaris.ocean.tasks.sphere_transport'
-        config.add_from_package(package, f'{case_name}.cfg')
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
         self._setup_steps(config)
 
     def configure(self):
@@ -88,27 +84,29 @@ class SphereTransport(Task):
         Set config options for the test case
         """
         super().configure()
+        case_name = self.case_name
         config = self.config
         config.add_from_package('polaris.mesh', 'mesh.cfg')
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
+        package = 'polaris.ocean.tasks.sphere_transport'
+        config.add_from_package(package, 'sphere_transport.cfg')
+        config.add_from_package(package, f'{case_name}.cfg')
 
         # set up the steps again in case a user has provided new resolutions
         self._setup_steps(config)
 
     def _setup_steps(self, config):
         """ setup steps given resolutions """
-        if self.icosahedral:
-            default_resolutions = '60, 120, 240, 480'
+        case_name = self.case_name
+        icosahedral = self.icosahedral
+        if icosahedral:
+            prefix = 'icos'
         else:
-            default_resolutions = '60, 90, 120, 150, 180, 210, 240'
+            prefix = 'qu'
 
-        # set the default values that a user may change before setup
-        config.set('sphere_transport', 'resolutions', default_resolutions,
-                   comment='a list of resolutions (km) to test')
-
-        # get the resolutions back, perhaps with values set in the user's
-        # config file, which takes priority over what we just set above
-        resolutions = config.getlist('sphere_transport', 'resolutions',
-                                     dtype=int)
+        resolutions = config.getlist('spherical_convergence',
+                                     f'{prefix}_resolutions', dtype=float)
 
         if self.resolutions == resolutions:
             return
@@ -120,19 +118,16 @@ class SphereTransport(Task):
         self.resolutions = resolutions
 
         component = self.component
-        icosahedral = self.icosahedral
-        case_name = self.case_name
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
 
+        analysis_dependencies: Dict[str, Dict[str, Step]] = (
+            dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in resolutions:
-            base_mesh, mesh_name = add_spherical_base_mesh_step(
+            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
                 component, resolution, icosahedral)
-            self.add_step(base_mesh, symlink=f'base_mesh/{mesh_name}')
+            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+            analysis_dependencies['mesh'][resolution] = base_mesh_step
 
-            sph_trans_dir = f'spherical/{prefix}/sphere_transport/{case_name}'
+            sph_trans_dir = f'spherical/{prefix}/{case_name}'
 
             name = f'{prefix}_init_{mesh_name}'
             subdir = f'{sph_trans_dir}/init/{mesh_name}'
@@ -141,11 +136,12 @@ class SphereTransport(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                init_step = component.steps[subdir]
             else:
-                step = Init(component=component, name=name, subdir=subdir,
-                            mesh_name=mesh_name, case_name=case_name)
-            self.add_step(step, symlink=symlink)
+                init_step = Init(component=component, name=name, subdir=subdir,
+                                 base_mesh=base_mesh_step, case_name=case_name)
+            self.add_step(init_step, symlink=symlink)
+            analysis_dependencies['init'][resolution] = init_step
 
             name = f'{prefix}_forward_{mesh_name}'
             subdir = f'{sph_trans_dir}/forward/{mesh_name}'
@@ -154,51 +150,44 @@ class SphereTransport(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                forward_step = component.steps[subdir]
             else:
-                step = Forward(component=component, name=name,
-                               subdir=subdir, resolution=resolution,
-                               mesh_name=mesh_name, case_name=case_name)
-            self.add_step(step, symlink=symlink)
+                forward_step = Forward(component=component, name=name,
+                                       subdir=subdir, resolution=resolution,
+                                       base_mesh=base_mesh_step,
+                                       init=init_step,
+                                       case_name=case_name)
+            self.add_step(forward_step, symlink=symlink)
+            analysis_dependencies['forward'][resolution] = forward_step
 
             if self.include_viz:
-                with_viz_dir = f'spherical/{prefix}/sphere_transport/with_viz'
+                with_viz_dir = f'{sph_trans_dir}/with_viz'
 
                 name = f'{prefix}_map_{mesh_name}'
                 subdir = f'{with_viz_dir}/map/{mesh_name}'
                 viz_map = VizMap(component=component, name=name,
-                                 subdir=subdir, mesh_name=mesh_name)
+                                 subdir=subdir, base_mesh=base_mesh_step,
+                                 mesh_name=mesh_name)
                 self.add_step(viz_map)
 
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
-                           subdir=subdir, viz_map=viz_map,
-                           mesh_name=mesh_name)
+                           subdir=subdir, base_mesh=base_mesh_step,
+                           init=init_step, forward=forward_step,
+                           viz_map=viz_map, mesh_name=mesh_name)
                 self.add_step(step)
 
-        subdir = f'spherical/{prefix}/sphere_transport/convergence'
+        subdir = f'{sph_trans_dir}/analysis'
         if self.include_viz:
-            symlink = 'convergence'
+            symlink = 'analysis'
         else:
             symlink = None
         if subdir in component.steps:
             step = component.steps[subdir]
         else:
-            convergence = Convergence(component=component, test_case=self,
-                                      resolutions=resolutions)
-        self.add_step(convergence, symlink=symlink)
-
-        subdir = f'spherical/{prefix}/sphere_transport/convergence'
-        if self.include_viz:
-            symlink = 'convergence'
-        else:
-            symlink = None
-        if subdir in component.steps:
-            step = component.steps[subdir]
-        else:
-            step = ConvergenceViz(component=component,
-                                  test_case=self,
-                                  resolutions=resolutions,
-                                  convergence=convergence)
+            step = Analysis(component=component, resolutions=resolutions,
+                            icosahedral=icosahedral, subdir=subdir,
+                            case_name=case_name,
+                            dependencies=analysis_dependencies)
         self.add_step(step, symlink=symlink)
