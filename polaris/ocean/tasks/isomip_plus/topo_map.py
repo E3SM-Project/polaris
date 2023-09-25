@@ -12,7 +12,8 @@ class TopoMap(MappingFileStep):
     mesh_name : str
         The name of the mesh
     """
-    def __init__(self, component, subdir, mesh_name, mesh_step, mesh_filename):
+    def __init__(self, component, name, subdir, mesh_name, mesh_step,
+                 mesh_filename):
         """
         Create the step
 
@@ -20,6 +21,9 @@ class TopoMap(MappingFileStep):
         ----------
         component : polaris.Component
             The component the step belongs to
+
+        name : str
+            The name of the step
 
         subdir : str
             The subdirectory for the step
@@ -30,8 +34,8 @@ class TopoMap(MappingFileStep):
         mesh_step : polaris.Step
             The base mesh step
         """
-        super().__init__(component=component, name=f'topo_map_{mesh_name}',
-                         subdir=subdir, ntasks=128, min_tasks=1)
+        super().__init__(component=component, name=name, subdir=subdir,
+                         ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
 
         # since all geometry is on the same mesh, we'll use Ocean1 here

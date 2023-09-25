@@ -30,9 +30,11 @@ class IsomipPlusTest(Task):
     """
 
     def __init__(self, component, resdir, resolution, experiment,
-                 vertical_coordinate, planar, base_mesh, topo_map, topo_remap,
-                 cull_mesh, time_varying_forcing=False, time_varying_load=None,
-                 thin_film_present=False, tidal_forcing=False):
+                 vertical_coordinate, planar, base_mesh, topo_map_base,
+                 topo_remap_base, cull_mesh, topo_map_culled,
+                 topo_remap_culled, time_varying_forcing=False,
+                 time_varying_load=None, thin_film_present=False,
+                 tidal_forcing=False):
         """
         Create the test case
 
@@ -60,14 +62,22 @@ class IsomipPlusTest(Task):
         base_mesh : polaris.Step
             The shared step for creating the base mesh
 
-        topo_map : polaris.ocean.tasks.isomip_plus.topo_map.TopoMap
-            The shared step for creating a topography mapping file
+        topo_map_base : polaris.ocean.tasks.isomip_plus.topo_map.TopoMap
+            The shared step for creating a topography mapping file from
+            the ISOMIP+ input data to the base mesh
 
-        topo_remap : polaris.ocean.tasks.isomip_plus.topo_remap.TopoRemap
-            The shared step for remapping topography to the MPAS mesh
+        topo_remap_base : polaris.ocean.tasks.isomip_plus.topo_remap.TopoRemap
+            The shared step for remapping topography to the MPAS base mesh
 
         cull_mesh : polaris.ocean.tasks.isomip_plus.cull_mesh.CullMesh
             The shared step for culling the mesh based on the ocean mask
+
+        topo_map_culled : polaris.ocean.tasks.isomip_plus.topo_map.TopoMap
+            The shared step for creating a topography mapping file from
+            the ISOMIP+ input data to the culled mesh
+
+        topo_remap_culled : polaris.ocean.tasks.isomip_plus.topo_remap.TopoRemap
+            The shared step for remapping topography to the MPAS culled mesh
 
         time_varying_forcing : bool, optional
             Whether the run includes time-varying land-ice forcing
@@ -85,7 +95,7 @@ class IsomipPlusTest(Task):
 
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
-        """
+        """  # noqa: E501
         name = experiment
         if tidal_forcing:
             name = f'tidal_forcing_{name}'
@@ -112,9 +122,11 @@ class IsomipPlusTest(Task):
         super().__init__(component=component, name=name, subdir=subdir)
 
         self.add_step(base_mesh, symlink='base_mesh')
-        self.add_step(topo_map, symlink='topo/map')
-        self.add_step(topo_remap, symlink='topo/remap')
+        self.add_step(topo_map_base, symlink='topo/map_base')
+        self.add_step(topo_remap_base, symlink='topo/remap_base')
         self.add_step(cull_mesh, symlink='topo/cull_mesh')
+        self.add_step(topo_map_culled, symlink='topo/map_culled')
+        self.add_step(topo_remap_culled, symlink='topo/remap_culled')
 
     def configure(self):
         """

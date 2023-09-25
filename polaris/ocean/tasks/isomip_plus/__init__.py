@@ -37,6 +37,7 @@ def add_isomip_plus_tasks(component, mesh_type):
 
         subdir = f'{resdir}/topo/map_base'
         topo_map_base = TopoMap(component=component,
+                                name='topo_map_base',
                                 subdir=subdir,
                                 mesh_name=mesh_name,
                                 mesh_step=base_mesh,
@@ -44,6 +45,7 @@ def add_isomip_plus_tasks(component, mesh_type):
 
         subdir = f'{resdir}/topo/remap_base'
         topo_remap_base = TopoRemap(component=component,
+                                    name='topo_remap_base',
                                     subdir=subdir,
                                     topo_map=topo_map_base,
                                     experiment='ocean1')
@@ -54,16 +56,40 @@ def add_isomip_plus_tasks(component, mesh_type):
                              base_mesh=base_mesh,
                              topo_remap=topo_remap_base)
 
+        subdir = f'{resdir}/topo/map_culled'
+        topo_map_culled = TopoMap(component=component,
+                                  name='topo_map_culled',
+                                  subdir=subdir,
+                                  mesh_name=mesh_name,
+                                  mesh_step=cull_mesh,
+                                  mesh_filename='culled_mesh.nc')
+
+        topo_remap_culled: Dict[str, TopoRemap] = dict()
+        for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
+            name = f'topo_remap_culled_{experiment}'
+            subdir = f'{resdir}/topo/remap_culled/{experiment}'
+            topo_remap_culled[experiment] = TopoRemap(component=component,
+                                                      name=name,
+                                                      subdir=subdir,
+                                                      topo_map=topo_map_culled,
+                                                      experiment=experiment)
+
+        # ocean0 and ocean1 use the same topography
+        topo_remap_culled['ocean0'] = topo_remap_culled['ocean1']
+
         for experiment in ['ocean0']:
             for vertical_coordinate in ['z-star']:
-                task = IsomipPlusTest(component=component,
-                                      resdir=resdir,
-                                      resolution=resolution,
-                                      experiment=experiment,
-                                      vertical_coordinate=vertical_coordinate,
-                                      base_mesh=base_mesh,
-                                      topo_map=topo_map_base,
-                                      topo_remap=topo_remap_base,
-                                      cull_mesh=cull_mesh,
-                                      planar=planar)
+                task = IsomipPlusTest(
+                    component=component,
+                    resdir=resdir,
+                    resolution=resolution,
+                    experiment=experiment,
+                    vertical_coordinate=vertical_coordinate,
+                    planar=planar,
+                    base_mesh=base_mesh,
+                    topo_map_base=topo_map_base,
+                    topo_remap_base=topo_remap_base,
+                    cull_mesh=cull_mesh,
+                    topo_map_culled=topo_map_culled,
+                    topo_remap_culled=topo_remap_culled[experiment])
                 component.add_task(task)
