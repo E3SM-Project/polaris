@@ -20,7 +20,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         The type of mesh
     """
     planar = (mesh_type == 'planar')
-    for resolution in [8., 4., 2., 1., 0.5]:
+    for resolution in [4., 2., 1.]:
         mesh_name = resolution_to_subdir(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
@@ -66,7 +66,7 @@ def add_isomip_plus_tasks(component, mesh_type):
 
         topo_remap_culled: Dict[str, TopoRemap] = dict()
         for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
-            name = f'topo_remap_culled_{experiment}'
+            name = 'topo_remap_culled'
             subdir = f'{resdir}/topo/remap_culled/{experiment}'
             topo_remap_culled[experiment] = TopoRemap(component=component,
                                                       name=name,
@@ -77,7 +77,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         # ocean0 and ocean1 use the same topography
         topo_remap_culled['ocean0'] = topo_remap_culled['ocean1']
 
-        for experiment in ['ocean0']:
+        for experiment in ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4']:
             for vertical_coordinate in ['z-star']:
                 task = IsomipPlusTest(
                     component=component,
