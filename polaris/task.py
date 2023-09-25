@@ -165,9 +165,9 @@ class Task:
                                  f'component first, then to the task.')
             step = component.steps[subdir]
 
-        if step.subdir in self.steps:
+        if step.name in self.steps:
             raise ValueError(f'A step has already been added to this task '
-                             f'with path {step.subdir}')
+                             f'with name {step.name}')
 
         # add the step to the component (if it's not already there)
         component.add_step(step)
