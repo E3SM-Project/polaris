@@ -5,6 +5,7 @@ from polaris.ocean.tasks.geostrophic import add_geostrophic_tasks
 from polaris.ocean.tasks.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks,
 )
+from polaris.ocean.tasks.isomip_plus import add_isomip_plus_tasks
 from polaris.ocean.tasks.manufactured_solution import (
     add_manufactured_solution_tasks,
 )
@@ -26,6 +27,7 @@ class Ocean(Component):
         # planar: please keep these in alphabetical order
         add_baroclinic_channel_tasks(component=self)
         add_inertial_gravity_wave_tasks(component=self)
+        add_isomip_plus_tasks(component=self, mesh_type='planar')
         add_manufactured_solution_tasks(component=self)
 
         # single column
@@ -34,6 +36,7 @@ class Ocean(Component):
         # spherical: please keep these in alphabetical order
         add_cosine_bell_tasks(component=self)
         add_geostrophic_tasks(component=self)
+        add_isomip_plus_tasks(component=self, mesh_type='spherical')
         add_sphere_transport_tasks(component=self)
 
     def configure(self, config):
