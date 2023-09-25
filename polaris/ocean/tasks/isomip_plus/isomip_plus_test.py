@@ -30,9 +30,9 @@ class IsomipPlusTest(Task):
     """
 
     def __init__(self, component, resdir, resolution, experiment,
-                 vertical_coordinate, base_mesh, topo_map, topo_remap,
-                 time_varying_forcing=False, time_varying_load=None,
-                 thin_film_present=False, tidal_forcing=False, planar=True):
+                 vertical_coordinate, planar, base_mesh, topo_map, topo_remap,
+                 cull_mesh, time_varying_forcing=False, time_varying_load=None,
+                 thin_film_present=False, tidal_forcing=False):
         """
         Create the test case
 
@@ -54,6 +54,9 @@ class IsomipPlusTest(Task):
         vertical_coordinate : str
             The type of vertical coordinate (``z-star``, ``z-level``, etc.)
 
+        planar : bool
+            Whether the test case runs on a planar or a spherical mesh
+
         base_mesh : polaris.Step
             The shared step for creating the base mesh
 
@@ -62,6 +65,9 @@ class IsomipPlusTest(Task):
 
         topo_remap : polaris.ocean.tasks.isomip_plus.topo_remap.TopoRemap
             The shared step for remapping topography to the MPAS mesh
+
+        cull_mesh : polaris.ocean.tasks.isomip_plus.cull_mesh.CullMesh
+            The shared step for culling the mesh based on the ocean mask
 
         time_varying_forcing : bool, optional
             Whether the run includes time-varying land-ice forcing
@@ -79,9 +85,6 @@ class IsomipPlusTest(Task):
 
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
-
-        planar : bool, optional
-            Whether the test case runs on a planar or a spherical mesh
         """
         name = experiment
         if tidal_forcing:
@@ -111,6 +114,7 @@ class IsomipPlusTest(Task):
         self.add_step(base_mesh, symlink='base_mesh')
         self.add_step(topo_map, symlink='topo/map')
         self.add_step(topo_remap, symlink='topo/remap')
+        self.add_step(cull_mesh, symlink='topo/cull_mesh')
 
     def configure(self):
         """

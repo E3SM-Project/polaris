@@ -56,7 +56,11 @@ class TopoRemap(Step):
         remapper = topo_map.get_remapper()
 
         with xr.open_dataset('topography.nc') as ds_in:
-            ds_in['domainMask'] = xr.ones_like(ds_in.openOceanMask)
+            ds_in = ds_in.rename({'floatingMask': 'floatingFraction',
+                                  'groundedMask': 'groundedFraction',
+                                  'openOceanMask': 'openOceanFraction'})
+            ds_in['oceanFraction'] = \
+                (ds_in.bedrockTopography < 0.).astype(float)
             ds_in['iceThickness'] = ds_in.upperSurface - ds_in.lowerSurface
             ds_in.iceThickness.attrs['description'] = 'ice thickness'
             ds_in.iceThickness.attrs['units'] = 'm'
