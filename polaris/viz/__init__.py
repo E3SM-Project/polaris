@@ -209,7 +209,7 @@ def _compute_cell_patches(ds, mask):
         if dx * dy / 10 > area_cell[cell_index]:
             mask[cell_index] = False
         else:
-            polygon = Polygon(vertices, True)
+            polygon = Polygon(vertices, closed=True)
             patches.append(polygon)
 
     p = PatchCollection(patches, alpha=1.)
@@ -240,7 +240,7 @@ def _compute_edge_patches(ds, mask):
         vertices[3, 0] = 1e-3 * x_cell[cell_indices[1]]
         vertices[3, 1] = 1e-3 * y_cell[cell_indices[1]]
 
-        polygon = Polygon(vertices, True)
+        polygon = Polygon(vertices, closed=True)
         patches.append(polygon)
 
     p = PatchCollection(patches, alpha=1.)
