@@ -4,6 +4,7 @@ from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
 from polaris.ocean.tasks.isomip_plus.planar_mesh import PlanarMesh
 from polaris.ocean.tasks.isomip_plus.spherical_mesh import SphericalMesh
+from polaris.ocean.tasks.isomip_plus.topo_map import TopoMap
 
 
 def add_isomip_plus_tasks(component, mesh_type):
@@ -31,6 +32,10 @@ def add_isomip_plus_tasks(component, mesh_type):
                                       cell_width=resolution,
                                       subdir=subdir)
 
+        subdir = f'{resdir}/topo/map'
+        topo_map = TopoMap(component=component, subdir=subdir,
+                           mesh_name=mesh_name, base_mesh=base_mesh)
+
         for experiment in ['ocean0']:
             for vertical_coordinate in ['z-star']:
                 task = IsomipPlusTest(component=component,
@@ -39,5 +44,6 @@ def add_isomip_plus_tasks(component, mesh_type):
                                       experiment=experiment,
                                       vertical_coordinate=vertical_coordinate,
                                       base_mesh=base_mesh,
+                                      topo_map=topo_map,
                                       planar=planar)
                 component.add_task(task)

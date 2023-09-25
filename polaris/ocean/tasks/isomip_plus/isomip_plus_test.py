@@ -30,9 +30,9 @@ class IsomipPlusTest(Task):
     """
 
     def __init__(self, component, resdir, resolution, experiment,
-                 vertical_coordinate, base_mesh, time_varying_forcing=False,
-                 time_varying_load=None, thin_film_present=False,
-                 tidal_forcing=False, planar=True):
+                 vertical_coordinate, base_mesh, topo_map,
+                 time_varying_forcing=False, time_varying_load=None,
+                 thin_film_present=False, tidal_forcing=False, planar=True):
         """
         Create the test case
 
@@ -56,6 +56,9 @@ class IsomipPlusTest(Task):
 
         base_mesh : polaris.Step
             The shared step for creating the base mesh
+
+        topo_map : polaris.ocean.tasks.isomip_plus.topo_map.TopoMap
+            The shared step for creating a topography mapping file
 
         time_varying_forcing : bool, optional
             Whether the run includes time-varying land-ice forcing
@@ -103,6 +106,7 @@ class IsomipPlusTest(Task):
         super().__init__(component=component, name=name, subdir=subdir)
 
         self.add_step(base_mesh, symlink='base_mesh')
+        self.add_step(topo_map, symlink='topo/map')
 
     def configure(self):
         """
