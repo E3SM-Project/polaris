@@ -273,9 +273,9 @@
                                  <span class="sa">f</span><span class="s1">&#39;component first, then to the task.&#39;</span><span class="p">)</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A step has already been added to this task &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;with path </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                             <span class="sa">f</span><span class="s1">&#39;with name </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="c1"># add the step to the component (if it&#39;s not already there)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
