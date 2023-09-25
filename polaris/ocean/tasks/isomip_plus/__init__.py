@@ -1,10 +1,11 @@
-from typing import Union
+from typing import Dict, Union
 
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
 from polaris.ocean.tasks.isomip_plus.planar_mesh import PlanarMesh
 from polaris.ocean.tasks.isomip_plus.spherical_mesh import SphericalMesh
 from polaris.ocean.tasks.isomip_plus.topo_map import TopoMap
+from polaris.ocean.tasks.isomip_plus.topo_remap import TopoRemap
 
 
 def add_isomip_plus_tasks(component, mesh_type):
@@ -32,9 +33,16 @@ def add_isomip_plus_tasks(component, mesh_type):
                                       cell_width=resolution,
                                       subdir=subdir)
 
-        subdir = f'{resdir}/topo/map'
-        topo_map = TopoMap(component=component, subdir=subdir,
-                           mesh_name=mesh_name, base_mesh=base_mesh)
+        subdir = f'{resdir}/topo/map_base'
+        topo_map_base = TopoMap(component=component, subdir=subdir,
+                                mesh_name=mesh_name, mesh_step=base_mesh,
+                                mesh_filename='base_mesh.nc')
+
+        subdir = f'{resdir}/topo/remap_base'
+        topo_remap_base = TopoRemap(component=component,
+                                    subdir=subdir,
+                                    topo_map=topo_map_base,
+                                    experiment='ocean1')
 
         for experiment in ['ocean0']:
             for vertical_coordinate in ['z-star']:
@@ -44,6 +52,7 @@ def add_isomip_plus_tasks(component, mesh_type):
                                       experiment=experiment,
                                       vertical_coordinate=vertical_coordinate,
                                       base_mesh=base_mesh,
-                                      topo_map=topo_map,
+                                      topo_map=topo_map_base,
+                                      topo_remap=topo_remap_base,
                                       planar=planar)
                 component.add_task(task)
