@@ -1,0 +1,4 @@
+ocean/spherical/icos/rotation_2d/with_viz
+ocean/spherical/icos/nondivergent_2d/with_viz
+ocean/spherical/icos/divergent_2d/with_viz
+ocean/spherical/icos/correlated_tracers_2d/with_viz
