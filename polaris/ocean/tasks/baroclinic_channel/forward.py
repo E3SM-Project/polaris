@@ -72,10 +72,6 @@ class Forward(OceanModelStep):
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
-        if nu is not None:
-            # update the viscosity to the requested value
-            self.add_model_config_options(options=dict(config_mom_del2=nu))
-
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
@@ -86,6 +82,11 @@ class Forward(OceanModelStep):
 
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')
+
+        if nu is not None:
+            # update the viscosity to the requested value *after* loading
+            # forward.yaml
+            self.add_model_config_options(options=dict(config_mom_del2=nu))
 
         self.add_output_file(
             filename='output.nc',

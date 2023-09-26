@@ -68,7 +68,8 @@ class Rpe(Task):
         component = self.component
         resolution = self.resolution
 
-        nus = config.getlist('baroclinic_channel', 'viscosities', dtype=float)
+        nus = config.getlist('baroclinic_channel_rpe', 'viscosities',
+                             dtype=float)
         for nu in nus:
             name = f'nu_{nu:g}'
             step = Forward(

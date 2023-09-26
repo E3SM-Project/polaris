@@ -78,6 +78,8 @@ class CosineBell(Task):
         super().configure()
         config = self.config
         config.add_from_package('polaris.mesh', 'mesh.cfg')
+        config.add_from_package('polaris.ocean.tasks.cosine_bell',
+                                'cosine_bell.cfg')
 
         # set up the steps again in case a user has provided new resolutions
         self._setup_steps(config)
