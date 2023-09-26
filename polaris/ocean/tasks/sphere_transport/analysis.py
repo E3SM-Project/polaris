@@ -165,15 +165,17 @@ def _compute_error_from_output_ncfile(dataset, lev=1):
         a dictionary containing the linf and l2 relative errors for each of the
         3 debug tracers.
     """
+    tidx = 12  # this should correspond to 12 days
+    tidx_filament = 6  # this should correspond to 6 days
     tracer1 = dataset["tracer1"].values
     tracer2 = dataset["tracer2"].values
     tracer3 = dataset["tracer3"].values
     tracer1_exact = tracer1[0, :, lev]
     tracer2_exact = tracer2[0, :, lev]
     tracer3_exact = tracer3[0, :, lev]
-    tracer1_error = np.abs(tracer1[12, :, lev] - tracer1_exact)
-    tracer2_error = np.abs(tracer2[12, :, lev] - tracer2_exact)
-    tracer3_error = np.abs(tracer3[12, :, lev] - tracer3_exact)
+    tracer1_error = np.abs(tracer1[tidx, :, lev] - tracer1_exact)
+    tracer2_error = np.abs(tracer2[tidx, :, lev] - tracer2_exact)
+    tracer3_error = np.abs(tracer3[tidx, :, lev] - tracer3_exact)
     tracer1_max = np.amax(tracer1_exact)
     tracer2_max = np.amax(tracer2_exact)
     tracer3_max = np.amax(tracer3_exact)
@@ -214,42 +216,34 @@ def _compute_error_from_output_ncfile(dataset, lev=1):
     under2 = []
     over3 = []
     under3 = []
-    if dataset.sizes["Time"] == 13:
-        for i in range(13):
-            dmax1 = tracer1[i, :, lev] - tracer1_max
-            dmax2 = tracer2[i, :, lev] - tracer2_max
-            dmax3 = tracer3[i, :, lev] - tracer3_max
-            dmin1 = tracer1[i, :, lev] - tracer1_min
-            dmin2 = tracer2[i, :, lev] - tracer2_min
-            dmin3 = tracer3[i, :, lev] - tracer3_min
-            isover1 = dmax1 > 0
-            isunder1 = dmin1 < 0
-            isover2 = dmax2 > 0
-            isunder2 = dmin2 < 0
-            isover3 = dmax3 > 0
-            isunder3 = dmin3 < 0
-            over1.append(np.amax(dmax1 * isover1) /
-                         (tracer1_max - tracer1_min))
-            under1.append(np.amax(-dmin1 * isunder1) /
-                          (tracer1_max - tracer1_min))
-            over2.append(np.amax(dmax2 * isover2) /
-                         (tracer2_max - tracer2_min))
-            under2.append(np.amax(-dmin2 * isunder2) /
-                          (tracer2_max - tracer2_min))
-            over3.append(np.amax(dmax3 * isover3) /
-                         (tracer3_max - tracer3_min))
-            under3.append(np.amax(-dmin3 * isunder3) /
-                          (tracer3_max - tracer3_min))
-    else:
-        over1 = [0]
-        over2 = [0]
-        over3 = [0]
-        under1 = [0]
-        under2 = [0]
-        under3 = [0]
-    tracer1_mass12 = np.sum(cell_area * tracer1[12, :, lev])
-    tracer2_mass12 = np.sum(cell_area * tracer2[12, :, lev])
-    tracer3_mass12 = np.sum(cell_area * tracer3[12, :, lev])
+    for i in range(dataset.sizes["Time"]):
+        dmax1 = tracer1[i, :, lev] - tracer1_max
+        dmax2 = tracer2[i, :, lev] - tracer2_max
+        dmax3 = tracer3[i, :, lev] - tracer3_max
+        dmin1 = tracer1[i, :, lev] - tracer1_min
+        dmin2 = tracer2[i, :, lev] - tracer2_min
+        dmin3 = tracer3[i, :, lev] - tracer3_min
+        isover1 = dmax1 > 0
+        isunder1 = dmin1 < 0
+        isover2 = dmax2 > 0
+        isunder2 = dmin2 < 0
+        isover3 = dmax3 > 0
+        isunder3 = dmin3 < 0
+        over1.append(np.amax(dmax1 * isover1) /
+                     (tracer1_max - tracer1_min))
+        under1.append(np.amax(-dmin1 * isunder1) /
+                      (tracer1_max - tracer1_min))
+        over2.append(np.amax(dmax2 * isover2) /
+                     (tracer2_max - tracer2_min))
+        under2.append(np.amax(-dmin2 * isunder2) /
+                      (tracer2_max - tracer2_min))
+        over3.append(np.amax(dmax3 * isover3) /
+                     (tracer3_max - tracer3_min))
+        under3.append(np.amax(-dmin3 * isunder3) /
+                      (tracer3_max - tracer3_min))
+    tracer1_mass12 = np.sum(cell_area * tracer1[tidx, :, lev])
+    tracer2_mass12 = np.sum(cell_area * tracer2[tidx, :, lev])
+    tracer3_mass12 = np.sum(cell_area * tracer3[tidx, :, lev])
     tracer1_masserr = np.abs(tracer1_mass0 - tracer1_mass12) / tracer1_mass0
     tracer2_masserr = np.abs(tracer2_mass0 - tracer2_mass12) / tracer2_mass0
     tracer3_masserr = np.abs(tracer3_mass0 - tracer3_mass12) / tracer3_mass0
@@ -257,7 +251,7 @@ def _compute_error_from_output_ncfile(dataset, lev=1):
     filament_area = np.zeros(21)
     filament_area0 = np.ones(21)
     for i, tau in enumerate(filament_tau):
-        cells_above_tau = tracer2[6, :, lev] >= tau
+        cells_above_tau = tracer2[tidx_filament, :, lev] >= tau
         cells_above_tau0 = tracer2[0, :, lev] >= tau
         filament_area[i] = np.sum(cell_area * cells_above_tau)
         filament_area0[i] = np.sum(cells_above_tau0 * cell_area)
@@ -441,7 +435,6 @@ def _plot_convergence(
 
     resvals : numpy.ndarray
         An integer array of resolution values, e.g., [120, 240]
-        for ``QU120`` and ``QU240``
 
     linf1 : numpy.ndarray
         the linf error for tracer1
@@ -526,5 +519,5 @@ def _plot_convergence(
     ax.set_xticks(dlambda)
     ax.set_xticklabels(resvals)
     ax.tick_params(which='minor', labelbottom=False)
-    ax.set(title=tcname, xlabel='QU res. val.', ylabel='rel. err.')
+    ax.set(title=tcname, xlabel='Resolution (km)', ylabel='Relative error')
     ax.legend(bbox_to_anchor=(1.05, 0.5), loc='center left')
