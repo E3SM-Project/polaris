@@ -9,6 +9,7 @@ from polaris.ocean.tasks.manufactured_solution import (
     add_manufactured_solution_tasks,
 )
 from polaris.ocean.tasks.single_column import add_single_column_tasks
+from polaris.ocean.tasks.sphere_transport import add_sphere_transport_tasks
 
 
 class Ocean(Component):
@@ -29,6 +30,7 @@ class Ocean(Component):
 
         # single column
         add_single_column_tasks(component=self)
+        add_sphere_transport_tasks(component=self)
 
         # spherical: please keep these in alphabetical order
         add_cosine_bell_tasks(component=self)
