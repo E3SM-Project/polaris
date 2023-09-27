@@ -47,10 +47,6 @@ class InertialGravityWave(Task):
                           taskdir=self.subdir),
                       run_by_default=False)
 
-    def configure(self):
-        """
-        Add the config file common to inertial gravity wave tests
-        """
         self.config.add_from_package(
             'polaris.ocean.tasks.inertial_gravity_wave',
             'inertial_gravity_wave.cfg')
