@@ -42,6 +42,8 @@ class Component:
         self.tasks = dict()
         # steps are added with add_step()
         self.steps = dict()
+        # configs are added with add_config()
+        self.configs = dict()
 
         self.cached_files = dict()
         self._read_cached_files()
@@ -87,6 +89,24 @@ class Component:
             raise ValueError(f'step {step.name} not in this component '
                              f'{self.name}')
         self.steps.pop(step.subdir)
+
+    def add_config(self, config):
+        """
+        Add a shared config to the component
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            The config to add
+        """
+        if config.filepath is None:
+            raise ValueError('The filepath attribute of a config must be set '
+                             'before it can be added to a component')
+        if config.filepath in self.configs and \
+                self.configs[config.filepath] != config:
+            raise ValueError(f'A different shared config has already been '
+                             f'added at {config.filepath}')
+        self.configs[config.filepath] = config
 
     def configure(self, config):
         """
