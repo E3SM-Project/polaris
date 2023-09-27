@@ -93,6 +93,9 @@ class Step:
     is_dependency : bool
         Whether this step is the dependency of one or more other steps.
 
+    tasks : dict
+        The tasks this step is used in
+
     config : polaris.config.PolarisConfigParser
         Configuration options for this task, a combination of the defaults
         for the machine, core and configuration
@@ -231,6 +234,7 @@ class Step:
         self.args = None
         self.dependencies = dict()
         self.is_dependency = False
+        self.tasks = dict()
 
         # these will be set later during setup, dummy placeholders for now
         self.config = PolarisConfigParser()

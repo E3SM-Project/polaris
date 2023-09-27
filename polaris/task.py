@@ -173,6 +173,7 @@ class Task:
         component.add_step(step)
 
         self.steps[step.name] = step
+        step.tasks[self.subdir] = self
         if symlink:
             self.step_symlinks[step.name] = symlink
         if run_by_default:
