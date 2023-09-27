@@ -65,10 +65,11 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
 
     # get the config file for the first task in the suite
     task = next(iter(suite['tasks'].values()))
-    config_filename = os.path.join(task.work_dir,
-                                   task.config_filename)
-    config = setup_config(config_filename)
-    available_resources = get_available_parallel_resources(config)
+    component = task.component
+    config_filename = \
+        f'{task.base_work_dir}/{component.name}/{component.name}.cfg'
+    common_config = setup_config(config_filename)
+    available_resources = get_available_parallel_resources(common_config)
 
     # start logging to stdout/stderr
     with LoggingContext(suite_name) as stdout_logger:
@@ -139,7 +140,10 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     if step_is_subprocess:
         step.run_as_subprocess = False
 
-    config = setup_config(step.config_filename)
+    config_filename = os.path.join(step.base_work_dir,
+                                   step.component.name,
+                                   step.config.filepath)
+    config = setup_config(config_filename)
     task.config = config
     available_resources = get_available_parallel_resources(config)
     set_cores_per_node(task.config, available_resources['cores_per_node'])
@@ -209,13 +213,14 @@ def main():
                              'which to run: polaris serial <suite>')
 
 
-def _update_steps_to_run(steps_to_run, steps_to_skip, config, steps):
+def _update_steps_to_run(task_name, steps_to_run, steps_to_skip, config,
+                         steps):
     """
     Update the steps to run
     """
     if steps_to_run is None:
-        steps_to_run = config.get('task',
-                                  'steps_to_run').replace(',', ' ').split()
+        step_str = config.get(task_name, 'steps_to_run').replace(',', ' ')
+        steps_to_run = step_str.split()
 
     for step in steps_to_run:
         if step not in steps:
@@ -297,7 +302,10 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
 
         os.chdir(task.work_dir)
 
-        config = setup_config(task.config_filename)
+        config_filename = os.path.join(task.base_work_dir,
+                                       task.component.name,
+                                       task.config.filepath)
+        config = setup_config(config_filename)
         task.config = config
         set_cores_per_node(task.config,
                            available_resources['cores_per_node'])
@@ -306,7 +314,7 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         mpas_tools.io.default_engine = config.get('io', 'engine')
 
         task.steps_to_run = _update_steps_to_run(
-            steps_to_run, steps_to_skip, config, task.steps)
+            task.name, steps_to_run, steps_to_skip, config, task.steps)
 
         task_start = time.time()
 
@@ -367,7 +375,11 @@ def _run_task(task, available_resources):
 
         step_start = time.time()
 
-        step.config = task.config
+        config_filename = os.path.join(step.base_work_dir,
+                                       step.component.name,
+                                       step.config.filepath)
+
+        step.config = setup_config(config_filename)
         if task.log_filename is not None:
             step_log_filename = task.log_filename
         else:
