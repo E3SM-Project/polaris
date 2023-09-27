@@ -46,10 +46,3 @@ class Restart(Task):
         self.add_step(Validate(component=component,
                                step_subdirs=['full_run', 'restart_run'],
                                indir=self.subdir))
-
-    def configure(self):
-        """
-        Add the config file common to baroclinic channel tests
-        """
-        self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
-                                     'baroclinic_channel.cfg')
