@@ -5,6 +5,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.ocean.resolution import resolution_to_subdir
 
 
 class Analysis(Step):
@@ -13,14 +14,15 @@ class Analysis(Step):
 
     Attributes
     ----------
-    resolutions : list of int
+    resolutions : list of float
         The resolutions of the meshes that have been run
 
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW
         meshes
     """
-    def __init__(self, component, resolutions, icosahedral, subdir):
+    def __init__(self, component, resolutions, icosahedral, subdir,
+                 dependencies):
         """
         Create the step
 
@@ -29,7 +31,7 @@ class Analysis(Step):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of int
+        resolutions : list of float
             The resolutions of the meshes that have been run
 
         icosahedral : bool
@@ -38,22 +40,28 @@ class Analysis(Step):
 
         subdir : str
             The subdirectory that the step resides in
+
+        dependencies : dict of dict of polaris.Steps
+            The dependencies of this step
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
         self.icosahedral = icosahedral
 
         for resolution in resolutions:
-            mesh_name = f'{resolution:g}km'
+            mesh_name = resolution_to_subdir(resolution)
+            base_mesh = dependencies['mesh'][resolution]
+            init = dependencies['init'][resolution]
+            forward = dependencies['forward'][resolution]
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
-                target=f'../base_mesh/{mesh_name}/base_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
-                target=f'../init/{mesh_name}/initial_state.nc')
+                work_dir_target=f'{init.path}/initial_state.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_output.nc',
-                target=f'../forward/{mesh_name}/output.nc')
+                work_dir_target=f'{forward.path}/output.nc')
 
         self.add_output_file('convergence.png')
 
@@ -65,8 +73,8 @@ class Analysis(Step):
         resolutions = self.resolutions
         xdata = list()
         ydata = list()
-        for res in resolutions:
-            mesh_name = f'{res:g}km'
+        for resolution in resolutions:
+            mesh_name = resolution_to_subdir(resolution)
             rmseValue, nCells = self.rmse(mesh_name)
             xdata.append(nCells)
             ydata.append(rmseValue)
@@ -125,7 +133,8 @@ class Analysis(Step):
         lonCent = config.getfloat('cosine_bell', 'lon_center')
         radius = config.getfloat('cosine_bell', 'radius')
         psi0 = config.getfloat('cosine_bell', 'psi0')
-        pd = config.getfloat('cosine_bell', 'vel_pd')
+        convergence_eval_time = config.getfloat('spherical_convergence',
+                                                'convergence_eval_time')
 
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
@@ -135,7 +144,7 @@ class Analysis(Step):
             tt = str(ds.xtime[j].values)
             tt.rfind('_')
             DY = float(tt[10:12]) - 1
-            if DY == pd:
+            if DY == convergence_eval_time:
                 sliceTime = j
                 break
         HR = float(tt[13:15])
@@ -144,7 +153,7 @@ class Analysis(Step):
         # find new location of blob center
         # center is based on equatorial velocity
         R = ds_mesh.sphere_radius
-        distTrav = 2.0 * 3.14159265 * R / (86400.0 * pd) * t
+        distTrav = 2.0 * 3.14159265 * R / (86400.0 * convergence_eval_time) * t
         # distance in radians is
         distRad = distTrav / R
         newLon = lonCent + distRad

@@ -16,7 +16,9 @@ The config options for the `cosine_bell` tests are described in
 Additionally, the test uses a `forward.yaml` file with a few common
 model config options related to drag and default horizontal and
 vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
-`restart`, and `output` streams.
+`restart`, and `output` streams.  This file has Jinja templating that is
+used to update model config options based on Polaris config options, see
+{ref}`dev-ocean-spherical-convergence`.
 
 ### base_mesh
 
@@ -32,10 +34,12 @@ tracer distributed in a cosine-bell shape.
 ### forward
 
 The class {py:class}`polaris.ocean.tasks.cosine_bell.forward.Forward`
-defines a step for running MPAS-Ocean from an initial condition produced in
-an `init` step.  The time step is determined from the resolution
-based on the `dt_per_km` config option.  Other namelist options are taken
-from the task's `forward.yaml`.
+descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
+and defines a step for running MPAS-Ocean from an initial condition produced in
+an `init` step. See {ref}`dev-ocean-spherical-convergence` for some relevant
+discussion of the parent class. The time step is determined from the resolution
+based on the `dt_per_km` config option in the `[spherical_convergences]` 
+section.  Other model config options are taken from `forward.yaml`.
 
 ### analysis
 

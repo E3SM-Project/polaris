@@ -459,10 +459,21 @@ config files within the task or its shared framework. The `self.config`
 attribute that is modified in this function will be written to a config file
 for the task (see {ref}`config-files`).
 
-If you override this method in a task, you should assume that the
-`<task.name>.cfg` file in its package has already been added to the
-config options prior to calling `configure()`.  This happens automatically
-before running the task.
+If you define a `<task.name>.cfg` file, you will want to override this method 
+to add those config options, e.g.:
+
+```python
+from polaris import Task
+
+class InertialGravityWave(Task):
+    def configure(self):
+        """
+        Add the config file common to inertial gravity wave tests
+        """
+        self.config.add_from_package(
+            'polaris.ocean.tasks.inertial_gravity_wave',
+            'inertial_gravity_wave.cfg')
+```
 
 Since many tasks may need similar behavior in their `configure()` methods, it 
 is sometimes useful to define a parent class that overrides the 
@@ -472,24 +483,19 @@ the `configure()` method with their own additional changes.
 
 A `configure()` method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
-creating a symlink to a README file that is shared across the whole task,
-as in {py:meth}`polaris.ocean.tasks.global_ocean.files_for_e3sm.FilesForE3SM.configure()`:
+creating a symlink to a README file that is shared across the whole task:
 
 ```python
-from importlib.resources import path
-
-from polaris.ocean.tasks.global_ocean.configure import configure_global_ocean
-from polaris.io import symlink
+from polaris.io import imp_res, symlink
 
 
 def configure(self):
     """
     Modify the configuration options for this task
     """
-    configure_global_ocean(task=self, mesh=self.mesh, init=self.init)
-    with path('polaris.ocean.tasks.global_ocean.files_for_e3sm',
-              'README') as target:
-        symlink(str(target), '{}/README'.format(self.work_dir))
+    package = 'compass.ocean.tests.global_ocean.files_for_e3sm'
+    target = imp_res.files(package).joinpath('README')
+    symlink(str(target), f'{self.work_dir}/README')
 ```
 
 The `configure()` method is not the right place for adding or modifying steps
