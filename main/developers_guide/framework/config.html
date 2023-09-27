@@ -153,16 +153,15 @@ the file is in the path <code class="docutils literal notranslate"><span class="
 that the config file should always exist, so we would like the code to raise
 an exception (<code class="docutils literal notranslate"><span class="pre">exception=True</span></code>) if the file is not found.  This is the
 default behavior.  In some cases, you would like the code to add the config
-options if the config file exists and do nothing if it does not.  This can
-be useful if a common configure function is being used for all test
-cases in a configuration, as in this example from
-<code class="xref py py-func docutils literal notranslate"><span class="pre">setup.setup_task()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># add the config options for the task (if defined)</span>
-<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+options if the config file exists and do nothing if it does not.  In this
+example from <a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>, there may not be a config
+file for the particular machine we’re on, and that’s fine:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+                            <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If a task doesn’t have any config options, nothing will happen.</p>
+<p>If there isn’t a config file for this machine, nothing will happen.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> class also includes methods for adding a user
 config file and other config files by file name, but these are largely intended
 for use by the framework rather than individual tasks.</p>

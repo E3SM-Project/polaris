@@ -166,22 +166,31 @@ there are 4 variants of the task:</p>
 </div>
 <p>The default resolutions used in the task depends on the mesh type.</p>
 <p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
+<span class="na">icos_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
 </pre></div>
 </div>
 <p>for the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
+<span class="na">qu_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
 </pre></div>
 </div>
 <p>To alter the resolutions used in this task, you will need to create your own
-config file (or add a <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> section to a config file if you’re
-already using one).  The resolutions are a comma-separated list of the
+config file (or add a <code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section to a config file if
+you’re already using one).  The resolutions are a comma-separated list of the
 resolution of the mesh in km.  If you specify a different list
 before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
-resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">resolutions</span></code> in the task’s config file in
-the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes, make sure you
-use a resolution close to those listed in <a class="reference internal" href="../../../developers_guide/framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each
-resolution will be rounded to the nearest allowed icosahedral resolution.</p>
+resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code>) in the
+task’s config file in the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code>
+meshes, make sure you use a resolution close to those listed in
+<a class="reference internal" href="../../../developers_guide/framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each resolution will be rounded to the nearest
+allowed icosahedral resolution.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps are shared with other tasks so they are not housed in
 the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> work directory.  Instead, they are in work directories like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
@@ -260,20 +269,47 @@ field remains at the initial velocity <span class="math notranslate nohighlight"
 </section>
 <section id="time-step-and-run-duration">
 <h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
-<p>The time step for forward integration is determined by multiplying the
-resolution by <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>, so that coarser meshes have longer time steps.
-You can alter this before setup (in a user config file) or before running the
-task (in the config file in the work directory). The run duration is 24
-days.</p>
+<p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
+for forward integration is determined by multiplying the resolution by a config
+option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence_forward]</span>
+
+<span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+</pre></div>
+</div>
+<p>The convergence_eval_time, run duration and output interval are the period for
+advection to make a full rotation around the globe, 24 days:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in days)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence_forward]</span>
+
+<span class="c1"># Run duration in days</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># Output interval in days</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+</pre></div>
+</div>
+<p>Her, <code class="docutils literal notranslate"><span class="pre">${cosine_bell:vel_pd}</span></code> means that the same value is used as in the
+option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> in section <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code>, see below.</p>
 </section>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> config options include:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for cosine bell convergence test case</span>
 <span class="k">[cosine_bell]</span>
-
-<span class="c1"># time step per resolution (s/km), since dt is proportional to resolution</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
 
 <span class="c1"># the constant temperature of the domain</span>
 <span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
@@ -333,8 +369,6 @@ days.</p>
 <span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> option <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code> is used to control the time step, as
-discussed above in more detail.</p>
 <p>The 7 options from <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> are used to control properties of
 the cosine bell and the rest of the sphere, as well as the advection.</p>
 <p>The options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining

@@ -279,12 +279,12 @@
 <td><p>Add tasks that define variants of the cosine bell test case</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell</span></code></a>(component, icosahedral, include_viz)</p></td>
-<td><p>A test case for creating a global MPAS-Ocean mesh</p></td>
+<td><p>A convergence test for the advection of a cosine-bell tracer</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.cosine_bell.CosineBell.configure" title="polaris.ocean.tasks.cosine_bell.CosineBell.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, mesh_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, base_mesh)</p></td>
 <td><p>A step for an initial condition for for the cosine bell test case</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.Init.run.html#polaris.ocean.tasks.cosine_bell.init.Init.run" title="polaris.ocean.tasks.cosine_bell.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
@@ -308,13 +308,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.rmse</span></code></a>(mesh_name)</p></td>
 <td><p>Compute the RMSE for a given resolution</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, mesh_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for making a mapping file for cosine bell viz</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.run.html#polaris.ocean.tasks.cosine_bell.viz.VizMap.run" title="polaris.ocean.tasks.cosine_bell.viz.VizMap.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, viz_map, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.run.html#polaris.ocean.tasks.cosine_bell.viz.Viz.run" title="polaris.ocean.tasks.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
@@ -414,8 +414,22 @@
 </section>
 <section id="ocean-framework">
 <h2>Ocean Framework<a class="headerlink" href="#ocean-framework" title="Permalink to this heading"></a></h2>
-<section id="oceanmodelstep">
-<h3>OceanModelStep<a class="headerlink" href="#oceanmodelstep" title="Permalink to this heading"></a></h3>
+<section id="spherical-convergence-tests">
+<h3>Spherical Convergence Tests<a class="headerlink" href="#spherical-convergence-tests" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceForward</span></code></a>(component, name, ...)</p></td>
+<td><p>A step for performing forward ocean component runs as part of a spherical convergence test</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ocean-model">
+<h3>Ocean Model<a class="headerlink" href="#ocean-model" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
@@ -436,6 +450,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_to_namelist</span></code></a>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
+<td><p>Convert a time interval in days and/or seconds to a string for use in a model config option.</p></td>
 </tr>
 </tbody>
 </table>

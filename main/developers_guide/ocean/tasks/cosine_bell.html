@@ -139,7 +139,9 @@ determine the rate of convergence.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common
 model config options related to drag and default horizontal and
 vertical momentum and tracer diffusion, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>,
-<code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.</p>
+<code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.  This file has Jinja templating that is
+used to update model config options based on Polaris config options, see
+<a class="reference internal" href="../framework.html#dev-ocean-spherical-convergence"><span class="std std-ref">Spherical Convergence Tests</span></a>.</p>
 <section id="base-mesh">
 <h3>base_mesh<a class="headerlink" href="#base-mesh" title="Permalink to this heading"></a></h3>
 <p>Cosine bell tasks use shared <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps for creating
@@ -154,10 +156,12 @@ tracer distributed in a cosine-bell shape.</p>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward" title="polaris.ocean.tasks.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.forward.Forward</span></code></a>
-defines a step for running MPAS-Ocean from an initial condition produced in
-an <code class="docutils literal notranslate"><span class="pre">init</span></code> step.  The time step is determined from the resolution
-based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option.  Other namelist options are taken
-from the task’s <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
+and defines a step for running MPAS-Ocean from an initial condition produced in
+an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-spherical-convergence"><span class="std std-ref">Spherical Convergence Tests</span></a> for some relevant
+discussion of the parent class. The time step is determined from the resolution
+based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[spherical_convergences]</span></code>
+section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>

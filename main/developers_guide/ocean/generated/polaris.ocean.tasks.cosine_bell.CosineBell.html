@@ -128,11 +128,11 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.cosine_bell.CosineBell">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.cosine_bell.</span></span><span class="sig-name descname"><span class="pre">CosineBell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/cosine_bell.html#CosineBell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.cosine_bell.CosineBell" title="Permalink to this definition"></a></dt>
-<dd><p>A test case for creating a global MPAS-Ocean mesh</p>
+<dd><p>A convergence test for the advection of a cosine-bell tracer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolutions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – A list of mesh resolutions</p></li>
+<li><p><strong>resolutions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – A list of mesh resolutions</p></li>
 <li><p><strong>icosahedral</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to use icosahedral, as opposed to less regular, JIGSAW meshes</p></li>
 <li><p><strong>include_viz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Include VizMap and Viz steps for each resolution</p></li>
 </ul>
@@ -141,7 +141,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.cosine_bell.CosineBell.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/cosine_bell.html#CosineBell.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.cosine_bell.CosineBell.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create test case for creating a global MPAS-Ocean mesh</p>
+<dd><p>Create the convergence test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -162,7 +162,7 @@ meshes</p></li>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.tasks.cosine_bell.CosineBell.__init__" title="polaris.ocean.tasks.cosine_bell.CosineBell.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, icosahedral, include_viz)</p></td>
-<td><p>Create test case for creating a global MPAS-Ocean mesh</p></td>
+<td><p>Create the convergence test</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
 <td><p>Add a step to the task and component (if not already present)</p></td>

@@ -33,18 +33,16 @@ the file is in the path `polaris/ocean/tasks/baroclinic_channel`
 that the config file should always exist, so we would like the code to raise
 an exception (`exception=True`) if the file is not found.  This is the
 default behavior.  In some cases, you would like the code to add the config
-options if the config file exists and do nothing if it does not.  This can
-be useful if a common configure function is being used for all test
-cases in a configuration, as in this example from
-{py:func}`setup.setup_task()`:
+options if the config file exists and do nothing if it does not.  In this 
+example from {py:func}`polaris.setup.setup_task()`, there may not be a config 
+file for the particular machine we're on, and that's fine:
 
 ```python
-# add the config options for the task (if defined)
-config.add_from_package(task.__module__,
-                        f'{task.name}.cfg', exception=False)
+if machine is not None:
+    config.add_from_package('mache.machines', f'{machine}.cfg',
+                            exception=False)
 ```
-
-If a task doesn't have any config options, nothing will happen.
+If there isn't a config file for this machine, nothing will happen.
 
 The `MpasConfigParser` class also includes methods for adding a user
 config file and other config files by file name, but these are largely intended
