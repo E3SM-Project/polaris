@@ -113,8 +113,9 @@
 <span class="kn">from</span> <span class="nn">pyremap</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">LatLon2DGridDescriptor</span><span class="p">,</span>
     <span class="n">LatLonGridDescriptor</span><span class="p">,</span>
+    <span class="n">MpasCellMeshDescriptor</span><span class="p">,</span>
     <span class="n">MpasEdgeMeshDescriptor</span><span class="p">,</span>
-    <span class="n">MpasMeshDescriptor</span><span class="p">,</span>
+    <span class="n">MpasVertexMeshDescriptor</span><span class="p">,</span>
     <span class="n">PointCollectionDescriptor</span><span class="p">,</span>
     <span class="n">ProjectionGridDescriptor</span><span class="p">,</span>
     <span class="n">Remapper</span><span class="p">,</span>
@@ -484,10 +485,10 @@
     <span class="n">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
 
     <span class="n">src_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span>
-    <span class="n">src_loc</span> <span class="o">=</span> <span class="n">_write_mesh_and_get_location</span><span class="p">(</span><span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">)</span>
+    <span class="n">src_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">src_mesh_filename</span><span class="p">)</span>
 
     <span class="n">dst_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span>
-    <span class="n">dst_loc</span> <span class="o">=</span> <span class="n">_write_mesh_and_get_location</span><span class="p">(</span><span class="n">dst_descriptor</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">)</span>
+    <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">dst_mesh_filename</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ESMF_RegridWeightGen&#39;</span><span class="p">,</span>
             <span class="s1">&#39;--source&#39;</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
@@ -496,11 +497,6 @@
             <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
             <span class="s1">&#39;--netcdf4&#39;</span><span class="p">,</span>
             <span class="s1">&#39;--no_log&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">src_loc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;--src_loc&#39;</span><span class="p">,</span> <span class="n">src_loc</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">dst_loc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;--dst_loc&#39;</span><span class="p">,</span> <span class="n">dst_loc</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--src_regional&#39;</span><span class="p">)</span>
@@ -524,38 +520,6 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> not supported for destination &#39;</span>
                          <span class="s1">&#39;grid of type PointCollectionDescriptor.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span><span class="p">,</span> <span class="n">MpasMeshDescriptor</span><span class="p">)</span> <span class="ow">and</span> \
-            <span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;conserve&#39;</span> <span class="ow">in</span> <span class="n">method</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t remap from MPAS vertices with &#39;</span>
-                             <span class="s1">&#39;conservative methods&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span><span class="p">,</span> <span class="n">MpasMeshDescriptor</span><span class="p">)</span> <span class="ow">and</span> \
-            <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;conserve&#39;</span> <span class="ow">in</span> <span class="n">method</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t remap to MPAS vertices with &#39;</span>
-                             <span class="s1">&#39;conservative methods&#39;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_write_mesh_and_get_location</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span>
-                  <span class="p">(</span><span class="n">MpasMeshDescriptor</span><span class="p">,</span> <span class="n">MpasEdgeMeshDescriptor</span><span class="p">)):</span>
-        <span class="n">file_format</span> <span class="o">=</span> <span class="s1">&#39;esmf&#39;</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">to_esmf</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">file_format</span> <span class="o">=</span> <span class="s1">&#39;scrip&#39;</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s1">&#39;esmf&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">MpasMeshDescriptor</span><span class="p">)</span> <span class="ow">and</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;corner&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;center&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">return</span> <span class="n">location</span>
-
 
 <span class="k">def</span> <span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a mesh descriptor from the mesh info &quot;&quot;&quot;</span>
@@ -574,17 +538,17 @@
 
 
 <span class="k">def</span> <span class="nf">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get an MpasMeshDescriptor from the given info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get an MPAS mesh descriptor from the given info &quot;&quot;&quot;</span>
     <span class="n">mesh_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;mpas_mesh_type&#39;</span><span class="p">]</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
     <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;cell&#39;</span><span class="p">:</span>
-        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasMeshDescriptor</span><span class="p">(</span><span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-                                        <span class="n">vertices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasCellMeshDescriptor</span><span class="p">(</span><span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                                            <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;vertex&#39;</span><span class="p">:</span>
-        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasMeshDescriptor</span><span class="p">(</span><span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-                                        <span class="n">vertices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasVertexMeshDescriptor</span><span class="p">(</span><span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                                              <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;edge&#39;</span><span class="p">:</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasEdgeMeshDescriptor</span><span class="p">(</span><span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
                                             <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
@@ -606,8 +570,8 @@
                                             <span class="n">lonMax</span><span class="o">=</span><span class="n">lon_max</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon_var&#39;</span><span class="p">]</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat_var&#39;</span><span class="p">]</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">lon_lat_1d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lon</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lat</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="n">lon_lat_2d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lon</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lat</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
@@ -635,9 +599,9 @@
 <span class="k">def</span> <span class="nf">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a ProjectionGridDescriptor from the given info &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
-    <span class="n">grid_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x_var&#39;</span><span class="p">]</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;y_var&#39;</span><span class="p">]</span>
+    <span class="n">grid_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="s1">&#39;proj_attr&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">proj_str</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;proj_attr&#39;</span><span class="p">]]</span>
@@ -658,9 +622,9 @@
 <span class="k">def</span> <span class="nf">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a PointCollectionDescriptor from the given info &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
-    <span class="n">collection_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span>
-    <span class="n">lon_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon_var&#39;</span><span class="p">]</span>
-    <span class="n">lat_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat_var&#39;</span><span class="p">]</span>
+    <span class="n">collection_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">lon_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>
+    <span class="n">lat_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
     <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
         <span class="n">lon</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">lon_var</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="n">lat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">lat_var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
