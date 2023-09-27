@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 from mpas_tools.config import MpasConfigParser
 
@@ -13,7 +14,39 @@ class PolarisConfigParser(MpasConfigParser):
 
     This version simply overrides the ``combine()`` method to also ensure that
     certain paths are absolute, rather than relative.
+
+    Attributes
+    ----------
+    filepath : str
+        A filepath within the component's work directory where this config
+        will be written out
+
+    symlinks : list of str
+        A list of filepaths within the component's work directory where
+        symlinks to ``filepath`` will be created
+
     """
+
+    def __init__(self, filepath=None):
+        """
+        Make a new (empty) config parser
+
+        Parameters
+        ----------
+        filepath : str, optional
+            A filepath within the component's work directory where this config
+            will be written out
+        """
+        super().__init__()
+        self.filepath: Union[str, None] = filepath
+        self.symlinks = list()
+
+    def setup(self):
+        """
+        A method that can be overridden to add config options during polaris
+        setup
+        """
+        pass
 
     def combine(self, raw=False):
         """
