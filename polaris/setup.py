@@ -110,12 +110,13 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         _clean_tasks_and_steps(tasks, work_dir)
         print('')
 
+    _setup_configs(component, tasks, work_dir, config_file, machine,
+                   component_path, copy_executable)
+
     print('Setting up tasks:')
     for path, task in tasks.items():
-        setup_task(path, task, config_file, machine, work_dir,
-                   baseline_dir, component_path,
-                   cached_steps=cached_steps[path],
-                   copy_executable=copy_executable)
+        setup_task(path, task, machine, work_dir,
+                   baseline_dir, cached_steps=cached_steps[path])
 
     _check_dependencies(tasks)
 
@@ -143,8 +144,7 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     return tasks
 
 
-def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
-               component_path, cached_steps, copy_executable):
+def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     """
     Set up one or more tasks
 
@@ -156,9 +156,6 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     task : polaris.Task
         A task to set up
 
-    config_file : str
-        Configuration file with custom options for setting up and running tasks
-
     machine : str
         The name of one of the machines with defined config options, which can
         be listed with ``polaris list --machines``
@@ -169,60 +166,24 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
     baseline_dir : str
         Location of baselines that can be compared to
 
-    component_path : str
-        The relative or absolute path to the location where the model and
-        default namelists have been built
-
     cached_steps : list of str
         Which steps (if any) should be cached, identified by a list of
         subdirectories in the component
-
-    copy_executable : bool, optional
-        Whether to copy the model executable to the work directory
     """
 
     print(f'  {path}')
 
-    config = _get_basic_config(config_file, machine, component_path,
-                               task.component)
-
-    if copy_executable:
-        config.set('setup', 'copy_executable', 'True')
-
-    if 'POLARIS_BRANCH' in os.environ:
-        polaris_branch = os.environ['POLARIS_BRANCH']
-        config.set('paths', 'polaris_branch', polaris_branch)
-    else:
-        config.set('paths', 'polaris_branch', os.getcwd())
-
     task_dir = os.path.join(work_dir, path)
     try:
         os.makedirs(task_dir)
-    except OSError:
+    except FileExistsError:
         pass
     task.work_dir = task_dir
     task.base_work_dir = work_dir
 
-    # add config options specific to the task
-    task.config = config
-    task.configure()
-
     # add the baseline directory for this task
     if baseline_dir is not None:
         task.baseline_dir = os.path.join(baseline_dir, path)
-
-    # set the component_path path from the command line if provided
-    if component_path is not None:
-        component_path = os.path.abspath(component_path)
-        config.set('paths', 'component_path', component_path, user=True)
-
-    config.set('task', 'steps_to_run', ' '.join(task.steps_to_run))
-
-    # write out the config file
-    task_config_filename = f'{task.name}.cfg'
-    task.config_filename = task_config_filename
-    with open(os.path.join(task_dir, task_config_filename), 'w') as f:
-        config.write(f)
 
     if len(cached_steps) > 0:
         print_steps = ' '.join(cached_steps)
@@ -230,8 +191,7 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
 
     # iterate over steps
     for step in task.steps.values():
-        _setup_step(task, step, config, work_dir, baseline_dir, task_dir,
-                    task_config_filename)
+        _setup_step(task, step, work_dir, baseline_dir, task_dir)
 
     # wait until we've set up all the steps before pickling because steps may
     # need other steps to be set up
@@ -251,7 +211,7 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
         if machine is not None:
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
-            write_job_script(config, machine, cores, min_cores,
+            write_job_script(step.config, machine, cores, min_cores,
                              step.work_dir)
         step.setup_complete = True
 
@@ -267,7 +227,7 @@ def setup_task(path, task, config_file, machine, work_dir, baseline_dir,
 
     if machine is not None:
         max_cores, max_of_min_cores = _get_required_cores({path: task})
-        write_job_script(config, machine, max_cores, max_of_min_cores,
+        write_job_script(task.config, machine, max_cores, max_of_min_cores,
                          task_dir)
 
 
@@ -345,6 +305,133 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
         for step_name in cached_steps[path]:
             task.steps[step_name].cached = True
+
+
+def _setup_configs(component, tasks, work_dir, config_file, machine,
+                   component_path, copy_executable):
+    """ Set up config parsers for this component """
+
+    common_config = _get_basic_config(config_file, machine, component_path,
+                                      component)
+    if copy_executable:
+        common_config.set('setup', 'copy_executable', 'True')
+
+    if 'POLARIS_BRANCH' in os.environ:
+        polaris_branch = os.environ['POLARIS_BRANCH']
+        common_config.set('paths', 'polaris_branch', polaris_branch)
+    else:
+        common_config.set('paths', 'polaris_branch', os.getcwd())
+
+    initial_configs = _add_task_configs(component, tasks, common_config)
+
+    # okay, we're finally ready to configure all the tasks and add configs
+    # to the "owned" steps
+    configs = _configure_tasks_and_add_step_configs(tasks, component,
+                                                    initial_configs,
+                                                    common_config)
+
+    _write_configs(common_config, configs, component.name, work_dir)
+
+
+def _add_task_configs(component, tasks, common_config):
+    """
+    Add config parsers for tasks and steps that don't already have shared ones
+    """
+
+    # get a list of shared steps and add config files for tasks to the
+    # component
+    shared_steps = dict()
+    configs = dict()
+    for task in tasks.values():
+        for step in task.steps.values():
+            is_shared = len(step.tasks) > 1
+            if is_shared:
+                shared_steps[step.subdir] = step
+
+        if task.config.filepath is None:
+            task.config_filename = f'{task.name}.cfg'
+            task.config.filepath = os.path.join(task.subdir,
+                                                task.config_filename)
+        component.add_config(task.config)
+        configs[task.config.filepath] = task.config
+
+    # now go through all the configs and prepend the common config options,
+    # then run the setup() method for each in case there is some customization
+    for config in configs.values():
+        config.prepend(common_config)
+        config.setup()
+
+    return configs
+
+
+def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
+                                          common_config):
+    """
+    Call the configure() method for each task and add configs to "owned" steps
+    """
+
+    for task in tasks.values():
+        task.configure()
+        task.config.set(section=f'{task.name}',
+                        option='steps_to_run',
+                        value=' '.join(task.steps_to_run),
+                        comment=f'A list of steps to include when running the '
+                                f'{task.name} task')
+
+    # add configs to steps after calling task.configure() on all tasks in case
+    # new steps were added
+    configs = dict()
+    new_configs = dict()
+    for task in tasks.values():
+        configs[task.config.filepath] = task.config
+        for step in task.steps.values():
+            is_shared = len(step.tasks) > 1
+            if is_shared:
+                configs[step.config.filepath] = step.config
+                if step.config.filepath is None:
+                    step.config_filename = f'{step.name}.cfg'
+                    step.config.filepath = os.path.join(step.subdir,
+                                                        step.config_filename)
+                if step.config.filepath not in initial_configs:
+                    new_configs[step.config.filepath] = step.config
+                    component.add_config(step.config)
+            else:
+                step.set_shared_config(task.config,
+                                       link=task.config_filename)
+
+    for config in new_configs.values():
+        config.prepend(common_config)
+        config.setup()
+
+    return configs
+
+
+def _write_configs(common_config, configs, component_name, work_dir):
+    """ Write out and symlink all the config files """
+
+    # add the common config at the component level
+    common_config.filepath = f'{component_name}.cfg'
+    configs[common_config.filepath] = common_config
+
+    # finally, write out the config files and make the symlinks
+    component_work_dir = os.path.join(work_dir, component_name)
+    for config in configs.values():
+        config_filepath = os.path.join(component_work_dir, config.filepath)
+        config_dir = os.path.dirname(config_filepath)
+        try:
+            os.makedirs(config_dir)
+        except FileExistsError:
+            pass
+        with open(config_filepath, 'w') as f:
+            config.write(f)
+        for link in config.symlinks:
+            link_filepath = os.path.join(component_work_dir, link)
+            link_dir = os.path.dirname(link_filepath)
+            try:
+                os.makedirs(link_dir)
+            except FileExistsError:
+                pass
+            symlink(config_filepath, link_filepath)
 
 
 def _clean_tasks_and_steps(tasks, base_work_dir):
@@ -500,8 +587,7 @@ def _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps):
             tasks[path] = all_tasks[path]
 
 
-def _setup_step(task, step, config, work_dir, baseline_dir, task_dir,
-                task_config_filename):
+def _setup_step(task, step, work_dir, baseline_dir, task_dir):
     """ Set up a step in a task """
 
     # make the step directory if it doesn't exist
@@ -516,16 +602,11 @@ def _setup_step(task, step, config, work_dir, baseline_dir, task_dir,
         return
     try:
         os.makedirs(step_dir)
-    except OSError:
+    except FileExistsError:
         pass
-
-    symlink(os.path.join(task_dir, task_config_filename),
-            os.path.join(step_dir, task_config_filename))
 
     step.work_dir = step_dir
     step.base_work_dir = work_dir
-    step.config_filename = task_config_filename
-    step.config = config
 
     # set up the step
     step.setup()
