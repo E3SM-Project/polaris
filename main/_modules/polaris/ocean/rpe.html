@@ -114,16 +114,19 @@
 <span class="kn">from</span> <span class="nn">mpas_tools.cime.constants</span> <span class="kn">import</span> <span class="n">constants</span>
 
 
-<div class="viewcode-block" id="compute_rpe"><a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">[docs]</a><span class="k">def</span> <span class="nf">compute_rpe</span><span class="p">(</span><span class="n">initial_state_file_name</span><span class="p">,</span> <span class="n">output_files</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_rpe"><a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">[docs]</a><span class="k">def</span> <span class="nf">compute_rpe</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">initial_state_filename</span><span class="p">,</span> <span class="n">output_filenames</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the reference (resting) potential energy for the whole domain</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    initial_state_file_name : str</span>
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        Name of the netCDF file containing the MPAS horizontal mesh variables</span>
+
+<span class="sd">    initial_state_filename : str</span>
 <span class="sd">        Name of the netCDF file containing the initial state</span>
 
-<span class="sd">    output_files : list</span>
+<span class="sd">    output_filenames : list</span>
 <span class="sd">        List of netCDF files containing output of forward steps</span>
 
 <span class="sd">    Returns</span>
@@ -131,21 +134,22 @@
 <span class="sd">    rpe : numpy.ndarray</span>
 <span class="sd">        the reference potential energy of size ``Time`` x ``len(output_files)``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_files</span><span class="p">)</span>
+    <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_files</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide at least one output filename&#39;</span><span class="p">)</span>
 
     <span class="n">gravity</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_G&#39;</span><span class="p">]</span>
 
-    <span class="n">dsInit</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">initial_state_file_name</span><span class="p">)</span>
-    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+    <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">initial_state_filename</span><span class="p">)</span>
+    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
 
-    <span class="n">xEdge</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">xEdge</span>
-    <span class="n">yEdge</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">yEdge</span>
-    <span class="n">areaCell</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="n">minLevelCell</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="n">bottomDepth</span> <span class="o">=</span> <span class="n">dsInit</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span>
+    <span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span>
+    <span class="n">areaCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
+    <span class="n">minLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">bottomDepth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
 
     <span class="n">areaCellMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">areaCell</span><span class="p">,</span> <span class="p">(</span><span class="n">nVertLevels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="n">bottomMax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -163,13 +167,13 @@
                                <span class="n">vert_index</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span><span class="p">)</span>
     <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">output_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
         <span class="n">nt</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
         <span class="n">xtime</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span>
 
     <span class="n">rpe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_files</span><span class="p">,</span> <span class="n">nt</span><span class="p">))</span>
 
-    <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">out_filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_files</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">out_filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">):</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
 
