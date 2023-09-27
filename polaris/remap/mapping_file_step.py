@@ -5,8 +5,9 @@ import xarray as xr
 from pyremap import (
     LatLon2DGridDescriptor,
     LatLonGridDescriptor,
+    MpasCellMeshDescriptor,
     MpasEdgeMeshDescriptor,
-    MpasMeshDescriptor,
+    MpasVertexMeshDescriptor,
     PointCollectionDescriptor,
     ProjectionGridDescriptor,
     Remapper,
@@ -376,10 +377,10 @@ def _build_mapping_file_args(remapper, method, src_mesh_filename='src_mesh.nc',
     _check_remapper(remapper, method)
 
     src_descriptor = remapper.sourceDescriptor
-    src_loc = _write_mesh_and_get_location(src_descriptor, src_mesh_filename)
+    src_descriptor.to_scrip(src_mesh_filename)
 
     dst_descriptor = remapper.destinationDescriptor
-    dst_loc = _write_mesh_and_get_location(dst_descriptor, dst_mesh_filename)
+    dst_descriptor.to_scrip(dst_mesh_filename)
 
     args = ['ESMF_RegridWeightGen',
             '--source', src_mesh_filename,
@@ -388,11 +389,6 @@ def _build_mapping_file_args(remapper, method, src_mesh_filename='src_mesh.nc',
             '--method', method,
             '--netcdf4',
             '--no_log']
-
-    if src_loc is not None:
-        args.extend(['--src_loc', src_loc])
-    if dst_loc is not None:
-        args.extend(['--dst_loc', dst_loc])
 
     if src_descriptor.regional:
         args.append('--src_regional')
@@ -416,38 +412,6 @@ def _check_remapper(remapper, method):
         raise ValueError(f'method {method} not supported for destination '
                          'grid of type PointCollectionDescriptor.')
 
-    if isinstance(remapper.sourceDescriptor, MpasMeshDescriptor) and \
-            remapper.sourceDescriptor.vertices:
-        if 'conserve' in method:
-            raise ValueError('Can\'t remap from MPAS vertices with '
-                             'conservative methods')
-
-    if isinstance(remapper.destinationDescriptor, MpasMeshDescriptor) and \
-            remapper.destinationDescriptor.vertices:
-        if 'conserve' in method:
-            raise ValueError('Can\'t remap to MPAS vertices with '
-                             'conservative methods')
-
-
-def _write_mesh_and_get_location(descriptor, mesh_filename):
-    if isinstance(descriptor,
-                  (MpasMeshDescriptor, MpasEdgeMeshDescriptor)):
-        file_format = 'esmf'
-        descriptor.to_esmf(mesh_filename)
-    else:
-        file_format = 'scrip'
-        descriptor.to_scrip(mesh_filename)
-
-    if file_format == 'esmf':
-        if isinstance(descriptor, MpasMeshDescriptor) and descriptor.vertices:
-            location = 'corner'
-        else:
-            location = 'center'
-    else:
-        location = None
-
-    return location
-
 
 def _get_descriptor(info):
     """ Get a mesh descriptor from the mesh info """
@@ -466,17 +430,17 @@ def _get_descriptor(info):
 
 
 def _get_mpas_descriptor(info):
-    """ Get an MpasMeshDescriptor from the given info """
+    """ Get an MPAS mesh descriptor from the given info """
     mesh_type = info['mpas_mesh_type']
     filename = info['filename']
     mesh_name = info['name']
 
     if mesh_type == 'cell':
-        descriptor = MpasMeshDescriptor(fileName=filename, meshName=mesh_name,
-                                        vertices=False)
+        descriptor = MpasCellMeshDescriptor(fileName=filename,
+                                            meshName=mesh_name)
     elif mesh_type == 'vertex':
-        descriptor = MpasMeshDescriptor(fileName=filename, meshName=mesh_name,
-                                        vertices=True)
+        descriptor = MpasVertexMeshDescriptor(fileName=filename,
+                                              meshName=mesh_name)
     elif mesh_type == 'edge':
         descriptor = MpasEdgeMeshDescriptor(fileName=filename,
                                             meshName=mesh_name)
@@ -498,8 +462,8 @@ def _get_lon_lat_descriptor(info):
                                             lonMax=lon_max)
     else:
         filename = info['filename']
-        lon = info['lon_var']
-        lat = info['lat_var']
+        lon = info['lon']
+        lat = info['lat']
         with xr.open_dataset(filename) as ds:
             lon_lat_1d = len(ds[lon].dims) == 1 and len(ds[lat].dims) == 1
             lon_lat_2d = len(ds[lon].dims) == 2 and len(ds[lat].dims) == 2
@@ -527,9 +491,9 @@ def _get_lon_lat_descriptor(info):
 def _get_proj_descriptor(info):
     """ Get a ProjectionGridDescriptor from the given info """
     filename = info['filename']
-    grid_name = info['names']
-    x = info['x_var']
-    y = info['y_var']
+    grid_name = info['name']
+    x = info['x']
+    y = info['y']
     if 'proj_attr' in info:
         with xr.open_dataset(filename) as ds:
             proj_str = ds.attrs[info['proj_attr']]
@@ -550,9 +514,9 @@ def _get_proj_descriptor(info):
 def _get_points_descriptor(info):
     """ Get a PointCollectionDescriptor from the given info """
     filename = info['filename']
-    collection_name = info['names']
-    lon_var = info['lon_var']
-    lat_var = info['lat_var']
+    collection_name = info['name']
+    lon_var = info['lon']
+    lat_var = info['lat']
     with xr.open_dataset(filename) as ds:
         lon = ds[lon_var].value
         lat = ds[lat_var].values
