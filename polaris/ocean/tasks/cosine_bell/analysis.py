@@ -20,6 +20,9 @@ class Analysis(Step):
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW
         meshes
+
+    dependencies_dict : dict of dict of polaris.Steps
+        The dependencies of this step
     """
     def __init__(self, component, resolutions, icosahedral, subdir,
                  dependencies):
@@ -47,8 +50,18 @@ class Analysis(Step):
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
         self.icosahedral = icosahedral
+        self.dependencies_dict = dependencies
 
-        for resolution in resolutions:
+        self.add_output_file('convergence.png')
+
+    def setup(self):
+        """
+        Add input files based on resolutions, which may have been changed by
+        user config options
+        """
+        dependencies = self.dependencies_dict
+
+        for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
             base_mesh = dependencies['mesh'][resolution]
             init = dependencies['init'][resolution]
@@ -62,8 +75,6 @@ class Analysis(Step):
             self.add_input_file(
                 filename=f'{mesh_name}_output.nc',
                 work_dir_target=f'{forward.path}/output.nc')
-
-        self.add_output_file('convergence.png')
 
     def run(self):
         """
