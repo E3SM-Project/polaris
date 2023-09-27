@@ -5,16 +5,19 @@ import xarray as xr
 from mpas_tools.cime.constants import constants
 
 
-def compute_rpe(initial_state_file_name, output_files):
+def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     """
     Computes the reference (resting) potential energy for the whole domain
 
     Parameters
     ----------
-    initial_state_file_name : str
+    mesh_filename : str
+        Name of the netCDF file containing the MPAS horizontal mesh variables
+
+    initial_state_filename : str
         Name of the netCDF file containing the initial state
 
-    output_files : list
+    output_filenames : list
         List of netCDF files containing output of forward steps
 
     Returns
@@ -22,21 +25,22 @@ def compute_rpe(initial_state_file_name, output_files):
     rpe : numpy.ndarray
         the reference potential energy of size ``Time`` x ``len(output_files)``
     """
-    num_files = len(output_files)
+    num_files = len(output_filenames)
     if num_files == 0:
         raise ValueError('Must provide at least one output filename')
 
     gravity = constants['SHR_CONST_G']
 
-    dsInit = xr.open_dataset(initial_state_file_name)
-    nVertLevels = dsInit.sizes['nVertLevels']
+    ds_mesh = xr.open_dataset(mesh_filename)
+    ds_init = xr.open_dataset(initial_state_filename)
+    nVertLevels = ds_init.sizes['nVertLevels']
 
-    xEdge = dsInit.xEdge
-    yEdge = dsInit.yEdge
-    areaCell = dsInit.areaCell
-    minLevelCell = dsInit.minLevelCell - 1
-    maxLevelCell = dsInit.maxLevelCell - 1
-    bottomDepth = dsInit.bottomDepth
+    xEdge = ds_mesh.xEdge
+    yEdge = ds_mesh.yEdge
+    areaCell = ds_mesh.areaCell
+    minLevelCell = ds_init.minLevelCell - 1
+    maxLevelCell = ds_init.maxLevelCell - 1
+    bottomDepth = ds_init.bottomDepth
 
     areaCellMatrix = np.tile(areaCell, (nVertLevels, 1)).transpose()
     bottomMax = np.max(bottomDepth.values)
@@ -54,13 +58,13 @@ def compute_rpe(initial_state_file_name, output_files):
                                vert_index <= maxLevelCell)
     cell_mask = np.swapaxes(cell_mask, 0, 1)
 
-    with xr.open_dataset(output_files[0]) as ds:
+    with xr.open_dataset(output_filenames[0]) as ds:
         nt = ds.sizes['Time']
         xtime = ds.xtime.values
 
     rpe = np.ones((num_files, nt))
 
-    for file_index, out_filename in enumerate(output_files):
+    for file_index, out_filename in enumerate(output_filenames):
 
         ds = xr.open_dataset(out_filename)
 

@@ -9,7 +9,7 @@ from polaris import Step
 
 class Analysis(Step):
     """
-    A step for visualizing the output from the cosine bell test case
+    A step for analyzing the output from the cosine bell test case
 
     Attributes
     ----------
