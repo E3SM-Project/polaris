@@ -34,7 +34,7 @@ pertaining to setting up the mesh.
 ### initial conditions
 
 The initial conditions should be specified for all variables requiring
-initial conditions (see {ref}`dev-seaice-model`).
+initial conditions.
 
 ### forcing
 

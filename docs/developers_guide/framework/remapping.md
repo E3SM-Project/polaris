@@ -27,8 +27,8 @@ from polaris import Task
 from polaris.remap import MappingFileStep
 
 class MyTestCase(Task):
-    def __int__(self):
-        step = MappingFileStep(task=self, name='make_map', ntasks=64, 
+    def __int__(self, component):
+        step = MappingFileStep(component=component, name='make_map', ntasks=64, 
                                min_tasks=1, method='bilinear')
         # indicate the the mesh from another step is an input to this step
         # note: the target is relative to the step, not the task.
@@ -62,8 +62,8 @@ from polaris.remap import MappingFileStep
 
 
 class VizMap(MappingFileStep):
-    def __init__(self, task, name, subdir, mesh_name):
-        super().__init__(task=task, name=name, subdir=subdir,
+    def __init__(self, component, name, subdir, mesh_name):
+        super().__init__(component=component, name=name, subdir=subdir,
                          ntasks=128, min_tasks=1)
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
