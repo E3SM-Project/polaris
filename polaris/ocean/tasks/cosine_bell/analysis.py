@@ -1,7 +1,10 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.transects import lon_lat_to_cartesian
+from mpas_tools.vector import Vector
 
 from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
+from polaris.ocean.tasks.cosine_bell.init import cosine_bell
 
 
 class Analysis(SphericalConvergenceAnalysis):
@@ -73,30 +76,39 @@ class Analysis(SphericalConvergenceAnalysis):
                   'solution for the cosine_bell test case')
 
         config = self.config
-        latCent = config.getfloat('cosine_bell', 'lat_center')
-        lonCent = config.getfloat('cosine_bell', 'lon_center')
+        lat_center = config.getfloat('cosine_bell', 'lat_center')
+        lon_center = config.getfloat('cosine_bell', 'lon_center')
         radius = config.getfloat('cosine_bell', 'radius')
         psi0 = config.getfloat('cosine_bell', 'psi0')
         vel_pd = config.getfloat('cosine_bell', 'vel_pd')
 
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
+        sphere_radius = ds_mesh.sphere_radius
+
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
-        # find new location of blob center
-        # center is based on equatorial velocity
-        R = ds_mesh.sphere_radius
-        # distance in radians is
-        distRad = 2.0 * np.pi * time / (86400.0 * vel_pd)
-        newLon = lonCent + distRad
-        if newLon > 2.0 * np.pi:
-            newLon -= 2.0 * np.pi
-        tracer = np.zeros_like(ds_init.tracer1[0, :, 0].values)
-        latC = ds_init.latCell.values
-        lonC = ds_init.lonCell.values
-        # TODO replace this with great circle distance
-        temp = R * np.arccos(np.sin(latCent) * np.sin(latC) +
-                             np.cos(latCent) * np.cos(latC) * np.cos(
-            lonC - newLon))
-        mask = temp < radius
-        tracer[mask] = (psi0 / 2.0 *
-                        (1.0 + np.cos(3.1415926 * temp[mask] / radius)))
-        return xr.DataArray(data=tracer, dims=('nCells',))
+        latCell = ds_init.latCell.values
+        lonCell = ds_init.lonCell.values
+
+        # distance that the cosine bell center traveled in radians
+        # based on equatorial velocity
+        distance = 2.0 * np.pi * time / (86400.0 * vel_pd)
+
+        # new location of blob center
+        lon_new = lon_center + distance
+        if lon_new > 2.0 * np.pi:
+            lon_new -= 2.0 * np.pi
+
+        x_center, y_center, z_center = lon_lat_to_cartesian(
+            lon_new, lat_center, sphere_radius, degrees=False)
+        x_cells, y_cells, z_cells = lon_lat_to_cartesian(
+            lonCell, latCell, sphere_radius, degrees=False)
+        xyz_center = Vector(x_center, y_center, z_center)
+        xyz_cells = Vector(x_cells, y_cells, z_cells)
+        ang_dist_from_center = xyz_cells.angular_distance(xyz_center)
+        distance_from_center = ang_dist_from_center * sphere_radius
+
+        bell_value = cosine_bell(psi0, distance_from_center, radius)
+        tracer1 = np.where(distance_from_center < radius,
+                           bell_value,
+                           0.0)
+        return xr.DataArray(data=tracer1, dims=('nCells',))
