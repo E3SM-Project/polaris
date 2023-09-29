@@ -86,8 +86,8 @@ class Component:
             The step to add if adding by Step object, not subdirectory
         """
         if step.subdir not in self.steps:
-            raise ValueError(f'step {step.name} not in this component '
-                             f'{self.name}')
+            raise ValueError(f'step {step.name} at {step.subdir} not in the '
+                             f'{self.name} component')
         self.steps.pop(step.subdir)
 
     def add_config(self, config):
