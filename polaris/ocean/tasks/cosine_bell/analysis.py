@@ -70,14 +70,17 @@ class Analysis(SphericalConvergenceAnalysis):
         conv_thresh: float
             The maximum convergence rate
         """
-        section = self.config['cosine_bell']
+        config = self.config
+        section = config['cosine_bell']
         if self.icosahedral:
             conv_thresh = section.getfloat('icos_conv_thresh')
             conv_max = section.getfloat('icos_conv_max')
         else:
             conv_thresh = section.getfloat('qu_conv_thresh')
             conv_max = section.getfloat('qu_conv_max')
-        return conv_thresh, conv_max
+        section = config['spherical_convergence']
+        error_type = section.get('error_type')
+        return conv_thresh, conv_max, error_type
 
     def exact_solution(self, mesh_name, field_name, time):
         """
