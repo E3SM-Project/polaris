@@ -1,7 +1,9 @@
 import datetime
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from polaris import Step
@@ -85,10 +87,11 @@ class SphericalConvergenceAnalysis(Step):
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         for _, var in convergence_vars.items():
-            conv_thresh, conv_max = self.convergence_parameters(
+            conv_thresh, conv_max, error_type = self.convergence_parameters(
                 field_name=var["name"])
             var["conv_thresh"] = conv_thresh
             var["conv_max"] = conv_max
+            var["error_type"] = error_type
             self.plot_convergence(var)
 
     def plot_convergence(self, convergence_field):
@@ -103,31 +106,37 @@ class SphericalConvergenceAnalysis(Step):
         """
         resolutions = self.resolutions
         logger = self.logger
-
-        rmse = []
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            rmse_res = self.compute_rmse(
-                mesh_name=mesh_name,
-                variable_name=convergence_field["name"],
-                zidx=convergence_field["zidx"])
-            rmse.append(rmse_res)
-
-        convergence_failed = False
+        variable_name = convergence_field["name"]
         title = convergence_field["title"]
         units = convergence_field["units"]
+        error_type = convergence_field["error_type"]
+
+        error = []
+        for resolution in resolutions:
+            mesh_name = resolution_to_subdir(resolution)
+            error_res = self.compute_error(
+                mesh_name=mesh_name,
+                variable_name=variable_name,
+                zidx=convergence_field["zidx"],
+                error_type=error_type)
+            error.append(error_res)
 
         res_array = np.array(resolutions)
-        rmse_array = np.array(rmse)
+        error_array = np.array(error)
+        filename = f'convergence_{variable_name}.csv'
+        data = np.stack((res_array, error_array), axis=1)
+        df = pd.DataFrame(data, columns=['resolution', error_type])
+        df.to_csv(f'convergence_{variable_name}.csv', index=False)
 
-        poly = np.polyfit(np.log10(res_array), np.log10(rmse_array), 1)
+        convergence_failed = False
+        poly = np.polyfit(np.log10(res_array), np.log10(error_array), 1)
         convergence = poly[0]
         conv_round = np.round(convergence, 3)
 
         fit = res_array ** poly[0] * 10 ** poly[1]
 
-        order1 = 0.5 * rmse_array[-1] * (res_array / res_array[-1])
-        order2 = 0.5 * rmse_array[-1] * (res_array / res_array[-1])**2
+        order1 = 0.5 * error_array[-1] * (res_array / res_array[-1])
+        order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -137,14 +146,35 @@ class SphericalConvergenceAnalysis(Step):
                   alpha=0.3)
         ax.loglog(res_array, fit, 'k',
                   label=f'linear fit (order={conv_round})')
-        ax.loglog(res_array, rmse_array, 'o', label='numerical')
+        ax.loglog(res_array, error_array, 'o', label='numerical')
 
+        if self.baseline_dir is not None:
+            baseline_filename = os.path.join(self.baseline_dir, filename)
+            if os.path.exists(baseline_filename):
+                data = pd.read_csv(baseline_filename)
+                if error_type not in data.keys():
+                    raise ValueError(
+                        f'{error_type} not available for baseline')
+                else:
+                    res_array = data.resolution.to_numpy()
+                    error_array = data[error_type].to_numpy()
+                    poly = np.polyfit(
+                        np.log10(res_array), np.log10(error_array), 1)
+                    base_convergence = poly[0]
+                    conv_round = np.round(base_convergence, 3)
+
+                    fit = res_array ** poly[0] * 10 ** poly[1]
+                    ax.loglog(res_array, error_array, 'o', color='#ff7f0e',
+                              label='baseline')
+                    ax.loglog(res_array, fit, color='#ff7f0e',
+                              label=f'linear fit, baseline '
+                                    f'(order={conv_round})')
         ax.set_xlabel('resolution (km)')
-        ax.set_ylabel(f'RMS error ({units})')
+        ax.set_ylabel(f'{error_type} ({units})')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
         ax.invert_xaxis()
-        fig.savefig(f'convergence_{convergence_field["name"]}.png',
+        fig.savefig(f'convergence_{variable_name}.png',
                     bbox_inches='tight', pad_inches=0.1)
         plt.close()
 
@@ -169,23 +199,32 @@ class SphericalConvergenceAnalysis(Step):
         if convergence_failed:
             raise ValueError('Convergence rate below minimum tolerance.')
 
-    def compute_rmse(self, mesh_name, variable_name, zidx=None):
+    def compute_error(self, mesh_name, variable_name, zidx=None,
+                      error_type='rmse'):
         """
-        Compute the RMSE for a given resolution
+        Compute the error for a given resolution
 
         Parameters
         ----------
         mesh_name : str
             The name of the mesh
 
+        variable_name : str
+            The variable name of which to evaluate error with respect to the
+            exact solution
+
+        zidx : int, optional
+            The z index to use to slice the field given by variable name
+
+        error_type: str, optional
+            The type of error to compute. One of 'rmse', 'l2' or 'inf'.
+
         Returns
         -------
-        rmse_h : float
-            The root-mean-squared error in water-column thickness
-
-        rmse_vel : float
-            The root-mean-squared error in normal velocity
+        error : float
+            The error of the variable given by variable_name
         """
+        ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
         config = self.config
         section = config['spherical_convergence']
@@ -202,9 +241,20 @@ class SphericalConvergenceAnalysis(Step):
         field_mpas = ds_out[variable_name].values
         diff = field_exact - field_mpas
 
-        rmse = np.sqrt(np.mean(diff**2))
+        if error_type == 'rmse':
+            error = np.sqrt(np.mean(diff**2))
+        elif error_type == 'l2':
+            area_cell = ds_mesh.areaCell.values
+            total_area = np.sum(area_cell)
+            den_l2 = np.sum(field_exact**2 * area_cell) / total_area
+            num_l2 = np.sum(diff**2 * area_cell) / total_area
+            error = np.sqrt(num_l2) / np.sqrt(den_l2)
+        elif error_type == 'inf':
+            error = np.amax(diff) / np.amax(np.abs(field_exact))
+        else:
+            raise ValueError(f'Unsupported error type {error_type}')
 
-        return rmse
+        return error
 
     def exact_solution(self, mesh_name, field_name, time):
         """
@@ -254,7 +304,8 @@ class SphericalConvergenceAnalysis(Step):
         section = config['spherical_convergence']
         conv_thresh = section.getfloat('conv_thresh')
         conv_max = section.getfloat('conv_max')
-        return conv_thresh, conv_max
+        error_type = section.get('error_type')
+        return conv_thresh, conv_max, error_type
 
 
 def _time_index_from_xtime(xtime, dt_target):
