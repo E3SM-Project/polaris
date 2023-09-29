@@ -191,8 +191,11 @@ class Task:
         if step.name not in self.steps:
             raise ValueError(f'step {step.name} not in this task {self.name}')
 
-        self.component.remove_step(step)
         self.steps.pop(step.name)
+        step.tasks.pop(self.subdir)
+        if not step.tasks:
+            # no tasks are using this step
+            self.component.remove_step(step)
         if step.name in self.step_symlinks:
             self.step_symlinks.pop(step.name)
         if step.name in self.steps_to_run:
