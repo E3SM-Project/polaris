@@ -49,9 +49,9 @@ class SphericalConvergenceAnalysis(Step):
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
-        self.convergence_vars = convergence_vars
         self.icosahedral = icosahedral
         self.dependencies_dict = dependencies
+        self.convergence_vars = convergence_vars
 
         for _, var in convergence_vars.items():
             self.add_output_file(f'convergence_{var["name"]}.png')
@@ -85,6 +85,10 @@ class SphericalConvergenceAnalysis(Step):
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         for _, var in convergence_vars.items():
+            conv_thresh, conv_max = self.convergence_parameters(
+                field_name=var["name"])
+            var["conv_thresh"] = conv_thresh
+            var["conv_max"] = conv_max
             self.plot_convergence(var)
 
     def plot_convergence(self, convergence_field):
@@ -186,14 +190,15 @@ class SphericalConvergenceAnalysis(Step):
         config = self.config
         section = config['spherical_convergence']
         eval_time = section.getfloat('convergence_eval_time')
-        s_per_day = 3600. * 24.
+        s_per_day = 86400.0
         tidx = _time_index_from_xtime(ds_out.xtime.values,
                                       eval_time * s_per_day)
         ds_out = ds_out.isel(Time=tidx)
 
         if zidx is not None:
             ds_out = ds_out.isel(nVertLevels=zidx)
-        field_exact = self.exact_solution(mesh_name, variable_name)
+        field_exact = self.exact_solution(mesh_name, variable_name,
+                                          time=eval_time * s_per_day)
         field_mpas = ds_out[variable_name].values
         diff = field_exact - field_mpas
 
@@ -201,12 +206,55 @@ class SphericalConvergenceAnalysis(Step):
 
         return rmse
 
-    def exact_solution(self, mesh_name, field_name):
+    def exact_solution(self, mesh_name, field_name, time):
+        """
+        Get the exact solution
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For the default method, we use the same convergence rate for all
+            fields
+        time: float
+            The time at which to evaluate the exact solution in seconds.
+            For the default method, we always use the initial state.
+
+        Returns
+        -------
+        solution: np.ndarray of type float
+            The minimum convergence rate
+        """
 
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
         ds_init = ds_init.isel(Time=0)
 
         return ds_init[field_name]
+
+    def convergence_parameters(self, field_name=None):
+        """
+        Get convergence parameters
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For the default method, we use the same convergence rate for all
+            fields
+
+        Returns
+        -------
+        conv_thresh: float
+            The minimum convergence rate
+
+        conv_thresh: float
+            The maximum convergence rate
+        """
+        config = self.config
+        section = config['spherical_convergence']
+        conv_thresh = section.getfloat('conv_thresh')
+        conv_max = section.getfloat('conv_max')
+        return conv_thresh, conv_max
 
 
 def _time_index_from_xtime(xtime, dt_target):
