@@ -43,28 +43,62 @@ class Analysis(SphericalConvergenceAnalysis):
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
         """
-        # section = self.config['cosine_bell']
-        # if icosahedral:
-        #     conv_thresh = section.getfloat('icos_conv_thresh')
-        #     conv_max = section.getfloat('icos_conv_max')
-        # else:
-        #     conv_thresh = section.getfloat('qu_conv_thresh')
-        #     conv_max = section.getfloat('qu_conv_max')
-        # This could come from spherical_convergence cfg section
-        conv_thresh = 1.
-        conv_max = 3.
         convergence_vars = {0: {'name': 'tracer1',
                                 'title': 'tracer1',
                                 'units': '',
-                                'conv_thresh': conv_thresh,
-                                'conv_max': conv_max,
                                 'zidx': 0}}
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions, dependencies=dependencies,
+                         resolutions=resolutions,
                          icosahedral=icosahedral,
+                         dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
-    def exact_solution(self, mesh_name, field_name='tracer1'):
+    def convergence_parameters(self, field_name=None):
+        """
+        Get convergence parameters
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For cosine_bell, we use the same convergence rate for all fields
+        Returns
+        -------
+        conv_thresh: float
+            The minimum convergence rate
+
+        conv_thresh: float
+            The maximum convergence rate
+        """
+        section = self.config['cosine_bell']
+        if self.icosahedral:
+            conv_thresh = section.getfloat('icos_conv_thresh')
+            conv_max = section.getfloat('icos_conv_max')
+        else:
+            conv_thresh = section.getfloat('qu_conv_thresh')
+            conv_max = section.getfloat('qu_conv_max')
+        return conv_thresh, conv_max
+
+    def exact_solution(self, mesh_name, field_name, time):
+        """
+        Get the exact solution
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For the default method, we use the same convergence rate for all
+            fields
+        time: float
+            The time at which to evaluate the exact solution in seconds.
+            For the default method, we always use the initial state.
+
+        Returns
+        -------
+        solution: np.ndarray of type float
+            The minimum convergence rate
+        """
+
         if field_name != 'tracer1':
             print(f'Variable {field_name} not available as an analytic '
                   'solution for the cosine_bell test case')
@@ -74,15 +108,12 @@ class Analysis(SphericalConvergenceAnalysis):
         lonCent = config.getfloat('cosine_bell', 'lon_center')
         radius = config.getfloat('cosine_bell', 'radius')
         psi0 = config.getfloat('cosine_bell', 'psi0')
-        convergence_eval_time = config.getfloat('spherical_convergence',
-                                                'convergence_eval_time')
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
-        s_per_day = 86400.0
         # find new location of blob center
         # center is based on equatorial velocity
         R = ds_mesh.sphere_radius
-        distTrav = 2.0 * np.pi * R / (s_per_day * convergence_eval_time)
+        distTrav = 2.0 * np.pi * R / time
         # distance in radians is
         distRad = distTrav / R
         newLon = lonCent + distRad
