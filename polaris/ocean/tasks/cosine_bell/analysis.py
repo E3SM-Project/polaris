@@ -53,35 +53,6 @@ class Analysis(SphericalConvergenceAnalysis):
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
-    def convergence_parameters(self, field_name=None):
-        """
-        Get convergence parameters
-
-        Parameters
-        ----------
-        field_name : str
-            The name of the variable of which we evaluate convergence
-            For cosine_bell, we use the same convergence rate for all fields
-        Returns
-        -------
-        conv_thresh: float
-            The minimum convergence rate
-
-        conv_thresh: float
-            The maximum convergence rate
-        """
-        config = self.config
-        section = config['cosine_bell']
-        if self.icosahedral:
-            conv_thresh = section.getfloat('icos_conv_thresh')
-            conv_max = section.getfloat('icos_conv_max')
-        else:
-            conv_thresh = section.getfloat('qu_conv_thresh')
-            conv_max = section.getfloat('qu_conv_max')
-        section = config['spherical_convergence']
-        error_type = section.get('error_type')
-        return conv_thresh, conv_max, error_type
-
     def exact_solution(self, mesh_name, field_name, time):
         """
         Get the exact solution
