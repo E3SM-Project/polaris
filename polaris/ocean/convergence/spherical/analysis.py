@@ -119,11 +119,6 @@ class SphericalConvergenceAnalysis(Step):
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         for _, var in convergence_vars.items():
-            conv_thresh, conv_max, error_type = self.convergence_parameters(
-                field_name=var["name"])
-            var["conv_thresh"] = conv_thresh
-            var["conv_max"] = conv_max
-            var["error_type"] = error_type
             self.plot_convergence(var)
 
     def plot_convergence(self, convergence_field):
@@ -141,7 +136,8 @@ class SphericalConvergenceAnalysis(Step):
         variable_name = convergence_field["name"]
         title = convergence_field["title"]
         units = convergence_field["units"]
-        error_type = convergence_field["error_type"]
+        conv_thresh, conv_max, error_type = self.convergence_parameters(
+            field_name=variable_name)
 
         error = []
         for resolution in resolutions:
@@ -217,20 +213,16 @@ class SphericalConvergenceAnalysis(Step):
         logger.info(f'Order of convergence for {title}: '
                     f'{conv_round}')
 
-        conv_thresh = convergence_field["conv_thresh"]
-        if conv_thresh is not None:
-            if convergence < conv_thresh:
-                logger.error(f'Error: order of convergence for {title}\n'
-                             f'  {conv_round} < min tolerance '
-                             f'{conv_thresh}')
-                convergence_failed = True
+        if convergence < conv_thresh:
+            logger.error(f'Error: order of convergence for {title}\n'
+                         f'  {conv_round} < min tolerance '
+                         f'{conv_thresh}')
+            convergence_failed = True
 
-        conv_max = convergence_field["conv_max"]
-        if conv_max is not None:
-            if convergence > conv_max:
-                logger.warn(f'Warning: order of convergence for {title}\n'
-                            f'   {conv_round} > max tolerance '
-                            f'{conv_max}')
+        if convergence > conv_max:
+            logger.warn(f'Warning: order of convergence for {title}\n'
+                        f'   {conv_round} > max tolerance '
+                        f'{conv_max}')
 
         if convergence_failed:
             raise ValueError('Convergence rate below minimum tolerance.')
@@ -273,7 +265,8 @@ class SphericalConvergenceAnalysis(Step):
         if zidx is not None:
             ds_out = ds_out.isel(nVertLevels=zidx)
         field_exact = self.exact_solution(mesh_name, variable_name,
-                                          time=eval_time * s_per_day)
+                                          time=eval_time * s_per_day,
+                                          zidx=zidx)
         field_mpas = ds_out[variable_name].values
         diff = field_exact - field_mpas
 
@@ -290,7 +283,7 @@ class SphericalConvergenceAnalysis(Step):
 
         return error
 
-    def exact_solution(self, mesh_name, field_name, time):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
         Get the exact solution
 
@@ -300,7 +293,8 @@ class SphericalConvergenceAnalysis(Step):
             The name of the variable of which we evaluate convergence
             For the default method, we use the same convergence rate for all
             fields
-        time: float
+
+        time : float
             The time at which to evaluate the exact solution in seconds.
             For the default method, we always use the initial state.
 
@@ -312,6 +306,8 @@ class SphericalConvergenceAnalysis(Step):
 
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
         ds_init = ds_init.isel(Time=0)
+        if zidx is not None:
+            ds_init = ds_init.isel(nVertLevels=zidx)
 
         return ds_init[field_name]
 
@@ -336,8 +332,8 @@ class SphericalConvergenceAnalysis(Step):
         """
         config = self.config
         section = config['spherical_convergence']
-        conv_thresh = section.getfloat('conv_thresh')
-        conv_max = section.getfloat('conv_max')
+        conv_thresh = section.getfloat('convergence_thresh')
+        conv_max = section.getfloat('convergence_max')
         error_type = section.get('error_type')
         return conv_thresh, conv_max, error_type
 
