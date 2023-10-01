@@ -4,6 +4,9 @@ from polaris import Step, Task
 from polaris.config import PolarisConfigParser
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.sphere_transport.analysis import Analysis
+from polaris.ocean.tasks.sphere_transport.filament_analysis import (
+    FilamentAnalysis,
+)
 from polaris.ocean.tasks.sphere_transport.forward import Forward
 from polaris.ocean.tasks.sphere_transport.init import Init
 from polaris.ocean.tasks.sphere_transport.viz import Viz, VizMap
@@ -191,3 +194,19 @@ class SphereTransport(Task):
                             case_name=case_name,
                             dependencies=analysis_dependencies)
         self.add_step(step, symlink=symlink)
+
+        if case_name == 'nondivergent_2d':
+            subdir = f'{sph_trans_dir}/filament_analysis'
+            if self.include_viz:
+                symlink = 'filament_analysis'
+            else:
+                symlink = None
+            if subdir in component.steps:
+                step = component.steps[subdir]
+            else:
+                step = FilamentAnalysis(component=component,
+                                        resolutions=resolutions,
+                                        icosahedral=icosahedral, subdir=subdir,
+                                        case_name=case_name,
+                                        dependencies=analysis_dependencies)
+            self.add_step(step, symlink=symlink)
