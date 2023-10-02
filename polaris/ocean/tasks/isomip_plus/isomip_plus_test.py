@@ -29,7 +29,7 @@ class IsomipPlusTest(Task):
         Whether the test case runs on a planar or a spherical mesh
     """
 
-    def __init__(self, component, resdir, resolution, experiment,
+    def __init__(self, component, resdir, config, resolution, experiment,
                  vertical_coordinate, planar, base_mesh, topo_map_base,
                  topo_remap_base, cull_mesh, topo_map_culled,
                  topo_remap_culled, time_varying_forcing=False,
@@ -46,6 +46,9 @@ class IsomipPlusTest(Task):
         resdir : str
             The subdirectory in the component for ISOMIP+ experiments of the
             given resolution
+
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
 
         resolution : float
             The horizontal resolution (km) of the test case
@@ -117,9 +120,10 @@ class IsomipPlusTest(Task):
         self.thin_film_present = thin_film_present
         self.tidal_forcing = tidal_forcing
         self.planar = planar
-
         subdir = f'{resdir}/{vertical_coordinate}/{name}'
         super().__init__(component=component, name=name, subdir=subdir)
+
+        self.set_shared_config(config, link='isomip_plus.cfg')
 
         self.add_step(base_mesh, symlink='base_mesh')
         self.add_step(topo_map_base, symlink='topo/map_base')
@@ -127,18 +131,3 @@ class IsomipPlusTest(Task):
         self.add_step(cull_mesh, symlink='topo/cull_mesh')
         self.add_step(topo_map_culled, symlink='topo/map_culled')
         self.add_step(topo_remap_culled, symlink='topo/remap_culled')
-
-    def configure(self):
-        """
-        Modify the configuration options for this test case.
-        """
-        config = self.config
-        planar = self.planar
-
-        if not planar:
-            config.add_from_package('polaris.mesh', 'mesh.cfg')
-            self.config.set('spherical_mesh', 'mpas_mesh_filename',
-                            'base_mesh_without_xy.nc')
-
-        config.add_from_package('polaris.ocean.tasks.isomip_plus',
-                                'isomip_plus.cfg')

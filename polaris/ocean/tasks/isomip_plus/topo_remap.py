@@ -12,7 +12,7 @@ class TopoRemap(Step):
     MPAS mesh
 
     """
-    def __init__(self, component, name, subdir, topo_map, experiment):
+    def __init__(self, component, name, subdir, config, topo_map, experiment):
         """
         Create the step
 
@@ -27,6 +27,9 @@ class TopoRemap(Step):
         subdir : str
             The subdirectory in the test case's work directory for the step
 
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
+
         topo_map : polaris.ocean.tasks.isomip_plus.topo_map.TopoMap
             The step for creating a mapping files, also used to remap data
             from the MPAS mesh to a lon-lat grid
@@ -35,6 +38,8 @@ class TopoRemap(Step):
             The ISOMIP+ experiment
         """
         super().__init__(component=component, name=name, subdir=subdir)
+
+        self.set_shared_config(config, link='isomip_plus.cfg')
 
         geom_filenames = dict(
             ocean1='Ocean1_input_geom_v1.01.nc',

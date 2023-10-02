@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.isomip_plus.cull_mesh import CullMesh
 from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
@@ -24,21 +25,34 @@ def add_isomip_plus_tasks(component, mesh_type):
         mesh_name = resolution_to_subdir(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
+        filepath = f'{resdir}/isomip_plus.cfg'
+        config = PolarisConfigParser(filepath=filepath)
+        if not planar:
+            config.add_from_package('polaris.mesh', 'spherical.cfg')
+            config.set('spherical_mesh', 'mpas_mesh_filename',
+                       'base_mesh_without_xy.nc')
+
+        config.add_from_package('polaris.ocean.tasks.isomip_plus',
+                                'isomip_plus.cfg')
+
         subdir = f'{resdir}/base_mesh'
         base_mesh: Union[PlanarMesh, SphericalMesh, None] = None
         if mesh_type == 'planar':
             base_mesh = PlanarMesh(component=component,
                                    resolution=resolution,
-                                   subdir=subdir)
+                                   subdir=subdir,
+                                   config=config)
         else:
             base_mesh = SphericalMesh(component=component,
                                       cell_width=resolution,
                                       subdir=subdir)
+            base_mesh.config = config
 
         subdir = f'{resdir}/topo/map_base'
         topo_map_base = TopoMap(component=component,
                                 name='topo_map_base',
                                 subdir=subdir,
+                                config=config,
                                 mesh_name=mesh_name,
                                 mesh_step=base_mesh,
                                 mesh_filename='base_mesh.nc')
@@ -47,12 +61,14 @@ def add_isomip_plus_tasks(component, mesh_type):
         topo_remap_base = TopoRemap(component=component,
                                     name='topo_remap_base',
                                     subdir=subdir,
+                                    config=config,
                                     topo_map=topo_map_base,
                                     experiment='ocean1')
 
         subdir = f'{resdir}/topo/cull_mesh'
         cull_mesh = CullMesh(component=component,
                              subdir=subdir,
+                             config=config,
                              base_mesh=base_mesh,
                              topo_remap=topo_remap_base)
 
@@ -60,6 +76,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         topo_map_culled = TopoMap(component=component,
                                   name='topo_map_culled',
                                   subdir=subdir,
+                                  config=config,
                                   mesh_name=mesh_name,
                                   mesh_step=cull_mesh,
                                   mesh_filename='culled_mesh.nc')
@@ -71,6 +88,7 @@ def add_isomip_plus_tasks(component, mesh_type):
             topo_remap_culled[experiment] = TopoRemap(component=component,
                                                       name=name,
                                                       subdir=subdir,
+                                                      config=config,
                                                       topo_map=topo_map_culled,
                                                       experiment=experiment)
 
@@ -82,6 +100,7 @@ def add_isomip_plus_tasks(component, mesh_type):
                 task = IsomipPlusTest(
                     component=component,
                     resdir=resdir,
+                    config=config,
                     resolution=resolution,
                     experiment=experiment,
                     vertical_coordinate=vertical_coordinate,

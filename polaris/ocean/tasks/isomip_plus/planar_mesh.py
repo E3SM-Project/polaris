@@ -19,7 +19,7 @@ class PlanarMesh(Step):
         The resolution in km of the mesh
 
     """
-    def __init__(self, component, resolution, subdir):
+    def __init__(self, component, resolution, subdir, config):
         """
         Create the step
 
@@ -32,11 +32,15 @@ class PlanarMesh(Step):
             The resolution in km of the mesh
 
         subdir : str
-            the subdirectory for the step.
+            the subdirectory for the step
+
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
         """
         super().__init__(component=component, name='base_mesh', subdir=subdir)
 
         self.resolution = resolution
+        self.set_shared_config(config, link='isomip_plus.cfg')
 
         self.add_output_file('base_mesh.nc')
 
