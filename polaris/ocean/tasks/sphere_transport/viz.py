@@ -112,8 +112,15 @@ class Viz(Step):
             work_dir_target=f'{forward.path}/output.nc')
         self.add_dependency(viz_map, name='viz_map')
         self.mesh_name = mesh_name
-        self.add_output_file('init.png')
-        self.add_output_file('final.png')
+        variables_to_plot = dict({'tracer1': 'tracer',
+                                  'tracer2': 'tracer',
+                                  'tracer3': 'tracer',
+                                  'layerThickness': 'h'})
+        self.variables_to_plot = variables_to_plot
+        for var in variables_to_plot.keys():
+            self.add_output_file(f'{var}_init.png')
+            self.add_output_file(f'{var}_final.png')
+            self.add_output_file(f'{var}_diff.png')
 
     def run(self):
         """
@@ -128,25 +135,34 @@ class Viz(Step):
 
         remapper = viz_map.get_remapper()
 
+        variables_to_plot = self.variables_to_plot
         ds_init = xr.open_dataset('initial_state.nc')
-        ds_init = ds_init[['tracer1', ]].isel(Time=0, nVertLevels=0)
+        ds_init = ds_init[variables_to_plot.keys()].isel(Time=0, nVertLevels=0)
         ds_init = remapper.remap(ds_init)
         ds_init.to_netcdf('remapped_init.nc')
 
-        plot_global(ds_init.lon.values, ds_init.lat.values,
-                    ds_init.tracer1.values,
-                    out_filename='init.png', config=config,
-                    colormap_section='sphere_transport_viz',
-                    title=f'{mesh_name} tracer at init', plot_land=False)
-
         ds_out = xr.open_dataset('output.nc')
-        ds_out = ds_out[['tracer1', ]].isel(Time=-1, nVertLevels=0)
+        ds_out = ds_out[variables_to_plot.keys()].isel(Time=-1, nVertLevels=0)
         ds_out = remapper.remap(ds_out)
         ds_out.to_netcdf('remapped_final.nc')
 
-        plot_global(ds_init.lon.values, ds_init.lat.values,
-                    ds_out.tracer1.values,
-                    out_filename='final.png', config=config,
-                    colormap_section='sphere_transport_viz',
-                    title=f'{mesh_name} tracer after {run_duration:g} days',
-                    plot_land=False)
+        for var, section_name in variables_to_plot.items():
+            colormap_section = f'sphere_transport_viz_{section_name}'
+            plot_global(ds_init.lon.values, ds_init.lat.values,
+                        ds_init[var].values,
+                        out_filename=f'{var}_init.png', config=config,
+                        colormap_section=colormap_section,
+                        title=f'{mesh_name} {var} at init', plot_land=False)
+            plot_global(ds_init.lon.values, ds_init.lat.values,
+                        ds_out[var].values,
+                        out_filename=f'{var}_final.png', config=config,
+                        colormap_section=colormap_section,
+                        title=f'{mesh_name} {var} after {run_duration:g} days',
+                        plot_land=False)
+            plot_global(ds_init.lon.values, ds_init.lat.values,
+                        ds_out[var].values - ds_init[var].values,
+                        out_filename=f'{var}_diff.png', config=config,
+                        colormap_section=f'{colormap_section}_diff',
+                        title=f'Difference in {mesh_name} {var} from initial '
+                              f'condition after {run_duration:g} days',
+                        plot_land=False)
