@@ -139,6 +139,10 @@ class SphericalConvergenceAnalysis(Step):
         order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
 
         fig = plt.figure()
+
+        error_dict = {'l2': 'L2 norm', 'inf': 'L-infinity norm'}
+        error_title = error_dict[error_type]
+
         ax = fig.add_subplot(111)
         ax.loglog(resolutions, order1, '--k', label='first order',
                   alpha=0.3)
@@ -170,7 +174,7 @@ class SphericalConvergenceAnalysis(Step):
                               label=f'linear fit, baseline '
                                     f'(order={conv_round})')
         ax.set_xlabel('resolution (km)')
-        ax.set_ylabel(f'{error_type} ({units})')
+        ax.set_ylabel(f'{error_title} ({units})')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
         ax.invert_xaxis()
@@ -200,7 +204,7 @@ class SphericalConvergenceAnalysis(Step):
             raise ValueError('Convergence rate below minimum tolerance.')
 
     def compute_error(self, mesh_name, variable_name, zidx=None,
-                      error_type='rmse'):
+                      error_type='l2'):
         """
         Compute the error for a given resolution
 
@@ -217,7 +221,7 @@ class SphericalConvergenceAnalysis(Step):
             The z index to use to slice the field given by variable name
 
         error_type: str, optional
-            The type of error to compute. One of 'rmse', 'l2' or 'inf'.
+            The type of error to compute. One of 'l2' or 'inf'.
 
         Returns
         -------
@@ -241,9 +245,7 @@ class SphericalConvergenceAnalysis(Step):
         field_mpas = ds_out[variable_name].values
         diff = field_exact - field_mpas
 
-        if error_type == 'rmse':
-            error = np.sqrt(np.mean(diff**2))
-        elif error_type == 'l2':
+        if error_type == 'l2':
             area_cell = ds_mesh.areaCell.values
             total_area = np.sum(area_cell)
             den_l2 = np.sum(field_exact**2 * area_cell) / total_area
