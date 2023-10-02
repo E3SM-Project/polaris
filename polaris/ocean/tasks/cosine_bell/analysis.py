@@ -53,7 +53,7 @@ class Analysis(SphericalConvergenceAnalysis):
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
-    def exact_solution(self, mesh_name, field_name, time):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
         Get the exact solution
 
