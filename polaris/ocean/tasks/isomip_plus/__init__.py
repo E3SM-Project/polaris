@@ -35,62 +35,10 @@ def add_isomip_plus_tasks(component, mesh_type):
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus.cfg')
 
-        subdir = f'{resdir}/base_mesh'
-        base_mesh: Union[PlanarMesh, SphericalMesh, None] = None
-        if mesh_type == 'planar':
-            base_mesh = PlanarMesh(component=component,
-                                   resolution=resolution,
-                                   subdir=subdir,
-                                   config=config)
-        else:
-            base_mesh = SphericalMesh(component=component,
-                                      cell_width=resolution,
-                                      subdir=subdir)
-            base_mesh.config = config
-
-        subdir = f'{resdir}/topo/map_base'
-        topo_map_base = TopoMap(component=component,
-                                name='topo_map_base',
-                                subdir=subdir,
-                                config=config,
-                                mesh_name=mesh_name,
-                                mesh_step=base_mesh,
-                                mesh_filename='base_mesh.nc')
-
-        subdir = f'{resdir}/topo/remap_base'
-        topo_remap_base = TopoRemap(component=component,
-                                    name='topo_remap_base',
-                                    subdir=subdir,
-                                    config=config,
-                                    topo_map=topo_map_base,
-                                    experiment='ocean1')
-
-        subdir = f'{resdir}/topo/cull_mesh'
-        cull_mesh = CullMesh(component=component,
-                             subdir=subdir,
-                             config=config,
-                             base_mesh=base_mesh,
-                             topo_remap=topo_remap_base)
-
-        subdir = f'{resdir}/topo/map_culled'
-        topo_map_culled = TopoMap(component=component,
-                                  name='topo_map_culled',
-                                  subdir=subdir,
-                                  config=config,
-                                  mesh_name=mesh_name,
-                                  mesh_step=cull_mesh,
-                                  mesh_filename='culled_mesh.nc')
-
-        topo_remap_culled: Dict[str, TopoRemap] = dict()
-        for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
-            name = 'topo_remap_culled'
-            subdir = f'{resdir}/topo/remap_culled/{experiment}'
-            topo_remap_culled[experiment] = TopoRemap(component=component,
-                                                      name=name,
-                                                      subdir=subdir,
-                                                      config=config,
-                                                      topo_map=topo_map_culled,
-                                                      experiment=experiment)
+        base_mesh, topo_map_base, topo_remap_base, cull_mesh, \
+            topo_map_culled, topo_remap_culled = \
+            _get_shared_steps(mesh_type, resolution, mesh_name, resdir,
+                              component, config)
 
         # ocean0 and ocean1 use the same topography
         topo_remap_culled['ocean0'] = topo_remap_culled['ocean1']
@@ -112,3 +60,68 @@ def add_isomip_plus_tasks(component, mesh_type):
                     topo_map_culled=topo_map_culled,
                     topo_remap_culled=topo_remap_culled[experiment])
                 component.add_task(task)
+
+
+def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
+                      config):
+    """ Get the shared steps for adding to tasks """
+
+    subdir = f'{resdir}/base_mesh'
+    base_mesh: Union[PlanarMesh, SphericalMesh, None] = None
+    if mesh_type == 'planar':
+        base_mesh = PlanarMesh(component=component,
+                               resolution=resolution,
+                               subdir=subdir,
+                               config=config)
+    else:
+        base_mesh = SphericalMesh(component=component,
+                                  cell_width=resolution,
+                                  subdir=subdir)
+        base_mesh.config = config
+
+    subdir = f'{resdir}/topo/map_base'
+    topo_map_base = TopoMap(component=component,
+                            name='topo_map_base',
+                            subdir=subdir,
+                            config=config,
+                            mesh_name=mesh_name,
+                            mesh_step=base_mesh,
+                            mesh_filename='base_mesh.nc')
+
+    subdir = f'{resdir}/topo/remap_base'
+    topo_remap_base = TopoRemap(component=component,
+                                name='topo_remap_base',
+                                subdir=subdir,
+                                config=config,
+                                topo_map=topo_map_base,
+                                experiment='ocean1')
+
+    subdir = f'{resdir}/topo/cull_mesh'
+    cull_mesh = CullMesh(component=component,
+                         subdir=subdir,
+                         config=config,
+                         base_mesh=base_mesh,
+                         topo_remap=topo_remap_base)
+
+    subdir = f'{resdir}/topo/map_culled'
+    topo_map_culled = TopoMap(component=component,
+                              name='topo_map_culled',
+                              subdir=subdir,
+                              config=config,
+                              mesh_name=mesh_name,
+                              mesh_step=cull_mesh,
+                              mesh_filename='culled_mesh.nc')
+
+    topo_remap_culled: Dict[str, TopoRemap] = dict()
+    for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
+        name = 'topo_remap_culled'
+        subdir = f'{resdir}/topo/remap_culled/{experiment}'
+        topo_remap_culled[experiment] = TopoRemap(component=component,
+                                                  name=name,
+                                                  subdir=subdir,
+                                                  config=config,
+                                                  topo_map=topo_map_culled,
+                                                  experiment=experiment)
+
+    return base_mesh, topo_map_base, topo_remap_base, cull_mesh, \
+        topo_map_culled, topo_remap_culled
