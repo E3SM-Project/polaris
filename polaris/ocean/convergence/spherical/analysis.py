@@ -20,6 +20,9 @@ class SphericalConvergenceAnalysis(Step):
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW
         meshes
+
+    dependencies_dict : dict of dict of polaris.Steps
+        The dependencies of this step
     """
     def __init__(self, component, resolutions, icosahedral, subdir,
                  dependencies, convergence_vars):
@@ -48,23 +51,32 @@ class SphericalConvergenceAnalysis(Step):
         self.resolutions = resolutions
         self.convergence_vars = convergence_vars
         self.icosahedral = icosahedral
+        self.dependencies_dict = dependencies
 
-        for resolution in resolutions:
+        for _, var in convergence_vars.items():
+            self.add_output_file(f'convergence_{var["name"]}.png')
+
+    def setup(self):
+        """
+        Add input files based on resolutions, which may have been changed by
+        user config options
+        """
+        dependencies = self.dependencies_dict
+
+        for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
+            base_mesh = dependencies['mesh'][resolution]
             init = dependencies['init'][resolution]
             forward = dependencies['forward'][resolution]
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
-                work_dir_target=f'{init.path}/mesh.nc')
+                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_output.nc',
                 work_dir_target=f'{forward.path}/output.nc')
-
-        for _, var in convergence_vars.items():
-            self.add_output_file(f'convergence_{var["name"]}.png')
 
     def run(self):
         """
