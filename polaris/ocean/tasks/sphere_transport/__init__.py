@@ -9,6 +9,7 @@ from polaris.ocean.tasks.sphere_transport.filament_analysis import (
 )
 from polaris.ocean.tasks.sphere_transport.forward import Forward
 from polaris.ocean.tasks.sphere_transport.init import Init
+from polaris.ocean.tasks.sphere_transport.mixing_analysis import MixingAnalysis
 from polaris.ocean.tasks.sphere_transport.viz import Viz, VizMap
 
 
@@ -61,6 +62,9 @@ class SphereTransport(Task):
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
 
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
+
         case_name: string
             The name of the case which determines what variant of the
             configuration to use
@@ -82,7 +86,7 @@ class SphereTransport(Task):
         if include_viz:
             subdir = f'{subdir}/with_viz'
             name = f'{name}_with_viz'
-            link = '{case_name}.cfg'
+            link = f'{case_name}.cfg'
         else:
             # config options live in the task already so no need for a symlink
             link = None
@@ -211,6 +215,23 @@ class SphereTransport(Task):
                             dependencies=analysis_dependencies)
             step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)
+
+        if case_name == 'correlated_tracers_2d':
+            subdir = f'{sph_trans_dir}/mixing_analysis'
+            if self.include_viz:
+                symlink = 'mixing_analysis'
+            else:
+                symlink = None
+            if subdir in component.steps:
+                step = component.steps[subdir]
+            else:
+                step = MixingAnalysis(component=component,
+                                      resolutions=resolutions,
+                                      icosahedral=icosahedral, subdir=subdir,
+                                      case_name=case_name,
+                                      dependencies=analysis_dependencies)
+            step.set_shared_config(config, link=config_filename)
+            self.add_step(step, symlink=symlink)
 
         if case_name == 'nondivergent_2d':
             subdir = f'{sph_trans_dir}/filament_analysis'
