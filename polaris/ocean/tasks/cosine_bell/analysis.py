@@ -43,10 +43,10 @@ class Analysis(SphericalConvergenceAnalysis):
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
         """
-        convergence_vars = {0: {'name': 'tracer1',
-                                'title': 'tracer1',
-                                'units': '',
-                                'zidx': 0}}
+        convergence_vars = [{'name': 'tracer1',
+                             'title': 'tracer1',
+                             'units': '',
+                             'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
                          icosahedral=icosahedral,
