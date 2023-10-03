@@ -327,6 +327,9 @@ class SphericalConvergenceAnalysis(Step):
 
         Parameters
         ----------
+        mesh_name : str
+            The mesh name which is the prefix for the initial condition file
+
         field_name : str
             The name of the variable of which we evaluate convergence
             For the default method, we use the same convergence rate for all
@@ -336,10 +339,14 @@ class SphericalConvergenceAnalysis(Step):
             The time at which to evaluate the exact solution in seconds.
             For the default method, we always use the initial state.
 
+        zidx : int, optional
+            The z-index for the vertical level at which to evaluate the exact
+            solution
+
         Returns
         -------
-        solution: np.ndarray of type float
-            The minimum convergence rate
+        solution : np.ndarray of type float
+            The exact solution as derived from the initial condition
         """
 
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
@@ -362,11 +369,11 @@ class SphericalConvergenceAnalysis(Step):
 
         Returns
         -------
-        conv_thresh: float
+        conv_thresh : float
             The minimum convergence rate
 
-        conv_thresh: float
-            The maximum convergence rate
+        error_type : {'l2', 'inf'}, str
+            The error norm to compute
         """
         config = self.config
         section = config['spherical_convergence']
@@ -381,14 +388,15 @@ def _time_index_from_xtime(xtime, dt_target):
 
     Parameters
     ----------
-    xtime: list of str
+    xtime : list of str
         Times in the dataset
-    dt_target: float
+
+    dt_target : float
         Time in seconds at which to evaluate convergence
 
     Returns
     -------
-    tidx: int
+    tidx : int
         Index in xtime that is closest to dt_target
     """
     t0 = datetime.datetime.strptime(xtime[0].decode(),
