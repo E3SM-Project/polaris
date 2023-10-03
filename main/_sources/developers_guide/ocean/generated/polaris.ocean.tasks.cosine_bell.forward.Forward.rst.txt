@@ -31,6 +31,7 @@
       ~Forward.runtime_setup
       ~Forward.set_model_resources
       ~Forward.set_resources
+      ~Forward.set_shared_config
       ~Forward.setup
       ~Forward.update_namelist_pio
       ~Forward.validate_baselines

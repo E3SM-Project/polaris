@@ -17,6 +17,7 @@
       ~Rpe.add_step
       ~Rpe.configure
       ~Rpe.remove_step
+      ~Rpe.set_shared_config
    
    
 

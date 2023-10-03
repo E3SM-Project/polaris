@@ -17,6 +17,7 @@
       ~IdealAge.add_step
       ~IdealAge.configure
       ~IdealAge.remove_step
+      ~IdealAge.set_shared_config
    
    
 

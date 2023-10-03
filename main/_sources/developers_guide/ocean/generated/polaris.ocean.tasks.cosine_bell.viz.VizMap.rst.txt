@@ -28,6 +28,7 @@
       ~VizMap.run
       ~VizMap.runtime_setup
       ~VizMap.set_resources
+      ~VizMap.set_shared_config
       ~VizMap.setup
       ~VizMap.src_from_lon_lat
       ~VizMap.src_from_mpas

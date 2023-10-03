@@ -22,6 +22,7 @@
       ~Validate.run
       ~Validate.runtime_setup
       ~Validate.set_resources
+      ~Validate.set_shared_config
       ~Validate.setup
       ~Validate.validate_baselines
    

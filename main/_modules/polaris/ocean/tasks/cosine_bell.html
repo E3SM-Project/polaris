@@ -126,9 +126,18 @@
 <span class="sd">        the ocean component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">for</span> <span class="n">icosahedral</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;icos&#39;</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;qu&#39;</span><span class="p">)]:</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/cosine_bell.cfg&#39;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence.spherical&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">include_viz</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CosineBell</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                                          <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                                           <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
                                           <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">))</span></div>
 
@@ -148,7 +157,7 @@
 <span class="sd">    include_viz : bool</span>
 <span class="sd">        Include VizMap and Viz steps for each resolution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CosineBell.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
+<div class="viewcode-block" id="CosineBell.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the convergence test</span>
 
@@ -156,6 +165,9 @@
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            A shared config parser</span>
 
 <span class="sd">        icosahedral : bool</span>
 <span class="sd">            Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
@@ -165,41 +177,43 @@
 <span class="sd">            Include VizMap and Viz steps for each resolution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;spherical/icos/cosine_bell&#39;</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;spherical/qu/cosine_bell&#39;</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
+
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_cosine_bell&#39;</span>
         <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/with_viz&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span>
-                         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_with_viz&#39;</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># config options live in the task already so no need for a symlink</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span> <span class="o">=</span> <span class="n">icosahedral</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span> <span class="o">=</span> <span class="n">include_viz</span>
 
-        <span class="c1"># add the steps with default resolutions so they can be listed</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence.spherical&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CosineBell.configure"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.cosine_bell.CosineBell.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set config options for the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh.cfg&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence.spherical&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
 
         <span class="c1"># set up the steps again in case a user has provided new resolutions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; setup steps given resolutions &quot;&quot;&quot;</span>
         <span class="n">icosahedral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span>
+
         <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -240,6 +254,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                                  <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">)</span>
+                <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
 
@@ -256,6 +271,7 @@
                                        <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                                        <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
                                        <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
+                <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
@@ -267,6 +283,7 @@
                 <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                                  <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
                                  <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+                <span class="n">viz_map</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
 
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_viz_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -275,6 +292,7 @@
                            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
                            <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="n">forward_step</span><span class="p">,</span>
                            <span class="n">viz_map</span><span class="o">=</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/analysis&#39;</span>
@@ -284,10 +302,13 @@
             <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">analysis_dependencies</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">Analysis</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                             <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                             <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
 </pre></div>
 

@@ -23,6 +23,7 @@
       ~Analysis.run
       ~Analysis.runtime_setup
       ~Analysis.set_resources
+      ~Analysis.set_shared_config
       ~Analysis.setup
       ~Analysis.validate_baselines
    

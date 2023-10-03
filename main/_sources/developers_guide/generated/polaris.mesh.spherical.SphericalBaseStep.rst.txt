@@ -23,6 +23,7 @@
       ~SphericalBaseStep.runtime_setup
       ~SphericalBaseStep.save_and_plot_cell_width
       ~SphericalBaseStep.set_resources
+      ~SphericalBaseStep.set_shared_config
       ~SphericalBaseStep.setup
       ~SphericalBaseStep.validate_baselines
    

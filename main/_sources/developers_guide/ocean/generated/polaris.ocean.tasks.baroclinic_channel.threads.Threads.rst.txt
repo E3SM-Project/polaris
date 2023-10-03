@@ -17,6 +17,7 @@
       ~Threads.add_step
       ~Threads.configure
       ~Threads.remove_step
+      ~Threads.set_shared_config
    
    
 

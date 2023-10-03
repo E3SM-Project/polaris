@@ -17,6 +17,7 @@
       ~CVMix.add_step
       ~CVMix.configure
       ~CVMix.remove_step
+      ~CVMix.set_shared_config
    
    
 

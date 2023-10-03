@@ -25,6 +25,7 @@
       ~QuasiUniformSphericalMeshStep.runtime_setup
       ~QuasiUniformSphericalMeshStep.save_and_plot_cell_width
       ~QuasiUniformSphericalMeshStep.set_resources
+      ~QuasiUniformSphericalMeshStep.set_shared_config
       ~QuasiUniformSphericalMeshStep.setup
       ~QuasiUniformSphericalMeshStep.validate_baselines
    

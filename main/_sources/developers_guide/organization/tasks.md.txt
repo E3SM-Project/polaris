@@ -10,8 +10,8 @@ A task can be a module but is usually a python package so it can
 incorporate modules for its steps and/or config files, namelists, streams, and
 YAML files.  The task must include a class that descends from
 {py:class}`polaris.Task`.  In addition to a constructor (`__init__()`),
-the class will often override the `configure()` method of the base class, as 
-described below.
+the class will sometimes override the `configure()` method of the base class, 
+as described below.
 
 (dev-task-class)=
 
@@ -40,6 +40,16 @@ Some attributes are available after calling the base class' constructor
 : the path within the base work directory of the task, made up of
   the name of the component and the task's `subdir`
 
+`self.config`
+
+: Configuration options for this task, possibly shared with other tasks
+  and steps
+
+`self.config_filename`
+
+: The filename or symlink within the task where `config` is written to during 
+  setup and read from during run
+
 Other attributes become useful only after steps have been added to the task:
 
 `self.steps`
@@ -60,16 +70,6 @@ Other attributes become useful only after steps have been added to the task:
 
 Another set of attributes is not useful until `configure()` is called by the
 polaris framework:
-
-`self.config`
-
-: Configuration options for this task, a combination of the defaults
-  for the machine, core and configuration
-
-`self.config_filename`
-
-: The local name of the config file that `config` has been written to
-  during setup and read from during run
 
 `self.work_dir`
 
@@ -190,6 +190,7 @@ these methods only keep track of a "recipe" for downloading files or
 constructing namelist and streams files, they don't actually do the work
 associated with these steps until the point where the step is being set up in
 
+- {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()`
 - {py:meth}`polaris.Step.add_input_file()`
 - {py:meth}`polaris.Step.add_output_file()`
 - {py:meth}`polaris.ModelStep.add_model_config_options()`
@@ -202,8 +203,9 @@ We will demonstrate with a fairly complex example,
 to demonstrate how to make full use of {ref}`dev-code-sharing` in a task:
 
 ```python
-from polaris import Task
-from polaris.config import PolarisConfigParser
+from typing import Dict
+
+from polaris import Step, Task
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
@@ -212,39 +214,43 @@ from polaris.ocean.tasks.cosine_bell.viz import Viz, VizMap
 
 
 class CosineBell(Task):
-    def __init__(self, component, icosahedral, include_viz):
+    def __init__(self, component, config, icosahedral, include_viz):
         if icosahedral:
-            subdir = 'spherical/icos/cosine_bell'
+            prefix = 'icos'
         else:
-            subdir = 'spherical/qu/cosine_bell'
+            prefix = 'qu'
+
+        subdir = f'spherical/{prefix}/cosine_bell'
+        name = f'{prefix}_cosine_bell'
         if include_viz:
             subdir = f'{subdir}/with_viz'
-        super().__init__(component=component, name='cosine_bell',
-                         subdir=subdir)
+            name = f'{name}_with_viz'
+            link = 'cosine_bell.cfg'
+        else:
+            # config options live in the task already so no need for a symlink
+            link = None
+        super().__init__(component=component, name=name, subdir=subdir)
         self.resolutions = list()
         self.icosahedral = icosahedral
         self.include_viz = include_viz
 
-        # add the steps with default resolutions so they can be listed
-        config = PolarisConfigParser()
-        package = 'polaris.ocean.tasks.cosine_bell'
-        config.add_from_package(package, 'cosine_bell.cfg')
-        self._setup_steps(config)
+        self.set_shared_config(config, link=link)
 
-    def _setup_steps(self, config):
+        self._setup_steps()
+
+    def _setup_steps(self):
         """ setup steps given resolutions """
-        if self.icosahedral:
-            default_resolutions = '60, 120, 240, 480'
+        icosahedral = self.icosahedral
+        config = self.config
+        config_filename = self.config_filename
+
+        if icosahedral:
+            prefix = 'icos'
         else:
-            default_resolutions = '60, 90, 120, 150, 180, 210, 240'
+            prefix = 'qu'
 
-        # set the default values that a user may change before setup
-        config.set('cosine_bell', 'resolutions', default_resolutions,
-                   comment='a list of resolutions (km) to test')
-
-        # get the resolutions back, perhaps with values set in the user's
-        # config file, which takes priority over what we just set above
-        resolutions = config.getlist('cosine_bell', 'resolutions', dtype=int)
+        resolutions = config.getlist('spherical_convergence',
+                                     f'{prefix}_resolutions', dtype=float)
 
         if self.resolutions == resolutions:
             return
@@ -256,16 +262,14 @@ class CosineBell(Task):
         self.resolutions = resolutions
 
         component = self.component
-        icosahedral = self.icosahedral
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
 
+        analysis_dependencies: Dict[str, Dict[str, Step]] = (
+            dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in resolutions:
-            base_mesh, mesh_name = add_spherical_base_mesh_step(
+            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
                 component, resolution, icosahedral)
-            self.add_step(base_mesh, symlink=f'base_mesh/{mesh_name}')
+            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+            analysis_dependencies['mesh'][resolution] = base_mesh_step
 
             cos_bell_dir = f'spherical/{prefix}/cosine_bell'
 
@@ -276,11 +280,13 @@ class CosineBell(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                init_step = component.steps[subdir]
             else:
-                step = Init(component=component, name=name, subdir=subdir,
-                            mesh_name=mesh_name)
-            self.add_step(step, symlink=symlink)
+                init_step = Init(component=component, name=name, subdir=subdir,
+                                 base_mesh=base_mesh_step)
+                init_step.set_shared_config(config, link=config_filename)
+            self.add_step(init_step, symlink=symlink)
+            analysis_dependencies['init'][resolution] = init_step
 
             name = f'{prefix}_forward_{mesh_name}'
             subdir = f'{cos_bell_dir}/forward/{mesh_name}'
@@ -289,12 +295,15 @@ class CosineBell(Task):
             else:
                 symlink = None
             if subdir in component.steps:
-                step = component.steps[subdir]
+                forward_step = component.steps[subdir]
             else:
-                step = Forward(component=component, name=name,
-                               subdir=subdir, resolution=resolution,
-                               mesh_name=mesh_name)
-            self.add_step(step, symlink=symlink)
+                forward_step = Forward(component=component, name=name,
+                                       subdir=subdir, resolution=resolution,
+                                       base_mesh=base_mesh_step,
+                                       init=init_step)
+                forward_step.set_shared_config(config, link=config_filename)
+            self.add_step(forward_step, symlink=symlink)
+            analysis_dependencies['forward'][resolution] = forward_step
 
             if self.include_viz:
                 with_viz_dir = f'spherical/{prefix}/cosine_bell/with_viz'
@@ -302,14 +311,18 @@ class CosineBell(Task):
                 name = f'{prefix}_map_{mesh_name}'
                 subdir = f'{with_viz_dir}/map/{mesh_name}'
                 viz_map = VizMap(component=component, name=name,
-                                 subdir=subdir, mesh_name=mesh_name)
+                                 subdir=subdir, base_mesh=base_mesh_step,
+                                 mesh_name=mesh_name)
+                viz_map.set_shared_config(config, link=config_filename)
                 self.add_step(viz_map)
 
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
-                           subdir=subdir, viz_map=viz_map,
-                           mesh_name=mesh_name)
+                           subdir=subdir, base_mesh=base_mesh_step,
+                           init=init_step, forward=forward_step,
+                           viz_map=viz_map, mesh_name=mesh_name)
+                step.set_shared_config(config, link=config_filename)
                 self.add_step(step)
 
         subdir = f'spherical/{prefix}/cosine_bell/analysis'
@@ -321,7 +334,9 @@ class CosineBell(Task):
             step = component.steps[subdir]
         else:
             step = Analysis(component=component, resolutions=resolutions,
-                            icosahedral=icosahedral, subdir=subdir)
+                            icosahedral=icosahedral, subdir=subdir,
+                            dependencies=analysis_dependencies)
+            step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)
 ```
 
@@ -453,14 +468,41 @@ component directory) are again in bold:
 
 ## configure()
 
-The {py:meth}`polaris.Task.configure()` method can be overridden by a
-child class to set config options or build them up from defaults stored in
-config files within the task or its shared framework. The `self.config`
-attribute that is modified in this function will be written to a config file
-for the task (see {ref}`config-files`).
+The {py:meth}`polaris.Task.configure()` method is called before a task gets
+set up in its work directory.  As part of setup, a user can pass their own
+config options to `polaris setup` that override those from polaris packages.
 
-If you define a `<task.name>.cfg` file, you will want to override this method 
-to add those config options, e.g.:
+The main usage of `configure()` in Polaris tasks is to re-add steps to the
+task that depend on config options that a user may have changed. In the cosine 
+bell example above, the `configure()` method simply calls the `_setup_steps()` 
+method again so that steps are recreated if the requested resolutions have 
+change:
+
+```python
+from polaris import Task
+
+
+class CosineBell(Task):
+  def configure(self):
+        """
+        Set config options for the test case
+        """
+        super().configure()
+
+        # set up the steps again in case a user has provided new resolutions
+        self._setup_steps()
+```
+
+The `configure()` method is not the right place for adding steps for the first
+time.  Steps should be added during init if possible and, if their names and
+locations rely on config options, they should be removed and re-added in 
+`configure()`, as in the example above. Typically, this is because there is
+a step for each of a list of resolutions (or another parameter) from a config 
+option.  If possible, alter the steps only in their own 
+{py:meth}`polaris.Step.setup()` or {py:meth}`polaris.Step.runtime_setup()` 
+methods, not in `configure()`.
+
+You can also add config options from package files in `configure()`:
 
 ```python
 from polaris import Task
@@ -475,11 +517,11 @@ class InertialGravityWave(Task):
             'inertial_gravity_wave.cfg')
 ```
 
-Since many tasks may need similar behavior in their `configure()` methods, it 
-is sometimes useful to define a parent class that overrides the 
-`configure()` method.  Then, tasks that descend from this parent class will
-will inherit these configuration changes, and can add to them by overriding
-the `configure()` method with their own additional changes.
+However, this is more typically done in the constructor if config options are
+only being used by this task and external to the task if config options are
+shared across multiple tasks and/or shared steps. If many tasks need the same 
+config options, you should use a shared `config` outside of the task, and add 
+it to the task using {py:meth}`polaris.Task.set_shared_config()`.
 
 A `configure()` method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
@@ -497,12 +539,3 @@ def configure(self):
     target = imp_res.files(package).joinpath('README')
     symlink(str(target), f'{self.work_dir}/README')
 ```
-
-The `configure()` method is not the right place for adding or modifying steps
-that belong to a task.  Steps should be added during init if possible and in
-`configure()` if they need config options to define them (e.g. there is a step
-for each of a list of resolutions from a config option).  Steps should 
-typically be altered only in their own `setup()` or `runtime_setup()` methods.
-
-Tasks that don't need to change config options don't need to override
-`configure()` at all.

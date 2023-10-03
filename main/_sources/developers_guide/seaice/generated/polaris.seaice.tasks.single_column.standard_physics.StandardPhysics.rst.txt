@@ -17,6 +17,7 @@
       ~StandardPhysics.add_step
       ~StandardPhysics.configure
       ~StandardPhysics.remove_step
+      ~StandardPhysics.set_shared_config
    
    
 

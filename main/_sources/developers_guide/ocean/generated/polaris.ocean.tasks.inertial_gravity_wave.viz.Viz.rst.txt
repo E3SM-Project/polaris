@@ -22,6 +22,7 @@
       ~Viz.run
       ~Viz.runtime_setup
       ~Viz.set_resources
+      ~Viz.set_shared_config
       ~Viz.setup
       ~Viz.validate_baselines
    

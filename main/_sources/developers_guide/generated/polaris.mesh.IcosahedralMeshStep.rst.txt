@@ -27,6 +27,7 @@
       ~IcosahedralMeshStep.runtime_setup
       ~IcosahedralMeshStep.save_and_plot_cell_width
       ~IcosahedralMeshStep.set_resources
+      ~IcosahedralMeshStep.set_shared_config
       ~IcosahedralMeshStep.setup
       ~IcosahedralMeshStep.validate_baselines
    

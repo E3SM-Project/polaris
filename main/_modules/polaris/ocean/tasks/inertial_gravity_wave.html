@@ -154,15 +154,11 @@
                                <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">,</span>
                           <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span>
-                      <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+                      <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add the config file common to inertial gravity wave tests</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">&#39;polaris.ocean.tasks.inertial_gravity_wave&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span></div>
+            <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

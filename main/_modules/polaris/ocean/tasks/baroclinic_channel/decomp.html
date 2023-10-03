@@ -152,14 +152,7 @@
                 <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
             <span class="n">subdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Validate</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">step_subdirs</span><span class="o">=</span><span class="n">subdirs</span><span class="p">,</span>
-                               <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span></div>
-
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add the config file common to baroclinic channel tests</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                                     <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span></div>
+                               <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

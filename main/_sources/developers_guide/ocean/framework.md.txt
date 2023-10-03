@@ -194,16 +194,19 @@ barotropic time step in a similar way.  The `run_duration` and
 
 Each convergence test can override these defaults with its own defaults by 
 defining them in its own config file.  Convergence tests should bring in this
-config file in their `configure()` methods, then add its own config options
-after that to make sure they take precedence, e.g.:
+config file in their constructor or by adding them to a shared `config`.  The
+options from the shared infrastructure should be added first, then those from 
+its own config file to make sure they take precedence, e.g.:
 
 ```python
-from polaris import Task
-class CosineBell(Task):
-    def configure(self):
-        super().configure()
-        config = self.config
-        config.add_from_package('polaris.mesh', 'mesh.cfg')
+from polaris.config import PolarisConfigParser
+
+
+def add_cosine_bell_tasks(component):
+    for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
+
+        filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',

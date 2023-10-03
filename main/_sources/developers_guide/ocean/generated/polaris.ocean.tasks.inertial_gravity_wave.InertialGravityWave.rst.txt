@@ -17,6 +17,7 @@
       ~InertialGravityWave.add_step
       ~InertialGravityWave.configure
       ~InertialGravityWave.remove_step
+      ~InertialGravityWave.set_shared_config
    
    
 

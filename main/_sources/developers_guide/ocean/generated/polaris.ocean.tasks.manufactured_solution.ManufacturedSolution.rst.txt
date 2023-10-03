@@ -17,6 +17,7 @@
       ~ManufacturedSolution.add_step
       ~ManufacturedSolution.configure
       ~ManufacturedSolution.remove_step
+      ~ManufacturedSolution.set_shared_config
    
    
 

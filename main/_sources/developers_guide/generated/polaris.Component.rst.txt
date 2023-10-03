@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Component.__init__
+      ~Component.add_config
       ~Component.add_step
       ~Component.add_task
       ~Component.configure

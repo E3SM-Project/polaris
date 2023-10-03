@@ -17,6 +17,7 @@
       ~ExactRestart.add_step
       ~ExactRestart.configure
       ~ExactRestart.remove_step
+      ~ExactRestart.set_shared_config
    
    
 

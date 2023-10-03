@@ -28,6 +28,7 @@
       ~MappingFileStep.run
       ~MappingFileStep.runtime_setup
       ~MappingFileStep.set_resources
+      ~MappingFileStep.set_shared_config
       ~MappingFileStep.setup
       ~MappingFileStep.src_from_lon_lat
       ~MappingFileStep.src_from_mpas

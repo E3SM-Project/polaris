@@ -17,6 +17,7 @@
       ~Task.add_step
       ~Task.configure
       ~Task.remove_step
+      ~Task.set_shared_config
    
    
 

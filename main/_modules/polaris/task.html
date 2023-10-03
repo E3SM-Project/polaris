@@ -146,11 +146,11 @@
 <span class="sd">        ``component`` and the task&#39;s ``subdir``</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for this task, a combination of the defaults</span>
-<span class="sd">        for the machine, core and configuration</span>
+<span class="sd">        Configuration options for this task, possibly shared with other tasks</span>
+<span class="sd">        and steps</span>
 
 <span class="sd">    config_filename : str</span>
-<span class="sd">        The local name of the config file that ``config`` has been written to</span>
+<span class="sd">        The filename or symlink within the task where ``config`` is written to</span>
 <span class="sd">        during setup and read from during run</span>
 
 <span class="sd">    work_dir : str</span>
@@ -206,6 +206,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span> <span class="o">=</span> <span class="n">name</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="c1"># steps will be added by calling add_step()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -213,8 +215,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="c1"># these will be set during setup, dummy values for now</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
@@ -281,12 +281,13 @@
         <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">if</span> <span class="n">symlink</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">symlink</span>
         <span class="k">if</span> <span class="n">run_by_default</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">remove_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<div class="viewcode-block" id="Task.remove_step"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.remove_step.html#polaris.Task.remove_step">[docs]</a>    <span class="k">def</span> <span class="nf">remove_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove the given step from this task and the component</span>
 
@@ -298,12 +299,45 @@
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> not in this task </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
+            <span class="c1"># no tasks are using this step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Task.set_shared_config"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.set_shared_config.html#polaris.Task.set_shared_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the task&#39;s config parser with the shared config parser</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            A shared config parser whose ``filepath`` attribute must have been</span>
+<span class="sd">            set</span>
+
+<span class="sd">        link : str, optional</span>
+<span class="sd">            A link to the shared config file to go in the task&#39;s work</span>
+<span class="sd">            directory. If not provided, the config file itself must be in</span>
+<span class="sd">            the task&#39;s work directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="n">link</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">directory</span><span class="p">,</span> <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">directory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No link parameter was provided but the &#39;</span>
+                                 <span class="s1">&#39;config file is not in this task</span><span class="se">\&#39;</span><span class="s1">s work &#39;</span>
+                                 <span class="s1">&#39;directory.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">basename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">link</span>
+            <span class="n">config_link</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">symlinks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_link</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

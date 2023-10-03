@@ -218,12 +218,13 @@
         <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
+    <span class="n">_setup_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span>
+                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">)</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up tasks:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span>
-                   <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span>
-                   <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
-                   <span class="n">copy_executable</span><span class="o">=</span><span class="n">copy_executable</span><span class="p">)</span>
+        <span class="n">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span>
+                   <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">])</span>
 
     <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
@@ -251,8 +252,7 @@
     <span class="k">return</span> <span class="n">tasks</span></div>
 
 
-<div class="viewcode-block" id="setup_task"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a><span class="k">def</span> <span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span>
-               <span class="n">component_path</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">):</span>
+<div class="viewcode-block" id="setup_task"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a><span class="k">def</span> <span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -264,9 +264,6 @@
 <span class="sd">    task : polaris.Task</span>
 <span class="sd">        A task to set up</span>
 
-<span class="sd">    config_file : str</span>
-<span class="sd">        Configuration file with custom options for setting up and running tasks</span>
-
 <span class="sd">    machine : str</span>
 <span class="sd">        The name of one of the machines with defined config options, which can</span>
 <span class="sd">        be listed with ``polaris list --machines``</span>
@@ -277,60 +274,24 @@
 <span class="sd">    baseline_dir : str</span>
 <span class="sd">        Location of baselines that can be compared to</span>
 
-<span class="sd">    component_path : str</span>
-<span class="sd">        The relative or absolute path to the location where the model and</span>
-<span class="sd">        default namelists have been built</span>
-
 <span class="sd">    cached_steps : list of str</span>
 <span class="sd">        Which steps (if any) should be cached, identified by a list of</span>
 <span class="sd">        subdirectories in the component</span>
-
-<span class="sd">    copy_executable : bool, optional</span>
-<span class="sd">        Whether to copy the model executable to the work directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="n">config</span> <span class="o">=</span> <span class="n">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span>
-                               <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s1">&#39;POLARIS_BRANCH&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_BRANCH&#39;</span><span class="p">]</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-
     <span class="n">task_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">task_dir</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
         <span class="k">pass</span>
     <span class="n">task</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">task_dir</span>
     <span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
 
-    <span class="c1"># add config options specific to the task</span>
-    <span class="n">task</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
-    <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-
     <span class="c1"># add the baseline directory for this task</span>
     <span class="k">if</span> <span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">task</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-
-    <span class="c1"># set the component_path path from the command line if provided</span>
-    <span class="k">if</span> <span class="n">component_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">component_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="s1">&#39;steps_to_run&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">))</span>
-
-    <span class="c1"># write out the config file</span>
-    <span class="n">task_config</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
-    <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">task_config</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task_config</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span>
@@ -338,38 +299,7 @@
 
     <span class="c1"># iterate over steps</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="c1"># make the step directory if it doesn&#39;t exist</span>
-        <span class="n">step_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
-            <span class="n">symlink</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]))</span>
-
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span><span class="p">:</span>
-            <span class="c1"># this is a shared step that has already been set up</span>
-            <span class="k">continue</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">step_dir</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-            <span class="k">pass</span>
-
-        <span class="n">symlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task_config</span><span class="p">),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span> <span class="n">task_config</span><span class="p">))</span>
-
-        <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">step_dir</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">task_config</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
-
-        <span class="c1"># set up the step</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
-
-        <span class="c1"># add the baseline directory for this step</span>
-        <span class="k">if</span> <span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="c1"># process input, output, namelist and streams files</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span>
+        <span class="n">_setup_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">task_dir</span><span class="p">)</span>
 
     <span class="c1"># wait until we&#39;ve set up all the steps before pickling because steps may</span>
     <span class="c1"># need other steps to be set up</span>
@@ -389,7 +319,7 @@
         <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
             <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
-            <span class="n">write_job_script</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">min_cores</span><span class="p">,</span>
+            <span class="n">write_job_script</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">min_cores</span><span class="p">,</span>
                              <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -405,7 +335,7 @@
 
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">max_cores</span><span class="p">,</span> <span class="n">max_of_min_cores</span> <span class="o">=</span> <span class="n">_get_required_cores</span><span class="p">({</span><span class="n">path</span><span class="p">:</span> <span class="n">task</span><span class="p">})</span>
-        <span class="n">write_job_script</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">max_cores</span><span class="p">,</span> <span class="n">max_of_min_cores</span><span class="p">,</span>
+        <span class="n">write_job_script</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">max_cores</span><span class="p">,</span> <span class="n">max_of_min_cores</span><span class="p">,</span>
                          <span class="n">task_dir</span><span class="p">)</span></div>
 
 
@@ -483,6 +413,133 @@
 
         <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_setup_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span>
+                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Set up config parsers for this component &quot;&quot;&quot;</span>
+
+    <span class="n">common_config</span> <span class="o">=</span> <span class="n">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span>
+                                      <span class="n">component</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;POLARIS_BRANCH&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_BRANCH&#39;</span><span class="p">]</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="n">initial_configs</span> <span class="o">=</span> <span class="n">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">)</span>
+
+    <span class="c1"># okay, we&#39;re finally ready to configure all the tasks and add configs</span>
+    <span class="c1"># to the &quot;owned&quot; steps</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="n">_configure_tasks_and_add_step_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span>
+                                                    <span class="n">initial_configs</span><span class="p">,</span>
+                                                    <span class="n">common_config</span><span class="p">)</span>
+
+    <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add config parsers for tasks and steps that don&#39;t already have shared ones</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get a list of shared steps and add config files for tasks to the</span>
+    <span class="c1"># component</span>
+    <span class="n">shared_steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">is_shared</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">is_shared</span><span class="p">:</span>
+                <span class="n">shared_steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+
+        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                                                <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">configs</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="c1"># now go through all the configs and prepend the common config options,</span>
+    <span class="c1"># then run the setup() method for each in case there is some customization</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_config</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">configs</span>
+
+
+<span class="k">def</span> <span class="nf">_configure_tasks_and_add_step_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span>
+                                          <span class="n">common_config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call the configure() method for each task and add configs to &quot;owned&quot; steps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                        <span class="n">option</span><span class="o">=</span><span class="s1">&#39;steps_to_run&#39;</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
+                        <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A list of steps to include when running the &#39;</span>
+                                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task&#39;</span><span class="p">)</span>
+
+    <span class="c1"># add configs to steps after calling task.configure() on all tasks in case</span>
+    <span class="c1"># new steps were added</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">new_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">configs</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">is_shared</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">is_shared</span><span class="p">:</span>
+                <span class="n">configs</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span>
+                <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                                                        <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">initial_configs</span><span class="p">:</span>
+                    <span class="n">new_configs</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span>
+                    <span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                                       <span class="n">link</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">new_configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_config</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">configs</span>
+
+
+<span class="k">def</span> <span class="nf">_write_configs</span><span class="p">(</span><span class="n">common_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Write out and symlink all the config files &quot;&quot;&quot;</span>
+
+    <span class="c1"># add the common config at the component level</span>
+    <span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">configs</span><span class="p">[</span><span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_config</span>
+
+    <span class="c1"># finally, write out the config files and make the symlinks</span>
+    <span class="n">component_work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">config_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_work_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config_dir</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">symlinks</span><span class="p">:</span>
+            <span class="n">link_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_work_dir</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+            <span class="n">link_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">link_filepath</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">link_dir</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">symlink</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="n">link_filepath</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
@@ -636,6 +693,38 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="n">tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_setup_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">task_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Set up a step in a task &quot;&quot;&quot;</span>
+
+    <span class="c1"># make the step directory if it doesn&#39;t exist</span>
+    <span class="n">step_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_dir</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span><span class="p">:</span>
+        <span class="c1"># this is a shared step that has already been set up</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">step_dir</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">step_dir</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
+
+    <span class="c1"># set up the step</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+    <span class="c1"># add the baseline directory for this step</span>
+    <span class="k">if</span> <span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c1"># process input, output, namelist and streams files</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_symlink_load_script</span><span class="p">(</span><span class="n">work_dir</span><span class="p">):</span>

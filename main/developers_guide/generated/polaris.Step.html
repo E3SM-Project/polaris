@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.Step.set_resources" href="polaris.Step.set_resources.html" />
-    <link rel="prev" title="polaris.Task.add_step" href="polaris.Task.add_step.html" />
+    <link rel="prev" title="polaris.Task.set_shared_config" href="polaris.Task.set_shared_config.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -191,10 +191,11 @@ Under other circumstances, it is sufficient to indicate that an output
 file from another step is an input of this step to establish a
 dependency.</p></li>
 <li><p><strong>is_dependency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether this step is the dependency of one or more other steps.</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this task, a combination of the defaults
-for the machine, core and configuration</p></li>
+<li><p><strong>tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – The tasks this step is used in</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this step, possibly shared with other tasks
+and steps</p></li>
 <li><p><strong>machine_info</strong> (<em>mache.MachineInfo</em>) – Information about E3SM supported machines</p></li>
-<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The local name of the config file that <code class="docutils literal notranslate"><span class="pre">config</span></code> has been written to
+<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The filename or symlink within the step where <code class="docutils literal notranslate"><span class="pre">config</span></code> is written to
 during setup and read from during run</p></li>
 <li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The step’s work directory, defined during setup as the combination
 of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p></li>
@@ -296,10 +297,13 @@ additional subprocesses).</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code></a>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code></a>(config[, link])</p></td>
+<td><p>Replace the step's config parser with the shared config parser</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code></a>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>
@@ -312,7 +316,7 @@ additional subprocesses).</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.Task.add_step.html" class="btn btn-neutral float-left" title="polaris.Task.add_step" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.Task.set_shared_config.html" class="btn btn-neutral float-left" title="polaris.Task.set_shared_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.Step.set_resources.html" class="btn btn-neutral float-right" title="polaris.Step.set_resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

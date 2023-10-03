@@ -102,6 +102,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#config">config</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html">polaris.config.PolarisConfigParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html">polaris.config.PolarisConfigParser.setup</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#io">io</a><ul>
@@ -299,7 +300,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks" title="polaris.setup.setup_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_tasks</span></code></a>(work_dir[, task_list, numbers, ...])</p></td>
 <td><p>Set up one or more tasks</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_task</span></code></a>(path, task, config_file, machine, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_task</span></code></a>(path, task, machine, work_dir, ...)</p></td>
 <td><p>Set up one or more tasks</p></td>
 </tr>
 </tbody>
@@ -393,6 +394,15 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.add_task.html#polaris.Component.add_task" title="polaris.Component.add_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_task</span></code></a>(task)</p></td>
 <td><p>Add a task to the component</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.add_step.html#polaris.Component.add_step" title="polaris.Component.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_step</span></code></a>(step)</p></td>
+<td><p>Add a step to the component</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.remove_step.html#polaris.Component.remove_step" title="polaris.Component.remove_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.remove_step</span></code></a>(step)</p></td>
+<td><p>Remove the given step from this component</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.add_config.html#polaris.Component.add_config" title="polaris.Component.add_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.add_config</span></code></a>(config)</p></td>
+<td><p>Add a shared config to the component</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -412,6 +422,12 @@ documentation.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.add_step</span></code></a>([step, subdir, symlink, ...])</p></td>
 <td><p>Add a step to the task and component (if not already present)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Task.remove_step.html#polaris.Task.remove_step" title="polaris.Task.remove_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.remove_step</span></code></a>(step)</p></td>
+<td><p>Remove the given step from this task and the component</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Task.set_shared_config.html#polaris.Task.set_shared_config" title="polaris.Task.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Task.set_shared_config</span></code></a>(config[, link])</p></td>
+<td><p>Replace the task's config parser with the shared config parser</p></td>
 </tr>
 </tbody>
 </table>
@@ -450,6 +466,12 @@ documentation.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_dependency</span></code></a>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.validate_baselines</span></code></a>()</p></td>
+<td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_shared_config</span></code></a>(config[, link])</p></td>
+<td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 </tbody>
 </table>
@@ -532,8 +554,11 @@ documentation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code></a>([filepath])</p></td>
 <td><p>A &quot;meta&quot; config parser that keeps a dictionary of config parsers and their sources to combine when needed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisConfigParser.setup</span></code></a>()</p></td>
+<td><p>A method that can be overridden to add config options during polaris setup</p></td>
 </tr>
 </tbody>
 </table>

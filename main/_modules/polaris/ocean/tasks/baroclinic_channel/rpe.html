@@ -109,7 +109,6 @@
              
   <h1>Source code for polaris.ocean.tasks.baroclinic_channel.rpe</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
 
@@ -126,7 +125,7 @@
 <span class="sd">        The resolution of the test case in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Rpe.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+<div class="viewcode-block" id="Rpe.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 
@@ -143,10 +142,16 @@
 
 <span class="sd">        init : polaris.ocean.tasks.baroclinic_channel.init.Init</span>
 <span class="sd">            A shared step for creating the initial state</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            A shared config parser</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rpe&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
+        <span class="c1"># this needs to be added before we can use the config options it</span>
+        <span class="c1"># brings in to set up the steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_rpe_and_analysis_steps</span><span class="p">()</span></div>
 
@@ -155,20 +160,12 @@
 <span class="sd">        Modify the configuration options for this test case.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                                     <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_rpe_and_analysis_steps</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_rpe_and_analysis_steps</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_add_rpe_and_analysis_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_add_rpe_and_analysis_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add the steps in the test case either at init or set-up &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># get just the default config options for baroclinic_channel so</span>
-            <span class="c1"># we can get the default viscosities</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-            <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
-
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">step_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;nu&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">step_name</span> <span class="o">==</span> <span class="s1">&#39;analysis&#39;</span><span class="p">:</span>

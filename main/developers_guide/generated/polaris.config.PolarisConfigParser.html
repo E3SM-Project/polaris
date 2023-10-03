@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.io.download" href="polaris.io.download.html" />
+    <link rel="next" title="polaris.config.PolarisConfigParser.setup" href="polaris.config.PolarisConfigParser.setup.html" />
     <link rel="prev" title="polaris.components.get_components" href="polaris.components.get_components.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -80,6 +80,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#id1">components</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#config">config</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.config.PolarisConfigParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.config.PolarisConfigParser.setup.html">polaris.config.PolarisConfigParser.setup</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#io">io</a></li>
@@ -139,7 +140,7 @@
 <h1>polaris.config.PolarisConfigParser<a class="headerlink" href="#polaris-config-polarisconfigparser" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.config.PolarisConfigParser">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.config.</span></span><span class="sig-name descname"><span class="pre">PolarisConfigParser</span></span><a class="reference internal" href="../../_modules/polaris/config.html#PolarisConfigParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.config.PolarisConfigParser" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.config.</span></span><span class="sig-name descname"><span class="pre">PolarisConfigParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/config.html#PolarisConfigParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.config.PolarisConfigParser" title="Permalink to this definition"></a></dt>
 <dd><p>A “meta” config parser that keeps a dictionary of config parsers and their
 sources to combine when needed.  The custom config parser allows provenance
 of the source of different config options and allows the “user” config
@@ -147,10 +148,26 @@ options to always take precedence over other config options (even if they
 are added later).</p>
 <p>This version simply overrides the <code class="docutils literal notranslate"><span class="pre">combine()</span></code> method to also ensure that
 certain paths are absolute, rather than relative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – A filepath within the component’s work directory where this config
+will be written out</p></li>
+<li><p><strong>symlinks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – A list of filepaths within the component’s work directory where
+symlinks to <code class="docutils literal notranslate"><span class="pre">filepath</span></code> will be created</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.config.PolarisConfigParser.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polaris.config.PolarisConfigParser.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/config.html#PolarisConfigParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.config.PolarisConfigParser.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Make a new (empty) config parser</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – A filepath within the component’s work directory where this config
+will be written out</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -160,7 +177,7 @@ certain paths are absolute, rather than relative.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.config.PolarisConfigParser.__init__" title="polaris.config.PolarisConfigParser.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.config.PolarisConfigParser.__init__" title="polaris.config.PolarisConfigParser.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([filepath])</p></td>
 <td><p>Make a new (empty) config parser</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_from_file</span></code>(filename)</p></td>
@@ -172,43 +189,52 @@ certain paths are absolute, rather than relative.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_user_config</span></code>(filename)</p></td>
 <td><p>Add a the contents of a user config file to the parser.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine</span></code>()</p></td>
-<td><p>Combine the config files into one.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">append</span></code>(other)</p></td>
+<td><p>Append a deep copy of another config parser to this one.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine</span></code>([raw])</p></td>
+<td><p>Combine the config files into one</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</p></td>
 <td><p>Get a deep copy of the config parser</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(section, option)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(section, option)</p></td>
 <td><p>Get an option value for a given section.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getboolean</span></code>(section, option)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getboolean</span></code>(section, option)</p></td>
 <td><p>Get an option boolean value for a given section.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getexpression</span></code>(section, option[, dtype, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getexpression</span></code>(section, option[, dtype, ...])</p></td>
 <td><p>Get an option as an expression (typically a list, though tuples and dicts are also available).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getfloat</span></code>(section, option)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getfloat</span></code>(section, option)</p></td>
 <td><p>Get an option float value for a given section.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getint</span></code>(section, option)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getint</span></code>(section, option)</p></td>
 <td><p>Get an option integer value for a given section.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getlist</span></code>(section, option[, dtype])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getlist</span></code>(section, option[, dtype])</p></td>
 <td><p>Get an option value as a list for a given section.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_option</span></code>(section, option)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_option</span></code>(section, option)</p></td>
 <td><p>Whether the given section has the given option</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_section</span></code>(section)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_section</span></code>(section)</p></td>
 <td><p>Whether the given section is part of the config</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_files</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_files</span></code>()</p></td>
 <td><p>Get a list of files contributing to the combined config options</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepend</span></code>(other)</p></td>
+<td><p>Prepend a deep copy of another config parser to this one.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(section, option[, value, comment, user])</p></td>
 <td><p>Set the value of the given option in the given section.  The file from</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>(fp[, include_sources, include_comments])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<td><p>A method that can be overridden to add config options during polaris setup</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>(fp[, include_sources, ...])</p></td>
 <td><p>Write the config options to the given file pointer.</p></td>
 </tr>
 </tbody>
@@ -222,7 +248,7 @@ certain paths are absolute, rather than relative.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.components.get_components.html" class="btn btn-neutral float-left" title="polaris.components.get_components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.io.download.html" class="btn btn-neutral float-right" title="polaris.io.download" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.config.PolarisConfigParser.setup.html" class="btn btn-neutral float-right" title="polaris.config.PolarisConfigParser.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

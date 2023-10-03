@@ -17,6 +17,7 @@
       ~Restart.add_step
       ~Restart.configure
       ~Restart.remove_step
+      ~Restart.set_shared_config
    
    
 

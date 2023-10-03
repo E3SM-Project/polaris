@@ -69,6 +69,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Config files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared-config-files">Shared config files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#comments-in-config-files">Comments in config files</a></li>
 </ul>
 </li>
@@ -132,18 +133,33 @@ Here, we include some specific details relevant to using the
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vstable)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a> in polaris.</p>
 <p>Here, we provide the <a class="reference internal" href="../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> that has
 almost the same functionality but also ensures that certain relative paths are
-converted automatically to absolute paths.</p>
+converted automatically to absolute paths.  <code class="docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code> also has
+attributes for a <code class="docutils literal notranslate"><span class="pre">filepath</span></code> where the config file will be written out and a
+list of <code class="docutils literal notranslate"><span class="pre">symlinks</span></code> that will point to <code class="docutils literal notranslate"><span class="pre">filepath</span></code>.  It also has a
+<a class="reference internal" href="../generated/polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser.setup()</span></code></a> method that can be
+overridden to add config options (e.g. algorithmically from other config
+options) as part of setting up polaris tasks and steps.  These features are
+included to accommodate sharing config options across shared steps and/or
+multiple tasks.</p>
 <p>The <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools vstable)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> method can
 be used to add the contents of a config file within a package to the config
-options. Examples of this can be found in many tasks as well as
-<a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>. Here is a typical example from
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.decomp.Decomp.configure()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add the config file common to baroclinic channel tests</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
-                                 <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
+options. Examples of this can be found in many tasks as well as in the
+<code class="docutils literal notranslate"><span class="pre">polaris.setup</span></code> module. Here is a typical example from
+<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+
+
+<span class="k">class</span> <span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;inertial_gravity_wave&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        
+        <span class="o">...</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.ocean.tasks.inertial_gravity_wave&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The first and second arguments are the name of a package containing the config
@@ -156,9 +172,14 @@ default behavior.  In some cases, you would like the code to add the config
 options if the config file exists and do nothing if it does not.  In this
 example from <a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>, there may not be a config
 file for the particular machine we’re on, and that’s fine:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
-                            <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+
+
+<span class="k">def</span> <span class="nf">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+                                <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If there isn’t a config file for this machine, nothing will happen.</p>
@@ -175,6 +196,102 @@ is <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/sta
 be used to get python dictionaries, lists and tuples as well as a small set
 of functions (<code class="docutils literal notranslate"><span class="pre">range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.linspace()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.arange()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.array()</span></code>)</p>
+<section id="shared-config-files">
+<h2>Shared config files<a class="headerlink" href="#shared-config-files" title="Permalink to this heading"></a></h2>
+<p>Often, it makes sense for many tasks and steps to share the same config
+options.  The default behavior is for a task and its “owned” steps to share
+a config file in the task’s work directory called <code class="docutils literal notranslate"><span class="pre">{task.name}.cfg</span></code> and
+symlinks with that same name in each step’s work directory.  The default for
+a shared step is to have its own <code class="docutils literal notranslate"><span class="pre">{step.name}.cfg</span></code> in its work directory.</p>
+<p>Developers can create shared config parsers that define the location of the
+shared config file and add them to tasks and steps using
+<a class="reference internal" href="../generated/polaris.Task.set_shared_config.html#polaris.Task.set_shared_config" title="polaris.Task.set_shared_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.set_shared_config()</span></code></a> and
+<a class="reference internal" href="../generated/polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.set_shared_config()</span></code></a>.  The location of the shared
+config file should be intuitive to users but local symlinks will also make
+it easy to modify the shared config options from within any of the tasks and
+steps that use them.</p>
+<p>As an example, the baroclinic channel tasks share a single
+<code class="docutils literal notranslate"><span class="pre">baroclinic_channel.cfg</span></code> config file for each resolution that resides in the
+resolution’s work directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe</span> <span class="kn">import</span> <span class="n">Rpe</span>
+
+
+<span class="k">def</span> <span class="nf">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]:</span>
+        <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/baroclinic_channel/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;baroclinic_channel.cfg&#39;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
+
+        <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
+        <span class="n">init</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+
+        <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                          <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
+        <span class="n">default</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+        <span class="o">...</span>
+        
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Rpe</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                               <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>For most tasks and steps, it is convenient to call <code class="docutils literal notranslate"><span class="pre">set_shared_config()</span></code>
+after constructing the step or task and before adding it to the component.
+In the example of the <code class="docutils literal notranslate"><span class="pre">Rpe</span></code> task here, we need the shared config in the
+constructor so it has to be passed in.  We call <code class="docutils literal notranslate"><span class="pre">self.set_shared_config()</span></code>
+in the constructor, and then use config options to determine the steps to be
+added as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+
+
+<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rpe&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+
+        <span class="c1"># this needs to be added before we can use the config options it</span>
+        <span class="c1"># brings in to set up the steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_rpe_and_analysis_steps</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_rpe_and_analysis_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Add the steps in the test case either at init or set-up &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+
+        <span class="n">nus</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel_rpe&#39;</span><span class="p">,</span> <span class="s1">&#39;viscosities&#39;</span><span class="p">,</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">nu</span> <span class="ow">in</span> <span class="n">nus</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;nu_</span><span class="si">{</span><span class="n">nu</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span>
+
+            <span class="n">step</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Analysis</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nus</span><span class="o">=</span><span class="n">nus</span><span class="p">,</span>
+                     <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
 <section id="comments-in-config-files">
 <h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Permalink to this heading"></a></h2>
 <p>One of the main advantages of <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vstable)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a>

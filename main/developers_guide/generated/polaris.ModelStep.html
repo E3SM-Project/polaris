@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.ModelStep.setup" href="polaris.ModelStep.setup.html" />
-    <link rel="prev" title="polaris.Step.add_dependency" href="polaris.Step.add_dependency.html" />
+    <link rel="prev" title="polaris.Step.set_shared_config" href="polaris.Step.set_shared_config.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -275,13 +275,16 @@ instead of MPAS namelist and streams files</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.setup.html#polaris.ModelStep.setup" title="polaris.ModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<td><p>Replace the step's config parser with the shared config parser</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.setup.html#polaris.ModelStep.setup" title="polaris.ModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Setup the command-line arguments</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code></a>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>
@@ -294,7 +297,7 @@ instead of MPAS namelist and streams files</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.Step.add_dependency.html" class="btn btn-neutral float-left" title="polaris.Step.add_dependency" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.Step.set_shared_config.html" class="btn btn-neutral float-left" title="polaris.Step.set_shared_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ModelStep.setup.html" class="btn btn-neutral float-right" title="polaris.ModelStep.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

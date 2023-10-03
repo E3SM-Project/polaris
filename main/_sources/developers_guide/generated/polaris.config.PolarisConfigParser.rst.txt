@@ -17,6 +17,7 @@
       ~PolarisConfigParser.add_from_file
       ~PolarisConfigParser.add_from_package
       ~PolarisConfigParser.add_user_config
+      ~PolarisConfigParser.append
       ~PolarisConfigParser.combine
       ~PolarisConfigParser.copy
       ~PolarisConfigParser.get
@@ -28,7 +29,9 @@
       ~PolarisConfigParser.has_option
       ~PolarisConfigParser.has_section
       ~PolarisConfigParser.list_files
+      ~PolarisConfigParser.prepend
       ~PolarisConfigParser.set
+      ~PolarisConfigParser.setup
       ~PolarisConfigParser.write
    
    

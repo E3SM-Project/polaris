@@ -17,6 +17,7 @@
       ~Default.add_step
       ~Default.configure
       ~Default.remove_step
+      ~Default.set_shared_config
    
    
 

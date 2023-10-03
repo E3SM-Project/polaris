@@ -135,6 +135,7 @@
 <li><p><strong>resolutions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The resolutions of the meshes that have been run</p></li>
 <li><p><strong>icosahedral</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to use icosahedral, as opposed to less regular, JIGSAW
 meshes</p></li>
+<li><p><strong>dependencies_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> of </em><em>polaris.Steps</em>) – The dependencies of this step</p></li>
 </ul>
 </dd>
 </dl>
@@ -193,10 +194,13 @@ meshes</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
-<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
+<td><p>Add input files based on resolutions, which may have been changed by user config options</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>

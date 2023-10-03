@@ -31,6 +31,7 @@
       ~OceanModelStep.runtime_setup
       ~OceanModelStep.set_model_resources
       ~OceanModelStep.set_resources
+      ~OceanModelStep.set_shared_config
       ~OceanModelStep.setup
       ~OceanModelStep.update_namelist_pio
       ~OceanModelStep.validate_baselines

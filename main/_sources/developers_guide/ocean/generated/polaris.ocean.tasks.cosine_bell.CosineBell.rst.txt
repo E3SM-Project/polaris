@@ -17,6 +17,7 @@
       ~CosineBell.add_step
       ~CosineBell.configure
       ~CosineBell.remove_step
+      ~CosineBell.set_shared_config
    
    
 

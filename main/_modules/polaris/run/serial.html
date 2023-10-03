@@ -174,10 +174,11 @@
 
     <span class="c1"># get the config file for the first task in the suite</span>
     <span class="n">task</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
-                                   <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">available_resources</span> <span class="o">=</span> <span class="n">get_available_parallel_resources</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
+    <span class="n">config_filename</span> <span class="o">=</span> \
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">common_config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">available_resources</span> <span class="o">=</span> <span class="n">get_available_parallel_resources</span><span class="p">(</span><span class="n">common_config</span><span class="p">)</span>
 
     <span class="c1"># start logging to stdout/stderr</span>
     <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span><span class="n">suite_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout_logger</span><span class="p">:</span>
@@ -248,7 +249,10 @@
     <span class="k">if</span> <span class="n">step_is_subprocess</span><span class="p">:</span>
         <span class="n">step</span><span class="o">.</span><span class="n">run_as_subprocess</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span>
+                                   <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                   <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
     <span class="n">task</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
     <span class="n">available_resources</span> <span class="o">=</span> <span class="n">get_available_parallel_resources</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="n">set_cores_per_node</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">])</span>
@@ -318,13 +322,14 @@
                              <span class="s1">&#39;which to run: polaris serial &lt;suite&gt;&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_update_steps_to_run</span><span class="p">(</span><span class="n">steps_to_run</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_update_steps_to_run</span><span class="p">(</span><span class="n">task_name</span><span class="p">,</span> <span class="n">steps_to_run</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                         <span class="n">steps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the steps to run</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">steps_to_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">steps_to_run</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span>
-                                  <span class="s1">&#39;steps_to_run&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">step_str</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_name</span><span class="p">,</span> <span class="s1">&#39;steps_to_run&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">steps_to_run</span> <span class="o">=</span> <span class="n">step_str</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps_to_run</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">step</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
@@ -406,7 +411,10 @@
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
 
-        <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span>
+                                       <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                       <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="n">task</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="n">set_cores_per_node</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
                            <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">])</span>
@@ -415,7 +423,7 @@
         <span class="n">mpas_tools</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">default_engine</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;io&#39;</span><span class="p">,</span> <span class="s1">&#39;engine&#39;</span><span class="p">)</span>
 
         <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="n">_update_steps_to_run</span><span class="p">(</span>
-            <span class="n">steps_to_run</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">steps_to_run</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
 
         <span class="n">task_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -476,7 +484,11 @@
 
         <span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span>
+                                       <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                       <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">log_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">step_log_filename</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">log_filename</span>
         <span class="k">else</span><span class="p">:</span>

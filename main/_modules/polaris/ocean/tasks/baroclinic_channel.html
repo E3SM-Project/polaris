@@ -107,7 +107,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.baroclinic_channel</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.decomp</span> <span class="kn">import</span> <span class="n">Decomp</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
@@ -127,28 +128,37 @@
         <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/baroclinic_channel/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">&#39;</span>
 
-        <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;baroclinic_channel.cfg&#39;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
 
-        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                    <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">))</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
+        <span class="n">init</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+
+        <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                          <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
+        <span class="n">default</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">resolution</span> <span class="o">==</span> <span class="mf">10.</span><span class="p">:</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-                <span class="n">Decomp</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                       <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">))</span>
+            <span class="n">decomp</span> <span class="o">=</span> <span class="n">Decomp</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                            <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
+            <span class="n">decomp</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
 
-            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-                <span class="n">Restart</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                        <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">))</span>
+            <span class="n">restart</span> <span class="o">=</span> <span class="n">Restart</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                              <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
+            <span class="n">restart</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">restart</span><span class="p">)</span>
 
-            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-                <span class="n">Threads</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                        <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">))</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="n">Threads</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                              <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
+            <span class="n">threads</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
 
-        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="n">Rpe</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">))</span></div>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Rpe</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                               <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span></div>
 </pre></div>
 
            </div>

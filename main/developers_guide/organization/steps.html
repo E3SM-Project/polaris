@@ -336,7 +336,7 @@ the minimum number of MPI tasks, the number of CPUs per task, the minimum
 number of CPUs per task, the number of OpenMP threads, and (currently as
 placeholders) the amount of memory the step is allowed to use.</p>
 <p>Then, the step can add <a class="reference internal" href="#dev-step-inputs-outputs"><span class="std std-ref">inputs and outputs</span></a> as well as
-<span class="xref std std-ref">dev-step-namelists-and-streams</span>, as described below.</p>
+<a class="reference internal" href="../framework/model.html#dev-model-yaml-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>, as described below.</p>
 <p>As with the task’s <a class="reference internal" href="tasks.html#dev-task-init"><span class="std std-ref">constructor</span></a>, it is important that the
 step’s constructor doesn’t perform any time-consuming calculations, download
 files, or otherwise use significant resources because this function is called
@@ -355,6 +355,9 @@ the step by calling any of the following methods:</p>
 <p>Each of these functions just caches information about the the inputs, outputs,
 namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.</p>
+<p>If this is a shared step with its own config options, it is also okay to call
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools vstable)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> from the
+constructor.</p>
 <p>The following is from
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.forward.Forward()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
@@ -428,10 +431,6 @@ set up, so each takes a negligible amount of time.</p>
                          <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
                          <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># update the viscosity to the requested value</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
-
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
@@ -442,6 +441,11 @@ set up, so each takes a negligible amount of time.</p>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
                            <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># update the viscosity to the requested value *after* loading</span>
+            <span class="c1"># forward.yaml</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
@@ -1008,14 +1012,12 @@ on that output file as an input use <a class="reference internal" href="../gener
 <p>Under these circumstances, it is useful to be able to specify that a step
 is a dependency of another (dependent) step.  This is accomplished by passing
 the  dependency to the step’s <a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> method
-either  during the creation of the dependent step, within the <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
-method of  the parent task, or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the dependent
-step.  The  dependency does not need to belong to the same task as the
-dependent step.  But the dependent step will fail to run if the dependency
-has not run.  Also all dependencies must be set up along with dependent steps
-(even if they are not run by default, because they are added to the task
-with <code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>).  This is because a user could modify which steps
-they wish to run and all dependencies should be available if they do so.</p>
+either during the creation of the dependent step, within the <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
+method of the parent task, or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the dependent
+step.  The dependency does not need to belong to the task, it can be a shared
+step, but it should be a step in any tasks that also use the dependent step.
+This is because the dependent step will fail to run if the dependency has not
+run.</p>
 <p>When a step is added as a dependency, after it runs, its state will be stored
 in a pickle file (see <a class="reference internal" href="../framework/commands.html#dev-setup"><span class="std std-ref">setup module</span></a>) that contains any modifications to its
 state during the run.  When the dependent step is run, the the state of

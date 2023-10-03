@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.Task.configure" href="polaris.Task.configure.html" />
-    <link rel="prev" title="polaris.Component.add_task" href="polaris.Component.add_task.html" />
+    <link rel="prev" title="polaris.Component.add_config" href="polaris.Component.add_config.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -160,9 +160,9 @@ should be run manually by the user.</p></li>
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the subdirectory for the task</p></li>
 <li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the path within the base work directory of the task, made up of
 <code class="docutils literal notranslate"><span class="pre">component</span></code> and the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this task, a combination of the defaults
-for the machine, core and configuration</p></li>
-<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The local name of the config file that <code class="docutils literal notranslate"><span class="pre">config</span></code> has been written to
+<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this task, possibly shared with other tasks
+and steps</p></li>
+<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The filename or symlink within the task where <code class="docutils literal notranslate"><span class="pre">config</span></code> is written to
 during setup and read from during run</p></li>
 <li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The task’s work directory, defined during setup as the combination
 of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p></li>
@@ -214,8 +214,11 @@ running the task as part of a suite</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this task.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Task.remove_step.html#polaris.Task.remove_step" title="polaris.Task.remove_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code></a>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Task.set_shared_config.html#polaris.Task.set_shared_config" title="polaris.Task.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code></a>(config[, link])</p></td>
+<td><p>Replace the task's config parser with the shared config parser</p></td>
 </tr>
 </tbody>
 </table>
@@ -227,7 +230,7 @@ running the task as part of a suite</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.Component.add_task.html" class="btn btn-neutral float-left" title="polaris.Component.add_task" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.Component.add_config.html" class="btn btn-neutral float-left" title="polaris.Component.add_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.Task.configure.html" class="btn btn-neutral float-right" title="polaris.Task.configure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

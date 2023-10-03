@@ -17,6 +17,7 @@
       ~Decomp.add_step
       ~Decomp.configure
       ~Decomp.remove_step
+      ~Decomp.set_shared_config
    
    
 
