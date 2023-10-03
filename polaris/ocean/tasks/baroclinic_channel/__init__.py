@@ -1,3 +1,4 @@
+from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp
 from polaris.ocean.tasks.baroclinic_channel.default import Default
@@ -18,25 +19,34 @@ def add_baroclinic_channel_tasks(component):
         resdir = resolution_to_subdir(resolution)
         resdir = f'planar/baroclinic_channel/{resdir}'
 
-        init = Init(component=component, resolution=resolution, indir=resdir)
+        config_filename = 'baroclinic_channel.cfg'
+        config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+                                'baroclinic_channel.cfg')
 
-        component.add_task(
-            Default(component=component, resolution=resolution,
-                    indir=resdir, init=init))
+        init = Init(component=component, resolution=resolution, indir=resdir)
+        init.set_shared_config(config, link=config_filename)
+
+        default = Default(component=component, resolution=resolution,
+                          indir=resdir, init=init)
+        default.set_shared_config(config, link=config_filename)
+        component.add_task(default)
 
         if resolution == 10.:
-            component.add_task(
-                Decomp(component=component, resolution=resolution,
-                       indir=resdir, init=init))
+            decomp = Decomp(component=component, resolution=resolution,
+                            indir=resdir, init=init)
+            decomp.set_shared_config(config, link=config_filename)
+            component.add_task(decomp)
 
-            component.add_task(
-                Restart(component=component, resolution=resolution,
-                        indir=resdir, init=init))
+            restart = Restart(component=component, resolution=resolution,
+                              indir=resdir, init=init)
+            restart.set_shared_config(config, link=config_filename)
+            component.add_task(restart)
 
-            component.add_task(
-                Threads(component=component, resolution=resolution,
-                        indir=resdir, init=init))
+            threads = Threads(component=component, resolution=resolution,
+                              indir=resdir, init=init)
+            threads.set_shared_config(config, link=config_filename)
+            component.add_task(threads)
 
-        component.add_task(
-            Rpe(component=component, resolution=resolution,
-                indir=resdir, init=init))
+        component.add_task(Rpe(component=component, resolution=resolution,
+                               indir=resdir, init=init, config=config))

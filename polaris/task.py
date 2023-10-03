@@ -38,11 +38,11 @@ class Task:
         ``component`` and the task's ``subdir``
 
     config : polaris.config.PolarisConfigParser
-        Configuration options for this task, a combination of the defaults
-        for the machine, core and configuration
+        Configuration options for this task, possibly shared with other tasks
+        and steps
 
     config_filename : str
-        The local name of the config file that ``config`` has been written to
+        The filename or symlink within the task where ``config`` is written to
         during setup and read from during run
 
     work_dir : str
@@ -98,6 +98,8 @@ class Task:
             self.subdir = name
 
         self.path = os.path.join(self.component.name, self.subdir)
+        self.config = PolarisConfigParser()
+        self.config_filename = ''
 
         # steps will be added by calling add_step()
         self.steps = dict()
@@ -105,8 +107,6 @@ class Task:
         self.steps_to_run = list()
 
         # these will be set during setup, dummy values for now
-        self.config = PolarisConfigParser()
-        self.config_filename = ''
         self.work_dir = ''
         self.base_work_dir = ''
 
@@ -173,6 +173,7 @@ class Task:
         component.add_step(step)
 
         self.steps[step.name] = step
+        step.tasks[self.subdir] = self
         if symlink:
             self.step_symlinks[step.name] = symlink
         if run_by_default:
@@ -190,9 +191,42 @@ class Task:
         if step.name not in self.steps:
             raise ValueError(f'step {step.name} not in this task {self.name}')
 
-        self.component.remove_step(step)
         self.steps.pop(step.name)
+        step.tasks.pop(self.subdir)
+        if not step.tasks:
+            # no tasks are using this step
+            self.component.remove_step(step)
         if step.name in self.step_symlinks:
             self.step_symlinks.pop(step.name)
         if step.name in self.steps_to_run:
             self.steps_to_run.remove(step.name)
+
+    def set_shared_config(self, config, link=None):
+        """
+        Replace the task's config parser with the shared config parser
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            A shared config parser whose ``filepath`` attribute must have been
+            set
+
+        link : str, optional
+            A link to the shared config file to go in the task's work
+            directory. If not provided, the config file itself must be in
+            the task's work directory
+        """
+        self.component.add_config(config)
+
+        self.config = config
+        if link is None:
+            directory, basename = os.path.split(config.filepath)
+            if directory != self.subdir:
+                raise ValueError('No link parameter was provided but the '
+                                 'config file is not in this task\'s work '
+                                 'directory.')
+            self.config_filename = basename
+        else:
+            self.config_filename = link
+            config_link = os.path.join(self.subdir, link)
+            config.symlinks.append(config_link)

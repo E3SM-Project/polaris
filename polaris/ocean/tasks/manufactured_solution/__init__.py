@@ -52,10 +52,6 @@ class ManufacturedSolution(Task):
                           taskdir=self.subdir),
                       run_by_default=False)
 
-    def configure(self):
-        """
-        Add the config file common to manufactured solution tests
-        """
         self.config.add_from_package(
             'polaris.ocean.tasks.manufactured_solution',
             'manufactured_solution.cfg')

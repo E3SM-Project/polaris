@@ -1,5 +1,4 @@
 from polaris import Task
-from polaris.config import PolarisConfigParser
 from polaris.ocean.tasks.baroclinic_channel.forward import Forward
 from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
 
@@ -16,7 +15,7 @@ class Rpe(Task):
         The resolution of the test case in km
     """
 
-    def __init__(self, component, resolution, indir, init):
+    def __init__(self, component, resolution, indir, init, config):
         """
         Create the test case
 
@@ -33,10 +32,16 @@ class Rpe(Task):
 
         init : polaris.ocean.tasks.baroclinic_channel.init.Init
             A shared step for creating the initial state
+
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
         """
         super().__init__(component=component, name='rpe', indir=indir)
         self.resolution = resolution
 
+        # this needs to be added before we can use the config options it
+        # brings in to set up the steps
+        self.set_shared_config(config, link='baroclinic_channel.cfg')
         self.add_step(init, symlink='init')
         self._add_rpe_and_analysis_steps()
 
@@ -45,20 +50,12 @@ class Rpe(Task):
         Modify the configuration options for this test case.
         """
         super().configure()
-        self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
-                                     'baroclinic_channel.cfg')
-        self._add_rpe_and_analysis_steps(config=self.config)
+        self._add_rpe_and_analysis_steps()
 
-    def _add_rpe_and_analysis_steps(self, config=None):
+    def _add_rpe_and_analysis_steps(self):
         """ Add the steps in the test case either at init or set-up """
 
-        if config is None:
-            # get just the default config options for baroclinic_channel so
-            # we can get the default viscosities
-            config = PolarisConfigParser()
-            package = 'polaris.ocean.tasks.baroclinic_channel'
-            config.add_from_package(package, 'baroclinic_channel.cfg')
-
+        config = self.config
         for step_name in list(self.steps.keys()):
             step = self.steps[step_name]
             if step_name.startswith('nu') or step_name == 'analysis':

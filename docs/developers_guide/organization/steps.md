@@ -261,7 +261,7 @@ number of CPUs per task, the number of OpenMP threads, and (currently as
 placeholders) the amount of memory the step is allowed to use.
 
 Then, the step can add {ref}`dev-step-inputs-outputs` as well as
-{ref}`dev-step-namelists-and-streams`, as described below.
+{ref}`dev-model-yaml-namelists-and-streams`, as described below.
 
 As with the task's {ref}`dev-task-init`, it is important that the
 step's constructor doesn't perform any time-consuming calculations, download
@@ -281,6 +281,10 @@ the step by calling any of the following methods:
 Each of these functions just caches information about the the inputs, outputs,
 namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.
+
+If this is a shared step with its own config options, it is also okay to call 
+{py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` from the
+constructor.
 
 The following is from
 {py:class}`polaris.ocean.tasks.baroclinic_channel.forward.Forward()`:
@@ -357,10 +361,6 @@ class Forward(OceanModelStep):
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
-        if nu is not None:
-            # update the viscosity to the requested value
-            self.add_model_config_options(options=dict(config_mom_del2=nu))
-
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
@@ -371,6 +371,11 @@ class Forward(OceanModelStep):
 
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')
+
+        if nu is not None:
+            # update the viscosity to the requested value *after* loading
+            # forward.yaml
+            self.add_model_config_options(options=dict(config_mom_del2=nu))
 
         self.add_output_file(
             filename='output.nc',
@@ -1027,14 +1032,12 @@ on that output file as an input use {py:meth}`polaris.Step.add_input_file()`.
 Under these circumstances, it is useful to be able to specify that a step
 is a dependency of another (dependent) step.  This is accomplished by passing 
 the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method 
-either  during the creation of the dependent step, within the `configure()` 
-method of  the parent task, or in the `setup()` method of the dependent
-step.  The  dependency does not need to belong to the same task as the
-dependent step.  But the dependent step will fail to run if the dependency
-has not run.  Also all dependencies must be set up along with dependent steps
-(even if they are not run by default, because they are added to the task
-with `run_by_default=False`).  This is because a user could modify which steps
-they wish to run and all dependencies should be available if they do so.
+either during the creation of the dependent step, within the `configure()` 
+method of the parent task, or in the `setup()` method of the dependent
+step.  The dependency does not need to belong to the task, it can be a shared
+step, but it should be a step in any tasks that also use the dependent step.
+This is because the dependent step will fail to run if the dependency has not 
+run.
 
 When a step is added as a dependency, after it runs, its state will be stored
 in a pickle file (see {ref}`dev-setup`) that contains any modifications to its

@@ -93,15 +93,18 @@ class Step:
     is_dependency : bool
         Whether this step is the dependency of one or more other steps.
 
+    tasks : dict
+        The tasks this step is used in
+
     config : polaris.config.PolarisConfigParser
-        Configuration options for this task, a combination of the defaults
-        for the machine, core and configuration
+        Configuration options for this step, possibly shared with other tasks
+        and steps
 
     machine_info : mache.MachineInfo
         Information about E3SM supported machines
 
     config_filename : str
-        The local name of the config file that ``config`` has been written to
+        The filename or symlink within the step where ``config`` is written to
         during setup and read from during run
 
     work_dir : str
@@ -224,6 +227,9 @@ class Step:
 
         self.run_as_subprocess = run_as_subprocess
 
+        self.config = PolarisConfigParser()
+        self.config_filename = ""
+
         # child steps (or tasks) will add to these
         self.input_data = list()
         self.inputs = list()
@@ -231,11 +237,10 @@ class Step:
         self.args = None
         self.dependencies = dict()
         self.is_dependency = False
+        self.tasks = dict()
 
         # these will be set later during setup, dummy placeholders for now
-        self.config = PolarisConfigParser()
         self.machine_info = MachineInfo(machine='default')
-        self.config_filename = ""
         self.work_dir = ""
         self.base_work_dir = ""
         # may be set during setup if there is a baseline for comparison
@@ -516,6 +521,36 @@ class Step:
                 success = success and result
                 compared = True
         return compared, success
+
+    def set_shared_config(self, config, link=None):
+        """
+        Replace the step's config parser with the shared config parser
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            A shared config parser whose ``filepath`` attribute must have been
+            set
+
+        link : str, optional
+            A link to the shared config file to go in the step's work
+            directory. If not provided, the config file itself must be in
+            the step's work directory
+        """
+        self.component.add_config(config)
+
+        self.config = config
+        if link is None:
+            directory, basename = os.path.split(config.filepath)
+            if directory != self.subdir:
+                raise ValueError('No link parameter was provided but the '
+                                 'config file is not in this step\'s work '
+                                 'directory.')
+            self.config_filename = basename
+        else:
+            self.config_filename = link
+            config_link = os.path.join(self.subdir, link)
+            config.symlinks.append(config_link)
 
     def process_inputs_and_outputs(self):
         """

@@ -17,9 +17,18 @@ def add_cosine_bell_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for icosahedral in [False, True]:
+    for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
+
+        filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
+        config.add_from_package('polaris.ocean.tasks.cosine_bell',
+                                'cosine_bell.cfg')
+
         for include_viz in [False, True]:
             component.add_task(CosineBell(component=component,
+                                          config=config,
                                           icosahedral=icosahedral,
                                           include_viz=include_viz))
 
@@ -39,7 +48,7 @@ class CosineBell(Task):
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, component, icosahedral, include_viz):
+    def __init__(self, component, config, icosahedral, include_viz):
         """
         Create the convergence test
 
@@ -47,6 +56,9 @@ class CosineBell(Task):
         ----------
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
+
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
 
         icosahedral : bool
             Whether to use icosahedral, as opposed to less regular, JIGSAW
@@ -56,41 +68,43 @@ class CosineBell(Task):
             Include VizMap and Viz steps for each resolution
         """
         if icosahedral:
-            subdir = 'spherical/icos/cosine_bell'
+            prefix = 'icos'
         else:
-            subdir = 'spherical/qu/cosine_bell'
+            prefix = 'qu'
+
+        subdir = f'spherical/{prefix}/cosine_bell'
+        name = f'{prefix}_cosine_bell'
         if include_viz:
             subdir = f'{subdir}/with_viz'
-        super().__init__(component=component, name='cosine_bell',
-                         subdir=subdir)
+            name = f'{name}_with_viz'
+            link = 'cosine_bell.cfg'
+        else:
+            # config options live in the task already so no need for a symlink
+            link = None
+        super().__init__(component=component, name=name, subdir=subdir)
         self.resolutions = list()
         self.icosahedral = icosahedral
         self.include_viz = include_viz
 
-        # add the steps with default resolutions so they can be listed
-        config = PolarisConfigParser()
-        config.add_from_package('polaris.ocean.convergence.spherical',
-                                'spherical.cfg')
-        self._setup_steps(config)
+        self.set_shared_config(config, link=link)
+
+        self._setup_steps()
 
     def configure(self):
         """
         Set config options for the test case
         """
         super().configure()
-        config = self.config
-        config.add_from_package('polaris.mesh', 'mesh.cfg')
-        config.add_from_package('polaris.ocean.convergence.spherical',
-                                'spherical.cfg')
-        config.add_from_package('polaris.ocean.tasks.cosine_bell',
-                                'cosine_bell.cfg')
 
         # set up the steps again in case a user has provided new resolutions
-        self._setup_steps(config)
+        self._setup_steps()
 
-    def _setup_steps(self, config):
+    def _setup_steps(self):
         """ setup steps given resolutions """
         icosahedral = self.icosahedral
+        config = self.config
+        config_filename = self.config_filename
+
         if icosahedral:
             prefix = 'icos'
         else:
@@ -131,6 +145,7 @@ class CosineBell(Task):
             else:
                 init_step = Init(component=component, name=name, subdir=subdir,
                                  base_mesh=base_mesh_step)
+                init_step.set_shared_config(config, link=config_filename)
             self.add_step(init_step, symlink=symlink)
             analysis_dependencies['init'][resolution] = init_step
 
@@ -147,6 +162,7 @@ class CosineBell(Task):
                                        subdir=subdir, resolution=resolution,
                                        base_mesh=base_mesh_step,
                                        init=init_step)
+                forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][resolution] = forward_step
 
@@ -158,6 +174,7 @@ class CosineBell(Task):
                 viz_map = VizMap(component=component, name=name,
                                  subdir=subdir, base_mesh=base_mesh_step,
                                  mesh_name=mesh_name)
+                viz_map.set_shared_config(config, link=config_filename)
                 self.add_step(viz_map)
 
                 name = f'{prefix}_viz_{mesh_name}'
@@ -166,6 +183,7 @@ class CosineBell(Task):
                            subdir=subdir, base_mesh=base_mesh_step,
                            init=init_step, forward=forward_step,
                            viz_map=viz_map, mesh_name=mesh_name)
+                step.set_shared_config(config, link=config_filename)
                 self.add_step(step)
 
         subdir = f'spherical/{prefix}/cosine_bell/analysis'
@@ -175,8 +193,11 @@ class CosineBell(Task):
             symlink = None
         if subdir in component.steps:
             step = component.steps[subdir]
+            step.resolutions = resolutions
+            step.dependencies_dict = analysis_dependencies
         else:
             step = Analysis(component=component, resolutions=resolutions,
                             icosahedral=icosahedral, subdir=subdir,
                             dependencies=analysis_dependencies)
+            step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)

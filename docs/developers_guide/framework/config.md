@@ -9,21 +9,36 @@ Here, we include some specific details relevant to using the
 
 Here, we provide the {py:class}`polaris.config.PolarisConfigParser` that has
 almost the same functionality but also ensures that certain relative paths are
-converted automatically to absolute paths.
+converted automatically to absolute paths.  `PolarisConfigParser` also has
+attributes for a `filepath` where the config file will be written out and a
+list of `symlinks` that will point to `filepath`.  It also has a
+{py:meth}`polaris.config.PolarisConfigParser.setup()` method that can be
+overridden to add config options (e.g. algorithmically from other config
+options) as part of setting up polaris tasks and steps.  These features are
+included to accommodate sharing config options across shared steps and/or
+multiple tasks.
 
 The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
-options. Examples of this can be found in many tasks as well as
-{py:func}`polaris.setup.setup_task()`. Here is a typical example from
-{py:func}`polaris.ocean.tasks.baroclinic_channel.decomp.Decomp.configure()`:
+options. Examples of this can be found in many tasks as well as in the
+`polaris.setup` module. Here is a typical example from
+{py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`:
 
 ```python
-def configure(self):
-    """
-    Add the config file common to baroclinic channel tests
-    """
-    self.config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
-                                 'baroclinic_channel.cfg')
+from polaris import Task
+
+
+class InertialGravityWave(Task):
+    def __init__(self, component):
+        name = 'inertial_gravity_wave'
+        subdir = f'planar/{name}'
+        super().__init__(component=component, name=name, subdir=subdir)
+        
+        ...
+
+        self.config.add_from_package(
+            'polaris.ocean.tasks.inertial_gravity_wave',
+            'inertial_gravity_wave.cfg')
 ```
 
 The first and second arguments are the name of a package containing the config
@@ -38,9 +53,14 @@ example from {py:func}`polaris.setup.setup_task()`, there may not be a config
 file for the particular machine we're on, and that's fine:
 
 ```python
-if machine is not None:
-    config.add_from_package('mache.machines', f'{machine}.cfg',
-                            exception=False)
+from polaris.config import PolarisConfigParser
+
+
+def _get_basic_config(config_file, machine, component_path, component):
+    config = PolarisConfigParser()
+    if machine is not None:
+        config.add_from_package('mache.machines', f'{machine}.cfg',
+                                exception=False)
 ```
 If there isn't a config file for this machine, nothing will happen.
 
@@ -58,6 +78,107 @@ is {py:meth}`mpas_tools.config.MpasConfigParser.getexpression()`, which can
 be used to get python dictionaries, lists and tuples as well as a small set
 of functions (`range()`, {py:meth}`numpy.linspace()`,
 {py:meth}`numpy.arange()`, and {py:meth}`numpy.array()`)
+
+## Shared config files
+
+Often, it makes sense for many tasks and steps to share the same config 
+options.  The default behavior is for a task and its "owned" steps to share
+a config file in the task's work directory called `{task.name}.cfg` and 
+symlinks with that same name in each step's work directory.  The default for
+a shared step is to have its own `{step.name}.cfg` in its work directory.
+
+Developers can create shared config parsers that define the location of the
+shared config file and add them to tasks and steps using
+{py:meth}`polaris.Task.set_shared_config()` and 
+{py:meth}`polaris.Step.set_shared_config()`.  The location of the shared
+config file should be intuitive to users but local symlinks will also make
+it easy to modify the shared config options from within any of the tasks and
+steps that use them.
+
+As an example, the baroclinic channel tasks share a single 
+`baroclinic_channel.cfg` config file for each resolution that resides in the
+resolution's work directory:
+
+```python
+from polaris.config import PolarisConfigParser
+from polaris.ocean.resolution import resolution_to_subdir
+from polaris.ocean.tasks.baroclinic_channel.default import Default
+from polaris.ocean.tasks.baroclinic_channel.init import Init
+from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
+
+
+def add_baroclinic_channel_tasks(component):
+    for resolution in [10., 4., 1.]:
+        resdir = resolution_to_subdir(resolution)
+        resdir = f'planar/baroclinic_channel/{resdir}'
+
+        config_filename = 'baroclinic_channel.cfg'
+        config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+                                'baroclinic_channel.cfg')
+
+        init = Init(component=component, resolution=resolution, indir=resdir)
+        init.set_shared_config(config, link=config_filename)
+
+        default = Default(component=component, resolution=resolution,
+                          indir=resdir, init=init)
+        default.set_shared_config(config, link=config_filename)
+        component.add_task(default)
+
+        ...
+        
+        component.add_task(Rpe(component=component, resolution=resolution,
+                               indir=resdir, init=init, config=config))
+```
+
+For most tasks and steps, it is convenient to call `set_shared_config()`
+after constructing the step or task and before adding it to the component.
+In the example of the `Rpe` task here, we need the shared config in the
+constructor so it has to be passed in.  We call `self.set_shared_config()`
+in the constructor, and then use config options to determine the steps to be
+added as follows:
+
+```python
+from polaris import Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward
+from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
+
+
+class Rpe(Task):
+    def __init__(self, component, resolution, indir, init, config):
+        super().__init__(component=component, name='rpe', indir=indir)
+        self.resolution = resolution
+
+        # this needs to be added before we can use the config options it
+        # brings in to set up the steps
+        self.set_shared_config(config, link='baroclinic_channel.cfg')
+        self.add_step(init, symlink='init')
+        self._add_rpe_and_analysis_steps()
+
+    def _add_rpe_and_analysis_steps(self):
+        """ Add the steps in the test case either at init or set-up """
+        config = self.config
+        component = self.component
+        resolution = self.resolution
+
+        nus = config.getlist('baroclinic_channel_rpe', 'viscosities',
+                             dtype=float)
+        for nu in nus:
+            name = f'nu_{nu:g}'
+            step = Forward(
+                component=component, name=name, indir=self.subdir,
+                ntasks=None, min_tasks=None, openmp_threads=1,
+                resolution=resolution, nu=nu)
+
+            step.add_yaml_file(
+                'polaris.ocean.tasks.baroclinic_channel.rpe',
+                'forward.yaml')
+            self.add_step(step)
+
+        self.add_step(
+            Analysis(component=component, resolution=resolution, nus=nus,
+                     indir=self.subdir))
+```
 
 ## Comments in config files
 

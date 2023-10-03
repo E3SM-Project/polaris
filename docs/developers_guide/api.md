@@ -120,6 +120,9 @@ seaice/api
 
    Component
    Component.add_task
+   Component.add_step
+   Component.remove_step
+   Component.add_config
 ```
 
 #### Task
@@ -133,6 +136,8 @@ seaice/api
    Task
    Task.configure
    Task.add_step
+   Task.remove_step
+   Task.set_shared_config
 ```
 
 #### Step
@@ -152,6 +157,8 @@ seaice/api
    Step.add_input_file
    Step.add_output_file
    Step.add_dependency
+   Step.validate_baselines
+   Step.set_shared_config
 ```
 
 
@@ -199,6 +206,7 @@ seaice/api
    :toctree: generated/
 
    PolarisConfigParser
+   PolarisConfigParser.setup
 ```
 
 ### io
