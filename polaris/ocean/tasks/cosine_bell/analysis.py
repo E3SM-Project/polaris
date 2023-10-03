@@ -82,14 +82,15 @@ class Analysis(SphericalConvergenceAnalysis):
         lonCent = config.getfloat('cosine_bell', 'lon_center')
         radius = config.getfloat('cosine_bell', 'radius')
         psi0 = config.getfloat('cosine_bell', 'psi0')
+        vel_pd = config.getfloat('cosine_bell', 'vel_pd')
+
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
         # find new location of blob center
         # center is based on equatorial velocity
         R = ds_mesh.sphere_radius
-        distTrav = 2.0 * np.pi * R / time
         # distance in radians is
-        distRad = distTrav / R
+        distRad = 2.0 * np.pi * time / (86400.0 * vel_pd)
         newLon = lonCent + distRad
         if newLon > 2.0 * np.pi:
             newLon -= 2.0 * np.pi
