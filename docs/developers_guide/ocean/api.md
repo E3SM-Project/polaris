@@ -104,8 +104,7 @@
    forward.Forward.dynamic_model_config
 
    analysis.Analysis
-   analysis.Analysis.run
-   analysis.Analysis.rmse
+   analysis.Analysis.exact_solution
 
    viz.VizMap
    viz.VizMap.run
@@ -178,6 +177,12 @@
    :toctree: generated/
 
    SphericalConvergenceForward
+   SphericalConvergenceAnalysis
+   SphericalConvergenceAnalysis.compute_error
+   SphericalConvergenceAnalysis.convergence_parameters
+   SphericalConvergenceAnalysis.exact_solution
+   SphericalConvergenceAnalysis.run
+   SphericalConvergenceAnalysis.plot_convergence
 ```
 
 ### Ocean Model

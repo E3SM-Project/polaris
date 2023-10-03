@@ -159,6 +159,12 @@ qu_resolutions = 60, 90, 120, 150, 180, 210, 240
 # Evaluation time for convergence analysis (in days)
 convergence_eval_time = 1.0
 
+# Convergence threshold below which a test fails
+convergence_thresh = 1.0
+
+# Type of error to compute
+error_type = l2
+
 
 # config options for spherical convergence forward steps
 [spherical_convergence_forward]
@@ -183,14 +189,19 @@ run_duration = ${spherical_convergence:convergence_eval_time}
 output_interval = ${run_duration}
 ```
 The first 2 are the default resolutions for icosahedral and quasi-uniform
-base meshes, respectively.  The `time_integrator` will typically be overridden
-by the specific convergence task's config options, and indicates which time
-integrator to use for the forward run.  Depending on the time integrator,
-either `rk4_dt_per_km` or `split_dt_per_km` will be used to determine an
-appropriate time step for each mesh resolution (proportional to the cell size).
-For split time integrators, `btr_dt_per_km` will be used to compute the
-barotropic time step in a similar way.  The `run_duration` and 
-`output_interval` are typically the same, and they are given in days.
+base meshes, respectively.  The `convergence_eval_time` will generally be
+modified by each test case. The `convergence_thresh` will also be modified by
+each test case, and will depend on the numerical methods being tested. The
+`error_type` is the L2 norm by default.
+
+`time_integrator` will typically be overridden by the specific convergence
+task's config options, and indicates which time integrator to use for the
+forward run.  Depending on the time integrator, either `rk4_dt_per_km` or
+`split_dt_per_km` will be used to determine an appropriate time step for each
+mesh resolution (proportional to the cell size). For split time integrators,
+`btr_dt_per_km` will be used to compute the barotropic time step in a similar
+way.  The `run_duration` and `output_interval` are typically the same, and
+they are given in days.
 
 Each convergence test can override these defaults with its own defaults by 
 defining them in its own config file.  Convergence tests should bring in this
@@ -310,6 +321,58 @@ omega:
 `SphericalConvergenceForward` takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).
+
+In addition, the {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`
+step can serve as a parent class for analysis steps in convergence tests.  This
+parent class computes the error norm for the output from each resolution's
+forward step. It also produces the convergence plot.
+
+This is an example of how a task's analysis step can descend from the parent
+class:
+
+```python
+class Analysis(SphericalConvergenceAnalysis):
+    """
+    A step for analyzing the output from the cosine bell test case
+    """
+    def __init__(self, component, resolutions, icosahedral, subdir,
+                 dependencies):
+        """
+        Create the step
+
+        Parameters
+        ----------
+        component : polaris.Component
+            The component the step belongs to
+
+        resolutions : list of float
+            The resolutions of the meshes that have been run
+
+        icosahedral : bool
+            Whether to use icosahedral, as opposed to less regular, JIGSAW
+            meshes
+
+        subdir : str
+            The subdirectory that the step resides in
+
+        dependencies : dict of dict of polaris.Steps
+            The dependencies of this step
+        """
+        convergence_vars = [{'name': 'tracer1',
+                             'title': 'tracer1',
+                             'units': '',
+                             'zidx': 0}]
+        super().__init__(component=component, subdir=subdir,
+                         resolutions=resolutions,
+                         icosahedral=icosahedral,
+                         dependencies=dependencies,
+                         convergence_vars=convergence_vars)
+```
+
+Many tasks will also need to override the `exact_solution` method given in
+{py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`.
+If not overridden, the analysis step will compute the difference of the output
+from the initial state.
 
 (dev-ocean-framework-vertical)=
 
