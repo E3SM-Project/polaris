@@ -7,18 +7,6 @@ from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
 class Analysis(SphericalConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
-
-    Attributes
-    ----------
-    resolutions : list of float
-        The resolutions of the meshes that have been run
-
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW
-        meshes
-
-    dependencies_dict : dict of dict of polaris.Steps
-        The dependencies of this step
     """
     def __init__(self, component, resolutions, icosahedral, subdir,
                  dependencies):
@@ -59,18 +47,26 @@ class Analysis(SphericalConvergenceAnalysis):
 
         Parameters
         ----------
+        mesh_name : str
+            The mesh name which is the prefix for the initial condition file
+
         field_name : str
             The name of the variable of which we evaluate convergence
             For the default method, we use the same convergence rate for all
             fields
-        time: float
+
+        time : float
             The time at which to evaluate the exact solution in seconds.
             For the default method, we always use the initial state.
+
+        zidx : int, optional
+            The z-index for the vertical level at which to evaluate the exact
+            solution
 
         Returns
         -------
         solution: np.ndarray of type float
-            The minimum convergence rate
+            The exact solution
         """
 
         if field_name != 'tracer1':
