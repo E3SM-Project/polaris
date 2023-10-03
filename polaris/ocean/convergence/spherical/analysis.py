@@ -41,6 +41,22 @@ class SphericalConvergenceAnalysis(Step):
                 Values of the dict are polaris.Steps, which must have the
                 attribute `path`, the path to `forward.nc` of that
                 resolution
+
+    convergence_vars: list of dict
+        The attributes for each variable for which to analyze the convergence
+        rate. Each dict must contain the following keys:
+            name : str
+                The name of the variable as given in the output netcdf file
+
+            title : str
+                The name of the variable to use in the plot title
+
+            units : str
+                The units of the error norm for the variable
+
+            zidx : int
+                The z-index to use for variables that have an nVertLevels
+                dimension, which should be None for variables that don't
     """
     def __init__(self, component, resolutions, icosahedral, subdir,
                  dependencies, convergence_vars):
@@ -80,6 +96,22 @@ class SphericalConvergenceAnalysis(Step):
                     Values of the dict are polaris.Steps, which must have the
                     attribute `path`, the path to `forward.nc` of that
                     resolution
+
+        convergence_vars: list of dict
+            The convergence attributes for each variable. Each dict must
+            contain the following keys:
+                name : str
+                    The name of the variable as given in the output netcdf file
+
+                title : str
+                    The name of the variable to use in the plot title
+
+                units : str
+                    The units of the error norm for the variable
+
+                zidx : int
+                    The z-index to use for variables that have an nVertLevels
+                    dimension, which should be None for variables that don't
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
@@ -87,7 +119,7 @@ class SphericalConvergenceAnalysis(Step):
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
 
-        for _, var in convergence_vars.items():
+        for var in convergence_vars:
             self.add_output_file(f'convergence_{var["name"]}.png')
 
     def setup(self):
@@ -118,24 +150,35 @@ class SphericalConvergenceAnalysis(Step):
         """
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
-        for _, var in convergence_vars.items():
-            self.plot_convergence(var)
+        for var in convergence_vars:
+            self.plot_convergence(
+                variable_name=var["name"],
+                title=var["title"],
+                units=var["units"],
+                zidx=var["zidx"])
 
-    def plot_convergence(self, convergence_field):
+    def plot_convergence(self, variable_name, title, units, zidx):
         """
-        Create a convergence plot
+        Compute the error norm for each resolution and produce a convergence
+        plot
 
         Parameters
         ----------
-        convergence_field: dict
-            Dict containing attributes of the field of which to evaluate
-            convergence
+        variable_name : str
+            The name of the variable as given in the output netcdf file
+
+        title : str
+            The name of the variable to use in the plot title
+
+        units : str
+            The units of the error norm for the variable
+
+        zidx : int
+            The z-index to use for variables that have an nVertLevels
+            dimension, which should be None for variables that don't
         """
         resolutions = self.resolutions
         logger = self.logger
-        variable_name = convergence_field["name"]
-        title = convergence_field["title"]
-        units = convergence_field["units"]
         conv_thresh, conv_max, error_type = self.convergence_parameters(
             field_name=variable_name)
 
@@ -145,7 +188,7 @@ class SphericalConvergenceAnalysis(Step):
             error_res = self.compute_error(
                 mesh_name=mesh_name,
                 variable_name=variable_name,
-                zidx=convergence_field["zidx"],
+                zidx=zidx,
                 error_type=error_type)
             error.append(error_res)
 
@@ -244,8 +287,8 @@ class SphericalConvergenceAnalysis(Step):
         zidx : int, optional
             The z index to use to slice the field given by variable name
 
-        error_type: str, optional
-            The type of error to compute. One of 'l2' or 'inf'.
+        error_type: {'l2', 'inf'}, optional
+            The type of error to compute
 
         Returns
         -------
