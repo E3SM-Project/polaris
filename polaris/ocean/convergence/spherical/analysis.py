@@ -179,7 +179,7 @@ class SphericalConvergenceAnalysis(Step):
         """
         resolutions = self.resolutions
         logger = self.logger
-        conv_thresh, conv_max, error_type = self.convergence_parameters(
+        conv_thresh, error_type = self.convergence_parameters(
             field_name=variable_name)
 
         error = []
@@ -261,11 +261,6 @@ class SphericalConvergenceAnalysis(Step):
                          f'  {conv_round} < min tolerance '
                          f'{conv_thresh}')
             convergence_failed = True
-
-        if convergence > conv_max:
-            logger.warn(f'Warning: order of convergence for {title}\n'
-                        f'   {conv_round} > max tolerance '
-                        f'{conv_max}')
 
         if convergence_failed:
             raise ValueError('Convergence rate below minimum tolerance.')
@@ -376,9 +371,8 @@ class SphericalConvergenceAnalysis(Step):
         config = self.config
         section = config['spherical_convergence']
         conv_thresh = section.getfloat('convergence_thresh')
-        conv_max = section.getfloat('convergence_max')
         error_type = section.get('error_type')
-        return conv_thresh, conv_max, error_type
+        return conv_thresh, error_type
 
 
 def _time_index_from_xtime(xtime, dt_target):
