@@ -24,7 +24,23 @@ class SphericalConvergenceAnalysis(Step):
         meshes
 
     dependencies_dict : dict of dict of polaris.Steps
-        The dependencies of this step
+        The dependencies of this step must be given as separate keys in the
+        dict:
+            mesh : dict of polaris.Steps
+                Keys of the dict correspond to `resolutions`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `base_mesh.nc` of that
+                resolution
+            init : dict of polaris.Steps
+                Keys of the dict correspond to `resolutions`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `initial_state.nc` of that
+                resolution
+            forward : dict of polaris.Steps
+                Keys of the dict correspond to `resolutions`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `forward.nc` of that
+                resolution
     """
     def __init__(self, component, resolutions, icosahedral, subdir,
                  dependencies, convergence_vars):
@@ -47,7 +63,23 @@ class SphericalConvergenceAnalysis(Step):
             The subdirectory that the step resides in
 
         dependencies : dict of dict of polaris.Steps
-            The dependencies of this step
+            The dependencies of this step must be given as separate keys in the
+            dict:
+                mesh : dict of polaris.Steps
+                    Keys of the dict correspond to `resolutions`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `base_mesh.nc` of that
+                    resolution
+                init : dict of polaris.Steps
+                    Keys of the dict correspond to `resolutions`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `initial_state.nc` of that
+                    resolution
+                forward : dict of polaris.Steps
+                    Keys of the dict correspond to `resolutions`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `forward.nc` of that
+                    resolution
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
