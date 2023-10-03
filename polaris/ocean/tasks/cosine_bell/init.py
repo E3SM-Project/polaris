@@ -111,4 +111,18 @@ class Init(Step):
 
 
 def cosine_bell(max_value, ri, r):
+    """
+    Compute values according to cosine bell function
+
+    Parameters
+    ----------
+    max_value : float
+        Maximum value of the cosine bell function
+
+    ri : np.ndarray of type float
+        Distance from the center of the cosine bell in meters
+
+    r : float
+        Radius of the cosine bell in meters
+    """
     return max_value / 2.0 * (1.0 + np.cos(np.pi * np.divide(ri, r)))
