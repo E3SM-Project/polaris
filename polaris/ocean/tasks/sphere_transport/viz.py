@@ -1,4 +1,7 @@
+import datetime
+
 import cmocean  # noqa: F401
+import numpy as np
 import xarray as xr
 
 from polaris import Step
@@ -142,9 +145,24 @@ class Viz(Step):
         ds_init.to_netcdf('remapped_init.nc')
 
         ds_out = xr.open_dataset('output.nc')
-        ds_out = ds_out[variables_to_plot.keys()].isel(Time=-1, nVertLevels=0)
-        ds_out = remapper.remap(ds_out)
-        ds_out.to_netcdf('remapped_final.nc')
+        seconds_per_day = 86400.0
+
+        # Visualization at halfway around the globe (provided run duration is
+        # set to the time needed to circumnavigate the globe)
+        tidx = _time_index_from_xtime(ds_out.xtime.values,
+                                      run_duration * seconds_per_day / 2.)
+        ds_mid = ds_out[variables_to_plot.keys()].isel(Time=tidx,
+                                                       nVertLevels=0)
+        ds_mid = remapper.remap(ds_mid)
+        ds_mid.to_netcdf('remapped_mid.nc')
+
+        # Visualization at all the way around the globe
+        tidx = _time_index_from_xtime(ds_out.xtime.values,
+                                      run_duration * seconds_per_day)
+        ds_final = ds_out[variables_to_plot.keys()].isel(Time=tidx,
+                                                         nVertLevels=0)
+        ds_final = remapper.remap(ds_final)
+        ds_final.to_netcdf('remapped_final.nc')
 
         for var, section_name in variables_to_plot.items():
             colormap_section = f'sphere_transport_viz_{section_name}'
@@ -154,15 +172,49 @@ class Viz(Step):
                         colormap_section=colormap_section,
                         title=f'{mesh_name} {var} at init', plot_land=False)
             plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_out[var].values,
+                        ds_mid[var].values,
+                        out_filename=f'{var}_mid.png', config=config,
+                        colormap_section=colormap_section,
+                        title=f'{mesh_name} {var} after {run_duration / 2.:g} '
+                              'days',
+                        plot_land=False)
+            plot_global(ds_init.lon.values, ds_init.lat.values,
+                        ds_final[var].values,
                         out_filename=f'{var}_final.png', config=config,
                         colormap_section=colormap_section,
                         title=f'{mesh_name} {var} after {run_duration:g} days',
                         plot_land=False)
             plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_out[var].values - ds_init[var].values,
+                        ds_final[var].values - ds_init[var].values,
                         out_filename=f'{var}_diff.png', config=config,
                         colormap_section=f'{colormap_section}_diff',
                         title=f'Difference in {mesh_name} {var} from initial '
                               f'condition after {run_duration:g} days',
                         plot_land=False)
+
+
+def _time_index_from_xtime(xtime, dt_target):
+    """
+    Determine the time index at which to evaluate convergence
+
+    Parameters
+    ----------
+    xtime : list of str
+        Times in the dataset
+
+    dt_target : float
+        Time in seconds at which to evaluate convergence
+
+    Returns
+    -------
+    tidx : int
+        Index in xtime that is closest to dt_target
+    """
+    t0 = datetime.datetime.strptime(xtime[0].decode(),
+                                    '%Y-%m-%d_%H:%M:%S')
+    dt = np.zeros((len(xtime)))
+    for idx, xt in enumerate(xtime):
+        t = datetime.datetime.strptime(xt.decode(),
+                                       '%Y-%m-%d_%H:%M:%S')
+        dt[idx] = (t - t0).total_seconds()
+    return np.argmin(np.abs(np.subtract(dt, dt_target)))
