@@ -323,7 +323,7 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         task_list = ', '.join(task.steps_to_run)
         task_logger.info(f'Running steps: {task_list}')
         try:
-            _run_task(task, available_resources)
+            baselines_passed = _run_task(task, available_resources)
             run_status = success_str
             task_pass = True
         except Exception:
@@ -335,8 +335,16 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         status = f'  task execution:   {run_status}'
         if task_pass:
             stdout_logger.info(status)
-            result_str = pass_str
-            success = True
+            if baselines_passed:
+                baseline_str = pass_str
+                result_str = pass_str
+                success = True
+            else:
+                baseline_str = fail_str
+                result_str = fail_str
+                success = False
+            status = f'  baseline comp.:   {baseline_str}'
+            stdout_logger.info(status)
         else:
             stdout_logger.error(status)
             if not is_task:
@@ -359,6 +367,7 @@ def _run_task(task, available_resources):
     """
     logger = task.logger
     cwd = os.getcwd()
+    baselines_passed = True
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
         complete_filename = os.path.join(step.work_dir,
@@ -411,11 +420,13 @@ def _run_task(task, available_resources):
             _print_to_stdout(task,
                              f'          baseline comp.:   {baseline_str}')
             if not status:
-                raise ValueError('Baseline comparison failed.')
+                baselines_passed = False
 
         _print_to_stdout(task,
                          f'          runtime:          '
                          f'{start_time_color}{step_time_str}{end_color}')
+
+    return baselines_passed
 
 
 def _run_step(task, step, new_log_file, available_resources,
