@@ -67,6 +67,7 @@ class Init(Step):
         section = config['sphere_transport']
         temperature = section.getfloat('temperature')
         salinity = section.getfloat('salinity')
+        vel_pd = section.getfloat('vel_pd')
 
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
@@ -109,13 +110,24 @@ class Init(Step):
         ds['tracer3'] = ds.tracer3.expand_dims(dim='Time', axis=0)
 
         # Initialize velocity
+        seconds_per_day = 86400.
         if case_name == 'rotation_2d':
-            u, v = flow_rotation(lonEdge, latEdge)
+            rotation_vector = config.getlist(case_name, 'rotation_vector',
+                                             dtype=float)
+            vector = np.array(rotation_vector)
+            u, v = flow_rotation(lonEdge, latEdge, vector,
+                                 vel_pd * seconds_per_day)
         elif case_name == 'divergent_2d':
-            u, v = flow_divergent(0., lonEdge, latEdge)
+            section = config[case_name]
+            vel_amp = section.getfloat('vel_amp')
+            u, v = flow_divergent(0., lonEdge, latEdge,
+                                  vel_amp, vel_pd * seconds_per_day)
         elif (case_name == 'nondivergent_2d' or
               case_name == 'correlated_tracers_2d'):
-            u, v = flow_nondivergent(0., lonEdge, latEdge)
+            section = config[case_name]
+            vel_amp = section.getfloat('vel_amp')
+            u, v = flow_nondivergent(0., lonEdge, latEdge,
+                                     vel_amp, vel_pd * seconds_per_day)
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 
