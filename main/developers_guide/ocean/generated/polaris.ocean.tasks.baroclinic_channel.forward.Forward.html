@@ -133,10 +133,10 @@ channel tasks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The resolution of the task in km</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The model time step in seconds</p></li>
-<li><p><strong>btr_dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The model barotropic time step in seconds</p></li>
-<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of time steps to run for</p></li>
+<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The resolution of the task in km</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The model time step in seconds</p></li>
+<li><p><strong>btr_dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The model barotropic time step in seconds</p></li>
+<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em> or </em><em>None</em>) – Number of time steps to run for</p></li>
 </ul>
 </dd>
 </dl>
@@ -149,22 +149,22 @@ channel tasks.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
 <li><p><strong>resolution</strong> (<em>km</em>) – The resolution of the task in km</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the task</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the name of the task</p></li>
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>the subdirectory for the step.  If neither this nor <code class="docutils literal notranslate"><span class="pre">indir</span></code></dt><dd><p>are provided, the directory is the <code class="docutils literal notranslate"><span class="pre">name</span></code></p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the step is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
-<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step would ideally use.  If fewer tasks
+<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the step is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
+<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step would ideally use.  If fewer tasks
 are available on the system, the step will run on all available
 tasks as long as this is not below <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code></p></li>
-<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has fewer
+<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has fewer
 than this number of tasks, the step will fail</p></li>
-<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads the step will use</p></li>
-<li><p><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – the viscosity (if different from the default for baroclinic channel
+<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads the step will use</p></li>
+<li><p><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – the viscosity (if different from the default for baroclinic channel
 tests)</p></li>
-<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of time steps to run for</p></li>
+<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Number of time steps to run for</p></li>
 </ul>
 </dd>
 </dl>

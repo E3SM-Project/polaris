@@ -148,20 +148,20 @@ single time and depth slice.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.9.1.dev0)"><em>xarray.Dataset</em></a>) – A data set containing fieldName</p></li>
 <li><p><strong>ds_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.9.1.dev0)"><em>xarray.Dataset</em></a>) – A data set containing horizontal mesh variables</p></li>
-<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the variable to plot, which must be present in ds</p></li>
-<li><p><strong>out_file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The path to which the plot image should be written</p></li>
-<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The title of the plot</p></li>
-<li><p><strong>vmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum and maximum values for the colorbar</p></li>
-<li><p><strong>vmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum and maximum values for the colorbar</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the variable to plot, which must be present in ds</p></li>
+<li><p><strong>out_file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The path to which the plot image should be written</p></li>
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The title of the plot</p></li>
+<li><p><strong>vmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum and maximum values for the colorbar</p></li>
+<li><p><strong>vmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum and maximum values for the colorbar</p></li>
 <li><p><strong>show_patch_edges</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If true, patches will be plotted with visible edges</p></li>
-<li><p><strong>t_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The indices of ‘Time’ and ‘nVertLevels’ axes to select for plotting
+<li><p><strong>t_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – The indices of ‘Time’ and ‘nVertLevels’ axes to select for plotting
 The default time index is 0 (initial time)</p></li>
-<li><p><strong>z_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The indices of ‘Time’ and ‘nVertLevels’ axes to select for plotting
+<li><p><strong>z_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – The indices of ‘Time’ and ‘nVertLevels’ axes to select for plotting
 The default time index is 0 (initial time)</p></li>
-<li><p><strong>cmap</strong> (<em>Colormap</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – A color map to plot</p></li>
-<li><p><strong>cmap_set_under</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A color for low out-of-range values</p></li>
+<li><p><strong>cmap</strong> (<em>Colormap</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – A color map to plot</p></li>
+<li><p><strong>cmap_set_under</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A color for low out-of-range values</p></li>
 <li><p><strong>cmap_scale</strong> (<em>{'log'</em><em>, </em><em>'linear'}</em><em>, </em><em>optional</em>) – Whether the colormap is logarithmic or linear</p></li>
-<li><p><strong>cmap_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Title for color bar</p></li>
+<li><p><strong>cmap_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Title for color bar</p></li>
 </ul>
 </dd>
 </dl>
