@@ -33,7 +33,6 @@ class Analysis(SphericalConvergenceAnalysis):
         """
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
-                             'units': '',
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
@@ -65,8 +64,8 @@ class Analysis(SphericalConvergenceAnalysis):
 
         Returns
         -------
-        solution: np.ndarray of type float
-            The exact solution
+        solution: xarray.DataArray
+            The exact solution with dimension nCells
         """
 
         if field_name != 'tracer1':
@@ -100,4 +99,4 @@ class Analysis(SphericalConvergenceAnalysis):
         mask = temp < radius
         tracer[mask] = (psi0 / 2.0 *
                         (1.0 + np.cos(3.1415926 * temp[mask] / radius)))
-        return tracer
+        return xr.DataArray(data=tracer, dims=('nCells',))

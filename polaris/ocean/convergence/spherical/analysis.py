@@ -26,6 +26,7 @@ class SphericalConvergenceAnalysis(Step):
     dependencies_dict : dict of dict of polaris.Steps
         The dependencies of this step must be given as separate keys in the
         dict:
+
             mesh : dict of polaris.Steps
                 Keys of the dict correspond to `resolutions`
                 Values of the dict are polaris.Steps, which must have the
@@ -45,14 +46,12 @@ class SphericalConvergenceAnalysis(Step):
     convergence_vars: list of dict
         The attributes for each variable for which to analyze the convergence
         rate. Each dict must contain the following keys:
+
             name : str
                 The name of the variable as given in the output netcdf file
 
             title : str
                 The name of the variable to use in the plot title
-
-            units : str
-                The units of the error norm for the variable
 
             zidx : int
                 The z-index to use for variables that have an nVertLevels
@@ -81,6 +80,7 @@ class SphericalConvergenceAnalysis(Step):
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step must be given as separate keys in the
             dict:
+
                 mesh : dict of polaris.Steps
                     Keys of the dict correspond to `resolutions`
                     Values of the dict are polaris.Steps, which must have the
@@ -100,14 +100,12 @@ class SphericalConvergenceAnalysis(Step):
         convergence_vars: list of dict
             The convergence attributes for each variable. Each dict must
             contain the following keys:
+
                 name : str
                     The name of the variable as given in the output netcdf file
 
                 title : str
                     The name of the variable to use in the plot title
-
-                units : str
-                    The units of the error norm for the variable
 
                 zidx : int
                     The z-index to use for variables that have an nVertLevels
@@ -154,10 +152,9 @@ class SphericalConvergenceAnalysis(Step):
             self.plot_convergence(
                 variable_name=var["name"],
                 title=var["title"],
-                units=var["units"],
                 zidx=var["zidx"])
 
-    def plot_convergence(self, variable_name, title, units, zidx):
+    def plot_convergence(self, variable_name, title, zidx):
         """
         Compute the error norm for each resolution and produce a convergence
         plot
@@ -169,9 +166,6 @@ class SphericalConvergenceAnalysis(Step):
 
         title : str
             The name of the variable to use in the plot title
-
-        units : str
-            The units of the error norm for the variable
 
         zidx : int
             The z-index to use for variables that have an nVertLevels
@@ -245,7 +239,7 @@ class SphericalConvergenceAnalysis(Step):
                               label=f'linear fit, baseline '
                                     f'(order={conv_round})')
         ax.set_xlabel('resolution (km)')
-        ax.set_ylabel(f'{error_title} ({units})')
+        ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
         ax.invert_xaxis()
@@ -345,7 +339,7 @@ class SphericalConvergenceAnalysis(Step):
 
         Returns
         -------
-        solution : np.ndarray of type float
+        solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
 
