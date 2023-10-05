@@ -8,6 +8,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.ocean.resolution import resolution_to_subdir
+from polaris.viz import use_mplstyle
 
 
 class SphericalConvergenceAnalysis(Step):
@@ -203,6 +204,7 @@ class SphericalConvergenceAnalysis(Step):
         order1 = 0.5 * error_array[-1] * (res_array / res_array[-1])
         order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
 
+        use_mplstyle()
         fig = plt.figure()
 
         error_dict = {'l2': 'L2 norm', 'inf': 'L-infinity norm'}

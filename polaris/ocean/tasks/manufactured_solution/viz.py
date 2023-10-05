@@ -10,7 +10,7 @@ from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
-from polaris.viz import plot_horiz_field
+from polaris.viz import plot_horiz_field, use_mplstyle
 
 
 class Viz(Step):
@@ -67,6 +67,7 @@ class Viz(Step):
         section = config['manufactured_solution']
         eta0 = section.getfloat('ssh_amplitude')
 
+        use_mplstyle()
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
         error_range = None

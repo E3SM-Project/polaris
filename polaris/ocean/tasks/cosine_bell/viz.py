@@ -3,7 +3,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.remap import MappingFileStep
-from polaris.viz.globe import plot_global
+from polaris.viz import plot_global_field
 
 
 class VizMap(MappingFileStep):
@@ -133,20 +133,20 @@ class Viz(Step):
         ds_init = remapper.remap(ds_init)
         ds_init.to_netcdf('remapped_init.nc')
 
-        plot_global(ds_init.lon.values, ds_init.lat.values,
-                    ds_init.tracer1.values,
-                    out_filename='init.png', config=config,
-                    colormap_section='cosine_bell_viz',
-                    title=f'{mesh_name} tracer at init', plot_land=False)
+        plot_global_field(
+            ds_init.lon.values, ds_init.lat.values, ds_init.tracer1.values,
+            out_filename='init.png', config=config,
+            colormap_section='cosine_bell_viz',
+            title=f'{mesh_name} tracer at init', plot_land=False)
 
         ds_out = xr.open_dataset('output.nc')
         ds_out = ds_out[['tracer1', ]].isel(Time=-1, nVertLevels=0)
         ds_out = remapper.remap(ds_out)
         ds_out.to_netcdf('remapped_final.nc')
 
-        plot_global(ds_init.lon.values, ds_init.lat.values,
-                    ds_out.tracer1.values,
-                    out_filename='final.png', config=config,
-                    colormap_section='cosine_bell_viz',
-                    title=f'{mesh_name} tracer after {run_duration:g} days',
-                    plot_land=False)
+        plot_global_field(
+            ds_init.lon.values, ds_init.lat.values, ds_out.tracer1.values,
+            out_filename='final.png', config=config,
+            colormap_section='cosine_bell_viz',
+            title=f'{mesh_name} tracer after {run_duration:g} days',
+            plot_land=False)
