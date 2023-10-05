@@ -380,8 +380,9 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   use_mplstyle
    plot_horiz_field
-   globe.plot_global
+   plot_global_field
 ```
 
 ### yaml

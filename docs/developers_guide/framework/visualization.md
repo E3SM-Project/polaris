@@ -10,6 +10,17 @@ While developers can write their own visualization scripts associated with
 individual tasks, the following shared visualization routines are
 provided in `polaris.viz`:
 
+(dev-visualization-style)=
+
+## common matplotlib style
+
+The function {py:func}`polaris.viz.use_mplstyle()` loads a common 
+[matplotlib style sheet](https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets)
+that can be used to make font sizes and other plotting options more consistent
+across Polaris.  The plotting functions described below make use of this common
+style.  Custom plotting should call {py:func}`polaris.viz.use_mplstyle()`
+before creating a `matplotlib` figure.
+
 (dev-visualization-planar)=
 
 ## horizontal fields from planar meshes
@@ -46,7 +57,7 @@ plot_horiz_field(config, ds, ds_mesh, 'normalVelocity',
 
 ## global lat/lon plots from spherical meshes
 
-You can use {py:func}`polaris.viz.globe.plot_global()` to plot a field on
+You can use {py:func}`polaris.viz.plot_global_field()` to plot a field on
 a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
 {py:class}`polaris.remap.MappingFileStep`.
 
@@ -55,7 +66,7 @@ a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
 :width: 500 px
 ```
 
-The `plot_land` parameter to {py:func}`polaris.viz.globe.plot_global()` is used
+The `plot_land` parameter to {py:func}`polaris.viz.plot_global_field()` is used
 to enable or disable continents overlain on top of the data:
 
 ```{image} images/cosine_bell_final_land.png
@@ -69,17 +80,18 @@ import cmocean  # noqa: F401
 import xarray as xr
 
 from polaris import Step
-from polaris.viz.globe import plot_global
+from polaris.viz import plot_global_field
 
 class Viz(Step):
     def run(self):
         ds = xr.open_dataset('initial_state.nc')
         ds = ds[['tracer1']].isel(Time=0, nVertLevels=0)
         
-        plot_global(ds.lon.values, ds.lat.values, ds.tracer1.values,
-                    out_filename='init.png', config=self.config,
-                    colormap_section='cosine_bell_viz',
-                    title='Tracer at init', plot_land=False)
+        plot_global_field(
+            ds.lon.values, ds.lat.values, ds.tracer1.values,
+            out_filename='init.png', config=self.config,
+            colormap_section='cosine_bell_viz',
+            title='Tracer at init', plot_land=False)
 ```
 
 The `colormap_section` of the config file must contain config options for
