@@ -360,7 +360,6 @@ class Analysis(SphericalConvergenceAnalysis):
         """
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
-                             'units': '',
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
