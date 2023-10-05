@@ -1,18 +1,12 @@
-import datetime
-import warnings
-
-import cmocean  # noqa: F401
-import numpy as np
 import xarray as xr
 
-from polaris import Step
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
 from polaris.ocean.tasks.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
 
 
-class Analysis(Step):
+class Analysis(SphericalConvergenceAnalysis):
     """
     A step for analysing the output from the inertial gravity wave
     test case
@@ -22,7 +16,7 @@ class Analysis(Step):
     resolutions : list of float
         The resolutions of the meshes that have been run
     """
-    def __init__(self, component, resolutions, taskdir):
+    def __init__(self, component, resolutions, subdir, dependencies):
         """
         Create the step
 
@@ -34,54 +28,53 @@ class Analysis(Step):
         resolutions : list of float
             The resolutions of the meshes that have been run
 
-        taskdir : str
-            The subdirectory that the task belongs to
+        subdir : str
+            The subdirectory that the step resides in
+
+        dependencies : dict of dict of polaris.Steps
+            The dependencies of this step
         """
-        super().__init__(component=component, name='analysis', indir=taskdir)
-        self.resolutions = resolutions
+        convergence_vars = [{'name': 'ssh',
+                             'title': 'SSH',
+                             'zidx': None}]
+        super().__init__(component=component, subdir=subdir,
+                         resolutions=resolutions,
+                         dependencies=dependencies,
+                         convergence_vars=convergence_vars)
 
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            self.add_input_file(
-                filename=f'init_{mesh_name}.nc',
-                target=f'../init/{mesh_name}/initial_state.nc')
-            self.add_input_file(
-                filename=f'output_{mesh_name}.nc',
-                target=f'../forward/{mesh_name}/output.nc')
+        # TODO move conv thresh to convergence section
+        # section = config['inertial_gravity_wave']
+        # conv_thresh = section.getfloat('conv_thresh')
 
-    def run(self):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
-        Run this step of the test case
+        Get the exact solution
+
+        Parameters
+        ----------
+        mesh_name : str
+            The mesh name which is the prefix for the initial condition file
+
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For the default method, we use the same convergence rate for all
+            fields
+
+        time : float
+            The time at which to evaluate the exact solution in seconds.
+            For the default method, we always use the initial state.
+
+        zidx : int, optional
+            The z-index for the vertical level at which to evaluate the exact
+            solution
+
+        Returns
+        -------
+        solution : xarray.DataArray
+            The exact solution as derived from the initial condition
         """
-        config = self.config
-        resolutions = self.resolutions
-
-        section = config['inertial_gravity_wave']
-        conv_thresh = section.getfloat('conv_thresh')
-        conv_max = section.getfloat('conv_max')
-
-        rmse = []
-        for i, res in enumerate(resolutions):
-            mesh_name = f'{res:g}km'
-            init = xr.open_dataset(f'init_{mesh_name}.nc')
-            ds = xr.open_dataset(f'output_{mesh_name}.nc')
-            exact = ExactSolution(init, config)
-
-            t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
-                                            '%Y-%m-%d_%H:%M:%S')
-            tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
-                                            '%Y-%m-%d_%H:%M:%S')
-            t = (tf - t0).total_seconds()
-            ssh_model = ds.ssh.values[-1, :]
-            rmse.append(np.sqrt(np.mean((ssh_model - exact.ssh(t).values)**2)))
-
-        p = np.polyfit(np.log10(resolutions), np.log10(rmse), 1)
-        conv = p[0]
-
-        if conv < conv_thresh:
-            raise ValueError(f'order of convergence '
-                             f' {conv} < min tolerence {conv_thresh}')
-
-        if conv > conv_max:
-            warnings.warn(f'order of convergence '
-                          f'{conv} > max tolerence {conv_max}')
+        init = xr.open_dataset(f'{mesh_name}_init.nc')
+        exact = ExactSolution(init, self.config)
+        if field_name != 'ssh':
+            raise ValueError(f'{field_name} is not currently supported')
+        return exact.ssh(time)
