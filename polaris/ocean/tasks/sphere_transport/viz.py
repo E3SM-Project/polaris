@@ -6,7 +6,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.remap import MappingFileStep
-from polaris.viz.globe import plot_global
+from polaris.viz import plot_global_field
 
 
 class VizMap(MappingFileStep):
@@ -166,31 +166,32 @@ class Viz(Step):
 
         for var, section_name in variables_to_plot.items():
             colormap_section = f'sphere_transport_viz_{section_name}'
-            plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_init[var].values,
-                        out_filename=f'{var}_init.png', config=config,
-                        colormap_section=colormap_section,
-                        title=f'{mesh_name} {var} at init', plot_land=False)
-            plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_mid[var].values,
-                        out_filename=f'{var}_mid.png', config=config,
-                        colormap_section=colormap_section,
-                        title=f'{mesh_name} {var} after {run_duration / 2.:g} '
-                              'days',
-                        plot_land=False)
-            plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_final[var].values,
-                        out_filename=f'{var}_final.png', config=config,
-                        colormap_section=colormap_section,
-                        title=f'{mesh_name} {var} after {run_duration:g} days',
-                        plot_land=False)
-            plot_global(ds_init.lon.values, ds_init.lat.values,
-                        ds_final[var].values - ds_init[var].values,
-                        out_filename=f'{var}_diff.png', config=config,
-                        colormap_section=f'{colormap_section}_diff',
-                        title=f'Difference in {mesh_name} {var} from initial '
-                              f'condition after {run_duration:g} days',
-                        plot_land=False)
+            plot_global_field(ds_init.lon.values, ds_init.lat.values,
+                              ds_init[var].values,
+                              out_filename=f'{var}_init.png', config=config,
+                              colormap_section=colormap_section,
+                              title=f'{mesh_name} {var} at init',
+                              plot_land=False)
+            plot_global_field(ds_init.lon.values, ds_init.lat.values,
+                              ds_mid[var].values,
+                              out_filename=f'{var}_mid.png', config=config,
+                              colormap_section=colormap_section,
+                              title=f'{mesh_name} {var} after '
+                              '{run_duration / 2.:g} days',
+                              plot_land=False)
+            plot_global_field(ds_init.lon.values, ds_init.lat.values,
+                              ds_final[var].values,
+                              out_filename=f'{var}_final.png', config=config,
+                              colormap_section=colormap_section,
+                              title=f'{mesh_name} {var} after {run_duration:g}'
+                              ' days', plot_land=False)
+            plot_global_field(ds_init.lon.values, ds_init.lat.values,
+                              ds_final[var].values - ds_init[var].values,
+                              out_filename=f'{var}_diff.png', config=config,
+                              colormap_section=f'{colormap_section}_diff',
+                              title=f'Difference in {mesh_name} {var} from '
+                              f'initial condition after {run_duration:g} days',
+                              plot_land=False)
 
 
 def _time_index_from_xtime(xtime, dt_target):

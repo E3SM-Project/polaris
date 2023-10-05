@@ -7,6 +7,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.ocean.resolution import resolution_to_subdir
+from polaris.viz import use_mplstyle
 
 
 class FilamentAnalysis(Step):
@@ -87,6 +88,7 @@ class FilamentAnalysis(Step):
         num_tau = 21
         filament_tau = np.linspace(0, 1, num_tau)
         filament_norm = np.zeros((len(resolutions), num_tau))
+        use_mplstyle()
         fig, ax = plt.subplots()
         for i, resolution in enumerate(resolutions):
             mesh_name = resolution_to_subdir(resolution)

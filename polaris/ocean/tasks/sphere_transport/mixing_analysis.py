@@ -8,6 +8,7 @@ from matplotlib.lines import Line2D
 
 from polaris import Step
 from polaris.ocean.resolution import resolution_to_subdir
+from polaris.viz import use_mplstyle
 
 
 class MixingAnalysis(Step):
@@ -85,9 +86,9 @@ class MixingAnalysis(Step):
         s_per_day = 86400.0
         zidx = 1
         nrows = int(ceil(len(resolutions) / 2))
+        use_mplstyle()
         fig, axes = plt.subplots(nrows=nrows, ncols=2, sharex=True,
                                  sharey=True, figsize=(5.5, 7))
-        plt.subplots_adjust(wspace=0.1)
         for i, resolution in enumerate(resolutions):
             ax = axes[int(i / 2), i % 2]
             _init_triplot_axes(ax)
@@ -96,7 +97,7 @@ class MixingAnalysis(Step):
             ds = xr.open_dataset(f'{mesh_name}_output.nc')
             if i % 2 == 0:
                 ax.set_ylabel("tracer3")
-            if int(i / 2) == 2:
+            if int(i / 2) == nrows - 1:
                 ax.set_xlabel("tracer2")
             tidx = _time_index_from_xtime(ds.xtime.values,
                                           eval_time * s_per_day)
@@ -109,6 +110,7 @@ class MixingAnalysis(Step):
         if i % 2 < 1:
             ax = axes[int(i / 2), 1]
             ax.set_axis_off()
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
         fig.suptitle('Correlated tracers 2-d')
         fig.savefig('triplots.png', bbox_inches='tight')
 
@@ -117,12 +119,14 @@ def _init_triplot_axes(ax):
     lw = 0.4
     topline = Line2D([0.1, 1.0], [0.9, 0.9], color='k',
                      linestyle='-', linewidth=lw)
-    botline = Line2D([0.1, 1.0], [0.9, 0.1], color='k',
+    midline = Line2D([0.1, 1.0], [0.9, 0.1], color='k',
                      linestyle='-', linewidth=lw)
     rightline = Line2D([1, 1], [0.1, 0.9], color='k',
                        linestyle='-', linewidth=lw)
     leftline = Line2D([0.1, 0.1], [0.1, 0.9], color='k',
                       linestyle='-', linewidth=lw)
+    botline = Line2D([0.1, 1.0], [0.1, 0.1], color='k',
+                     linestyle='-', linewidth=lw)
     crvx = np.linspace(0.1, 1)
     crvy = -0.8 * np.square(crvx) + 0.9
     ticks = np.array(range(6)) / 5
@@ -130,6 +134,7 @@ def _init_triplot_axes(ax):
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
     ax.add_artist(topline)
+    ax.add_artist(midline)
     ax.add_artist(botline)
     ax.add_artist(rightline)
     ax.add_artist(leftline)
@@ -140,7 +145,7 @@ def _init_triplot_axes(ax):
     ax.text(0.12, 0.12, 'Range-preserving\n unmixing', fontsize=8,
             horizontalalignment='left', verticalalignment='bottom')
     ax.text(0.5, 0.27, 'Real mixing', rotation=-40., fontsize=8)
-    ax.text(0.05, 0.05, 'Overshooting', rotation=-90., fontsize=8)
+    ax.text(0.02, 0.1, 'Overshooting', rotation=90., fontsize=8)
     ax.grid(color='lightgray')
 
 
