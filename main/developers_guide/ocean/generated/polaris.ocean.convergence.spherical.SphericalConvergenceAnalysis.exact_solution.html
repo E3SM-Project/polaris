@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse</title>
+  <title>polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.tasks.cosine_bell.viz.VizMap" href="polaris.ocean.tasks.cosine_bell.viz.VizMap.html" />
-    <link rel="prev" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.run" href="polaris.ocean.tasks.cosine_bell.analysis.Analysis.run.html" />
+    <link rel="next" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run.html" />
+    <link rel="prev" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -76,8 +76,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../../api.html#components">Components</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html">ocean</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../seaice/api.html">seaice</a></li>
@@ -113,9 +113,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse</li>
+      <li class="breadcrumb-item active">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -123,22 +123,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-tasks-cosine-bell-analysis-analysis-rmse">
-<h1>polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse<a class="headerlink" href="#polaris-ocean-tasks-cosine-bell-analysis-analysis-rmse" title="Permalink to this heading"></a></h1>
+  <section id="polaris-ocean-convergence-spherical-sphericalconvergenceanalysis-exact-solution">
+<h1>polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution<a class="headerlink" href="#polaris-ocean-convergence-spherical-sphericalconvergenceanalysis-exact-solution" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse">
-<span class="sig-prename descclassname"><span class="pre">Analysis.</span></span><span class="sig-name descname"><span class="pre">rmse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/cosine_bell/analysis.html#Analysis.rmse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse" title="Permalink to this definition"></a></dt>
-<dd><p>Compute the RMSE for a given resolution</p>
+<dt class="sig sig-object py" id="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution">
+<span class="sig-prename descclassname"><span class="pre">SphericalConvergenceAnalysis.</span></span><span class="sig-name descname"><span class="pre">exact_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zidx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/convergence/spherical/analysis.html#SphericalConvergenceAnalysis.exact_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution" title="Permalink to this definition"></a></dt>
+<dd><p>Get the exact solution</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the mesh</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The mesh name which is the prefix for the initial condition file</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the variable of which we evaluate convergence
+For the default method, we use the same convergence rate for all
+fields</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The time at which to evaluate the exact solution in seconds.
+For the default method, we always use the initial state.</p></li>
+<li><p><strong>zidx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – The z-index for the vertical level at which to evaluate the exact
+solution</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>rmseValue</strong> (<em>float</em>) – The root-mean-squared error</p></li>
-<li><p><strong>nCells</strong> (<em>int</em>) – The number of cells in the mesh</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>solution</strong> (<em>xarray.DataArray</em>) – The exact solution as derived from the initial condition</p>
 </dd>
 </dl>
 </dd></dl>
@@ -149,8 +154,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.cosine_bell.analysis.Analysis.run.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.tasks.cosine_bell.viz.VizMap.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.cosine_bell.viz.VizMap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters.html" class="btn btn-neutral float-left" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run.html" class="btn btn-neutral float-right" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -179,7 +184,7 @@
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse.html">main</a></dd>
+      <dd><a href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution.html">main</a></dd>
     </dl>
   </div>
 </div><script>

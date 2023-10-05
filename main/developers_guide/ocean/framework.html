@@ -271,6 +271,12 @@ to be useful across these tests.</p>
 <span class="c1"># Evaluation time for convergence analysis (in days)</span>
 <span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 
+<span class="c1"># Convergence threshold below which a test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+
 
 <span class="c1"># config options for spherical convergence forward steps</span>
 <span class="k">[spherical_convergence_forward]</span>
@@ -296,14 +302,18 @@ to be useful across these tests.</p>
 </pre></div>
 </div>
 <p>The first 2 are the default resolutions for icosahedral and quasi-uniform
-base meshes, respectively.  The <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> will typically be overridden
-by the specific convergence task’s config options, and indicates which time
-integrator to use for the forward run.  Depending on the time integrator,
-either <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code> or <code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code> will be used to determine an
-appropriate time step for each mesh resolution (proportional to the cell size).
-For split time integrators, <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> will be used to compute the
-barotropic time step in a similar way.  The <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and
-<code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are typically the same, and they are given in days.</p>
+base meshes, respectively.  The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> will generally be
+modified by each test case. The <code class="docutils literal notranslate"><span class="pre">convergence_thresh</span></code> will also be modified by
+each test case, and will depend on the numerical methods being tested. The
+<code class="docutils literal notranslate"><span class="pre">error_type</span></code> is the L2 norm by default.</p>
+<p><code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> will typically be overridden by the specific convergence
+task’s config options, and indicates which time integrator to use for the
+forward run.  Depending on the time integrator, either <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code> or
+<code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code> will be used to determine an appropriate time step for each
+mesh resolution (proportional to the cell size). For split time integrators,
+<code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> will be used to compute the barotropic time step in a similar
+way.  The <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are typically the same, and
+they are given in days.</p>
 <p>Each convergence test can override these defaults with its own defaults by
 defining them in its own config file.  Convergence tests should bring in this
 config file in their constructor or by adding them to a shared <code class="docutils literal notranslate"><span class="pre">config</span></code>.  The
@@ -417,6 +427,53 @@ time integrator, time step, run duration and output interval, e.g.:</p>
 <p><code class="docutils literal notranslate"><span class="pre">SphericalConvergenceForward</span></code> takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).</p>
+<p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis</span></code></a>
+step can serve as a parent class for analysis steps in convergence tests.  This
+parent class computes the error norm for the output from each resolution’s
+forward step. It also produces the convergence plot.</p>
+<p>This is an example of how a task’s analysis step can descend from the parent
+class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">SphericalConvergenceAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for analyzing the output from the cosine bell test case</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
+                 <span class="n">dependencies</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        resolutions : list of float</span>
+<span class="sd">            The resolutions of the meshes that have been run</span>
+
+<span class="sd">        icosahedral : bool</span>
+<span class="sd">            Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
+<span class="sd">            meshes</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory that the step resides in</span>
+
+<span class="sd">        dependencies : dict of dict of polaris.Steps</span>
+<span class="sd">            The dependencies of this step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
+                         <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Many tasks will also need to override the <code class="docutils literal notranslate"><span class="pre">exact_solution</span></code> method given in
+<a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis</span></code></a>.
+If not overridden, the analysis step will compute the difference of the output
+from the initial state.</p>
 </section>
 <section id="vertical-coordinate">
 <span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>

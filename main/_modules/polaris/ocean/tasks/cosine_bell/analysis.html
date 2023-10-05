@@ -108,31 +108,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.cosine_bell.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
-
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.convergence.spherical</span> <span class="kn">import</span> <span class="n">SphericalConvergenceAnalysis</span>
 
 
-<div class="viewcode-block" id="Analysis"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis">[docs]</a><span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<div class="viewcode-block" id="Analysis"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis">[docs]</a><span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">SphericalConvergenceAnalysis</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for analyzing the output from the cosine bell test case</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    resolutions : list of float</span>
-<span class="sd">        The resolutions of the meshes that have been run</span>
-
-<span class="sd">    icosahedral : bool</span>
-<span class="sd">        Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
-<span class="sd">        meshes</span>
-
-<span class="sd">    dependencies_dict : dict of dict of polaris.Steps</span>
-<span class="sd">        The dependencies of this step</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Analysis.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
                  <span class="n">dependencies</span><span class="p">):</span>
@@ -157,146 +141,75 @@
 <span class="sd">        dependencies : dict of dict of polaris.Steps</span>
 <span class="sd">            The dependencies of this step</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;analysis&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span> <span class="o">=</span> <span class="n">icosahedral</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">dependencies</span>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
+                         <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;convergence.png&#39;</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Analysis.exact_solution"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution">[docs]</a>    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add input files based on resolutions, which may have been changed by</span>
-<span class="sd">        user config options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dependencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span>
-
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
-            <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
-            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span>
-            <span class="n">init</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span>
-            <span class="n">forward</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/initial_state.nc&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_output.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Analysis.run"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.run.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
-        <span class="n">resolutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span>
-        <span class="n">xdata</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">ydata</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
-            <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
-            <span class="n">rmseValue</span><span class="p">,</span> <span class="n">nCells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmse</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">)</span>
-            <span class="n">xdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nCells</span><span class="p">)</span>
-            <span class="n">ydata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rmseValue</span><span class="p">)</span>
-        <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xdata</span><span class="p">)</span>
-        <span class="n">ydata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ydata</span><span class="p">)</span>
-
-        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">xdata</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ydata</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">conv</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">2.0</span>
-
-        <span class="n">yfit</span> <span class="o">=</span> <span class="n">xdata</span> <span class="o">**</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">yfit</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="s1">&#39;or&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Order of Convergence = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">conv</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                     <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;axes fraction&#39;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Number of Grid Cells&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;L2 Norm&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;convergence.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;icos_conv_thresh&#39;</span><span class="p">)</span>
-            <span class="n">conv_max</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;icos_conv_max&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;qu_conv_thresh&#39;</span><span class="p">)</span>
-            <span class="n">conv_max</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;qu_conv_max&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">conv</span> <span class="o">&lt;</span> <span class="n">conv_thresh</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;order of convergence &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">conv</span><span class="si">}</span><span class="s1"> &lt; min tolerence </span><span class="si">{</span><span class="n">conv_thresh</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">conv</span> <span class="o">&gt;</span> <span class="n">conv_max</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;order of convergence &#39;</span>
-                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">conv</span><span class="si">}</span><span class="s1"> &gt; max tolerence </span><span class="si">{</span><span class="n">conv_max</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Analysis.rmse"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse">[docs]</a>    <span class="k">def</span> <span class="nf">rmse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute the RMSE for a given resolution</span>
+<span class="sd">        Get the exact solution</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        mesh_name : str</span>
-<span class="sd">            The name of the mesh</span>
+<span class="sd">            The mesh name which is the prefix for the initial condition file</span>
+
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+<span class="sd">            For the default method, we use the same convergence rate for all</span>
+<span class="sd">            fields</span>
+
+<span class="sd">        time : float</span>
+<span class="sd">            The time at which to evaluate the exact solution in seconds.</span>
+<span class="sd">            For the default method, we always use the initial state.</span>
+
+<span class="sd">        zidx : int, optional</span>
+<span class="sd">            The z-index for the vertical level at which to evaluate the exact</span>
+<span class="sd">            solution</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        rmseValue : float</span>
-<span class="sd">            The root-mean-squared error</span>
-
-<span class="sd">        nCells : int</span>
-<span class="sd">            The number of cells in the mesh</span>
+<span class="sd">        solution: xarray.DataArray</span>
+<span class="sd">            The exact solution with dimension nCells</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic &#39;</span>
+                  <span class="s1">&#39;solution for the cosine_bell test case&#39;</span><span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">latCent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_center&#39;</span><span class="p">)</span>
         <span class="n">lonCent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lon_center&#39;</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">)</span>
         <span class="n">psi0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;psi0&#39;</span><span class="p">)</span>
-        <span class="n">convergence_eval_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;spherical_convergence&#39;</span><span class="p">,</span>
-                                                <span class="s1">&#39;convergence_eval_time&#39;</span><span class="p">)</span>
+        <span class="n">vel_pd</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;vel_pd&#39;</span><span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">)</span>
-        <span class="c1"># find time since the beginning of run</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_output.nc&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="p">)):</span>
-            <span class="n">tt</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">tt</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
-            <span class="n">DY</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">12</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">DY</span> <span class="o">==</span> <span class="n">convergence_eval_time</span><span class="p">:</span>
-                <span class="n">sliceTime</span> <span class="o">=</span> <span class="n">j</span>
-                <span class="k">break</span>
-        <span class="n">HR</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">15</span><span class="p">])</span>
-        <span class="n">MN</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">18</span><span class="p">])</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="mf">86400.0</span> <span class="o">*</span> <span class="n">DY</span> <span class="o">+</span> <span class="n">HR</span> <span class="o">*</span> <span class="mf">3600.</span> <span class="o">+</span> <span class="n">MN</span>
         <span class="c1"># find new location of blob center</span>
         <span class="c1"># center is based on equatorial velocity</span>
         <span class="n">R</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
-        <span class="n">distTrav</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="mf">3.14159265</span> <span class="o">*</span> <span class="n">R</span> <span class="o">/</span> <span class="p">(</span><span class="mf">86400.0</span> <span class="o">*</span> <span class="n">convergence_eval_time</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>
         <span class="c1"># distance in radians is</span>
-        <span class="n">distRad</span> <span class="o">=</span> <span class="n">distTrav</span> <span class="o">/</span> <span class="n">R</span>
+        <span class="n">distRad</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mf">86400.0</span> <span class="o">*</span> <span class="n">vel_pd</span><span class="p">)</span>
         <span class="n">newLon</span> <span class="o">=</span> <span class="n">lonCent</span> <span class="o">+</span> <span class="n">distRad</span>
         <span class="k">if</span> <span class="n">newLon</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
             <span class="n">newLon</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-
-        <span class="c1"># construct analytic tracer</span>
         <span class="n">tracer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">tracer1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-        <span class="n">latC</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">lonC</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">latC</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">lonC</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># TODO replace this with great circle distance</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">latCent</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">latC</span><span class="p">)</span> <span class="o">+</span>
                              <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">latCent</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">latC</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
             <span class="n">lonC</span> <span class="o">-</span> <span class="n">newLon</span><span class="p">))</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">&lt;</span> <span class="n">radius</span>
         <span class="n">tracer</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi0</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span>
                         <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">3.1415926</span> <span class="o">*</span> <span class="n">temp</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">radius</span><span class="p">)))</span>
-
-        <span class="c1"># oad forward mode data</span>
-        <span class="n">tracerF</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="p">[</span><span class="n">sliceTime</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">rmseValue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">tracerF</span> <span class="o">-</span> <span class="n">tracer</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">rmseValue</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">tracer</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,))</span></div></div>
 </pre></div>
 
            </div>

@@ -44,8 +44,11 @@ section.  Other model config options are taken from `forward.yaml`.
 ### analysis
 
 The class {py:class}`polaris.ocean.tasks.cosine_bell.analysis.Analysis`
-defines a step for computing the RMSE (root-mean-squared error) for the results
-at each resolution and plotting them in `convergence.png`.
+descends from
+{py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`,
+and defines a step for computing the error norm (L2) for the results
+at each resolution, saving them in `convergence_tracer1.csv` and plotting them
+in `convergence_tracer1.png`.
 
 ### viz
 

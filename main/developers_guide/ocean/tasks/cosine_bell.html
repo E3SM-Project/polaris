@@ -166,8 +166,11 @@ section.  Other model config options are taken from <code class="docutils litera
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.analysis.Analysis</span></code></a>
-defines a step for computing the RMSE (root-mean-squared error) for the results
-at each resolution and plotting them in <code class="docutils literal notranslate"><span class="pre">convergence.png</span></code>.</p>
+descends from
+<a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis</span></code></a>,
+and defines a step for computing the error norm (L2) for the results
+at each resolution, saving them in <code class="docutils literal notranslate"><span class="pre">convergence_tracer1.csv</span></code> and plotting them
+in <code class="docutils literal notranslate"><span class="pre">convergence_tracer1.png</span></code>.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>

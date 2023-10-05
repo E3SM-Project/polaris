@@ -177,12 +177,6 @@ advection to make a full rotation around the globe, 24 days:
 
 ```cfg
 # config options for spherical convergence tests
-[spherical_convergence]
-
-# Evaluation time for convergence analysis (in days)
-convergence_eval_time = ${cosine_bell:vel_pd}
-
-# config options for spherical convergence tests
 [spherical_convergence_forward]
 
 # Run duration in days
@@ -192,7 +186,7 @@ run_duration = ${cosine_bell:vel_pd}
 output_interval = ${cosine_bell:vel_pd}
 ```
 
-Her, `${cosine_bell:vel_pd}` means that the same value is used as in the 
+Here, `${cosine_bell:vel_pd}` means that the same value is used as in the 
 option `vel_pd` in section `[cosine_bell]`, see below.
 
 ## config options
@@ -224,17 +218,8 @@ psi0 = 1.0
 # time (days) for bell to transit equator once
 vel_pd = 24.0
 
-# convergence threshold below which the test fails for QU meshes
-qu_conv_thresh = 1.8
-
-# Convergence rate above which a warning is issued for QU meshes
-qu_conv_max = 2.2
-
-# convergence threshold below which the test fails for icosahedral meshes
-icos_conv_thresh = 1.8
-
-# Convergence rate above which a warning is issued for icosahedral meshes
-icos_conv_max = 2.2
+# convergence threshold below which the test fails
+convergence_thresh = 1.8
 
 
 # options for visualization for the cosine bell convergence test case
@@ -269,6 +254,21 @@ when the convergence rates are not within the expected range.
 
 The options in the `cosine_bell_viz` section are used in visualizing the
 initial and final states on a lon-lat grid for `cosine_bell/with_viz` tasks.
+
+By default, the convergence analysis step analyzes convergence after the
+cosine bell has circulated the globe once. It also computes the L2 norm. Both
+of these config options can be changed here:
+
+```cfg
+# config options for spherical convergence tests
+[spherical_convergence]
+
+# Evaluation time for convergence analysis (in days)
+convergence_eval_time = ${cosine_bell:vel_pd}
+
+# Type of error to compute
+error_type = l2
+```
 
 ## cores
 

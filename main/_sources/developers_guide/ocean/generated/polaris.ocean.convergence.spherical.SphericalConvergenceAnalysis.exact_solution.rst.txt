@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact\_solution
+================================================================================
+
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. automethod:: SphericalConvergenceAnalysis.exact_solution

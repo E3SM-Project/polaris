@@ -1,0 +1,37 @@
+﻿polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis
+================================================================
+
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. autoclass:: SphericalConvergenceAnalysis
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SphericalConvergenceAnalysis.__init__
+      ~SphericalConvergenceAnalysis.add_dependency
+      ~SphericalConvergenceAnalysis.add_input_file
+      ~SphericalConvergenceAnalysis.add_output_file
+      ~SphericalConvergenceAnalysis.compute_error
+      ~SphericalConvergenceAnalysis.constrain_resources
+      ~SphericalConvergenceAnalysis.convergence_parameters
+      ~SphericalConvergenceAnalysis.exact_solution
+      ~SphericalConvergenceAnalysis.plot_convergence
+      ~SphericalConvergenceAnalysis.process_inputs_and_outputs
+      ~SphericalConvergenceAnalysis.run
+      ~SphericalConvergenceAnalysis.runtime_setup
+      ~SphericalConvergenceAnalysis.set_resources
+      ~SphericalConvergenceAnalysis.set_shared_config
+      ~SphericalConvergenceAnalysis.setup
+      ~SphericalConvergenceAnalysis.validate_baselines
+   
+   
+
+   
+   
+   

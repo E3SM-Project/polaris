@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.compute\_error
+===============================================================================
+
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. automethod:: SphericalConvergenceAnalysis.compute_error

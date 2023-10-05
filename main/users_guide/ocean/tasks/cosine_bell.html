@@ -287,12 +287,6 @@ the config file in the work directory).</p>
 <p>The convergence_eval_time, run duration and output interval are the period for
 advection to make a full rotation around the globe, 24 days:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
-<span class="k">[spherical_convergence]</span>
-
-<span class="c1"># Evaluation time for convergence analysis (in days)</span>
-<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
-
-<span class="c1"># config options for spherical convergence tests</span>
 <span class="k">[spherical_convergence_forward]</span>
 
 <span class="c1"># Run duration in days</span>
@@ -302,7 +296,7 @@ advection to make a full rotation around the globe, 24 days:</p>
 <span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
 </pre></div>
 </div>
-<p>Her, <code class="docutils literal notranslate"><span class="pre">${cosine_bell:vel_pd}</span></code> means that the same value is used as in the
+<p>Here, <code class="docutils literal notranslate"><span class="pre">${cosine_bell:vel_pd}</span></code> means that the same value is used as in the
 option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> in section <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code>, see below.</p>
 </section>
 <section id="config-options">
@@ -332,17 +326,8 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># time (days) for bell to transit equator once</span>
 <span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">24.0</span>
 
-<span class="c1"># convergence threshold below which the test fails for QU meshes</span>
-<span class="na">qu_conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
-
-<span class="c1"># Convergence rate above which a warning is issued for QU meshes</span>
-<span class="na">qu_conv_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.2</span>
-
-<span class="c1"># convergence threshold below which the test fails for icosahedral meshes</span>
-<span class="na">icos_conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
-
-<span class="c1"># Convergence rate above which a warning is issued for icosahedral meshes</span>
-<span class="na">icos_conv_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.2</span>
+<span class="c1"># convergence threshold below which the test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
 
 
 <span class="c1"># options for visualization for the cosine bell convergence test case</span>
@@ -375,6 +360,19 @@ the cosine bell and the rest of the sphere, as well as the advection.</p>
 when the convergence rates are not within the expected range.</p>
 <p>The options in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the
 initial and final states on a lon-lat grid for <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks.</p>
+<p>By default, the convergence analysis step analyzes convergence after the
+cosine bell has circulated the globe once. It also computes the L2 norm. Both
+of these config options can be changed here:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in days)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+</pre></div>
+</div>
 </section>
 <section id="cores">
 <h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>

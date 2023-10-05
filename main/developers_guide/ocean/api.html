@@ -302,22 +302,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, resolutions, ...)</p></td>
 <td><p>A step for analyzing the output from the cosine bell test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.run.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.run" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(mesh_name, ...)</p></td>
+<td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.rmse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.rmse</span></code></a>(mesh_name)</p></td>
-<td><p>Compute the RMSE for a given resolution</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for making a mapping file for cosine bell viz</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.run.html#polaris.ocean.tasks.cosine_bell.viz.VizMap.run" title="polaris.ocean.tasks.cosine_bell.viz.VizMap.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.run.html#polaris.ocean.tasks.cosine_bell.viz.VizMap.run" title="polaris.ocean.tasks.cosine_bell.viz.VizMap.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.run.html#polaris.ocean.tasks.cosine_bell.viz.Viz.run" title="polaris.ocean.tasks.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.run.html#polaris.ocean.tasks.cosine_bell.viz.Viz.run" title="polaris.ocean.tasks.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -424,6 +421,24 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceForward</span></code></a>(component, name, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of a spherical convergence test</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis</span></code></a>(component, ...)</p></td>
+<td><p>A step for analyzing the output from the geostrophic convergence test</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.compute_error.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.compute_error" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.compute_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis.compute_error</span></code></a>(...)</p></td>
+<td><p>Compute the error for a given resolution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis.convergence_parameters</span></code></a>([...])</p></td>
+<td><p>Get convergence parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis.exact_solution</span></code></a>(...)</p></td>
+<td><p>Get the exact solution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphericalConvergenceAnalysis.plot_convergence</span></code></a>(...)</p></td>
+<td><p>Compute the error norm for each resolution and produce a convergence plot</p></td>
 </tr>
 </tbody>
 </table>
