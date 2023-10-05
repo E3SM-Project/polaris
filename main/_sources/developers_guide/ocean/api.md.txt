@@ -98,6 +98,7 @@
 
    init.Init
    init.Init.run
+   init.cosine_bell
 
    forward.Forward
    forward.Forward.compute_cell_count

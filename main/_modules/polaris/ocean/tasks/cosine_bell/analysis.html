@@ -110,8 +110,11 @@
   <h1>Source code for polaris.ocean.tasks.cosine_bell.analysis</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">mpas_tools.transects</span> <span class="kn">import</span> <span class="n">lon_lat_to_cartesian</span>
+<span class="kn">from</span> <span class="nn">mpas_tools.vector</span> <span class="kn">import</span> <span class="n">Vector</span>
 
 <span class="kn">from</span> <span class="nn">polaris.ocean.convergence.spherical</span> <span class="kn">import</span> <span class="n">SphericalConvergenceAnalysis</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.init</span> <span class="kn">import</span> <span class="n">cosine_bell</span>
 
 
 <div class="viewcode-block" id="Analysis"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis">[docs]</a><span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">SphericalConvergenceAnalysis</span><span class="p">):</span>
@@ -183,33 +186,42 @@
                   <span class="s1">&#39;solution for the cosine_bell test case&#39;</span><span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">latCent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_center&#39;</span><span class="p">)</span>
-        <span class="n">lonCent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lon_center&#39;</span><span class="p">)</span>
+        <span class="n">lat_center</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_center&#39;</span><span class="p">)</span>
+        <span class="n">lon_center</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lon_center&#39;</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">)</span>
         <span class="n">psi0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;psi0&#39;</span><span class="p">)</span>
         <span class="n">vel_pd</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;vel_pd&#39;</span><span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">sphere_radius</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
+
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">)</span>
-        <span class="c1"># find new location of blob center</span>
-        <span class="c1"># center is based on equatorial velocity</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
-        <span class="c1"># distance in radians is</span>
-        <span class="n">distRad</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mf">86400.0</span> <span class="o">*</span> <span class="n">vel_pd</span><span class="p">)</span>
-        <span class="n">newLon</span> <span class="o">=</span> <span class="n">lonCent</span> <span class="o">+</span> <span class="n">distRad</span>
-        <span class="k">if</span> <span class="n">newLon</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
-            <span class="n">newLon</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-        <span class="n">tracer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">tracer1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-        <span class="n">latC</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">lonC</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
-        <span class="c1"># TODO replace this with great circle distance</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">latCent</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">latC</span><span class="p">)</span> <span class="o">+</span>
-                             <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">latCent</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">latC</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
-            <span class="n">lonC</span> <span class="o">-</span> <span class="n">newLon</span><span class="p">))</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">&lt;</span> <span class="n">radius</span>
-        <span class="n">tracer</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi0</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span>
-                        <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">3.1415926</span> <span class="o">*</span> <span class="n">temp</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">radius</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">tracer</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,))</span></div></div>
+        <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># distance that the cosine bell center traveled in radians</span>
+        <span class="c1"># based on equatorial velocity</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mf">86400.0</span> <span class="o">*</span> <span class="n">vel_pd</span><span class="p">)</span>
+
+        <span class="c1"># new location of blob center</span>
+        <span class="n">lon_new</span> <span class="o">=</span> <span class="n">lon_center</span> <span class="o">+</span> <span class="n">distance</span>
+        <span class="k">if</span> <span class="n">lon_new</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
+            <span class="n">lon_new</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">z_center</span> <span class="o">=</span> <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
+            <span class="n">lon_new</span><span class="p">,</span> <span class="n">lat_center</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">x_cells</span><span class="p">,</span> <span class="n">y_cells</span><span class="p">,</span> <span class="n">z_cells</span> <span class="o">=</span> <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
+            <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">xyz_center</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">z_center</span><span class="p">)</span>
+        <span class="n">xyz_cells</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">x_cells</span><span class="p">,</span> <span class="n">y_cells</span><span class="p">,</span> <span class="n">z_cells</span><span class="p">)</span>
+        <span class="n">ang_dist_from_center</span> <span class="o">=</span> <span class="n">xyz_cells</span><span class="o">.</span><span class="n">angular_distance</span><span class="p">(</span><span class="n">xyz_center</span><span class="p">)</span>
+        <span class="n">distance_from_center</span> <span class="o">=</span> <span class="n">ang_dist_from_center</span> <span class="o">*</span> <span class="n">sphere_radius</span>
+
+        <span class="n">bell_value</span> <span class="o">=</span> <span class="n">cosine_bell</span><span class="p">(</span><span class="n">psi0</span><span class="p">,</span> <span class="n">distance_from_center</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>
+        <span class="n">tracer1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">distance_from_center</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">,</span>
+                           <span class="n">bell_value</span><span class="p">,</span>
+                           <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">tracer1</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,))</span></div></div>
 </pre></div>
 
            </div>
