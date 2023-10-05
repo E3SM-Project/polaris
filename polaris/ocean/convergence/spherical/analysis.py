@@ -287,21 +287,17 @@ class SphericalConvergenceAnalysis(Step):
             The error of the variable given by variable_name
         """
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
-        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
         config = self.config
         section = config['spherical_convergence']
         eval_time = section.getfloat('convergence_eval_time')
         s_per_day = 86400.0
-        tidx = time_index_from_xtime(ds_out.xtime.values,
-                                     eval_time * s_per_day)
-        ds_out = ds_out.isel(Time=tidx)
 
-        if zidx is not None:
-            ds_out = ds_out.isel(nVertLevels=zidx)
         field_exact = self.exact_solution(mesh_name, variable_name,
                                           time=eval_time * s_per_day,
                                           zidx=zidx)
-        field_mpas = ds_out[variable_name].values
+        field_mpas = self.get_output_field(mesh_name, variable_name,
+                                           time=eval_time * s_per_day,
+                                           zidx=zidx)
         diff = field_exact - field_mpas
 
         if error_type == 'l2':
@@ -351,6 +347,39 @@ class SphericalConvergenceAnalysis(Step):
             ds_init = ds_init.isel(nVertLevels=zidx)
 
         return ds_init[field_name]
+
+    def get_output_field(self, mesh_name, field_name, time, zidx=None):
+        """
+        Get the model output field at the given time and z index
+
+        Parameters
+        ----------
+        mesh_name : str
+            The mesh name which is the prefix for the output file
+
+        field_name : str
+            The name of the variable of which we evaluate convergence
+
+        time : float
+            The time at which to evaluate the exact solution in seconds
+
+        zidx : int, optional
+            The z-index for the vertical level to take the field from
+
+        Returns
+        -------
+        field_mpas : xarray.DataArray
+            model output field
+        """
+        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+
+        tidx = time_index_from_xtime(ds_out.xtime.values, time)
+        ds_out = ds_out.isel(Time=tidx)
+
+        field_mpas = ds_out[field_name]
+        if zidx is not None:
+            field_mpas = field_mpas.isel(nVertLevels=zidx)
+        return field_mpas
 
     def convergence_parameters(self, field_name=None):
         """
