@@ -197,7 +197,7 @@ class CosineBell(Task):
             step.dependencies_dict = analysis_dependencies
         else:
             step = Analysis(component=component, resolutions=resolutions,
-                            icosahedral=icosahedral, subdir=subdir,
+                            subdir=subdir,
                             dependencies=analysis_dependencies)
             step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)

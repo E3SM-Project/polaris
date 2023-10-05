@@ -11,8 +11,7 @@ class Analysis(SphericalConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 dependencies):
+    def __init__(self, component, resolutions, subdir, dependencies):
         """
         Create the step
 
@@ -23,10 +22,6 @@ class Analysis(SphericalConvergenceAnalysis):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -39,7 +34,6 @@ class Analysis(SphericalConvergenceAnalysis):
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
-                         icosahedral=icosahedral,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 

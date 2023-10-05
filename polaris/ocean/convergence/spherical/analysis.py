@@ -20,10 +20,6 @@ class SphericalConvergenceAnalysis(Step):
     resolutions : list of float
         The resolutions of the meshes that have been run
 
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW
-        meshes
-
     dependencies_dict : dict of dict of polaris.Steps
         The dependencies of this step must be given as separate keys in the
         dict:
@@ -58,7 +54,7 @@ class SphericalConvergenceAnalysis(Step):
                 The z-index to use for variables that have an nVertLevels
                 dimension, which should be None for variables that don't
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
+    def __init__(self, component, resolutions, subdir,
                  dependencies, convergence_vars):
         """
         Create the step
@@ -70,10 +66,6 @@ class SphericalConvergenceAnalysis(Step):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -114,7 +106,6 @@ class SphericalConvergenceAnalysis(Step):
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
-        self.icosahedral = icosahedral
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
 
