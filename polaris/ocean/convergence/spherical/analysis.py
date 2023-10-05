@@ -286,6 +286,7 @@ class SphericalConvergenceAnalysis(Step):
         error : float
             The error of the variable given by variable_name
         """
+        norm_type = {'l2': None, 'inf': np.inf}
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         config = self.config
         section = config['spherical_convergence']
@@ -302,14 +303,14 @@ class SphericalConvergenceAnalysis(Step):
 
         if error_type == 'l2':
             area = area_for_field(ds_mesh, diff)
-            total_area = np.sum(area)
-            den_l2 = np.sum(field_exact**2 * area) / total_area
-            num_l2 = np.sum(diff**2 * area) / total_area
-            error = np.sqrt(num_l2) / np.sqrt(den_l2)
-        elif error_type == 'inf':
-            error = np.amax(diff) / np.amax(np.abs(field_exact))
-        else:
-            raise ValueError(f'Unsupported error type {error_type}')
+            diff = diff * area
+
+        error = np.linalg.norm(diff, ord=norm_type[error_type])
+
+        if error_type == 'l2':
+            field_exact = field_exact * area
+            den_l2 = np.linalg.norm(field_exact, ord=norm_type[error_type])
+            error = np.divide(error, den_l2)
 
         return error
 
