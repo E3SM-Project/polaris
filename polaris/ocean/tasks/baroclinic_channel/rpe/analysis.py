@@ -5,7 +5,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.ocean.rpe import compute_rpe
-from polaris.viz import plot_horiz_field
+from polaris.viz import plot_horiz_field, use_mplstyle
 
 
 class Analysis(Step):
@@ -79,6 +79,7 @@ class Analysis(Step):
         ds = xr.open_dataset(f'output_nu_{nus[0]:g}.nc', decode_times=False)
         times = ds.daysSinceStartOfSim.values
 
+        use_mplstyle()
         fig = plt.figure()
         for i in range(sim_count):
             rpe_norm = np.divide((rpe[i, :] - rpe[i, 0]), rpe[i, 0])

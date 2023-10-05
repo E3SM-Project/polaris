@@ -1,12 +1,4 @@
 import configparser
-import sys
-from typing import TYPE_CHECKING  # noqa: F401
-
-if TYPE_CHECKING or sys.version_info >= (3, 9, 0):
-    import importlib.resources as imp_res  # noqa: F401
-else:
-    # python <= 3.8
-    import importlib_resources as imp_res  # noqa: F401
 
 import cartopy
 import cmocean  # noqa: F401
@@ -15,9 +7,12 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
+from polaris.viz.style import use_mplstyle
 
-def plot_global(lon, lat, data_array, out_filename, config, colormap_section,
-                title=None, plot_land=True, colorbar_label=None):
+
+def plot_global_field(lon, lat, data_array, out_filename, config,
+                      colormap_section, title=None, plot_land=True,
+                      colorbar_label=None):
     """
     Plots a data set as a longitude-latitude map
 
@@ -65,9 +60,7 @@ def plot_global(lon, lat, data_array, out_filename, config, colormap_section,
         Label on the colorbar
     """
 
-    style_filename = str(
-        imp_res.files('polaris.viz') / 'polaris.mplstyle')
-    plt.style.use(style_filename)
+    use_mplstyle()
 
     nlat, nlon = data_array.shape
     if lon.shape[0] == nlon:
