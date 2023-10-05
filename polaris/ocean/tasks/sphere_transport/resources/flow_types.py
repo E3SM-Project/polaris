@@ -1,10 +1,6 @@
 import numpy as np
+from mpas_tools.transects import lon_lat_to_cartesian
 from numpy import cos, pi, sin
-
-from polaris.ocean.tasks.sphere_transport.resources.utils import (
-    calc_local_east_north,
-    lonlat2xyz,
-)
 
 
 def flow_nondivergent(t, lon, lat, u_0, tau):
@@ -83,7 +79,7 @@ def flow_divergent(t, lon, lat, u_0, tau):
     return u, v
 
 
-def flow_rotation(lon, lat, omega, tau):
+def flow_rotation(lon, lat, omega, tau, sphere_radius):
     """
     Compute a nondivergent velocity field
 
@@ -102,6 +98,9 @@ def flow_rotation(lon, lat, omega, tau):
     tau : float
         time in seconds for the flow to circumnavigate the sphere
 
+    sphere_radius : float
+        radius of the sphere
+
     Returns
     -------
     u : np.ndarray of type float
@@ -111,10 +110,20 @@ def flow_rotation(lon, lat, omega, tau):
        meridional velocity
     """
     omega = (2. * pi / tau) * (omega / np.linalg.norm(omega))
-    x, y, z = lonlat2xyz(lon, lat)
+    x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
     xyz = np.stack((x, y, z), axis=1)
-    vel = np.cross(omega, np.transpose(xyz), axis=0)
+    vel = np.cross(omega, np.divide(np.transpose(xyz), sphere_radius), axis=0)
     east, north = calc_local_east_north(x, y, z)
     u = np.sum(vel * east, axis=0)
     v = np.sum(vel * north, axis=0)
     return u, v
+
+
+def calc_local_east_north(x, y, z):
+    axis = [0, 0, 1]
+    xyz = np.stack((x, y, z), axis=1)
+    east = np.cross(axis, np.transpose(xyz), axis=0)
+    north = np.cross(np.transpose(xyz), east, axis=0)
+    east = east / np.linalg.norm(east, axis=0)
+    north = north / np.linalg.norm(north, axis=0)
+    return east, north

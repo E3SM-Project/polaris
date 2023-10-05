@@ -9,11 +9,9 @@ from polaris.ocean.tasks.sphere_transport.resources.flow_types import (
     flow_rotation,
 )
 from polaris.ocean.tasks.sphere_transport.resources.tracer_distributions import (  # noqa: E501
+    correlation_fn,
     cosine_bells,
     slotted_cylinders,
-)
-from polaris.ocean.tasks.sphere_transport.resources.utils import (
-    correlation_fn,
     xyztrig,
 )
 from polaris.ocean.vertical import init_vertical_coord
@@ -92,12 +90,30 @@ class Init(Step):
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        tracer1 = xyztrig(lonCell, latCell)
-        tracer2 = cosine_bells(lonCell, latCell)
+        # tracer1
+        tracer1 = xyztrig(lonCell, latCell, sphere_radius)
+
+        # tracer2
+        section = config['sphere_transport']
+        radius = section.getfloat('cosine_bells_radius')
+        background_value = section.getfloat('cosine_bells_background')
+        amplitude = section.getfloat('cosine_bells_amplitude')
+        tracer2 = cosine_bells(lonCell, latCell, radius, background_value,
+                               amplitude, sphere_radius)
+
+        # tracer3
         if case_name == 'correlated_tracers_2d':
-            tracer3 = correlation_fn(tracer2)
+            coeff = config.getlist(case_name, 'correlation_coefficients',
+                                   dtype=float)
+            tracer3 = correlation_fn(tracer2, coeff[0], coeff[1], coeff[2])
         else:
-            tracer3 = slotted_cylinders(lonCell, latCell)
+            section = config['sphere_transport']
+            radius = section.getfloat('slotted_cylinders_radius')
+            background_value = section.getfloat('slotted_cylinders_background')
+            amplitude = section.getfloat('slotted_cylinders_amplitude')
+            tracer3 = slotted_cylinders(lonCell, latCell, radius,
+                                        background_value, amplitude,
+                                        sphere_radius)
         _, tracer1_array = np.meshgrid(ds.refZMid.values, tracer1)
         _, tracer2_array = np.meshgrid(ds.refZMid.values, tracer2)
         _, tracer3_array = np.meshgrid(ds.refZMid.values, tracer3)
@@ -116,7 +132,7 @@ class Init(Step):
                                              dtype=float)
             vector = np.array(rotation_vector)
             u, v = flow_rotation(lonEdge, latEdge, vector,
-                                 vel_pd * seconds_per_day)
+                                 vel_pd * seconds_per_day, sphere_radius)
         elif case_name == 'divergent_2d':
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
@@ -141,7 +157,3 @@ class Init(Step):
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
         write_netcdf(ds, 'initial_state.nc')
-
-
-def cosine_bell(max_value, ri, r):
-    return max_value / 2.0 * (1.0 + np.cos(np.pi * np.divide(ri, r)))
