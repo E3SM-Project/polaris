@@ -10,7 +10,7 @@ Bell test case as first described in
 but using the variant from Sec. 3a of
 [Skamarock and Gassmann](https://doi.org/10.1175/MWR-D-10-05056.1).  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
-in a tracer $psi$ once around the sphere, returning to its initial location.
+in a tracer $\psi$ once around the sphere, returning to its initial location.
 
 The task is a convergence test with time step varying proportionately to grid
 size. The result of the `analysis` step of the task is a plot like the
@@ -133,6 +133,11 @@ sphere. `psi_0` and `radius`, $R$, are given as config options and may be
 altered by the user. In the `init` step we assign `debug_tracers_1`
 to $\psi$.
 
+```{image} images/cosine_bell_init.png
+:align: center
+:width: 500 px
+```
+
 The initial velocity is equatorial:
 
 $$
@@ -172,8 +177,8 @@ time_integrator = RK4
 rk4_dt_per_km = 3.0
 ```
 
-The convergence_eval_time, run duration and output interval are the period for 
-advection to make a full rotation around the globe, 24 days:
+The `convergence_eval_time`, `run_duration` and `output_interval` are the
+period for advection to make a full rotation around the globe, 24 days:
 
 ```cfg
 # config options for spherical convergence tests

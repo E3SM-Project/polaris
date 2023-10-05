@@ -1,6 +1,8 @@
 import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
+from mpas_tools.transects import lon_lat_to_cartesian
+from mpas_tools.vector import Vector
 
 from polaris import Step
 from polaris.ocean.vertical import init_vertical_coord
@@ -77,13 +79,15 @@ class Init(Step):
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        distance_from_center = sphere_radius * np.arccos(
-            np.sin(lat_center) * np.sin(latCell) +
-            np.cos(lat_center) * np.cos(latCell) *
-            np.cos(lonCell - lon_center))
-        bell_value = psi0 / 2.0 * (
-            1.0 + np.cos(np.pi *
-                         np.divide(distance_from_center, radius)))
+        x_center, y_center, z_center = lon_lat_to_cartesian(
+            lon_center, lat_center, sphere_radius, degrees=False)
+        x_cells, y_cells, z_cells = lon_lat_to_cartesian(
+            lonCell, latCell, sphere_radius, degrees=False)
+        xyz_center = Vector(x_center, y_center, z_center)
+        xyz_cells = Vector(x_cells, y_cells, z_cells)
+        ang_dist_from_center = xyz_cells.angular_distance(xyz_center)
+        distance_from_center = ang_dist_from_center * sphere_radius
+        bell_value = cosine_bell(psi0, distance_from_center, radius)
         debug_tracers = xr.where(distance_from_center < radius,
                                  bell_value,
                                  0.0)
@@ -104,3 +108,21 @@ class Init(Step):
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
         write_netcdf(ds, 'initial_state.nc')
+
+
+def cosine_bell(max_value, ri, r):
+    """
+    Compute values according to cosine bell function
+
+    Parameters
+    ----------
+    max_value : float
+        Maximum value of the cosine bell function
+
+    ri : np.ndarray of type float
+        Distance from the center of the cosine bell in meters
+
+    r : float
+        Radius of the cosine bell in meters
+    """
+    return max_value / 2.0 * (1.0 + np.cos(np.pi * np.divide(ri, r)))
