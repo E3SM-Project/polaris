@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.viz.globe.plot_global</title>
+  <title>polaris.viz.use_mplstyle</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.yaml.PolarisYaml" href="polaris.yaml.PolarisYaml.html" />
-    <link rel="prev" title="polaris.viz.plot_horiz_field" href="polaris.viz.plot_horiz_field.html" />
+    <link rel="next" title="polaris.viz.plot_horiz_field" href="polaris.viz.plot_horiz_field.html" />
+    <link rel="prev" title="polaris.validate.compare_variables" href="polaris.validate.compare_variables.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -91,8 +91,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#validate">validate</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#viz">viz</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.use_mplstyle</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.globe.plot_global</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_global_field.html">polaris.viz.plot_global_field</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#yaml">yaml</a></li>
@@ -126,9 +127,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.viz.globe.plot_global</li>
+      <li class="breadcrumb-item active">polaris.viz.use_mplstyle</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.viz.globe.plot_global.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.viz.use_mplstyle.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,41 +137,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-viz-globe-plot-global">
-<h1>polaris.viz.globe.plot_global<a class="headerlink" href="#polaris-viz-globe-plot-global" title="Permalink to this heading"></a></h1>
+  <section id="polaris-viz-use-mplstyle">
+<h1>polaris.viz.use_mplstyle<a class="headerlink" href="#polaris-viz-use-mplstyle" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.viz.globe.plot_global">
-<span class="sig-prename descclassname"><span class="pre">polaris.viz.globe.</span></span><span class="sig-name descname"><span class="pre">plot_global</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_land</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/globe.html#plot_global"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.globe.plot_global" title="Permalink to this definition"></a></dt>
-<dd><p>Plots a data set as a longitude-latitude map</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 1D longitude coordinate</p></li>
-<li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 1D latitude coordinate</p></li>
-<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 2D data array to plot</p></li>
-<li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The image file name to be written</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options to use for colormap settings</p></li>
-<li><p><strong>colormap_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The name of a section in the config options. Options must include:</p>
-<dl class="simple">
-<dt>colormap_name</dt><dd><p>The name of the colormap</p>
-</dd>
-<dt>norm_type</dt><dd><p>The norm: {‘symlog’, ‘log’, ‘linear’}</p>
-</dd>
-<dt>norm_args</dt><dd><p>A dict of arguments to pass to the norm</p>
-</dd>
-</dl>
-<p>It may also include:</p>
-<dl class="simple">
-<dt>colorbar_ticks</dt><dd><p>An array of values where ticks should be placed</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The subtitle of the plot</p></li>
-<li><p><strong>plot_land</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether to plot continents over the data</p></li>
-<li><p><strong>colorbar_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Label on the colorbar</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="polaris.viz.use_mplstyle">
+<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">use_mplstyle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/style.html#use_mplstyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.use_mplstyle" title="Permalink to this definition"></a></dt>
+<dd><p>Use the Polaris matplotlib style file</p>
 </dd></dl>
 
 </section>
@@ -179,8 +151,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.viz.plot_horiz_field.html" class="btn btn-neutral float-left" title="polaris.viz.plot_horiz_field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.yaml.PolarisYaml.html" class="btn btn-neutral float-right" title="polaris.yaml.PolarisYaml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.validate.compare_variables.html" class="btn btn-neutral float-left" title="polaris.validate.compare_variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.viz.plot_horiz_field.html" class="btn btn-neutral float-right" title="polaris.viz.plot_horiz_field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -209,7 +181,7 @@
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.viz.globe.plot_global.html">main</a></dd>
+      <dd><a href="polaris.viz.use_mplstyle.html">main</a></dd>
     </dl>
   </div>
 </div><script>

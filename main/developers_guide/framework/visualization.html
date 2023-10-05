@@ -77,6 +77,7 @@
 <li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-matplotlib-style">common matplotlib style</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#horizontal-fields-from-planar-meshes">horizontal fields from planar meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#global-lat-lon-plots-from-spherical-meshes">global lat/lon plots from spherical meshes</a></li>
 </ul>
@@ -133,6 +134,15 @@ as part of other steps such as <code class="docutils literal notranslate"><span 
 <p>While developers can write their own visualization scripts associated with
 individual tasks, the following shared visualization routines are
 provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
+<section id="common-matplotlib-style">
+<span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Permalink to this heading"></a></h2>
+<p>The function <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a> loads a common
+<a class="reference external" href="https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets">matplotlib style sheet</a>
+that can be used to make font sizes and other plotting options more consistent
+across Polaris.  The plotting functions described below make use of this common
+style.  Custom plotting should call <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a>
+before creating a <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> figure.</p>
+</section>
 <section id="horizontal-fields-from-planar-meshes">
 <span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Permalink to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a patches-style
@@ -155,11 +165,11 @@ polygons characterized by the field values, accordingly.</p>
 </section>
 <section id="global-lat-lon-plots-from-spherical-meshes">
 <span id="dev-visualization-global"></span><h2>global lat/lon plots from spherical meshes<a class="headerlink" href="#global-lat-lon-plots-from-spherical-meshes" title="Permalink to this heading"></a></h2>
-<p>You can use <a class="reference internal" href="../generated/polaris.viz.globe.plot_global.html#polaris.viz.globe.plot_global" title="polaris.viz.globe.plot_global"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.globe.plot_global()</span></code></a> to plot a field on
+<p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field" title="polaris.viz.plot_global_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_field()</span></code></a> to plot a field on
 a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
 <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a>.</p>
 <a class="reference internal image-reference" href="../../_images/cosine_bell_final.png"><img alt="../../_images/cosine_bell_final.png" class="align-center" src="../../_images/cosine_bell_final.png" style="width: 500px;" /></a>
-<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.globe.plot_global.html#polaris.viz.globe.plot_global" title="polaris.viz.globe.plot_global"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.globe.plot_global()</span></code></a> is used
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field" title="polaris.viz.plot_global_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_field()</span></code></a> is used
 to enable or disable continents overlain on top of the data:</p>
 <a class="reference internal image-reference" href="../../_images/cosine_bell_final_land.png"><img alt="../../_images/cosine_bell_final_land.png" class="align-center" src="../../_images/cosine_bell_final_land.png" style="width: 500px;" /></a>
 <p>Typical usage might be:</p>
@@ -167,17 +177,18 @@ to enable or disable continents overlain on top of the data:</p>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.viz.globe</span> <span class="kn">import</span> <span class="n">plot_global</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_field</span>
 
 <span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         
-        <span class="n">plot_global</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plot_global_field</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">colormap_section</span></code> of the config file must contain config options for

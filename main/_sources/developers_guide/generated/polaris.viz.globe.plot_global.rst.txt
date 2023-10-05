@@ -1,6 +1,0 @@
-﻿polaris.viz.globe.plot\_global
-==============================
-
-.. currentmodule:: polaris.viz.globe
-
-.. autofunction:: plot_global

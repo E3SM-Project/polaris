@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.viz.globe</title>
+  <title>polaris.viz.spherical</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -96,8 +96,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../viz.html">polaris.viz</a></li>
-      <li class="breadcrumb-item active">polaris.viz.globe</li>
+      <li class="breadcrumb-item active">polaris.viz.spherical</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -106,16 +105,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for polaris.viz.globe</h1><div class="highlight"><pre>
+  <h1>Source code for polaris.viz.spherical</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>  <span class="c1"># noqa: F401</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span> <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>  <span class="c1"># noqa: F401</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="c1"># python &lt;= 3.8</span>
-    <span class="kn">import</span> <span class="nn">importlib_resources</span> <span class="k">as</span> <span class="nn">imp_res</span>  <span class="c1"># noqa: F401</span>
 
 <span class="kn">import</span> <span class="nn">cartopy</span>
 <span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
@@ -124,9 +115,12 @@
 <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="kn">import</span> <span class="n">inset_axes</span>
 <span class="kn">from</span> <span class="nn">pyremap.descriptor.utility</span> <span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 
+<span class="kn">from</span> <span class="nn">polaris.viz.style</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
 
-<div class="viewcode-block" id="plot_global"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.globe.plot_global.html#polaris.viz.globe.plot_global">[docs]</a><span class="k">def</span> <span class="nf">plot_global</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="plot_global_field"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field">[docs]</a><span class="k">def</span> <span class="nf">plot_global_field</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                      <span class="n">colormap_section</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots a data set as a longitude-latitude map</span>
 
@@ -174,9 +168,7 @@
 <span class="sd">        Label on the colorbar</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
-        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.viz&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;polaris.mplstyle&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span>
+    <span class="n">use_mplstyle</span><span class="p">()</span>
 
     <span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nlon</span><span class="p">:</span>
@@ -355,7 +347,7 @@
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="globe.html">main</a></dd>
+      <dd><a href="spherical.html">main</a></dd>
     </dl>
   </div>
 </div><script>

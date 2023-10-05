@@ -113,7 +113,7 @@
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span> <span class="nn">polaris.remap</span> <span class="kn">import</span> <span class="n">MappingFileStep</span>
-<span class="kn">from</span> <span class="nn">polaris.viz.globe</span> <span class="kn">import</span> <span class="n">plot_global</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_field</span>
 
 
 <div class="viewcode-block" id="VizMap"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap">[docs]</a><span class="k">class</span> <span class="nc">VizMap</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
@@ -243,23 +243,23 @@
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
         <span class="n">ds_init</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_init.nc&#39;</span><span class="p">)</span>
 
-        <span class="n">plot_global</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">ds_init</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plot_global_field</span><span class="p">(</span>
+            <span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_final.nc&#39;</span><span class="p">)</span>
 
-        <span class="n">plot_global</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">ds_out</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;final.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer after </span><span class="si">{</span><span class="n">run_duration</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
-                    <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+        <span class="n">plot_global_field</span><span class="p">(</span>
+            <span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;final.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer after </span><span class="si">{</span><span class="n">run_duration</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
+            <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
