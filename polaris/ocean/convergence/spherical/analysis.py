@@ -1,4 +1,3 @@
-import datetime
 import os
 
 import matplotlib.pyplot as plt
@@ -7,6 +6,7 @@ import pandas as pd
 import xarray as xr
 
 from polaris import Step
+from polaris.mpas import time_index_from_xtime
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -292,8 +292,8 @@ class SphericalConvergenceAnalysis(Step):
         section = config['spherical_convergence']
         eval_time = section.getfloat('convergence_eval_time')
         s_per_day = 86400.0
-        tidx = _time_index_from_xtime(ds_out.xtime.values,
-                                      eval_time * s_per_day)
+        tidx = time_index_from_xtime(ds_out.xtime.values,
+                                     eval_time * s_per_day)
         ds_out = ds_out.isel(Time=tidx)
 
         if zidx is not None:
@@ -376,30 +376,3 @@ class SphericalConvergenceAnalysis(Step):
         conv_thresh = section.getfloat('convergence_thresh')
         error_type = section.get('error_type')
         return conv_thresh, error_type
-
-
-def _time_index_from_xtime(xtime, dt_target):
-    """
-    Determine the time index at which to evaluate convergence
-
-    Parameters
-    ----------
-    xtime : list of str
-        Times in the dataset
-
-    dt_target : float
-        Time in seconds at which to evaluate convergence
-
-    Returns
-    -------
-    tidx : int
-        Index in xtime that is closest to dt_target
-    """
-    t0 = datetime.datetime.strptime(xtime[0].decode(),
-                                    '%Y-%m-%d_%H:%M:%S')
-    dt = np.zeros((len(xtime)))
-    for idx, xt in enumerate(xtime):
-        t = datetime.datetime.strptime(xt.decode(),
-                                       '%Y-%m-%d_%H:%M:%S')
-        dt[idx] = (t - t0).total_seconds()
-    return np.argmin(np.abs(np.subtract(dt, dt_target)))
