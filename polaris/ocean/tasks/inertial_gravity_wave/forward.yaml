@@ -15,9 +15,9 @@ omega:
     config_disable_vel_hmix: true
   streams:
     mesh:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     input:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     restart: {}
     output:
       type: output

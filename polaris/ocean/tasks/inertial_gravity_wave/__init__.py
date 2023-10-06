@@ -1,6 +1,7 @@
 from typing import Dict
 
 from polaris import Step, Task
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.inertial_gravity_wave.analysis import Analysis
 from polaris.ocean.tasks.inertial_gravity_wave.forward import Forward
 from polaris.ocean.tasks.inertial_gravity_wave.init import Init
@@ -39,11 +40,15 @@ class InertialGravityWave(Task):
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in self.resolutions:
+            mesh_name = resolution_to_subdir(resolution)
             init_step = Init(component=component, resolution=resolution,
                              taskdir=self.subdir)
             self.add_step(init_step)
-            forward_step = Forward(component=component, resolution=resolution,
-                                   taskdir=self.subdir)
+            forward_step = Forward(component=component,
+                                   name=f'forward_{mesh_name}',
+                                   resolution=resolution,
+                                   subdir=f'{self.subdir}/forward/{mesh_name}',
+                                   init=init_step)
             self.add_step(forward_step)
             analysis_dependencies['mesh'][resolution] = init_step
             analysis_dependencies['init'][resolution] = init_step
