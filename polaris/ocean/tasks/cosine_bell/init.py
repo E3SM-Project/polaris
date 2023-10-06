@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
@@ -97,7 +98,7 @@ class Init(Step):
         ds['tracer3'] = ds.tracer1
 
         # Initialize velocity
-        seconds_per_day = 86400.0
+        seconds_per_day = constants['SHR_CONST_CDAY']
         velocity = (2.0 * np.pi * np.cos(angleEdge) * sphere_radius *
                     np.cos(latEdge) / (seconds_per_day * vel_pd))
         velocity_array, _ = xr.broadcast(velocity, ds.refZMid)
