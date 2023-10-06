@@ -1,4 +1,3 @@
-import datetime
 from math import ceil
 
 import matplotlib.pyplot as plt
@@ -7,6 +6,7 @@ import xarray as xr
 from matplotlib.lines import Line2D
 
 from polaris import Step
+from polaris.mpas import time_index_from_xtime
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -99,8 +99,8 @@ class MixingAnalysis(Step):
                 ax.set_ylabel("tracer3")
             if int(i / 2) == nrows - 1:
                 ax.set_xlabel("tracer2")
-            tidx = _time_index_from_xtime(ds.xtime.values,
-                                          eval_time * s_per_day)
+            tidx = time_index_from_xtime(ds.xtime.values,
+                                         eval_time * s_per_day)
             ds = ds.isel(Time=tidx)
             ds = ds.isel(nVertLevels=zidx)
             tracer2 = ds["tracer2"].values
@@ -147,29 +147,3 @@ def _init_triplot_axes(ax):
     ax.text(0.5, 0.27, 'Real mixing', rotation=-40., fontsize=8)
     ax.text(0.02, 0.1, 'Overshooting', rotation=90., fontsize=8)
     ax.grid(color='lightgray')
-
-
-def _time_index_from_xtime(xtime, dt_target):
-    """
-    Determine the time index at which to evaluate convergence
-
-    Parameters
-    ----------
-    xtime: list of str
-        Times in the dataset
-    dt_target: float
-        Time in seconds at which to evaluate convergence
-
-    Returns
-    -------
-    tidx: int
-        Index in xtime that is closest to dt_target
-    """
-    t0 = datetime.datetime.strptime(xtime[0].decode(),
-                                    '%Y-%m-%d_%H:%M:%S')
-    dt = np.zeros((len(xtime)))
-    for idx, xt in enumerate(xtime):
-        t = datetime.datetime.strptime(xt.decode(),
-                                       '%Y-%m-%d_%H:%M:%S')
-        dt[idx] = (t - t0).total_seconds()
-    return np.argmin(np.abs(np.subtract(dt, dt_target)))

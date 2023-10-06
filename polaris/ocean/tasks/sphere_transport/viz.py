@@ -1,10 +1,8 @@
-import datetime
-
 import cmocean  # noqa: F401
-import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.mpas import time_index_from_xtime
 from polaris.remap import MappingFileStep
 from polaris.viz import plot_global_field
 
@@ -149,16 +147,16 @@ class Viz(Step):
 
         # Visualization at halfway around the globe (provided run duration is
         # set to the time needed to circumnavigate the globe)
-        tidx = _time_index_from_xtime(ds_out.xtime.values,
-                                      run_duration * seconds_per_day / 2.)
+        tidx = time_index_from_xtime(ds_out.xtime.values,
+                                     run_duration * seconds_per_day / 2.)
         ds_mid = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                        nVertLevels=0)
         ds_mid = remapper.remap(ds_mid)
         ds_mid.to_netcdf('remapped_mid.nc')
 
         # Visualization at all the way around the globe
-        tidx = _time_index_from_xtime(ds_out.xtime.values,
-                                      run_duration * seconds_per_day)
+        tidx = time_index_from_xtime(ds_out.xtime.values,
+                                     run_duration * seconds_per_day)
         ds_final = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                          nVertLevels=0)
         ds_final = remapper.remap(ds_final)
@@ -192,30 +190,3 @@ class Viz(Step):
                               title=f'Difference in {mesh_name} {var} from '
                               f'initial condition after {run_duration:g} days',
                               plot_land=False)
-
-
-def _time_index_from_xtime(xtime, dt_target):
-    """
-    Determine the time index at which to evaluate convergence
-
-    Parameters
-    ----------
-    xtime : list of str
-        Times in the dataset
-
-    dt_target : float
-        Time in seconds at which to evaluate convergence
-
-    Returns
-    -------
-    tidx : int
-        Index in xtime that is closest to dt_target
-    """
-    t0 = datetime.datetime.strptime(xtime[0].decode(),
-                                    '%Y-%m-%d_%H:%M:%S')
-    dt = np.zeros((len(xtime)))
-    for idx, xt in enumerate(xtime):
-        t = datetime.datetime.strptime(xt.decode(),
-                                       '%Y-%m-%d_%H:%M:%S')
-        dt[idx] = (t - t0).total_seconds()
-    return np.argmin(np.abs(np.subtract(dt, dt_target)))
