@@ -182,6 +182,7 @@
    SphericalConvergenceAnalysis.compute_error
    SphericalConvergenceAnalysis.convergence_parameters
    SphericalConvergenceAnalysis.exact_solution
+   SphericalConvergenceAnalysis.get_output_field
    SphericalConvergenceAnalysis.run
    SphericalConvergenceAnalysis.plot_convergence
 ```
