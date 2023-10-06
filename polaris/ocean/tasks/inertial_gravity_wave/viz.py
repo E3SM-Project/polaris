@@ -73,9 +73,9 @@ class Viz(Step):
         rmse = []
         error_range = None
         for i, res in enumerate(resolutions):
-            ds_mesh = xr.open_dataset(f'mesh_{res}km.nc')
-            ds_init = xr.open_dataset(f'init_{res}km.nc')
-            ds = xr.open_dataset(f'output_{res}km.nc')
+            ds_mesh = xr.open_dataset(f'mesh_{res:g}km.nc')
+            ds_init = xr.open_dataset(f'init_{res:g}km.nc')
+            ds = xr.open_dataset(f'output_{res:g}km.nc')
             ds['maxLevelCell'] = ds_init.maxLevelCell
             exact = ExactSolution(ds_init, config)
 
