@@ -21,6 +21,8 @@ def add_cosine_bell_tasks(component):
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.ocean.convergence',
+                                'convergence.cfg')
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',

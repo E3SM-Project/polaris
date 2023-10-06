@@ -1,9 +1,7 @@
-import time
-
 import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 from polaris.ocean.resolution import resolution_to_subdir
 
 
@@ -62,10 +60,8 @@ class Forward(OceanModelStep):
             filename='output.nc',
             validate_vars=['layerThickness', 'normalVelocity'])
 
-        self.add_yaml_file('polaris.ocean.config',
-                           'single_layer.yaml')
-        self.add_yaml_file('polaris.ocean.tasks.inertial_gravity_wave',
-                           'forward.yaml')
+        self.package = 'polaris.ocean.tasks.inertial_gravity_wave'
+        self.yaml_filename = 'forward.yaml'
 
     def compute_cell_count(self):
         """
@@ -96,12 +92,42 @@ class Forward(OceanModelStep):
         """
         super().dynamic_model_config(at_setup=at_setup)
 
-        # dt is proportional to resolution
         config = self.config
-        section = config['inertial_gravity_wave']
-        dt_per_km = section.getfloat('dt_per_km')
-        dt = dt_per_km * self.resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        dt_str = time.strftime('%H:%M:%S', time.gmtime(dt))
-        options = {'config_dt': dt_str}
-        self.add_model_config_options(options)
+
+        vert_levels = config.getfloat('vertical_grid', 'vert_levels')
+        if not at_setup and vert_levels == 1:
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+
+        # dt is proportional to resolution
+        section = config['convergence_forward']
+
+        time_integrator = section.get('time_integrator')
+
+        # dt is proportional to resolution: default 30 seconds per km
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        else:
+            dt_per_km = section.getfloat('split_dt_per_km')
+        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
+
+        # btr_dt is also proportional to resolution: default 1.5 seconds per km
+        btr_dt_per_km = section.getfloat('btr_dt_per_km')
+        btr_dt_str = get_time_interval_string(
+            seconds=btr_dt_per_km * self.resolution)
+
+        run_duration = section.getfloat('run_duration')
+        run_duration_str = get_time_interval_string(days=run_duration)
+
+        output_interval = section.getfloat('output_interval')
+        output_interval_str = get_time_interval_string(days=output_interval)
+
+        replacements = dict(
+            time_integrator=time_integrator,
+            dt=dt_str,
+            btr_dt=btr_dt_str,
+            run_duration=run_duration_str,
+            output_interval=output_interval_str,
+        )
+
+        self.add_yaml_file(self.package, self.yaml_filename,
+                           template_replacements=replacements)

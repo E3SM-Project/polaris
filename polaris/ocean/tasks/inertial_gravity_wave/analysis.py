@@ -1,12 +1,12 @@
 import xarray as xr
 
-from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
+from polaris.ocean.convergence import ConvergenceAnalysis
 from polaris.ocean.tasks.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
 
 
-class Analysis(SphericalConvergenceAnalysis):
+class Analysis(ConvergenceAnalysis):
     """
     A step for analysing the output from the inertial gravity wave
     test case
@@ -41,10 +41,6 @@ class Analysis(SphericalConvergenceAnalysis):
                          resolutions=resolutions,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
-
-        # TODO move conv thresh to convergence section
-        # section = config['inertial_gravity_wave']
-        # conv_thresh = section.getfloat('conv_thresh')
 
     def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """

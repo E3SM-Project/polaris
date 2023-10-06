@@ -111,7 +111,7 @@ class SphericalConvergenceForward(OceanModelStep):
         if not at_setup and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
-        section = config['spherical_convergence_forward']
+        section = config['convergence_forward']
 
         time_integrator = section.get('time_integrator')
 

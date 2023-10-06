@@ -1,8 +1,9 @@
 omega:
   time_management:
-    config_run_duration: 10:00:00
+    config_run_duration: {{ run_duration }}
   time_integration:
-    config_time_integrator: RK4
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
   bottom_drag:
     config_bottom_drag_mode: implicit
     config_implicit_bottom_drag_type: constant
@@ -21,7 +22,7 @@ omega:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:20:00
+      output_interval: {{ output_interval }}
       clobber_mode: truncate
       contents:
       - xtime

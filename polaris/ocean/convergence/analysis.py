@@ -11,9 +11,9 @@ from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
 
-class SphericalConvergenceAnalysis(Step):
+class ConvergenceAnalysis(Step):
     """
-    A step for analyzing the output from the geostrophic convergence test
+    A step for analyzing the output from convergence tests
 
     Attributes
     ----------
@@ -54,8 +54,8 @@ class SphericalConvergenceAnalysis(Step):
                 The z-index to use for variables that have an nVertLevels
                 dimension, which should be None for variables that don't
     """
-    def __init__(self, component, resolutions, subdir,
-                 dependencies, convergence_vars):
+    def __init__(self, component, resolutions, subdir, dependencies,
+                 convergence_vars):
         """
         Create the step
 
@@ -280,7 +280,7 @@ class SphericalConvergenceAnalysis(Step):
         norm_type = {'l2': None, 'inf': np.inf}
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         config = self.config
-        section = config['spherical_convergence']
+        section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
         s_per_day = 86400.0
 
@@ -393,7 +393,7 @@ class SphericalConvergenceAnalysis(Step):
             The error norm to compute
         """
         config = self.config
-        section = config['spherical_convergence']
+        section = config['convergence']
         conv_thresh = section.getfloat('convergence_thresh')
         error_type = section.get('error_type')
         return conv_thresh, error_type

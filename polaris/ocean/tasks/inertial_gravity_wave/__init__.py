@@ -57,6 +57,8 @@ class InertialGravityWave(Task):
                           taskdir=self.subdir),
                       run_by_default=False)
 
+        self.config.add_from_package('polaris.ocean.convergence',
+                                     'convergence.cfg')
         self.config.add_from_package(
             'polaris.ocean.tasks.inertial_gravity_wave',
             'inertial_gravity_wave.cfg')

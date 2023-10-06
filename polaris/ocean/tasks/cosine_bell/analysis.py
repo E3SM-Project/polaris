@@ -3,11 +3,11 @@ import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
-from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
+from polaris.ocean.convergence import ConvergenceAnalysis
 from polaris.ocean.tasks.cosine_bell.init import cosine_bell
 
 
-class Analysis(SphericalConvergenceAnalysis):
+class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
