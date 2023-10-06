@@ -6,7 +6,7 @@ import pandas as pd
 import xarray as xr
 
 from polaris import Step
-from polaris.mpas import time_index_from_xtime
+from polaris.mpas import area_for_field, time_index_from_xtime
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -305,10 +305,10 @@ class SphericalConvergenceAnalysis(Step):
         diff = field_exact - field_mpas
 
         if error_type == 'l2':
-            area_cell = ds_mesh.areaCell.values
-            total_area = np.sum(area_cell)
-            den_l2 = np.sum(field_exact**2 * area_cell) / total_area
-            num_l2 = np.sum(diff**2 * area_cell) / total_area
+            area = area_for_field(ds_mesh, diff)
+            total_area = np.sum(area)
+            den_l2 = np.sum(field_exact**2 * area) / total_area
+            num_l2 = np.sum(diff**2 * area) / total_area
             error = np.sqrt(num_l2) / np.sqrt(den_l2)
         elif error_type == 'inf':
             error = np.amax(diff) / np.amax(np.abs(field_exact))
