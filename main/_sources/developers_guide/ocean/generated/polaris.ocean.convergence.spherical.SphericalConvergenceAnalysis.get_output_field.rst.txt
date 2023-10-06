@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get\_output\_field
+===================================================================================
+
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. automethod:: SphericalConvergenceAnalysis.get_output_field

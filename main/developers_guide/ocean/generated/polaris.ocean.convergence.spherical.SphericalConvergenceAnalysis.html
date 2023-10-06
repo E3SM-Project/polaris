@@ -258,28 +258,31 @@ dimension, which should be None for variables that don’t</p>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution</span></code></a>(mesh_name, field_name, time)</p></td>
 <td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_convergence</span></code></a>(variable_name, title, zidx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_field</span></code></a>(mesh_name, field_name, time)</p></td>
+<td><p>Get the model output field at the given time and z index</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.plot_convergence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_convergence</span></code></a>(variable_name, title, zidx)</p></td>
 <td><p>Compute the error norm for each resolution and produce a convergence plot</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
 <td><p>Add input files based on resolutions, which may have been changed by user config options</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>

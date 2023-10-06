@@ -144,6 +144,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.model_step.make_graph_file.html">polaris.model_step.make_graph_file</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#mpas">mpas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.area_for_field.html">polaris.mpas.area_for_field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html">polaris.mpas.time_index_from_xtime</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#namelist">namelist</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.parse_replacements.html">polaris.namelist.parse_replacements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.ingest.html">polaris.namelist.ingest</a></li>
@@ -692,6 +697,23 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.model_step.make_graph_file.html#polaris.model_step.make_graph_file" title="polaris.model_step.make_graph_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_graph_file</span></code></a>(mesh_filename[, ...])</p></td>
 <td><p>Make a graph file from the MPAS mesh for use in the Metis graph partitioning software</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mpas">
+<h3>mpas<a class="headerlink" href="#mpas" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mpas.area_for_field.html#polaris.mpas.area_for_field" title="polaris.mpas.area_for_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area_for_field</span></code></a>(ds_mesh, field)</p></td>
+<td><p>Get the appropriate area (on cells, vertices or edges) for the given field</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime" title="polaris.mpas.time_index_from_xtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index_from_xtime</span></code></a>(xtime, dt_target[, ...])</p></td>
+<td><p>Determine the time index closest to the target time</p></td>
 </tr>
 </tbody>
 </table>

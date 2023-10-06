@@ -107,8 +107,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.convergence.spherical.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -116,6 +115,7 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">area_for_field</span><span class="p">,</span> <span class="n">time_index_from_xtime</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 <span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
 
@@ -396,28 +396,24 @@
 <span class="sd">            The error of the variable given by variable_name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_output.nc&#39;</span><span class="p">)</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_convergence&#39;</span><span class="p">]</span>
         <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_eval_time&#39;</span><span class="p">)</span>
         <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">86400.0</span>
-        <span class="n">tidx</span> <span class="o">=</span> <span class="n">_time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                                      <span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_day</span><span class="p">)</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
         <span class="n">field_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_solution</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span>
                                           <span class="n">time</span><span class="o">=</span><span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_day</span><span class="p">,</span>
                                           <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
-        <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">field_mpas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span>
+                                           <span class="n">time</span><span class="o">=</span><span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_day</span><span class="p">,</span>
+                                           <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
         <span class="n">diff</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">-</span> <span class="n">field_mpas</span>
 
         <span class="k">if</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s1">&#39;l2&#39;</span><span class="p">:</span>
-            <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="o">.</span><span class="n">values</span>
-            <span class="n">total_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">area_cell</span><span class="p">)</span>
-            <span class="n">den_l2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">field_exact</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">area_cell</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_area</span>
-            <span class="n">num_l2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">area_cell</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_area</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">area_for_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+            <span class="n">total_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+            <span class="n">den_l2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">field_exact</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">area</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_area</span>
+            <span class="n">num_l2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">area</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_area</span>
             <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">num_l2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">den_l2</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span>
             <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_exact</span><span class="p">))</span>
@@ -461,6 +457,39 @@
 
         <span class="k">return</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
+<div class="viewcode-block" id="SphericalConvergenceAnalysis.get_output_field"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the model output field at the given time and z index</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The mesh name which is the prefix for the output file</span>
+
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+
+<span class="sd">        time : float</span>
+<span class="sd">            The time at which to evaluate the exact solution in seconds</span>
+
+<span class="sd">        zidx : int, optional</span>
+<span class="sd">            The z-index for the vertical level to take the field from</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        field_mpas : xarray.DataArray</span>
+<span class="sd">            model output field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_output.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
+
+        <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">field_mpas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">field_mpas</span></div>
+
 <div class="viewcode-block" id="SphericalConvergenceAnalysis.convergence_parameters"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get convergence parameters</span>
@@ -485,33 +514,6 @@
         <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_thresh&#39;</span><span class="p">)</span>
         <span class="n">error_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div></div>
-
-
-<span class="k">def</span> <span class="nf">_time_index_from_xtime</span><span class="p">(</span><span class="n">xtime</span><span class="p">,</span> <span class="n">dt_target</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine the time index at which to evaluate convergence</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    xtime : list of str</span>
-<span class="sd">        Times in the dataset</span>
-
-<span class="sd">    dt_target : float</span>
-<span class="sd">        Time in seconds at which to evaluate convergence</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tidx : int</span>
-<span class="sd">        Index in xtime that is closest to dt_target</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">t0</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">xtime</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
-                                    <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S&#39;</span><span class="p">)</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">xtime</span><span class="p">)))</span>
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">xt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xtime</span><span class="p">):</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">xt</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
-                                       <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S&#39;</span><span class="p">)</span>
-        <span class="n">dt</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">dt_target</span><span class="p">)))</span>
 </pre></div>
 
            </div>

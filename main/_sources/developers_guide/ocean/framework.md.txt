@@ -368,10 +368,17 @@ class Analysis(SphericalConvergenceAnalysis):
                          convergence_vars=convergence_vars)
 ```
 
-Many tasks will also need to override the `exact_solution` method given in
-{py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`.
-If not overridden, the analysis step will compute the difference of the output
-from the initial state.
+Many tasks will also need to override the 
+{py:meth}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution()` 
+method. If not overridden, the analysis step will compute the difference of the 
+output from the initial state.
+
+In some cases, the child class will also need to override the 
+{py:meth}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field()`
+method if the requested field is not available directly from the output put
+rather needs to be computed.  The default behavior is to read the requested
+variable (the value associate the `'name'` key) at the time index closest to
+the evaluation time specified by the `convergence_eval_time` config option.
 
 (dev-ocean-framework-vertical)=
 

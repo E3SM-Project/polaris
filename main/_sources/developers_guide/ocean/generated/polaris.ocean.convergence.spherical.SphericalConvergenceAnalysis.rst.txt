@@ -21,6 +21,7 @@
       ~SphericalConvergenceAnalysis.constrain_resources
       ~SphericalConvergenceAnalysis.convergence_parameters
       ~SphericalConvergenceAnalysis.exact_solution
+      ~SphericalConvergenceAnalysis.get_output_field
       ~SphericalConvergenceAnalysis.plot_convergence
       ~SphericalConvergenceAnalysis.process_inputs_and_outputs
       ~SphericalConvergenceAnalysis.run

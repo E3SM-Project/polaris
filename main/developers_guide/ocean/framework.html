@@ -470,10 +470,16 @@ class:</p>
                          <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Many tasks will also need to override the <code class="docutils literal notranslate"><span class="pre">exact_solution</span></code> method given in
-<a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis</span></code></a>.
-If not overridden, the analysis step will compute the difference of the output
-from the initial state.</p>
+<p>Many tasks will also need to override the
+<a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution()</span></code></a>
+method. If not overridden, the analysis step will compute the difference of the
+output from the initial state.</p>
+<p>In some cases, the child class will also need to override the
+<a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field" title="polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field()</span></code></a>
+method if the requested field is not available directly from the output put
+rather needs to be computed.  The default behavior is to read the requested
+variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to
+the evaluation time specified by the <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> config option.</p>
 </section>
 <section id="vertical-coordinate">
 <span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>

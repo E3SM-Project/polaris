@@ -285,6 +285,18 @@ seaice/api
    make_graph_file
 ```
 
+### mpas
+
+```{eval-rst}
+.. currentmodule:: polaris.mpas
+
+.. autosummary::
+   :toctree: generated/
+   
+   area_for_field
+   time_index_from_xtime
+```
+
 ### namelist
 
 ```{eval-rst}
