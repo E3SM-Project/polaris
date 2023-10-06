@@ -25,7 +25,7 @@ class Forward(SphericalConvergenceForward):
         resolution : float
             The resolution of the (uniform) mesh in km
 
-        base_mesh : polaris.Step
+        mesh : polaris.Step
             The base mesh step
 
         init : polaris.Step

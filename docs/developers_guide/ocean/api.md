@@ -66,7 +66,7 @@
    InertialGravityWave
 
    analysis.Analysis
-   analysis.Analysis.run
+   analysis.Analysis.exact_solution
 
    exact_solution.ExactSolution
    exact_solution.ExactSolution.ssh
@@ -74,7 +74,6 @@
 
    forward.Forward
    forward.Forward.compute_cell_count
-   forward.Forward.dynamic_model_config
 
    init.Init
    init.Init.run
@@ -127,7 +126,7 @@
    ManufacturedSolution
 
    analysis.Analysis
-   analysis.Analysis.run
+   analysis.Analysis.exact_solution
 
    exact_solution.ExactSolution
    exact_solution.ExactSolution.ssh
@@ -135,7 +134,6 @@
 
    forward.Forward
    forward.Forward.compute_cell_count
-   forward.Forward.dynamic_model_config
 
    init.Init
    init.Init.run
@@ -169,6 +167,27 @@
 
 ## Ocean Framework
 
+### Convergence Tests
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.convergence
+
+.. autosummary::
+   :toctree: generated/
+
+   ConvergenceForward
+   ConvergenceForward.compute_cell_count
+   ConvergenceForward.dynamic_model_config
+
+   ConvergenceAnalysis
+   ConvergenceAnalysis.compute_error
+   ConvergenceAnalysis.convergence_parameters
+   ConvergenceAnalysis.exact_solution
+   ConvergenceAnalysis.get_output_field
+   ConvergenceAnalysis.plot_convergence
+   ConvergenceAnalysis.run
+   ConvergenceAnalysis.setup
+```
 ### Spherical Convergence Tests
 
 ```{eval-rst}
@@ -178,13 +197,7 @@
    :toctree: generated/
 
    SphericalConvergenceForward
-   SphericalConvergenceAnalysis
-   SphericalConvergenceAnalysis.compute_error
-   SphericalConvergenceAnalysis.convergence_parameters
-   SphericalConvergenceAnalysis.exact_solution
-   SphericalConvergenceAnalysis.get_output_field
-   SphericalConvergenceAnalysis.run
-   SphericalConvergenceAnalysis.plot_convergence
+   SphericalConvergenceForward.compute_cell_count
 ```
 
 ### Ocean Model

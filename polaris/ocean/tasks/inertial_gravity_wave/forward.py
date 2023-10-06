@@ -26,8 +26,11 @@ class Forward(ConvergenceForward):
         resolution : km
             The resolution of the test case in km
 
-        taskdir : str
-            The subdirectory that the task belongs to
+        subdir : str
+            The subdirectory that the step belongs to
+
+        init : polaris.Step
+            The step which generates the mesh and initial condition
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,
