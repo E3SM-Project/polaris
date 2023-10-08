@@ -162,7 +162,7 @@ class CosineBell(Task):
             else:
                 forward_step = Forward(component=component, name=name,
                                        subdir=subdir, resolution=resolution,
-                                       base_mesh=base_mesh_step,
+                                       mesh=base_mesh_step,
                                        init=init_step)
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)

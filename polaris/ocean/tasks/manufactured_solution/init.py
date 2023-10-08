@@ -5,7 +5,6 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
-from polaris.io import symlink
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
@@ -73,7 +72,6 @@ class Init(Step):
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
                           logger=logger)
-        symlink('culled_graph.info', 'graph.info')
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')

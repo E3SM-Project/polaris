@@ -31,9 +31,10 @@ class Forward(ConvergenceForward):
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,
-                         resolution=resolution, base_mesh=init, init=init,
+                         resolution=resolution, mesh=init, init=init,
                          package='polaris.ocean.tasks.inertial_gravity_wave',
                          yaml_filename='forward.yaml',
+                         graph_filename='culled_graph.info',
                          output_filename='output.nc',
                          validate_vars=['layerThickness', 'normalVelocity'])
 

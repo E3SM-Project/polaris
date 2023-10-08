@@ -7,7 +7,7 @@ class Forward(SphericalConvergenceForward):
     bell test case
     """
 
-    def __init__(self, component, name, subdir, resolution, base_mesh, init):
+    def __init__(self, component, name, subdir, resolution, mesh, init):
         """
         Create a new step
 
@@ -34,7 +34,7 @@ class Forward(SphericalConvergenceForward):
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
         super().__init__(component=component, name=name, subdir=subdir,
-                         resolution=resolution, base_mesh=base_mesh,
+                         resolution=resolution, mesh=mesh,
                          init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',

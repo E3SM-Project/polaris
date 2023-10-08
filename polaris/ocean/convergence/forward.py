@@ -19,9 +19,10 @@ class ConvergenceForward(OceanModelStep):
 
     """
 
-    def __init__(self, component, name, subdir, resolution, base_mesh, init,
+    def __init__(self, component, name, subdir, resolution, mesh, init,
                  package, yaml_filename='forward.yaml', options=None,
-                 output_filename='output.nc', validate_vars=None):
+                 graph_filename='graph.info', output_filename='output.nc',
+                 validate_vars=None):
         """
         Create a new step
 
@@ -74,7 +75,7 @@ class ConvergenceForward(OceanModelStep):
             work_dir_target=f'{init.path}/initial_state.nc')
         self.add_input_file(
             filename='graph.info',
-            work_dir_target=f'{base_mesh.path}/graph.info')
+            work_dir_target=f'{mesh.path}/{graph_filename}')
 
         self.add_output_file(filename=output_filename,
                              validate_vars=validate_vars)
