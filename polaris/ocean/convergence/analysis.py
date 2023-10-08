@@ -292,16 +292,16 @@ class ConvergenceAnalysis(Step):
                                            zidx=zidx)
         diff = field_exact - field_mpas
 
+        # Only the L2 norm is area-weighted
         if error_type == 'l2':
             area = area_for_field(ds_mesh, diff)
+            field_exact = field_exact * area
             diff = diff * area
-
         error = np.linalg.norm(diff, ord=norm_type[error_type])
 
-        if error_type == 'l2':
-            field_exact = field_exact * area
-            den_l2 = np.linalg.norm(field_exact, ord=norm_type[error_type])
-            error = np.divide(error, den_l2)
+        # Normalize the error norm by the vector norm of the exact solution
+        den = np.linalg.norm(field_exact, ord=norm_type[error_type])
+        error = np.divide(error, den)
 
         return error
 
