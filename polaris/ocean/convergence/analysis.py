@@ -282,13 +282,13 @@ class ConvergenceAnalysis(Step):
         config = self.config
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
-        s_per_day = 86400.0
+        s_per_hour = 3600.0
 
         field_exact = self.exact_solution(mesh_name, variable_name,
-                                          time=eval_time * s_per_day,
+                                          time=eval_time * s_per_hour,
                                           zidx=zidx)
         field_mpas = self.get_output_field(mesh_name, variable_name,
-                                           time=eval_time * s_per_day,
+                                           time=eval_time * s_per_hour,
                                            zidx=zidx)
         diff = field_exact - field_mpas
 

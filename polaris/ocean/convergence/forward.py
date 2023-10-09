@@ -127,11 +127,14 @@ class ConvergenceForward(OceanModelStep):
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * self.resolution)
 
+        s_per_hour = 3600.
         run_duration = section.getfloat('run_duration')
-        run_duration_str = get_time_interval_string(days=run_duration)
+        run_duration_str = get_time_interval_string(
+            seconds=run_duration * s_per_hour)
 
         output_interval = section.getfloat('output_interval')
-        output_interval_str = get_time_interval_string(days=output_interval)
+        output_interval_str = get_time_interval_string(
+            seconds=output_interval * s_per_hour)
 
         replacements = dict(
             time_integrator=time_integrator,
