@@ -243,7 +243,7 @@ class ConvergenceAnalysis(Step):
         logger.info(f'Order of convergence for {title}: '
                     f'{conv_round}')
 
-        if convergence < conv_thresh:
+        if conv_round < conv_thresh:
             logger.error(f'Error: order of convergence for {title}\n'
                          f'  {conv_round} < min tolerance '
                          f'{conv_thresh}')
