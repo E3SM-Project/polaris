@@ -53,7 +53,6 @@ class Viz(Step):
                 filename=f'output_{mesh_name}.nc',
                 target=f'../forward/{mesh_name}/output.nc')
 
-        self.add_output_file('convergence.png')
         self.add_output_file('comparison.png')
 
     def run(self):
@@ -117,24 +116,3 @@ class Viz(Step):
                         size='large', ha='right', va='center')
 
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
-
-        # Convergence plots
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        p = np.polyfit(np.log10(resolutions), np.log10(rmse), 1)
-        conv = np.round(p[0], 3)
-        ax.loglog(resolutions, rmse, '-ok', label=f'numerical (order={conv})')
-
-        c = rmse[0] * 1.5 / resolutions[0]
-        order1 = c * np.power(resolutions, 1)
-        c = rmse[0] * 1.5 / resolutions[0]**2
-        order2 = c * np.power(resolutions, 2)
-
-        ax.loglog(resolutions, order1, '--k', label='first order', alpha=0.3)
-        ax.loglog(resolutions, order2, 'k', label='second order', alpha=0.3)
-        ax.set_xlabel('resolution (km)')
-        ax.set_ylabel('RMS error (m)')
-        ax.invert_xaxis()
-        ax.set_title('Error Convergence')
-        ax.legend(loc='lower left')
-        fig.savefig('convergence.png', bbox_inches='tight', pad_inches=0.1)
