@@ -126,24 +126,24 @@ class Init(Step):
         ds['tracer3'] = ds.tracer3.expand_dims(dim='Time', axis=0)
 
         # Initialize velocity
-        seconds_per_day = 86400.
+        s_per_hour = 3600.
         if case_name == 'rotation_2d':
             rotation_vector = config.getlist(case_name, 'rotation_vector',
                                              dtype=float)
             vector = np.array(rotation_vector)
             u, v = flow_rotation(lonEdge, latEdge, vector,
-                                 vel_pd * seconds_per_day, sphere_radius)
+                                 vel_pd * s_per_hour, sphere_radius)
         elif case_name == 'divergent_2d':
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
             u, v = flow_divergent(0., lonEdge, latEdge,
-                                  vel_amp, vel_pd * seconds_per_day)
+                                  vel_amp, vel_pd * s_per_hour)
         elif (case_name == 'nondivergent_2d' or
               case_name == 'correlated_tracers_2d'):
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
             u, v = flow_nondivergent(0., lonEdge, latEdge,
-                                     vel_amp, vel_pd * seconds_per_day)
+                                     vel_amp, vel_pd * s_per_hour)
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 

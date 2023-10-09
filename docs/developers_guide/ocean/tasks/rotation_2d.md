@@ -39,16 +39,16 @@ set up by the class.
 The class {py:class}`polaris.ocean.tasks.sphere_transport.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
 and defines a step for running MPAS-Ocean from an initial condition produced in
-an `init` step. See {ref}`dev-ocean-spherical-convergence` for some relevant
+an `init` step. See {ref}`dev-ocean-convergence` for some relevant
 discussion of the parent class. The time step is determined from the resolution
-based on the `dt_per_km` config option in the `[spherical_convergences]` 
+based on the `dt_per_km` config option in the `[convergence_forward]` 
 section.  Other model config options are taken from `forward.yaml`.
 
 ### analysis
 
 The class {py:class}`polaris.ocean.tasks.sphere_transport.analysis.Analysis`
 descends from
-{py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`,
+{py:class}`polaris.ocean.convergence.ConvergenceAnalysis`,
 and defines a step for computing the error norm (L2) for the results
 at each resolution for tracers and layer thickness, saving them in
 `convergence_*.csv` and plotting them in `convergence_*.png`.

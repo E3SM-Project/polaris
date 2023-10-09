@@ -15,7 +15,8 @@ from polaris.ocean.tasks.sphere_transport.viz import Viz, VizMap
 
 def add_sphere_transport_tasks(component):
     """
-    Add tasks that define variants of the cosine bell test case
+    Add tasks that define variants of sphere transport test cases:
+    nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d
 
     component : polaris.ocean.Ocean
         the ocean component that the tasks will be added to
@@ -26,6 +27,8 @@ def add_sphere_transport_tasks(component):
                           'correlated_tracers_2d']:
             filepath = f'spherical/{prefix}/{case_name}/{case_name}.cfg'
             config = PolarisConfigParser(filepath=filepath)
+            config.add_from_package('polaris.ocean.convergence',
+                                    'convergence.cfg')
             config.add_from_package('polaris.ocean.convergence.spherical',
                                     'spherical.cfg')
             package = 'polaris.ocean.tasks.sphere_transport'
@@ -210,8 +213,7 @@ class SphereTransport(Task):
             step.dependencies_dict = analysis_dependencies
         else:
             step = Analysis(component=component, resolutions=resolutions,
-                            icosahedral=icosahedral, subdir=subdir,
-                            case_name=case_name,
+                            subdir=subdir, case_name=case_name,
                             dependencies=analysis_dependencies)
             step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)

@@ -44,7 +44,7 @@ class Forward(SphericalConvergenceForward):
             config_transport_tests_flow_id=flow_id[case_name])
         validate_vars = ['normalVelocity', 'tracer1', 'tracer2', 'tracer3']
         super().__init__(component=component, name=name, subdir=subdir,
-                         resolution=resolution, base_mesh=base_mesh,
+                         resolution=resolution, mesh=base_mesh,
                          init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',

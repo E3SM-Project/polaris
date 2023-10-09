@@ -1,7 +1,7 @@
-from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
+from polaris.ocean.convergence import ConvergenceAnalysis
 
 
-class Analysis(SphericalConvergenceAnalysis):
+class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from sphere transport test cases
 
@@ -10,15 +10,11 @@ class Analysis(SphericalConvergenceAnalysis):
     resolutions : list of float
         The resolutions of the meshes that have been run
 
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW
-        meshes
-
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 case_name, dependencies):
+    def __init__(self, component, resolutions, subdir, case_name,
+                 dependencies):
         """
         Create the step
 
@@ -29,10 +25,6 @@ class Analysis(SphericalConvergenceAnalysis):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -46,19 +38,15 @@ class Analysis(SphericalConvergenceAnalysis):
         self.case_name = case_name
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
-                             'units': '',
                              'zidx': 1},
                             {'name': 'tracer2',
                              'title': 'tracer2',
-                             'units': '',
                              'zidx': 1},
                             {'name': 'tracer3',
                              'title': 'tracer3',
-                             'units': '',
                              'zidx': 1}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
-                         icosahedral=icosahedral,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
         # Note: there is no need to overwrite the default method exact_solution
@@ -85,7 +73,7 @@ class Analysis(SphericalConvergenceAnalysis):
         section = config[self.case_name]
         conv_thresh = section.getfloat(f'convergence_thresh_{field_name}')
 
-        section = config['spherical_convergence']
+        section = config['convergence']
         error_type = section.get('error_type')
 
         return conv_thresh, error_type

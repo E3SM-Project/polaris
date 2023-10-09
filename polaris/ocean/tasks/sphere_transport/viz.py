@@ -129,7 +129,7 @@ class Viz(Step):
         """
         config = self.config
         mesh_name = self.mesh_name
-        run_duration = config.getfloat('spherical_convergence_forward',
+        run_duration = config.getfloat('convergence_forward',
                                        'run_duration')
 
         viz_map = self.dependencies['viz_map']
@@ -143,12 +143,12 @@ class Viz(Step):
         ds_init.to_netcdf('remapped_init.nc')
 
         ds_out = xr.open_dataset('output.nc')
-        seconds_per_day = 86400.0
+        s_per_hour = 3600.0
 
         # Visualization at halfway around the globe (provided run duration is
         # set to the time needed to circumnavigate the globe)
         tidx = time_index_from_xtime(ds_out.xtime.values,
-                                     run_duration * seconds_per_day / 2.)
+                                     run_duration * s_per_hour / 2.)
         ds_mid = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                        nVertLevels=0)
         ds_mid = remapper.remap(ds_mid)
@@ -156,7 +156,7 @@ class Viz(Step):
 
         # Visualization at all the way around the globe
         tidx = time_index_from_xtime(ds_out.xtime.values,
-                                     run_duration * seconds_per_day)
+                                     run_duration * s_per_hour)
         ds_final = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                          nVertLevels=0)
         ds_final = remapper.remap(ds_final)
@@ -175,18 +175,18 @@ class Viz(Step):
                               out_filename=f'{var}_mid.png', config=config,
                               colormap_section=colormap_section,
                               title=f'{mesh_name} {var} after '
-                              '{run_duration / 2.:g} days',
+                              f'{run_duration / 48.:g} days',
                               plot_land=False)
             plot_global_field(ds_init.lon.values, ds_init.lat.values,
                               ds_final[var].values,
                               out_filename=f'{var}_final.png', config=config,
                               colormap_section=colormap_section,
-                              title=f'{mesh_name} {var} after {run_duration:g}'
-                              ' days', plot_land=False)
+                              title=f'{mesh_name} {var} after '
+                              f'{run_duration / 24.:g} days', plot_land=False)
             plot_global_field(ds_init.lon.values, ds_init.lat.values,
                               ds_final[var].values - ds_init[var].values,
                               out_filename=f'{var}_diff.png', config=config,
                               colormap_section=f'{colormap_section}_diff',
                               title=f'Difference in {mesh_name} {var} from '
-                              f'initial condition after {run_duration:g} days',
-                              plot_land=False)
+                              f'initial condition after {run_duration / 24.:g}'
+                              ' days', plot_land=False)
