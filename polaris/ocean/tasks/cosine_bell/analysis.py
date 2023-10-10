@@ -85,7 +85,7 @@ class Analysis(ConvergenceAnalysis):
 
         # distance that the cosine bell center traveled in radians
         # based on equatorial velocity
-        distance = 2.0 * np.pi * time / (86400.0 * vel_pd)
+        distance = 2.0 * np.pi * time / (3600.0 * vel_pd)
 
         # new location of blob center
         lon_new = lon_center + distance
