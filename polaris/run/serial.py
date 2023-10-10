@@ -335,16 +335,21 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         status = f'  task execution:   {run_status}'
         if task_pass:
             stdout_logger.info(status)
-            if baselines_passed:
-                baseline_str = pass_str
+            if baselines_passed is None:
                 result_str = pass_str
                 success = True
             else:
-                baseline_str = fail_str
-                result_str = fail_str
-                success = False
-            status = f'  baseline comp.:   {baseline_str}'
-            stdout_logger.info(status)
+                if baselines_passed:
+                    baseline_str = pass_str
+                    result_str = pass_str
+                    success = True
+                else:
+                    baseline_str = fail_str
+                    result_str = fail_str
+                    success = False
+                status = f'  baseline comp.:   {baseline_str}'
+                stdout_logger.info(status)
+
         else:
             stdout_logger.error(status)
             if not is_task:
@@ -367,7 +372,7 @@ def _run_task(task, available_resources):
     """
     logger = task.logger
     cwd = os.getcwd()
-    baselines_passed = True
+    baselines_passed = None
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
         complete_filename = os.path.join(step.work_dir,
@@ -419,7 +424,9 @@ def _run_task(task, available_resources):
                 baseline_str = fail_str
             _print_to_stdout(task,
                              f'          baseline comp.:   {baseline_str}')
-            if not status:
+            if baselines_passed is None:
+                baselines_passed = status
+            elif not status:
                 baselines_passed = False
 
         _print_to_stdout(task,
