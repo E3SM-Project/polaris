@@ -11,18 +11,14 @@ from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
 
-class SphericalConvergenceAnalysis(Step):
+class ConvergenceAnalysis(Step):
     """
-    A step for analyzing the output from the geostrophic convergence test
+    A step for analyzing the output from convergence tests
 
     Attributes
     ----------
     resolutions : list of float
         The resolutions of the meshes that have been run
-
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW
-        meshes
 
     dependencies_dict : dict of dict of polaris.Steps
         The dependencies of this step must be given as separate keys in the
@@ -58,8 +54,8 @@ class SphericalConvergenceAnalysis(Step):
                 The z-index to use for variables that have an nVertLevels
                 dimension, which should be None for variables that don't
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 dependencies, convergence_vars):
+    def __init__(self, component, resolutions, subdir, dependencies,
+                 convergence_vars):
         """
         Create the step
 
@@ -70,10 +66,6 @@ class SphericalConvergenceAnalysis(Step):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -114,7 +106,6 @@ class SphericalConvergenceAnalysis(Step):
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
-        self.icosahedral = icosahedral
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
 
@@ -252,7 +243,7 @@ class SphericalConvergenceAnalysis(Step):
         logger.info(f'Order of convergence for {title}: '
                     f'{conv_round}')
 
-        if convergence < conv_thresh:
+        if conv_round < conv_thresh:
             logger.error(f'Error: order of convergence for {title}\n'
                          f'  {conv_round} < min tolerance '
                          f'{conv_thresh}')
@@ -286,30 +277,31 @@ class SphericalConvergenceAnalysis(Step):
         error : float
             The error of the variable given by variable_name
         """
+        norm_type = {'l2': None, 'inf': np.inf}
         ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
         config = self.config
-        section = config['spherical_convergence']
+        section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
-        s_per_day = 86400.0
+        s_per_hour = 3600.0
 
         field_exact = self.exact_solution(mesh_name, variable_name,
-                                          time=eval_time * s_per_day,
+                                          time=eval_time * s_per_hour,
                                           zidx=zidx)
         field_mpas = self.get_output_field(mesh_name, variable_name,
-                                           time=eval_time * s_per_day,
+                                           time=eval_time * s_per_hour,
                                            zidx=zidx)
         diff = field_exact - field_mpas
 
+        # Only the L2 norm is area-weighted
         if error_type == 'l2':
             area = area_for_field(ds_mesh, diff)
-            total_area = np.sum(area)
-            den_l2 = np.sum(field_exact**2 * area) / total_area
-            num_l2 = np.sum(diff**2 * area) / total_area
-            error = np.sqrt(num_l2) / np.sqrt(den_l2)
-        elif error_type == 'inf':
-            error = np.amax(diff) / np.amax(np.abs(field_exact))
-        else:
-            raise ValueError(f'Unsupported error type {error_type}')
+            field_exact = field_exact * area
+            diff = diff * area
+        error = np.linalg.norm(diff, ord=norm_type[error_type])
+
+        # Normalize the error norm by the vector norm of the exact solution
+        den = np.linalg.norm(field_exact, ord=norm_type[error_type])
+        error = np.divide(error, den)
 
         return error
 
@@ -401,7 +393,7 @@ class SphericalConvergenceAnalysis(Step):
             The error norm to compute
         """
         config = self.config
-        section = config['spherical_convergence']
+        section = config['convergence']
         conv_thresh = section.getfloat('convergence_thresh')
         error_type = section.get('error_type')
         return conv_thresh, error_type

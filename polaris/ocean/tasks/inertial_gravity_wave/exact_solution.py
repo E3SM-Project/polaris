@@ -1,4 +1,5 @@
 import numpy as np
+from mpas_tools.cime.constants import constants
 
 
 class ExactSolution():
@@ -64,7 +65,7 @@ class ExactSolution():
         npx = section.getfloat('n_wavelengths_x')
         npy = section.getfloat('n_wavelengths_y')
 
-        self.g = 9.80616
+        self.g = constants['SHR_CONST_G']
         ly = np.sqrt(3.0) / 2.0 * lx
         self.kx = npx * 2.0 * np.pi / (lx * 1e3)
         self.ky = npy * 2.0 * np.pi / (ly * 1e3)

@@ -3,16 +3,15 @@ import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
-from polaris.ocean.convergence.spherical import SphericalConvergenceAnalysis
+from polaris.ocean.convergence import ConvergenceAnalysis
 from polaris.ocean.tasks.cosine_bell.init import cosine_bell
 
 
-class Analysis(SphericalConvergenceAnalysis):
+class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 dependencies):
+    def __init__(self, component, resolutions, subdir, dependencies):
         """
         Create the step
 
@@ -23,10 +22,6 @@ class Analysis(SphericalConvergenceAnalysis):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -39,7 +34,6 @@ class Analysis(SphericalConvergenceAnalysis):
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
-                         icosahedral=icosahedral,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
@@ -91,7 +85,7 @@ class Analysis(SphericalConvergenceAnalysis):
 
         # distance that the cosine bell center traveled in radians
         # based on equatorial velocity
-        distance = 2.0 * np.pi * time / (86400.0 * vel_pd)
+        distance = 2.0 * np.pi * time / (3600.0 * vel_pd)
 
         # new location of blob center
         lon_new = lon_center + distance

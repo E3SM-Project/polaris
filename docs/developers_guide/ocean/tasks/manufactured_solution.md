@@ -45,31 +45,32 @@ the exact solution. The tracer and coriolis fields are uniform in space.
 ### forward
 
 The class {py:class}`polaris.ocean.tasks.manufactured_solution.forward.Forward`
-defines a step for running MPAS-Ocean from the initial condition produced in
-the `init` step.  Namelist and streams files are updated in
-{py:meth}`polaris.ocean.tasks.manufactured_solution.forward.Forward.dynamic_model_config()`
-with time steps determined algorithmically based on config options.  The
-number of cells is approximated from config options in
-{py:meth}`polaris.ocean.tasks.manufactured_solution.forward.Forward.compute_cell_count()`
-so that this can be used to constrain the number of MPI tasks that Polaris tasks
-have as their target and minimum (if the resources are not explicitly
-prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of `runtime_setup()`.  Next, the ocean 
-model is run.  Finally, validation of `temperature`, `layerThickness` and 
+descends from
+ {py:class}`polaris.ocean.convergence.ConvergenceForward`
+and runs MPAS-Ocean from the initial condition produced in the `init` step.
+Namelist and streams files are updated by the parent class with time steps
+determined algorithmically based on config options. The number
+of cells is approximated from config options in
+{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()`
+so that this can be used to constrain the number of MPI tasks that Polaris 
+tasks have as  their target and minimum (if the resources are not explicitly 
+prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph 
+partition is generated as part of `runtime_setup()`.  Then, the ocean model 
+is run.  Finally, validation of `temperature`, `layerThickness` and 
 `normalVelocity` are performed against a baseline if one is provided when 
 calling {ref}`dev-polaris-setup`.
 
 ### analysis
 
 The class {py:class}`polaris.ocean.tasks.manufactured_solution.analysis.Analysis`
-defines a step for computing the root mean-square-error from the final
-simulated field and the exact solution. It uses the config options to determine
-whether the convergence rate falls within acceptable bounds.
+descends from {py:class}`polaris.ocean.convergence.ConvergenceAnalysis`
+a step for computing the error from the final simulated field
+and the exact solution. It uses the config options to determine whether the
+convergence rate falls within acceptable bounds.
 
 ### viz
 
 The class {py:class}`polaris.ocean.tasks.manufactured_solution.viz.Viz`
-defines a step for visualization. It produces two plots: the convergence of the
-RMSE with resolution and a plan-view of the simulated, exact, and (simulated -
-exact) SSH fields.
+defines a step for visualization. It produces a plan-view figure of the
+simulated, exact, and (simulated - exact) SSH fields.
 

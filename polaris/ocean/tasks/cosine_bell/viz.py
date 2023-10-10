@@ -148,5 +148,5 @@ class Viz(Step):
             ds_init.lon.values, ds_init.lat.values, ds_out.tracer1.values,
             out_filename='final.png', config=config,
             colormap_section='cosine_bell_viz',
-            title=f'{mesh_name} tracer after {run_duration:g} days',
+            title=f'{mesh_name} tracer after {run_duration/24.:g} days',
             plot_land=False)

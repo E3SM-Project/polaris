@@ -97,9 +97,9 @@ class Init(Step):
         ds['tracer3'] = ds.tracer1
 
         # Initialize velocity
-        seconds_per_day = 86400.0
+        s_per_hour = 3600.
         velocity = (2.0 * np.pi * np.cos(angleEdge) * sphere_radius *
-                    np.cos(latEdge) / (seconds_per_day * vel_pd))
+                    np.cos(latEdge) / (s_per_hour * vel_pd))
         velocity_array, _ = xr.broadcast(velocity, ds.refZMid)
         ds['normalVelocity'] = velocity_array.expand_dims(dim='Time', axis=0)
 

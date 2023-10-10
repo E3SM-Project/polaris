@@ -21,6 +21,8 @@ def add_cosine_bell_tasks(component):
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.ocean.convergence',
+                                'convergence.cfg')
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
@@ -160,7 +162,7 @@ class CosineBell(Task):
             else:
                 forward_step = Forward(component=component, name=name,
                                        subdir=subdir, resolution=resolution,
-                                       base_mesh=base_mesh_step,
+                                       mesh=base_mesh_step,
                                        init=init_step)
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
@@ -197,7 +199,7 @@ class CosineBell(Task):
             step.dependencies_dict = analysis_dependencies
         else:
             step = Analysis(component=component, resolutions=resolutions,
-                            icosahedral=icosahedral, subdir=subdir,
+                            subdir=subdir,
                             dependencies=analysis_dependencies)
             step.set_shared_config(config, link=config_filename)
         self.add_step(step, symlink=symlink)

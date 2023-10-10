@@ -20,11 +20,11 @@ and the pressure gradient used is the gradient of the sea surface height.
 Horizontal mixing and bottom friction are also neglected. The nonlinear momentum
 terms are not included and the layer thickness equation is linearized.
 
-The analysis step computes the root mean-square-error of the difference between
+The analysis step computes the L2-norm of the difference between
 the simulated SSH field and the exact solution at the end of the simulation. It
 also computes the convergence rate with resolution.
 
-The visualization step produces two plots: the convergence of the RMSE with
+The visualization step produces two plots: the convergence of the L2-norm with
 resolution and a plan-view of the simulated, exact, and (simulated-analytical)
 SSH fields.
 
@@ -113,9 +113,6 @@ n_wavelengths_y = 2
 
 # Convergence threshold below which the test fails
 conv_thresh = 1.8
-
-# Convergence rate above which a warning is issued
-conv_max = 2.2
 
 # time step per resolution (s/km), since dt is proportional to resolution
 dt_per_km = 3.0

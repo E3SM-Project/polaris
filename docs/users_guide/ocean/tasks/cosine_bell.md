@@ -167,8 +167,8 @@ alter this before setup (in a user config file) or before running the task (in
 the config file in the work directory). 
 
 ```cfg
-# config options for spherical convergence tests
-[spherical_convergence_forward]
+# config options for convergence tests
+[convergence_forward]
 
 # time integrator: {'split_explicit', 'RK4'}
 time_integrator = RK4
@@ -182,12 +182,12 @@ period for advection to make a full rotation around the globe, 24 days:
 
 ```cfg
 # config options for spherical convergence tests
-[spherical_convergence_forward]
+[convergence_forward]
 
-# Run duration in days
+# Run duration in hours
 run_duration = ${cosine_bell:vel_pd}
 
-# Output interval in days
+# Output interval in hours
 output_interval = ${cosine_bell:vel_pd}
 ```
 
@@ -220,8 +220,8 @@ radius = 2123666.6667
 # hill max of tracer
 psi0 = 1.0
 
-# time (days) for bell to transit equator once
-vel_pd = 24.0
+# time (hours) for bell to transit equator once
+vel_pd = 576.0
 
 # convergence threshold below which the test fails
 convergence_thresh = 1.8
@@ -254,8 +254,8 @@ norm_args = {'vmin': 0., 'vmax': 1.}
 The 7 options from `temperature` to `vel_pd` are used to control properties of
 the cosine bell and the rest of the sphere, as well as the advection.
 
-The options `qu_conv_thresh` to `icos_conv_max` are thresholds for determining
-when the convergence rates are not within the expected range.
+The option `convergence_thresh` is a threshold for determining
+when the convergence rates are not above a minimum convergence rate.
 
 The options in the `cosine_bell_viz` section are used in visualizing the
 initial and final states on a lon-lat grid for `cosine_bell/with_viz` tasks.
@@ -266,10 +266,13 @@ of these config options can be changed here:
 
 ```cfg
 # config options for spherical convergence tests
-[spherical_convergence]
+[convergence]
 
 # Evaluation time for convergence analysis (in days)
 convergence_eval_time = ${cosine_bell:vel_pd}
+
+# Convergence threshold below which a test fails
+convergence_thresh = ${cosine_bell:convergence_thresh}
 
 # Type of error to compute
 error_type = l2
