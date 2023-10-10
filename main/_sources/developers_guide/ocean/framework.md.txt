@@ -136,14 +136,14 @@ The function {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step
 returns a step for for a spherical `qu` or `icos` mesh of a given resolution 
 (in km).  The step can be shared between tasks.
 
-(dev-ocean-spherical-convergence)=
+(dev-ocean-convergence)=
 
-## Spherical Convergence Tests
+## Convergence Tests
 
 Several tests that are in Polaris or which we plan to add are convergence
-tests on {ref}`dev-ocean-spherical-meshes`. The ocean framework includes
-shared config options and a base class for forward steps that are expected
-to be useful across these tests.
+tests on {ref}`dev-ocean-spherical-meshes` and planar meshes.
+The ocean framework includes shared config options and base classes for
+forward and analysis steps that are expected to be useful across these tests.
 
 The shared config options are:
 ```cfg
@@ -156,8 +156,10 @@ icos_resolutions = 60, 120, 240, 480
 # a list of quasi-uniform mesh resolutions (km) to test
 qu_resolutions = 60, 90, 120, 150, 180, 210, 240
 
-# Evaluation time for convergence analysis (in days)
-convergence_eval_time = 1.0
+[convergence]
+
+# Evaluation time for convergence analysis (in hours)
+convergence_eval_time = 24.0
 
 # Convergence threshold below which a test fails
 convergence_thresh = 1.0
@@ -165,9 +167,8 @@ convergence_thresh = 1.0
 # Type of error to compute
 error_type = l2
 
-
-# config options for spherical convergence forward steps
-[spherical_convergence_forward]
+# config options for convergence forward steps
+[convergence_forward]
 
 # time integrator: {'split_explicit', 'RK4'}
 time_integrator = RK4
@@ -182,17 +183,19 @@ split_dt_per_km = 30.0
 # since btr_dt is proportional to resolution
 btr_dt_per_km = 1.5
 
-# Run duration in days
-run_duration = ${spherical_convergence:convergence_eval_time}
+# Run duration in hours
+run_duration = ${convergence:convergence_eval_time}
 
-# Output interval in days
+# Output interval in hours
 output_interval = ${run_duration}
 ```
 The first 2 are the default resolutions for icosahedral and quasi-uniform
-base meshes, respectively.  The `convergence_eval_time` will generally be
-modified by each test case. The `convergence_thresh` will also be modified by
-each test case, and will depend on the numerical methods being tested. The
-`error_type` is the L2 norm by default.
+base meshes, respectively.
+
+The `convergence_eval_time` will generally be modified by each test case. The
+`convergence_thresh` will also be modified by each test case, and will depend
+on the numerical methods being tested. The `error_type` is the L2 norm by
+default. The L-infty norm, `inf`, is also supported.
 
 `time_integrator` will typically be overridden by the specific convergence
 task's config options, and indicates which time integrator to use for the
@@ -201,7 +204,7 @@ forward run.  Depending on the time integrator, either `rk4_dt_per_km` or
 mesh resolution (proportional to the cell size). For split time integrators,
 `btr_dt_per_km` will be used to compute the barotropic time step in a similar
 way.  The `run_duration` and `output_interval` are typically the same, and
-they are given in days.
+they are given in hours.
 
 Each convergence test can override these defaults with its own defaults by 
 defining them in its own config file.  Convergence tests should bring in this
@@ -218,6 +221,8 @@ def add_cosine_bell_tasks(component):
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.ocean.convergence',
+                                'convergence.cfg')
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
@@ -228,9 +233,13 @@ In addition, the {py:class}`polaris.ocean.convergence.spherical.SphericalConverg
 step can serve as a parent class for forward steps in convergence tests.  This
 parent class takes care of setting the time step based on the `dt_per_km`
 config option and computes the approximate number of cells in the mesh, used
-for determining the computational resources required, using a heuristic 
-appropriate for approximately uniform spherical meshes.  A convergence test's
-`Forward` step should descend from this class like in this example:
+for determining the computational resources required. When convergence tests
+are run on spherical meshes,
+the {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`
+should be invoked and overrides the `compute_cell_count` method with a
+heuristic appropriate for approximately uniform spherical meshes.  A
+convergence test's `Forward` step should descend from this class like in this
+example:
 
 ```python
 from polaris.ocean.convergence.spherical import SphericalConvergenceForward
@@ -242,7 +251,7 @@ class Forward(SphericalConvergenceForward):
     bell test case
     """
 
-    def __init__(self, component, name, subdir, resolution, base_mesh, init):
+    def __init__(self, component, name, subdir, resolution, mesh, init):
         """
         Create a new step
 
@@ -260,7 +269,7 @@ class Forward(SphericalConvergenceForward):
         resolution : float
             The resolution of the (uniform) mesh in km
 
-        base_mesh : polaris.Step
+        mesh : polaris.Step
             The base mesh step
 
         init : polaris.Step
@@ -269,7 +278,7 @@ class Forward(SphericalConvergenceForward):
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
         super().__init__(component=component, name=name, subdir=subdir,
-                         resolution=resolution, base_mesh=base_mesh,
+                         resolution=resolution, mesh=mesh,
                          init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',
@@ -286,9 +295,9 @@ analyze.  The `validate_vars` are a list of variables to compare against a
 baseline (if one is provided), and can be `None` if baseline validation should
 not be performed.
 
-The `base_mesh` step should be created with the function described in
+The `mesh` step should be created with the function described in
 {ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a file
-`initial_state.nc` that will be the initial condition for the forward run.
+`init.nc` that will be the initial condition for the forward run.
 
 The `forward.yaml` file should be a YAML file with Jinja templating for the 
 time integrator, time step, run duration and output interval, e.g.:
@@ -318,11 +327,11 @@ omega:
       - normalVelocity
       - layerThickness
 ```
-`SphericalConvergenceForward` takes care of filling in the template based
+`ConvergenceForward` takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).
 
-In addition, the {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis`
+In addition, the {py:class}`polaris.ocean.convergence.ConvergenceAnalysis`
 step can serve as a parent class for analysis steps in convergence tests.  This
 parent class computes the error norm for the output from each resolution's
 forward step. It also produces the convergence plot.
@@ -331,12 +340,11 @@ This is an example of how a task's analysis step can descend from the parent
 class:
 
 ```python
-class Analysis(SphericalConvergenceAnalysis):
+class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 dependencies):
+    def __init__(self, component, resolutions, subdir, dependencies):
         """
         Create the step
 
@@ -347,10 +355,6 @@ class Analysis(SphericalConvergenceAnalysis):
 
         resolutions : list of float
             The resolutions of the meshes that have been run
-
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
 
         subdir : str
             The subdirectory that the step resides in
@@ -363,18 +367,17 @@ class Analysis(SphericalConvergenceAnalysis):
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
-                         icosahedral=icosahedral,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 ```
 
 Many tasks will also need to override the 
-{py:meth}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.exact_solution()` 
+{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()` 
 method. If not overridden, the analysis step will compute the difference of the 
 output from the initial state.
 
 In some cases, the child class will also need to override the 
-{py:meth}`polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.get_output_field()`
+{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()`
 method if the requested field is not available directly from the output put
 rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the `'name'` key) at the time index closest to

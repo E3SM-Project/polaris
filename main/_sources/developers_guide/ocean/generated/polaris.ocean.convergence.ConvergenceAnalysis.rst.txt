@@ -1,0 +1,38 @@
+﻿polaris.ocean.convergence.ConvergenceAnalysis
+=============================================
+
+.. currentmodule:: polaris.ocean.convergence
+
+.. autoclass:: ConvergenceAnalysis
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConvergenceAnalysis.__init__
+      ~ConvergenceAnalysis.add_dependency
+      ~ConvergenceAnalysis.add_input_file
+      ~ConvergenceAnalysis.add_output_file
+      ~ConvergenceAnalysis.compute_error
+      ~ConvergenceAnalysis.constrain_resources
+      ~ConvergenceAnalysis.convergence_parameters
+      ~ConvergenceAnalysis.exact_solution
+      ~ConvergenceAnalysis.get_output_field
+      ~ConvergenceAnalysis.plot_convergence
+      ~ConvergenceAnalysis.process_inputs_and_outputs
+      ~ConvergenceAnalysis.run
+      ~ConvergenceAnalysis.runtime_setup
+      ~ConvergenceAnalysis.set_resources
+      ~ConvergenceAnalysis.set_shared_config
+      ~ConvergenceAnalysis.setup
+      ~ConvergenceAnalysis.validate_baselines
+   
+   
+
+   
+   
+   

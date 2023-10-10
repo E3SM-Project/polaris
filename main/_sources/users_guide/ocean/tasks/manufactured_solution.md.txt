@@ -26,11 +26,11 @@ model is configured without vertical advection and mixing. No tracers are enable
 and the pressure gradient used is the gradient of the sea surface height.
 Horizontal mixing and bottom friction are also neglected.
 
-The analysis step computes the root mean-square-error of the difference between
+The analysis step computes the L2-norm of the difference between
 the simulated SSH field and the exact solution at the end of the simulation. It
-also computes the convergence rate with resolution
+also computes the convergence rate with resolution.
 
-The visualization step produces two plots: the convergence of the RMSE with
+The visualization step produces two plots: the convergence of the L2-norm with
 resolution and a plan-view of the simulated, exact, and (simulated-exact)
 SSH fields.
 
@@ -111,9 +111,6 @@ dt_per_km = 3.0
 
 # Convergence threshold below which the test fails
 conv_thresh = 1.8
-
-# Convergence rate above which a warning is issued
-conv_max = 2.2
 ```
 
 ### cores

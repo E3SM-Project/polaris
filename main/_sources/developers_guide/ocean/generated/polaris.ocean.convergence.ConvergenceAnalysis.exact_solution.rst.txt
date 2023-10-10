@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.ConvergenceAnalysis.exact\_solution
+=============================================================
+
+.. currentmodule:: polaris.ocean.convergence
+
+.. automethod:: ConvergenceAnalysis.exact_solution

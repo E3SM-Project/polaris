@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.ConvergenceAnalysis.convergence\_parameters
+=====================================================================
+
+.. currentmodule:: polaris.ocean.convergence
+
+.. automethod:: ConvergenceAnalysis.convergence_parameters

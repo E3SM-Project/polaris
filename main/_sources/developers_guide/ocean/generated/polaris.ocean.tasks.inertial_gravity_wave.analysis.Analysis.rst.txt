@@ -17,7 +17,12 @@
       ~Analysis.add_dependency
       ~Analysis.add_input_file
       ~Analysis.add_output_file
+      ~Analysis.compute_error
       ~Analysis.constrain_resources
+      ~Analysis.convergence_parameters
+      ~Analysis.exact_solution
+      ~Analysis.get_output_field
+      ~Analysis.plot_convergence
       ~Analysis.process_inputs_and_outputs
       ~Analysis.run
       ~Analysis.runtime_setup

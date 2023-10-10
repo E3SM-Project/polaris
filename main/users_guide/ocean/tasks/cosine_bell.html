@@ -275,8 +275,8 @@ for forward integration is determined by multiplying the resolution by a config
 option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
 alter this before setup (in a user config file) or before running the task (in
 the config file in the work directory).</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
-<span class="k">[spherical_convergence_forward]</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
+<span class="k">[convergence_forward]</span>
 
 <span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
 <span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
@@ -288,12 +288,12 @@ the config file in the work directory).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are the
 period for advection to make a full rotation around the globe, 24 days:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
-<span class="k">[spherical_convergence_forward]</span>
+<span class="k">[convergence_forward]</span>
 
-<span class="c1"># Run duration in days</span>
+<span class="c1"># Run duration in hours</span>
 <span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
 
-<span class="c1"># Output interval in days</span>
+<span class="c1"># Output interval in hours</span>
 <span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
 </pre></div>
 </div>
@@ -324,8 +324,8 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># hill max of tracer</span>
 <span class="na">psi0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 
-<span class="c1"># time (days) for bell to transit equator once</span>
-<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">24.0</span>
+<span class="c1"># time (hours) for bell to transit equator once</span>
+<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">576.0</span>
 
 <span class="c1"># convergence threshold below which the test fails</span>
 <span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
@@ -357,18 +357,21 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 </div>
 <p>The 7 options from <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> are used to control properties of
 the cosine bell and the rest of the sphere, as well as the advection.</p>
-<p>The options <code class="docutils literal notranslate"><span class="pre">qu_conv_thresh</span></code> to <code class="docutils literal notranslate"><span class="pre">icos_conv_max</span></code> are thresholds for determining
-when the convergence rates are not within the expected range.</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">convergence_thresh</span></code> is a threshold for determining
+when the convergence rates are not above a minimum convergence rate.</p>
 <p>The options in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the
 initial and final states on a lon-lat grid for <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks.</p>
 <p>By default, the convergence analysis step analyzes convergence after the
 cosine bell has circulated the globe once. It also computes the L2 norm. Both
 of these config options can be changed here:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
-<span class="k">[spherical_convergence]</span>
+<span class="k">[convergence]</span>
 
 <span class="c1"># Evaluation time for convergence analysis (in days)</span>
 <span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># Convergence threshold below which a test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:convergence_thresh}</span>
 
 <span class="c1"># Type of error to compute</span>
 <span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>

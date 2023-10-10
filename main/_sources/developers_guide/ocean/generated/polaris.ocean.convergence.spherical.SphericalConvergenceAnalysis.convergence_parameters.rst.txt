@@ -1,6 +1,0 @@
-﻿polaris.ocean.convergence.spherical.SphericalConvergenceAnalysis.convergence\_parameters
-========================================================================================
-
-.. currentmodule:: polaris.ocean.convergence.spherical
-
-.. automethod:: SphericalConvergenceAnalysis.convergence_parameters

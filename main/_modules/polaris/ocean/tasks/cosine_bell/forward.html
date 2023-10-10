@@ -117,7 +117,7 @@
 <span class="sd">    bell test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Forward.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+<div class="viewcode-block" id="Forward.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -135,7 +135,7 @@
 <span class="sd">        resolution : float</span>
 <span class="sd">            The resolution of the (uniform) mesh in km</span>
 
-<span class="sd">        base_mesh : polaris.Step</span>
+<span class="sd">        mesh : polaris.Step</span>
 <span class="sd">            The base mesh step</span>
 
 <span class="sd">        init : polaris.Step</span>
@@ -144,7 +144,7 @@
         <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh</span><span class="p">,</span>
+                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
                          <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
                          <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
                          <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>

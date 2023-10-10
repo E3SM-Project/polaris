@@ -168,10 +168,11 @@ the exact solution. The tracer and coriolis fields are uniform in space.</p>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward</span></code></a>
-defines a step for running MPAS-Ocean from the initial condition produced in the
-<code class="docutils literal notranslate"><span class="pre">init</span></code> step.  Namelist and streams files are updated in
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.dynamic_model_config()</span></code></a>
-with time steps determined algorithmically based on config options.  The number
+descends from
+<a class="reference internal" href="../generated/polaris.ocean.convergence.ConvergenceForward.html#polaris.ocean.convergence.ConvergenceForward" title="polaris.ocean.convergence.ConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceForward</span></code></a>
+and runs MPAS-Ocean from the initial condition produced in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step.
+Namelist and streams files are updated by the parent class with time steps
+determined algorithmically based on config options. The number
 of cells is approximated from config options in
 <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris
@@ -185,17 +186,17 @@ performed against a baseline if one is provided when calling
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis</span></code></a> defines
-a step for computing the root mean-square-error from the final simulated field
+<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis</span></code></a>
+descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis" title="polaris.ocean.convergence.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code></a>
+a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
 convergence rate falls within acceptable bounds.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.viz.Viz</span></code></a> defines
-a step for visualization. It produces two plots: the convergence of the RMSE
-with resolution and a plan-view of the simulated, exact, and (simulated - exact)
-SSH fields.</p>
+a step for visualization. It produces a plan-view figure of the simulated,
+exact, and (simulated - exact) SSH fields.</p>
 </section>
 </section>
 </section>
