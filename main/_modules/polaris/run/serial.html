@@ -444,16 +444,21 @@
         <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  task execution:   </span><span class="si">{</span><span class="n">run_status</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">task_pass</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">baselines_passed</span><span class="p">:</span>
-                <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+            <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">result_str</span> <span class="o">=</span> <span class="n">pass_str</span>
                 <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">fail_str</span>
-                <span class="n">result_str</span> <span class="o">=</span> <span class="n">fail_str</span>
-                <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  baseline comp.:   </span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">baselines_passed</span><span class="p">:</span>
+                    <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                    <span class="n">result_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+                    <span class="n">result_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  baseline comp.:   </span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_task</span><span class="p">:</span>
@@ -476,7 +481,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">logger</span>
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-    <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">:</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span>
         <span class="n">complete_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
@@ -528,7 +533,9 @@
                 <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">fail_str</span>
             <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span>
                              <span class="sa">f</span><span class="s1">&#39;          baseline comp.:   </span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">baselines_passed</span> <span class="o">=</span> <span class="n">status</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
                 <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span>
