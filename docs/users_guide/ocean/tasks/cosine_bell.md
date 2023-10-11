@@ -181,7 +181,7 @@ The `convergence_eval_time`, `run_duration` and `output_interval` are the
 period for advection to make a full rotation around the globe, 24 days:
 
 ```cfg
-# config options for spherical convergence tests
+# config options for convergence forward steps
 [convergence_forward]
 
 # Run duration in hours
