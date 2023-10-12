@@ -370,13 +370,14 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
     Call the configure() method for each task and add configs to "owned" steps
     """
 
-    for task in tasks.values():
-        task.configure()
-        task.config.set(section=f'{task.name}',
-                        option='steps_to_run',
-                        value=' '.join(task.steps_to_run),
-                        comment=f'A list of steps to include when running the '
-                                f'{task.name} task')
+    for config in initial_configs.values():
+        for task in config.tasks:
+            task.configure()
+            task.config.set(section=f'{task.name}',
+                            option='steps_to_run',
+                            value=' '.join(task.steps_to_run),
+                            comment=f'A list of steps to include when running '
+                                    f'the {task.name} task')
 
     # add configs to steps after calling task.configure() on all tasks in case
     # new steps were added
