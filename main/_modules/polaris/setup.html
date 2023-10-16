@@ -478,13 +478,14 @@
 <span class="sd">    Call the configure() method for each task and add configs to &quot;owned&quot; steps</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                        <span class="n">option</span><span class="o">=</span><span class="s1">&#39;steps_to_run&#39;</span><span class="p">,</span>
-                        <span class="n">value</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
-                        <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A list of steps to include when running the &#39;</span>
-                                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">initial_configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">option</span><span class="o">=</span><span class="s1">&#39;steps_to_run&#39;</span><span class="p">,</span>
+                            <span class="n">value</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
+                            <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A list of steps to include when running &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;the </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task&#39;</span><span class="p">)</span>
 
     <span class="c1"># add configs to steps after calling task.configure() on all tasks in case</span>
     <span class="c1"># new steps were added</span>
