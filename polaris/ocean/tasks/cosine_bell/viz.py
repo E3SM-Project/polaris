@@ -121,8 +121,7 @@ class Viz(Step):
         """
         config = self.config
         mesh_name = self.mesh_name
-        run_duration = config.getfloat('spherical_convergence_forward',
-                                       'run_duration')
+        run_duration = config.getfloat('convergence_forward', 'run_duration')
 
         viz_map = self.dependencies['viz_map']
 
