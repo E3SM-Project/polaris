@@ -25,6 +25,8 @@ class PolarisConfigParser(MpasConfigParser):
         A list of filepaths within the component's work directory where
         symlinks to ``filepath`` will be created
 
+    symlinks : set of polaris.Task
+        A list of tasks that use this config
     """
 
     def __init__(self, filepath=None):
@@ -40,6 +42,7 @@ class PolarisConfigParser(MpasConfigParser):
         super().__init__()
         self.filepath: Union[str, None] = filepath
         self.symlinks = list()
+        self.tasks = set()
 
     def setup(self):
         """

@@ -100,6 +100,7 @@ class Task:
         self.path = os.path.join(self.component.name, self.subdir)
         self.config = PolarisConfigParser()
         self.config_filename = ''
+        self.config.tasks.add(self)
 
         # steps will be added by calling add_step()
         self.steps = dict()
@@ -219,6 +220,7 @@ class Task:
         self.component.add_config(config)
 
         self.config = config
+        config.tasks.add(self)
         if link is None:
             directory, basename = os.path.split(config.filepath)
             if directory != self.subdir:
