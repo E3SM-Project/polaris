@@ -109,6 +109,7 @@
 <span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel</span> <span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell</span> <span class="kn">import</span> <span class="n">add_cosine_bell_tasks</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.geostrophic</span> <span class="kn">import</span> <span class="n">add_geostrophic_tasks</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.inertial_gravity_wave</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_inertial_gravity_wave_tasks</span><span class="p">,</span>
 <span class="p">)</span>
@@ -129,12 +130,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
 
-        <span class="c1"># please keep these in alphabetical order</span>
+        <span class="c1"># planar: please keep these in alphabetical order</span>
         <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">add_inertial_gravity_wave_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">add_manufactured_solution_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+        <span class="c1"># single column</span>
+        <span class="n">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># spherical: please keep these in alphabetical order</span>
+        <span class="n">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">add_geostrophic_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

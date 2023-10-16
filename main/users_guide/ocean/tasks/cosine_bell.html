@@ -22,7 +22,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="inertial gravity wave" href="inertial_gravity_wave.html" />
+    <link rel="next" title="geostrophic" href="geostrophic.html" />
     <link rel="prev" title="baroclinic channel" href="baroclinic_channel.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -70,6 +70,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
 <li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
@@ -155,7 +156,7 @@ not included in the <code class="docutils literal notranslate"><span class="pre"
 regression testing.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<span id="ocean-cosine-bell-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
 <p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
 there are 4 variants of the task:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span>
@@ -207,7 +208,7 @@ the <code class="docutils literal notranslate"><span class="pre">cosine_bell</sp
 </div>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<span id="ocean-cosine-bell-vertical"></span><h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
 <p>This task only exercises the shallow water dynamics. As such, a single
 vertical level may be used. The bottom depth is constant and the
 results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
@@ -269,7 +270,7 @@ specified for a global mesh and are initialized as zeros.</p>
 field remains at the initial velocity <span class="math notranslate nohighlight">\(u_0\)</span>.</p>
 </section>
 <section id="time-step-and-run-duration">
-<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<span id="ocean-cosine-bell-time-step"></span><h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
 <p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
@@ -287,7 +288,7 @@ the config file in the work directory).</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are the
 period for advection to make a full rotation around the globe, 24 days:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence forward steps</span>
 <span class="k">[convergence_forward]</span>
 
 <span class="c1"># Run duration in hours</span>
@@ -379,7 +380,7 @@ of these config options can be changed here:</p>
 </div>
 </section>
 <section id="cores">
-<h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>
+<span id="ocean-cosine-bell-cores"></span><h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>
 <p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
 and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
 respectively. This ensures that the number of cells per core is roughly
@@ -392,7 +393,7 @@ constant across the different resolutions in the convergence study.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="baroclinic_channel.html" class="btn btn-neutral float-left" title="baroclinic channel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="inertial_gravity_wave.html" class="btn btn-neutral float-right" title="inertial gravity wave" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="geostrophic.html" class="btn btn-neutral float-right" title="geostrophic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

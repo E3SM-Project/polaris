@@ -113,6 +113,35 @@
    viz.Viz.run
 ```
 
+### geostrophic
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.geostrophic
+
+.. autosummary::
+   :toctree: generated/
+
+   add_geostrophic_tasks
+
+   Geostrophic
+   Geostrophic.configure
+
+   init.Init
+   init.Init.run
+
+   forward.Forward
+
+   analysis.Analysis
+   analysis.Analysis.run
+   analysis.Analysis.compute_rmse
+
+   viz.VizMap
+   viz.VizMap.run
+
+   viz.Viz
+   viz.Viz.run
+```
+
 ### manufactured_solution
 
 ```{eval-rst}
