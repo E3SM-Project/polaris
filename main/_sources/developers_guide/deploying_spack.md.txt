@@ -293,7 +293,7 @@ git submodule update --init --recursive
 cd E3SM-Project/components/mpas-ocean
 # this will build with PIO and OpenMP
 make ifort
-polaris suite -s -c ocean -t pr -p . \
+polaris suite -c ocean -t pr -p . \
     -w /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_intel_openmpi
 cd /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_intel_openmpi
 sbatch job_script.pr.bash
@@ -311,7 +311,7 @@ cd ../e3sm_chrys_gnu_openmpi
 git submodule update --init --recursive
 cd components/mpas-ocean
 make gfortran
-polaris suite -s -c ocean -t pr -p . \
+polaris suite -c ocean -t pr -p . \
     -w /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_gnu_openmpi
 cd /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_gnu_openmpi
 sbatch job_script.pr.bash
@@ -334,7 +334,7 @@ git submodule update --init --recursive
 cd MALI-Dev/components/mpas-albany-landice
 # you need to tell it to build with Albany
 make ALBANY=true gfortran
-polaris suite -s -c landice -t full_integration -p . \
+polaris suite -c landice -t full_integration -p . \
     -w /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/landice_full_chrys_gnu_openmpi
 cd /lcrc/group/e3sm/ac.xylar/polaris/test_20230202/landice_full_chrys_gnu_openmpi
 sbatch job_script.full_integration.bash

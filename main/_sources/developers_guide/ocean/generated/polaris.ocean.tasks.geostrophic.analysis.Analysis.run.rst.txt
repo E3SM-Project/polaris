@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.geostrophic.analysis.Analysis.run
-=====================================================
-
-.. currentmodule:: polaris.ocean.tasks.geostrophic.analysis
-
-.. automethod:: Analysis.run

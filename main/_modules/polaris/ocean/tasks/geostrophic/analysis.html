@@ -149,7 +149,7 @@
                          <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
                          <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Analysis.exact_solution"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution">[docs]</a>    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the exact solution</span>
 
@@ -196,9 +196,9 @@
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">h</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">normalVelocity</span>
+            <span class="k">return</span> <span class="n">normalVelocity</span></div>
 
-    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Analysis.get_output_field"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the model output field at the given time and z index</span>
 
@@ -237,7 +237,7 @@
                                            <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span>
                                            <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">h</span> <span class="o">=</span> <span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
-            <span class="k">return</span> <span class="n">h</span></div>
+            <span class="k">return</span> <span class="n">h</span></div></div>
 </pre></div>
 
            </div>

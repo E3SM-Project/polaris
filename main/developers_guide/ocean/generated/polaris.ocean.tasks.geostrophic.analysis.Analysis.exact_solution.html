@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.tasks.geostrophic.analysis.Analysis.run</title>
+  <title>polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.tasks.geostrophic.viz.VizMap" href="polaris.ocean.tasks.geostrophic.viz.VizMap.html" />
+    <link rel="next" title="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field" href="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html" />
     <link rel="prev" title="polaris.ocean.tasks.geostrophic.analysis.Analysis" href="polaris.ocean.tasks.geostrophic.analysis.Analysis.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -113,9 +113,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.tasks.geostrophic.analysis.Analysis.run</li>
+      <li class="breadcrumb-item active">polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.run.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -123,12 +123,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-tasks-geostrophic-analysis-analysis-run">
-<h1>polaris.ocean.tasks.geostrophic.analysis.Analysis.run<a class="headerlink" href="#polaris-ocean-tasks-geostrophic-analysis-analysis-run" title="Permalink to this heading"></a></h1>
+  <section id="polaris-ocean-tasks-geostrophic-analysis-analysis-exact-solution">
+<h1>polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution<a class="headerlink" href="#polaris-ocean-tasks-geostrophic-analysis-analysis-exact-solution" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.tasks.geostrophic.analysis.Analysis.run">
-<span class="sig-prename descclassname"><span class="pre">Analysis.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polaris.ocean.tasks.geostrophic.analysis.Analysis.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run this step of the test case</p>
+<dt class="sig sig-object py" id="polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution">
+<span class="sig-prename descclassname"><span class="pre">Analysis.</span></span><span class="sig-name descname"><span class="pre">exact_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zidx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/geostrophic/analysis.html#Analysis.exact_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution" title="Permalink to this definition"></a></dt>
+<dd><p>Get the exact solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The mesh name which is the prefix for the initial condition file</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the variable of which we evaluate convergence
+For the default method, we use the same convergence rate for all
+fields</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The time at which to evaluate the exact solution in seconds.
+For the default method, we always use the initial state.</p></li>
+<li><p><strong>zidx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – The z-index for the vertical level at which to evaluate the exact
+solution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>solution</strong> (<em>xarray.DataArray</em>) – The exact solution with dimension nCells</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -138,7 +155,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.ocean.tasks.geostrophic.analysis.Analysis.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.geostrophic.analysis.Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.tasks.geostrophic.viz.VizMap.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.geostrophic.viz.VizMap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -167,7 +184,7 @@
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.tasks.geostrophic.analysis.Analysis.run.html">main</a></dd>
+      <dd><a href="polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution.html">main</a></dd>
     </dl>
   </div>
 </div><script>

@@ -407,7 +407,7 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
 <span class="nb">cd</span><span class="w"> </span>E3SM-Project/components/mpas-ocean
 <span class="c1"># this will build with PIO and OpenMP</span>
 make<span class="w"> </span>ifort
-polaris<span class="w"> </span>suite<span class="w"> </span>-s<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-w<span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_intel_openmpi
 <span class="nb">cd</span><span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_intel_openmpi
 sbatch<span class="w"> </span>job_script.pr.bash
@@ -423,7 +423,7 @@ git<span class="w"> </span>worktree<span class="w"> </span>add<span class="w"> <
 git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 <span class="nb">cd</span><span class="w"> </span>components/mpas-ocean
 make<span class="w"> </span>gfortran
-polaris<span class="w"> </span>suite<span class="w"> </span>-s<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-w<span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_gnu_openmpi
 <span class="nb">cd</span><span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/ocean_pr_chrys_gnu_openmpi
 sbatch<span class="w"> </span>job_script.pr.bash
@@ -444,7 +444,7 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
 <span class="nb">cd</span><span class="w"> </span>MALI-Dev/components/mpas-albany-landice
 <span class="c1"># you need to tell it to build with Albany</span>
 make<span class="w"> </span><span class="nv">ALBANY</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>gfortran
-polaris<span class="w"> </span>suite<span class="w"> </span>-s<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>full_integration<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>full_integration<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-w<span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/landice_full_chrys_gnu_openmpi
 <span class="nb">cd</span><span class="w"> </span>/lcrc/group/e3sm/ac.xylar/polaris/test_20230202/landice_full_chrys_gnu_openmpi
 sbatch<span class="w"> </span>job_script.full_integration.bash

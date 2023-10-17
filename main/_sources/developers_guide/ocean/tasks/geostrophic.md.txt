@@ -43,7 +43,12 @@ section.  Other model config options are taken from `forward.yaml`.
 ### analysis
 
 The class {py:class}`polaris.ocean.tasks.geostrophic.analysis.Analysis`
-defines a step for 
+descends from
+{py:class}`polaris.ocean.convergence.ConvergenceAnalysis`,
+and defines a step for computing the error norm (L2) for the water-column
+thickness and normal velocity at each resolution, saving them in
+`convergence_h.csv` and `convergence_normalVelocity.csv`, and plotting them
+in `convergence_h.png` and `convergence_normalVelocity.png`.
 
 ### viz
 

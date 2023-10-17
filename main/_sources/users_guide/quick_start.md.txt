@@ -432,7 +432,7 @@ Suites:
 You can set up a suite as follows:
 
 ```bash
-polaris suite -s -c ocean -t nightly -w <workdir> -p <component_path>
+polaris suite -c ocean -t nightly -w <workdir> -p <component_path>
 ```
 
 where the details are similar to setting up a case. You can use the same
