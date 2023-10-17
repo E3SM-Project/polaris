@@ -124,5 +124,10 @@ def cosine_bell(max_value, ri, r):
 
     r : float
         Radius of the cosine bell in meters
+
+    Returns
+    -------
+    f : np.ndarray of type float
+        Cosine bell tracer values
     """
     return max_value / 2.0 * (1.0 + np.cos(np.pi * np.divide(ri, r)))
