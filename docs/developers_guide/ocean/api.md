@@ -132,8 +132,8 @@
    forward.Forward
 
    analysis.Analysis
-   analysis.Analysis.run
-   analysis.Analysis.compute_rmse
+   analysis.Analysis.exact_solution
+   analysis.Analysis.get_output_field
 
    viz.VizMap
    viz.VizMap.run
