@@ -31,22 +31,32 @@ def unpickle_suite(suite_name):
     return test_suite
 
 
-def setup_config(config_filename):
+def setup_config(base_work_dir, component_name, config_filepath):
     """
     Set up the config object from the config file
 
     Parameters
     ----------
-    config_filename : str
-        The config filename
+    base_work_dir : str
+        The base work directory where suites and tasks are being set up
+
+    component_name : str
+        The component the config belongs to
+
+
+    config_filepath : str
+        The path to the config file within the component's work directory
 
     Returns
     -------
     config : polaris.config.PolarisConfigParser
         The config object
     """
+    config_filename = os.path.join(base_work_dir, component_name,
+                                   config_filepath)
     config = PolarisConfigParser()
     config.add_from_file(config_filename)
+    config.filepath = config_filepath
     return config
 
 
