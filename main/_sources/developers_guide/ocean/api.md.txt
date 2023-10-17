@@ -82,6 +82,40 @@
    viz.Viz.run
 ```
 
+### sphere_transport
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.sphere_transport
+
+.. autosummary::
+   :toctree: generated/
+
+   add_sphere_transport_tasks
+
+   SphereTransport
+   SphereTransport.configure
+
+   init.Init
+   init.Init.run
+
+   forward.Forward
+
+   analysis.Analysis
+   analysis.Analysis.convergence_parameters
+
+   mixing_analysis.MixingAnalysis
+   mixing_analysis.MixingAnalysis.run
+
+   filament_analysis.FilamentAnalysis
+   filament_analysis.FilamentAnalysis.run
+
+   viz.VizMap
+   viz.VizMap.runtime_setup
+
+   viz.Viz
+   viz.Viz.run
+```
+
 ### cosine_bell
 
 ```{eval-rst}

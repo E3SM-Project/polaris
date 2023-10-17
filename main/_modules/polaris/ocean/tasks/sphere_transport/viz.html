@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.tasks.sphere_transport.viz</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../sphere_transport.html">polaris.ocean.tasks.sphere_transport</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.tasks.sphere_transport.viz</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.tasks.sphere_transport.viz</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">time_index_from_xtime</span>
+<span class="kn">from</span> <span class="nn">polaris.remap</span> <span class="kn">import</span> <span class="n">MappingFileStep</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_field</span>
+
+
+<div class="viewcode-block" id="VizMap"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.VizMap.html#polaris.ocean.tasks.sphere_transport.viz.VizMap">[docs]</a><span class="k">class</span> <span class="nc">VizMap</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for making a mapping file for cosine bell viz</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VizMap.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.VizMap.html#polaris.ocean.tasks.sphere_transport.viz.VizMap.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the step</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step</span>
+
+<span class="sd">        base_mesh : polaris.Step</span>
+<span class="sd">            The base mesh step</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">ntasks</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VizMap.runtime_setup"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup.html#polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup">[docs]</a>    <span class="k">def</span> <span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the source and destination grids for this step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sphere_transport_viz&#39;</span><span class="p">]</span>
+        <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlon&#39;</span><span class="p">)</span>
+        <span class="n">dlat</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlat&#39;</span><span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remap_method&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="Viz"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz">[docs]</a><span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for plotting fields from the cosine bell output</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span>
+                 <span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the step</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory in the test case&#39;s work directory for the step</span>
+
+<span class="sd">        base_mesh : polaris.Step</span>
+<span class="sd">            The base mesh step</span>
+
+<span class="sd">        init : polaris.Step</span>
+<span class="sd">            The init step</span>
+
+<span class="sd">        forward : polaris.Step</span>
+<span class="sd">            The init step</span>
+
+<span class="sd">        viz_map : polaris.ocean.tasks.sphere_transport.viz.VizMap</span>
+<span class="sd">            The step for creating a mapping files, also used to remap data</span>
+<span class="sd">            from the MPAS mesh to a lon-lat grid</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_map&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">({</span><span class="s1">&#39;tracer1&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;tracer2&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;tracer3&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;layerThickness&#39;</span><span class="p">:</span> <span class="s1">&#39;h&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span> <span class="o">=</span> <span class="n">variables_to_plot</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_init.png&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_final.png&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_diff.png&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Viz.run"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.Viz.run.html#polaris.ocean.tasks.sphere_transport.viz.Viz.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">mesh_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span>
+        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
+
+        <span class="n">viz_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;viz_map&#39;</span><span class="p">]</span>
+
+        <span class="n">remapper</span> <span class="o">=</span> <span class="n">viz_map</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
+
+        <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
+        <span class="n">ds_init</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_init.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.0</span>
+
+        <span class="c1"># Visualization at halfway around the globe (provided run duration is</span>
+        <span class="c1"># set to the time needed to circumnavigate the globe)</span>
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                     <span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+        <span class="n">ds_mid</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">,</span>
+                                                       <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_mid</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_mid</span><span class="p">)</span>
+        <span class="n">ds_mid</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_mid.nc&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Visualization at all the way around the globe</span>
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                     <span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
+        <span class="n">ds_final</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">,</span>
+                                                         <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_final</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_final</span><span class="p">)</span>
+        <span class="n">ds_final</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_final.nc&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="n">variables_to_plot</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">colormap_section</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;sphere_transport_viz_</span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">plot_global_field</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+                              <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> at init&#39;</span><span class="p">,</span>
+                              <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plot_global_field</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">ds_mid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_mid.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+                              <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> after &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">run_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">48.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
+                              <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plot_global_field</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">ds_final</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_final.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+                              <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> after &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">run_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">24.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plot_global_field</span><span class="p">(</span><span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">ds_final</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                              <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_diff.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">colormap_section</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">colormap_section</span><span class="si">}</span><span class="s1">_diff&#39;</span><span class="p">,</span>
+                              <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Difference in </span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> from &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;initial condition after </span><span class="si">{</span><span class="n">run_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">24.</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+                              <span class="s1">&#39; days&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="viz.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

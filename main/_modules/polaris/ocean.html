@@ -117,6 +117,7 @@
     <span class="n">add_manufactured_solution_tasks</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.single_column</span> <span class="kn">import</span> <span class="n">add_single_column_tasks</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.sphere_transport</span> <span class="kn">import</span> <span class="n">add_sphere_transport_tasks</span>
 
 
 <div class="viewcode-block" id="Ocean"><a class="viewcode-back" href="../../developers_guide/ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean">[docs]</a><span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
@@ -137,6 +138,7 @@
 
         <span class="c1"># single column</span>
         <span class="n">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">add_sphere_transport_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># spherical: please keep these in alphabetical order</span>
         <span class="n">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
