@@ -146,14 +146,23 @@
 <h1>polaris.run.setup_config<a class="headerlink" href="#polaris-run-setup-config" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.run.setup_config">
-<span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">setup_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#setup_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.setup_config" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">setup_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_work_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#setup_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.setup_config" title="Permalink to this definition"></a></dt>
 <dd><p>Set up the config object from the config file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The config filename</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The base work directory where suites and tasks are being set up</p></li>
+<li><p><strong>component_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The component the config belongs to</p></li>
+</ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>config</strong> (<em>polaris.config.PolarisConfigParser</em>) – The config object</p>
+</dl>
+<dl class="simple">
+<dt>config_filepath<span class="classifier">str</span></dt><dd><p>The path to the config file within the component’s work directory</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>polaris.config.PolarisConfigParser</em>) – The config object</p>
 </dd>
 </dl>
 </dd></dl>
