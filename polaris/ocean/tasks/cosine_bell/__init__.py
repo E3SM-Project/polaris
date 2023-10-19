@@ -6,7 +6,7 @@ from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
 from polaris.ocean.tasks.cosine_bell.init import Init
-from polaris.ocean.tasks.cosine_bell.viz import Viz, VizMap
+from polaris.ocean.tasks.cosine_bell.viz import Viz
 
 
 def add_cosine_bell_tasks(component):
@@ -170,21 +170,12 @@ class CosineBell(Task):
 
             if self.include_viz:
                 with_viz_dir = f'spherical/{prefix}/cosine_bell/with_viz'
-
-                name = f'{prefix}_map_{mesh_name}'
-                subdir = f'{with_viz_dir}/map/{mesh_name}'
-                viz_map = VizMap(component=component, name=name,
-                                 subdir=subdir, base_mesh=base_mesh_step,
-                                 mesh_name=mesh_name)
-                viz_map.set_shared_config(config, link=config_filename)
-                self.add_step(viz_map)
-
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
                            subdir=subdir, base_mesh=base_mesh_step,
                            init=init_step, forward=forward_step,
-                           viz_map=viz_map, mesh_name=mesh_name)
+                           mesh_name=mesh_name)
                 step.set_shared_config(config, link=config_filename)
                 self.add_step(step)
 
