@@ -166,18 +166,23 @@ These are the basic constants used to initialize the test case according to
 the Williams et al. (1992) paper.  The temperature and salinity are arbitrary,
 since they do not vary in space and should not affect the evolution.
 
-Two additional config options relate to detecting when the convergence rate of 
-the test (using the L2 norm to compute the error) is unexpectedly low, which 
-raises an error:
+Three additional config options relate to detecting when the convergence rate
+for the water-column thickness (h) and normal velocity (using the L2 norm to 
+compute the error).  If either convergence rate is unexpectedly low an error is
+raised:
 ```cfg
 # config options for convergence tests
 [convergence]
 
-# Convergence threshold below which a test fails
-convergence_thresh = 0.4
-
 # Type of error to compute
 error_type = l2
+
+# options for geostrophic convergence test case
+[geostrophic]
+
+# convergence threshold below which the test fails
+convergence_thresh_h = 0.4
+convergence_thresh_normalVelocity = 1.3
 ```
 
 The convergence rate of the water-column thickness for this test case is very
