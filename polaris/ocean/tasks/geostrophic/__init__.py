@@ -6,7 +6,7 @@ from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.geostrophic.analysis import Analysis
 from polaris.ocean.tasks.geostrophic.forward import Forward
 from polaris.ocean.tasks.geostrophic.init import Init
-from polaris.ocean.tasks.geostrophic.viz import Viz, VizMap
+from polaris.ocean.tasks.geostrophic.viz import Viz
 
 
 def add_geostrophic_tasks(component):
@@ -169,25 +169,12 @@ class Geostrophic(Task):
 
             if self.include_viz:
                 with_viz_dir = f'{case_dir}/with_viz'
-
-                viz_maps = dict()
-                for mesh_type in ('cell', 'edge'):
-                    name = f'{prefix}_map_{mesh_type}_{mesh_name}'
-                    subdir = f'{with_viz_dir}/map_{mesh_type}/{mesh_name}'
-                    viz_maps[mesh_type] = VizMap(
-                        component=component, name=name, subdir=subdir,
-                        base_mesh=base_mesh_step, mesh_name=mesh_name,
-                        mesh_type=mesh_type)
-                    viz_maps[mesh_type].set_shared_config(config,
-                                                          link=config_filename)
-                    self.add_step(viz_maps[mesh_type])
-
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
-                           subdir=subdir, init=init_step, forward=forward_step,
-                           viz_map_cell=viz_maps['cell'],
-                           viz_map_edge=viz_maps['edge'], mesh_name=mesh_name)
+                           subdir=subdir, base_mesh=base_mesh_step,
+                           init=init_step, forward=forward_step,
+                           mesh_name=mesh_name)
                 step.set_shared_config(config, link=config_filename)
                 self.add_step(step)
 
