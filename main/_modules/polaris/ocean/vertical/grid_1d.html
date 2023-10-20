@@ -108,14 +108,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.vertical.grid_1d</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">root_scalar</span>
-
-<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 
 
 <div class="viewcode-block" id="generate_1d_grid"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid">[docs]</a><span class="k">def</span> <span class="nf">generate_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>

@@ -107,12 +107,12 @@
              
   <h1>Source code for polaris.list</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">polaris.components</span> <span class="kn">import</span> <span class="n">get_components</span>
-<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 
 
 <div class="viewcode-block" id="list_cases"><a class="viewcode-back" href="../../developers_guide/generated/polaris.list.list_cases.html#polaris.list.list_cases">[docs]</a><span class="k">def</span> <span class="nf">list_cases</span><span class="p">(</span><span class="n">task_expr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

@@ -107,6 +107,7 @@
              
   <h1>Source code for polaris.cache</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
@@ -117,7 +118,6 @@
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span>
 
 
 <div class="viewcode-block" id="update_cache"><a class="viewcode-back" href="../../developers_guide/generated/polaris.cache.update_cache.html#polaris.cache.update_cache">[docs]</a><span class="k">def</span> <span class="nf">update_cache</span><span class="p">(</span><span class="n">step_paths</span><span class="p">,</span> <span class="n">date_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
