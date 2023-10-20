@@ -128,3 +128,27 @@ class Analysis(ConvergenceAnalysis):
                                            time=time, zidx=None)
             h = ssh + bottom_depth
             return h
+
+    def convergence_parameters(self, field_name=None):
+        """
+        Get convergence parameters
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+            For cosine_bell, we use the same convergence rate for all fields
+        Returns
+        -------
+        conv_thresh: float
+            The minimum convergence rate
+
+        conv_thresh: float
+            The maximum convergence rate
+        """
+        config = self.config
+        conv_thresh = config.getfloat('geostrophic',
+                                      f'convergence_thresh_{field_name}')
+        error_type = config.get('convergence', 'error_type')
+
+        return conv_thresh, error_type
