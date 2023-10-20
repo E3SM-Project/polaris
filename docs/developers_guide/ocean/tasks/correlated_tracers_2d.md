@@ -61,34 +61,16 @@ plots the relationship between two correlated tracers for each resolution in
 
 ### viz
 
-Visualization steps are available only in the `correlated_tracers_2d/with_viz`
-tasks.  They are not included in the `correlated_tracers_2d` in order to keep regression
+Visualization step is available only in the `correlated_tracers_2d/with_viz`
+tasks.  It is not included in the `correlated_tracers_2d` in order to keep regression
 as fast as possible when visualization isn't needed.
-
-The class {py:class}`polaris.ocean.tasks.sphere_transport.viz.VizMap`
-defines a step for creating a mapping file from the MPAS mesh at a given
-resolution to a lon-lat grid at a resolution and interpolation method 
-determined by config options.
-
-```cfg
-# options for visualization for the cosine bell convergence test case
-[sphere_transport_viz]
-
-# visualization latitude and longitude resolution
-dlon = 0.5
-dlat = 0.5
-
-# remapping method ('bilinear', 'neareststod', 'conserve')
-remap_method = conserve
-```
 
 The class {py:class}`polaris.ocean.tasks.sphere_transport.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
-each resolution, mapped to the common lat-lon grid.  The colormap is controlled
-by these options:
+each resolution.  The colormap is controlled by these options:
 
 ```cfg
-# options for visualization for the cosine bell convergence test case
+# options for visualization for the sphere transport test case
 [sphere_transport_viz_*]
 
 # colormap options
@@ -98,11 +80,8 @@ colormap_name = viridis
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': 0., 'vmax': 1.}
-
-# We could provide colorbar tick marks but we'll leave the defaults
-# colorbar_ticks = np.linspace(0., 1., 9)
+# colorbar limits
+colorbar_limits = 0., 1.
 ```
 
 See {ref}`dev-visualization-global` for more details.

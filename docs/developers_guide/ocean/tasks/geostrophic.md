@@ -52,19 +52,14 @@ in `convergence_h.png` and `convergence_normalVelocity.png`.
 
 ### viz
 
-Two visualization steps are available only in the `geostrophic/with_viz`
-tasks.  They are not included in the `geostrophic` in order to keep regression
+The visualization step is available only in the `geostrophic/with_viz`
+tasks.  It is not included in the `geostrophic` in order to keep regression
 as fast as possible when visualization isn't needed.
-
-The class {py:class}`polaris.ocean.tasks.geostrophic.viz.VizMap`
-defines a step for creating a mapping file from the MPAS mesh at a given
-resolution to a lon-lat grid at a resolution and interpolation method 
-determined by config options shown in {ref}`ocean-geostrophic-config`.
 
 The class {py:class}`polaris.ocean.tasks.geostrophic.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
-each resolution, mapped to the common lat-lon grid.  The colormap is controlled
-by the config options discussed in {ref}`ocean-geostrophic-config`.
+each resolution.  The colormap is controlled by the config options discussed in
+{ref}`ocean-geostrophic-config`.
 
 See {ref}`dev-visualization-global` for more details on the global lat-lon
 plots.

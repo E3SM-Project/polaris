@@ -55,10 +55,79 @@ plot_horiz_field(config, ds, ds_mesh, 'normalVelocity',
 
 (dev-visualization-global)=
 
-## global lat/lon plots from spherical meshes
+## global lat/lon plots
 
-You can use {py:func}`polaris.viz.plot_global_field()` to plot a field on
-a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
+### plotting from spherical MPAS meshes
+
+You can use {py:func}`polaris.viz.plot_global_mpas_field()` to plot a field on
+a spherical MPAS mesh.
+
+```{image} images/cosine_bell_final_mpas.png
+:align: center
+:width: 500 px
+```
+
+Typical usage might be:
+```python
+import cmocean  # noqa: F401
+import xarray as xr
+
+from polaris import Step
+from polaris.viz import plot_global_mpas_field
+
+class Viz(Step):
+    def run(self):
+        
+        ds = xr.open_dataset('initial_state.nc')
+        da = ds['tracer1'].isel(Time=0, nVertLevels=0)
+        
+        plot_global_mpas_field(
+            mesh_filename='mesh.nc', da=da,
+            out_filename='init.png', config=self.config,
+            colormap_section='cosine_bell_viz',
+            title='Tracer at init', plot_land=False,
+            central_longitude=180.)
+```
+
+The `plot_land` parameter to {py:func}`polaris.viz.plot_global_mpas_field()` is
+used  to enable or disable continents overlain on top of the data.
+
+The `central_longitude` defaults to `0.0` and can be set to another value
+(typically 180 degrees) for visualizing quantities that would otherwise be
+divided across the antimeridian.
+
+The `colormap_section` of the config file must contain config options for
+specifying the colormap:
+
+```cfg
+# options for visualization for the cosine bell convergence test case
+[cosine_bell_viz]
+
+# colormap options
+# colormap
+colormap_name = viridis
+
+# the type of norm used in the colormap
+norm_type = linear
+
+# colorbar limits
+colorbar_limits = 0.0, 1.0
+```
+
+`colormap_name` can be any available matplotlib colormap.  For ocean test
+cases, we recommend importing [cmocean](https://matplotlib.org/cmocean/) so
+the standard ocean colormaps are available.
+
+The `norm_type` is one of `linear` (a linear colormap) or `log` (a logarithmic 
+colormap).
+
+The `colorbar_limits` are the lower and upper bound of the colorbar range.
+
+
+### plotting from lat/lon grids
+
+You can use {py:func}`polaris.viz.plot_global_lat_lon_field()` to plot a field 
+on a regular lon-lat grid, perhaps after remapping from an MPAS mesh using
 {py:class}`polaris.remap.MappingFileStep`.
 
 ```{image} images/cosine_bell_final.png
@@ -66,8 +135,8 @@ a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
 :width: 500 px
 ```
 
-The `plot_land` parameter to {py:func}`polaris.viz.plot_global_field()` is used
-to enable or disable continents overlain on top of the data:
+The `plot_land` parameter to {py:func}`polaris.viz.plot_global_lat_lon_field()`
+is used  to enable or disable continents overlain on top of the data:
 
 ```{image} images/cosine_bell_final_land.png
 :align: center
@@ -80,14 +149,14 @@ import cmocean  # noqa: F401
 import xarray as xr
 
 from polaris import Step
-from polaris.viz import plot_global_field
+from polaris.viz import plot_global_lat_lon_field
 
 class Viz(Step):
     def run(self):
         ds = xr.open_dataset('initial_state.nc')
         ds = ds[['tracer1']].isel(Time=0, nVertLevels=0)
         
-        plot_global_field(
+        plot_global_lat_lon_field(
             ds.lon.values, ds.lat.values, ds.tracer1.values,
             out_filename='init.png', config=self.config,
             colormap_section='cosine_bell_viz',

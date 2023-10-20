@@ -52,31 +52,13 @@ in `convergence_tracer1.png`.
 
 ### viz
 
-Two visualization steps are available only in the `cosine_bell/with_viz`
-tasks.  They are not included in the `cosine_bell` in order to keep regression
+The visualization step is available only in the `cosine_bell/with_viz`
+tasks.  It is not included in the `cosine_bell` in order to keep regression
 as fast as possible when visualization isn't needed.
-
-The class {py:class}`polaris.ocean.tasks.cosine_bell.viz.VizMap`
-defines a step for creating a mapping file from the MPAS mesh at a given
-resolution to a lon-lat grid at a resolution and interpolation method 
-determined by config options.
-
-```cfg
-# options for visualization for the cosine bell convergence test case
-[cosine_bell_viz]
-
-# visualization latitude and longitude resolution
-dlon = 0.5
-dlat = 0.5
-
-# remapping method ('bilinear', 'neareststod', 'conserve')
-remap_method = conserve
-```
 
 The class {py:class}`polaris.ocean.tasks.cosine_bell.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
-each resolution, mapped to the common lat-lon grid.  The colormap is controlled
-by these options:
+each resolution.  The colormap is controlled by these options:
 
 ```cfg
 # options for visualization for the cosine bell convergence test case
@@ -89,11 +71,8 @@ colormap_name = viridis
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': 0., 'vmax': 1.}
-
-# We could provide colorbar tick marks but we'll leave the defaults
-# colorbar_ticks = np.linspace(0., 1., 9)
+# colorbar limits
+colorbar_limits = 0.0, 1.0
 ```
 
 See {ref}`dev-visualization-global` for more details.
