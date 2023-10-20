@@ -277,17 +277,22 @@ at day 5 vs resolution.</p>
 <p>These are the basic constants used to initialize the test case according to
 the Williams et al. (1992) paper.  The temperature and salinity are arbitrary,
 since they do not vary in space and should not affect the evolution.</p>
-<p>Two additional config options relate to detecting when the convergence rate of
-the test (using the L2 norm to compute the error) is unexpectedly low, which
-raises an error:</p>
+<p>Three additional config options relate to detecting when the convergence rate
+for the water-column thickness (h) and normal velocity (using the L2 norm to
+compute the error).  If either convergence rate is unexpectedly low an error is
+raised:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
 <span class="k">[convergence]</span>
 
-<span class="c1"># Convergence threshold below which a test fails</span>
-<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.4</span>
-
 <span class="c1"># Type of error to compute</span>
 <span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+
+<span class="c1"># options for geostrophic convergence test case</span>
+<span class="k">[geostrophic]</span>
+
+<span class="c1"># convergence threshold below which the test fails</span>
+<span class="na">convergence_thresh_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.4</span>
+<span class="na">convergence_thresh_normalVelocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.3</span>
 </pre></div>
 </div>
 <p>The convergence rate of the water-column thickness for this test case is very

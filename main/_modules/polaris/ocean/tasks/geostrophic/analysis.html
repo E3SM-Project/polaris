@@ -237,7 +237,31 @@
                                            <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span>
                                            <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">h</span> <span class="o">=</span> <span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
-            <span class="k">return</span> <span class="n">h</span></div></div>
+            <span class="k">return</span> <span class="n">h</span></div>
+
+    <span class="k">def</span> <span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get convergence parameters</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+<span class="sd">            For cosine_bell, we use the same convergence rate for all fields</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conv_thresh: float</span>
+<span class="sd">            The minimum convergence rate</span>
+
+<span class="sd">        conv_thresh: float</span>
+<span class="sd">            The maximum convergence rate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;geostrophic&#39;</span><span class="p">,</span>
+                                      <span class="sa">f</span><span class="s1">&#39;convergence_thresh_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
 </pre></div>
 
            </div>
