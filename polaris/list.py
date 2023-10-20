@@ -1,10 +1,10 @@
 import argparse
+import importlib.resources as imp_res
 import os
 import re
 import sys
 
 from polaris.components import get_components
-from polaris.io import imp_res
 
 
 def list_cases(task_expr=None, number=None, verbose=False):

@@ -1,6 +1,5 @@
+import importlib.resources as imp_res
 import json
-
-from polaris.io import imp_res
 
 
 class Component:

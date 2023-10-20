@@ -1,11 +1,10 @@
+import importlib.resources as imp_res
 import json
 
 import numpy
 import numpy as np
 from netCDF4 import Dataset
 from scipy.optimize import root_scalar
-
-from polaris.io import imp_res
 
 
 def generate_1d_grid(config):

@@ -1,8 +1,8 @@
 import argparse
+import importlib.resources as imp_res
 import sys
 from typing import List
 
-from polaris.io import imp_res
 from polaris.setup import setup_tasks
 
 

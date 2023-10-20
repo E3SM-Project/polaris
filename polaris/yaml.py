@@ -1,12 +1,11 @@
 import argparse
+import importlib.resources as imp_res
 from collections import OrderedDict
 from typing import Dict
 
 from jinja2 import Template
 from lxml import etree
 from ruamel.yaml import YAML
-
-from polaris.io import imp_res
 
 
 class PolarisYaml:

@@ -1,6 +1,5 @@
+import importlib.resources as imp_res
 from typing import Dict
-
-from polaris.io import imp_res
 
 
 def parse_replacements(package, namelist):

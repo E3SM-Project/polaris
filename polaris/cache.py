@@ -1,4 +1,5 @@
 import argparse
+import importlib.resources as imp_res
 import json
 import os
 import pickle
@@ -9,7 +10,6 @@ from typing import Dict, List
 
 from polaris import Step
 from polaris.config import PolarisConfigParser
-from polaris.io import imp_res
 
 
 def update_cache(step_paths, date_string=None, dry_run=False):

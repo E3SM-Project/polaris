@@ -1,13 +1,7 @@
+import importlib.resources as imp_res
 import os
 import socket
 import sys
-from typing import TYPE_CHECKING  # noqa: F401
-
-if TYPE_CHECKING or sys.version_info >= (3, 9, 0):
-    import importlib.resources as imp_res  # noqa: F401
-else:
-    # python <= 3.8
-    import importlib_resources as imp_res  # noqa: F401
 
 from mache import discover_machine as mache_discover_machine
 
