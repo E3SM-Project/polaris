@@ -2,12 +2,13 @@ from typing import Dict, Union
 
 from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.isomip_plus.cull_mesh import CullMesh
 from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
-from polaris.ocean.tasks.isomip_plus.planar_mesh import PlanarMesh
-from polaris.ocean.tasks.isomip_plus.spherical_mesh import SphericalMesh
-from polaris.ocean.tasks.isomip_plus.topo_map import TopoMap
-from polaris.ocean.tasks.isomip_plus.topo_remap import TopoRemap
+from polaris.ocean.tasks.isomip_plus.mesh import (
+    CullMesh,
+    PlanarMesh,
+    SphericalMesh,
+)
+from polaris.ocean.tasks.isomip_plus.topo import TopoMap, TopoRemap
 
 
 def add_isomip_plus_tasks(component, mesh_type):
