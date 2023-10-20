@@ -1,14 +1,6 @@
 import os
-import sys
 import tempfile
-from typing import TYPE_CHECKING  # noqa: F401
 from urllib.parse import urlparse
-
-if TYPE_CHECKING or sys.version_info >= (3, 9, 0):
-    import importlib.resources as imp_res  # noqa: F401
-else:
-    # python <= 3.8
-    import importlib_resources as imp_res  # noqa: F401
 
 import progressbar
 import requests

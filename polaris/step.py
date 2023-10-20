@@ -1,4 +1,5 @@
 import grp
+import importlib.resources as imp_res
 import logging
 import os
 import shutil
@@ -8,7 +9,7 @@ import progressbar
 from mache import MachineInfo
 
 from polaris.config import PolarisConfigParser
-from polaris.io import download, imp_res, symlink
+from polaris.io import download, symlink
 from polaris.validate import compare_variables
 
 

@@ -1,9 +1,8 @@
+import importlib.resources as imp_res
 from copy import deepcopy
 
 from jinja2 import Template
 from lxml import etree
-
-from polaris.io import imp_res
 
 
 def read(package, streams_filename, tree=None, replacements=None):

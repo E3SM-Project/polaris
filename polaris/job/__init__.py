@@ -1,9 +1,8 @@
+import importlib.resources as imp_res
 import os
 
 import numpy as np
 from jinja2 import Template
-
-from polaris.io import imp_res
 
 
 def write_job_script(config, machine, target_cores, min_cores, work_dir,
