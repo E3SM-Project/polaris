@@ -13,8 +13,8 @@ from polaris.viz.style import use_mplstyle
 def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
-                     cmap=None, cmap_set_under=None, cmap_scale='linear',
-                     cmap_title=None):
+                     cmap=None, cmap_set_under=None, cmap_set_over=None,
+                     cmap_scale='linear', cmap_title=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -51,6 +51,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     cmap_set_under : str or None, optional
         A color for low out-of-range values
+
+    cmap_set_over : str or None, optional
+        A color for upper out-of-range values
 
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
@@ -106,6 +109,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if cmap_set_under is not None:
         current_cmap = ocean_patches.get_cmap()
         current_cmap.set_under(cmap_set_under)
+    if cmap_set_over is not None:
+        current_cmap = ocean_patches.get_cmap()
+        current_cmap.set_over(cmap_set_over)
 
     if show_patch_edges:
         ocean_patches.set_edgecolor('black')
