@@ -36,15 +36,22 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     title: str, optional
         The title of the plot
 
-    vmin, vmax : float, optional
-        The minimum and maximum values for the colorbar
+    vmin : float, optional
+        The minimum values for the colorbar
+
+    vmax : float, optional
+        The maximum values for the colorbar
 
     show_patch_edges : boolean, optional
         If true, patches will be plotted with visible edges
 
-    t_index, z_index: int, optional
-        The indices of 'Time' and 'nVertLevels' axes to select for plotting
-        The default time index is 0 (initial time)
+    t_index: int, optional
+        The indices of ``Time`` axes to select for plotting. The default is 0
+        (initial time)
+
+    z_index: int, optional
+        The indices of ``nVertLevels`` axes to select for plotting. The default
+        is 0 (top level)
 
     cmap : Colormap or str, optional
         A color map to plot
