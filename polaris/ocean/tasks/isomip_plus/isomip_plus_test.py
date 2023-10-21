@@ -1,4 +1,5 @@
 from polaris import Task
+from polaris.ocean.tasks.isomip_plus.init import Init
 
 
 class IsomipPlusTest(Task):
@@ -92,11 +93,38 @@ class IsomipPlusTest(Task):
                 continue
             self.add_step(step, symlink=symlink)
 
+        self.add_step(
+            Init(
+                component=component,
+                indir=subdir,
+                culled_mesh=shared_steps['topo/cull_mesh'],
+                topo=shared_steps['topo_final'],
+                experiment=experiment,
+                vertical_coordinate=vertical_coordinate,
+                thin_film=thin_film,
+            )
+        )
+
     def configure(self):
         """
         Modify the configuration options for this test case.
         """
         config = self.config
+        config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
         config.add_from_package(
             'polaris.ocean.tasks.isomip_plus', 'isomip_plus.cfg'
         )
+        config.add_from_package(
+            'polaris.ocean.tasks.isomip_plus', 'isomip_plus_init.cfg'
+        )
+        vertical_coordinate = self.vertical_coordinate
+
+        # for most coordinates, use the config options
+        levels = None
+
+        if vertical_coordinate == 'sigma':
+            levels = 10
+
+        config.set('vertical_grid', 'coord_type', vertical_coordinate)
+        if levels is not None:
+            config.set('vertical_grid', 'vert_levels', f'{levels}')

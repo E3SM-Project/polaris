@@ -72,17 +72,26 @@ def add_isomip_plus_tasks(component, mesh_type):
             mesh_type, resolution, mesh_name, resdir, component, config
         )
 
-        for experiment in [
-            'ocean0',
-            'ocean1',
-            'ocean2',
-            'ocean3',
-            'ocean4',
-            'inception',
-            'wetting',
-            'drying',
-        ]:
-            for vertical_coordinate in ['z-star']:
+        basic_expts = ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4']
+        extra_expts = ['inception', 'wetting', 'drying']
+        vert_coords = ['z-star', 'sigma']
+
+        for experiment in basic_expts:
+            vertical_coordinate = 'z-star'
+            task = IsomipPlusTest(
+                component=component,
+                resdir=resdir,
+                resolution=resolution,
+                experiment=experiment,
+                vertical_coordinate=vertical_coordinate,
+                planar=planar,
+                shared_steps=shared_steps[experiment],
+            )
+            component.add_task(task)
+
+        if planar and resolution >= 2.0:
+            for experiment in extra_expts:
+                vertical_coordinate = 'z-star'
                 task = IsomipPlusTest(
                     component=component,
                     resdir=resdir,
@@ -93,6 +102,20 @@ def add_isomip_plus_tasks(component, mesh_type):
                     shared_steps=shared_steps[experiment],
                 )
                 component.add_task(task)
+
+            for vertical_coordinate in vert_coords:
+                for experiment in ['ocean0'] + extra_expts:
+                    task = IsomipPlusTest(
+                        component=component,
+                        resdir=resdir,
+                        resolution=resolution,
+                        experiment=experiment,
+                        vertical_coordinate=vertical_coordinate,
+                        planar=planar,
+                        shared_steps=shared_steps[experiment],
+                        thin_film=True,
+                    )
+                    component.add_task(task)
 
 
 def _get_shared_steps(
