@@ -1,4 +1,5 @@
 from polaris import Task
+from polaris.ocean.tasks.isomip_plus.init import Init
 
 
 class IsomipPlusTest(Task):
@@ -83,10 +84,44 @@ class IsomipPlusTest(Task):
                 continue
             self.add_step(step, symlink=symlink)
 
+        self.add_step(Init(component=component,
+                           indir=subdir,
+                           culled_mesh=shared_steps['topo/cull_mesh'],
+                           topo=shared_steps['topo_final'],
+                           experiment=experiment,
+                           vertical_coordinate=vertical_coordinate,
+                           thin_film=thin_film))
+
     def configure(self):
         """
         Modify the configuration options for this test case.
         """
         config = self.config
+        config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus.cfg')
+        config.add_from_package('polaris.ocean.tasks.isomip_plus',
+                                'isomip_plus_init.cfg')
+        vertical_coordinate = self.vertical_coordinate
+        thin_film = self.thin_film
+        experiment = self.experiment
+
+        if thin_film:
+            config.set('isomip_plus', 'min_column_thickness', '1e-3')
+
+        # for most coordinates, use the config options, which is 36 layers
+        levels = None
+        if vertical_coordinate == 'single-layer':
+            levels = 1
+            # this isn't a known coord_type so use z-level
+            vertical_coordinate = 'z-level'
+
+        if vertical_coordinate == 'sigma':
+            if experiment in ['wetting', 'drying']:
+                levels = 3
+            else:
+                levels = 10
+
+        config.set('vertical_grid', 'coord_type', vertical_coordinate)
+        if levels is not None:
+            config.set('vertical_grid', 'vert_levels', f'{levels}')
