@@ -57,9 +57,8 @@ class TopoMap(MappingFileStep):
         """
         config = self.config
         section = config['isomip_plus']
-        lat0 = section.getfloat('lat0')
         method = section.get('topo_remap_method')
-        proj_str = get_projection_string(lat0)
+        proj_str = get_projection_string()
         self.src_from_proj(filename='input_topo.nc',
                            mesh_name='ISOMIP+_input_topo',
                            x_var='x',

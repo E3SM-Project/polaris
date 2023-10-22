@@ -52,7 +52,6 @@ class PlanarMesh(Step):
         section = config['isomip_plus']
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
-        lat0 = section.getfloat('lat0')
         buffer = section.getfloat('buffer')
 
         resolution = self.resolution
@@ -72,7 +71,7 @@ class PlanarMesh(Step):
         ds_mesh['yIsomipVertex'] = ds_mesh.yVertex
 
         # add latitude and longitude using a stereographic projection
-        projection, lat_lon_projection = get_projections(lat0)
+        projection, lat_lon_projection = get_projections()
         transformer = pyproj.Transformer.from_proj(projection,
                                                    lat_lon_projection)
 

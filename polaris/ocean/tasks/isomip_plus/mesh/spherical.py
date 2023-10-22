@@ -55,9 +55,8 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
 
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
-        lat0 = section.getfloat('lat0')
         buffer = section.getfloat('buffer')
-        fc = _make_feature(lat0, lx, ly, buffer)
+        fc = _make_feature(lx, ly, buffer)
         fc.to_geojson('isomip_plus_high_res.geojson')
 
         signed_distance = signed_distance_from_geojson(
@@ -80,12 +79,11 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
         super().run()
 
         ds = xr.open_dataset('base_mesh_without_xy.nc')
-        lat0 = self.config.getfloat('isomip_plus', 'lat0')
-        add_isomip_plus_xy(ds, lat0)
+        add_isomip_plus_xy(ds)
         ds.to_netcdf('base_mesh.nc')
 
 
-def add_isomip_plus_xy(ds, lat0):
+def add_isomip_plus_xy(ds):
     """
     Add x and y coordinates from a stereographic projection to a mesh on a
     sphere
@@ -94,11 +92,8 @@ def add_isomip_plus_xy(ds, lat0):
     ----------
     ds : xarray.Dataset
         The MPAS mesh on a sphere
-
-    lat0 : float
-        The latitude of the origin of the local stereographic project
     """
-    projection, lat_lon_projection = get_projections(lat0)
+    projection, lat_lon_projection = get_projections()
     transformer = pyproj.Transformer.from_proj(lat_lon_projection,
                                                projection)
     lon = np.rad2deg(ds.lonCell.values)
@@ -118,11 +113,11 @@ def add_isomip_plus_xy(ds, lat0):
     ds['yIsomipVertex'] = ('nVertices', y)
 
 
-def _make_feature(lat0, lx, ly, buffer):
+def _make_feature(lx, ly, buffer):
     # a box with a buffer of 80 km surrounding the are of interest
     # (0 <= x <= 800) and (0 <= y <= 80)
     bounds = 1e3 * np.array((-buffer, lx + buffer, -buffer, ly + buffer))
-    projection, lat_lon_projection = get_projections(lat0)
+    projection, lat_lon_projection = get_projections()
     transformer = pyproj.Transformer.from_proj(projection,
                                                lat_lon_projection)
 
