@@ -14,7 +14,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_set_over=None,
-                     cmap_scale='linear', cmap_title=None):
+                     cmap_scale='linear', cmap_title=None, figsize=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -67,6 +67,10 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     cmap_title : str
         Title for color bar
+
+    figsize : tuple
+        The width and height of the figure in inches. Default is determined
+        based on the aspect ratio of the domain.
     """
     use_mplstyle()
 
@@ -130,12 +134,13 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         ocean_patches.set_norm(LogNorm(vmin=max(1e-10, vmin),
                                vmax=vmax, clip=False))
 
-    width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
-    length = ds_mesh.yCell.max() - ds_mesh.yCell.min()
-    aspect_ratio = width.values / length.values
-    fig_width = 4
-    legend_width = fig_width / 5
-    figsize = (fig_width + legend_width, fig_width / aspect_ratio)
+    if figsize is None:
+        width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
+        length = ds_mesh.yCell.max() - ds_mesh.yCell.min()
+        aspect_ratio = width.values / length.values
+        fig_width = 4
+        legend_width = fig_width / 5
+        figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
     if create_fig:
         plt.figure(figsize=figsize)
