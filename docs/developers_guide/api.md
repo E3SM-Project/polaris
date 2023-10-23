@@ -219,7 +219,6 @@ seaice/api
 
    download
    symlink
-   imp_res
 ```
 
 ### job
