@@ -155,8 +155,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         cbar.set_label(cmap_title)
     if create_fig:
         plt.title(title)
-        plt.tight_layout(pad=0.5)
-        plt.savefig(out_file_name)
+        plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
         plt.close()
 
 
