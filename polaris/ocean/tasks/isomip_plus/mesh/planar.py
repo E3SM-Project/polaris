@@ -6,6 +6,7 @@ from mpas_tools.translate import translate
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.tasks.isomip_plus.mesh.xy import add_isomip_plus_xy
 from polaris.ocean.tasks.isomip_plus.projection import get_projections
 
 
@@ -65,11 +66,6 @@ class PlanarMesh(Step):
 
         translate(mesh=ds_mesh, xOffset=-1e3 * buffer, yOffset=-1e3 * buffer)
 
-        ds_mesh['xIsomipCell'] = ds_mesh.xCell
-        ds_mesh['yIsomipCell'] = ds_mesh.yCell
-        ds_mesh['xIsomipVertex'] = ds_mesh.xVertex
-        ds_mesh['yIsomipVertex'] = ds_mesh.yVertex
-
         # add latitude and longitude using a stereographic projection
         projection, lat_lon_projection = get_projections()
         transformer = pyproj.Transformer.from_proj(projection,
@@ -82,4 +78,5 @@ class PlanarMesh(Step):
             ds_mesh[f'lat{suffix}'] = (f'n{suffix}', np.deg2rad(lat))
             ds_mesh[f'lon{suffix}'] = (f'n{suffix}', np.deg2rad(lon))
 
+        add_isomip_plus_xy(ds_mesh)
         write_netcdf(ds_mesh, 'base_mesh.nc')

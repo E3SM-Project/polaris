@@ -9,6 +9,7 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.model_step import make_graph_file
+from polaris.ocean.tasks.isomip_plus.mesh.xy import add_isomip_plus_xy
 
 
 class CullMesh(Step):
@@ -75,18 +76,20 @@ class CullMesh(Step):
             _land_mask_from_topo(topo_filename='topography.nc',
                                  mask_filename='land_mask.nc')
 
-            dsBaseMesh = xr.open_dataset('base_mesh.nc')
-            dsLandMask = xr.open_dataset('land_mask.nc')
+            ds_base = xr.open_dataset('base_mesh.nc')
+            ds_land_mask = xr.open_dataset('land_mask.nc')
 
             # cull the mesh based on the land mask
-            dsCulledMesh = cull(dsBaseMesh, dsMask=dsLandMask, logger=logger,
-                                dir='.')
+            ds_culled = cull(ds_base, dsMask=ds_land_mask, logger=logger,
+                             dir='.')
 
             # sort the cell, edge and vertex indices for better performances
-            dsCulledMesh = sort_mesh(dsCulledMesh)
+            ds_culled = sort_mesh(ds_culled)
+
+            add_isomip_plus_xy(ds_culled)
 
             out_filename = 'culled_mesh.nc'
-            write_netcdf(dsCulledMesh, out_filename)
+            write_netcdf(ds_culled, out_filename)
 
             # we need to make the graph file after sorting
             make_graph_file(mesh_filename='culled_mesh.nc',
