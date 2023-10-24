@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+from polaris import Step
 from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
@@ -8,7 +9,7 @@ from polaris.ocean.tasks.isomip_plus.mesh import (
     PlanarMesh,
     SphericalMesh,
 )
-from polaris.ocean.tasks.isomip_plus.topo import TopoMap, TopoRemap
+from polaris.ocean.tasks.isomip_plus.topo import TopoMap, TopoRemap, TopoScale
 
 
 def add_isomip_plus_tasks(component, mesh_type):
@@ -36,15 +37,11 @@ def add_isomip_plus_tasks(component, mesh_type):
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus.cfg')
 
-        base_mesh, topo_map_base, topo_remap_base, cull_mesh, \
-            topo_map_culled, topo_remap_culled = \
-            _get_shared_steps(mesh_type, resolution, mesh_name, resdir,
-                              component, config)
+        shared_steps = _get_shared_steps(
+            mesh_type, resolution, mesh_name, resdir, component, config)
 
-        # ocean0 and ocean1 use the same topography
-        topo_remap_culled['ocean0'] = topo_remap_culled['ocean1']
-
-        for experiment in ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4']:
+        for experiment in ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4',
+                           'inception', 'wetting', 'drying']:
             for vertical_coordinate in ['z-star']:
                 task = IsomipPlusTest(
                     component=component,
@@ -54,12 +51,7 @@ def add_isomip_plus_tasks(component, mesh_type):
                     experiment=experiment,
                     vertical_coordinate=vertical_coordinate,
                     planar=planar,
-                    base_mesh=base_mesh,
-                    topo_map_base=topo_map_base,
-                    topo_remap_base=topo_remap_base,
-                    cull_mesh=cull_mesh,
-                    topo_map_culled=topo_map_culled,
-                    topo_remap_culled=topo_remap_culled[experiment])
+                    shared_steps=shared_steps[experiment])
                 component.add_task(task)
 
 
@@ -114,6 +106,7 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
                               mesh_filename='culled_mesh.nc')
 
     topo_remap_culled: Dict[str, TopoRemap] = dict()
+    shared_steps: Dict[str, Dict[str, Step]] = dict()
     for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
         name = 'topo_remap_culled'
         subdir = f'{resdir}/topo/remap_culled/{experiment}'
@@ -124,5 +117,27 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
                                                   topo_map=topo_map_culled,
                                                   experiment=experiment)
 
-    return base_mesh, topo_map_base, topo_remap_base, cull_mesh, \
-        topo_map_culled, topo_remap_culled
+        shared_steps[experiment] = {
+            'base_mesh': base_mesh,
+            'topo/map_base': topo_map_base,
+            'topo/remap_base': topo_remap_base,
+            'topo/cull_mesh': cull_mesh,
+            'topo/map_culled': topo_map_culled,
+            'topo/remap_culled': topo_remap_culled[experiment],
+            'topo_final': topo_remap_culled[experiment]}
+
+    # ocean0 and ocean1 use the same topography
+    shared_steps['ocean0'] = shared_steps['ocean1']
+
+    for experiment in ['inception', 'wetting', 'drying']:
+        shared_steps[experiment] = dict(shared_steps['ocean1'])
+        subdir = f'{resdir}/topo/scale/{experiment}'
+        topo_scale = TopoScale(component=component,
+                               subdir=subdir,
+                               config=config,
+                               topo_remap=topo_remap_culled['ocean1'],
+                               experiment=experiment)
+        shared_steps[experiment]['topo/scale'] = topo_scale
+        shared_steps[experiment]['topo_final'] = topo_scale
+
+    return shared_steps
