@@ -102,6 +102,8 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
     if plot_land:
         plot = plot * gf.land * gf.coastline
 
+    plot.opts(cbar_extend='both', cbar_width=0.03)
+
     fig = hv.render(plot)
     fig.set_size_inches(figsize)
     fig.savefig(out_filename, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
