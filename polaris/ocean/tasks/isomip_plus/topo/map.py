@@ -55,9 +55,7 @@ class TopoMap(MappingFileStep):
         """
         Set up the source and destination grids for this step
         """
-        config = self.config
-        section = config['isomip_plus']
-        method = section.get('topo_remap_method')
+        method = self.config.get('isomip_plus_topo', 'remap_method')
         proj_str = get_projection_string()
         self.src_from_proj(filename='input_topo.nc',
                            mesh_name='ISOMIP+_input_topo',

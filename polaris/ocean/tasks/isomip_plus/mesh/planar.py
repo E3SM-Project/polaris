@@ -50,7 +50,7 @@ class PlanarMesh(Step):
         Run this step of the test case
         """
         config = self.config
-        section = config['isomip_plus']
+        section = config['isomip_plus_mesh']
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         buffer = section.getfloat('buffer')

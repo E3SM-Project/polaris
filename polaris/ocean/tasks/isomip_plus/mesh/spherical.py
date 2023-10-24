@@ -40,7 +40,7 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
         lat : numpy.array
             longitude in degrees (length m and between -90 and 90)
         """
-        section = self.config['isomip_plus']
+        section = self.config['isomip_plus_mesh']
 
         dlon = 0.1
         dlat = dlon
