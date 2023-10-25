@@ -8,10 +8,11 @@ from mpas_tools.io import write_netcdf
 
 from polaris.ocean.ice_shelf import (
     compute_freezing_temperature,
-    compute_land_ice_draft,
-    compute_land_ice_pressure,
+    compute_land_ice_draft_from_pressure,
+    compute_land_ice_pressure_from_draft,
 )
 from polaris.ocean.vertical import init_vertical_coord
+from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.step import Step
 from polaris.viz import plot_horiz_field
 
@@ -142,9 +143,12 @@ class Init(Step):
             # start from landIcePressure and compute landIceDraft
             ds_init['landIcePressure'] = ds_topo['landIcePressure']
 
-            land_ice_draft = compute_land_ice_draft(
+            land_ice_draft = compute_land_ice_draft_from_pressure(
                 land_ice_pressure=ds_topo.landIcePressure,
                 modify_mask=ds_topo.landIcePressure > 0.)
+
+            land_ice_draft = np.maximum(ds_topo.bedrockTopography,
+                                        land_ice_draft)
 
             ds_init['landIceDraft'] = land_ice_draft
 
@@ -152,7 +156,7 @@ class Init(Step):
             # start form landIceDraft and compute landIcePressure
             ds_init['landIceDraft'] = ds_topo['landIceDraft']
 
-            land_ice_pressure = compute_land_ice_pressure(
+            land_ice_pressure = compute_land_ice_pressure_from_draft(
                 land_ice_draft=ds_topo.landIceDraft,
                 modify_mask=ds_topo.landIceDraft < 0.)
 
@@ -258,14 +262,26 @@ class Init(Step):
         except FileNotFoundError:
             pass
 
-        ds = xr.open_dataset('init.nc')
+        ds = xr.open_dataset('init.nc').isel(Time=0)
         ds_mesh = xr.open_dataset('mesh.nc')
 
-        # use the planar projection coordinates for horizontal plots
-        ds_mesh['xCell'] = ds_mesh['xIsomipCell']
-        ds_mesh['yCell'] = ds_mesh['yIsomipCell']
-        ds_mesh['xVertex'] = ds_mesh['xIsomipVertex']
-        ds_mesh['yVertex'] = ds_mesh['yIsomipVertex']
+        for ds_fix in [ds, ds_mesh]:
+            # use the planar projection coordinates for horizontal plots
+            ds_fix['xCell'] = ds_fix['xIsomipCell']
+            ds_fix['yCell'] = ds_fix['yIsomipCell']
+            ds_fix['zCell'] = xr.zeros_like(ds_fix.xCell)
+            ds_fix['xVertex'] = ds_fix['xIsomipVertex']
+            ds_fix['yVertex'] = ds_fix['yIsomipVertex']
+            ds_fix['zVertex'] = xr.zeros_like(ds_fix.xVertex)
+
+        x = np.linspace(320e3, 800e3, 11)
+        y = 40.0e3 * np.ones_like(x)
+
+        x = xr.DataArray(data=x, dims=('nPoints',))
+        y = xr.DataArray(data=y, dims=('nPoints',))
+
+        ds_transect = compute_transect(x=x, y=y, ds_3d_mesh=ds,
+                                       spherical=False)
 
         ds['totalColThickness'] = ds['layerThickness'].sum(dim='nVertLevels')
 
@@ -346,42 +362,45 @@ class Init(Step):
                          cmap_set_under='k', cmap_set_over='r',
                          figsize=figsize)
 
-        for suffix, z_index in [['Top', 0], ['Bot', ds.maxLevelCell - 1]]:
+        _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            field_name='layerThickness',
+                            figsize=figsize,
+                            vmin=min_layer_thickness + tol, vmax=50,
+                            cmap='cmo.deep_r', units='m', under='r', over='r')
 
-            plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
-                             field_name='layerThickness',
-                             title=f'layerThickness {suffix}',
-                             z_index=z_index,
-                             out_file_name=f'plots/layerThickness{suffix}.png',
-                             vmin=min_layer_thickness + tol, vmax=50,
-                             cmap='cmo.deep_r',
-                             cmap_set_under='r', cmap_set_over='r',
-                             figsize=figsize)
+        _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            field_name='zMid',
+                            figsize=figsize,
+                            vmin=-720., vmax=0.,
+                            cmap='cmo.deep_r', units='m', under='r', over='r')
 
-            plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
-                             field_name='zMid',
-                             title=f'zMid {suffix}',
-                             z_index=z_index,
-                             out_file_name=f'plots/zmid{suffix}.png',
-                             vmin=-720., vmax=0.,
-                             cmap='cmo.deep_r',
-                             cmap_set_under='r', cmap_set_over='r',
-                             figsize=figsize)
+        _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            field_name='temperature',
+                            figsize=figsize,
+                            vmin=-2., vmax=1.,
+                            cmap='cmo.thermal', units=r'$^\circ$C')
 
-            plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
-                             field_name='temperature',
-                             title=f'temperature {suffix}',
-                             z_index=z_index,
-                             out_file_name=f'plots/temp{suffix}.png',
-                             vmin=-2., vmax=1.,
-                             cmap='cmo.thermal',
-                             figsize=figsize)
+        _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            field_name='salinity',
+                            figsize=figsize,
+                            vmin=33.8, vmax=34.7,
+                            cmap='cmo.haline', units='PSU')
 
-            plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
-                             field_name='salinity',
-                             title=f'salinity {suffix}',
-                             z_index=z_index,
-                             out_file_name=f'plots/salin{suffix}.png',
-                             vmin=33.8, vmax=34.7,
-                             cmap='cmo.haline',
-                             figsize=figsize)
+
+def _plot_top_bot_slice(ds, ds_mesh, ds_transect, field_name, figsize, vmin,
+                        vmax, cmap, units, under=None, over=None):
+    for suffix, z_index in [['Top', 0], ['Bot', ds.maxLevelCell - 1]]:
+        plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
+                         field_name=field_name,
+                         title=f'{field_name} {suffix}',
+                         z_index=z_index,
+                         out_file_name=f'plots/{field_name}{suffix}.png',
+                         vmin=vmin, vmax=vmax, cmap=cmap,
+                         cmap_set_under=under, cmap_set_over=over,
+                         figsize=figsize)
+
+    plot_transect(ds_transect=ds_transect, mpas_field=ds[field_name],
+                  title=f'{field_name} at y=40 km',
+                  out_filename=f'plots/{field_name}Section.png',
+                  cmap=cmap, figsize=figsize,
+                  colorbar_label=units)
