@@ -27,7 +27,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         mesh_name = resolution_to_subdir(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
-        filepath = f'{resdir}/isomip_plus.cfg'
+        filepath = f'{resdir}/isomip_plus_topo.cfg'
         config = PolarisConfigParser(filepath=filepath)
         if not planar:
             config.add_from_package('polaris.mesh', 'spherical.cfg')
@@ -36,6 +36,9 @@ def add_isomip_plus_tasks(component, mesh_type):
 
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus.cfg')
+
+        config.add_from_package('polaris.ocean.tasks.isomip_plus',
+                                'isomip_plus_topo.cfg')
 
         shared_steps = _get_shared_steps(
             mesh_type, resolution, mesh_name, resdir, component, config)
@@ -46,7 +49,6 @@ def add_isomip_plus_tasks(component, mesh_type):
                 task = IsomipPlusTest(
                     component=component,
                     resdir=resdir,
-                    config=config,
                     resolution=resolution,
                     experiment=experiment,
                     vertical_coordinate=vertical_coordinate,

@@ -26,7 +26,7 @@ class IsomipPlusTest(Task):
         Whether the test case runs on a planar or a spherical mesh
     """
 
-    def __init__(self, component, resdir, config, resolution, experiment,
+    def __init__(self, component, resdir, resolution, experiment,
                  vertical_coordinate, planar, shared_steps,
                  thin_film=False, tidal_forcing=False):
         """
@@ -40,9 +40,6 @@ class IsomipPlusTest(Task):
         resdir : str
             The subdirectory in the component for ISOMIP+ experiments of the
             given resolution
-
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
 
         resolution : float
             The horizontal resolution (km) of the test case
@@ -81,9 +78,15 @@ class IsomipPlusTest(Task):
         subdir = f'{resdir}/{vertical_coordinate}/{name}'
         super().__init__(component=component, name=name, subdir=subdir)
 
-        self.set_shared_config(config, link='isomip_plus.cfg')
-
         for symlink, step in shared_steps.items():
             if symlink == 'topo_final':
                 continue
             self.add_step(step, symlink=symlink)
+
+    def configure(self):
+        """
+        Modify the configuration options for this test case.
+        """
+        config = self.config
+        config.add_from_package('polaris.ocean.tasks.isomip_plus',
+                                'isomip_plus.cfg')
