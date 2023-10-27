@@ -301,19 +301,9 @@ generous  convergence threshold used here.</p>
 <p>Config options related to visualization are as follows.  The options in
 <code class="docutils literal notranslate"><span class="pre">geostropnic_viz</span></code> are related to remapping to a regular latitude-longitude
 grid.  The remaining options are related to plotting water-column thickness
-(<code class="docutils literal notranslate"><span class="pre">h</span></code>) and velocities (<code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">v</span></code> and <code class="docutils literal notranslate"><span class="pre">norm_vel</span></code>) and the difference between
+(<code class="docutils literal notranslate"><span class="pre">h</span></code>) and velocities (<code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>) and the difference between
 these fields at initialization and after the 5-day run.</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the geostrophic convergence test case</span>
-<span class="k">[geostrophic_viz]</span>
-
-<span class="c1"># visualization latitude and longitude resolution</span>
-<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
-<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
-
-<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
-<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
-
-<span class="c1"># options for plotting water-column thickness from the geostrophic test</span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for plotting water-column thickness from the geostrophic test</span>
 <span class="k">[geostrophic_viz_h]</span>
 
 <span class="c1"># colormap options</span>
@@ -323,8 +313,11 @@ these fields at initialization and after the 5-day run.</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 1000.0, &#39;vmax&#39;: 3000.0}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1000.0, 3000.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">water-column thickness (m)</span>
 
 <span class="c1"># options for plotting velocity from the geostrophic test</span>
 <span class="k">[geostrophic_viz_vel]</span>
@@ -336,8 +329,11 @@ these fields at initialization and after the 5-day run.</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: -40.0, &#39;vmax&#39;: 40.0}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-40.0, 40.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">velocity (m/s)</span>
 
 <span class="c1"># options for plotting water-column thickness from the geostrophic test</span>
 <span class="k">[geostrophic_viz_diff_h]</span>
@@ -349,8 +345,11 @@ these fields at initialization and after the 5-day run.</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: -10.0, &#39;vmax&#39;: 10.0}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-10.0, 10.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">water-column thickness (m)</span>
 
 <span class="c1"># options for plotting velocity from the geostrophic test</span>
 <span class="k">[geostrophic_viz_diff_vel]</span>
@@ -362,8 +361,11 @@ these fields at initialization and after the 5-day run.</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: -0.3, &#39;vmax&#39;: 0.3}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.3, 0.3</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">velocity (m/s)</span>
 </pre></div>
 </div>
 </section>

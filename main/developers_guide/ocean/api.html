@@ -214,115 +214,6 @@
 </tbody>
 </table>
 </section>
-<section id="inertial-gravity-wave">
-<h3>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Permalink to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks.html#polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks" title="polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_inertial_gravity_wave_tasks</span></code></a>(component)</p></td>
-<td><p>Add a task that defines a convergence test for inertial gravity waves</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InertialGravityWave</span></code></a>(component)</p></td>
-<td><p>The convergence test case for inertial gravity waves</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, resolutions, ...)</p></td>
-<td><p>A step for analysing the output from the inertial gravity wave test case</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(mesh_name, ...)</p></td>
-<td><p>Get the exact solution</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(ds, config)</p></td>
-<td><p>Class to compute the exact solution for the inertial gravity wave test case</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
-<td><p>Exact solution for sea surface height</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
-<td><p>Exact solution for normal velocity</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, resolution, ...)</p></td>
-<td><p>A step for performing forward ocean component runs as part of inertial gravity wave test cases.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
-<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, taskdir)</p></td>
-<td><p>A step for creating a mesh and initial condition for the inertial gravity wave test cases</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.run.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init.run" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, resolutions, taskdir)</p></td>
-<td><p>A step for visualizing the output from the inertial gravity wave test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="sphere-transport">
-<h3>sphere_transport<a class="headerlink" href="#sphere-transport" title="Permalink to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks.html#polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks" title="polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sphere_transport_tasks</span></code></a>(component)</p></td>
-<td><p>Add tasks that define variants of sphere transport test cases: nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.html#polaris.ocean.tasks.sphere_transport.SphereTransport" title="polaris.ocean.tasks.sphere_transport.SphereTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport</span></code></a>(component, config, ...)</p></td>
-<td><p>A test case for testing properties of tracer advection</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.configure.html#polaris.ocean.tasks.sphere_transport.SphereTransport.configure" title="polaris.ocean.tasks.sphere_transport.SphereTransport.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport.configure</span></code></a>()</p></td>
-<td><p>Set config options for the test case</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.html#polaris.ocean.tasks.sphere_transport.init.Init" title="polaris.ocean.tasks.sphere_transport.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, ...)</p></td>
-<td><p>A step for an initial condition for for the cosine bell test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.run.html#polaris.ocean.tasks.sphere_transport.init.Init.run" title="polaris.ocean.tasks.sphere_transport.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
-<td><p>Run this step of the task</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.forward.Forward.html#polaris.ocean.tasks.sphere_transport.forward.Forward" title="polaris.ocean.tasks.sphere_transport.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
-<td><p>A step for performing forward ocean component runs as part of the sphere transport test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, resolutions, ...)</p></td>
-<td><p>A step for analyzing the output from sphere transport test cases</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.convergence_parameters</span></code></a>([...])</p></td>
-<td><p>Get convergence parameters</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis</span></code></a>(component, ...)</p></td>
-<td><p>A step for analyzing the output from sphere transport test cases</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis</span></code></a>(...)</p></td>
-<td><p>A step for analyzing the output from sphere transport test cases</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.VizMap.html#polaris.ocean.tasks.sphere_transport.viz.VizMap" title="polaris.ocean.tasks.sphere_transport.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
-<td><p>A step for making a mapping file for cosine bell viz</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup.html#polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup" title="polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.runtime_setup</span></code></a>()</p></td>
-<td><p>Set up the source and destination grids for this step</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz" title="polaris.ocean.tasks.sphere_transport.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
-<td><p>A step for plotting fields from the cosine bell output</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.run.html#polaris.ocean.tasks.sphere_transport.viz.Viz.run" title="polaris.ocean.tasks.sphere_transport.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="cosine-bell">
 <h3>cosine_bell<a class="headerlink" href="#cosine-bell" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -363,12 +254,6 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(mesh_name, ...)</p></td>
 <td><p>Get the exact solution</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
-<td><p>A step for making a mapping file for cosine bell viz</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.run.html#polaris.ocean.tasks.cosine_bell.viz.VizMap.run" title="polaris.ocean.tasks.cosine_bell.viz.VizMap.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.run</span></code></a>()</p></td>
-<td><p>Run the step.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
@@ -414,16 +299,60 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field" title="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.get_output_field</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the model output field at the given time and z index</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.VizMap.html#polaris.ocean.tasks.geostrophic.viz.VizMap" title="polaris.ocean.tasks.geostrophic.viz.VizMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap</span></code></a>(component, name, subdir, ...)</p></td>
-<td><p>A step for making a mapping file for cosine bell viz</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.VizMap.run.html#polaris.ocean.tasks.geostrophic.viz.VizMap.run" title="polaris.ocean.tasks.geostrophic.viz.VizMap.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizMap.run</span></code></a>()</p></td>
-<td><p>Run the step.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz" title="polaris.ocean.tasks.geostrophic.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, init, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz" title="polaris.ocean.tasks.geostrophic.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.Viz.run.html#polaris.ocean.tasks.geostrophic.viz.Viz.run" title="polaris.ocean.tasks.geostrophic.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="inertial-gravity-wave">
+<h3>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks.html#polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks" title="polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_inertial_gravity_wave_tasks</span></code></a>(component)</p></td>
+<td><p>Add a task that defines a convergence test for inertial gravity waves</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InertialGravityWave</span></code></a>(component)</p></td>
+<td><p>The convergence test case for inertial gravity waves</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, resolutions, ...)</p></td>
+<td><p>A step for analysing the output from the inertial gravity wave test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(mesh_name, ...)</p></td>
+<td><p>Get the exact solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(ds, config)</p></td>
+<td><p>Class to compute the exact solution for the inertial gravity wave test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
+<td><p>Exact solution for sea surface height</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
+<td><p>Exact solution for normal velocity</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, resolution, ...)</p></td>
+<td><p>A step for performing forward ocean component runs as part of inertial gravity wave test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, taskdir)</p></td>
+<td><p>A step for creating a mesh and initial condition for the inertial gravity wave test cases</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.run.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init.run" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, resolutions, taskdir)</p></td>
+<td><p>A step for visualizing the output from the inertial gravity wave test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -510,6 +439,59 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge" title="polaris.ocean.tasks.single_column.ideal_age.IdealAge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge</span></code></a>(component[, ideal_age])</p></td>
 <td><p>The ideal-age single-column test case creates the mesh and initial condition, then performs a short forward run evolving the ideal-age tracer on 1 core.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sphere-transport">
+<h3>sphere_transport<a class="headerlink" href="#sphere-transport" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks.html#polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks" title="polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sphere_transport_tasks</span></code></a>(component)</p></td>
+<td><p>Add tasks that define variants of sphere transport test cases: nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.html#polaris.ocean.tasks.sphere_transport.SphereTransport" title="polaris.ocean.tasks.sphere_transport.SphereTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport</span></code></a>(component, config, ...)</p></td>
+<td><p>A test case for testing properties of tracer advection</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.configure.html#polaris.ocean.tasks.sphere_transport.SphereTransport.configure" title="polaris.ocean.tasks.sphere_transport.SphereTransport.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport.configure</span></code></a>()</p></td>
+<td><p>Set config options for the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.html#polaris.ocean.tasks.sphere_transport.init.Init" title="polaris.ocean.tasks.sphere_transport.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, ...)</p></td>
+<td><p>A step for an initial condition for for the cosine bell test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.run.html#polaris.ocean.tasks.sphere_transport.init.Init.run" title="polaris.ocean.tasks.sphere_transport.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.forward.Forward.html#polaris.ocean.tasks.sphere_transport.forward.Forward" title="polaris.ocean.tasks.sphere_transport.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
+<td><p>A step for performing forward ocean component runs as part of the sphere transport test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, resolutions, ...)</p></td>
+<td><p>A step for analyzing the output from sphere transport test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.convergence_parameters</span></code></a>([...])</p></td>
+<td><p>Get convergence parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis</span></code></a>(component, ...)</p></td>
+<td><p>A step for analyzing the output from sphere transport test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis</span></code></a>(...)</p></td>
+<td><p>A step for analyzing the output from sphere transport test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz" title="polaris.ocean.tasks.sphere_transport.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
+<td><p>A step for plotting fields from the cosine bell output</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.run.html#polaris.ocean.tasks.sphere_transport.viz.Viz.run" title="polaris.ocean.tasks.sphere_transport.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
 </table>

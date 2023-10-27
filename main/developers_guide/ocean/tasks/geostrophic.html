@@ -179,18 +179,14 @@ in <code class="docutils literal notranslate"><span class="pre">convergence_h.pn
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
-<p>Two visualization steps are available only in the <code class="docutils literal notranslate"><span class="pre">geostrophic/with_viz</span></code>
-tasks.  They are not included in the <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> in order to keep regression
+<p>The visualization step is available only in the <code class="docutils literal notranslate"><span class="pre">geostrophic/with_viz</span></code>
+tasks.  It is not included in the <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> in order to keep regression
 as fast as possible when visualization isn’t needed.</p>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.viz.VizMap.html#polaris.ocean.tasks.geostrophic.viz.VizMap" title="polaris.ocean.tasks.geostrophic.viz.VizMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.viz.VizMap</span></code></a>
-defines a step for creating a mapping file from the MPAS mesh at a given
-resolution to a lon-lat grid at a resolution and interpolation method
-determined by config options shown in <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz" title="polaris.ocean.tasks.geostrophic.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.viz.Viz</span></code></a>
 is a step for plotting the initial and final states of the advection test for
-each resolution, mapped to the common lat-lon grid.  The colormap is controlled
-by the config options discussed in <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
-<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots from spherical meshes</span></a> for more details on the global lat-lon
+each resolution.  The colormap is controlled by the config options discussed in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
+<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details on the global lat-lon
 plots.</p>
 </section>
 </section>

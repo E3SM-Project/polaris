@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.ocean.tasks.sphere_transport.viz.Viz.run" href="polaris.ocean.tasks.sphere_transport.viz.Viz.run.html" />
-    <link rel="prev" title="polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup" href="polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup.html" />
+    <link rel="prev" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run" href="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -127,7 +127,7 @@
 <h1>polaris.ocean.tasks.sphere_transport.viz.Viz<a class="headerlink" href="#polaris-ocean-tasks-sphere-transport-viz-viz" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.sphere_transport.viz.Viz">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.sphere_transport.viz.</span></span><span class="sig-name descname"><span class="pre">Viz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viz_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/sphere_transport/viz.html#Viz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.sphere_transport.viz.Viz" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.ocean.tasks.sphere_transport.viz.</span></span><span class="sig-name descname"><span class="pre">Viz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/sphere_transport/viz.html#Viz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.sphere_transport.viz.Viz" title="Permalink to this definition"></a></dt>
 <dd><p>A step for plotting fields from the cosine bell output</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
@@ -136,7 +136,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ocean.tasks.sphere_transport.viz.Viz.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viz_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/sphere_transport/viz.html#Viz.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.sphere_transport.viz.Viz.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/sphere_transport/viz.html#Viz.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.sphere_transport.viz.Viz.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create the step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -147,8 +147,6 @@
 <li><p><strong>base_mesh</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The base mesh step</p></li>
 <li><p><strong>init</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The init step</p></li>
 <li><p><strong>forward</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The init step</p></li>
-<li><p><strong>viz_map</strong> (<a class="reference internal" href="polaris.ocean.tasks.sphere_transport.viz.VizMap.html#polaris.ocean.tasks.sphere_transport.viz.VizMap" title="polaris.ocean.tasks.sphere_transport.viz.VizMap"><em>polaris.ocean.tasks.sphere_transport.viz.VizMap</em></a>) – The step for creating a mapping files, also used to remap data
-from the MPAS mesh to a lon-lat grid</p></li>
 <li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the mesh</p></li>
 </ul>
 </dd>
@@ -208,7 +206,7 @@ from the MPAS mesh to a lon-lat grid</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.sphere_transport.viz.VizMap.runtime_setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ocean.tasks.sphere_transport.viz.Viz.run.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.sphere_transport.viz.Viz.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

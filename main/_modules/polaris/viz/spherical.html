@@ -110,17 +110,126 @@
 
 <span class="kn">import</span> <span class="nn">cartopy</span>
 <span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">geoviews.feature</span> <span class="k">as</span> <span class="nn">gf</span>
+<span class="kn">import</span> <span class="nn">holoviews</span> <span class="k">as</span> <span class="nn">hv</span>
+<span class="kn">import</span> <span class="nn">hvplot.pandas</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">cols</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">uxarray</span> <span class="k">as</span> <span class="nn">ux</span>
 <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="kn">import</span> <span class="n">inset_axes</span>
 <span class="kn">from</span> <span class="nn">pyremap.descriptor.utility</span> <span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 
 <span class="kn">from</span> <span class="nn">polaris.viz.style</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
-<div class="viewcode-block" id="plot_global_field"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field">[docs]</a><span class="k">def</span> <span class="nf">plot_global_field</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
-                      <span class="n">colormap_section</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                      <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_global_mpas_field"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field">[docs]</a><span class="k">def</span> <span class="nf">plot_global_mpas_field</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                           <span class="n">colormap_section</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                           <span class="n">central_longitude</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
+                           <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">patch_edge_color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots a data set as a longitude-latitude map</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        A filename containing the MPAS mesh</span>
+
+<span class="sd">    da : xarray.DataArray</span>
+<span class="sd">        The horizontal field to plot</span>
+
+<span class="sd">    out_filename : str</span>
+<span class="sd">        The image file name to be written</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options to use for colormap settings</span>
+
+<span class="sd">    colormap_section : str</span>
+<span class="sd">        The name of a section in the config options. Options must include:</span>
+
+<span class="sd">        colormap_name</span>
+<span class="sd">            The name of the colormap</span>
+
+<span class="sd">        norm_type</span>
+<span class="sd">            The norm: {&#39;linear&#39;, &#39;log&#39;}</span>
+
+<span class="sd">        colorbar_limits</span>
+<span class="sd">            The minimum and maximum value of the colorbar</span>
+
+<span class="sd">    title : str, optional</span>
+<span class="sd">        The subtitle of the plot</span>
+
+<span class="sd">    plot_land : bool</span>
+<span class="sd">        Whether to plot continents over the data</span>
+
+<span class="sd">    colorbar_label : str, optional</span>
+<span class="sd">        Label on the colorbar</span>
+
+<span class="sd">    central_longitude : float, optional</span>
+<span class="sd">        The longitude of the center of the plot</span>
+
+<span class="sd">    figsize : tuple, optional</span>
+<span class="sd">        The size of the figure in inches</span>
+
+<span class="sd">    dpi : int, optional</span>
+<span class="sd">        Dots per inch for the output plot</span>
+
+<span class="sd">    patch_edge_color : str, optional</span>
+<span class="sd">        The color of patch edges (if not the same as the face)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;agg&#39;</span><span class="p">)</span>
+    <span class="n">uxgrid</span> <span class="o">=</span> <span class="n">ux</span><span class="o">.</span><span class="n">open_grid</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+    <span class="n">uxda</span> <span class="o">=</span> <span class="n">ux</span><span class="o">.</span><span class="n">UxDataArray</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">uxgrid</span><span class="o">=</span><span class="n">uxgrid</span><span class="p">)</span>
+
+    <span class="n">gdf_data</span> <span class="o">=</span> <span class="n">uxda</span><span class="o">.</span><span class="n">to_geodataframe</span><span class="p">()</span>
+
+    <span class="n">hv</span><span class="o">.</span><span class="n">extension</span><span class="p">(</span><span class="s1">&#39;matplotlib&#39;</span><span class="p">)</span>
+
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">)</span>
+
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">)</span>
+
+    <span class="n">norm_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_type&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">logz</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">logz</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported norm_type: </span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">colorbar_limits</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colorbar_limits&#39;</span><span class="p">,</span>
+                                     <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">gdf_data</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">polygons</span><span class="p">(</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">logz</span><span class="o">=</span><span class="n">logz</span><span class="p">,</span>
+        <span class="n">clim</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">colorbar_limits</span><span class="p">),</span>
+        <span class="n">clabel</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Latitude&quot;</span><span class="p">,</span>
+        <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
+        <span class="n">rasterize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_land</span><span class="p">:</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">*</span> <span class="n">gf</span><span class="o">.</span><span class="n">land</span> <span class="o">*</span> <span class="n">gf</span><span class="o">.</span><span class="n">coastline</span>
+
+    <span class="n">plot</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">cbar_extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">cbar_width</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">patch_edge_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gdf_grid</span> <span class="o">=</span> <span class="n">uxgrid</span><span class="o">.</span><span class="n">to_geodataframe</span><span class="p">()</span>
+        <span class="c1"># color parameter seems to be ignored -- always plots blue</span>
+        <span class="n">edge_plot</span> <span class="o">=</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">paths</span><span class="p">(</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">patch_edge_color</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">*</span> <span class="n">edge_plot</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">plot</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_global_lat_lon_field"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field">[docs]</a><span class="k">def</span> <span class="nf">plot_global_lat_lon_field</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                              <span class="n">colormap_section</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots a data set as a longitude-latitude map</span>
 

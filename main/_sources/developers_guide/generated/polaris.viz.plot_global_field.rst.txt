@@ -1,6 +1,0 @@
-﻿polaris.viz.plot\_global\_field
-===============================
-
-.. currentmodule:: polaris.viz
-
-.. autofunction:: plot_global_field

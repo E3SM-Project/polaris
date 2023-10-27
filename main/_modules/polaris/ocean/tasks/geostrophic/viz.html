@@ -112,70 +112,7 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.remap</span> <span class="kn">import</span> <span class="n">MappingFileStep</span>
-<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_field</span>
-
-
-<div class="viewcode-block" id="VizMap"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.VizMap.html#polaris.ocean.tasks.geostrophic.viz.VizMap">[docs]</a><span class="k">class</span> <span class="nc">VizMap</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A step for making a mapping file for cosine bell viz</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    mesh_name : str</span>
-<span class="sd">        The name of the mesh</span>
-
-<span class="sd">    mesh_type : {&#39;cell&#39;, &#39;edge&#39;, &#39;vertex&#39;}</span>
-<span class="sd">        Which type of MPAS mesh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="VizMap.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.VizMap.html#polaris.ocean.tasks.geostrophic.viz.VizMap.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span>
-                 <span class="n">mesh_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create the step</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        component : polaris.Component</span>
-<span class="sd">            The component the step belongs to</span>
-
-<span class="sd">        name : str</span>
-<span class="sd">            The name of the step</span>
-
-<span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory for the step</span>
-
-<span class="sd">        base_mesh : polaris.Step</span>
-<span class="sd">            The base mesh step</span>
-
-<span class="sd">        mesh_name : str</span>
-<span class="sd">            The name of the mesh</span>
-
-<span class="sd">        mesh_type : {&#39;cell&#39;, &#39;edge&#39;, &#39;vertex&#39;}</span>
-<span class="sd">            Which type of MPAS mesh</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">ntasks</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set up the source and destination grids for this step</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;geostrophic_viz&#39;</span><span class="p">]</span>
-        <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlon&#39;</span><span class="p">)</span>
-        <span class="n">dlat</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlat&#39;</span><span class="p">)</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remap_method&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">src_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span>
-                           <span class="n">mesh_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span></div>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_mpas_field</span>
 
 
 <div class="viewcode-block" id="Viz"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz">[docs]</a><span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -187,8 +124,8 @@
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span>
-                 <span class="n">viz_map_cell</span><span class="p">,</span> <span class="n">viz_map_edge</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Viz.__init__"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span>
+                 <span class="n">mesh_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -203,32 +140,28 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory in the test case&#39;s work directory for the step</span>
 
+<span class="sd">        base_mesh : polaris.Step</span>
+<span class="sd">            The base mesh step</span>
+
 <span class="sd">        init : polaris.Step</span>
 <span class="sd">            The init step</span>
 
 <span class="sd">        forward : polaris.Step</span>
 <span class="sd">            The init step</span>
 
-<span class="sd">        viz_map_cell : polaris.ocean.tasks.geostrophic.viz.VizMap</span>
-<span class="sd">            The step for creating a mapping files, also used to remap data</span>
-<span class="sd">            from the MPAS cells to a lon-lat grid</span>
-
-<span class="sd">        viz_map_edge : polaris.ocean.tasks.geostrophic.viz.VizMap</span>
-<span class="sd">            The step for creating a mapping files, also used to remap data</span>
-<span class="sd">            from the MPAS edges to a lon-lat grid</span>
-
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            The name of the mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/initial_state.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">viz_map_cell</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_map_cell&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">viz_map_edge</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_map_edge&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span></div>
 
 <div class="viewcode-block" id="Viz.run"><a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.viz.Viz.run.html#polaris.ocean.tasks.geostrophic.viz.Viz.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -243,8 +176,7 @@
         <span class="n">colormap_sections</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">h</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_h&#39;</span><span class="p">,</span>
             <span class="n">u</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_vel&#39;</span><span class="p">,</span>
-            <span class="n">v</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_vel&#39;</span><span class="p">,</span>
-            <span class="n">norm_vel</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_vel&#39;</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_vel&#39;</span><span class="p">)</span>
 
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
@@ -252,60 +184,54 @@
         <span class="n">ds_init</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_init.nc&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">plot_global_field</span><span class="p">(</span>
-                <span class="n">ds_init</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">),</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> at init&#39;</span><span class="p">,</span>
+                <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_ds</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">time_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s1">&#39;remapped_final.nc&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">plot_global_field</span><span class="p">(</span>
-                <span class="n">ds_out</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;final_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
-                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+            <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                <span class="n">da</span><span class="o">=</span><span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;final_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">),</span>
                 <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> after </span><span class="si">{</span><span class="n">run_duration</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
                 <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">colormap_sections</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">h</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_diff_h&#39;</span><span class="p">,</span>
             <span class="n">u</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_diff_vel&#39;</span><span class="p">,</span>
-            <span class="n">v</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_diff_vel&#39;</span><span class="p">,</span>
-            <span class="n">norm_vel</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_diff_vel&#39;</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">=</span><span class="s1">&#39;geostrophic_viz_diff_vel&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
-            <span class="n">plot_global_field</span><span class="p">(</span>
-                <span class="n">ds_out</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">diff</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;diff_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
-                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+            <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                <span class="n">da</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;diff_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">),</span>
                 <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> change after </span><span class="si">{</span><span class="n">run_duration</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
                 <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_process_ds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
-        <span class="n">viz_map_cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;viz_map_cell&#39;</span><span class="p">]</span>
-        <span class="n">viz_map_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;viz_map_edge&#39;</span><span class="p">]</span>
-
-        <span class="n">remapper_cell</span> <span class="o">=</span> <span class="n">viz_map_cell</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
-        <span class="n">remapper_edge</span> <span class="o">=</span> <span class="n">viz_map_edge</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
-
-        <span class="n">remap_cell_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;velocityZonal&#39;</span><span class="p">,</span> <span class="s1">&#39;velocityMeridional&#39;</span><span class="p">]</span>
-        <span class="n">remap_edge_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
-
-        <span class="n">ds_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">remap_cell_vars</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds_cell</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_cell</span><span class="o">.</span><span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
-        <span class="n">ds_cell</span> <span class="o">=</span> <span class="n">ds_cell</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">velocityZonal</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
-                                      <span class="n">velocityMeridional</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,))</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">remapper_cell</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_cell</span><span class="p">)</span>
-
-        <span class="n">ds_edge</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">remap_edge_vars</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds_edge</span> <span class="o">=</span> <span class="n">ds_edge</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">normalVelocity</span><span class="o">=</span><span class="s1">&#39;norm_vel&#39;</span><span class="p">))</span>
-        <span class="n">ds_out_edge</span> <span class="o">=</span> <span class="n">remapper_edge</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">ds_edge</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;norm_vel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out_edge</span><span class="p">[</span><span class="s1">&#39;norm_vel&#39;</span><span class="p">]</span>
-
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">velocityZonal</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                                    <span class="n">velocityMeridional</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,))</span>
         <span class="k">return</span> <span class="n">ds_out</span></div>
 </pre></div>
 

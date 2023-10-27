@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.sphere\_transport.viz.VizMap.runtime\_setup
-===============================================================
-
-.. currentmodule:: polaris.ocean.tasks.sphere_transport.viz
-
-.. automethod:: VizMap.runtime_setup

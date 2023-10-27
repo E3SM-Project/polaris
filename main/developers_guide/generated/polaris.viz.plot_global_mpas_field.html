@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.viz.plot_global_field</title>
+  <title>polaris.viz.plot_global_mpas_field</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="polaris.yaml.PolarisYaml" href="polaris.yaml.PolarisYaml.html" />
-    <link rel="prev" title="polaris.viz.plot_horiz_field" href="polaris.viz.plot_horiz_field.html" />
+    <link rel="prev" title="polaris.viz.plot_global_lat_lon_field" href="polaris.viz.plot_global_lat_lon_field.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -94,7 +94,8 @@
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#viz">viz</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.use_mplstyle.html">polaris.viz.use_mplstyle</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.plot_global_field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_global_lat_lon_field.html">polaris.viz.plot_global_lat_lon_field</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.plot_global_mpas_field</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#yaml">yaml</a></li>
@@ -128,9 +129,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.viz.plot_global_field</li>
+      <li class="breadcrumb-item active">polaris.viz.plot_global_mpas_field</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.viz.plot_global_field.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.viz.plot_global_mpas_field.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -138,38 +139,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-viz-plot-global-field">
-<h1>polaris.viz.plot_global_field<a class="headerlink" href="#polaris-viz-plot-global-field" title="Permalink to this heading"></a></h1>
+  <section id="polaris-viz-plot-global-mpas-field">
+<h1>polaris.viz.plot_global_mpas_field<a class="headerlink" href="#polaris-viz-plot-global-mpas-field" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.viz.plot_global_field">
-<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">plot_global_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_land</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/spherical.html#plot_global_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.plot_global_field" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.viz.plot_global_mpas_field">
+<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">plot_global_mpas_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">da</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_land</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_longitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">4.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_edge_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/spherical.html#plot_global_mpas_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.plot_global_mpas_field" title="Permalink to this definition"></a></dt>
 <dd><p>Plots a data set as a longitude-latitude map</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 1D longitude coordinate</p></li>
-<li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 1D latitude coordinate</p></li>
-<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – 2D data array to plot</p></li>
+<li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – A filename containing the MPAS mesh</p></li>
+<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – The horizontal field to plot</p></li>
 <li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The image file name to be written</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options to use for colormap settings</p></li>
 <li><p><strong>colormap_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The name of a section in the config options. Options must include:</p>
 <dl class="simple">
 <dt>colormap_name</dt><dd><p>The name of the colormap</p>
 </dd>
-<dt>norm_type</dt><dd><p>The norm: {‘symlog’, ‘log’, ‘linear’}</p>
+<dt>norm_type</dt><dd><p>The norm: {‘linear’, ‘log’}</p>
 </dd>
-<dt>norm_args</dt><dd><p>A dict of arguments to pass to the norm</p>
-</dd>
-</dl>
-<p>It may also include:</p>
-<dl class="simple">
-<dt>colorbar_ticks</dt><dd><p>An array of values where ticks should be placed</p>
+<dt>colorbar_limits</dt><dd><p>The minimum and maximum value of the colorbar</p>
 </dd>
 </dl>
 </p></li>
 <li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The subtitle of the plot</p></li>
 <li><p><strong>plot_land</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether to plot continents over the data</p></li>
 <li><p><strong>colorbar_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Label on the colorbar</p></li>
+<li><p><strong>central_longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – The longitude of the center of the plot</p></li>
+<li><p><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>, </em><em>optional</em>) – The size of the figure in inches</p></li>
+<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Dots per inch for the output plot</p></li>
+<li><p><strong>patch_edge_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The color of patch edges (if not the same as the face)</p></li>
 </ul>
 </dd>
 </dl>
@@ -181,7 +180,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.viz.plot_horiz_field.html" class="btn btn-neutral float-left" title="polaris.viz.plot_horiz_field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.viz.plot_global_lat_lon_field.html" class="btn btn-neutral float-left" title="polaris.viz.plot_global_lat_lon_field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.yaml.PolarisYaml.html" class="btn btn-neutral float-right" title="polaris.yaml.PolarisYaml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -211,7 +210,7 @@
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.viz.plot_global_field.html">main</a></dd>
+      <dd><a href="polaris.viz.plot_global_mpas_field.html">main</a></dd>
     </dl>
   </div>
 </div><script>

@@ -115,7 +115,7 @@
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
 
 
 <div class="viewcode-block" id="add_cosine_bell_tasks"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks.html#polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks">[docs]</a><span class="k">def</span> <span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
@@ -279,21 +279,12 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
                 <span class="n">with_viz_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/with_viz&#39;</span>
-
-                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_map_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">with_viz_dir</span><span class="si">}</span><span class="s1">/map/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="n">viz_map</span> <span class="o">=</span> <span class="n">VizMap</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
-                                 <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
-                <span class="n">viz_map</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_map</span><span class="p">)</span>
-
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_viz_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">with_viz_dir</span><span class="si">}</span><span class="s1">/viz/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="n">step</span> <span class="o">=</span> <span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
                            <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="n">forward_step</span><span class="p">,</span>
-                           <span class="n">viz_map</span><span class="o">=</span><span class="n">viz_map</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+                           <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 

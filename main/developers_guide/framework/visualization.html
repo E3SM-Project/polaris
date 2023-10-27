@@ -80,7 +80,11 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#common-matplotlib-style">common matplotlib style</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#horizontal-fields-from-planar-meshes">horizontal fields from planar meshes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#global-lat-lon-plots-from-spherical-meshes">global lat/lon plots from spherical meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-lat-lon-plots">global lat/lon plots</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#plotting-from-spherical-mpas-meshes">plotting from spherical MPAS meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plotting-from-lat-lon-grids">plotting from lat/lon grids</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -164,28 +168,84 @@ polygons characterized by the field values, accordingly.</p>
 </pre></div>
 </div>
 </section>
-<section id="global-lat-lon-plots-from-spherical-meshes">
-<span id="dev-visualization-global"></span><h2>global lat/lon plots from spherical meshes<a class="headerlink" href="#global-lat-lon-plots-from-spherical-meshes" title="Permalink to this heading"></a></h2>
-<p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field" title="polaris.viz.plot_global_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_field()</span></code></a> to plot a field on
-a regular lon-lat mesh, perhaps after remapping from an MPAS mesh using
+<section id="global-lat-lon-plots">
+<span id="dev-visualization-global"></span><h2>global lat/lon plots<a class="headerlink" href="#global-lat-lon-plots" title="Permalink to this heading"></a></h2>
+<section id="plotting-from-spherical-mpas-meshes">
+<h3>plotting from spherical MPAS meshes<a class="headerlink" href="#plotting-from-spherical-mpas-meshes" title="Permalink to this heading"></a></h3>
+<p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> to plot a field on
+a spherical MPAS mesh.</p>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final_mpas.png"><img alt="../../_images/cosine_bell_final_mpas.png" class="align-center" src="../../_images/cosine_bell_final_mpas.png" style="width: 500px;" /></a>
+<p>Typical usage might be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_mpas_field</span>
+
+<span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> is
+used  to enable or disable continents overlain on top of the data.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">central_longitude</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0.0</span></code> and can be set to another value
+(typically 180 degrees) for visualizing quantities that would otherwise be
+divided across the antimeridian.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">colormap_section</span></code> of the config file must contain config options for
+specifying the colormap:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 1.0</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">colormap_name</span></code> can be any available matplotlib colormap.  For ocean test
+cases, we recommend importing <a class="reference external" href="https://matplotlib.org/cmocean/">cmocean</a> so
+the standard ocean colormaps are available.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> is one of <code class="docutils literal notranslate"><span class="pre">linear</span></code> (a linear colormap) or <code class="docutils literal notranslate"><span class="pre">log</span></code> (a logarithmic
+colormap).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">colorbar_limits</span></code> are the lower and upper bound of the colorbar range.</p>
+</section>
+<section id="plotting-from-lat-lon-grids">
+<h3>plotting from lat/lon grids<a class="headerlink" href="#plotting-from-lat-lon-grids" title="Permalink to this heading"></a></h3>
+<p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_lat_lon_field()</span></code></a> to plot a field
+on a regular lon-lat grid, perhaps after remapping from an MPAS mesh using
 <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a>.</p>
 <a class="reference internal image-reference" href="../../_images/cosine_bell_final.png"><img alt="../../_images/cosine_bell_final.png" class="align-center" src="../../_images/cosine_bell_final.png" style="width: 500px;" /></a>
-<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_field.html#polaris.viz.plot_global_field" title="polaris.viz.plot_global_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_field()</span></code></a> is used
-to enable or disable continents overlain on top of the data:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_lat_lon_field()</span></code></a>
+is used  to enable or disable continents overlain on top of the data:</p>
 <a class="reference internal image-reference" href="../../_images/cosine_bell_final_land.png"><img alt="../../_images/cosine_bell_final_land.png" class="align-center" src="../../_images/cosine_bell_final_land.png" style="width: 500px;" /></a>
 <p>Typical usage might be:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_field</span>
+<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_global_lat_lon_field</span>
 
 <span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         
-        <span class="n">plot_global_field</span><span class="p">(</span>
+        <span class="n">plot_global_lat_lon_field</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
             <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
@@ -222,6 +282,7 @@ colormap with a central linear region), or <code class="docutils literal notrans
 and <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm" title="(in Matplotlib v3.8.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.LogNorm</span></code></a>, respectively.</p>
 <p>The config option <code class="docutils literal notranslate"><span class="pre">colorbar_ticks</span></code> (if it is defined) specifies tick locations
 along the colorbar. If it is not specified, they are determined automatically.</p>
+</section>
 </section>
 </section>
 

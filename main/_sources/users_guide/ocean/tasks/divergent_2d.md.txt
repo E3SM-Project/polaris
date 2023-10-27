@@ -206,19 +206,26 @@ temperature = 15.
 # salinity
 salinity = 35.
 
-# time (days) for bell to transit equator once
-vel_pd = 12.0
+# time (hours) for bell to transit equator once
+vel_pd = 288.0
 
+# radius of cosine bells tracer distributions
+cosine_bells_radius = 0.5
 
-# options for tracer visualization for the sphere transport test case
-[sphere_transport_viz]
+# background value of cosine bells tracer distribution
+cosine_bells_background = 0.1
 
-# visualization latitude and longitude resolution
-dlon = 0.5
-dlat = 0.5
+# amplitude of cosine bells tracer distribution
+cosine_bells_amplitude = 0.9
 
-# remapping method ('bilinear', 'neareststod', 'conserve')
-remap_method = conserve
+# radius of slotted cylinders tracer distributions
+slotted_cylinders_radius = 0.5
+
+# background value of slotted cylinders tracer distribution
+slotted_cylinders_background = 0.1
+
+# amplitude of slotted cylinders tracer distribution
+slotted_cylinders_amplitude = 1.0
 
 
 # options for tracer visualization for the sphere transport test case
@@ -231,11 +238,9 @@ colormap_name = viridis
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': 0., 'vmax': 1.}
+# colorbar limits
+colorbar_limits = 0., 1.
 
-# We could provide colorbar tick marks but we'll leave the defaults
-# colorbar_ticks = np.linspace(0., 1., 9)
 
 # options for plotting tracer differences from sphere transport tests
 [sphere_transport_viz_tracer_diff]
@@ -247,8 +252,8 @@ colormap_name = cmo.balance
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': -0.25, 'vmax': 0.25}
+# colorbar limits
+colorbar_limits = -0.25, 0.25
 
 
 # options for thickness visualization for the sphere transport test case
@@ -261,11 +266,9 @@ colormap_name = viridis
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': 99., 'vmax': 101.}
+# colorbar limits
+colorbar_limits = 99., 101.
 
-# We could provide colorbar tick marks but we'll leave the defaults
-# colorbar_ticks = np.linspace(0., 1., 9)
 
 # options for plotting tracer differences from sphere transport tests
 [sphere_transport_viz_h_diff]
@@ -277,8 +280,8 @@ colormap_name = cmo.balance
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': -0.25, 'vmax': 0.25}
+# colorbar limits
+colorbar_limits = -0.25, 0.25
 
 # options for divergent 2-d test case
 [divergent_2d]

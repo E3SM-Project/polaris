@@ -179,28 +179,12 @@ in <code class="docutils literal notranslate"><span class="pre">convergence_trac
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
-<p>Two visualization steps are available only in the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>
-tasks.  They are not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> in order to keep regression
+<p>The visualization step is available only in the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>
+tasks.  It is not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> in order to keep regression
 as fast as possible when visualization isn’t needed.</p>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.viz.VizMap.html#polaris.ocean.tasks.cosine_bell.viz.VizMap" title="polaris.ocean.tasks.cosine_bell.viz.VizMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.viz.VizMap</span></code></a>
-defines a step for creating a mapping file from the MPAS mesh at a given
-resolution to a lon-lat grid at a resolution and interpolation method
-determined by config options.</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
-<span class="k">[cosine_bell_viz]</span>
-
-<span class="c1"># visualization latitude and longitude resolution</span>
-<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
-<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
-
-<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
-<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
-</pre></div>
-</div>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.viz.Viz</span></code></a>
 is a step for plotting the initial and final states of the advection test for
-each resolution, mapped to the common lat-lon grid.  The colormap is controlled
-by these options:</p>
+each resolution.  The colormap is controlled by these options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
 <span class="k">[cosine_bell_viz]</span>
 
@@ -211,14 +195,11 @@ by these options:</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
-
-<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
-<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 1.0</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots from spherical meshes</span></a> for more details.</p>
+<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details.</p>
 </section>
 </section>
 </section>

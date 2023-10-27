@@ -53,6 +53,60 @@
    rpe.analysis.Analysis.run
 ```
 
+### cosine_bell
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.cosine_bell
+
+.. autosummary::
+   :toctree: generated/
+
+   add_cosine_bell_tasks
+
+   CosineBell
+   CosineBell.configure
+
+   init.Init
+   init.Init.run
+   init.cosine_bell
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   analysis.Analysis
+   analysis.Analysis.exact_solution
+
+   viz.Viz
+   viz.Viz.run
+```
+
+### geostrophic
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.geostrophic
+
+.. autosummary::
+   :toctree: generated/
+
+   add_geostrophic_tasks
+
+   Geostrophic
+   Geostrophic.configure
+
+   init.Init
+   init.Init.run
+
+   forward.Forward
+
+   analysis.Analysis
+   analysis.Analysis.exact_solution
+   analysis.Analysis.get_output_field
+
+   viz.Viz
+   viz.Viz.run
+```
+
 ### inertial_gravity_wave 
 
 ```{eval-rst}
@@ -82,99 +136,6 @@
    viz.Viz.run
 ```
 
-### sphere_transport
-
-```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.sphere_transport
-
-.. autosummary::
-   :toctree: generated/
-
-   add_sphere_transport_tasks
-
-   SphereTransport
-   SphereTransport.configure
-
-   init.Init
-   init.Init.run
-
-   forward.Forward
-
-   analysis.Analysis
-   analysis.Analysis.convergence_parameters
-
-   mixing_analysis.MixingAnalysis
-   mixing_analysis.MixingAnalysis.run
-
-   filament_analysis.FilamentAnalysis
-   filament_analysis.FilamentAnalysis.run
-
-   viz.VizMap
-   viz.VizMap.runtime_setup
-
-   viz.Viz
-   viz.Viz.run
-```
-
-### cosine_bell
-
-```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.cosine_bell
-
-.. autosummary::
-   :toctree: generated/
-
-   add_cosine_bell_tasks
-
-   CosineBell
-   CosineBell.configure
-
-   init.Init
-   init.Init.run
-   init.cosine_bell
-
-   forward.Forward
-   forward.Forward.compute_cell_count
-   forward.Forward.dynamic_model_config
-
-   analysis.Analysis
-   analysis.Analysis.exact_solution
-
-   viz.VizMap
-   viz.VizMap.run
-
-   viz.Viz
-   viz.Viz.run
-```
-
-### geostrophic
-
-```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.geostrophic
-
-.. autosummary::
-   :toctree: generated/
-
-   add_geostrophic_tasks
-
-   Geostrophic
-   Geostrophic.configure
-
-   init.Init
-   init.Init.run
-
-   forward.Forward
-
-   analysis.Analysis
-   analysis.Analysis.exact_solution
-   analysis.Analysis.get_output_field
-
-   viz.VizMap
-   viz.VizMap.run
-
-   viz.Viz
-   viz.Viz.run
-```
 
 ### manufactured_solution
 
@@ -226,6 +187,37 @@
    cvmix.CVMix
 
    ideal_age.IdealAge
+```
+
+### sphere_transport
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.sphere_transport
+
+.. autosummary::
+   :toctree: generated/
+
+   add_sphere_transport_tasks
+
+   SphereTransport
+   SphereTransport.configure
+
+   init.Init
+   init.Init.run
+
+   forward.Forward
+
+   analysis.Analysis
+   analysis.Analysis.convergence_parameters
+
+   mixing_analysis.MixingAnalysis
+   mixing_analysis.MixingAnalysis.run
+
+   filament_analysis.FilamentAnalysis
+   filament_analysis.FilamentAnalysis.run
+
+   viz.Viz
+   viz.Viz.run
 ```
 
 ## Ocean Framework

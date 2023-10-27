@@ -316,19 +316,26 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># salinity</span>
 <span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.</span>
 
-<span class="c1"># time (days) for bell to transit equator once</span>
-<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">12.0</span>
+<span class="c1"># time (hours) for bell to transit equator once</span>
+<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">288.0</span>
 
+<span class="c1"># radius of cosine bells tracer distributions</span>
+<span class="na">cosine_bells_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
 
-<span class="c1"># options for tracer visualization for the sphere transport test case</span>
-<span class="k">[sphere_transport_viz]</span>
+<span class="c1"># background value of cosine bells tracer distribution</span>
+<span class="na">cosine_bells_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
 
-<span class="c1"># visualization latitude and longitude resolution</span>
-<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
-<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="c1"># amplitude of cosine bells tracer distribution</span>
+<span class="na">cosine_bells_amplitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9</span>
 
-<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
-<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
+<span class="c1"># radius of slotted cylinders tracer distributions</span>
+<span class="na">slotted_cylinders_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># background value of slotted cylinders tracer distribution</span>
+<span class="na">slotted_cylinders_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># amplitude of slotted cylinders tracer distribution</span>
+<span class="na">slotted_cylinders_amplitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 
 
 <span class="c1"># options for tracer visualization for the sphere transport test case</span>
@@ -341,11 +348,9 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0., 1.</span>
 
-<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
-<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
 
 <span class="c1"># options for plotting tracer differences from sphere transport tests</span>
 <span class="k">[sphere_transport_viz_tracer_diff]</span>
@@ -357,8 +362,8 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: -0.25, &#39;vmax&#39;: 0.25}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.25, 0.25</span>
 
 
 <span class="c1"># options for thickness visualization for the sphere transport test case</span>
@@ -371,11 +376,9 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 99., &#39;vmax&#39;: 101.}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">99., 101.</span>
 
-<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
-<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
 
 <span class="c1"># options for plotting tracer differences from sphere transport tests</span>
 <span class="k">[sphere_transport_viz_h_diff]</span>
@@ -387,8 +390,9 @@ option <code class="docutils literal notranslate"><span class="pre">vel_pd</span
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: -0.25, &#39;vmax&#39;: 0.25}</span>
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.25, 0.25</span>
+
 
 <span class="c1"># options for correlated tracers 2-d test case</span>
 <span class="k">[correlated_tracers_2d]</span>
