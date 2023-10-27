@@ -19,7 +19,7 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
                            colormap_section, title=None,
                            plot_land=True, colorbar_label='',
                            central_longitude=0., figsize=(8, 4.5),
-                           dpi=200):
+                           dpi=200, patch_edge_color=None):
     """
     Plots a data set as a longitude-latitude map
 
@@ -66,6 +66,9 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
 
     dpi : int, optional
         Dots per inch for the output plot
+
+    patch_edge_color : str, optional
+        The color of patch edges (if not the same as the face)
     """
     matplotlib.use('agg')
     uxgrid = ux.open_grid(mesh_filename)
@@ -103,6 +106,13 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
         plot = plot * gf.land * gf.coastline
 
     plot.opts(cbar_extend='both', cbar_width=0.03)
+
+    if patch_edge_color is not None:
+        gdf_grid = uxgrid.to_geodataframe()
+        # color parameter seems to be ignored -- always plots blue
+        edge_plot = gdf_grid.hvplot.paths(
+            linewidth=0.2, color=patch_edge_color, projection=projection)
+        plot = plot * edge_plot
 
     fig = hv.render(plot)
     fig.set_size_inches(figsize)
