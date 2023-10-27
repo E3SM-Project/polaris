@@ -2,17 +2,126 @@ import configparser
 
 import cartopy
 import cmocean  # noqa: F401
+import geoviews.feature as gf
+import holoviews as hv
+import hvplot.pandas  # noqa: F401
+import matplotlib
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
+import uxarray as ux
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
 from polaris.viz.style import use_mplstyle
 
 
-def plot_global_field(lon, lat, data_array, out_filename, config,
-                      colormap_section, title=None, plot_land=True,
-                      colorbar_label=None):
+def plot_global_mpas_field(mesh_filename, da, out_filename, config,
+                           colormap_section, title=None,
+                           plot_land=True, colorbar_label='',
+                           central_longitude=0., figsize=(8, 4.5),
+                           dpi=200, patch_edge_color=None):
+    """
+    Plots a data set as a longitude-latitude map
+
+    Parameters
+    ----------
+    mesh_filename : str
+        A filename containing the MPAS mesh
+
+    da : xarray.DataArray
+        The horizontal field to plot
+
+    out_filename : str
+        The image file name to be written
+
+    config : polaris.config.PolarisConfigParser
+        The config options to use for colormap settings
+
+    colormap_section : str
+        The name of a section in the config options. Options must include:
+
+        colormap_name
+            The name of the colormap
+
+        norm_type
+            The norm: {'linear', 'log'}
+
+        colorbar_limits
+            The minimum and maximum value of the colorbar
+
+    title : str, optional
+        The subtitle of the plot
+
+    plot_land : bool
+        Whether to plot continents over the data
+
+    colorbar_label : str, optional
+        Label on the colorbar
+
+    central_longitude : float, optional
+        The longitude of the center of the plot
+
+    figsize : tuple, optional
+        The size of the figure in inches
+
+    dpi : int, optional
+        Dots per inch for the output plot
+
+    patch_edge_color : str, optional
+        The color of patch edges (if not the same as the face)
+    """
+    matplotlib.use('agg')
+    uxgrid = ux.open_grid(mesh_filename)
+    uxda = ux.UxDataArray(da, uxgrid=uxgrid)
+
+    gdf_data = uxda.to_geodataframe()
+
+    hv.extension('matplotlib')
+
+    projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
+
+    colormap = config.get(colormap_section, 'colormap_name')
+
+    norm_type = config.get(colormap_section, 'norm_type')
+    if norm_type == 'linear':
+        logz = False
+    elif norm_type == 'log':
+        logz = True
+    else:
+        raise ValueError(f'Unsupported norm_type: {norm_type}')
+
+    colorbar_limits = config.getlist(colormap_section, 'colorbar_limits',
+                                     dtype=float)
+
+    plot = gdf_data.hvplot.polygons(
+        c=da.name, cmap=colormap, logz=logz,
+        clim=tuple(colorbar_limits),
+        clabel=colorbar_label,
+        width=1600, height=800, title=title,
+        xlabel="Longitude", ylabel="Latitude",
+        projection=projection,
+        rasterize=True)
+
+    if plot_land:
+        plot = plot * gf.land * gf.coastline
+
+    plot.opts(cbar_extend='both', cbar_width=0.03)
+
+    if patch_edge_color is not None:
+        gdf_grid = uxgrid.to_geodataframe()
+        # color parameter seems to be ignored -- always plots blue
+        edge_plot = gdf_grid.hvplot.paths(
+            linewidth=0.2, color=patch_edge_color, projection=projection)
+        plot = plot * edge_plot
+
+    fig = hv.render(plot)
+    fig.set_size_inches(figsize)
+    fig.savefig(out_filename, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
+
+
+def plot_global_lat_lon_field(lon, lat, data_array, out_filename, config,
+                              colormap_section, title=None, plot_land=True,
+                              colorbar_label=None):
     """
     Plots a data set as a longitude-latitude map
 

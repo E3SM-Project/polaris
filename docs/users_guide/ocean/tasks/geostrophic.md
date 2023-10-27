@@ -192,20 +192,10 @@ generous  convergence threshold used here.
 Config options related to visualization are as follows.  The options in
 `geostropnic_viz` are related to remapping to a regular latitude-longitude
 grid.  The remaining options are related to plotting water-column thickness
-(`h`) and velocities (`u`, `v` and `norm_vel`) and the difference between
+(`h`) and velocities (`u` and `v`) and the difference between
 these fields at initialization and after the 5-day run.
 
 ```cfg
-# options for visualization for the geostrophic convergence test case
-[geostrophic_viz]
-
-# visualization latitude and longitude resolution
-dlon = 0.5
-dlat = 0.5
-
-# remapping method ('bilinear', 'neareststod', 'conserve')
-remap_method = conserve
-
 # options for plotting water-column thickness from the geostrophic test
 [geostrophic_viz_h]
 
@@ -216,8 +206,11 @@ colormap_name = cmo.deep
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': 1000.0, 'vmax': 3000.0}
+# colorbar limits
+colorbar_limits = 1000.0, 3000.0
+
+# colorbar label
+label = water-column thickness (m)
 
 # options for plotting velocity from the geostrophic test
 [geostrophic_viz_vel]
@@ -229,8 +222,11 @@ colormap_name = cmo.delta
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': -40.0, 'vmax': 40.0}
+# colorbar limits
+colorbar_limits = -40.0, 40.0
+
+# colorbar label
+label = velocity (m/s)
 
 # options for plotting water-column thickness from the geostrophic test
 [geostrophic_viz_diff_h]
@@ -242,8 +238,11 @@ colormap_name = cmo.balance
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': -10.0, 'vmax': 10.0}
+# colorbar limits
+colorbar_limits = -10.0, 10.0
+
+# colorbar label
+label = water-column thickness (m)
 
 # options for plotting velocity from the geostrophic test
 [geostrophic_viz_diff_vel]
@@ -255,8 +254,11 @@ colormap_name = cmo.balance
 # the type of norm used in the colormap
 norm_type = linear
 
-# A dictionary with keywords for the norm
-norm_args = {'vmin': -0.3, 'vmax': 0.3}
+# colorbar limits
+colorbar_limits = -0.3, 0.3
+
+# colorbar label
+label = velocity (m/s)
 ```
 
 ## cores

@@ -10,7 +10,7 @@ from polaris.ocean.tasks.sphere_transport.filament_analysis import (
 from polaris.ocean.tasks.sphere_transport.forward import Forward
 from polaris.ocean.tasks.sphere_transport.init import Init
 from polaris.ocean.tasks.sphere_transport.mixing_analysis import MixingAnalysis
-from polaris.ocean.tasks.sphere_transport.viz import Viz, VizMap
+from polaris.ocean.tasks.sphere_transport.viz import Viz
 
 
 def add_sphere_transport_tasks(component):
@@ -139,6 +139,8 @@ class SphereTransport(Task):
 
         component = self.component
 
+        sph_trans_dir = f'spherical/{prefix}/{case_name}'
+
         analysis_dependencies: Dict[str, Dict[str, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in resolutions:
@@ -146,8 +148,6 @@ class SphereTransport(Task):
                 component, resolution, icosahedral)
             self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
             analysis_dependencies['mesh'][resolution] = base_mesh_step
-
-            sph_trans_dir = f'spherical/{prefix}/{case_name}'
 
             name = f'{prefix}_init_{mesh_name}'
             subdir = f'{sph_trans_dir}/init/{mesh_name}'
@@ -184,21 +184,12 @@ class SphereTransport(Task):
 
             if self.include_viz:
                 with_viz_dir = f'{sph_trans_dir}/with_viz'
-
-                name = f'{prefix}_map_{mesh_name}'
-                subdir = f'{with_viz_dir}/map/{mesh_name}'
-                viz_map = VizMap(component=component, name=name,
-                                 subdir=subdir, base_mesh=base_mesh_step,
-                                 mesh_name=mesh_name)
-                viz_map.set_shared_config(config, link=config_filename)
-                self.add_step(viz_map)
-
                 name = f'{prefix}_viz_{mesh_name}'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}'
                 step = Viz(component=component, name=name,
                            subdir=subdir, base_mesh=base_mesh_step,
                            init=init_step, forward=forward_step,
-                           viz_map=viz_map, mesh_name=mesh_name)
+                           mesh_name=mesh_name)
                 step.set_shared_config(config, link=config_filename)
                 self.add_step(step)
 

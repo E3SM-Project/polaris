@@ -30,11 +30,11 @@ class Ocean(Component):
 
         # single column
         add_single_column_tasks(component=self)
-        add_sphere_transport_tasks(component=self)
 
         # spherical: please keep these in alphabetical order
         add_cosine_bell_tasks(component=self)
         add_geostrophic_tasks(component=self)
+        add_sphere_transport_tasks(component=self)
 
     def configure(self, config):
         """

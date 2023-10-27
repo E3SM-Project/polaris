@@ -394,7 +394,8 @@ seaice/api
 
    use_mplstyle
    plot_horiz_field
-   plot_global_field
+   plot_global_lat_lon_field
+   plot_global_mpas_field
 ```
 
 ### yaml
