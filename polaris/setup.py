@@ -234,8 +234,8 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
 def main():
     parser = argparse.ArgumentParser(
         description='Set up one or more tasks', prog='polaris setup')
-    parser.add_argument("-t", "--task", dest="task",
-                        help="Relative path for a task to set up.",
+    parser.add_argument("-t", "--tasks", nargs='+', dest="tasks",
+                        help="Relative path for a task(s) to set up.",
                         metavar="PATH")
     parser.add_argument("-n", "--task_number", nargs='+', dest="task_num",
                         type=str,
@@ -265,9 +265,10 @@ def main():
                              "containing all setup tasks.",
                         metavar="SUITE")
     parser.add_argument("--cached", dest="cached", nargs='+',
-                        help="A list of steps in the task supplied with "
-                             "--task that should use cached outputs, or "
-                             "'_all' if all steps should be cached.",
+                        help="A list of steps in a single task supplied with "
+                             "--tasks or --task_number that should use cached "
+                             "outputs, or '_all' if all steps should be "
+                             "cached.",
                         metavar="STEP")
     parser.add_argument("--copy_executable", dest="copy_executable",
                         action="store_true",
@@ -279,13 +280,17 @@ def main():
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
-    if args.task is None:
-        task_list = None
-    else:
-        task_list = [args.task]
-        if args.cached is not None:
-            cached = [args.cached]
-    setup_tasks(task_list=task_list, numbers=args.task_num,
+    if args.cached is not None:
+        if args.tasks is not None and len(args.tasks) != 1:
+            raise ValueError('You can only cache steps for one task at at '
+                             'time.')
+        if args.task_num is not None and len(args.task_num) != 1:
+            raise ValueError('You can only cache steps for one task at at '
+                             'time.')
+        # cached is a list of lists
+        cached = [args.cached]
+
+    setup_tasks(task_list=args.tasks, numbers=args.task_num,
                 config_file=args.config_file, machine=args.machine,
                 work_dir=args.work_dir, baseline_dir=args.baseline_dir,
                 component_path=args.component_path, suite_name=args.suite_name,
