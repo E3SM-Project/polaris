@@ -13,8 +13,8 @@ from polaris.viz.style import use_mplstyle
 def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
-                     cmap=None, cmap_set_under=None, cmap_scale='linear',
-                     cmap_title=None):
+                     cmap=None, cmap_set_under=None, cmap_set_over=None,
+                     cmap_scale='linear', cmap_title=None, figsize=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -36,15 +36,22 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     title: str, optional
         The title of the plot
 
-    vmin, vmax : float, optional
-        The minimum and maximum values for the colorbar
+    vmin : float, optional
+        The minimum values for the colorbar
+
+    vmax : float, optional
+        The maximum values for the colorbar
 
     show_patch_edges : boolean, optional
         If true, patches will be plotted with visible edges
 
-    t_index, z_index: int, optional
-        The indices of 'Time' and 'nVertLevels' axes to select for plotting
-        The default time index is 0 (initial time)
+    t_index: int, optional
+        The indices of ``Time`` axes to select for plotting. The default is 0
+        (initial time)
+
+    z_index: int, optional
+        The indices of ``nVertLevels`` axes to select for plotting. The default
+        is 0 (top level)
 
     cmap : Colormap or str, optional
         A color map to plot
@@ -52,11 +59,18 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     cmap_set_under : str or None, optional
         A color for low out-of-range values
 
+    cmap_set_over : str or None, optional
+        A color for upper out-of-range values
+
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
 
     cmap_title : str
         Title for color bar
+
+    figsize : tuple
+        The width and height of the figure in inches. Default is determined
+        based on the aspect ratio of the domain.
     """
     use_mplstyle()
 
@@ -106,6 +120,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if cmap_set_under is not None:
         current_cmap = ocean_patches.get_cmap()
         current_cmap.set_under(cmap_set_under)
+    if cmap_set_over is not None:
+        current_cmap = ocean_patches.get_cmap()
+        current_cmap.set_over(cmap_set_over)
 
     if show_patch_edges:
         ocean_patches.set_edgecolor('black')
@@ -117,12 +134,13 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         ocean_patches.set_norm(LogNorm(vmin=max(1e-10, vmin),
                                vmax=vmax, clip=False))
 
-    width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
-    length = ds_mesh.yCell.max() - ds_mesh.yCell.min()
-    aspect_ratio = width.values / length.values
-    fig_width = 4
-    legend_width = fig_width / 5
-    figsize = (fig_width + legend_width, fig_width / aspect_ratio)
+    if figsize is None:
+        width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
+        length = ds_mesh.yCell.max() - ds_mesh.yCell.min()
+        aspect_ratio = width.values / length.values
+        fig_width = 4
+        legend_width = fig_width / 5
+        figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
     if create_fig:
         plt.figure(figsize=figsize)
@@ -137,8 +155,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         cbar.set_label(cmap_title)
     if create_fig:
         plt.title(title)
-        plt.tight_layout(pad=0.5)
-        plt.savefig(out_file_name)
+        plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
         plt.close()
 
 
