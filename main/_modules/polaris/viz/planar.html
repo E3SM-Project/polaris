@@ -121,8 +121,8 @@
 <div class="viewcode-block" id="plot_horiz_field"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field">[docs]</a><span class="k">def</span> <span class="nf">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">out_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: C901</span>
                      <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                     <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_set_under</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
-                     <span class="n">cmap_title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                     <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_set_under</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap_set_over</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">cmap_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">cmap_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a horizontal field from a planar domain using x,y coordinates at a</span>
 <span class="sd">    single time and depth slice.</span>
@@ -144,15 +144,22 @@
 <span class="sd">    title: str, optional</span>
 <span class="sd">        The title of the plot</span>
 
-<span class="sd">    vmin, vmax : float, optional</span>
-<span class="sd">        The minimum and maximum values for the colorbar</span>
+<span class="sd">    vmin : float, optional</span>
+<span class="sd">        The minimum values for the colorbar</span>
+
+<span class="sd">    vmax : float, optional</span>
+<span class="sd">        The maximum values for the colorbar</span>
 
 <span class="sd">    show_patch_edges : boolean, optional</span>
 <span class="sd">        If true, patches will be plotted with visible edges</span>
 
-<span class="sd">    t_index, z_index: int, optional</span>
-<span class="sd">        The indices of &#39;Time&#39; and &#39;nVertLevels&#39; axes to select for plotting</span>
-<span class="sd">        The default time index is 0 (initial time)</span>
+<span class="sd">    t_index: int, optional</span>
+<span class="sd">        The indices of ``Time`` axes to select for plotting. The default is 0</span>
+<span class="sd">        (initial time)</span>
+
+<span class="sd">    z_index: int, optional</span>
+<span class="sd">        The indices of ``nVertLevels`` axes to select for plotting. The default</span>
+<span class="sd">        is 0 (top level)</span>
 
 <span class="sd">    cmap : Colormap or str, optional</span>
 <span class="sd">        A color map to plot</span>
@@ -160,11 +167,18 @@
 <span class="sd">    cmap_set_under : str or None, optional</span>
 <span class="sd">        A color for low out-of-range values</span>
 
+<span class="sd">    cmap_set_over : str or None, optional</span>
+<span class="sd">        A color for upper out-of-range values</span>
+
 <span class="sd">    cmap_scale : {&#39;log&#39;, &#39;linear&#39;}, optional</span>
 <span class="sd">        Whether the colormap is logarithmic or linear</span>
 
 <span class="sd">    cmap_title : str</span>
 <span class="sd">        Title for color bar</span>
+
+<span class="sd">    figsize : tuple</span>
+<span class="sd">        The width and height of the figure in inches. Default is determined</span>
+<span class="sd">        based on the aspect ratio of the domain.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">use_mplstyle</span><span class="p">()</span>
 
@@ -214,6 +228,9 @@
     <span class="k">if</span> <span class="n">cmap_set_under</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">current_cmap</span> <span class="o">=</span> <span class="n">ocean_patches</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">()</span>
         <span class="n">current_cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">cmap_set_under</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cmap_set_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">current_cmap</span> <span class="o">=</span> <span class="n">ocean_patches</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">()</span>
+        <span class="n">current_cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">cmap_set_over</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">show_patch_edges</span><span class="p">:</span>
         <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
@@ -225,12 +242,13 @@
         <span class="n">ocean_patches</span><span class="o">.</span><span class="n">set_norm</span><span class="p">(</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">vmin</span><span class="p">),</span>
                                <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
-    <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-    <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">length</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">legend_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="mi">5</span>
-    <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig_width</span> <span class="o">+</span> <span class="n">legend_width</span><span class="p">,</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">length</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">legend_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="mi">5</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig_width</span> <span class="o">+</span> <span class="n">legend_width</span><span class="p">,</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
@@ -245,8 +263,7 @@
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cmap_title</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
