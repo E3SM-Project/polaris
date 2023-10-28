@@ -342,8 +342,8 @@
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Set up one or more tasks&#39;</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s1">&#39;polaris setup&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--task&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;task&quot;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Relative path for a task to set up.&quot;</span><span class="p">,</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--tasks&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;tasks&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Relative path for a task(s) to set up.&quot;</span><span class="p">,</span>
                         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PATH&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--task_number&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;task_num&quot;</span><span class="p">,</span>
                         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -373,9 +373,10 @@
                              <span class="s2">&quot;containing all setup tasks.&quot;</span><span class="p">,</span>
                         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;SUITE&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--cached&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;cached&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A list of steps in the task supplied with &quot;</span>
-                             <span class="s2">&quot;--task that should use cached outputs, or &quot;</span>
-                             <span class="s2">&quot;&#39;_all&#39; if all steps should be cached.&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A list of steps in a single task supplied with &quot;</span>
+                             <span class="s2">&quot;--tasks or --task_number that should use cached &quot;</span>
+                             <span class="s2">&quot;outputs, or &#39;_all&#39; if all steps should be &quot;</span>
+                             <span class="s2">&quot;cached.&quot;</span><span class="p">,</span>
                         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--copy_executable&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;copy_executable&quot;</span><span class="p">,</span>
                         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
@@ -387,13 +388,17 @@
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">task_list</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">task_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">task</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cached</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">cached</span><span class="p">]</span>
-    <span class="n">setup_tasks</span><span class="p">(</span><span class="n">task_list</span><span class="o">=</span><span class="n">task_list</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">task_num</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You can only cache steps for one task at at &#39;</span>
+                             <span class="s1">&#39;time.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">task_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">task_num</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You can only cache steps for one task at at &#39;</span>
+                             <span class="s1">&#39;time.&#39;</span><span class="p">)</span>
+        <span class="c1"># cached is a list of lists</span>
+        <span class="n">cached</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">cached</span><span class="p">]</span>
+
+    <span class="n">setup_tasks</span><span class="p">(</span><span class="n">task_list</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">task_num</span><span class="p">,</span>
                 <span class="n">config_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">machine</span><span class="p">,</span>
                 <span class="n">work_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span>
                 <span class="n">component_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">component_path</span><span class="p">,</span> <span class="n">suite_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span>
