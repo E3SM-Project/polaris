@@ -422,3 +422,13 @@ density, which is horizontally constant and increases with depth.
 The {py:func}`polaris.ocean.rpe.compute_rpe()` is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in `rpe.csv` and also returned as a numpy array for plotting and analysis.
+
+## Visualization
+
+The `polaris.ocean.viz` module provides functions for making plots that are
+specific to the ocean component.
+
+The `polaris.ocean.viz.transect` modules includes functions for computing
+({py:func}`polaris.ocean.viz.compute_transect()`) and plotting
+({py:func}`polaris.ocean.viz.plot_transect()`) transects through the ocean
+from a sequence of x-y or latitude-longitude coordinates.
