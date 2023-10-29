@@ -75,13 +75,18 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
         base_mesh.config = config
 
     subdir = f'{resdir}/topo/map_base'
+    # we remap the topography onto the base mesh without smoothing and with
+    # the bilinear method because the conserve method doesn't work with
+    # periodic meshes
     topo_map_base = TopoMap(component=component,
                             name='topo_map_base',
                             subdir=subdir,
                             config=config,
                             mesh_name=mesh_name,
                             mesh_step=base_mesh,
-                            mesh_filename='base_mesh.nc')
+                            mesh_filename='base_mesh.nc',
+                            method='bilinear',
+                            smooth=False)
 
     subdir = f'{resdir}/topo/remap_base'
     topo_remap_base = TopoRemap(component=component,
@@ -99,13 +104,17 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
                          topo_remap=topo_remap_base)
 
     subdir = f'{resdir}/topo/map_culled'
+    # we remap the topography onto the culled mesh with smoothing, which
+    # requires the conserve method
     topo_map_culled = TopoMap(component=component,
                               name='topo_map_culled',
                               subdir=subdir,
                               config=config,
                               mesh_name=mesh_name,
                               mesh_step=cull_mesh,
-                              mesh_filename='culled_mesh.nc')
+                              mesh_filename='culled_mesh.nc',
+                              method='conserve',
+                              smooth=True)
 
     topo_remap_culled: Dict[str, TopoRemap] = dict()
     shared_steps: Dict[str, Dict[str, Step]] = dict()
