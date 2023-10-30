@@ -68,6 +68,8 @@ class TopoRemap(Step):
         remapper = topo_map.get_remapper()
 
         with (xr.open_dataset('topography.nc') as ds_in):
+            if 't' in ds_in.dims:
+                ds_in = ds_in.chunk({'t': 1})
             ds_in['iceThickness'] = ds_in.upperSurface - ds_in.lowerSurface
             ds_in.iceThickness.attrs['description'] = 'ice thickness'
             ds_in.iceThickness.attrs['units'] = 'm'
