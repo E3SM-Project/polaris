@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import LoggingContext
@@ -108,7 +109,8 @@ def _land_mask_from_topo(topo_filename, mask_filename):
     ocean_frac = ds_topo.oceanFraction
 
     # we want the mask to be 1 where there's not ocean
-    cull_mask = xr.where(ocean_frac < 0.5, 1, 0)
+    mask = np.logical_or(ocean_frac < 0.5, ocean_frac.isnull())
+    cull_mask = xr.where(mask, 1, 0)
 
     cull_mask = cull_mask.expand_dims(dim='nRegions', axis=1)
 

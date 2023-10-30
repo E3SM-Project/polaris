@@ -60,12 +60,13 @@ class TopoRemap(Step):
         """
         Run this step of the test case
         """
-        logger = self.logger
-        topo_map = self.dependencies['topo_map']
+        self._preprocess()
+        self._remap()
+        self._rename()
+        self._renormalize()
 
+    def _preprocess(self):
         ice_density = self.config.getfloat('isomip_plus', 'ice_density')
-
-        remapper = topo_map.get_remapper()
 
         with (xr.open_dataset('topography.nc') as ds_in):
             if 't' in ds_in.dims:
@@ -92,9 +93,18 @@ class TopoRemap(Step):
 
             ds_in.to_netcdf('topography_processed.nc')
 
+    def _remap(self):
+        logger = self.logger
+        topo_map = self.dependencies['topo_map']
+
+        remapper = topo_map.get_remapper()
+
         remapper.remap_file(inFileName='topography_processed.nc',
                             outFileName='topography_ncremap.nc',
                             logger=logger)
+
+    @staticmethod
+    def _rename():
         with xr.open_dataset('topography_ncremap.nc') as ds_out:
             drop = ['x', 'y', 'area', 'lat_vertices', 'lon_vertices']
             rename = {'ncol': 'nCells'}
@@ -110,5 +120,21 @@ class TopoRemap(Step):
                     time_str = f'{time_index + 1:04d}-01-01_00:00:00'
                     xtime.append(time_str)
                 ds_out['xtime'] = ('Time', np.array(xtime, 'S64'))
+
+            write_netcdf(ds_out, 'topography_rename.nc')
+
+    @staticmethod
+    def _renormalize():
+        with xr.open_dataset('topography_rename.nc') as ds_out:
+            if 'Time' in ds_out.dims:
+                ds_out = ds_out.chunk({'Time': 1})
+            # renormalize all variables by ocean_frac
+            ocean_frac = ds_out.oceanFraction
+            for var in ds_out:
+                if 'nCells' in ds_out[var].dims:
+                    attrs = ds_out[var].attrs
+                    mask = ocean_frac > 0.
+                    ds_out[var] = (ds_out[var] / ocean_frac).where(mask)
+                    ds_out[var].attrs = attrs
 
             write_netcdf(ds_out, 'topography_remapped.nc')
