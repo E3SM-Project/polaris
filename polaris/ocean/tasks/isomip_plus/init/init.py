@@ -79,13 +79,20 @@ class Init(Step):
         """
         Create and plot the initial condition
         """
-        self._compute_initial_condition()
+        config = self.config
+        self._compute_init_topo()
+
+        with xr.open_dataset('init_topo.nc') as ds_init:
+            init_vertical_coord(config, ds_init)
+            write_netcdf(ds_init, 'init_vert_coord.nc')
+
+        self._compute_t_s_vel_coriolis()
         self._plot()
 
-    def _compute_initial_condition(self):
+    def _compute_init_topo(self):
+        """ Compute fractions, masks, draft, land-ice pressure, bot. depth """
         config = self.config
         logger = self.logger
-        experiment = self.experiment
         thin_film = self.thin_film
 
         section = config['isomip_plus_init']
@@ -93,22 +100,6 @@ class Init(Step):
         min_layer_thickness = section.getfloat('min_layer_thickness')
         min_column_thickness = section.getfloat('min_column_thickness')
         min_land_ice_fraction = section.getfloat('min_land_ice_fraction')
-
-        if experiment in ['ocean0', 'ocean3']:
-            top_temp = config.getfloat('isomip_plus', 'warm_top_temp')
-            bot_temp = config.getfloat('isomip_plus', 'warm_bot_temp')
-            top_sal = config.getfloat('isomip_plus', 'warm_top_sal')
-            bot_sal = config.getfloat('isomip_plus', 'warm_bot_sal')
-        else:
-            top_temp = config.getfloat('isomip_plus', 'cold_top_temp')
-            bot_temp = config.getfloat('isomip_plus', 'cold_bot_temp')
-            top_sal = config.getfloat('isomip_plus', 'cold_top_sal')
-            bot_sal = config.getfloat('isomip_plus', 'cold_bot_sal')
-
-        if self.vertical_coordinate == 'single_layer':
-            config.set('vertical_grid', 'vert_levels', '1',
-                       comment='Number of vertical levels')
-            config.set('vertical_grid', 'coord_type', 'z-level')
 
         ds_topo = xr.open_dataset('topo.nc')
         if 'Time' in ds_topo.dims:
@@ -201,7 +192,39 @@ class Init(Step):
                 f'Adjusted bottomDepth for {too_thin_count} cells to achieve '
                 f'minimum column thickness of {min_column_thickness}')
 
-        init_vertical_coord(config, ds_init)
+        ds_init['activeOcean'] = active_ocean.astype(int)
+        ds_init['thinFilmMask'] = thin_film_mask.astype(int)
+
+        write_netcdf(ds_init, 'init_topo.nc')
+
+    def _compute_t_s_vel_coriolis(self):
+        config = self.config
+        experiment = self.experiment
+        thin_film = self.thin_film
+
+        section = config['isomip_plus_init']
+
+        if experiment in ['ocean0', 'ocean3']:
+            top_temp = config.getfloat('isomip_plus', 'warm_top_temp')
+            bot_temp = config.getfloat('isomip_plus', 'warm_bot_temp')
+            top_sal = config.getfloat('isomip_plus', 'warm_top_sal')
+            bot_sal = config.getfloat('isomip_plus', 'warm_bot_sal')
+        else:
+            top_temp = config.getfloat('isomip_plus', 'cold_top_temp')
+            bot_temp = config.getfloat('isomip_plus', 'cold_bot_temp')
+            top_sal = config.getfloat('isomip_plus', 'cold_top_sal')
+            bot_sal = config.getfloat('isomip_plus', 'cold_bot_sal')
+
+        if self.vertical_coordinate == 'single_layer':
+            config.set('vertical_grid', 'vert_levels', '1',
+                       comment='Number of vertical levels')
+            config.set('vertical_grid', 'coord_type', 'z-level')
+
+        ds_mesh = xr.open_dataset('mesh.nc')
+        ds_init = xr.open_dataset('init_vert_coord.nc')
+
+        active_ocean = ds_init.activeOcean == 1
+        thin_film_mask = ds_init.thinFilmMask == 1
 
         if not thin_film:
             # need to set maxLevelCell == 0 where ocean isn't active
