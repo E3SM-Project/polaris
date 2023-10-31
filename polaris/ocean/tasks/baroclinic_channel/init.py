@@ -161,8 +161,9 @@ class Init(Step):
 
         write_netcdf(ds, 'initial_state.nc')
 
+        cell_mask = ds.maxLevelCell >= 1
         plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'initial_temperature.png')
+                         'initial_temperature.png', cell_mask=cell_mask)
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'initial_normal_velocity.png', cmap='cmo.balance',
-                         show_patch_edges=True)
+                         show_patch_edges=True, cell_mask=cell_mask)

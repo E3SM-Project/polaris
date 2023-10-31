@@ -76,7 +76,6 @@ class Viz(Step):
             ds_mesh = xr.open_dataset(f'mesh_{mesh_name}.nc')
             ds_init = xr.open_dataset(f'init_{mesh_name}.nc')
             ds = xr.open_dataset(f'output_{mesh_name}.nc')
-            ds['maxLevelCell'] = ds_init.maxLevelCell
             exact = ExactSolution(config, ds_init)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
@@ -93,15 +92,19 @@ class Viz(Step):
             if error_range is None:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
-            plot_horiz_field(ds, ds_mesh, 'ssh', ax=axes[i, 0],
-                             cmap='cmo.balance', t_index=ds.sizes["Time"] - 1,
-                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
+            cell_mask = ds_init.maxLevelCell >= 1
+            patches, patch_mask = plot_horiz_field(
+                ds, ds_mesh, 'ssh', ax=axes[i, 0], cmap='cmo.balance',
+                t_index=ds.sizes["Time"] - 1, vmin=-eta0, vmax=eta0,
+                cmap_title="SSH", cell_mask=cell_mask)
             plot_horiz_field(ds, ds_mesh, 'ssh_exact', ax=axes[i, 1],
                              cmap='cmo.balance',
-                             vmin=-eta0, vmax=eta0, cmap_title="SSH")
+                             vmin=-eta0, vmax=eta0, cmap_title="SSH",
+                             patches=patches, patch_mask=patch_mask)
             plot_horiz_field(ds, ds_mesh, 'ssh_error', ax=axes[i, 2],
                              cmap='cmo.balance', cmap_title="dSSH",
-                             vmin=-error_range, vmax=error_range)
+                             vmin=-error_range, vmax=error_range,
+                             patches=patches, patch_mask=patch_mask)
 
         axes[0, 0].set_title('Numerical solution')
         axes[0, 1].set_title('Analytical solution')

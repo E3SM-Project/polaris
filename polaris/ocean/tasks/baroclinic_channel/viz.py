@@ -40,13 +40,15 @@ class Viz(Step):
         ds_mesh = xr.load_dataset('mesh.nc')
         ds_init = xr.load_dataset('init.nc')
         ds = xr.load_dataset('output.nc')
-        ds['maxLevelCell'] = ds_init.maxLevelCell
         t_index = ds.sizes['Time'] - 1
+        cell_mask = ds_init.maxLevelCell >= 1
         plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'final_temperature.png', t_index=t_index)
+                         'final_temperature.png', t_index=t_index,
+                         cell_mask=cell_mask)
         max_velocity = np.max(np.abs(ds.normalVelocity.values))
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'final_normalVelocity.png',
                          t_index=t_index,
                          vmin=-max_velocity, vmax=max_velocity,
-                         cmap='cmo.balance', show_patch_edges=True)
+                         cmap='cmo.balance', show_patch_edges=True,
+                         cell_mask=cell_mask)
