@@ -312,38 +312,44 @@ class Init(Step):
 
         figsize = (8, 4.5)
 
-        plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
-                         field_name='maxLevelCell',
-                         out_file_name='plots/maxLevelCell.png',
-                         figsize=figsize)
+        cell_mask = ds.maxLevelCell >= 1
+        patches, patch_mask = plot_horiz_field(
+            ds=ds, ds_mesh=ds_mesh, field_name='maxLevelCell',
+            out_file_name='plots/maxLevelCell.png', figsize=figsize,
+            cell_mask=cell_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIceMask',
                          out_file_name='plots/landIceMask.png',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIceFloatingMask',
                          out_file_name='plots/landIceFloatingMask.png',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIcePressure',
                          out_file_name='plots/landIcePressure.png',
                          vmin=1e4, vmax=1e7, cmap_scale='log',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='ssh',
                          out_file_name='plots/ssh.png',
                          vmin=-720, vmax=0,
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='bottomDepth',
                          out_file_name='plots/bottomDepth.png',
                          vmin=0, vmax=720,
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='totalColThickness',
@@ -351,7 +357,8 @@ class Init(Step):
                          vmin=min_column_thickness + tol, vmax=720,
                          cmap_set_under='r',
                          cmap_scale='log',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='H',
@@ -359,7 +366,8 @@ class Init(Step):
                          vmin=min_column_thickness + tol, vmax=720,
                          cmap_set_under='r',
                          cmap_scale='log',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIceFraction',
@@ -367,7 +375,8 @@ class Init(Step):
                          vmin=0 + tol, vmax=1 - tol,
                          cmap='cmo.balance',
                          cmap_set_under='k', cmap_set_over='r',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIceFloatingFraction',
@@ -375,7 +384,8 @@ class Init(Step):
                          vmin=0 + tol, vmax=1 - tol,
                          cmap='cmo.balance',
                          cmap_set_under='k', cmap_set_over='r',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name='landIceGroundedFraction',
@@ -383,35 +393,47 @@ class Init(Step):
                          vmin=0 + tol, vmax=1 - tol,
                          cmap='cmo.balance',
                          cmap_set_under='k', cmap_set_over='r',
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
+
+        plot_transect(ds_transect=ds_transect,
+                      title='layer interfaces at y=40 km',
+                      out_filename='plots/layerInterfacesSection.png',
+                      figsize=figsize, interface_color='black',
+                      ssh_color='blue', seafloor_color='red')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            patches=patches, patch_mask=patch_mask,
                             field_name='layerThickness',
                             figsize=figsize,
                             vmin=min_layer_thickness + tol, vmax=50,
                             cmap='cmo.deep_r', units='m', under='r', over='r')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            patches=patches, patch_mask=patch_mask,
                             field_name='zMid',
                             figsize=figsize,
                             vmin=-720., vmax=0.,
                             cmap='cmo.deep_r', units='m', under='r', over='r')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            patches=patches, patch_mask=patch_mask,
                             field_name='temperature',
                             figsize=figsize,
                             vmin=-2., vmax=1.,
                             cmap='cmo.thermal', units=r'$^\circ$C')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
+                            patches=patches, patch_mask=patch_mask,
                             field_name='salinity',
                             figsize=figsize,
                             vmin=33.8, vmax=34.7,
                             cmap='cmo.haline', units='PSU')
 
 
-def _plot_top_bot_slice(ds, ds_mesh, ds_transect, field_name, figsize, vmin,
-                        vmax, cmap, units, under=None, over=None):
+def _plot_top_bot_slice(ds, ds_mesh, ds_transect, patches, patch_mask,
+                        field_name, figsize, vmin, vmax, cmap, units,
+                        under=None, over=None):
     for suffix, z_index in [['Top', 0], ['Bot', ds.maxLevelCell - 1]]:
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name=field_name,
@@ -420,7 +442,8 @@ def _plot_top_bot_slice(ds, ds_mesh, ds_transect, field_name, figsize, vmin,
                          out_file_name=f'plots/{field_name}{suffix}.png',
                          vmin=vmin, vmax=vmax, cmap=cmap,
                          cmap_set_under=under, cmap_set_over=over,
-                         figsize=figsize)
+                         figsize=figsize, patches=patches,
+                         patch_mask=patch_mask)
 
     plot_transect(ds_transect=ds_transect, mpas_field=ds[field_name],
                   title=f'{field_name} at y=40 km',
