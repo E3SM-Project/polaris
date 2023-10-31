@@ -14,7 +14,9 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_set_over=None,
-                     cmap_scale='linear', cmap_title=None, figsize=None):
+                     cmap_scale='linear', cmap_title=None, figsize=None,
+                     vert_dim='nVertLevels', cell_mask=None, patches=None,
+                     patch_mask=None):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -27,13 +29,16 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     ds_mesh : xarray.Dataset
         A data set containing horizontal mesh variables
 
-    field_name: str
+    field_name : str
         The name of the variable to plot, which must be present in ds
 
-    out_file_name: str
+    out_file_name : str, optional
         The path to which the plot image should be written
 
-    title: str, optional
+    ax : matplotlib.axes.Axes
+        Axes to plot to if making a multi-panel figure
+
+    title : str, optional
         The title of the plot
 
     vmin : float, optional
@@ -65,12 +70,36 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
 
-    cmap_title : str
+    cmap_title : str, optional
         Title for color bar
 
-    figsize : tuple
+    figsize : tuple, optional
         The width and height of the figure in inches. Default is determined
         based on the aspect ratio of the domain.
+
+    vert_dim : str, optional
+        Name of the vertical dimension
+
+    cell_mask : numpy.ndarray, optional
+        A ``bool`` mask indicating where cells are valid, used to mask fields
+        on both cells and edges. Not used if ``patches`` and ``patch_mask``
+        are supplied
+
+    patches : list of numpy.ndarray, optional
+        Patches from a previous call to ``plot_horiz_field()``
+
+    patch_mask : numpy.ndarray, optional
+        A mask of where the field has patches from a previous call to
+        ``plot_horiz_field()``
+
+    Returns
+    -------
+    patches : list of numpy.ndarray
+        Patches to reuse for future plots.  Patches for cells can only be
+        reused for other plots on cells and similarly for edges.
+
+    patch_mask : numpy.ndarray
+        A mask used to select entries in the field that have patches
     """
     use_mplstyle()
 
@@ -89,9 +118,6 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if title is None:
         title = field_name
 
-    if 'maxLevelCell' not in ds:
-        raise ValueError(
-            'maxLevelCell must be added to ds before plotting.')
     if field_name not in ds:
         raise ValueError(
             f'{field_name} must be present in ds before plotting.')
@@ -102,37 +128,48 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         t_index = 0
     if t_index is not None:
         field = field.isel(Time=t_index)
-    if 'nVertLevels' in field.dims and z_index is None:
+    if vert_dim in field.dims and z_index is None:
         z_index = 0
     if z_index is not None:
-        field = field.isel(nVertLevels=z_index)
+        field = field.isel({vert_dim: z_index})
 
-    if 'nCells' in field.dims:
-        ocean_mask = ds.maxLevelCell - 1 >= 0
-        ocean_patches, ocean_mask = _compute_cell_patches(ds_mesh, ocean_mask)
-    elif 'nEdges' in field.dims:
-        ocean_mask = np.ones_like(field, dtype='bool')
-        ocean_mask = _remove_boundary_edges_from_mask(ds_mesh, ocean_mask)
-        ocean_patches, ocean_mask = _compute_edge_patches(ds_mesh, ocean_mask)
-    ocean_patches.set_array(field[ocean_mask])
+    if patches is not None:
+        if patch_mask is None:
+            raise ValueError('You must supply both patches and patch_mask '
+                             'from a previous call to plot_horiz_field()')
+    else:
+        if cell_mask is None:
+            cell_mask = np.ones_like(field, type='bool')
+        if 'nCells' in field.dims:
+            patch_mask = cell_mask
+            patches, patch_mask = _compute_cell_patches(ds_mesh, patch_mask)
+        elif 'nEdges' in field.dims:
+            patch_mask = _edge_mask_from_cell_mask(ds_mesh, cell_mask)
+            patch_mask = _remove_boundary_edges_from_mask(ds_mesh, patch_mask)
+            patches, patch_mask = _compute_edge_patches(ds_mesh, patch_mask)
+        else:
+            raise ValueError('Cannot plot a field without dim nCells or '
+                             'nEdges')
+    local_patches = PatchCollection(patches, alpha=1.)
+    local_patches.set_array(field[patch_mask])
     if cmap is not None:
-        ocean_patches.set_cmap(cmap)
+        local_patches.set_cmap(cmap)
     if cmap_set_under is not None:
-        current_cmap = ocean_patches.get_cmap()
+        current_cmap = local_patches.get_cmap()
         current_cmap.set_under(cmap_set_under)
     if cmap_set_over is not None:
-        current_cmap = ocean_patches.get_cmap()
+        current_cmap = local_patches.get_cmap()
         current_cmap.set_over(cmap_set_over)
 
     if show_patch_edges:
-        ocean_patches.set_edgecolor('black')
+        local_patches.set_edgecolor('black')
     else:
-        ocean_patches.set_edgecolor('face')
-    ocean_patches.set_clim(vmin=vmin, vmax=vmax)
+        local_patches.set_edgecolor('face')
+    local_patches.set_clim(vmin=vmin, vmax=vmax)
 
     if cmap_scale == 'log':
-        ocean_patches.set_norm(LogNorm(vmin=max(1e-10, vmin),
-                               vmax=vmax, clip=False))
+        local_patches.set_norm(LogNorm(vmin=max(1e-10, vmin),
+                                       vmax=vmax, clip=False))
 
     if figsize is None:
         width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
@@ -145,18 +182,31 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if create_fig:
         plt.figure(figsize=figsize)
         ax = plt.subplot(111)
-    ax.add_collection(ocean_patches)
+    ax.add_collection(local_patches)
     ax.set_xlabel('x (km)')
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
-    cbar = plt.colorbar(ocean_patches, extend='both', shrink=0.7, ax=ax)
+    cbar = plt.colorbar(local_patches, extend='both', shrink=0.7, ax=ax)
     if cmap_title is not None:
         cbar.set_label(cmap_title)
     if create_fig:
         plt.title(title)
         plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
         plt.close()
+
+    return patches, patch_mask
+
+
+def _edge_mask_from_cell_mask(ds, cell_mask):
+    cells_on_edge = ds.cellsOnEdge - 1
+    valid = cells_on_edge >= 0
+    # the edge mask is True if either adjacent cell is valid and its mask is
+    # True
+    edge_mask = np.logical_or(
+        np.logical_and(valid[:, 0], cell_mask[cells_on_edge[:, 0]]),
+        np.logical_and(valid[:, 1], cell_mask[cells_on_edge[:, 1]]))
+    return edge_mask
 
 
 def _remove_boundary_edges_from_mask(ds, mask):
@@ -221,9 +271,7 @@ def _compute_cell_patches(ds, mask):
             polygon = Polygon(vertices, closed=True)
             patches.append(polygon)
 
-    p = PatchCollection(patches, alpha=1.)
-
-    return p, mask
+    return patches, mask
 
 
 def _compute_edge_patches(ds, mask):
@@ -252,6 +300,4 @@ def _compute_edge_patches(ds, mask):
         polygon = Polygon(vertices, closed=True)
         patches.append(polygon)
 
-    p = PatchCollection(patches, alpha=1.)
-
-    return p, mask
+    return patches, mask
