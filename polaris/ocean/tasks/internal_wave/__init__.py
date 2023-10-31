@@ -1,8 +1,7 @@
 from polaris.config import PolarisConfigParser
 from polaris.ocean.tasks.internal_wave.default import Default
 from polaris.ocean.tasks.internal_wave.init import Init
-
-# from polaris.ocean.tasks.internal_wave.rpe_test import Rpe
+from polaris.ocean.tasks.internal_wave.rpe import Rpe
 
 
 def add_internal_wave_tasks(component):
@@ -27,5 +26,5 @@ def add_internal_wave_tasks(component):
         default.set_shared_config(config, link=config_filename)
         component.add_task(default)
 
-#        component.add_task(Rpe(component=component, indir=base_dir, init=init,
-#                               vadv_method=vadv_method, config=config))
+        component.add_task(Rpe(component=component, indir=base_dir, init=init,
+                               vadv_method=vadv_method, config=config))
