@@ -76,13 +76,6 @@ class Init(Step):
         vert_levels = section.getint('vert_levels')
         bottom_depth = section.getfloat('bottom_depth')
 
-        # replacements = dict()
-        # replacements['config_periodic_planar_vert_levels'] = \
-        #     str(vert_levels)
-        # replacements['config_periodic_planar_bottom_depth'] = \
-        #     str(bottom_depth)
-        # self.update_namelist_at_runtime(options=replacements)
-
         ds['bottomDepth'] = bottom_depth * xr.ones_like(y_cell)
         ds['ssh'] = xr.zeros_like(y_cell)
 

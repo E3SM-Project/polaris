@@ -11,6 +11,7 @@ cosine_bell
 geostrophic
 divergent_2d
 inertial_gravity_wave
+internal_wave
 manufactured_solution
 nondivergent_2d
 rotation_2d
