@@ -160,11 +160,39 @@ polygons characterized by the field values, accordingly.</p>
 <a class="reference internal image-reference" href="../../_images/baroclinic_channel_cell_patches.png"><img alt="../../_images/baroclinic_channel_cell_patches.png" class="align-center" src="../../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" /></a>
 <a class="reference internal image-reference" href="../../_images/baroclinic_channel_edge_patches.png"><img alt="../../_images/baroclinic_channel_edge_patches.png" class="align-center" src="../../_images/baroclinic_channel_edge_patches.png" style="width: 250px;" /></a>
 <p>An example function call that uses the default vertical level (top) is:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
                  <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
                  <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
-                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">cell_mask</span></code> argument can be any field indicating which horizontal cells
+are valid and which are not.  A typical value for ocean plots is as shown
+above: whether there are any active cells in the water column.</p>
+<p>For increased efficiency, you can store the <code class="docutils literal notranslate"><span class="pre">patches</span></code> and <code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> from
+one call to <code class="docutils literal notranslate"><span class="pre">plot_horiz_field()</span></code> and reuse them in subsequent calls.  The
+<code class="docutils literal notranslate"><span class="pre">patches</span></code> and <code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> are specific to the dimension (<code class="docutils literal notranslate"><span class="pre">nCell</span></code> or <code class="docutils literal notranslate"><span class="pre">nEdges</span></code>)
+of the field to plot and the <code class="docutils literal notranslate"><span class="pre">cell_mask</span></code>.  So separate <code class="docutils literal notranslate"><span class="pre">patches</span></code> and
+<code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> variables should be stored for as needed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+<span class="n">cell_patches</span><span class="p">,</span> <span class="n">cell_patch_mask</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span>
+    <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/ssh.png&#39;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=-</span><span class="mi">720</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">,</span> 
+                 <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/bottomDepth.png&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span>
+                 <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">patches</span><span class="o">=</span><span class="n">cell_patches</span><span class="p">,</span> 
+                 <span class="n">patch_mask</span><span class="o">=</span><span class="n">cell_patch_mask</span><span class="p">)</span>
+
+<span class="n">edge_patches</span><span class="p">,</span> <span class="n">edge_patch_mask</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span>
+    <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> 
+    <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/normalVelocity.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> 
+    <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+
+<span class="o">...</span>
 </pre></div>
 </div>
 </section>
