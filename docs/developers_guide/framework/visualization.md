@@ -46,11 +46,42 @@ polygons characterized by the field values, accordingly.
 An example function call that uses the default vertical level (top) is:
 
 ```python
+cell_mask = ds_init.maxLevelCell >= 1
 plot_horiz_field(config, ds, ds_mesh, 'normalVelocity',
                  'final_normalVelocity.png',
                  t_index=t_index,
                  vmin=-max_velocity, vmax=max_velocity,
-                 cmap='cmo.balance', show_patch_edges=True)
+                 cmap='cmo.balance', show_patch_edges=True,
+                 cell_mask=cell_mask)
+```
+
+The `cell_mask` argument can be any field indicating which horizontal cells
+are valid and which are not.  A typical value for ocean plots is as shown 
+above: whether there are any active cells in the water column.
+
+For increased efficiency, you can store the `patches` and `patch_mask` from
+one call to `plot_horiz_field()` and reuse them in subsequent calls.  The
+`patches` and `patch_mask` are specific to the dimension (`nCell` or `nEdges`) 
+of the field to plot and the `cell_mask`.  So separate `patches` and 
+`patch_mask` variables should be stored for as needed:
+
+```python
+cell_mask = ds_init.maxLevelCell >= 1
+cell_patches, cell_patch_mask = plot_horiz_field(
+    ds=ds, ds_mesh=ds_mesh, field_name='ssh', out_file_name='plots/ssh.png',
+    vmin=-720, vmax=0, figsize=figsize, cell_mask=cell_mask)
+
+plot_horiz_field(ds=ds, ds_mesh=ds_mesh, field_name='bottomDepth', 
+                 out_file_name='plots/bottomDepth.png', vmin=0, vmax=720,
+                 figsize=figsize, patches=cell_patches, 
+                 patch_mask=cell_patch_mask)
+
+edge_patches, edge_patch_mask = plot_horiz_field(
+    ds=ds, ds_mesh=ds_mesh, field_name='normalVelocity', 
+    out_file_name='plots/normalVelocity.png', t_index=t_index, 
+    vmin=-0.1, vmax=0.1, cmap='cmo.balance', cell_mask=cell_mask)
+
+...
 ```
 
 (dev-visualization-global)=
