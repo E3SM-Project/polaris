@@ -47,6 +47,18 @@ class Init(Step):
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         resolution = section.getfloat('resolution')
+        use_distances = section.getboolean('use_distances')
+        amplitude_width_dist = section.getfloat('amplitude_width_dist')
+        amplitude_width_frac = section.getfloat('amplitude_width_frac')
+        bottom_temperature = section.getfloat('bottom_temperature')
+        surface_temperature = section.getfloat('surface_temperature')
+        temperature_difference = section.getfloat('temperature_difference')
+        salinity = section.getfloat('salinity')
+        coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        section = config['vertical_grid']
+        vert_levels = section.getint('vert_levels')
+        bottom_depth = section.getfloat('bottom_depth')
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
@@ -60,22 +72,11 @@ class Init(Step):
                           logger=logger)
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
-        use_distances = section.getboolean('use_distances')
-        amplitude_width_dist = section.getfloat('amplitude_width_dist')
-        amplitude_width_frac = section.getfloat('amplitude_width_frac')
-        bottom_temperature = section.getfloat('bottom_temperature')
-        surface_temperature = section.getfloat('surface_temperature')
-        temperature_difference = section.getfloat('temperature_difference')
-        salinity = section.getfloat('salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
-
         ds = ds_mesh.copy()
+
+
         y_cell = ds.yCell
-
-        section = config['vertical_grid']
-        vert_levels = section.getint('vert_levels')
-        bottom_depth = section.getfloat('bottom_depth')
-
+        ds['maxLevelCell'] = vert_levels * xr.ones_like(y_cell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(y_cell)
         ds['ssh'] = xr.zeros_like(y_cell)
 
