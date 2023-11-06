@@ -1,0 +1,51 @@
+omega:
+  io:
+    config_write_output_on_startup: false
+  cvmix:
+    config_use_cvmix: false
+  time_management:
+    config_run_duration: 0000_12:00:01
+  tidal_forcing:
+    config_use_tidal_forcing: true
+    config_use_tidal_forcing_tau: 60.0
+    config_tidal_forcing_type: direct
+    config_tidal_forcing_monochromatic_amp: 10.0
+    config_tidal_forcing_monochromatic_period: 1.0
+    config_tidal_forcing_monochromatic_baseline: 10.0
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+    config_ALE_thickness_proportionality: weights_only
+  wetting_drying:
+    config_use_wetting_drying: true
+    config_prevent_drying: true
+    config_zero_drying_velocity: true
+    config_verify_not_dry: true
+  advection:
+    config_thickness_flux_type: upwind
+  streams:
+    mesh:
+      filename_template: initial_state.nc
+    input:
+      filename_template: initial_state.nc
+    restart: {}
+    forcing:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - tidalInputMask
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_00:00:01
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - velocityX
+      - velocityY
+      - layerThickness
+      - ssh
+      - wettingVelocityFactor
