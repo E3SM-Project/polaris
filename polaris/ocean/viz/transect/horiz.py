@@ -11,6 +11,130 @@ from scipy.spatial import cKDTree
 from shapely.geometry import LineString, Point
 
 
+def mesh_to_triangles(ds_mesh):
+    """
+    Construct a dataset in which each MPAS cell is divided into the triangles
+    connecting pairs of adjacent vertices to cell centers.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        An MPAS mesh
+
+    Returns
+    -------
+    ds_tris : xarray.Dataset
+        A dataset that defines triangles connecting pairs of adjacent vertices
+        to cell centers as well as the cell index that each triangle is in and
+        cell indices and weights for interpolating data defined at cell centers
+        to triangle nodes.  ``ds_tris`` includes variables ``triCellIndices``,
+        the cell that each triangle is part of; ``nodeCellIndices`` and
+        ``nodeCellWeights``, the indices and weights used to interpolate from
+        MPAS cell centers to triangle nodes; Cartesian coordinates ``xNode``,
+        ``yNode``, and ``zNode``; and ``lonNode``` and ``latNode`` in radians.
+        ``lonNode`` is guaranteed to be within 180 degrees of the cell center
+        corresponding to ``triCellIndices``.  Nodes always have a
+        counterclockwise winding.
+
+    """
+    n_vertices_on_cell = ds_mesh.nEdgesOnCell.values
+    vertices_on_cell = ds_mesh.verticesOnCell.values - 1
+    cells_on_vertex = ds_mesh.cellsOnVertex.values - 1
+
+    on_a_sphere = ds_mesh.attrs['on_a_sphere'].strip() == 'YES'
+    is_periodic = False
+    x_period = None
+    y_period = None
+    if not on_a_sphere:
+        is_periodic = ds_mesh.attrs['is_periodic'].strip() == 'YES'
+        if is_periodic:
+            x_period = ds_mesh.attrs['x_period']
+            y_period = ds_mesh.attrs['y_period']
+
+    kite_areas_on_vertex = ds_mesh.kiteAreasOnVertex.values
+
+    n_triangles = np.sum(n_vertices_on_cell)
+
+    max_edges = ds_mesh.sizes['maxEdges']
+    n_cells = ds_mesh.sizes['nCells']
+    if ds_mesh.sizes['vertexDegree'] != 3:
+        raise ValueError('mesh_to_triangles only supports meshes with '
+                         'vertexDegree = 3')
+
+    # find the third vertex for each triangle
+    next_vertex = -1 * np.ones(vertices_on_cell.shape, int)
+    for i_vertex in range(max_edges):
+        valid = i_vertex < n_vertices_on_cell
+        invalid = np.logical_not(valid)
+        vertices_on_cell[invalid, i_vertex] = -1
+        nv = n_vertices_on_cell[valid]
+        cell_indices = np.arange(0, n_cells)[valid]
+        i_next = np.where(i_vertex < nv - 1, i_vertex + 1, 0)
+        next_vertex[:, i_vertex][valid] = (
+            vertices_on_cell[cell_indices, i_next])
+
+    valid = vertices_on_cell >= 0
+    vertices_on_cell = vertices_on_cell[valid]
+    next_vertex = next_vertex[valid]
+
+    # find the cell index for each triangle
+    tri_cell_indices, _ = np.meshgrid(np.arange(0, n_cells),
+                                      np.arange(0, max_edges),
+                                      indexing='ij')
+    tri_cell_indices = tri_cell_indices[valid]
+
+    # find list of cells and weights for each triangle node
+    node_cell_indices = -1 * np.ones((n_triangles, 3, 3), dtype=int)
+    node_cell_weights = np.zeros((n_triangles, 3, 3))
+
+    # the first node is at the cell center, so the value is just the one from
+    # that cell
+    node_cell_indices[:, 0, 0] = tri_cell_indices
+    node_cell_weights[:, 0, 0] = 1.
+
+    # the other 2 nodes are associated with vertices
+    node_cell_indices[:, 1, :] = cells_on_vertex[vertices_on_cell, :]
+    node_cell_weights[:, 1, :] = kite_areas_on_vertex[vertices_on_cell, :]
+    node_cell_indices[:, 2, :] = cells_on_vertex[next_vertex, :]
+    node_cell_weights[:, 2, :] = kite_areas_on_vertex[next_vertex, :]
+
+    weight_sum = np.sum(node_cell_weights, axis=2)
+    for i_node in range(3):
+        node_cell_weights[:, :, i_node] = (
+            node_cell_weights[:, :, i_node] / weight_sum)
+
+    ds_tris = xr.Dataset()
+    ds_tris['triCellIndices'] = ('nTriangles', tri_cell_indices)
+    ds_tris['nodeCellIndices'] = (('nTriangles', 'nNodes', 'nInterp'),
+                                  node_cell_indices)
+    ds_tris['nodeCellWeights'] = (('nTriangles', 'nNodes', 'nInterp'),
+                                  node_cell_weights)
+
+    # get Cartesian and lon/lat coordinates of each node
+    for prefix in ['x', 'y', 'z', 'lat', 'lon']:
+        out_var = f'{prefix}Node'
+        cell_var = f'{prefix}Cell'
+        vertex_var = f'{prefix}Vertex'
+        coord = np.zeros((n_triangles, 3))
+        coord[:, 0] = ds_mesh[cell_var].values[tri_cell_indices]
+        coord[:, 1] = ds_mesh[vertex_var].values[vertices_on_cell]
+        coord[:, 2] = ds_mesh[vertex_var].values[next_vertex]
+        ds_tris[out_var] = (('nTriangles', 'nNodes'), coord)
+
+    # nothing obvious we can do about triangles containing the poles
+
+    if on_a_sphere:
+        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='lonNode',
+                                     period=2 * np.pi)
+    elif is_periodic:
+        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='xNode',
+                                     period=x_period)
+        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='yNode',
+                                     period=y_period)
+
+    return ds_tris
+
+
 def make_triangle_tree(ds_tris):
     """
     Make a KD-Tree for finding triangle edges that are near enough to transect
@@ -20,7 +144,7 @@ def make_triangle_tree(ds_tris):
     ----------
     ds_tris : xarray.Dataset
         A dataset that defines triangles, the results of calling
-        :py:func:`mpas_tools.viz.mesh_to_triangles.mesh_to_triangles()`
+        :py:func:`polaris.ocean.viz.transect.horiz.mesh_to_triangles()`
 
     Returns
     -------
@@ -65,14 +189,15 @@ def find_spherical_transect_cells_and_weights(
 
     ds_tris : xarray.Dataset
         A dataset that defines triangles, the results of calling
-        :py:func:`mpas_tools.viz.mesh_to_triangles.mesh_to_triangles()`
+        :py:func:`polaris.ocean.viz.transect.horiz.mesh_to_triangles()`
 
     ds_mesh : xarray.Dataset
         A data set with the full MPAS mesh.
 
     tree : scipy.spatial.cKDTree
         A tree of edge centers from triangles making up an MPAS mesh, the
-        return value from ``make_triangle_tree()``
+        return value from
+        :py:func:`polaris.ocean.viz.transect.horiz.make_triangle_tree()`
 
     degrees : bool, optional
         Whether ``lon_transect`` and ``lat_transect`` are in degrees (as
@@ -347,14 +472,15 @@ def find_planar_transect_cells_and_weights(
 
     ds_tris : xarray.Dataset
         A dataset that defines triangles, the results of calling
-        `:py:func:`mpas_tools.viz.mesh_to_triangles.mesh_to_triangles()`
+        :py:func:`polaris.ocean.viz.transect.horiz.mesh_to_triangles()`
 
     ds_mesh : xarray.Dataset
         A data set with the full MPAS mesh.
 
     tree : scipy.spatial.cKDTree
         A tree of edge centers from triangles making up an MPAS mesh, the
-        return value from ``make_triangle_tree()``
+        return value from
+        :py:func:`polaris.ocean.viz.transect.horiz.make_triangle_tree()`
 
     subdivision_res : float, optional
         Resolution in m to use to subdivide the transect when looking for
@@ -724,3 +850,40 @@ def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
 
     return (d_node, x_out, y_out, z_out, seg_tris, seg_nodes, interp_cells,
             cell_weights, valid_nodes)
+
+
+def _fix_periodic_tris(ds_tris, periodic_var, period):
+    """
+    make sure the given node coordinate on tris is within one period of the
+    cell center
+    """
+    coord_node = ds_tris[periodic_var].values
+    coord_cell = coord_node[:, 0]
+    n_triangles = ds_tris.sizes['nTriangles']
+    copy_pos = np.zeros(coord_cell.shape, dtype=bool)
+    copy_neg = np.zeros(coord_cell.shape, dtype=bool)
+    for i_node in [1, 2]:
+        mask = coord_node[:, i_node] - coord_cell > 0.5 * period
+        copy_pos = np.logical_or(copy_pos, mask)
+        coord_node[:, i_node][mask] = coord_node[:, i_node][mask] - period
+        mask = coord_node[:, i_node] - coord_cell < -0.5 * period
+        copy_neg = np.logical_or(copy_neg, mask)
+        coord_node[:, i_node][mask] = coord_node[:, i_node][mask] + period
+
+    pos_indices = np.nonzero(copy_pos)[0]
+    neg_indices = np.nonzero(copy_neg)[0]
+    tri_indices = np.append(np.append(np.arange(0, n_triangles),
+                                      pos_indices), neg_indices)
+
+    ds_new = xr.Dataset(ds_tris)
+    ds_new[periodic_var] = (('nTriangles', 'nNodes'), coord_node)
+    ds_new = ds_new.isel(nTriangles=tri_indices)
+    coord_node = ds_new[periodic_var].values
+
+    pos_slice = slice(n_triangles, n_triangles + len(pos_indices))
+    coord_node[pos_slice, :] = coord_node[pos_slice, :] + period
+    neg_slice = slice(n_triangles + len(pos_indices),
+                      n_triangles + len(pos_indices) + len(neg_indices))
+    coord_node[neg_slice, :] = coord_node[neg_slice, :] - period
+    ds_new[periodic_var] = (('nTriangles', 'nNodes'), coord_node)
+    return ds_new
