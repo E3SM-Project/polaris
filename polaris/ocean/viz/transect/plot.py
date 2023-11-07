@@ -14,7 +14,7 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
                   cmap=None, figsize=(12, 6), dpi=200, method='flat',
                   outline_color='black', ssh_color=None, seafloor_color=None,
                   interface_color=None, cell_boundary_color=None,
-                  linewidth=1.0):
+                  linewidth=1.0, transect_start='red', transect_end='green'):
     """
     plot a transect showing the field on the MPAS-Ocean mesh and save to a file
 
@@ -84,6 +84,12 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
 
     linewidth : float, optional
         The width of outlines, interfaces and cell boundaries
+
+    transect_start : str or None, optional
+        The color of left axis marking the start of the transect
+
+    transect_end : str or None, optional
+        The color of right axis marking the end of the transect
     """
 
     if ax is None and out_filename is None:
@@ -120,7 +126,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
                          label=colorbar_label)
 
     _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, linewidth)
+                     ssh_color, seafloor_color, transect_start, transect_end,
+                     linewidth)
 
     _plot_outline(x, z, ds_transect.validNodes, ax, outline_color,
                   linewidth)
@@ -136,7 +143,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
 
 
 def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, linewidth):
+                     ssh_color, seafloor_color, transect_start, transect_end,
+                     linewidth):
     if cell_boundary_color is not None:
         x_bnd = 1e-3 * ds_transect.dCellBoundary.values.T
         z_bnd = ds_transect.zCellBoundary.values.T
@@ -161,6 +169,14 @@ def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
         z_floor = ds_transect.zSeafloor.where(valid).values
         ax.plot(x_floor, z_floor, color=seafloor_color, linewidth=linewidth,
                 zorder=5)
+
+    if transect_start is not None:
+        ax.spines['left'].set_color(transect_start)
+        ax.spines['left'].set_linewidth(4 * linewidth)
+
+    if transect_end is not None:
+        ax.spines['right'].set_color(transect_end)
+        ax.spines['right'].set_linewidth(4 * linewidth)
 
 
 def _plot_outline(x, z, valid_nodes, ax, outline_color, linewidth,
