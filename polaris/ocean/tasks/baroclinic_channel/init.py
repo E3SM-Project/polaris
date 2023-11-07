@@ -8,6 +8,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
+from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
 
@@ -162,8 +163,27 @@ class Init(Step):
         write_netcdf(ds, 'initial_state.nc')
 
         cell_mask = ds.maxLevelCell >= 1
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'initial_temperature.png', cell_mask=cell_mask)
+
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'initial_normal_velocity.png', cmap='cmo.balance',
                          show_patch_edges=True, cell_mask=cell_mask)
+
+        x_mid = 0.5 * (x_min + x_max)
+
+        y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
+        x = x_mid * xr.ones_like(y)
+
+        ds_transect = compute_transect(x=x, y=y, ds_3d_mesh=ds.isel(Time=0),
+                                       spherical=False)
+
+        field_name = 'temperature'
+        plot_transect(ds_transect=ds_transect,
+                      mpas_field=ds[field_name].isel(Time=0),
+                      title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
+                      out_filename=f'initial_{field_name}_section.png',
+                      vmin=9., vmax=13., cmap='cmo.thermal',
+                      colorbar_label=r'$^\circ$C')
+
+        plot_horiz_field(ds, ds_mesh, 'temperature', 'initial_temperature.png',
+                         vmin=9., vmax=13., cmap='cmo.thermal',
+                         cell_mask=cell_mask, transect_x=x, transect_y=y)
