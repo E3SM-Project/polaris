@@ -132,10 +132,9 @@ class Forward(OceanModelStep):
             The approximate number of cells in the mesh
         """
         section = self.config['drying_slope']
-        nx = section.getfloat('nx')
+        lx = section.getfloat('lx')
         ly = section.getfloat('ly')
-        _, ny = compute_planar_hex_nx_ny(nx * self.resolution, ly,
-                                         self.resolution)
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
         cell_count = nx * ny
         return cell_count
 
