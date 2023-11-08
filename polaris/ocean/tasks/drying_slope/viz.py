@@ -15,7 +15,8 @@ class Viz(Step):
     """
     A step for plotting the results of a series of drying_slope runs
     """
-    def __init__(self, component, indir, damping_coeffs=None,
+    def __init__(self, component, indir=None, subdir=None, name='viz',
+                 damping_coeffs=[],
                  coord_type='sigma', baroclinic=False,
                  forcing_type='tidal_cycle'):
         """
@@ -29,7 +30,8 @@ class Viz(Step):
         indir : str
             the directory the step is in, to which ``name`` will be appended
         """
-        super().__init__(component=component, name='viz', indir=indir)
+        super().__init__(component=component, name=name, indir=indir,
+                         subdir=subdir)
 
         self.damping_coeffs = damping_coeffs
         self.coord_type = coord_type
@@ -38,10 +40,13 @@ class Viz(Step):
 
         self.add_input_file(
             filename='mesh.nc',
-            target='../../init/culled_mesh.nc')
+            target='../init/culled_mesh.nc')
         self.add_input_file(
             filename='init.nc',
-            target='../../init/initial_state.nc')
+            target='../init/initial_state.nc')
+        self.add_input_file(
+            filename='forcing.nc',
+            target='../init/forcing.nc')
         # TODO change this for damping_coeff outputs
         self.add_input_file(
             filename='output.nc',
@@ -62,59 +67,102 @@ class Viz(Step):
         y_max = ds_mesh.yCell.max()
         x = xr.DataArray(data=[x_mid, x_mid], dims=('nPoints',))
         y = xr.DataArray(data=[y_min, y_max], dims=('nPoints',))
+
+        ymin = -ds_mesh.bottomDepth.max()
+        ymax = ds.ssh.max()
+        vmin_layer_thickness = ds.layerThickness.min()
+        vmax_layer_thickness = ds.layerThickness.max()
         vmax_velocity = np.max(np.abs(ds.velocityY.values))
+        nrows = 2
+        if self.baroclinic:
+            nrows += 1
+            section = self.config['drying_slope_baroclinic']
+            vmin_salinity = section.getfloat('left_salinity')
+            vmax_salinity = section.getfloat('right_salinity')
+        mpastime = ds.daysSinceStartOfSim.values
+        simtime = pd.to_timedelta(mpastime)
+        time_hours = simtime.total_seconds() / 3600.
         for tidx in range(ds.sizes['Time']):
+            ds_transect = compute_transect(
+                x=x, y=y, ds_horiz_mesh=ds_mesh,
+                layer_thickness=ds.layerThickness.isel(Time=tidx),
+                bottom_depth=ds.bottomDepth,
+                min_level_cell=ds.minLevelCell - 1,
+                max_level_cell=ds.maxLevelCell - 1,
+                spherical=False)
+
             plot_horiz_field(ds, ds_mesh,
                              'wettingVelocityFactor',
-                             'wetting_velocity_factor_horiz_t{tidx:03g}.png',
-                             t_index=tidx,
+                             f'wetting_velocity_factor_horiz_t{tidx:03g}.png',
+                             transect_x=x, transect_y=y,
+                             show_patch_edges=True, t_index=tidx,
                              cell_mask=cell_mask, vmin=0, vmax=1)
-            ds_transect = compute_transect(x, y, ds_mesh.isel(Time=tidx),
-                                           spherical=False)
+
             plot_transect(
-                ds_transect,
+                ds_transect=ds_transect,
+                mpas_field=ds.velocityX.isel(Time=tidx),
+                title='Across-slope velocity',
+                out_filename=f'velocityX_depth_t{tidx:03g}.png',
+                vmin=-vmax_velocity, vmax=vmax_velocity,
+                colorbar_label=r'', cmap='cmo.balance')
+
+            fig, axs = plt.subplots(nrows, sharex=True, figsize=(5, 3 * nrows))
+            fig.suptitle(f'Time: {time_hours[tidx]:2.1f} hours')
+            plot_transect(
+                ds_transect=ds_transect,
                 mpas_field=ds.layerThickness.isel(Time=tidx),
-                out_filename=f'layer_thickness_depth_t{tidx:03g}.png',
-                title='layer thickness',
+                ax=axs[0],
+                outline_color=None, ssh_color='blue', seafloor_color='black',
+                interface_color='grey',
+                vmin=vmin_layer_thickness, vmax=vmax_layer_thickness,
                 colorbar_label=r'm', cmap='cmo.thermal')
+            axs[0].set_title('Layer thickness')
+            axs[0].set_ylim([ymin, ymax])
+            axs[0].set_xlabel(None)
             plot_transect(
-                ds_transect,
+                ds_transect=ds_transect,
                 mpas_field=ds.velocityY.isel(Time=tidx),
-                out_filename=f'velocityY_depth_t{tidx:03g}.png',
-                title='along-slope velocity',
+                ax=axs[1],
+                outline_color=None, ssh_color='blue', seafloor_color='black',
                 vmin=-vmax_velocity, vmax=vmax_velocity,
                 colorbar_label='m/s', cmap='cmo.balance')
+            axs[1].set_title('Along-slope velocity')
+            axs[1].set_ylim([ymin, ymax])
+            axs[1].set_xlabel(None)
             if self.baroclinic:
                 plot_transect(
-                    ds_transect,
+                    ds_transect=ds_transect,
                     mpas_field=ds.salinity.isel(Time=tidx),
-                    out_filename=f'salinity_depth_t{tidx:03g}.png',
-                    title='salinity',
+                    ax=axs[2],
+                    outline_color=None, ssh_color='blue',
+                    seafloor_color='black',
+                    vmin=vmin_salinity, vmax=vmax_salinity,
                     colorbar_label=r'PSU', cmap='cmo.haline')
-                plot_transect(
-                    ds_transect,
-                    mpas_field=ds.wettingVelocityBaroclinic.isel(Time=tidx),
-                    out_filename=f'baroclinic_factor_depth_t{tidx:03g}.png',
-                    title='baroclinic factor', vmin=0, vmax=1,
-                    colorbar_label=r'', cmap='cmo.thermal')
-        if self.damping_coeffs is not None:
-            self._plot_ssh_validation()
-        else:
-            for tidx in range(ds.sizes['time']):
-                plot_horiz_field(ds, ds_mesh,
-                                 'ssh',
-                                 'ssh_horiz_t{tidx:03g}.png',
-                                 t_index=tidx,
-                                 cell_mask=cell_mask)
-        if self.baroclinic:
-            for tidx in range(ds.sizes['time']):
+                axs[2].set_title('Salinity')
+                axs[2].set_ylim([ymin, ymax])
+            plt.savefig(f'layerThickness_velocityY_depth_t{tidx:03g}.png',
+                        bbox_inches='tight')
+            plt.close()
+
+            if self.baroclinic:
+                # We can't plot wettingVelocityBaroclinic transect because it
+                # is on edges
                 plot_horiz_field(
                     ds, ds_mesh,
                     'wettingVelocityBarotropicSubcycle',
-                    'wettingVelocityBarotropicSubcycle_horiz_t{tidx:03g}.png',
+                    f'wettingVelocityBarotropicSubcycle_horiz_t{tidx:03g}.png',
                     t_index=tidx,
                     cell_mask=cell_mask, vmin=0, vmax=1)
-            self._plot_salinity(tidx=-1, y_distance=45.)
+                self._plot_salinity(tidx=-1, y_distance=45.)
+        if not self.damping_coeffs:
+            for tidx in range(ds.sizes['Time']):
+                plot_horiz_field(ds, ds_mesh,
+                                 'ssh',
+                                 f'ssh_horiz_t{tidx:03g}.png',
+                                 t_index=tidx,
+                                 cell_mask=cell_mask)
+        else:
+            self._plot_ssh_validation()
 
     def _forcing(self, t):
         ssh = 10. * np.sin(t * np.pi / 12.) - 10.
@@ -147,7 +195,7 @@ class Viz(Step):
         figsize = [6.4, 4.8]
 
         damping_coeffs = self.damping_coeffs
-        if damping_coeffs is None:
+        if not damping_coeffs:
             naxes = 1
             ncFilename = ['output.nc']
         else:
@@ -156,10 +204,12 @@ class Viz(Step):
                           for damping_coeff in damping_coeffs]
         fig, _ = plt.subplots(nrows=naxes, ncols=1, figsize=figsize, dpi=100)
 
+        ds_forcing = xr.open_dataset('../init/forcing.nc')
+        mask = ds_forcing.tidalInputMask
         for i in range(naxes):
             ax = plt.subplot(naxes, 1, i + 1)
             ds = xr.open_dataset(ncFilename[i])
-            ympas = ds.ssh.where(ds.tidalInputMask).mean('nCells').values
+            ympas = ds.ssh.where(mask).mean('nCells').values
             xmpas = np.linspace(0, 1.0, len(ds.xtime)) * 12.0
             ax.plot(xmpas, ympas, marker='o', label='MPAS-O forward',
                     color='k')
