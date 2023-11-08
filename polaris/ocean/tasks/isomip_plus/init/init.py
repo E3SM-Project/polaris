@@ -297,7 +297,7 @@ class Init(Step):
             ds_fix['yVertex'] = ds_fix['yIsomipVertex']
             ds_fix['zVertex'] = xr.zeros_like(ds_fix.xVertex)
 
-        x = np.linspace(320e3, 800e3, 11)
+        x = np.linspace(320e3, 800e3, 2)
         y = 40.0e3 * np.ones_like(x)
 
         x = xr.DataArray(data=x, dims=('nPoints',))
@@ -407,33 +407,37 @@ class Init(Step):
                             field_name='layerThickness',
                             figsize=figsize,
                             vmin=min_layer_thickness + tol, vmax=50,
-                            cmap='cmo.deep_r', units='m', under='r', over='r')
+                            cmap='cmo.deep_r', units='m', transect_x=x,
+                            transect_y=y, under='r', over='r')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
                             patches=patches, patch_mask=patch_mask,
                             field_name='zMid',
                             figsize=figsize,
                             vmin=-720., vmax=0.,
-                            cmap='cmo.deep_r', units='m', under='r', over='r')
+                            cmap='cmo.deep_r', units='m', transect_x=x,
+                            transect_y=y, under='r', over='r')
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
                             patches=patches, patch_mask=patch_mask,
                             field_name='temperature',
                             figsize=figsize,
                             vmin=-2., vmax=1.,
-                            cmap='cmo.thermal', units=r'$^\circ$C')
+                            cmap='cmo.thermal', units=r'$^\circ$C',
+                            transect_x=x, transect_y=y)
 
         _plot_top_bot_slice(ds=ds, ds_mesh=ds_mesh, ds_transect=ds_transect,
                             patches=patches, patch_mask=patch_mask,
                             field_name='salinity',
                             figsize=figsize,
                             vmin=33.8, vmax=34.7,
-                            cmap='cmo.haline', units='PSU')
+                            cmap='cmo.haline', units='PSU', transect_x=x,
+                            transect_y=y)
 
 
 def _plot_top_bot_slice(ds, ds_mesh, ds_transect, patches, patch_mask,
                         field_name, figsize, vmin, vmax, cmap, units,
-                        under=None, over=None):
+                        transect_x, transect_y, under=None, over=None):
     for suffix, z_index in [['Top', 0], ['Bot', ds.maxLevelCell - 1]]:
         plot_horiz_field(ds=ds, ds_mesh=ds_mesh,
                          field_name=field_name,
@@ -443,10 +447,11 @@ def _plot_top_bot_slice(ds, ds_mesh, ds_transect, patches, patch_mask,
                          vmin=vmin, vmax=vmax, cmap=cmap,
                          cmap_set_under=under, cmap_set_over=over,
                          figsize=figsize, patches=patches,
-                         patch_mask=patch_mask)
+                         patch_mask=patch_mask, transect_x=transect_x,
+                         transect_y=transect_y)
 
     plot_transect(ds_transect=ds_transect, mpas_field=ds[field_name],
                   title=f'{field_name} at y=40 km',
                   out_filename=f'plots/{field_name}Section.png',
-                  cmap=cmap, figsize=figsize,
+                  vmin=vmin, vmax=vmax, cmap=cmap, figsize=figsize,
                   colorbar_label=units)
