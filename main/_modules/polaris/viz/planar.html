@@ -247,7 +247,7 @@
                              <span class="s1">&#39;from a previous call to plot_horiz_field()&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">cell_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+            <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
             <span class="n">patch_mask</span> <span class="o">=</span> <span class="n">cell_mask</span>
             <span class="n">patches</span><span class="p">,</span> <span class="n">patch_mask</span> <span class="o">=</span> <span class="n">_compute_cell_patches</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">patch_mask</span><span class="p">)</span>
