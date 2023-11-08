@@ -139,7 +139,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                              'from a previous call to plot_horiz_field()')
     else:
         if cell_mask is None:
-            cell_mask = np.ones_like(field, type='bool')
+            cell_mask = np.ones_like(field, dtype='bool')
         if 'nCells' in field.dims:
             patch_mask = cell_mask
             patches, patch_mask = _compute_cell_patches(ds_mesh, patch_mask)
