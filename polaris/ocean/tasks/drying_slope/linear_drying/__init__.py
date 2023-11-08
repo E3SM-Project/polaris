@@ -53,6 +53,7 @@ class LinearDrying(Task):
         Change config options as needed
         """
         right_bottom_depth = 2.5
+        lx = 6.
         ly_analysis = 50.
         y_buffer = 5.
         ly = ly_analysis + y_buffer
@@ -74,5 +75,10 @@ class LinearDrying(Task):
             'drying_slope', 'ly_analysis', f'{ly_analysis}',
             comment='Length over which wetting and drying actually occur')
         self.config.set(
-            'drying_slope', 'ly', f'{ly}', comment='Domain length')
+            'drying_slope', 'ly', f'{ly}',
+            comment='Domain length in the along-slope direction')
+        self.config.set(
+            'drying_slope', 'lx', f'{lx}',
+            comment='Domain width in the across-slope direction')
+
         self.config.set('vertical_grid', 'coord_type', self.coord_type)

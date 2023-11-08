@@ -6,6 +6,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
+from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
@@ -64,8 +65,9 @@ class Init(Step):
         vert_levels = section.getint('vert_levels')
         section = config['drying_slope']
         thin_film_thickness = section.getfloat('thin_film_thickness') + 1.0e-9
-        nx = section.getint('nx')
-        domain_length = section.getfloat('ly') * 1e3
+        lx = section.getfloat('lx')
+        ly = section.getfloat('ly')
+        domain_length = ly * 1e3
         drying_length = section.getfloat('ly_analysis') * 1e3
         plug_width_frac = section.getfloat('plug_width_frac')
         right_bottom_depth = section.getfloat('right_bottom_depth')
@@ -84,6 +86,7 @@ class Init(Step):
             raise ValueError('Right boundary must be deeper than left '
                              'boundary')
 
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
         ny = round(domain_length / dc)
         # This is just for consistency with previous implementations and could
