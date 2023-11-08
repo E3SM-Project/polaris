@@ -73,24 +73,22 @@ def add_drying_slope_tasks(component):
     #             component.add_task(decomp)
 
     resolution = 1.
-    coord_type = 'sigma'
     resdir = resolution_to_subdir(resolution)
-    resdir = f'planar/drying_slope/baroclinic/{coord_type}/' \
-             f'{resdir}'
-
     config_filename = 'drying_slope.cfg'
+    for coord_type in ['sigma', 'zstar']:
+        indir = f'planar/drying_slope/baroclinic/{coord_type}/{resdir}'
 
-    # TODO check
-    config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        # TODO check
+        config = PolarisConfigParser(filepath=f'{indir}/{config_filename}')
 
-    config.add_from_package('polaris.ocean.tasks.drying_slope',
-                            'drying_slope.cfg')
+        config.add_from_package('polaris.ocean.tasks.drying_slope',
+                                'drying_slope.cfg')
 
-    # forcing_type is not specified because only 'linear_drying' is available
-    # for this test case
-    linear_drying = LinearDrying(component=component,
-                                 resolution=resolution, indir=resdir,
-                                 coord_type=coord_type,
-                                 time_integrator='split_explicit')
-    linear_drying.set_shared_config(config, link=config_filename)
-    component.add_task(linear_drying)
+        # forcing_type is not specified because only 'linear_drying' is
+        # available for this test case
+        linear_drying = LinearDrying(component=component,
+                                     resolution=resolution, indir=indir,
+                                     coord_type=coord_type,
+                                     time_integrator='split_explicit')
+        linear_drying.set_shared_config(config, link=config_filename)
+        component.add_task(linear_drying)
