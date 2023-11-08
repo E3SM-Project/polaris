@@ -163,19 +163,38 @@ class Init(Step):
                 manning_coefficient * xr.ones_like(tidal_forcing_mask)
         write_netcdf(ds_forcing, 'forcing.nc')
 
-        cell_mask = ds.maxLevelCell >= 1
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'initial_temperature.png', cell_mask=cell_mask)
-
         x_mid = ds_mesh.xCell.median()
         y_min = ds_mesh.yCell.min()
         y_max = ds_mesh.yCell.max()
         x = xr.DataArray(data=[x_mid, x_mid], dims=('nPoints',))
         y = xr.DataArray(data=[y_min, y_max], dims=('nPoints',))
-        ds_transect = compute_transect(x, y, ds.isel(Time=0),
-                                       spherical=False)
-        plot_transect(ds_transect,
-                      mpas_field=ds.temperature.isel(Time=0),
-                      out_filename='temperature_depth_init.png',
-                      title='temperature',
-                      colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=0),
+            bottom_depth=ds.bottomDepth,
+            min_level_cell=ds.minLevelCell - 1,
+            max_level_cell=ds.maxLevelCell - 1,
+            spherical=False)
+        plot_transect(
+            ds_transect=ds_transect,
+            mpas_field=ds.layerThickness.isel(Time=0),
+            out_filename='layerThickness_depth_init.png',
+            title='layer thickness',
+            transect_start=None, transect_end=None,
+            outline_color=None, ssh_color='blue', seafloor_color='black',
+            interface_color='grey',
+            colorbar_label=r'm', cmap='cmo.thermal')
+        plot_transect(
+            ds_transect=ds_transect,
+            mpas_field=ds.salinity.isel(Time=0),
+            out_filename='salinity_depth_init.png',
+            title='salinity',
+            colorbar_label='PSU', cmap='cmo.haline')
+
+        cell_mask = ds.maxLevelCell >= 1
+        plot_horiz_field(ds, ds_mesh, 'salinity',
+                         'initial_salinity.png', cell_mask=cell_mask,
+                         show_patch_edges=True, transect_x=x, transect_y=y)
+        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+                         'initial_velocity.png', cell_mask=cell_mask,
+                         show_patch_edges=True, transect_x=x, transect_y=y)
