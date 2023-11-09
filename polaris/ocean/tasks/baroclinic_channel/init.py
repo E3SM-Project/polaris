@@ -173,8 +173,11 @@ class Init(Step):
         y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
         x = x_mid * xr.ones_like(y)
 
-        ds_transect = compute_transect(x=x, y=y, ds_3d_mesh=ds.isel(Time=0),
-                                       spherical=False)
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=0),
+            bottom_depth=ds.bottomDepth, min_level_cell=ds.minLevelCell - 1,
+            max_level_cell=ds.maxLevelCell - 1, spherical=False)
 
         field_name = 'temperature'
         plot_transect(ds_transect=ds_transect,

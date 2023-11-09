@@ -4,13 +4,13 @@ import xarray as xr
 from polaris.ocean.viz.transect.horiz import (
     find_planar_transect_cells_and_weights,
     find_spherical_transect_cells_and_weights,
-    interp_mpas_horiz_to_transect_nodes,
     make_triangle_tree,
     mesh_to_triangles,
 )
 
 
-def compute_transect(x, y, ds_3d_mesh, spherical=False):
+def compute_transect(x, y, ds_horiz_mesh, layer_thickness, bottom_depth,
+                     min_level_cell, max_level_cell, spherical=False):
     """
     build a sequence of quads showing the transect intersecting mpas cells
 
@@ -22,8 +22,22 @@ def compute_transect(x, y, ds_3d_mesh, spherical=False):
     y : xarray.DataArray
         The y or latitude coordinate of the transect
 
-    ds_3d_mesh : xarray.Dataset
-        The MPAS-Ocean mesh to use for plotting
+    ds_horiz_mesh : xarray.Dataset
+        The horizontal MPAS mesh to use for plotting
+
+    layer_thickness : xarray.DataArray
+        The layer thickness at a particular instant in time.
+        `layerThickness.isel(Time=tidx)` to select a particular time index
+        `tidx` if the original data array contains `Time`.
+
+    bottom_depth : xarray.DataArray
+        the (positive down) depth of the seafloor on the MPAS mesh
+
+    min_level_cell : xarray.DataArray
+        the vertical zero-based index of the sea surface on the MPAS mesh
+
+    max_level_cell : xarray.DataArray
+        the vertical zero-based index of the bathymetry on the MPAS mesh
 
     spherical : bool, optional
         Whether the x and y coordinates are latitude and longitude in degrees
@@ -36,20 +50,20 @@ def compute_transect(x, y, ds_3d_mesh, spherical=False):
         for details
     """  # noqa: E501
 
-    ds_tris = mesh_to_triangles(ds_3d_mesh)
+    ds_tris = mesh_to_triangles(ds_horiz_mesh)
 
     triangle_tree = make_triangle_tree(ds_tris)
 
     if spherical:
         ds_horiz_transect = find_spherical_transect_cells_and_weights(
-            x, y, ds_tris, ds_3d_mesh, triangle_tree, degrees=True)
+            x, y, ds_tris, ds_horiz_mesh, triangle_tree, degrees=True)
     else:
         ds_horiz_transect = find_planar_transect_cells_and_weights(
-            x, y, ds_tris, ds_3d_mesh, triangle_tree)
+            x, y, ds_tris, ds_horiz_mesh, triangle_tree)
 
-    # mask horizontal transect to valid cells (maxLevelCell > 0)
+    # mask horizontal transect to valid cells (max_level_cell >= 0)
     cell_indices = ds_horiz_transect.horizCellIndices
-    seg_mask = ds_3d_mesh.maxLevelCell.isel(nCells=cell_indices).values > 0
+    seg_mask = max_level_cell.isel(nCells=cell_indices).values >= 0
     node_mask = np.zeros(ds_horiz_transect.sizes['nNodes'], dtype=bool)
     node_mask[0:-1] = seg_mask
     node_mask[1:] = np.logical_or(node_mask[1:], seg_mask)
@@ -58,16 +72,9 @@ def compute_transect(x, y, ds_3d_mesh, spherical=False):
                                                nNodes=node_mask)
 
     ds_transect = find_transect_levels_and_weights(
-        ds_horiz_transect=ds_horiz_transect,
-        layer_thickness=ds_3d_mesh.layerThickness,
-        bottom_depth=ds_3d_mesh.bottomDepth,
-        min_level_cell=ds_3d_mesh.minLevelCell - 1,
-        max_level_cell=ds_3d_mesh.maxLevelCell - 1)
-
-    # interpolate the land-ice fraction so we can plot an overlying ice shelf
-    if 'landIceFraction' in ds_3d_mesh:
-        ds_transect['landIceFraction'] = interp_mpas_horiz_to_transect_nodes(
-            ds_transect, ds_3d_mesh.landIceFraction)
+        ds_horiz_transect=ds_horiz_transect, layer_thickness=layer_thickness,
+        bottom_depth=bottom_depth, min_level_cell=min_level_cell,
+        max_level_cell=max_level_cell)
 
     ds_transect.compute()
 

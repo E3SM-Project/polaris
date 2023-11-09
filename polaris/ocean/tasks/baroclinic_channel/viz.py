@@ -64,9 +64,13 @@ class Viz(Step):
         y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
         x = x_mid * xr.ones_like(y)
 
-        ds_transect = compute_transect(x=x, y=y,
-                                       ds_3d_mesh=ds_init.isel(Time=0),
-                                       spherical=False)
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=t_index),
+            bottom_depth=ds_init.bottomDepth,
+            min_level_cell=ds_init.minLevelCell - 1,
+            max_level_cell=ds_init.maxLevelCell - 1,
+            spherical=False)
 
         field_name = 'temperature'
         mpas_field = ds[field_name].isel(Time=t_index)
