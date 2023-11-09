@@ -80,6 +80,7 @@ class Forcing(Step):
         Create restoring and other forcing files
         """
         self._compute_restoring()
+        self._write_time_varying_forcing()
 
     def _compute_restoring(self):
         config = self.config
@@ -156,3 +157,35 @@ class Forcing(Step):
             ds_forcing['tidalInputMask'] = xr.zeros_like(ds_mesh.xIsomipCell)
 
         write_netcdf(ds_forcing, 'init_mode_forcing_data.nc')
+
+    @staticmethod
+    def _write_time_varying_forcing():
+        """
+        Write time-varying land-ice forcing and update the initial condition
+        """
+
+        ds_topo = xr.open_dataset('topo.nc')
+
+        if 'Time' not in ds_topo.dims:
+            # no time-varying forcing needed
+            return
+
+        ds_out = xr.Dataset()
+        ds_out['xtime'] = ds_topo.xtime
+
+        ds_out['landIceDraftForcing'] = ds_topo.landIceDraft
+        ds_out.landIceDraftForcing.attrs['units'] = 'm'
+        ds_out.landIceDraftForcing.attrs['long_name'] = \
+            'The approximate elevation of the land ice-ocean interface'
+        ds_out['landIcePressureForcing'] = ds_topo.landIcePressure
+        ds_out.landIcePressureForcing.attrs['units'] = 'm'
+        ds_out.landIcePressureForcing.attrs['long_name'] = \
+            'Pressure from the weight of land ice at the ice-ocean interface'
+        ds_out['landIceFractionForcing'] = ds_topo.landIceFraction
+        ds_out.landIceFractionForcing.attrs['long_name'] = \
+            'The fraction of each cell covered by land ice'
+        ds_out['landIceFloatingFractionForcing'] = \
+            ds_topo.landIceFloatingFraction
+        ds_out.landIceFloatingFractionForcing.attrs['long_name'] = \
+            'The fraction of each cell covered by floating land ice'
+        write_netcdf(ds_out, 'land_ice_forcing.nc')
