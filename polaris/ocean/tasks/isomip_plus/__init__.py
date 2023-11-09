@@ -73,7 +73,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         )
 
         basic_expts = ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4']
-        extra_expts = ['inception', 'wetting', 'drying']
+        extra_expts = ['wetting', 'drying']
         vert_coords = ['z-star', 'sigma']
 
         for experiment in basic_expts:
@@ -216,7 +216,7 @@ def _get_shared_steps(
     # ocean0 and ocean1 use the same topography
     shared_steps['ocean0'] = shared_steps['ocean1']
 
-    for experiment in ['inception', 'wetting', 'drying']:
+    for experiment in ['wetting', 'drying']:
         shared_steps[experiment] = dict(shared_steps['ocean1'])
         subdir = f'{resdir}/topo/scale/{experiment}'
         topo_scale = TopoScale(
