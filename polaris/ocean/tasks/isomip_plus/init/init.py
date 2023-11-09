@@ -303,8 +303,10 @@ class Init(Step):
         x = xr.DataArray(data=x, dims=('nPoints',))
         y = xr.DataArray(data=y, dims=('nPoints',))
 
-        ds_transect = compute_transect(x=x, y=y, ds_3d_mesh=ds,
-                                       spherical=False)
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh, layer_thickness=ds.layerThickness,
+            bottom_depth=ds.bottomDepth, min_level_cell=ds.minLevelCell - 1,
+            max_level_cell=ds.maxLevelCell - 1, spherical=False)
 
         ds['totalColThickness'] = ds['layerThickness'].sum(dim='nVertLevels')
 
