@@ -1,5 +1,5 @@
 from polaris import Task
-from polaris.ocean.tasks.isomip_plus.init import Init
+from polaris.ocean.tasks.isomip_plus.init import Forcing, Init
 
 
 class IsomipPlusTest(Task):
@@ -99,6 +99,19 @@ class IsomipPlusTest(Task):
                 indir=subdir,
                 culled_mesh=shared_steps['topo/cull_mesh'],
                 topo=shared_steps['topo_final'],
+                experiment=experiment,
+                vertical_coordinate=vertical_coordinate,
+                thin_film=thin_film,
+            )
+        )
+
+        self.add_step(
+            Forcing(
+                component=component,
+                indir=subdir,
+                culled_mesh=shared_steps['topo/cull_mesh'],
+                topo=shared_steps['topo_final'],
+                resolution=resolution,
                 experiment=experiment,
                 vertical_coordinate=vertical_coordinate,
                 thin_film=thin_film,
