@@ -65,9 +65,14 @@ def init_z_star_vertical_coord(config, ds):
     ds['vertCoordMovementWeights'] = xarray.ones_like(ds.refBottomDepth)
 
     restingSSH = xarray.zeros_like(ds.bottomDepth)
+    min_vert_levels = config.getint('vertical_grid', 'min_vert_levels')
+    min_layer_thickness = config.getfloat('vertical_grid',
+                                          'min_layer_thickness')
     ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = \
         compute_min_max_level_cell(ds.refTopDepth, ds.refBottomDepth,
-                                   restingSSH, ds.bottomDepth)
+                                   restingSSH, ds.bottomDepth,
+                                   min_vert_levels=min_vert_levels,
+                                   min_layer_thickness=min_layer_thickness)
 
     ds['bottomDepth'], ds['maxLevelCell'] = alter_bottom_depth(
         config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell)
@@ -113,7 +118,7 @@ def _compute_z_star_layer_thickness(restingThickness, ssh, bottomDepth,
     nVertLevels = restingThickness.sizes['nVertLevels']
     layerThickness = []
 
-    layerStretch = (ssh + bottomDepth) / bottomDepth
+    layerStretch = (ssh + bottomDepth) / numpy.sum(restingThickness, axis=1)
     for zIndex in range(nVertLevels):
         mask = numpy.logical_and(zIndex >= minLevelCell,
                                  zIndex <= maxLevelCell)
