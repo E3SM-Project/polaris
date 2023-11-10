@@ -11,7 +11,8 @@ class LinearDrying(Task):
     """
 
     def __init__(self, component, resolution, indir, coord_type='sigma',
-                 drag_type='mannings', time_integrator='split_explicit'):
+                 drag_type='constant_and_rayleigh',
+                 time_integrator='split_explicit'):
         """
         Create the test case
 
@@ -42,7 +43,7 @@ class LinearDrying(Task):
                     min_tasks=None, openmp_threads=1, resolution=resolution,
                     forcing_type='linear_drying', coord_type=coord_type,
                     time_integrator=time_integrator, drag_type=drag_type,
-                    baroclinic=True))
+                    damping_coeff=1.0e-4, baroclinic=True))
 
         self.add_step(
             Viz(component=component, indir=self.subdir, damping_coeffs=None,
