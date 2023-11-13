@@ -431,4 +431,6 @@ specific to the ocean component.
 The `polaris.ocean.viz.transect` modules includes functions for computing
 ({py:func}`polaris.ocean.viz.compute_transect()`) and plotting
 ({py:func}`polaris.ocean.viz.plot_transect()`) transects through the ocean
-from a sequence of x-y or latitude-longitude coordinates.
+from a sequence of x-y or latitude-longitude coordinates.  Currently, only
+transects on xarray data arrays with dimensions `nCells` by `nVertLevels` are
+supported.
