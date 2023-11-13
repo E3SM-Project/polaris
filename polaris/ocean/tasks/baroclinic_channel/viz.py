@@ -3,6 +3,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
 
@@ -42,9 +43,6 @@ class Viz(Step):
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         cell_mask = ds_init.maxLevelCell >= 1
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'final_temperature.png', t_index=t_index,
-                         cell_mask=cell_mask)
         max_velocity = np.max(np.abs(ds.normalVelocity.values))
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'final_normalVelocity.png',
@@ -52,3 +50,33 @@ class Viz(Step):
                          vmin=-max_velocity, vmax=max_velocity,
                          cmap='cmo.balance', show_patch_edges=True,
                          cell_mask=cell_mask)
+
+        y_min = ds_mesh.yVertex.min().values
+        y_max = ds_mesh.yVertex.max().values
+        x_mid = ds_mesh.xCell.median().values
+
+        y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
+        x = x_mid * xr.ones_like(y)
+
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=t_index),
+            bottom_depth=ds_init.bottomDepth,
+            min_level_cell=ds_init.minLevelCell - 1,
+            max_level_cell=ds_init.maxLevelCell - 1,
+            spherical=False)
+
+        field_name = 'temperature'
+        vmin = ds[field_name].min().values
+        vmax = ds[field_name].max().values
+        mpas_field = ds[field_name].isel(Time=t_index)
+        plot_transect(ds_transect=ds_transect, mpas_field=mpas_field,
+                      title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
+                      out_filename=f'final_{field_name}_section.png',
+                      vmin=vmin, vmax=vmax, cmap='cmo.thermal',
+                      colorbar_label=r'$^\circ$C', color_start_and_end=True)
+
+        plot_horiz_field(ds, ds_mesh, 'temperature', 'final_temperature.png',
+                         t_index=t_index, vmin=vmin, vmax=vmax,
+                         cmap='cmo.thermal', cell_mask=cell_mask, transect_x=x,
+                         transect_y=y)

@@ -8,6 +8,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
+from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
 
@@ -162,8 +163,34 @@ class Init(Step):
         write_netcdf(ds, 'initial_state.nc')
 
         cell_mask = ds.maxLevelCell >= 1
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'initial_temperature.png', cell_mask=cell_mask)
+
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
                          'initial_normal_velocity.png', cmap='cmo.balance',
                          show_patch_edges=True, cell_mask=cell_mask)
+
+        y_min = ds_mesh.yVertex.min().values
+        y_max = ds_mesh.yVertex.max().values
+        x_mid = ds_mesh.xCell.median().values
+
+        y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
+        x = x_mid * xr.ones_like(y)
+
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=0),
+            bottom_depth=ds.bottomDepth, min_level_cell=ds.minLevelCell - 1,
+            max_level_cell=ds.maxLevelCell - 1, spherical=False)
+
+        field_name = 'temperature'
+        vmin = ds[field_name].min().values
+        vmax = ds[field_name].max().values
+        plot_transect(ds_transect=ds_transect,
+                      mpas_field=ds[field_name].isel(Time=0),
+                      title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
+                      out_filename=f'initial_{field_name}_section.png',
+                      vmin=vmin, vmax=vmax, cmap='cmo.thermal',
+                      colorbar_label=r'$^\circ$C', color_start_and_end=True)
+
+        plot_horiz_field(ds, ds_mesh, 'temperature', 'initial_temperature.png',
+                         vmin=vmin, vmax=vmax, cmap='cmo.thermal',
+                         cell_mask=cell_mask, transect_x=x, transect_y=y)

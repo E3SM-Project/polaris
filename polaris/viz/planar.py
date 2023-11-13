@@ -16,7 +16,10 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
                      cmap=None, cmap_set_under=None, cmap_set_over=None,
                      cmap_scale='linear', cmap_title=None, figsize=None,
                      vert_dim='nVertLevels', cell_mask=None, patches=None,
-                     patch_mask=None):
+                     patch_mask=None, transect_x=None, transect_y=None,
+                     transect_color='black', transect_start='red',
+                     transect_end='green', transect_linewidth=2.,
+                     transect_markersize=12.):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -92,6 +95,27 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         A mask of where the field has patches from a previous call to
         ``plot_horiz_field()``
 
+    transect_x : numpy.ndarray or xarray.DataArray, optional
+        The x coordinates of a transect to plot on the
+
+    transect_y : numpy.ndarray or xarray.DataArray, optional
+        The y coordinates of a transect
+
+    transect_color : str, optional
+        The color of the transect line
+
+    transect_start : str or None, optional
+        The color of a dot marking the start of the transect
+
+    transect_end : str or None, optional
+        The color of a dot marking the end of the transect
+
+    transect_linewidth : float, optional
+        The width of the transect line
+
+    transect_markersize : float, optional
+        The size of the transect start and end markers
+
     Returns
     -------
     patches : list of numpy.ndarray
@@ -101,6 +125,19 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     patch_mask : numpy.ndarray
         A mask used to select entries in the field that have patches
     """
+    if field_name not in ds:
+        raise ValueError(
+            f'{field_name} must be present in ds before plotting.')
+
+    if patches is not None:
+        if patch_mask is None:
+            raise ValueError('You must supply both patches and patch_mask '
+                             'from a previous call to plot_horiz_field()')
+
+    if (transect_x is None) != (transect_y is None):
+        raise ValueError('You must supply both transect_x and transect_y or '
+                         'neither')
+
     use_mplstyle()
 
     create_fig = True
@@ -118,10 +155,6 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if title is None:
         title = field_name
 
-    if field_name not in ds:
-        raise ValueError(
-            f'{field_name} must be present in ds before plotting.')
-
     field = ds[field_name]
 
     if 'Time' in field.dims and t_index is None:
@@ -133,11 +166,7 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if z_index is not None:
         field = field.isel({vert_dim: z_index})
 
-    if patches is not None:
-        if patch_mask is None:
-            raise ValueError('You must supply both patches and patch_mask '
-                             'from a previous call to plot_horiz_field()')
-    else:
+    if patches is None:
         if cell_mask is None:
             cell_mask = np.ones_like(field, dtype='bool')
         if 'nCells' in field.dims:
@@ -190,6 +219,18 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     cbar = plt.colorbar(local_patches, extend='both', shrink=0.7, ax=ax)
     if cmap_title is not None:
         cbar.set_label(cmap_title)
+
+    if transect_x is not None:
+        transect_x = 1e-3 * transect_x
+        transect_y = 1e-3 * transect_y
+        ax.plot(transect_x, transect_y, color=transect_color,
+                linewidth=transect_linewidth)
+        if transect_start is not None:
+            ax.plot(transect_x[0], transect_y[0], '.', color=transect_start,
+                    markersize=transect_markersize)
+        if transect_end is not None:
+            ax.plot(transect_x[-1], transect_y[-1], '.', color=transect_end,
+                    markersize=transect_markersize)
     if create_fig:
         plt.title(title)
         plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
