@@ -14,7 +14,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
                   cmap=None, figsize=(12, 6), dpi=200, method='flat',
                   outline_color='black', ssh_color=None, seafloor_color=None,
                   interface_color=None, cell_boundary_color=None,
-                  linewidth=1.0, transect_start='red', transect_end='green'):
+                  linewidth=1.0, color_start_and_end=False,
+                  start_color='red', end_color='green'):
     """
     plot a transect showing the field on the MPAS-Ocean mesh and save to a file
 
@@ -85,11 +86,18 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
     linewidth : float, optional
         The width of outlines, interfaces and cell boundaries
 
-    transect_start : str or None, optional
-        The color of left axis marking the start of the transect
+    color_start_and_end : bool, optional
+        Whether to color the left and right axes of the transect, which is
+        useful if the transect is also being plotted in an inset or on top of
+        a horizontal field
 
-    transect_end : str or None, optional
-        The color of right axis marking the end of the transect
+    start_color : str, optional
+        The color of left axis marking the start of the transect if
+        ``plot_start_end == True``
+
+    end_color : str, optional
+        The color of right axis marking the end of the transect if
+        ``plot_start_end == True``
     """
 
     if ax is None and out_filename is None:
@@ -126,8 +134,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
                          label=colorbar_label)
 
     _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, transect_start, transect_end,
-                     linewidth)
+                     ssh_color, seafloor_color, color_start_and_end,
+                     start_color, end_color, linewidth)
 
     _plot_outline(x, z, ds_transect.validNodes, ax, outline_color,
                   linewidth)
@@ -143,8 +151,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
 
 
 def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, transect_start, transect_end,
-                     linewidth):
+                     ssh_color, seafloor_color, color_start_and_end,
+                     start_color, end_color, linewidth):
     if cell_boundary_color is not None:
         x_bnd = 1e-3 * ds_transect.dCellBoundary.values.T
         z_bnd = ds_transect.zCellBoundary.values.T
@@ -170,12 +178,10 @@ def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
         ax.plot(x_floor, z_floor, color=seafloor_color, linewidth=linewidth,
                 zorder=5)
 
-    if transect_start is not None:
-        ax.spines['left'].set_color(transect_start)
+    if color_start_and_end:
+        ax.spines['left'].set_color(start_color)
         ax.spines['left'].set_linewidth(4 * linewidth)
-
-    if transect_end is not None:
-        ax.spines['right'].set_color(transect_end)
+        ax.spines['right'].set_color(end_color)
         ax.spines['right'].set_linewidth(4 * linewidth)
 
 
