@@ -12,7 +12,9 @@ from polaris.ocean.viz.transect.horiz import (
 def compute_transect(x, y, ds_horiz_mesh, layer_thickness, bottom_depth,
                      min_level_cell, max_level_cell, spherical=False):
     """
-    build a sequence of quads showing the transect intersecting mpas cells
+    build a sequence of quads showing the transect intersecting mpas cells.
+    This can be used to plot transects of fields with dimensions ``nCells`` and
+    ``nVertLevels`` using :py:func:`polaris.ocean.viz.plot_transect()`
 
     Parameters
     ----------
@@ -208,8 +210,8 @@ def find_transect_levels_and_weights(ds_horiz_transect, layer_thickness,
 
 def interp_mpas_to_transect_cells(ds_transect, da):
     """
-    Interpolate a 3D (``nCells`` by ``nVertLevels``) MPAS-Ocean DataArray
-    to transect cells
+    Interpolate an MPAS-Ocean DataArray with dimensions ``nCells`` by
+    ``nVertLevels`` to transect cells
 
     Parameters
     ----------
@@ -218,7 +220,7 @@ def interp_mpas_to_transect_cells(ds_transect, da):
         ``find_transect_levels_and_weights()``
 
     da : xarray.DataArray
-        An MPAS-Ocean 3D field with dimensions `nCells`` and ``nVertLevels``
+        An MPAS-Ocean field with dimensions `nCells`` and ``nVertLevels``
         (possibly among others)
 
     Returns
@@ -240,9 +242,9 @@ def interp_mpas_to_transect_cells(ds_transect, da):
 
 def interp_mpas_to_transect_nodes(ds_transect, da):
     """
-    Interpolate a 3D (``nCells`` by ``nVertLevels``) MPAS-Ocean DataArray
-    to transect nodes, linearly interpolating fields between the closest
-    neighboring cells
+    Interpolate an MPAS-Ocean DataArray with dimensions ``nCells`` by
+    ``nVertLevels`` to transect nodes, linearly interpolating fields between
+    the closest neighboring cells
 
     Parameters
     ----------
@@ -251,7 +253,7 @@ def interp_mpas_to_transect_nodes(ds_transect, da):
         ``find_transect_levels_and_weights()``
 
     da : xarray.DataArray
-        An MPAS-Ocean 3D field with dimensions `nCells`` and ``nVertLevels``
+        An MPAS-Ocean field with dimensions `nCells`` and ``nVertLevels``
         (possibly among others)
 
     Returns
