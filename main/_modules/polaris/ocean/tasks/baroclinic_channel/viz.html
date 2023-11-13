@@ -113,6 +113,7 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.viz</span> <span class="kn">import</span> <span class="n">compute_transect</span><span class="p">,</span> <span class="n">plot_transect</span>
 <span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
@@ -152,16 +153,43 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
         <span class="n">t_index</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;final_temperature.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
         <span class="n">max_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">normalVelocity</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
         <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
                          <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
                          <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
                          <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span></div></div>
+                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+
+        <span class="n">y_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">x_mid</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x_mid</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">),</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">field_name</span> <span class="o">=</span> <span class="s1">&#39;temperature&#39;</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
+        <span class="n">plot_transect</span><span class="p">(</span><span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
+                      <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at x=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km&#39;</span><span class="p">,</span>
+                      <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;final_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section.png&#39;</span><span class="p">,</span>
+                      <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
+                      <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^\circ$C&#39;</span><span class="p">,</span> <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;final_temperature.png&#39;</span><span class="p">,</span>
+                         <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+                         <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">transect_x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                         <span class="n">transect_y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

@@ -314,3 +314,22 @@
    vertical.zlevel.compute_z_level_resting_thickness
    vertical.zstar.init_z_star_vertical_coord
 ```
+
+### Visualization
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.viz
+
+.. autosummary::
+   :toctree: generated/
+
+   compute_transect
+   plot_transect
+   transect.horiz.find_spherical_transect_cells_and_weights
+   transect.horiz.find_planar_transect_cells_and_weights
+   transect.horiz.make_triangle_tree
+   transect.horiz.mesh_to_triangles
+   transect.vert.find_transect_levels_and_weights
+   transect.vert.interp_mpas_to_transect_cells
+   transect.vert.interp_mpas_to_transect_nodes
+

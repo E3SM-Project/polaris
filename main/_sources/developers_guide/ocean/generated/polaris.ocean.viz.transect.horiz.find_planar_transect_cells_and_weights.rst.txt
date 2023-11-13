@@ -1,0 +1,6 @@
+﻿polaris.ocean.viz.transect.horiz.find\_planar\_transect\_cells\_and\_weights
+============================================================================
+
+.. currentmodule:: polaris.ocean.viz.transect.horiz
+
+.. autofunction:: find_planar_transect_cells_and_weights

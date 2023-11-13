@@ -658,6 +658,44 @@
 </tbody>
 </table>
 </section>
+<section id="visualization">
+<h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.compute_transect.html#polaris.ocean.viz.compute_transect" title="polaris.ocean.viz.compute_transect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_transect</span></code></a>(x, y, ds_horiz_mesh, ...[, ...])</p></td>
+<td><p>build a sequence of quads showing the transect intersecting mpas cells.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transect</span></code></a>(ds_transect[, mpas_field, ...])</p></td>
+<td><p>plot a transect showing the field on the MPAS-Ocean mesh and save to a file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.find_spherical_transect_cells_and_weights</span></code></a>(...)</p></td>
+<td><p>Find &quot;nodes&quot; where the transect intersects the edges of the triangles that make up MPAS cells.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.find_planar_transect_cells_and_weights</span></code></a>(...)</p></td>
+<td><p>Find &quot;nodes&quot; where the transect intersects the edges of the triangles that make up MPAS cells.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.make_triangle_tree.html#polaris.ocean.viz.transect.horiz.make_triangle_tree" title="polaris.ocean.viz.transect.horiz.make_triangle_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.make_triangle_tree</span></code></a>(ds_tris)</p></td>
+<td><p>Make a KD-Tree for finding triangle edges that are near enough to transect segments that they might intersect</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.mesh_to_triangles.html#polaris.ocean.viz.transect.horiz.mesh_to_triangles" title="polaris.ocean.viz.transect.horiz.mesh_to_triangles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.mesh_to_triangles</span></code></a>(ds_mesh)</p></td>
+<td><p>Construct a dataset in which each MPAS cell is divided into the triangles connecting pairs of adjacent vertices to cell centers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.find_transect_levels_and_weights.html#polaris.ocean.viz.transect.vert.find_transect_levels_and_weights" title="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.find_transect_levels_and_weights</span></code></a>(...)</p></td>
+<td><p>Construct a vertical coordinate for a transect produced by <a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights()</span></code></a> or <a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells.html#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.interp_mpas_to_transect_cells</span></code></a>(...)</p></td>
+<td><p>Interpolate an MPAS-Ocean DataArray with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> to transect cells</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes.html#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.interp_mpas_to_transect_nodes</span></code></a>(...)</p></td>
+<td><p>Interpolate an MPAS-Ocean DataArray with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> to transect nodes, linearly interpolating fields between the closest neighboring cells</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 
