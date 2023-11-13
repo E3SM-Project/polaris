@@ -51,15 +51,9 @@ class Viz(Step):
                          cmap='cmo.balance', show_patch_edges=True,
                          cell_mask=cell_mask)
 
-        x_cell = ds_mesh.xCell
-        y_cell = ds_mesh.yCell
-
-        x_min = x_cell.min().values
-        x_max = x_cell.max().values
-        y_min = y_cell.min().values
-        y_max = y_cell.max().values
-
-        x_mid = 0.5 * (x_min + x_max)
+        y_min = ds_mesh.yVertex.min().values
+        y_max = ds_mesh.yVertex.max().values
+        x_mid = ds_mesh.xCell.median().values
 
         y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
         x = x_mid * xr.ones_like(y)
@@ -73,14 +67,16 @@ class Viz(Step):
             spherical=False)
 
         field_name = 'temperature'
+        vmin = ds[field_name].min().values
+        vmax = ds[field_name].max().values
         mpas_field = ds[field_name].isel(Time=t_index)
         plot_transect(ds_transect=ds_transect, mpas_field=mpas_field,
                       title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
                       out_filename=f'final_{field_name}_section.png',
-                      vmin=9., vmax=13., cmap='cmo.thermal',
-                      colorbar_label=r'$^\circ$C')
+                      vmin=vmin, vmax=vmax, cmap='cmo.thermal',
+                      colorbar_label=r'$^\circ$C', color_start_and_end=True)
 
         plot_horiz_field(ds, ds_mesh, 'temperature', 'final_temperature.png',
-                         t_index=t_index, vmin=9., vmax=13.,
+                         t_index=t_index, vmin=vmin, vmax=vmax,
                          cmap='cmo.thermal', cell_mask=cell_mask, transect_x=x,
                          transect_y=y)

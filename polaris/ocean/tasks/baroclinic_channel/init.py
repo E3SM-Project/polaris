@@ -168,7 +168,9 @@ class Init(Step):
                          'initial_normal_velocity.png', cmap='cmo.balance',
                          show_patch_edges=True, cell_mask=cell_mask)
 
-        x_mid = 0.5 * (x_min + x_max)
+        y_min = ds_mesh.yVertex.min().values
+        y_max = ds_mesh.yVertex.max().values
+        x_mid = ds_mesh.xCell.median().values
 
         y = xr.DataArray(data=np.linspace(y_min, y_max, 2), dims=('nPoints',))
         x = x_mid * xr.ones_like(y)
@@ -180,13 +182,15 @@ class Init(Step):
             max_level_cell=ds.maxLevelCell - 1, spherical=False)
 
         field_name = 'temperature'
+        vmin = ds[field_name].min().values
+        vmax = ds[field_name].max().values
         plot_transect(ds_transect=ds_transect,
                       mpas_field=ds[field_name].isel(Time=0),
                       title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
                       out_filename=f'initial_{field_name}_section.png',
-                      vmin=9., vmax=13., cmap='cmo.thermal',
-                      colorbar_label=r'$^\circ$C')
+                      vmin=vmin, vmax=vmax, cmap='cmo.thermal',
+                      colorbar_label=r'$^\circ$C', color_start_and_end=True)
 
         plot_horiz_field(ds, ds_mesh, 'temperature', 'initial_temperature.png',
-                         vmin=9., vmax=13., cmap='cmo.thermal',
+                         vmin=vmin, vmax=vmax, cmap='cmo.thermal',
                          cell_mask=cell_mask, transect_x=x, transect_y=y)
