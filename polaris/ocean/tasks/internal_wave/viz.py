@@ -81,6 +81,7 @@ class Viz(Step):
                       interface_color='grey',
                       vmin=vmin_temp, vmax=vmax_temp,
                       colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+
         w_values = ds.vertVelocityTop.isel(Time=tidx).values[:, :-1]
         w = w_values * xr.ones_like(ds.temperature.isel(Time=tidx))
         plot_transect(

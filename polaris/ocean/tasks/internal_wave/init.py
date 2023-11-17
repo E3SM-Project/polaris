@@ -73,7 +73,6 @@ class Init(Step):
 
         ds = ds_mesh.copy()
 
-
         y_cell = ds.yCell
         ds['maxLevelCell'] = vert_levels * xr.ones_like(y_cell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(y_cell)

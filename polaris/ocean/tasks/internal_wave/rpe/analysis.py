@@ -11,7 +11,7 @@ from polaris.viz import use_mplstyle
 
 class Analysis(Step):
     """
-    A step for plotting the results of a series of baroclinic channel RPE runs
+    A step for plotting the results of a series of internal wave RPE runs
 
     Attributes
     ----------
