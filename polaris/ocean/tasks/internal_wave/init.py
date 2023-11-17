@@ -8,7 +8,6 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.viz import plot_horiz_field
 
 
 class Init(Step):
@@ -132,9 +131,3 @@ class Init(Step):
         ds.attrs['dc'] = dc
 
         write_netcdf(ds, 'initial_state.nc')
-
-        plot_horiz_field(ds, ds_mesh, 'temperature',
-                         'initial_temperature.png')
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
-                         'initial_normal_velocity.png', cmap='cmo.balance',
-                         show_patch_edges=True)
