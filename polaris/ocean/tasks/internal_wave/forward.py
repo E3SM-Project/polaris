@@ -1,3 +1,5 @@
+import time
+
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep
 
@@ -102,3 +104,36 @@ class Forward(OceanModelStep):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         cell_count = nx * ny
         return cell_count
+
+    def dynamic_model_config(self, at_setup):
+        """
+        Add model config options, namelist, streams and yaml files using config
+        options or template replacements that need to be set both during step
+        setup and at runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup)
+
+        config = self.config
+
+        options = dict()
+
+        # dt is proportional to resolution: default 30 seconds per km
+        resolution = config.getfloat('internal_wave', 'resolution')
+        dt_per_km = config.getfloat('internal_wave', 'dt_per_km')
+        dt = dt_per_km * resolution
+        # https://stackoverflow.com/a/1384565/7728169
+        options['config_dt'] = \
+            time.strftime('%H:%M:%S', time.gmtime(dt))
+
+        if self.run_time_steps is not None:
+            # default run duration is a few time steps
+            run_seconds = self.run_time_steps * dt
+            options['config_run_duration'] = \
+                time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+        self.add_model_config_options(options=options)
