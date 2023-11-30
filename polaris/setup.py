@@ -345,14 +345,8 @@ def _add_task_configs(component, tasks, common_config):
 
     # get a list of shared steps and add config files for tasks to the
     # component
-    shared_steps = dict()
     configs = dict()
     for task in tasks.values():
-        for step in task.steps.values():
-            is_shared = len(step.tasks) > 1
-            if is_shared:
-                shared_steps[step.subdir] = step
-
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
             task.config.filepath = os.path.join(task.subdir,
@@ -391,8 +385,7 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
     for task in tasks.values():
         configs[task.config.filepath] = task.config
         for step in task.steps.values():
-            is_shared = len(step.tasks) > 1
-            if is_shared:
+            if step.has_shared_config:
                 configs[step.config.filepath] = step.config
                 if step.config.filepath is None:
                     step.config_filename = f'{step.name}.cfg'
@@ -402,8 +395,7 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
                     new_configs[step.config.filepath] = step.config
                     component.add_config(step.config)
             else:
-                step.set_shared_config(task.config,
-                                       link=task.config_filename)
+                step._set_config(task.config, link=task.config_filename)
 
     for config in new_configs.values():
         config.prepend(common_config)
