@@ -1,0 +1,8 @@
+omega:
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+  streams:
+    globalStatsOutput:
+      output_interval: 0000_00:10:00
