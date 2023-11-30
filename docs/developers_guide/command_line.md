@@ -91,7 +91,7 @@ The command-line options are:
 
 ```none
 $ polaris setup --help
-usage: polaris setup [-h] [-t PATH] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
+usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
                      [--cached STEP [STEP ...]] [--copy_executable] [--clean]
 
@@ -103,12 +103,12 @@ command-line options.
 The tasks to set up can be specified either by relative path or by number.
 The `-t` or `--task` flag is used to pass the relative path of the task
 within the resulting work directory.  The is the path given by
-{ref}`dev-polaris-list`.  Only one task at a time can be supplied to
-`polaris setup` this way.
+{ref}`dev-polaris-list`.  You can specify several tasks at once, separated by 
+spaces, this way.
 
 Alternatively, you can supply the task numbers of any number of tasks to
 the `-n` or `--task_number` flag.  Multiple test numbers are separated by
-spaces.  These are the test numbers  given by {ref}`dev-polaris-list`.
+spaces.  These are the test numbers given by {ref}`dev-polaris-list`.
 
 `polaris setup` requires a few basic pieces of information to be able to set
 up a task.  These include places to download and cache some data files
