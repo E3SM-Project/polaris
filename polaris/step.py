@@ -91,6 +91,9 @@ class Step:
         file from another step is an input of this step to establish a
         dependency.
 
+    has_shared_config : bool
+        Whether this step uses a shared config file.
+
     is_dependency : bool
         Whether this step is the dependency of one or more other steps.
 
@@ -227,6 +230,8 @@ class Step:
         self.path = os.path.join(self.component.name, self.subdir)
 
         self.run_as_subprocess = run_as_subprocess
+
+        self.has_shared_config = False
 
         self.config = PolarisConfigParser()
         self.config_filename = ""
@@ -538,20 +543,8 @@ class Step:
             directory. If not provided, the config file itself must be in
             the step's work directory
         """
-        self.component.add_config(config)
-
-        self.config = config
-        if link is None:
-            directory, basename = os.path.split(config.filepath)
-            if directory != self.subdir:
-                raise ValueError('No link parameter was provided but the '
-                                 'config file is not in this step\'s work '
-                                 'directory.')
-            self.config_filename = basename
-        else:
-            self.config_filename = link
-            config_link = os.path.join(self.subdir, link)
-            config.symlinks.append(config_link)
+        self.has_shared_config = True
+        self._set_config(config=config, link=link)
 
     def process_inputs_and_outputs(self):
         """
@@ -598,6 +591,36 @@ class Step:
         # inputs are already absolute paths, convert outputs to absolute paths
         self.outputs = [os.path.abspath(os.path.join(step_dir, filename)) for
                         filename in self.outputs]
+
+    def _set_config(self, config, link=None):
+        """
+        Replace the step's config parser with the shared config parser
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            A shared config parser whose ``filepath`` attribute must have been
+            set
+
+        link : str, optional
+            A link to the shared config file to go in the step's work
+            directory. If not provided, the config file itself must be in
+            the step's work directory
+        """
+        self.component.add_config(config)
+
+        self.config = config
+        if link is None:
+            directory, basename = os.path.split(config.filepath)
+            if directory != self.subdir:
+                raise ValueError('No link parameter was provided but the '
+                                 'config file is not in this step\'s work '
+                                 'directory.')
+            self.config_filename = basename
+        else:
+            self.config_filename = link
+            config_link = os.path.join(self.subdir, link)
+            config.symlinks.append(config_link)
 
     @staticmethod
     def _process_input(entry, config, base_work_dir, component, step_dir):
