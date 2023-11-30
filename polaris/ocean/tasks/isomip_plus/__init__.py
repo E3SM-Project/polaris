@@ -72,7 +72,7 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
         base_mesh = SphericalMesh(component=component,
                                   cell_width=resolution,
                                   subdir=subdir)
-        base_mesh.config = config
+        base_mesh.set_shared_config(config, link='isomip_plus_topo.cfg')
 
     subdir = f'{resdir}/topo/map_base'
     # we remap the topography onto the base mesh without smoothing and with

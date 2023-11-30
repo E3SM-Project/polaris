@@ -55,7 +55,7 @@ class TopoMap(MappingFileStep):
         self.mesh_name = mesh_name
         self.method = method
         self.smooth = smooth
-        self.set_shared_config(config, link='isomip_plus.cfg')
+        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         # since all geometry is on the same mesh, we'll use Ocean1 here
         geom_filename = 'Ocean1_input_geom_v1.01.nc'

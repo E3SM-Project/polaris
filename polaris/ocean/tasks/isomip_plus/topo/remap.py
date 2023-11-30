@@ -39,7 +39,7 @@ class TopoRemap(Step):
         """
         super().__init__(component=component, name=name, subdir=subdir)
 
-        self.set_shared_config(config, link='isomip_plus.cfg')
+        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         geom_filenames = dict(
             ocean1='Ocean1_input_geom_v1.01.nc',

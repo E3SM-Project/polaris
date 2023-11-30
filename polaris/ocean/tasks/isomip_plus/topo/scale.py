@@ -44,7 +44,7 @@ class TopoScale(Step):
         super().__init__(component=component, name='topo_scale', subdir=subdir)
         self.experiment = experiment
 
-        self.set_shared_config(config, link='isomip_plus.cfg')
+        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         topo_filename = os.path.join(topo_remap.path, 'topography_remapped.nc')
         self.add_input_file(filename='topography_unscaled.nc',
