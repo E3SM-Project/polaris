@@ -94,7 +94,7 @@ class Init(Step):
 
         x_cell = ds.xCell
         y_cell = ds.yCell
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.x_cell)
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
 
         # Column thickness is a piecewise linear function
         column_thickness = xr.where(

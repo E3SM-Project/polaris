@@ -48,7 +48,7 @@ def add_ice_shelf_2d_tasks(component):
             name = f'ssh_adjust_{iteration - 1}'
             ssh_adjust = SshAdjustment(
                 component=component, resolution=resolution, indir=resdir,
-                name=name, forward=ssh_forward)
+                name=name, init=shared_steps['init'], forward=ssh_forward)
             ssh_adjust.set_shared_config(config, link=config_filename)
             shared_steps[name] = ssh_adjust
             name = f'ssh_forward_{iteration}'
@@ -63,7 +63,7 @@ def add_ice_shelf_2d_tasks(component):
         name = f'ssh_adjust_{iteration - 1}'
         ssh_adjust = SshAdjustment(
             component=component, resolution=resolution, indir=resdir,
-            name=name, forward=ssh_forward)
+            name=name, init=shared_steps['init'], forward=ssh_forward)
         ssh_adjust.set_shared_config(config, link=config_filename)
         shared_steps[name] = ssh_adjust
 
