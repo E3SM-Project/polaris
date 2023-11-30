@@ -1,5 +1,6 @@
 import os
 
+from polaris.config import PolarisConfigParser
 from polaris.mesh.spherical import (
     IcosahedralMeshStep,
     QuasiUniformSphericalMeshStep,
@@ -55,10 +56,11 @@ def add_spherical_base_mesh_step(component, resolution, icosahedral):
                 cell_width=resolution)
 
         # add default config options for spherical meshes
-        base_mesh.config_filename = f'{base_mesh.name}.cfg'
-        base_mesh.config.filepath = os.path.join(base_mesh.subdir,
-                                                 base_mesh.config_filename)
-        base_mesh.config.add_from_package('polaris.mesh', 'spherical.cfg')
+        config_filename = f'{base_mesh.name}.cfg'
+        filepath = os.path.join(base_mesh.subdir, config_filename)
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.mesh', 'spherical.cfg')
+        base_mesh.set_shared_config(config)
 
         component.add_step(base_mesh)
 
