@@ -1,3 +1,24 @@
+{% if env_type == 'dev' -%}
+export POLARIS_BRANCH="{{ polaris_source_path }}"
+export POLARIS_VERSION="{{ polaris_version }}"
+
+version_file="${POLARIS_BRANCH}/polaris/version.py"
+code_version=$(cat $version_file)
+if [[ "$code_version" != *"$POLARIS_VERSION"* ]]; then
+
+echo "This load script is for a different version of polaris:"
+echo "__version__ = '$POLARIS_VERSION'"
+echo ""
+echo "Your code is version:"
+echo "$code_version"
+echo ""
+echo "You need to run ./configure_polaris_envs.py to update your conda "
+echo "environment and load script."
+
+else
+# the right polaris version
+{%- endif %}
+
 echo Loading conda environment
 source {{ conda_base }}/etc/profile.d/conda.sh
 source {{ conda_base }}/etc/profile.d/mamba.sh
@@ -10,3 +31,8 @@ echo
 {{ spack }}
 
 {{ env_vars }}
+
+{% if env_type == 'dev' -%}
+# the right polaris version
+fi
+{%- endif %}
