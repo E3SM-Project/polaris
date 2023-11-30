@@ -1,7 +1,5 @@
-import time
-
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class Forward(OceanModelStep):
@@ -13,16 +11,12 @@ class Forward(OceanModelStep):
     ----------
     resolution : float
         The resolution of the task in km
-
-    dt : float
-        The model time step in seconds
-
-    btr_dt : float
-        The model barotropic time step in seconds
     """
-    def __init__(self, component, resolution, mesh, init, name='forward',
-                 subdir=None, indir=None, ntasks=None, min_tasks=None,
-                 openmp_threads=1):
+    def __init__(self, component, resolution, mesh, init,
+                 name='forward', subdir=None, indir=None,
+                 ntasks=None, min_tasks=None, openmp_threads=1,
+                 tidal_forcing=False, time_varying_forcing=False,
+                 thin_film=False):
         """
         Create a new task
 
@@ -56,29 +50,29 @@ class Forward(OceanModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
         """
-        self.resolution = resolution
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
+        self.resolution = resolution
+        self.tidal_forcing = tidal_forcing
+        self.time_varying_forcing = time_varying_forcing
+        self.thin_film = thin_film
+
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
+        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                           'global_stats.yaml')
 
-        self.add_input_file(filename='initial_state.nc',
-                            target='../../init/initial_state.nc')
+        self.add_input_file(filename='init.nc',
+                            work_dir_target=f'{init.path}/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../../init/culled_graph.info')
-
-        self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
-                           'forward.yaml')
+                            work_dir_target=f'{mesh.path}/culled_graph.info')
 
         self.add_output_file(
             filename='output.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness',
                            'normalVelocity'])
-
-        self.dt = None
-        self.btr_dt = None
 
     def compute_cell_count(self):
         """
@@ -112,25 +106,57 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         config = self.config
-
-        options = dict()
-        # TODO config_use_tidal_forcing
-        # TODO config_use_time_varying_forcing
+        section = config['ice_shelf_2d']
 
         # dt is proportional to resolution: default 30 seconds per km
-        dt_per_km = config.getfloat('ice_shelf_2d', 'dt_per_km')
-        dt = dt_per_km * self.resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(dt))
+        time_integrator = section.get('time_integrator')
+
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        else:
+            dt_per_km = section.getfloat('split_dt_per_km')
+        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = config.getfloat('ice_shelf_2d', 'btr_dt_per_km')
-        btr_dt = btr_dt_per_km * self.resolution
-        options['config_btr_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+        btr_dt_per_km = section.getfloat('btr_dt_per_km')
+        btr_dt_str = get_time_interval_string(
+            seconds=btr_dt_per_km * self.resolution)
 
-        self.dt = dt
-        self.btr_dt = btr_dt
+        s_per_hour = 3600.
+        run_duration = section.getfloat('forward_run_duration')
+        run_duration_str = get_time_interval_string(
+            seconds=run_duration * s_per_hour)
 
-        self.add_model_config_options(options=options)
+        output_interval = section.getfloat('forward_output_interval')
+        output_interval_str = get_time_interval_string(
+            seconds=output_interval * s_per_hour)
+
+        replacements = dict(
+            time_integrator=time_integrator,
+            dt=dt_str,
+            btr_dt=btr_dt_str,
+            run_duration=run_duration_str,
+            output_interval=output_interval_str,
+            land_ice_flux_mode='standalone',
+        )
+
+        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                           'forward.yaml',
+                           template_replacements=replacements)
+
+        if self.time_varying_forcing:
+            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                               'time_varying_forcing.yaml')
+        if self.tidal_forcing:
+            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                               'tidal_forcing.yaml')
+        if self.thin_film:
+            d1 = section.getfloat('y1_water_column_thickness')
+            replacements = dict(
+                thin_film_thickness=f'{d1}',
+                thin_film_ramp_hmin=f'{d1}',
+                thin_film_ramp_hmax=f'{d1 * 10.}',
+            )
+            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                               'thin_film.yaml',
+                               template_replacements=replacements)
