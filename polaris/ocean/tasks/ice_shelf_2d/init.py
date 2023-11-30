@@ -94,7 +94,7 @@ class Init(Step):
 
         x_cell = ds.xCell
         y_cell = ds.yCell
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.x_cell)
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
 
         # Column thickness is a piecewise linear function
         column_thickness = xr.where(
@@ -155,7 +155,7 @@ class Init(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        write_netcdf(ds, 'output.nc')
 
         # Generate the tidal forcing dataset whether it is used or not
         ds_forcing = xr.Dataset()
