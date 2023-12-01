@@ -6,7 +6,6 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.logging import LoggingContext
 from mpas_tools.mesh.conversion import cull
 from mpas_tools.mesh.creation.sort_mesh import sort_mesh
-from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.model_step import make_graph_file
@@ -70,9 +69,6 @@ class CullMesh(Step):
         """
         logger = self.logger
 
-        # only use progress bars if we're not writing to a log file
-        use_progress_bar = self.log_filename is None
-
         with LoggingContext(name=__name__, logger=logger) as logger:
             _land_mask_from_topo(topo_filename='topography.nc',
                                  mask_filename='land_mask.nc')
@@ -95,12 +91,6 @@ class CullMesh(Step):
             # we need to make the graph file after sorting
             make_graph_file(mesh_filename='culled_mesh.nc',
                             graph_filename='culled_graph.info')
-
-            extract_vtk(ignore_time=True, dimension_list=['maxEdges='],
-                        variable_list=['allOnCells'],
-                        filename_pattern='culled_mesh.nc',
-                        out_dir='culled_mesh_vtk',
-                        use_progress_bar=use_progress_bar)
 
 
 def _land_mask_from_topo(topo_filename, mask_filename):
