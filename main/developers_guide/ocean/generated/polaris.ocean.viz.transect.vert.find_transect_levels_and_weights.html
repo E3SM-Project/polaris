@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.vert.find_transect_levels_and_weights</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -135,16 +136,16 @@ Also, compute interpolation weights such that observations at points on the
 original transect and with vertical coordinate <code class="docutils literal notranslate"><span class="pre">transectZ</span></code> can be
 bilinearly interpolated to the nodes of the transect.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds_horiz_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.10.2.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines nodes of the transect</p></li>
-<li><p><strong>layer_thickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – layer thicknesses on the MPAS mesh</p></li>
-<li><p><strong>bottom_depth</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the (positive down) depth of the seafloor on the MPAS mesh</p></li>
-<li><p><strong>min_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the sea surface on the MPAS mesh</p></li>
-<li><p><strong>max_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the bathymetry on the MPAS mesh</p></li>
+<li><p><strong>ds_horiz_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.11.1.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines nodes of the transect</p></li>
+<li><p><strong>layer_thickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – layer thicknesses on the MPAS mesh</p></li>
+<li><p><strong>bottom_depth</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the (positive down) depth of the seafloor on the MPAS mesh</p></li>
+<li><p><strong>min_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the sea surface on the MPAS mesh</p></li>
+<li><p><strong>max_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the bathymetry on the MPAS mesh</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p><strong>ds_transect</strong> (<em>xarray.Dataset</em>) – A dataset that contains nodes and cells that make up a 2D transect.</p>
 <p>There are <code class="docutils literal notranslate"><span class="pre">nSegments</span></code> horizontal and <code class="docutils literal notranslate"><span class="pre">nHalfLevels</span></code> vertical
 transect cells (quadrilaterals), bounded by <code class="docutils literal notranslate"><span class="pre">nHorizNodes</span></code> horizontal

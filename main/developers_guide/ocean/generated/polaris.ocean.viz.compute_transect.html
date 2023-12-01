@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.compute_transect</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -132,21 +133,21 @@
 This can be used to plot transects of fields with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> and
 <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> using <a class="reference internal" href="polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.plot_transect()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – The x or longitude coordinate of the transect</p></li>
-<li><p><strong>y</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – The y or latitude coordinate of the transect</p></li>
-<li><p><strong>ds_horiz_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.10.2.dev0)"><em>xarray.Dataset</em></a>) – The horizontal MPAS mesh to use for plotting</p></li>
-<li><p><strong>layer_thickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – The layer thickness at a particular instant in time.
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – The x or longitude coordinate of the transect</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – The y or latitude coordinate of the transect</p></li>
+<li><p><strong>ds_horiz_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2023.11.1.dev0)"><em>xarray.Dataset</em></a>) – The horizontal MPAS mesh to use for plotting</p></li>
+<li><p><strong>layer_thickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – The layer thickness at a particular instant in time.
 <cite>layerThickness.isel(Time=tidx)</cite> to select a particular time index
 <cite>tidx</cite> if the original data array contains <cite>Time</cite>.</p></li>
-<li><p><strong>bottom_depth</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the (positive down) depth of the seafloor on the MPAS mesh</p></li>
-<li><p><strong>min_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the sea surface on the MPAS mesh</p></li>
-<li><p><strong>max_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.10.2.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the bathymetry on the MPAS mesh</p></li>
+<li><p><strong>bottom_depth</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the (positive down) depth of the seafloor on the MPAS mesh</p></li>
+<li><p><strong>min_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the sea surface on the MPAS mesh</p></li>
+<li><p><strong>max_level_cell</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2023.11.1.dev0)"><em>xarray.DataArray</em></a>) – the vertical zero-based index of the bathymetry on the MPAS mesh</p></li>
 <li><p><strong>spherical</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the x and y coordinates are latitude and longitude in degrees</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ds_transect</strong> (<em>xarray.Dataset</em>) – The transect dataset, see
 <a class="reference internal" href="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights.html#polaris.ocean.viz.transect.vert.find_transect_levels_and_weights" title="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.vert.find_transect_levels_and_weights()</span></code></a>
 for details</p>

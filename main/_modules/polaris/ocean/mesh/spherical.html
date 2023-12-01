@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.mesh.spherical</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
         <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -109,6 +110,7 @@
   <h1>Source code for polaris.ocean.mesh.spherical</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.mesh.spherical</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
     <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
@@ -164,10 +166,11 @@
                 <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
 
         <span class="c1"># add default config options for spherical meshes</span>
-        <span class="n">base_mesh</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
-        <span class="n">base_mesh</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
-                                                 <span class="n">base_mesh</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
-        <span class="n">base_mesh</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+        <span class="n">base_mesh</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh</span><span class="p">)</span>
 
