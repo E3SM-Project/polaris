@@ -337,6 +337,8 @@ def _setup_configs(component, tasks, work_dir, config_file, machine,
 
     _write_configs(common_config, configs, component.name, work_dir)
 
+    _symlink_configs(tasks, component.name, work_dir)
+
 
 def _add_task_configs(component, tasks, common_config):
     """
@@ -345,14 +347,8 @@ def _add_task_configs(component, tasks, common_config):
 
     # get a list of shared steps and add config files for tasks to the
     # component
-    shared_steps = dict()
     configs = dict()
     for task in tasks.values():
-        for step in task.steps.values():
-            is_shared = len(step.tasks) > 1
-            if is_shared:
-                shared_steps[step.subdir] = step
-
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
             task.config.filepath = os.path.join(task.subdir,
@@ -378,11 +374,11 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
     for config in initial_configs.values():
         for task in config.tasks:
             task.configure()
-            task.config.set(section=f'{task.name}',
-                            option='steps_to_run',
-                            value=' '.join(task.steps_to_run),
-                            comment=f'A list of steps to include when running '
-                                    f'the {task.name} task')
+            config.set(section=f'{task.name}',
+                       option='steps_to_run',
+                       value=' '.join(task.steps_to_run),
+                       comment=f'A list of steps to include when running the '
+                               f'{task.name} task')
 
     # add configs to steps after calling task.configure() on all tasks in case
     # new steps were added
@@ -391,8 +387,7 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
     for task in tasks.values():
         configs[task.config.filepath] = task.config
         for step in task.steps.values():
-            is_shared = len(step.tasks) > 1
-            if is_shared:
+            if step.has_shared_config:
                 configs[step.config.filepath] = step.config
                 if step.config.filepath is None:
                     step.config_filename = f'{step.name}.cfg'
@@ -402,8 +397,7 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
                     new_configs[step.config.filepath] = step.config
                     component.add_config(step.config)
             else:
-                step.set_shared_config(task.config,
-                                       link=task.config_filename)
+                step._set_config(task.config, link=task.config_filename)
 
     for config in new_configs.values():
         config.prepend(common_config)
@@ -413,13 +407,13 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
 
 
 def _write_configs(common_config, configs, component_name, work_dir):
-    """ Write out and symlink all the config files """
+    """ Write out all the config files """
 
     # add the common config at the component level
     common_config.filepath = f'{component_name}.cfg'
     configs[common_config.filepath] = common_config
 
-    # finally, write out the config files and make the symlinks
+    # finally, write out the config files
     component_work_dir = os.path.join(work_dir, component_name)
     for config in configs.values():
         config_filepath = os.path.join(component_work_dir, config.filepath)
@@ -430,14 +424,37 @@ def _write_configs(common_config, configs, component_name, work_dir):
             pass
         with open(config_filepath, 'w') as f:
             config.write(f)
-        for link in config.symlinks:
-            link_filepath = os.path.join(component_work_dir, link)
-            link_dir = os.path.dirname(link_filepath)
+
+
+def _symlink_configs(tasks, component_name, work_dir):
+    """ Symlink config files for requested tasks and steps """
+
+    component_work_dir = os.path.join(work_dir, component_name)
+
+    symlinks = dict()
+    for task in tasks.values():
+        config = task.config
+        config_filepath = os.path.join(component_work_dir, config.filepath)
+        link_path = os.path.join(component_work_dir, task.subdir,
+                                 task.config_filename)
+        if not os.path.exists(link_path) and link_path not in symlinks:
+            symlinks[link_path] = config_filepath
+
+        for step in task.steps.values():
+            config = step.config
+            config_filepath = os.path.join(component_work_dir, config.filepath)
+            link_path = os.path.join(component_work_dir, step.subdir,
+                                     step.config_filename)
+            if not os.path.exists(link_path) and link_path not in symlinks:
+                symlinks[link_path] = config_filepath
+
+        for link_path, config_filepath in symlinks.items():
+            link_dir = os.path.dirname(link_path)
             try:
                 os.makedirs(link_dir)
             except FileExistsError:
                 pass
-            symlink(config_filepath, link_filepath)
+            symlink(config_filepath, link_path)
 
 
 def _clean_tasks_and_steps(tasks, base_work_dir):
