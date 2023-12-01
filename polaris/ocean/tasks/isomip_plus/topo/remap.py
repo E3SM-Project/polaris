@@ -109,6 +109,8 @@ class TopoRemap(Step):
             drop = ['x', 'y', 'area', 'lat_vertices', 'lon_vertices']
             rename = {'ncol': 'nCells'}
             if 't' in ds_out.dims:
+                # this confusing bit first drops the t coordinate, then renames
+                # the t dimension to Time
                 drop.append('t')
                 rename['t'] = 'Time'
             ds_out = ds_out.drop_vars(drop)
