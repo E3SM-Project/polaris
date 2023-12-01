@@ -619,8 +619,6 @@ class Step:
             self.config_filename = basename
         else:
             self.config_filename = link
-            config_link = os.path.join(self.subdir, link)
-            config.symlinks.append(config_link)
 
     @staticmethod
     def _process_input(entry, config, base_work_dir, component, step_dir):
