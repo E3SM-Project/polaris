@@ -68,10 +68,13 @@ class CullMesh(Step):
         Run this step
         """
         logger = self.logger
+        section = self.config['isomip_plus_topo']
+        min_ocean_fraction = section.getfloat('min_ocean_fraction')
 
         with LoggingContext(name=__name__, logger=logger) as logger:
             _land_mask_from_topo(topo_filename='topography.nc',
-                                 mask_filename='land_mask.nc')
+                                 mask_filename='land_mask.nc',
+                                 min_ocean_fraction=min_ocean_fraction)
 
             ds_base = xr.open_dataset('base_mesh.nc')
             ds_land_mask = xr.open_dataset('land_mask.nc')
@@ -93,13 +96,13 @@ class CullMesh(Step):
                             graph_filename='culled_graph.info')
 
 
-def _land_mask_from_topo(topo_filename, mask_filename):
+def _land_mask_from_topo(topo_filename, mask_filename, min_ocean_fraction):
     ds_topo = xr.open_dataset(topo_filename)
 
     ocean_frac = ds_topo.oceanFraction
 
     # we want the mask to be 1 where there's not ocean
-    mask = np.logical_or(ocean_frac < 0.5, ocean_frac.isnull())
+    mask = np.logical_or(ocean_frac < min_ocean_fraction, ocean_frac.isnull())
     cull_mask = xr.where(mask, 1, 0)
 
     cull_mask = cull_mask.expand_dims(dim='nRegions', axis=1)
