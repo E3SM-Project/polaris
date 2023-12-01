@@ -14,9 +14,7 @@ class Forward(OceanModelStep):
     """
     def __init__(self, component, resolution, mesh, init,
                  name='forward', subdir=None, indir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1,
-                 tidal_forcing=False, time_varying_forcing=False,
-                 thin_film=False):
+                 ntasks=None, min_tasks=None, openmp_threads=1):
         """
         Create a new task
 
@@ -55,9 +53,6 @@ class Forward(OceanModelStep):
                          openmp_threads=openmp_threads)
 
         self.resolution = resolution
-        self.tidal_forcing = tidal_forcing
-        self.time_varying_forcing = time_varying_forcing
-        self.thin_film = thin_film
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -65,7 +60,7 @@ class Forward(OceanModelStep):
                            'global_stats.yaml')
 
         self.add_input_file(filename='init.nc',
-                            work_dir_target=f'{init.path}/initial_state.nc')
+                            work_dir_target=f'{init.path}/output.nc')
         self.add_input_file(filename='graph.info',
                             work_dir_target=f'{mesh.path}/culled_graph.info')
 
@@ -143,20 +138,3 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                            'forward.yaml',
                            template_replacements=replacements)
-
-        if self.time_varying_forcing:
-            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                               'time_varying_forcing.yaml')
-        if self.tidal_forcing:
-            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                               'tidal_forcing.yaml')
-        if self.thin_film:
-            d1 = section.getfloat('y1_water_column_thickness')
-            replacements = dict(
-                thin_film_thickness=f'{d1}',
-                thin_film_ramp_hmin=f'{d1}',
-                thin_film_ramp_hmax=f'{d1 * 10.}',
-            )
-            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                               'thin_film.yaml',
-                               template_replacements=replacements)
