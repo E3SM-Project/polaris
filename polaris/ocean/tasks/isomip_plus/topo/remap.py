@@ -82,6 +82,7 @@ class TopoRemap(Step):
                 'pressure at the ice base'
             ds_in.iceThickness.attrs['units'] = 'Pa'
 
+            ds_in.drop_vars(['upperSurface'])
             ds_in = ds_in.rename({'floatingMask': 'landIceFloatingFraction',
                                   'groundedMask': 'landIceGroundedFraction',
                                   'openOceanMask': 'openOceanFraction',
