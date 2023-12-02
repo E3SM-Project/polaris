@@ -35,7 +35,7 @@ otps={{ otps }}
 progressbar2
 pyamg>=4.2.2
 pyproj
-pyremap>=1.1.0,<2.0.0
+pyremap>=1.2.0,<2.0.0
 ruamel.yaml
 requests
 scipy>=1.8.0

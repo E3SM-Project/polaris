@@ -34,6 +34,19 @@ class MappingFileStep(Step):
 
     map_filename : str or None
         The name of the output mapping file
+
+    expand_distance : float or None
+        The distance in meters over which to expand destination grid cells for
+         smoothing
+
+    expand_factor : float or None
+        The factor by which to expand destination grid cells for smoothing
+
+    src_mesh_filename : str
+        The name of the SCRIP file for the source mesh
+
+    dst_mesh_filename : str
+        The name of the SCRIP file for the destination mesh
     """
 
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
@@ -75,6 +88,10 @@ class MappingFileStep(Step):
         self.dst_grid_info = dict()
         self.map_filename = map_filename
         self.method = method
+        self.expand_distance = None
+        self.expand_factor = None
+        self.src_mesh_filename = 'src_mesh.nc'
+        self.dst_mesh_filename = 'dst_mesh.nc'
 
     def src_from_mpas(self, filename, mesh_name, mesh_type='cell'):
         """
@@ -363,13 +380,16 @@ class MappingFileStep(Step):
         """
         Create a remapper and set the command-line arguments
         """
-        method = self.method
         remapper = self.get_remapper()
-        self.args = _build_mapping_file_args(remapper, method)
+        self.args = _build_mapping_file_args(remapper, self.method,
+                                             self.expand_distance,
+                                             self.expand_factor,
+                                             self.src_mesh_filename,
+                                             self.dst_mesh_filename)
 
 
-def _build_mapping_file_args(remapper, method, src_mesh_filename='src_mesh.nc',
-                             dst_mesh_filename='dst_mesh.nc'):
+def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
+                             src_mesh_filename, dst_mesh_filename):
     """
     Get command-line arguments for making a mapping file
     """
@@ -380,7 +400,8 @@ def _build_mapping_file_args(remapper, method, src_mesh_filename='src_mesh.nc',
     src_descriptor.to_scrip(src_mesh_filename)
 
     dst_descriptor = remapper.destinationDescriptor
-    dst_descriptor.to_scrip(dst_mesh_filename)
+    dst_descriptor.to_scrip(dst_mesh_filename, expandDist=expand_distance,
+                            expandFactor=expand_factor)
 
     args = ['ESMF_RegridWeightGen',
             '--source', src_mesh_filename,
