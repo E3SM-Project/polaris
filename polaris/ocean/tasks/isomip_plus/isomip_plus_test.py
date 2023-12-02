@@ -112,11 +112,7 @@ class IsomipPlusTest(Task):
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus_init.cfg')
         vertical_coordinate = self.vertical_coordinate
-        thin_film = self.thin_film
         experiment = self.experiment
-
-        if thin_film:
-            config.set('isomip_plus', 'min_column_thickness', '1e-3')
 
         # for most coordinates, use the config options, which is 36 layers
         levels = None
