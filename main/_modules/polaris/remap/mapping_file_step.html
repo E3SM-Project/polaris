@@ -143,6 +143,19 @@
 
 <span class="sd">    map_filename : str or None</span>
 <span class="sd">        The name of the output mapping file</span>
+
+<span class="sd">    expand_distance : float or None</span>
+<span class="sd">        The distance in meters over which to expand destination grid cells for</span>
+<span class="sd">         smoothing</span>
+
+<span class="sd">    expand_factor : float or None</span>
+<span class="sd">        The factor by which to expand destination grid cells for smoothing</span>
+
+<span class="sd">    src_mesh_filename : str</span>
+<span class="sd">        The name of the SCRIP file for the source mesh</span>
+
+<span class="sd">    dst_mesh_filename : str</span>
+<span class="sd">        The name of the SCRIP file for the destination mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MappingFileStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -183,7 +196,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="n">map_filename</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span> <span class="o">=</span> <span class="s1">&#39;src_mesh.nc&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span> <span class="o">=</span> <span class="s1">&#39;dst_mesh.nc&#39;</span></div>
 
 <div class="viewcode-block" id="MappingFileStep.src_from_mpas"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas">[docs]</a>    <span class="k">def</span> <span class="nf">src_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -472,13 +489,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a remapper and set the command-line arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
         <span class="n">remapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">)</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="o">=</span><span class="s1">&#39;src_mesh.nc&#39;</span><span class="p">,</span>
-                             <span class="n">dst_mesh_filename</span><span class="o">=</span><span class="s1">&#39;dst_mesh.nc&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">expand_distance</span><span class="p">,</span> <span class="n">expand_factor</span><span class="p">,</span>
+                             <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get command-line arguments for making a mapping file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -489,7 +509,8 @@
     <span class="n">src_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">src_mesh_filename</span><span class="p">)</span>
 
     <span class="n">dst_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span>
-    <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">dst_mesh_filename</span><span class="p">)</span>
+    <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">dst_mesh_filename</span><span class="p">,</span> <span class="n">expandDist</span><span class="o">=</span><span class="n">expand_distance</span><span class="p">,</span>
+                            <span class="n">expandFactor</span><span class="o">=</span><span class="n">expand_factor</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ESMF_RegridWeightGen&#39;</span><span class="p">,</span>
             <span class="s1">&#39;--source&#39;</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
