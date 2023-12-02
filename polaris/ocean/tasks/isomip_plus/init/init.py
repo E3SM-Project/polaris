@@ -9,7 +9,6 @@ from mpas_tools.io import write_netcdf
 from polaris.ocean.ice_shelf import (
     compute_freezing_temperature,
     compute_land_ice_draft_from_pressure,
-    compute_land_ice_pressure_from_draft,
 )
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.viz import compute_transect, plot_transect
@@ -98,7 +97,12 @@ class Init(Step):
         section = config['isomip_plus_init']
         min_levels = section.getint('minimum_levels')
         min_layer_thickness = section.getfloat('min_layer_thickness')
-        min_column_thickness = section.getfloat('min_column_thickness')
+        if thin_film:
+            min_column_thickness = (
+                section.getfloat('min_column_thickness_thin_film'))
+        else:
+            min_column_thickness = (
+                section.getfloat('min_column_thickness_no_thin_film'))
         min_land_ice_fraction = section.getfloat('min_land_ice_fraction')
 
         ds_topo = xr.open_dataset('topo.nc')
@@ -130,28 +134,17 @@ class Init(Step):
 
         ds_init['landIceGroundedFraction'] = ds_topo['landIceGroundedFraction']
 
-        if thin_film:
-            # start from landIcePressure and compute landIceDraft
-            ds_init['landIcePressure'] = ds_topo['landIcePressure']
+        # start from landIcePressure and compute landIceDraft
+        ds_init['landIcePressure'] = ds_topo['landIcePressure']
 
-            land_ice_draft = compute_land_ice_draft_from_pressure(
-                land_ice_pressure=ds_topo.landIcePressure,
-                modify_mask=ds_topo.landIcePressure > 0.)
+        land_ice_draft = compute_land_ice_draft_from_pressure(
+            land_ice_pressure=ds_topo.landIcePressure,
+            modify_mask=ds_topo.landIcePressure > 0.)
 
-            land_ice_draft = np.maximum(ds_topo.bedrockTopography,
-                                        land_ice_draft)
+        land_ice_draft = np.maximum(ds_topo.bedrockTopography,
+                                    land_ice_draft)
 
-            ds_init['landIceDraft'] = land_ice_draft
-
-        else:
-            # start form landIceDraft and compute landIcePressure
-            ds_init['landIceDraft'] = ds_topo['landIceDraft']
-
-            land_ice_pressure = compute_land_ice_pressure_from_draft(
-                land_ice_draft=ds_topo.landIceDraft,
-                modify_mask=ds_topo.landIceDraft < 0.)
-
-            ds_init['landIcePressure'] = land_ice_pressure
+        ds_init['landIceDraft'] = land_ice_draft
 
         ds_init['ssh'] = ds_init.landIceDraft
 
@@ -274,7 +267,13 @@ class Init(Step):
         Plot several fields from the initial condition
         """
         section = self.config['isomip_plus_init']
-        min_column_thickness = section.getfloat('min_column_thickness')
+        thin_film = self.thin_film
+        if thin_film:
+            min_column_thickness = (
+                section.getfloat('min_column_thickness_thin_film'))
+        else:
+            min_column_thickness = (
+                section.getfloat('min_column_thickness_no_thin_film'))
         min_layer_thickness = section.getfloat('min_layer_thickness')
 
         tol = 1e-10
