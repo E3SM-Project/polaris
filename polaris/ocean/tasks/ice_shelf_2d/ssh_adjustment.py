@@ -29,7 +29,8 @@ class SshAdjustment(Step):
         """
         self.resolution = resolution
 
-        super().__init__(component=component, name=name, indir=indir)
+        super().__init__(component=component, name=name,
+                         indir=f'{indir}/ssh_adjustment')
 
         self.add_input_file(filename='final.nc',
                             work_dir_target=f'{forward.path}/output.nc')
