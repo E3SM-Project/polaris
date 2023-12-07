@@ -117,6 +117,7 @@ class Forward(OceanModelStep):
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * self.resolution)
 
+        section = config['ice_shelf_2d_default']
         s_per_hour = 3600.
         run_duration = section.getfloat('forward_run_duration')
         run_duration_str = get_time_interval_string(
