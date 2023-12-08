@@ -51,10 +51,10 @@ class SshAdjustment(Step):
         logger = self.logger
         config = self.config
         adjust_variable = 'landIcePressure'
-        final_filename = self.inputs[0]
-        init_filename = self.inputs[1]
-        mesh_filename = self.inputs[2]
-        out_filename = self.outputs[0]
+        mesh_filename = 'mesh.nc'
+        init_filename = 'init.nc'
+        final_filename = 'final.nc'
+        out_filename = 'output.nc'
         ds_mesh = xr.open_dataset(mesh_filename)
         ds_init = xr.open_dataset(init_filename)
         ds_final = xr.open_dataset(final_filename)
