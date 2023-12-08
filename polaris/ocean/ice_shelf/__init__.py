@@ -1,8 +1,8 @@
 from typing import Dict
 
 from polaris import Step, Task
-from polaris.ocean.tasks.ice_shelf_2d.ssh_adjustment import SshAdjustment
-from polaris.ocean.tasks.ice_shelf_2d.ssh_forward import SshForward
+from polaris.ocean.ice_shelf.ssh_adjustment import SshAdjustment
+from polaris.ocean.ice_shelf.ssh_forward import SshForward
 
 
 class IceShelfTask(Task):
@@ -17,21 +17,24 @@ class IceShelfTask(Task):
         self.component = component
         self.resolution = resolution
 
-    def _setup_ssh_adjustment_steps(self, init, config, config_filename):
+    def _setup_ssh_adjustment_steps(self, init, config, config_filename,
+                                    package=None,
+                                    yaml_filename='ssh_forward.yaml',
+                                    yaml_replacements=None):
 
         resolution = self.resolution
         component = self.component
         indir = self.indir
 
-        # TODO config
-        num_iterations = 10
+        num_iterations = config.getint('ssh_adjustment', 'iterations')
         shared_steps: Dict[str, Step] = dict()
 
         iteration = 0
         name = f'ssh_forward_{iteration}'
         ssh_forward = SshForward(
             component=component, resolution=resolution, indir=indir,
-            mesh=init, init=init, name=name)
+            mesh=init, init=init, name=name, package=package,
+            yaml_filename=yaml_filename, yaml_replacements=yaml_replacements)
         ssh_forward.set_shared_config(config, link=config_filename)
         shared_steps[name] = ssh_forward
 
@@ -45,7 +48,9 @@ class IceShelfTask(Task):
             name = f'ssh_forward_{iteration}'
             ssh_forward = SshForward(
                 component=component, resolution=resolution, indir=indir,
-                mesh=init, init=ssh_adjust, name=name)
+                mesh=init, init=ssh_adjust, name=name, package=package,
+                yaml_filename=yaml_filename,
+                yaml_replacements=yaml_replacements)
             ssh_forward.set_shared_config(config, link=config_filename)
             shared_steps[name] = ssh_forward
 
@@ -56,8 +61,7 @@ class IceShelfTask(Task):
             name=name, init=init, forward=ssh_forward)
         ssh_adjust.set_shared_config(config, link=config_filename)
         shared_steps[name] = ssh_adjust
-        self.init_step = ssh_adjust
 
         for name, shared_step in shared_steps.items():
-            self.add_step(shared_step, symlink=name)
+            self.add_step(shared_step, symlink=f'ssh_adjustment/{name}')
         return ssh_adjust
