@@ -20,7 +20,8 @@ class SshForward(OceanModelStep):
     """
     def __init__(self, component, resolution, mesh, init,
                  name='ssh_forward', subdir=None,
-                 iteration=1, indir=None,
+                 package=None, yaml_filename='ssh_forward.yaml',
+                 yaml_replacements=None, iteration=1, indir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1):
         """
         Create a new task
@@ -63,6 +64,9 @@ class SshForward(OceanModelStep):
                          min_tasks=min_tasks, openmp_threads=openmp_threads)
 
         self.resolution = resolution
+        self.package = package
+        self.yaml_filename = yaml_filename
+        self.yaml_replacements = yaml_replacements
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -114,7 +118,7 @@ class SshForward(OceanModelStep):
         if not at_setup and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
-        section = config['ice_shelf_2d']
+        section = config['ssh_adjustment']
 
         # dt is proportional to resolution: default 30 seconds per km
         time_integrator = section.get('time_integrator')
@@ -131,23 +135,26 @@ class SshForward(OceanModelStep):
             seconds=btr_dt_per_km * self.resolution)
 
         s_per_hour = 3600.
-        run_duration = section.getfloat('ssh_adjust_run_duration')
+        run_duration = section.getfloat('run_duration')
         run_duration_str = get_time_interval_string(
             seconds=run_duration * s_per_hour)
 
-        output_interval = section.getfloat('ssh_adjust_output_interval')
+        output_interval = section.getfloat('output_interval')
         output_interval_str = get_time_interval_string(
             seconds=output_interval * s_per_hour)
 
         replacements = dict(
-            time_integrator=time_integrator,
             dt=dt_str,
             btr_dt=btr_dt_str,
+            time_integrator=time_integrator,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
-            land_ice_flux_mode='pressure_only',
         )
 
-        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                           'forward.yaml',
+        self.add_yaml_file('polaris.ocean.ice_shelf',
+                           'ssh_forward.yaml',
                            template_replacements=replacements)
+        if self.package is not None:
+            self.add_yaml_file(package=self.package,
+                               yaml=self.yaml_filename,
+                               template_replacements=self.yaml_replacements)

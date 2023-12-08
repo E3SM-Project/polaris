@@ -1,5 +1,5 @@
+from polaris.ocean.ice_shelf import IceShelfTask
 from polaris.ocean.tasks.ice_shelf_2d.forward import Forward
-from polaris.ocean.tasks.ice_shelf_2d.ice_shelf import IceShelfTask
 from polaris.ocean.tasks.ice_shelf_2d.viz import Viz
 
 
@@ -28,8 +28,10 @@ class Default(IceShelfTask):
                          name='default', indir=indir)
 
         self.add_step(init, symlink='init')
+
         last_adjust_step = self._setup_ssh_adjustment_steps(
-            init=init, config=config, config_filename='ice_shelf_2d.cfg')
+            init=init, config=config, config_filename='ice_shelf_2d.cfg',
+            package='polaris.ocean.tasks.ice_shelf_2d')
 
         self.add_step(
             Forward(component=component, indir=self.subdir, ntasks=None,

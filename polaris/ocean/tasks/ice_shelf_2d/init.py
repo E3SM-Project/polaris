@@ -39,7 +39,7 @@ class Init(Step):
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
-        self.add_output_file('initial_state.nc',
+        self.add_output_file('output.nc',
                              validate_vars=['temperature', 'salinity',
                                             'layerThickness'])
 
