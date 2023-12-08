@@ -1,5 +1,6 @@
 from polaris.ocean.ice_shelf import IceShelfTask
 from polaris.ocean.tasks.ice_shelf_2d.forward import Forward
+from polaris.ocean.tasks.ice_shelf_2d.validate import Validate
 from polaris.ocean.tasks.ice_shelf_2d.viz import Viz
 
 
@@ -80,6 +81,9 @@ class Default(IceShelfTask):
                 symlink = None
                 restart_step.set_shared_config(config, link='ice_shelf_2d.cfg')
             self.add_step(restart_step, symlink=symlink)
+            self.add_step(Validate(component=component,
+                                   step_subdirs=['forward', 'restart'],
+                                   indir=f'{indir}/default/with_restart'))
 
         if include_viz:
             self.add_step(
