@@ -61,7 +61,13 @@ class IceShelfTask(Task):
             name=name, init=init, forward=ssh_forward)
         ssh_adjust.set_shared_config(config, link=config_filename)
         shared_steps[name] = ssh_adjust
+        subdir = f'{indir}/ssh_adjustment/{name}'
+        if subdir in component.steps:
+            ssh_adjust = component.steps[subdir]
 
         for name, shared_step in shared_steps.items():
+            subdir = f'{indir}/ssh_adjustment/{name}'
+            if subdir in component.steps:
+                shared_step = component.steps[subdir]
             self.add_step(shared_step, symlink=f'ssh_adjustment/{name}')
         return ssh_adjust
