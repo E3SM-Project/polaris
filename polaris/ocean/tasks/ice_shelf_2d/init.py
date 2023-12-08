@@ -155,7 +155,7 @@ class Init(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        write_netcdf(ds, 'output.nc')
 
         # Generate the tidal forcing dataset whether it is used or not
         ds_forcing = xr.Dataset()
