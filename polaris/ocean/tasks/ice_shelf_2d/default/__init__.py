@@ -41,8 +41,9 @@ class Default(IceShelfTask):
         if include_restart:
             name = f'{name}_with_restart'
             subdir = f'{subdir}/with_restart'
+        # Put the ssh adjustment steps in indir rather than subdir
         super().__init__(component=component, resolution=resolution,
-                         name=name, indir=indir)
+                         name=name, subdir=subdir, sshdir=indir)
 
         self.add_step(init, symlink='init')
 
@@ -60,22 +61,24 @@ class Default(IceShelfTask):
                                    ntasks=None, min_tasks=None,
                                    openmp_threads=1, resolution=resolution,
                                    mesh=init, init=last_adjust_step)
+            forward_step.set_shared_config(config, link='ice_shelf_2d.cfg')
             symlink = None
         self.add_step(forward_step, symlink=symlink)
 
         if include_restart:
-            restart_path = f'{indir}/default/restart'
+            restart_path = f'{indir}/default/with_restart/restart'
             if restart_path in component.steps:
                 restart_step = component.steps[restart_path]
                 symlink = 'restart'
             else:
                 restart_step = Forward(component=component,
-                                       indir=f'{indir}/default',
+                                       indir=f'{indir}/default/with_restart',
                                        ntasks=None, min_tasks=None,
                                        openmp_threads=1, resolution=resolution,
                                        mesh=init, init=last_adjust_step,
                                        do_restart=True)
                 symlink = None
+                restart_step.set_shared_config(config, link='ice_shelf_2d.cfg')
             self.add_step(restart_step, symlink=symlink)
 
         if include_viz:

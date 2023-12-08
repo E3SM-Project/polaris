@@ -11,9 +11,11 @@ class IceShelfTask(Task):
     shared_steps : dict of dict of polaris.Steps
         The shared steps to include as symlinks
     """
-    def __init__(self, component, resolution, indir, name):
-        super().__init__(component=component, name=name, indir=indir)
-        self.indir = indir
+    def __init__(self, component, resolution, name, subdir, sshdir=None):
+        if sshdir is None:
+            sshdir = subdir
+        super().__init__(component=component, name=name, subdir=subdir)
+        self.sshdir = sshdir
         self.component = component
         self.resolution = resolution
 
@@ -24,7 +26,7 @@ class IceShelfTask(Task):
 
         resolution = self.resolution
         component = self.component
-        indir = self.indir
+        indir = self.sshdir
 
         num_iterations = config.getint('ssh_adjustment', 'iterations')
         shared_steps: Dict[str, Step] = dict()
