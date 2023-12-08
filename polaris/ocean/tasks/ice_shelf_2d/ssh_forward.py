@@ -59,8 +59,8 @@ class SshForward(OceanModelStep):
             the number of OpenMP threads the step will use
         """
         super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads)
+                         indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
+                         min_tasks=min_tasks, openmp_threads=openmp_threads)
 
         self.resolution = resolution
 
