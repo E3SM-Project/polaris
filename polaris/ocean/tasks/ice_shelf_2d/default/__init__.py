@@ -7,9 +7,15 @@ class Default(IceShelfTask):
     """
     The default ice shelf 2d test case simply creates the mesh and
     initial condition, then performs a short forward run.
+
+    Attributes
+    ----------
+    include_viz : bool
+        Include Viz step
     """
 
-    def __init__(self, component, resolution, indir, init, config):
+    def __init__(self, component, resolution, indir, init, config,
+                 include_viz=False, include_restart=False):
         """
         Create the test case
 
@@ -23,9 +29,20 @@ class Default(IceShelfTask):
 
         indir : str
             The directory the task is in, to which ``name`` will be appended
+
+        include_viz : bool
+            Include VizMap and Viz steps for each resolution
         """
+        name = 'default'
+        subdir = f'{indir}/default'
+        if include_viz:
+            name = f'{name}_with_viz'
+            subdir = f'{subdir}/with_viz'
+        if include_restart:
+            name = f'{name}_with_restart'
+            subdir = f'{subdir}/with_restart'
         super().__init__(component=component, resolution=resolution,
-                         name='default', indir=indir)
+                         name=name, indir=indir)
 
         self.add_step(init, symlink='init')
 
@@ -33,11 +50,35 @@ class Default(IceShelfTask):
             init=init, config=config, config_filename='ice_shelf_2d.cfg',
             package='polaris.ocean.tasks.ice_shelf_2d')
 
-        self.add_step(
-            Forward(component=component, indir=self.subdir, ntasks=None,
-                    min_tasks=None, openmp_threads=1, resolution=resolution,
-                    mesh=init, init=last_adjust_step))
+        forward_path = f'{indir}/default/forward'
+        if forward_path in component.steps:
+            forward_step = component.steps[forward_path]
+            symlink = 'forward'
+        else:
+            forward_step = Forward(component=component,
+                                   indir=f'{indir}/default',
+                                   ntasks=None, min_tasks=None,
+                                   openmp_threads=1, resolution=resolution,
+                                   mesh=init, init=last_adjust_step)
+            symlink = None
+        self.add_step(forward_step, symlink=symlink)
 
-        self.add_step(
-            Viz(component=component, indir=self.subdir, mesh=init,
-                init=last_adjust_step))
+        if include_restart:
+            restart_path = f'{indir}/default/restart'
+            if restart_path in component.steps:
+                restart_step = component.steps[restart_path]
+                symlink = 'restart'
+            else:
+                restart_step = Forward(component=component,
+                                       indir=f'{indir}/default',
+                                       ntasks=None, min_tasks=None,
+                                       openmp_threads=1, resolution=resolution,
+                                       mesh=init, init=last_adjust_step,
+                                       do_restart=True)
+                symlink = None
+            self.add_step(restart_step, symlink=symlink)
+
+        if include_viz:
+            self.add_step(
+                Viz(component=component, indir=subdir, mesh=init,
+                    init=last_adjust_step))

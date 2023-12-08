@@ -29,3 +29,15 @@ def add_ice_shelf_2d_tasks(component):
                           indir=resdir, init=init, config=config)
         default.set_shared_config(config, link=config_filename)
         component.add_task(default)
+
+        default = Default(component=component, resolution=resolution,
+                          indir=resdir, init=init, config=config,
+                          include_viz=True)
+        default.set_shared_config(config, link=config_filename)
+        component.add_task(default)
+
+        default = Default(component=component, resolution=resolution,
+                          indir=resdir, init=init, config=config,
+                          include_restart=True)
+        default.set_shared_config(config, link=config_filename)
+        component.add_task(default)
