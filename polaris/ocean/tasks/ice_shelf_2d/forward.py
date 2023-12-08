@@ -1,3 +1,7 @@
+from math import floor
+
+from mpas_tools.cime.constants import constants
+
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
@@ -14,7 +18,8 @@ class Forward(OceanModelStep):
     """
     def __init__(self, component, resolution, mesh, init,
                  name='forward', subdir=None, indir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1):
+                 ntasks=None, min_tasks=None, openmp_threads=1,
+                 do_restart=False):
         """
         Create a new task
 
@@ -48,21 +53,25 @@ class Forward(OceanModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
         """
+        if do_restart:
+            name = 'restart'
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
         self.resolution = resolution
+        self.do_restart = do_restart
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                           'global_stats.yaml')
 
         self.add_input_file(filename='init.nc',
                             work_dir_target=f'{init.path}/output.nc')
         self.add_input_file(filename='graph.info',
                             work_dir_target=f'{mesh.path}/culled_graph.info')
+        if do_restart:
+            self.add_input_file(filename='restarts',
+                                target='../forward/restarts')
 
         self.add_output_file(
             filename='output.nc',
@@ -110,7 +119,8 @@ class Forward(OceanModelStep):
             dt_per_km = section.getfloat('rk4_dt_per_km')
         else:
             dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
+        dt = dt_per_km * self.resolution
+        dt_str = get_time_interval_string(seconds=dt)
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
@@ -118,16 +128,34 @@ class Forward(OceanModelStep):
             seconds=btr_dt_per_km * self.resolution)
 
         section = config['ice_shelf_2d_default']
-        s_per_hour = 3600.
         run_duration = section.getfloat('forward_run_duration')
-        run_duration_str = get_time_interval_string(
-            seconds=run_duration * s_per_hour)
+        do_restart_str = 'false'
+        if self.do_restart:
+            do_restart_str = 'true'
 
-        output_interval = section.getfloat('forward_output_interval')
-        output_interval_str = get_time_interval_string(
-            seconds=output_interval * s_per_hour)
+        # For all forward runs we ensure that the time step is a factor of the
+        # output interval because we might want to use the forward step output
+        # for a restart test
+        output_interval = dt * floor(run_duration / (2. * dt))
+        if self.do_restart:
+            run_duration_str = get_time_interval_string(
+                seconds=output_interval)
+            output_interval_str = get_time_interval_string(
+                seconds=output_interval)
+        else:
+            run_duration_str = get_time_interval_string(
+                seconds=output_interval * 2.)
+            output_interval_str = get_time_interval_string(
+                seconds=output_interval * 2.)
+
+        start_time = '0001-01-01_00:00:00'
+        if self.do_restart:
+            start_time = f"{start_time.split('_')[0]}_" \
+                         f"{run_duration_str.split('_')[1]}"
 
         replacements = dict(
+            do_restart=do_restart_str,
+            start_time=start_time,
             time_integrator=time_integrator,
             dt=dt_str,
             btr_dt=btr_dt_str,
@@ -135,7 +163,9 @@ class Forward(OceanModelStep):
             output_interval=output_interval_str,
             land_ice_flux_mode='standalone',
         )
-
         self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                            'forward.yaml',
+                           template_replacements=replacements)
+        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                           'global_stats.yaml',
                            template_replacements=replacements)
