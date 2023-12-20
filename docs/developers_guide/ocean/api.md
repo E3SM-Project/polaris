@@ -107,6 +107,32 @@
    viz.Viz.run
 ```
 
+### ice_shelf_2d
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d
+
+.. autosummary::
+   :toctree: generated/
+
+   add_ice_shelf_2d_tasks
+
+   default.Default
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.run
+
+   validate.Validate
+   validate.Validate.run
+   
+   viz.Viz
+   viz.Viz.run
+```
+
 ### inertial_gravity_wave 
 
 ```{eval-rst}
@@ -281,6 +307,25 @@
 
    SphericalConvergenceForward
    SphericalConvergenceForward.compute_cell_count
+```
+
+### Ice Shelf
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. autosummary::
+   :toctree: generated/
+
+   IceShelfTask
+   IceShelfTask.setup_ssh_adjustment_steps
+
+   SshAdjustment
+   SshAdjustment.run
+
+   SshForward
+   SshForward.compute_cell_count
+   SshForward.dynamic_model_config
 ```
 
 ### Ocean Model
