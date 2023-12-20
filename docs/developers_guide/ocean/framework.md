@@ -383,6 +383,25 @@ rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the `'name'` key) at the time index closest to
 the evaluation time specified by the `convergence_eval_time` config option.
 
+(dev-ocean-framework-ice-shelf)=
+
+## Ice Shelf Tasks
+
+The `polaris.ocean.ice_shelf` module provides support for ice shelf tasks.
+
+The {py:class}`polaris.ocean.ice_shelf.IceShelf` class can serve as a parent
+class for ice shelf tests, such as
+{py:class}`polaris.ocean.tasks.ice_shelf_2d.IceShelf2d`.
+
+The {py:meth}`polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()`
+sets up `ssh_forward` and `ssh_adjustment` steps from the classes
+{py:class}`polaris.ocean.ice_shelf.ssh_forward.SshForward`
+{py:class}`polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment`.
+The `ssh_adjustment` section of the config file sets the parameters for these
+steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
+`ssh_adjustment` step, which is typically used as the
+initial state for subsequent forward steps.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
