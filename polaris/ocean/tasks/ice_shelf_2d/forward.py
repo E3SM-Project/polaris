@@ -123,7 +123,6 @@ class Forward(OceanModelStep):
             seconds=btr_dt_per_km * self.resolution)
 
         section = config['ice_shelf_2d_default']
-        s_per_hour = 3600.
         run_duration = section.getfloat('forward_run_duration')
         do_restart_str = 'false'
         if self.do_restart:
@@ -136,7 +135,7 @@ class Forward(OceanModelStep):
         else:
             output_interval = run_duration
         output_interval_str = get_time_interval_string(
-            seconds=output_interval * s_per_hour)
+            seconds=output_interval * 60.)
         run_duration_str = output_interval_str
 
         start_time = '0001-01-01_00:00:00'
