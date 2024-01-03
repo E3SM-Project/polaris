@@ -32,8 +32,6 @@ class ExactRestart(Task):
                          'iceEnthalpy',
                          'iceSalinity',
                          'snowEnthalpy',
-                         'iceAge',
-                         'firstYearIceArea',
                          'levelIceArea',
                          'levelIceVolume',
                          'pondArea',
