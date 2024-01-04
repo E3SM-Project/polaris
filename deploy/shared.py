@@ -150,36 +150,36 @@ def check_call(commands, env=None, logger=None):
         raise subprocess.CalledProcessError(process.returncode, commands)
 
 
-def install_mambaforge(conda_base, activate_base, logger):
+def install_miniforge(conda_base, activate_base, logger):
     if not os.path.exists(conda_base):
-        print('Installing Mambaforge')
+        print('Installing Miniforge3')
         if platform.system() == 'Linux':
             system = 'Linux'
         elif platform.system() == 'Darwin':
             system = 'MacOSX'
         else:
             system = 'Linux'
-        mambaforge = f'Mambaforge-{system}-x86_64.sh'
-        url = f'https://github.com/conda-forge/miniforge/releases/latest/download/{mambaforge}'  # noqa: E501
+        miniforge = f'Miniforge3-{system}-x86_64.sh'
+        url = f'https://github.com/conda-forge/miniforge/releases/latest/download/{miniforge}'  # noqa: E501
         print(url)
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         f = urlopen(req)
         html = f.read()
-        with open(mambaforge, 'wb') as outfile:
+        with open(miniforge, 'wb') as outfile:
             outfile.write(html)
         f.close()
 
-        command = f'/bin/bash {mambaforge} -b -p {conda_base}'
+        command = f'/bin/bash {miniforge} -b -p {conda_base}'
         check_call(command, logger=logger)
-        os.remove(mambaforge)
+        os.remove(miniforge)
 
     print('Doing initial setup\n')
     commands = f'{activate_base} && ' \
                f'conda config --add channels conda-forge && ' \
                f'conda config --set channel_priority strict && ' \
-               f'mamba update -y "mamba>1.3.1" "conda>=23.1.0" && ' \
-               f'mamba update -y --all && ' \
-               f'mamba init --no-user'
+               f'conda install -y "conda>=23.1.0" && ' \
+               f'conda update -y --all && ' \
+               f'conda init --no-user'
 
     check_call(commands, logger=logger)
 
