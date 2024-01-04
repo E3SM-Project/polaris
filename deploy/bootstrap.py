@@ -22,7 +22,7 @@ from shared import (
     get_conda_base,
     get_logger,
     get_spack_base,
-    install_mambaforge,
+    install_miniforge,
     parse_args,
 )
 
@@ -227,8 +227,7 @@ def get_env_setup(args, config, machine, compiler, mpi, env_type, source_path,
     env_path = os.path.join(conda_base, 'envs', env_name)
 
     source_activation_scripts = \
-        f'source {conda_base}/etc/profile.d/conda.sh && ' \
-        f'source {conda_base}/etc/profile.d/mamba.sh'
+        f'source {conda_base}/etc/profile.d/conda.sh'
 
     activate_env = f'{source_activation_scripts} && conda activate {env_name}'
 
@@ -242,7 +241,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                     local_conda_build, logger, local_mache):
 
     if env_type != 'dev':
-        install_mambaforge(conda_base, activate_base, logger)
+        install_miniforge(conda_base, activate_base, logger)
 
     if conda_mpi == 'nompi':
         mpi_prefix = 'nompi'
@@ -304,7 +303,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             # install dev dependencies and polaris itself
             commands = \
                 f'{activate_base} && ' \
-                f'mamba create -y -n {env_name} {channels} ' \
+                f'conda create -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
 
@@ -319,7 +318,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             version_conda = version.replace('-', '')
             packages = f'{packages} "polaris={version_conda}={mpi_prefix}_*"'
             commands = f'{activate_base} && ' \
-                       f'mamba create -y -n {env_name} {channels} {packages}'
+                       f'conda create -y -n {env_name} {channels} {packages}'
             check_call(commands, logger=logger)
     else:
         if env_type == 'dev':
@@ -327,7 +326,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             # install dev dependencies and polaris itself
             commands = \
                 f'{activate_base} && ' \
-                f'mamba install -y -n {env_name} {channels} ' \
+                f'conda install -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
 
@@ -921,8 +920,7 @@ def main():  # noqa: C901
     conda_base = os.path.abspath(conda_base)
 
     source_activation_scripts = \
-        f'source {conda_base}/etc/profile.d/conda.sh && ' \
-        f'source {conda_base}/etc/profile.d/mamba.sh'
+        f'source {conda_base}/etc/profile.d/conda.sh'
 
     activate_base = f'{source_activation_scripts} && conda activate'
 
@@ -993,7 +991,6 @@ def main():  # noqa: C901
             if local_mache:
                 print('Install local mache\n')
                 commands = f'source {conda_base}/etc/profile.d/conda.sh && ' \
-                           f'source {conda_base}/etc/profile.d/mamba.sh && ' \
                            f'conda activate {conda_env_name} && ' \
                            'cd ../build_mache/mache && ' \
                            'python -m pip install .'
@@ -1008,7 +1005,7 @@ def main():  # noqa: C901
         if compiler is not None:
             env_vars = get_env_vars(machine, compiler, mpi)
             if spack_base is not None:
-                spack_branch_base, spack_script, env_vars = build_spack_env(
+                _, spack_script, env_vars = build_spack_env(
                     config, args.update_spack, machine, compiler, mpi,
                     spack_env, spack_base, spack_template_path, env_vars,
                     args.tmpdir, logger)

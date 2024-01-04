@@ -13,7 +13,7 @@ help of a config file similar to `example.cfg`.
    compiler and mpi library, e.g.:
    ```shell
    ./conda/configure_polaris_env.py --env_name polaris_e3sm_update \
-       --compiler intel --mpi impi --conda ~/mambaforge/
+       --compiler intel --mpi impi --conda ~/miniforge3/
    ```
 
 2. Copy `example.cfg` to the base of the branch:
