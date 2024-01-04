@@ -122,27 +122,27 @@ cd ../simplify_local_mache/
 ```
 
 You will also need a local installation of
-[Mambaforge](https://github.com/conda-forge/miniforge#mambaforge).
+[Miniforge3](https://github.com/conda-forge/miniforge#miniforge3).
 Polaris can do this for you if you haven't already installed it.  If you want
 to download it manually, use the Linux x86_64 version for all our supported
 machines.
 
 :::{note}
 We have found that an existing Miniconda3 installation **does not** always
-work well for polaris, so please start with Mambaforge instead.
+work well for polaris, so please start with Miniforge3 instead.
 :::
 
 :::{note}
-You definitely need your own local Mambaforge installation -- you can’t use
+You definitely need your own local Miniforge3 installation -- you can’t use
 a system version or a shared one like E3SM-Unified.
 :::
 
-Define a location where Mambaforge is installed or where you want to install
+Define a location where Miniforge3 is installed or where you want to install
 it:
 
 ```bash
 # change to your conda installation
-export CONDA_BASE=${HOME}/mambaforge
+export CONDA_BASE=${HOME}/miniforge3
 ```
 
 Okay, we're finally ready to do a test spack build for polaris.
@@ -166,7 +166,7 @@ export TMPDIR=/lcrc/group/e3sm/${USER}/spack_temp
 ```
 
 The directory you point to with `--conda` either doesn't exist or contains
-your existing installation of Mambaforge.
+your existing installation of Miniforge3.
 
 When you supply `--mache_fork` and `--mache_branch`, polaris will clone
 a fork of the `mache` repo and check out the requested branch, then install

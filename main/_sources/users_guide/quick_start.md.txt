@@ -3,7 +3,7 @@
 # Quick Start for Users
 
 :::{admonition} Quick Start for Users is not yet valid
-There has not yet been a release of polaris.  We will update this 
+There has not yet been a release of polaris.  We will update this
 documentation as soon as there is one.  Until then please refer to the
 {ref}`dev-quick-start`.
 :::
@@ -19,7 +19,7 @@ For each polaris release, we maintain a
 `polaris` package as well as all of its dependencies and some libraries
 (currently [ESMF](https://earthsystemmodeling.org/) and
 [SCORPIO](https://e3sm.org/scorpio-parallel-io-library/)) built with system
-MPI using [spack](https://spack.io/) on our standard machines (Anvil, Chicoma, 
+MPI using [spack](https://spack.io/) on our standard machines (Anvil, Chicoma,
 Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,
 these will be the commands to load the environments and set you up for building
 the desired E3SM component (MPAS-Ocean, MALI or OMEGA):
@@ -54,9 +54,9 @@ source /share/apps/E3SM/conda_envs/polaris/load_latest_polaris.sh
 source /global/cfs/cdirs/e3sm/software/polaris/pm-cpu/load_latest_polaris.sh
 ```
 
-These same paths (minus `load_latest_polaris.sh`) also will have load scripts 
+These same paths (minus `load_latest_polaris.sh`) also will have load scripts
 for  the latest version of polaris with all the supported compiler and MPI
-combinations.  For example, on Anvil, you will be able to get an environment 
+combinations.  For example, on Anvil, you will be able to get an environment
 appropriate for building E3SM components with Gnu compilers and OpenMPI using:
 
 ```bash
@@ -66,9 +66,9 @@ source /lcrc/soft/climate/polaris/anvil/load_latest_polaris_gnu_openmpi.sh
 ### Other machines
 
 Once it is released, you will be able to install polaris from a conda package.
-To install your own polaris conda environment on non-E3SM-supported machines, 
-first, install [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge)
-if you don't already have it.  Then, create a new conda environment (called 
+To install your own polaris conda environment on non-E3SM-supported machines,
+first, install [Miniforge3](https://github.com/conda-forge/miniforge#miniforge3)
+if you don't already have it.  Then, create a new conda environment (called
 `polaris` in this example) as follows:
 
 ```bash
@@ -116,7 +116,7 @@ load script.
 
 ## Building supported E3SM components as standalone models
 
-You will need to check out a branch of E3SM to build one of the supported 
+You will need to check out a branch of E3SM to build one of the supported
 components.
 
 Typically, for MPAS-Ocean, you will clone
@@ -139,7 +139,7 @@ have not yet been determined for building it.
 MALI can be compiled with or without the Albany library that contains the
 first-order velocity solver.  The Albany first-order velocity solver is the
 only velocity option that is scientifically validated, but the Albany library
-is only available with Gnu compilers.  In some situations it is 
+is only available with Gnu compilers.  In some situations it is
 desirable to compile without Albany to run basic tasks.  This basic mode for
 MALI can be compiled similarly to MPAS-Ocean.  Again, first source the
 appropriate load script (see {ref}`conda-env`) then run:
@@ -287,7 +287,7 @@ parallel_executable = mpirun -host localhost
 ```
 
 The `database_root` directory can point to a location where you would like to
-download data for MALI, MPAS-Seaice, MPAS-Ocean and OMEGA.  This data is 
+download data for MALI, MPAS-Seaice, MPAS-Ocean and OMEGA.  This data is
 downloaded  only once and cached for the next time you call `polaris setup` or
 `polaris suite` (see below).
 

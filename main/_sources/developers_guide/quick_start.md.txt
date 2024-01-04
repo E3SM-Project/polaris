@@ -34,11 +34,11 @@ directory of the polaris repository.
 
 ## polaris conda environment, spack environment, compilers and system modules
 
-As a developer, you will need your own 
-[conda](https://conda.io/projects/conda/en/latest/index.html) environment with 
-the latest dependencies for polaris and a development installation of polaris 
+As a developer, you will need your own
+[conda](https://conda.io/projects/conda/en/latest/index.html) environment with
+the latest dependencies for polaris and a development installation of polaris
 from the  branch you're working on.  On supported machines, you will also need
-to point to a shared [spack](https://spack.io/) environment with some tools 
+to point to a shared [spack](https://spack.io/) environment with some tools
 and libraries built for that system that polaris needs.
 
 In the root of the repository is a tool, `configure_polaris_envs.py`
@@ -54,17 +54,17 @@ package because these don't get added automatically.
 
 Whether you are on one of the {ref}`dev-supported-machines` or an "unknown"
 machine, you will need to specify a path where
-[Mambaforge](https://github.com/conda-forge/miniforge#mambaforge) either has
+[Miniforge3](https://github.com/conda-forge/miniforge#miniforge3) either has
 already been installed or an empty directory where the script can install it.
 You must have write permission in the base environment (if it exists).
 
 :::{note}
 We have found that an existing Miniconda3 installation **does not** always
-work well for polaris, so please start with Mambaforge instead.
+work well for polaris, so please start with Miniforge3 instead.
 :::
 
 :::{note}
-It is *very* important that you not use a shared installation of Mambaforge
+It is *very* important that you not use a shared installation of Miniforge3
 or Miniconda3 such as the base environment for E3SM-Unified for polaris
 development. Most developers will not have write access to shared
 environments, meaning that you will get write-permission errors when you
@@ -75,8 +75,8 @@ For anyone who does have write permission to a shared environment, you
 would be creating your polaris development environment in a shared space,
 which could cause confusion.
 
-Please use your own personal installation of Mambaforge for development,
-letting `configure_polaris_envs.py` download and install Mambaforge for
+Please use your own personal installation of Miniforge3 for development,
+letting `configure_polaris_envs.py` download and install Miniforge3 for
 you if you don't already have it installed.
 :::
 
@@ -91,15 +91,15 @@ If you are on one of the {ref}`dev-supported-machines`, run:
     [--with_netlib_lapack] [--with_petsc]
 ```
 
-The `<base_path_to_install_or_update_conda>` is typically `~/mambaforge`.
-This is the location where you would like to install Mambaforge or where it is
+The `<base_path_to_install_or_update_conda>` is typically `~/miniforge3`.
+This is the location where you would like to install Miniforge3 or where it is
 already installed. If you have limited space in your home directory, you may
 want to give another path.  If you already have it installed, that path will
 be used to add (or update) the polaris test environment.
 
 See the machine under {ref}`dev-supported-machines` for a list of available
 compilers to pass to `-c`.  If you don't supply a compiler, you will get
-the default one for that machine. Typically, you will want the  default MPI 
+the default one for that machine. Typically, you will want the  default MPI
 flavor that polaris has defined for each compiler, so you should
 not need to specify which MPI version to use but you may do so with `--mpi`
 if you need to.
@@ -139,8 +139,8 @@ workstation, you will need to specify which flavor of MPI you want to use
 ./configure_polaris_envs.py --conda <conda_path> --mpi <mpi>
 ```
 
-Again, the `<conda_path>` is typically `~/mambaforge`, and is the location
-where you would like to install Mambaforge or where it is already installed.
+Again, the `<conda_path>` is typically `~/miniforge3`, and is the location
+where you would like to install Miniforge3 or where it is already installed.
 If you already have it installed, that path will be used to add (or update) the
 polaris test environment.
 
@@ -165,7 +165,7 @@ with the developers.
 
 ### What the script does
 
-In addition to installing Mambaforge and creating the conda environment for you,
+In addition to installing Miniforge3 and creating the conda environment for you,
 this script will also:
 
 - install the `polaris` package from the local branch in "development" mode
@@ -227,14 +227,14 @@ source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 
 This will load the appropriate conda environment, load system modules for
 compilers, MPI and libraries needed to build and run E3SM components, and
-set environment variables needed for E3SM components or polaris.  It will also 
-set an  environment variable `LOAD_POLARIS_ENV` that points to the activation 
+set environment variables needed for E3SM components or polaris.  It will also
+set an  environment variable `LOAD_POLARIS_ENV` that points to the activation
 script. Polaris uses this to make an symlink to the activation script called
 `load_polaris_env.sh` in the work directory.  When the load script is
 executed from the base of the polaris repository (i.e., as
 `source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`),
-it will install the version of the `polaris` package from that location into 
-the associated conda environment.  When the load script is executed from the 
+it will install the version of the `polaris` package from that location into
+the associated conda environment.  When the load script is executed from the
 work directory through the symlink, it will activate the associated conda
 environment, but does *not* install the `polaris` package into the conda
 environment; it is assumed that is already up to date from when the conda
@@ -382,9 +382,9 @@ scratch.  This takes just a little extra time.
 
 For some workflows (e.g. for MALI development with the Albany library when the
 MALI build environment has been created outside of `polaris`, for example,
-on an unsupported machine), you may only want to create the conda environment 
-and not build SCORPIO, ESMF or include any system modules or environment 
-variables in your activation script. In such cases, run with the 
+on an unsupported machine), you may only want to create the conda environment
+and not build SCORPIO, ESMF or include any system modules or environment
+variables in your activation script. In such cases, run with the
 `--env_only` flag:
 
 ```bash
@@ -429,7 +429,7 @@ be safe.
 
 ## Building E3SM components
 
-There are 3 E3SM repositories that are submodules within the polaris 
+There are 3 E3SM repositories that are submodules within the polaris
 repository.  To build MPAS-Ocean, you would typically run:
 
 ```bash
@@ -455,8 +455,8 @@ cd e3sm_submodules/MALI-Dev/components/mpas-albany-landice
 make ALBANY=true <mpas_make_target>
 ```
 
-For MPAS-Ocean and MALI both, see the last column of the table in 
-{ref}`dev-supported-machines` for the right `<mpas_make_target>` command for 
+For MPAS-Ocean and MALI both, see the last column of the table in
+{ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
 
 Instructions for building OMEGA will be added as development proceeds.
@@ -486,7 +486,7 @@ polaris setup -t ocean/global_ocean/QU240/mesh -m $MACHINE -w $WORKDIR -p $COMPO
 
 where `$MACHINE` is an ES3M machine, `$WORKDIR` is the location where polaris
 tasks will be set up and `$COMPONENT` is the directory where the E3SM
-component executable has been compiled. See {ref}`dev-polaris-setup` for 
+component executable has been compiled. See {ref}`dev-polaris-setup` for
 details.
 
 To list available suites, you would run:
@@ -525,10 +525,10 @@ code or modifying existing code is to use a PEP8 style checker. When you create
 a load script, we automatically install [pre-commit](https://pre-commit.com/),
 a tools that helps to enforce this standard by checking your code each time you
 make a commit.  It will tell you about various types of problems it finds.
-Internally, it uses [flake8](https://flake8.pycqa.org/en/latest/) to check PEP8 
-compliance, [isort](https://pycqa.github.io/isort/) to sort, check and format 
-imports, [flynt](https://github.com/ikamensh/flynt) to change any format 
-strings to f-strings, and [mypy](https://mypy-lang.org/) to check for 
+Internally, it uses [flake8](https://flake8.pycqa.org/en/latest/) to check PEP8
+compliance, [isort](https://pycqa.github.io/isort/) to sort, check and format
+imports, [flynt](https://github.com/ikamensh/flynt) to change any format
+strings to f-strings, and [mypy](https://mypy-lang.org/) to check for
 consistent variable types. An example error might be:
 
 ```bash
@@ -538,7 +538,7 @@ example.py:77:1: E302 expected 2 blank lines, found 1
 For this example, we would just add an additional blank line after line 77 and
 try the commit again to make sure we've resolved the issue.
 
-You may also find it useful to use an IDE with a PEP8 style checker built in, 
+You may also find it useful to use an IDE with a PEP8 style checker built in,
 such as [PyCharm](https://www.jetbrains.com/pycharm/). See
 [this tutorial](https://www.jetbrains.com/help/pycharm/tutorial-code-quality-assistance-tips-and-tricks.html)
 for some tips on checking code style in PyCharm.
@@ -597,10 +597,10 @@ any branch, which is specified by the last `git worktree` argument.
 
 There are two ways to build the E3SM component in standalone mode:
 
-1. Submodules within polaris (easier): This guarantees that the E3SM commit 
-   that the submodule points to is compatible with polaris.  It is also the 
+1. Submodules within polaris (easier): This guarantees that the E3SM commit
+   that the submodule points to is compatible with polaris.  It is also the
    default location for finding the E3SM component so you don't need to specify
-   the `-p` flag at the command line or put the E3SM component path path in 
+   the `-p` flag at the command line or put the E3SM component path path in
    your config file (if you even need a config file at all).  Here is an
    example for MPAS-Ocean:
 
@@ -612,7 +612,7 @@ There are two ways to build the E3SM component in standalone mode:
    ```
 
 2. Other E3SM directory (advanced): Create your own clone of the
-   `E3SM-Project/E3SM`, `E3SM-Project/Omega` or `MALI-Dev/E3SM` repository 
+   `E3SM-Project/E3SM`, `E3SM-Project/Omega` or `MALI-Dev/E3SM` repository
    elsewhere on disk. Either make a config file that specifies the absolute
    path to the path where the `ocean_model` or `landice_model` executable
    is found, or specify this path on the command line with `-p`.  You are

@@ -180,17 +180,17 @@ you are working on a “supported” machine and using the default compilers and
 MPI libraries, but consult the documentation to make an environment to suit
 your needs.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># this one will take a while the first time</span>
-./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span><span class="nv">$HOME</span>/mambaforge
+./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span><span class="nv">$HOME</span>/miniforge3
 </pre></div>
 </div>
-<p>If you don’t already have <a class="reference external" href="https://github.com/conda-forge/miniforge#mambaforge">mambaforge</a>
+<p>If you don’t already have <a class="reference external" href="https://github.com/conda-forge/miniforge#miniforge3">miniforge3</a>
 installed in the directory pointed to by <code class="docutils literal notranslate"><span class="pre">--conda</span></code>, it will be installed
 automatically for you.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you have <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>
 installed already, you can use that, too.  But we don’t recommend installing
-that if you haven’t already.  Mambaforge comes with some important tools and
+that if you haven’t already.  Miniforge3 comes with some important tools and
 config options already set the way we need them.</p>
 </div>
 <p>If all goes well, you will have a file named <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_*.sh</span></code>,
@@ -249,7 +249,7 @@ tool will work fine on supercomputers.</p>
 (<code class="docutils literal notranslate"><span class="pre">ocean</span></code> here).  For this example, we create a new test group modeled on
 <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> called <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code>. We create a new
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> directory in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks</span></code>.  In that directory,
-we will make a new  file called <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> that will initially be empty.<br />
+we will make a new  file called <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> that will initially be empty.
 That’s all it takes  to make <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> a new package in <code class="docutils literal notranslate"><span class="pre">polaris</span></code>.</p>
 <p>Each test group in <code class="docutils literal notranslate"><span class="pre">polaris</span></code> is a class that descends from the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.TestGroup</span></code> class.  Let’s make a new class for the
@@ -455,7 +455,7 @@ to the <code class="docutils literal notranslate"><span class="pre">default</spa
 <span class="hll"><span class="sd">    Attributes</span>
 </span><span class="hll"><span class="sd">    ----------</span>
 </span><span class="hll"><span class="sd">    resolution : float</span>
-</span><span class="hll"><span class="sd">        The resolution of the task in km    </span>
+</span><span class="hll"><span class="sd">        The resolution of the task in km</span>
 </span><span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="hll">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
@@ -743,21 +743,21 @@ $<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${
 
 <span class="w">     </span>Loading<span class="w"> </span>conda<span class="w"> </span>environment
 <span class="w">     </span>Done.
-<span class="w">     </span>
+
 <span class="w">     </span>Loading<span class="w"> </span>Spack<span class="w"> </span>environment...
 <span class="w">     </span>Done.
-<span class="w">     </span>
+
 <span class="w">     </span>ocean/yet_another_channel/10km/default
 <span class="w">     </span>polaris<span class="w"> </span>calling:<span class="w"> </span>polaris.run.serial._run_test<span class="o">()</span>
 <span class="w">       </span><span class="k">in</span><span class="w"> </span>/gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/run/serial.py
-<span class="w">     </span>
+
 <span class="w">     </span>Running<span class="w"> </span>steps:<span class="w"> </span>init
 <span class="w">       </span>*<span class="w"> </span>step:<span class="w"> </span>init
-<span class="w">     </span>
+
 <span class="w">     </span>polaris<span class="w"> </span>calling:<span class="w"> </span>polaris.ocean.tasks.yet_another_channel.default.Default.validate<span class="o">()</span>
 <span class="w">       </span>inherited<span class="w"> </span>from:<span class="w"> </span>polaris.task.Task.validate<span class="o">()</span>
 <span class="w">       </span><span class="k">in</span><span class="w"> </span>/gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/task.py
-<span class="w">     </span>
+
 <span class="w">       </span><span class="nb">test</span><span class="w"> </span>execution:<span class="w">      </span>SUCCESS
 <span class="w">       </span><span class="nb">test</span><span class="w"> </span>runtime:<span class="w">        </span><span class="m">00</span>:00
 <span class="w">     </span>Test<span class="w"> </span>Runtimes:
@@ -771,7 +771,7 @@ $<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${
 <h3>Creating a vertical coordinate<a class="headerlink" href="#creating-a-vertical-coordinate" title="Permalink to this heading"></a></h3>
 <p>Ocean tasks typically need to define a vertical coordinate as we will
 discuss here.  Land ice tasks use a different approach to creating
-vertical coordinates, so this section will not apply to those tasks.<br />
+vertical coordinates, so this section will not apply to those tasks.
 Returning to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, the code
 snippet below is an example of how to make use of the
 <a class="reference internal" href="../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a> to create the vertical coordinate:</p>
@@ -1106,7 +1106,7 @@ forward runs:</p>
 
 <span class="hll">    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span class="hll"><span class="sd">        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the </span>
+</span><span class="hll"><span class="sd">        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the</span>
 </span><span class="hll"><span class="sd">        ``init`` step with a baseline if one was provided.</span>
 </span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
 </span><span class="hll">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
@@ -1202,7 +1202,7 @@ task-serial mode, where your tasks and steps run one after the other.)</p>
 <p>One important aspect of this testing will be to change config options in the
 work directory and make sure the task is modified in the expected way.  If
 you change <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>, does the domain size change in the plots as expected?
-What happens to the initial condition when you change the physical parameters?<br />
+What happens to the initial condition when you change the physical parameters?
 How is the time step and simulation duration changed when you modify
 <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>? Obviously, these are only example of things
 you might try to stress-test your own task.</p>
@@ -1548,7 +1548,7 @@ we want to add validation of the result of the forward run:</p>
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity`` and ``layerThickness`` in</span>
-<span class="sd">        both ``init`` and ``forward`` steps, and ``normalVelocity`` </span>
+<span class="sd">        both ``init`` and ``forward`` steps, and ``normalVelocity``</span>
 <span class="sd">        in the ``forward`` step with a baseline if one was provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
@@ -1700,7 +1700,7 @@ It starts with the same initial condition and does a forward run exactly like
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    resolution : float</span>
-<span class="sd">        The resolution of the task in km    </span>
+<span class="sd">        The resolution of the task in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
@@ -2226,7 +2226,7 @@ an <code class="docutils literal notranslate"><span class="pre">analysis</span><
 “framework” for the test group over all like the <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code>
 steps).  Each <code class="docutils literal notranslate"><span class="pre">forward</span></code> step runs for much longer than in the <code class="docutils literal notranslate"><span class="pre">default</span></code> test
 case (20 days, rather than 3 time steps).  This means that <code class="docutils literal notranslate"><span class="pre">rpe</span></code> isn’t
-appropriate for regression testing, since it is too time consuming to run.<br />
+appropriate for regression testing, since it is too time consuming to run.
 Likewise, the higher resolutions (1 and 4 km) are fairly resource heavy, and
 therefore not as well suit to quick testing.  But this task was the
 original purpose of the test group as a whole, serving to validate the code in
@@ -2695,7 +2695,7 @@ steps.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

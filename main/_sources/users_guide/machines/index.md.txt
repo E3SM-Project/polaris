@@ -2,11 +2,11 @@
 
 # Machines
 
-Polaris  attempts to be aware of the capabilities of the machine it is running 
-on.  This is a particular advantage for so-called "supported" machines with a 
-config file defined for them in the `polaris` package.  But even for "unknown" 
-machines, it is not difficult to set a few config options in your user config 
-file to describe your machine.  Then, polaris can use this data to make sure 
+Polaris  attempts to be aware of the capabilities of the machine it is running
+on.  This is a particular advantage for so-called "supported" machines with a
+config file defined for them in the `polaris` package.  But even for "unknown"
+machines, it is not difficult to set a few config options in your user config
+file to describe your machine.  Then, polaris can use this data to make sure
 tasks are configured in a way that is appropriate for your machine.
 
 ## config options
@@ -174,7 +174,7 @@ probably via a
 In this case, the `parallel_executable` is `mpirun`.
 
 To install the `polaris` package into a conda environment, you will first
-need to install [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge)
+need to install [Miniforge3](https://github.com/conda-forge/miniforge#miniforge3)
 (if it is not already installed).  Then, you will run one of the following
 three commands, depending on how you would like to handle MPI support in the
 conda packages.
