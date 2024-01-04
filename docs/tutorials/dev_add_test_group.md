@@ -15,7 +15,7 @@ will use it to describe the process for creating a test group from scratch.
 To begin with, you will need to check out the polaris repo and create a new
 branch from `main` for developing the new test group.  For this purpose, we
 will stick with the simpler approach in {ref}`dev-polaris-repo` here, but feel
-free to use the `git worktree` approach from {ref}`dev-polaris-repo-advanced` 
+free to use the `git worktree` approach from {ref}`dev-polaris-repo-advanced`
 instead if you are comfortable with it.
 
 ```bash
@@ -32,23 +32,23 @@ your needs.
 
 ```bash
 # this one will take a while the first time
-./configure_polaris_envs.py --conda $HOME/mambaforge
+./configure_polaris_envs.py --conda $HOME/miniforge3
 ```
 
-If you don't already have [mambaforge](https://github.com/conda-forge/miniforge#mambaforge)
+If you don't already have [miniforge3](https://github.com/conda-forge/miniforge#miniforge3)
 installed in the directory pointed to by `--conda`, it will be installed
-automatically for you.  
+automatically for you.
 
 ```{note}
 If you have [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 installed already, you can use that, too.  But we don't recommend installing
-that if you haven't already.  Mambaforge comes with some important tools and
-config options already set the way we need them.  
+that if you haven't already.  Miniforge3 comes with some important tools and
+config options already set the way we need them.
 ```
 
-If all goes well, you will have a file named `load_dev_polaris_*.sh`, 
+If all goes well, you will have a file named `load_dev_polaris_*.sh`,
 where the details of the `*` depend on your current version of polaris, the
-machine and compilers.  For example, on Chrysalis, you might have 
+machine and compilers.  For example, on Chrysalis, you might have
 `load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh`, which will be the
 example used here:
 
@@ -111,11 +111,11 @@ the style required for polaris (see {ref}`dev-style`).  `vim` or a similar
 tool will work fine on supercomputers.
 
 Your new test group will be a new python package within an existing component
-(`ocean` here).  For this example, we create a new test group modeled on 
-`baroclinic_channel` called `yet_another_channel`. We create a new 
-`yet_another_channel` directory in `polaris/ocean/tasks`.  In that directory, 
-we will make a new  file called `__init__.py` that will initially be empty.  
-That's all it takes  to make `yet_another_channel` a new package in `polaris`.  
+(`ocean` here).  For this example, we create a new test group modeled on
+`baroclinic_channel` called `yet_another_channel`. We create a new
+`yet_another_channel` directory in `polaris/ocean/tasks`.  In that directory,
+we will make a new  file called `__init__.py` that will initially be empty.
+That's all it takes  to make `yet_another_channel` a new package in `polaris`.
 
 Each test group in `polaris` is a class that descends from the
 {py:class}`polaris.TestGroup` class.  Let's make a new class for the
@@ -146,29 +146,29 @@ to know what component it belongs to so that is passed in as the `component`
 argument.  The only thing that happens so far is that the constructor for the
 base class `TestGroup` gets called.  In the process, we give the test group
 the name `yet_another_channel`.  You can take a look at the base class
-{py:class}`polaris.TestGroup` in 
+{py:class}`polaris.TestGroup` in
 [polaris/testgroup.py](https://github.com/E3SM-Project/polaris/blob/main/polaris/testgroup.py)
-if you want.  That's not necessary for the tutorial, but some new developers 
-have found reading the base class code (particularly for 
-{py:class}`polaris.Task` and {py:class}`polaris.Step`) to be highly 
+if you want.  That's not necessary for the tutorial, but some new developers
+have found reading the base class code (particularly for
+{py:class}`polaris.Task` and {py:class}`polaris.Step`) to be highly
 instructive.
 
 Naming conventions in python are that we use
 [CamelCase](https://en.wikipedia.org/wiki/Camel_case) for classes, which
 always start with a capital letter, and all lowercase, possibly with
-underscores, for variable, module, package, function and method names.  We 
+underscores, for variable, module, package, function and method names.  We
 avoid all-caps like `MPAS`, even though this might seem preferable. (We use
 `E3SM` in a few places because `E3sm` looks really awkward.)
 
 You are encouraged to add docstrings (enclosed in `"""`) to briefly document
-classes, methods and functions as you write them.  We use the 
+classes, methods and functions as you write them.  We use the
 [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style
 conventions, as described in {ref}`dev-docstrings`.
 
 Our new `YetAnotherChannel` class defines the test group, but so far it
 doesn't have any tasks in it.  We'll come back and add them later in the
 tutorial.  Before we add a task, let's make `polaris` aware that the
-test group exists. To do that, we need to open 
+test group exists. To do that, we need to open
 [polaris/ocean/\_\_init\_\_.py](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/__init__.py),
 add an import for the new test group, and add an instance of the test group to the list of test
 groups in the ocean core:
@@ -296,27 +296,27 @@ syntax errors, you'll need to fix those first.
 
 ## Varying resolution and other parameters
 
-For "yet another channel" tasks, we know that we want each test to be at a 
+For "yet another channel" tasks, we know that we want each test to be at a
 single resolution but let's suppose that we want multiple versions of the
-`yet_another_channel` test for different resolutions. 
+`yet_another_channel` test for different resolutions.
 
-We also want a lot of flexibility in determining 
+We also want a lot of flexibility in determining
 the resolution, so it's easy to add new ones in the future.  At the same time,
 we want it to be easy to set up and run tasks and the supported resolutions
 without users having to specify the resolution (e.g. in a config option). We
-have found that a convenient way to handle this situation is to passing the 
+have found that a convenient way to handle this situation is to passing the
 resolution as a parameter when we create a version of the task.  This way,
 we can easily create several versions of the task at different resolutions
 just by passing different values for the resolution.  The same could apply for
 many other parameters, such as the horizontal viscosity in the model, the type
-of vertical coordinate, or whether or not a task includes a type of 
+of vertical coordinate, or whether or not a task includes a type of
 forcing (e.g. tides).  There is little restriction on what types of parameters
 can be used to create variants of a task. We'll see what this looks like
 in the next few sections.
 
 There are also types of tasks where a single parameter is varied *within*
-the task (e.g. with different steps each performing a simulation with its 
-own parameter value, and then a step analyzing the behavior as the parameter 
+the task (e.g. with different steps each performing a simulation with its
+own parameter value, and then a step analyzing the behavior as the parameter
 varies).  The "yet another channel" test group includes the RPE (reference
 potential energy) task that explores the behavior of the task at
 different horizontal viscosities in this way.  In this situation, it is more
@@ -326,7 +326,7 @@ explore non-default parameter values to change the config options before
 running the task.  We'll see in more detail what that looks like later in
 the tutorial.
 
-Let's say you want to support 3 resolutions in `yet_another_channel` tasks: 
+Let's say you want to support 3 resolutions in `yet_another_channel` tasks:
 1, 4 and 10 km.  We'll add resolution in km as a float parameter and attribute
 to the `default` task:
 
@@ -350,7 +350,7 @@ class Default(Task):
     Attributes
     ----------
     resolution : float
-        The resolution of the task in km    
+        The resolution of the task in km
     """
 
     def __init__(self, test_group, resolution):
@@ -376,18 +376,18 @@ class Default(Task):
                          subdir=subdir)
 ```
 
-We store the `resolution` as an attribute of the task object itself 
+We store the `resolution` as an attribute of the task object itself
 (`self.resolution`). Later on in the task in other methods, we will access
-the resolution with `self.resolution` whenever we need it.  We also indicate 
-that the work directory should include a subdirectory for resolution (taking 
-care to support the possibility that we might want sub-km resolutions in the 
-future) as well as the name of the task. We add resolution to the 
+the resolution with `self.resolution` whenever we need it.  We also indicate
+that the work directory should include a subdirectory for resolution (taking
+care to support the possibility that we might want sub-km resolutions in the
+future) as well as the name of the task. We add resolution to the
 docstring for both the class (where we describe the `resolution` attribute) and
-the constructor (where we describe the `resolution` argument or parameter).  
+the constructor (where we describe the `resolution` argument or parameter).
 
 The `default` task still doesn't do anything yet because we haven't added
-any steps, change how we add ti to the `yet_another_channel` test group so we 
-can see how the resolution will be specified.  We update `YetAnotherChannel` 
+any steps, change how we add ti to the `yet_another_channel` test group so we
+can see how the resolution will be specified.  We update `YetAnotherChannel`
 to add a loop over resolutions as follows:
 
 ```bash
@@ -426,10 +426,10 @@ $ polaris list
   12: ocean/yet_another_channel/10km/default
 ```
 
-In the long run, the `default` task and most other tasks in this 
-test group will be for regression testing and will only be run at the coarsest 
+In the long run, the `default` task and most other tasks in this
+test group will be for regression testing and will only be run at the coarsest
 resolution, 10 km.  But we will put in several resolutions to show how they
-are supported.  If we have done our job especially well, we should be able to 
+are supported.  If we have done our job especially well, we should be able to
 add new, non-standard resolutions and the tasks should still work.
 
 (dev-tutorial-add-test-group-add-init)=
@@ -573,11 +573,11 @@ to look them up again later (e.g. during plotting) if they are needed.
 To set default config options (see {ref}`config-files`) for the task, we
 typically add them to to a config file with the same name as the test group
 or task (or both).  Polaris will automatically look for config files with
-these names when it sets up the tasks.  All the steps of a task 
-share the same config file because it isn't very convenient for a user to have 
-to edit a different config file for each step.  (Even editing config files for 
-individual tasks is kind of a pain, so it can be more convenient to set 
-config options in a "user" {ref}`config-files` before setting up the test 
+these names when it sets up the tasks.  All the steps of a task
+share the same config file because it isn't very convenient for a user to have
+to edit a different config file for each step.  (Even editing config files for
+individual tasks is kind of a pain, so it can be more convenient to set
+config options in a "user" {ref}`config-files` before setting up the test
 case.)
 
 In this case, we know that these config options are going to be used across
@@ -599,11 +599,11 @@ ly = 500.0
 ```
 
 There is another way to get define default config options.  The "yet another
-channel" task doesn't use this but we can also define them in the code in 
-a `configure()` method of the task.  These config options will also show 
-up in the config file in the task's work directory.  There is no 
-`configure()` method for individual steps because it is not a good idea to 
-change config options within a step, since other steps may be affected in 
+channel" task doesn't use this but we can also define them in the code in
+a `configure()` method of the task.  These config options will also show
+up in the config file in the task's work directory.  There is no
+`configure()` method for individual steps because it is not a good idea to
+change config options within a step, since other steps may be affected in
 potentially unexpected ways.  You can see an example of this in the
 [cosine_bell task](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/tasks/global_convergence/cosine_bell/__init__.py#L55-L62).
 
@@ -614,7 +614,7 @@ potentially unexpected ways.  You can see an example of this in the
 
 Returning to the `default` task, we are now ready to add
 `init`.
- 
+
 ```bash
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 ```
@@ -635,7 +635,7 @@ class Default(Task):
             Init(task=self, resolution=resolution))
 ```
 
-Now we have created a step, `init`, that does something, creating a 
+Now we have created a step, `init`, that does something, creating a
 mesh. We can first check that the step exists:
 
 ```bash
@@ -673,21 +673,21 @@ $ cat polaris.o${SLURM_JOBID}
 
      Loading conda environment
      Done.
-     
+
      Loading Spack environment...
      Done.
-     
+
      ocean/yet_another_channel/10km/default
      polaris calling: polaris.run.serial._run_test()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/run/serial.py
-     
+
      Running steps: init
        * step: init
-     
+
      polaris calling: polaris.ocean.tasks.yet_another_channel.default.Default.validate()
        inherited from: polaris.task.Task.validate()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/task.py
-     
+
        test execution:      SUCCESS
        test runtime:        00:00
      Test Runtimes:
@@ -699,8 +699,8 @@ $ cat polaris.o${SLURM_JOBID}
 ### Creating a vertical coordinate
 
 Ocean tasks typically need to define a vertical coordinate as we will
-discuss here.  Land ice tasks use a different approach to creating 
-vertical coordinates, so this section will not apply to those tasks.  
+discuss here.  Land ice tasks use a different approach to creating
+vertical coordinates, so this section will not apply to those tasks.
 Returning to the `run()` method in the `init` step, the code
 snippet below is an example of how to make use of the
 {ref}`dev-ocean-framework-vertical` to create the vertical coordinate:
@@ -739,8 +739,8 @@ class Init(Step):
         init_vertical_coord(config, ds)
 ```
 
-This part of the step, too, relies on config options, this time from the 
-`vertical_grid` section (see {ref}`dev-ocean-framework-vertical` for more on 
+This part of the step, too, relies on config options, this time from the
+`vertical_grid` section (see {ref}`dev-ocean-framework-vertical` for more on
 this):
 
 Now we add a new section to the config file:
@@ -792,7 +792,7 @@ following fields to `ds`:
 * `refTopDepth` - the positive-down depth of the top of each ref. level
 * `refZMid` - the positive-down depth of the middle of each ref. level
 * `refBottomDepth` - the positive-down depth of the bottom of each ref. level
-* `refInterfaces` - the positive-down depth of the interfaces between ref. 
+* `refInterfaces` - the positive-down depth of the interfaces between ref.
   levels (with `nVertLevels` + 1 elements).
 * `vertCoordMovementWeights` - the weights (all ones) for coordinate movement
 
@@ -1029,8 +1029,8 @@ class Init(Step):
             self.add_output_file(file)
 ```
 
-Only `initial_state.nc` and `culled_graph.info` are strictly necessary, as 
-these are used as inputs to the `forward` and `analysis` steps that we will 
+Only `initial_state.nc` and `culled_graph.info` are strictly necessary, as
+these are used as inputs to the `forward` and `analysis` steps that we will
 define below, but explicitly including other outputs is not a problem.
 
 (dev-tutorial-add-test-group-adding-validation)=
@@ -1065,7 +1065,7 @@ class Default(Task):
 
     def validate(self):
         """
-        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the 
+        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the
         ``init`` step with a baseline if one was provided.
         """
         super().validate()
@@ -1075,9 +1075,9 @@ class Default(Task):
                           filename1='init/initial_state.nc')
 ```
 We check salinity, temperature and layer thickness in the initial state step.
-Since we only provide `filename1` in the call to 
-{py:func}`polaris.validate.compare_variables()`, we will only do this 
-validation if a user has set up the task with a baseline, see 
+Since we only provide `filename1` in the call to
+{py:func}`polaris.validate.compare_variables()`, we will only do this
+validation if a user has set up the task with a baseline, see
 {ref}`dev-validation`.
 
 (dev-tutorial-add-test-group-testing-a-step)=
@@ -1085,9 +1085,9 @@ validation if a user has set up the task with a baseline, see
 ### Test things out!
 
 It's a good idea to test things out after adding each step to a task.
-Before we add any more steps or tasks, we'll run `default` and make sure 
-we can create the initial condition.  It would be good to make sure what we've 
-done so far works well before we move on.  
+Before we add any more steps or tasks, we'll run `default` and make sure
+we can create the initial condition.  It would be good to make sure what we've
+done so far works well before we move on.
 
 The first way to test things out is just to list the tasks and make sure your
 new ones show up:
@@ -1125,7 +1125,7 @@ See {ref}`dev-polaris-setup` for the details.  If that works, you're ready to
 do a test run.  If you get errors during setup, you have some debugging to do.
 
 You can run the test with a job script or an interactive node.  For debugging,
-the interactive node is usually more efficient.  To run the task, open a 
+the interactive node is usually more efficient.  To run the task, open a
 new terminal, go to the work directory, start an interactive session on
 however many nodes you need (most often 1 when you're just debugging something
 small) and for a long enough time that your debugging doesn't get interrupted,
@@ -1142,9 +1142,9 @@ $ cd ocean/yet_another_channel/10km/default
 $ ls
 default.cfg  load_polaris_env.sh   init  job_script.sh      task.pickle
 ```
-If we open up `default.cfg` we can see that it contains our newly added 
+If we open up `default.cfg` we can see that it contains our newly added
 `yet_another_channel` section along with a bunch of other sections. Let's go to
-the `task` section, where you will see `steps_to_run = init`. 
+the `task` section, where you will see `steps_to_run = init`.
 This means that when we run our case, the initial condition should be generated
 if we didn't make any mistakes in setting up the step (fingers crossed!).
 
@@ -1162,42 +1162,42 @@ base_mesh.nc               default.cfg                initial_state.nc
 culled_graph.info          initial_normalVelocity.png initial_temperature.png
 culled_mesh.nc             initial_salinity.png       step.pickle
 ```
-Our `initial_state.nc` file is there for use in running MPAS-Ocean in the next 
-step. Let's also take a look at the image files and make sure our initial 
+Our `initial_state.nc` file is there for use in running MPAS-Ocean in the next
+step. Let's also take a look at the image files and make sure our initial
 condition looks as expected.
 
 (Later on, there will be a `polaris run` command that runs in task parallel,
 and this should be the default way you run, but for now you can only run in
 task-serial mode, where your tasks and steps run one after the other.)
 
-One important aspect of this testing will be to change config options in the 
+One important aspect of this testing will be to change config options in the
 work directory and make sure the task is modified in the expected way.  If
 you change `lx` and `ly`, does the domain size change in the plots as expected?
-What happens to the initial condition when you change the physical parameters?  
-How is the time step and simulation duration changed when you modify 
-`dt_per_km` and `btr_dt_per_km`? Obviously, these are only example of things 
+What happens to the initial condition when you change the physical parameters?
+How is the time step and simulation duration changed when you modify
+`dt_per_km` and `btr_dt_per_km`? Obviously, these are only example of things
 you might try to stress-test your own task.
 
 ## Adding the forward step
 
-Now that we know that the first step seems to be working, we're ready to add 
+Now that we know that the first step seems to be working, we're ready to add
 another. We will add a `forward` step for running the MPAS-Ocean model forward
 in time from the initial condition created in `init`.  `forward`
 will be a little more complicated than `init` as we get started.
 We're going to start from the {py:class}`polaris.ocean.model.OceanModelStep`
-subclass that descends from {py:class}`polaris.ModelStep`, which in turn 
+subclass that descends from {py:class}`polaris.ModelStep`, which in turn
 descends from `Step`.  `ModelStep` adds quite a bit of useful functionality
 for steps that run E3SM model components (MALI, MPAS-Ocean or Omega) and
 `OceanModelStep` adds on to that with some functionality specific to the ocean.
 We'll explore some aspects of the functionality that each of these subclasses
 brings in here, but there may be other capabilities that we don't cover here
 that will be important for your tasks so it likely will be useful to have
-a look at the general {ref}`dev-model` section and potentially the 
+a look at the general {ref}`dev-model` section and potentially the
 ocean-specific {ref}`dev-ocean-model` section as well.  MALI steps will
 likely descend from `ModelStep`, though there may be advantages in defining
 a `LandiceModelStep` class in the future.
 
-We start with a `Forward` class that descends from `OceanModelStep` and a 
+We start with a `Forward` class that descends from `OceanModelStep` and a
 constructor with the name of the step.  This time, we also supply the target
 number of MPI tasks (`ntasks`), minimum number of MPI tasks (`min_tasks`), and
 number of threads (the `init` used the default of 1 task, 1 CPU per
@@ -1300,11 +1300,11 @@ The E3SM components supported by polaris require both model config options
 and streams definitions (namelist and streams files for MPAS components,
 see {ref}`dev-step-namelists-and-streams`, and yaml files for Omega, see
 {ref}`dev-step-add-yaml-file`) to work properly.  An important part of polaris'
-functionality is that it takes the default model config options and E3SM 
+functionality is that it takes the default model config options and E3SM
 component and modifies only those options that are specific to the task to
 produce the final model config files used to run the model.
 
-In polaris, there are two main ways to set model config options and we will 
+In polaris, there are two main ways to set model config options and we will
 demonstrate both in this task.  First, you can define a namelist or yaml
 file with the desired values.  This is useful for model config options that are
 always the same for this task and can't be changed based on config options
@@ -1448,7 +1448,7 @@ with a file path but rather with a package like in these examples.
 
 The model config options will start with the default set for the E3SM
 component, provided along with the model executable at the end of compilation.
-For MPAS-Ocean and MALI, this will be in 
+For MPAS-Ocean and MALI, this will be in
 `default_inputs/namelist.<component>.forward`.  (For Omega, this has yet to
 be determined.)  Each time a yaml or namelist file is added to a step, the
 model config options changed in that file will override the previous values.
@@ -1478,7 +1478,7 @@ omega:
 ```
 Other attributes will remain as they are in the defaults.  You can
 change the contents (the variables or arrays) of a stream in addition to the
-attributes.  In this case, the contents you provide will replace the default 
+attributes.  In this case, the contents you provide will replace the default
 contents:
 
 ```bash
@@ -1550,7 +1550,7 @@ class Default(Task):
     def validate(self):
         """
         Compare ``temperature``, ``salinity`` and ``layerThickness`` in
-        both ``init`` and ``forward`` steps, and ``normalVelocity`` 
+        both ``init`` and ``forward`` steps, and ``normalVelocity``
         in the ``forward`` step with a baseline if one was provided.
         """
         super().validate()
@@ -1564,18 +1564,18 @@ class Default(Task):
         compare_variables(task=self, variables=variables,
                           filename1='forward/output.nc')
 ```
-We check salinity, temperature,  layer thickness and normal velocity in the 
-forward step.  Again, we only provide `filename1` in each call to 
+We check salinity, temperature,  layer thickness and normal velocity in the
+forward step.  Again, we only provide `filename1` in each call to
 {py:func}`polaris.validate.compare_variables()` so validation will only be
 performed if a user has set up the task with a baseline.
 
 ### Test the task again!
 
-We're ready to run some more tests just like we did in 
-{ref}`dev-tutorial-add-test-group-testing-a-step`.  Again, we'll start with 
+We're ready to run some more tests just like we did in
+{ref}`dev-tutorial-add-test-group-testing-a-step`.  Again, we'll start with
 `polaris list` to make sure that works fine and the tasks still show
 up.  Then, we'll set up the task with `polaris setup` as before.  Next,
-we will go to the task's work directory and use `polaris serial` 
+we will go to the task's work directory and use `polaris serial`
 (likely on an interactive node) to make sure the task runs both steps
 we've added so far.
 
@@ -1636,7 +1636,7 @@ class Viz(Step):
 ```
 
 It makes images of the final temperature and normal velocity from a forward
-step.  Since all the pieces of this step have been covered in the other 2 
+step.  Since all the pieces of this step have been covered in the other 2
 steps, we won't describe this step in any more detail.
 
 ### Adding the `viz` step to the task
@@ -1673,7 +1673,7 @@ class Default(Task):
 ### Test the task one more time!
 
 And it's time to test things out one more time, now with all 3 steps. Again,
-follow the procedure as in 
+follow the procedure as in
 {ref}`dev-tutorial-add-test-group-testing-a-step`:
 * `polaris list` to make sure you can list the tasks
 * `polaris setup` to set them up again (maybe in a fresh work directory)
@@ -1688,7 +1688,7 @@ Let's add one more task to see how that goes.  This will be a quick one.
 
 The decomposition test we present here is pretty similar to the default test.
 It starts with the same initial condition and does a forward run exactly like
-`default`. 
+`default`.
 
 ```bash
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/decomp/__init__.py
@@ -1709,7 +1709,7 @@ class Decomp(Task):
     Attributes
     ----------
     resolution : float
-        The resolution of the task in km    
+        The resolution of the task in km
     """
 
     def __init__(self, test_group, resolution):
@@ -1738,7 +1738,7 @@ class Decomp(Task):
 ```
 
 But then it does a second forward run on 8 cores instead of 4 and compares the
-results to make sure they are identical.  Each of these runs is performed in 
+results to make sure they are identical.  Each of these runs is performed in
 its own step.
 
 ```python
@@ -1789,7 +1789,7 @@ class Decomp(Task):
 
 Note that, unlike in the `default` task, we provide the `filename2`
 parameter here so validation is performed even if we don't provide a baseline.
-(If we do provide a baseline, both the 4 core and 8 core results will be 
+(If we do provide a baseline, both the 4 core and 8 core results will be
 validated against their equivalents in the baseline as well.)
 
 Finally, we add the new task to the test group:
@@ -1833,17 +1833,17 @@ And we're ready to test once again!
 
 Make sure to add some documentation of your new test group.  The documentation
 is written in the [MyST](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html)
-flavor of Markdown, similar to what GitHub uses. See {ref}`dev-docs` for 
+flavor of Markdown, similar to what GitHub uses. See {ref}`dev-docs` for
 details.
 
 You need to add all of the public functions, classes and methods to the
-{ref}`dev-api` in `docs/developers_guide/<component>/api.md`, following the 
-examples for other test groups.  
+{ref}`dev-api` in `docs/developers_guide/<component>/api.md`, following the
+examples for other test groups.
 
-You also need to add a file to both the user's guide and the developer's guide 
+You also need to add a file to both the user's guide and the developer's guide
 describing the test group and its tasks and steps.
 
-For the user's guide, make a copy of 
+For the user's guide, make a copy of
 `docs/users_guide/<component>/test_groups/template.md` called
 `docs/users_guide/<component>/test_groups/<test_group>.md`.  In that file, you
 should describe the test group and its tasks in a way that would be
@@ -1859,9 +1859,9 @@ For the developer's guide, create a file
 you will describe the test group, its tasks and steps in a way that is
 relevant to developers who might want to modify the code or use it as an
 example for developing their own tasks.  Currently, the descriptions are
-brief in part because of the daunting task of documenting a large number of 
-tasks but should be fleshed out over time.  It would help new developers 
-if new test groups and tasks were documented well. Add `<test_group>` in 
+brief in part because of the daunting task of documenting a large number of
+tasks but should be fleshed out over time.  It would help new developers
+if new test groups and tasks were documented well. Add `<test_group>` in
 the appropriate place (in alphabetical order) to the list of test groups in
 `docs/developers_guide/<component>/test_groups/index.md`.
 
@@ -1878,13 +1878,13 @@ you to get started.
 ### Adding model config options in code
 
 In {ref}`dev-tutorial-add-test-group-model-config-and-streams`, we added
-model config options using yaml and namelist files. Another way to set model 
-config options is to use a python dictionary and to call 
-{py:meth}`polaris.ModelStep.add_model_config_options()`.  This is the way 
+model config options using yaml and namelist files. Another way to set model
+config options is to use a python dictionary and to call
+{py:meth}`polaris.ModelStep.add_model_config_options()`.  This is the way
 to handle namelist options that depend on parameters (such as resolution) that
-are not known in advance.  In this case, we use this technique to set the 
-model config option for the viscosity `config_mom_del2` using a parameter 
-`nu` passed into the constructor (if it is not `None`, indicating that it was 
+are not known in advance.  In this case, we use this technique to set the
+model config option for the viscosity `config_mom_del2` using a parameter
+`nu` passed into the constructor (if it is not `None`, indicating that it was
 not set):
 
 ```bash
@@ -2025,9 +2025,9 @@ dt_per_km = 30
 btr_dt_per_km = 1.5
 ```
 
-We don't do anything differently in `dynamic_model_config()` here whether it's 
-run at setup or at runtime.  The reason we run it twice is to update the model 
-config options in case the user modified `dt_per_km` or `btr_dt_per_km` in the 
+We don't do anything differently in `dynamic_model_config()` here whether it's
+run at setup or at runtime.  The reason we run it twice is to update the model
+config options in case the user modified `dt_per_km` or `btr_dt_per_km` in the
 config file in the work directory before running the step.
 
 ### Computing the cell count
@@ -2070,14 +2070,14 @@ class Forward(OceanModelStep):
         cell_count = nx * ny
         return cell_count
 ```
-We need to estimate the size of the mesh so we have a good guess at the 
+We need to estimate the size of the mesh so we have a good guess at the
 resources it will need when we add it to a suite and make a job script for
-running it.  Here, we use 
+running it.  Here, we use
 {py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()` to get `nx` and `ny`
 (and thus the total cell count) during setup because we have no other way to
-get them.  When using task parallelism, we must use this approximation at 
-runtime, because we cannot rely on any tasks being completed to use as a basis 
-for computation. 
+get them.  When using task parallelism, we must use this approximation at
+runtime, because we cannot rely on any tasks being completed to use as a basis
+for computation.
 
 `cell_count` is used in `OceanModelStep` to compute `ntasks` and `min_tasks`
 by also using 2 config options:
@@ -2104,7 +2104,7 @@ as parameters to the constructor.
 
 So far, there isn't a equivalent process for MALI, so `ntasks` and `min_tasks`
 should be set explicitly either when constructing a task or by overriding
-the {py:meth}`polaris.Step.setup()` or 
+the {py:meth}`polaris.Step.setup()` or
 {py:meth}`polaris.Step.constrain_resources()` methods.
 
 
@@ -2119,18 +2119,18 @@ the philosophy of polaris.  So I decided to make a "superclass" with this
 common code that all the `yet_another_channel` tasks can descend from.
 Later, I removed some of the code from the superclass, so it turned out to not
 be as helpful as I originally thought but I think it's still a helpful
-demonstration. In general, if you find there are a lot of redundancies between 
-the different tasks you define, it might be a good idea to use a 
+demonstration. In general, if you find there are a lot of redundancies between
+the different tasks you define, it might be a good idea to use a
 superclass to handle that shared functionality in one place.
 
-In this case, the superclass will take care of things like putting the test 
-case in a subdirectory based on the mesh resolution in km, storing the 
-resolution as an attribute, adding the initial-condition step, and 
-validating variables in that initial condition.  All of our tasks will 
-need these features so it's a little simpler to add them here. 
+In this case, the superclass will take care of things like putting the test
+case in a subdirectory based on the mesh resolution in km, storing the
+resolution as an attribute, adding the initial-condition step, and
+validating variables in that initial condition.  All of our tasks will
+need these features so it's a little simpler to add them here.
 
-In the file `yet_another_channel_test_case.py` in 
-`polaris/ocean/tasks/yet_another_channel`, we define the superclass 
+In the file `yet_another_channel_test_case.py` in
+`polaris/ocean/tasks/yet_another_channel`, we define the superclass
 `YetAnotherChannelTestCase` that descends from {py:class}`polaris.Task`:
 
 ```python
@@ -2248,34 +2248,34 @@ class Default(YetAnotherChannelTestCase):
 
 The typical structure for a parameter study is to explore each parameter choice
 in a separate step (or steps) within a single task. In addition to running
-the model for each of these parameter choices, there is typically a separate 
+the model for each of these parameter choices, there is typically a separate
 step for analyzing the behavior across the parameter set, using the output from
-each of the forward steps. 
+each of the forward steps.
 
 A convergence study is one example of this, where each resolution and time step
 combination is run and then an analysis step computes the rate of convergence
 from the results. We won't cover this example here, in part because a
 resolution study involves both a forward step and an initial condition step for
 each resolution in order to generate unique meshes for each step. You may refer
-to {ref}`dev-ocean-global-convergence-cosine-bell` for these details. Instead, 
+to {ref}`dev-ocean-global-convergence-cosine-bell` for these details. Instead,
 we will explore the `rpe` for the `baroclinic_channel` test group, which
-only requires unique forward runs for different viscosity values. 
+only requires unique forward runs for different viscosity values.
 
-The `rpe` has been used to show that MPAS-Ocean has lower spurious 
+The `rpe` has been used to show that MPAS-Ocean has lower spurious
 dissipation of reference potential energy (RPE) than POP, MOM and MITgcm models
 ([Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004)).
 
 We want to define the `rpe` at 3 "standard" resolutions that have been
-used in previous testing: 1, 4 or 10 km.  The task consists of an 
-`init` step exactly like the `default` task, 5 variants of the 
+used in previous testing: 1, 4 or 10 km.  The task consists of an
+`init` step exactly like the `default` task, 5 variants of the
 `forward` step with different values of the viscosity (a parameter study), and
-an `analysis` step that is unique to this task (and thus not part of the 
+an `analysis` step that is unique to this task (and thus not part of the
 "framework" for the test group over all like the `init` and `forward`
-steps).  Each `forward` step runs for much longer than in the `default` test 
-case (20 days, rather than 3 time steps).  This means that `rpe` isn't 
-appropriate for regression testing, since it is too time consuming to run.  
-Likewise, the higher resolutions (1 and 4 km) are fairly resource heavy, and 
-therefore not as well suit to quick testing.  But this task was the 
+steps).  Each `forward` step runs for much longer than in the `default` test
+case (20 days, rather than 3 time steps).  This means that `rpe` isn't
+appropriate for regression testing, since it is too time consuming to run.
+Likewise, the higher resolutions (1 and 4 km) are fairly resource heavy, and
+therefore not as well suit to quick testing.  But this task was the
 original purpose of the test group as a whole, serving to validate the code in
 a specific context.
 
@@ -2358,11 +2358,11 @@ the `rpe` task available at 3 resolutions.
 #### Adding the steps to the task
 
 The `init` step has already been added to `rpe` because that
-happens in the `YetAnotherChannelTestCase` superclass.  Now, we will add the 
+happens in the `YetAnotherChannelTestCase` superclass.  Now, we will add the
 variants of the `forward` step and the `analysis` step to the task.
 Bear with me, as this is where things get a little complicated.
 
-We want there to be a sequence of steps based on a config options 
+We want there to be a sequence of steps based on a config options
 `viscosities`. By default this config options looks like:
 
 ```cfg
@@ -2380,7 +2380,7 @@ constructor `__init__()`.  But then we want to account for the possibility that
 a user has changed these values in a user config file before setting up the
 task.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
-We will handle this with the following additions to 
+We will handle this with the following additions to
 `polaris/ocean/tasks/yet_another_channel/rpe/__init__.py`:
 
 ```python
@@ -2439,7 +2439,7 @@ We use the same private method `_add_steps()` to add steps in `__init__()` and
 top pass along.  In the second case, we do.
 
 Breaking the `_add_steps()` method up, we start by reading in the default
-config options if this is getting called from `__init__()` so they're not 
+config options if this is getting called from `__init__()` so they're not
 available yet from `self.config`:
 
 ```python
@@ -2457,8 +2457,8 @@ class Rpe(YetAnotherChannelTestCase):
             config.add_from_package(package, 'yet_another_channel.cfg')
 ```
 
-This is a kind of unusual circumstance (unique to parameter studies) and the 
-reason that we go through all this trouble is to make sure we can list the 
+This is a kind of unusual circumstance (unique to parameter studies) and the
+reason that we go through all this trouble is to make sure we can list the
 steps in the task:
 
 ```
@@ -2485,7 +2485,7 @@ Next, if this is the second time calling `self._setup_steps()` from
 `configure()` we need to remove the steps we added before so we can add them
 again in case the list of viscosities has changed.  We don't want to remove
 the `init` step added by `YetAnotherChannelTestCase` so we will
-only remove steps that start with `rpe`.  To remove an item from a 
+only remove steps that start with `rpe`.  To remove an item from a
 dictionary, you use {py:meth}`dict.pop()`:
 
 ```python
@@ -2547,7 +2547,7 @@ omega:
       - relativeVorticity
       - layerThickness
 ```
-We want to run each step for 20 days, outputting the list of variables above 
+We want to run each step for 20 days, outputting the list of variables above
 every day.
 
 #### Adding the analysis step
@@ -2654,7 +2654,7 @@ def _plot(nx, ny, lx, ly, filename, nus, rpe):
     ...
 ```
 where the details of the `_plot()` function have been left out for
-compactness (and because it uses an approach to plotting that is a bit 
+compactness (and because it uses an approach to plotting that is a bit
 quick-and-dirty that we don't want other test groups to adopt).  The `_plot()`
 function needs the results from each forward step's `output.nc` file as inputs
 as well as the size of the domain from the `lx` and `ly` config options and the
@@ -2717,7 +2717,7 @@ class Rpe(YetAnotherChannelTestCase):
 ### How to (and how not to) pass data between steps
 
 In developing `yet_another_channel`, we initially used config options to pass
-parameters `nx`, `ny`, and `dc` between steps.  They were computed and set in 
+parameters `nx`, `ny`, and `dc` between steps.  They were computed and set in
 the shared `YetAnotherChannelTestCase` in its `configure()` method.  This
 turned out not to be a good idea and we wanted to share the lessons learned
 because they may be useful to other developers.
@@ -2743,7 +2743,7 @@ computing `nx` and `ny` for uniform, hexagonal meshes from `lx`, `ly` and
 `resolution`.  We decided this should be in the polaris framework rather than
 in the test group because it might be useful to others. Second, we stored `nx`,
 `ny` and `dc` as global attributes in the initial condition file.  This is
-the "proper" way of passing data between steps in polaris: through files. 
+the "proper" way of passing data between steps in polaris: through files.
 Third, we changed any parts of the code that were previously getting `nx` and
 `ny` from config options to instead either use the new
 {py:func}`polaris.mesh.planar.compute_planar_hex_nx_ny()` or to get them from
@@ -2756,5 +2756,5 @@ do expect a user to want to change.  You should document which are which so
 a user knows which are a good idea to change and which are "change at your own
 risk".  But you should not put in config options that are overridden in the
 code, so that a user changing them actually doesn't do anything.  And you
-shouldn't use config options for the primary purpose of passing data between 
+shouldn't use config options for the primary purpose of passing data between
 steps.
