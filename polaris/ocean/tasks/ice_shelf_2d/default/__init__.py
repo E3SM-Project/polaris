@@ -48,7 +48,7 @@ class Default(IceShelfTask):
 
         self.add_step(init, symlink='init')
 
-        last_adjust_step = self._setup_ssh_adjustment_steps(
+        last_adjust_step = self.setup_ssh_adjustment_steps(
             init=init, config=config, config_filename='ice_shelf_2d.cfg',
             package='polaris.ocean.tasks.ice_shelf_2d')
 
