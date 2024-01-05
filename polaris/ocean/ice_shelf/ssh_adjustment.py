@@ -50,7 +50,8 @@ class SshAdjustment(Step):
         """
         logger = self.logger
         config = self.config
-        adjust_variable = 'landIcePressure'
+        adjust_variable = config.get('ssh_adjustment', 'adjust_variable')
+        mask_variable = config.get('ssh_adjustment', 'mask_variable')
         mesh_filename = 'mesh.nc'
         init_filename = 'init.nc'
         final_filename = 'final.nc'
@@ -62,6 +63,9 @@ class SshAdjustment(Step):
 
         if adjust_variable not in ['ssh', 'landIcePressure']:
             raise ValueError(f"Unknown variable to modify: {adjust_variable}")
+        if mask_variable not in ds_init.keys():
+            raise ValueError(f"Mask variable {mask_variable} is not contained "
+                             f"in {init_filename}")
 
         logger.info("   * Updating SSH or land-ice pressure")
 
@@ -81,9 +85,7 @@ class SshAdjustment(Step):
         final_ssh = ds_final.ssh
         top_density = ds_final.density.isel(nVertLevels=minLevelCell)
 
-        y3 = config.getfloat('ice_shelf_2d', 'y3') * 1e3
-        mask = np.logical_and(ds_final.maxLevelCell > 0,
-                              ds_mesh.yCell < y3).astype(float)
+        mask = ds_init[mask_variable]
         delta_ssh = mask * (final_ssh - init_ssh)
 
         # then, modify the SSH or land-ice pressure

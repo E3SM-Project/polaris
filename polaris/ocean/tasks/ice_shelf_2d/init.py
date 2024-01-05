@@ -139,6 +139,12 @@ class Init(Step):
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
+        mask_variable = config.get('ssh_adjustment', 'mask_variable')
+        mask = xr.zeros_like(ds_mesh.yCell)
+        mask = np.logical_and(ds.maxLevelCell > 0,
+                              ds_mesh.yCell < y3).astype(float)
+        ds[mask_variable] = mask
+
         ds['normalVelocity'] = normal_velocity
         ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)

@@ -19,6 +19,8 @@ def add_ice_shelf_2d_tasks(component):
 
         config_filename = 'ice_shelf_2d.cfg'
         config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        config.add_from_package('polaris.ocean.ice_shelf',
+                                'ssh_adjustment.cfg')
         config.add_from_package('polaris.ocean.tasks.ice_shelf_2d',
                                 config_filename)
 
