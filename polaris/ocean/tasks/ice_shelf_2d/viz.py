@@ -36,6 +36,9 @@ class Viz(Step):
         self.add_input_file(
             filename='output.nc',
             target='../forward/output.nc')
+        self.add_input_file(
+            filename='land_ice_fluxes.nc',
+            target='../forward/land_ice_fluxes.nc')
 
     def run(self):
         """
@@ -43,7 +46,9 @@ class Viz(Step):
         """
         ds_mesh = xr.load_dataset('mesh.nc')
         ds_init = xr.load_dataset('init.nc')
+        ds_adj_init = xr.load_dataset('adjusted_init.nc')
         ds = xr.load_dataset('output.nc')
+        ds_ice = xr.load_dataset('land_ice_fluxes.nc')
 
         x_mid = ds_mesh.xCell.median()
         y_min = ds_mesh.yCell.min()
@@ -65,7 +70,8 @@ class Viz(Step):
         plt.savefig('velocity_max_t.png', dpi=200)
         plt.close()
 
-        ds_horiz = self._process_ds(ds_init, ds_init, ds_init.bottomDepth,
+        ds_horiz = self._process_ds(ds_init, ds_ice, ds_adj_init,
+                                    ds_init.bottomDepth,
                                     time_index=0)
         vmin_del_ssh = np.min(ds_horiz.delSsh.values)
         vmax_del_ssh = np.max(ds_horiz.delSsh.values)
@@ -77,24 +83,24 @@ class Viz(Step):
         vmax_uv = max(np.amax(ds.velocityX.values),
                       np.amax(ds.velocityY.values))
 
-        tidx = 0  # Plot the initial time
+        time_index = 0  # Plot the initial time
         ds_transect = compute_transect(
             x=x, y=y, ds_horiz_mesh=ds_mesh,
-            layer_thickness=ds_init.layerThickness.isel(Time=tidx),
+            layer_thickness=ds_init.layerThickness.isel(Time=time_index),
             bottom_depth=ds_init.bottomDepth,
             min_level_cell=ds_init.minLevelCell - 1,
             max_level_cell=ds_init.maxLevelCell - 1,
             spherical=False)
 
         plot_transect(ds_transect,
-                      mpas_field=ds_init.temperature.isel(Time=tidx),
+                      mpas_field=ds_init.temperature.isel(Time=time_index),
                       out_filename='temperature_section_init.png',
                       title='temperature',
                       vmin=vmin_temp, vmax=vmax_temp,
                       colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
 
         plot_transect(ds_transect,
-                      mpas_field=ds_init.salinity.isel(Time=tidx),
+                      mpas_field=ds_init.salinity.isel(Time=time_index),
                       out_filename='salinity_section_init.png',
                       title='salinity',
                       vmin=vmin_salt, vmax=vmax_salt,
@@ -105,106 +111,105 @@ class Viz(Step):
         plot_horiz_field(ds_horiz, ds_mesh, 'columnThickness',
                          'H_horiz_init.png', t_index=None,
                          cell_mask=cell_mask)
-        # Plot land ice pressure horizontal ds_init
-        for tidx in [0, -1]:
-            ds_horiz = self._process_ds(ds, ds_init, ds_init.bottomDepth,
-                                        time_index=tidx)
-            vmin_del_ssh = np.min(ds_horiz.delSsh.values)
-            vmax_del_ssh = np.max(ds_horiz.delSsh.values)
-            vmax_del_p = np.amax(ds_horiz.delLandIcePressure.values)
-            # Plot water column thickness horizontal
-            plot_horiz_field(ds_horiz, ds_mesh, 'columnThickness',
-                             f'H_horiz_t{tidx}.png', t_index=None,
-                             cell_mask=cell_mask)
-            plot_horiz_field(ds_horiz, ds_mesh, 'landIceFreshwaterFlux',
-                             f'melt_horiz_t{tidx}.png', t_index=None,
-                             cell_mask=cell_mask)
-            if 'wettingVelocityFactor' in ds_horiz.keys():
-                plot_horiz_field(ds_horiz, ds_mesh, 'wettingVelocityFactor',
-                                 f'wet_horiz_t{tidx}.png', t_index=None,
-                                 z_index=None, cell_mask=cell_mask,
-                                 vmin=0, vmax=1, cmap='cmo.ice')
-            # Plot difference in ssh
-            plot_horiz_field(ds_horiz, ds_mesh, 'delSsh',
-                             f'del_ssh_horiz_t{tidx}.png', t_index=None,
-                             cell_mask=cell_mask,
-                             vmin=vmin_del_ssh, vmax=vmax_del_ssh)
 
-            # Plot difference in land ice pressure
-            plot_horiz_field(ds_horiz, ds_mesh, 'delLandIcePressure',
-                             f'del_land_ice_pressure_horiz_t{tidx}.png',
-                             t_index=None, cell_mask=cell_mask,
-                             vmin=-vmax_del_p, vmax=vmax_del_p,
-                             cmap='cmo.balance')
+        time_index = -1  # Plot the final state
+        ds_horiz = self._process_ds(ds, ds_ice, ds_init,
+                                    ds_init.bottomDepth,
+                                    time_index=time_index)
+        vmin_del_ssh = np.min(ds_horiz.delSsh.values)
+        vmax_del_ssh = np.max(ds_horiz.delSsh.values)
+        vmax_del_p = np.amax(ds_horiz.delLandIcePressure.values)
+        # Plot water column thickness horizontal
+        plot_horiz_field(ds_horiz, ds_mesh, 'columnThickness',
+                         f'H_horiz_t{time_index}.png', t_index=None,
+                         cell_mask=cell_mask)
+        plot_horiz_field(ds_horiz, ds_mesh, 'landIceFreshwaterFlux',
+                         f'melt_horiz_t{time_index}.png', t_index=None,
+                         cell_mask=cell_mask)
+        if 'wettingVelocityFactor' in ds_horiz.keys():
+            plot_horiz_field(ds_horiz, ds_mesh, 'wettingVelocityFactor',
+                             f'wet_horiz_t{time_index}.png', t_index=None,
+                             z_index=None, cell_mask=cell_mask,
+                             vmin=0, vmax=1, cmap='cmo.ice')
+        # Plot difference in ssh
+        plot_horiz_field(ds_horiz, ds_mesh, 'delSsh',
+                         f'del_ssh_horiz_t{time_index}.png', t_index=None,
+                         cell_mask=cell_mask,
+                         vmin=vmin_del_ssh, vmax=vmax_del_ssh)
 
-            # Plot transects
-            ds_transect = compute_transect(
-                x=x, y=y, ds_horiz_mesh=ds_mesh,
-                layer_thickness=ds.layerThickness.isel(Time=tidx),
-                bottom_depth=ds_init.bottomDepth,
-                min_level_cell=ds_init.minLevelCell - 1,
-                max_level_cell=ds_init.maxLevelCell - 1,
-                spherical=False)
+        # Plot difference in land ice pressure
+        plot_horiz_field(ds_horiz, ds_mesh, 'delLandIcePressure',
+                         f'del_land_ice_pressure_horiz_t{time_index}.png',
+                         t_index=None, cell_mask=cell_mask,
+                         vmin=-vmax_del_p, vmax=vmax_del_p,
+                         cmap='cmo.balance')
 
-            plot_horiz_field(ds, ds_mesh, 'velocityX',
-                             f'u_surf_horiz_t{tidx}.png', t_index=tidx,
-                             z_index=0, cell_mask=cell_mask,
-                             vmin=-vmax_uv, vmax=vmax_uv,
-                             cmap_title=r'm/s', cmap='cmo.balance')
-            plot_horiz_field(ds, ds_mesh, 'velocityX',
-                             f'u_bot_horiz_t{tidx}.png', t_index=tidx,
-                             z_index=-1, cell_mask=cell_mask,
-                             vmin=-vmax_uv, vmax=vmax_uv,
-                             cmap_title=r'm/s', cmap='cmo.balance')
-            plot_horiz_field(ds, ds_mesh, 'velocityY',
-                             f'v_surf_horiz_t{tidx}.png', t_index=tidx,
-                             z_index=0, cell_mask=cell_mask,
-                             vmin=-vmax_uv, vmax=vmax_uv,
-                             cmap_title=r'm/s', cmap='cmo.balance')
-            plot_horiz_field(ds, ds_mesh, 'velocityY',
-                             f'v_bot_horiz_t{tidx}.png', t_index=tidx,
-                             z_index=-1, cell_mask=cell_mask,
-                             vmin=-vmax_uv, vmax=vmax_uv,
-                             cmap_title=r'm/s', cmap='cmo.balance')
-            plot_transect(ds_transect,
-                          mpas_field=ds.velocityX.isel(Time=tidx),
-                          out_filename=f'u_section_t{tidx}.png',
-                          title='x-velocity',
-                          vmin=-vmax_uv, vmax=vmax_uv,
-                          colorbar_label=r'm/s', cmap='cmo.balance')
+        # Plot transects
+        ds_transect = compute_transect(
+            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            layer_thickness=ds.layerThickness.isel(Time=time_index),
+            bottom_depth=ds_init.bottomDepth,
+            min_level_cell=ds_init.minLevelCell - 1,
+            max_level_cell=ds_init.maxLevelCell - 1,
+            spherical=False)
 
-            plot_transect(ds_transect,
-                          mpas_field=ds.velocityY.isel(Time=tidx),
-                          out_filename=f'v_section_t{tidx}.png',
-                          title='y-velocity',
-                          vmin=-vmax_uv, vmax=vmax_uv,
-                          colorbar_label=r'm/s', cmap='cmo.balance')
+        plot_horiz_field(ds, ds_mesh, 'velocityX',
+                         f'u_surf_horiz_t{time_index}.png', t_index=time_index,
+                         z_index=0, cell_mask=cell_mask,
+                         vmin=-vmax_uv, vmax=vmax_uv,
+                         cmap_title=r'm/s', cmap='cmo.balance')
+        plot_horiz_field(ds, ds_mesh, 'velocityX',
+                         f'u_bot_horiz_t{time_index}.png', t_index=time_index,
+                         z_index=-1, cell_mask=cell_mask,
+                         vmin=-vmax_uv, vmax=vmax_uv,
+                         cmap_title=r'm/s', cmap='cmo.balance')
+        plot_horiz_field(ds, ds_mesh, 'velocityY',
+                         f'v_surf_horiz_t{time_index}.png', t_index=time_index,
+                         z_index=0, cell_mask=cell_mask,
+                         vmin=-vmax_uv, vmax=vmax_uv,
+                         cmap_title=r'm/s', cmap='cmo.balance')
+        plot_horiz_field(ds, ds_mesh, 'velocityY',
+                         f'v_bot_horiz_t{time_index}.png', t_index=time_index,
+                         z_index=-1, cell_mask=cell_mask,
+                         vmin=-vmax_uv, vmax=vmax_uv,
+                         cmap_title=r'm/s', cmap='cmo.balance')
+        plot_transect(ds_transect,
+                      mpas_field=ds.velocityX.isel(Time=time_index),
+                      out_filename=f'u_section_t{time_index}.png',
+                      title='x-velocity',
+                      vmin=-vmax_uv, vmax=vmax_uv,
+                      colorbar_label=r'm/s', cmap='cmo.balance')
 
-            plot_transect(
-                ds_transect,
-                mpas_field=ds.temperature.isel(Time=tidx),
-                out_filename=f'temperature_section_t{tidx}.png',
-                title='temperature',
-                vmin=vmin_temp, vmax=vmax_temp,
-                colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+        plot_transect(ds_transect,
+                      mpas_field=ds.velocityY.isel(Time=time_index),
+                      out_filename=f'v_section_t{time_index}.png',
+                      title='y-velocity',
+                      vmin=-vmax_uv, vmax=vmax_uv,
+                      colorbar_label=r'm/s', cmap='cmo.balance')
 
-            plot_transect(ds_transect,
-                          mpas_field=ds.salinity.isel(Time=tidx),
-                          out_filename=f'salinity_section_t{tidx}.png',
-                          title='salinity',
-                          vmin=vmin_salt, vmax=vmax_salt,
-                          colorbar_label=r'PSU', cmap='cmo.haline')
+        plot_transect(
+            ds_transect,
+            mpas_field=ds.temperature.isel(Time=time_index),
+            out_filename=f'temperature_section_t{time_index}.png',
+            title='temperature',
+            vmin=vmin_temp, vmax=vmax_temp,
+            colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+
+        plot_transect(ds_transect,
+                      mpas_field=ds.salinity.isel(Time=time_index),
+                      out_filename=f'salinity_section_t{time_index}.png',
+                      title='salinity',
+                      vmin=vmin_salt, vmax=vmax_salt,
+                      colorbar_label=r'PSU', cmap='cmo.haline')
 
     @staticmethod
-    def _process_ds(ds, ds_init, bottom_depth, time_index):
+    def _process_ds(ds, ds_ice, ds_init, bottom_depth, time_index):
         ds_out = ds.isel(Time=time_index, nVertLevels=0)
         ds_out['columnThickness'] = ds_out.ssh + bottom_depth
-        if time_index == 0:
-            ds_out['delSsh'] = ds_out.ssh - ds_init.ssh.isel(Time=0)
-            ds_out['delLandIcePressure'] = ds_out.landIcePressure - \
-                ds_init.landIcePressure.isel(Time=0)
-        else:
-            ds_out['delSsh'] = ds_out.ssh - ds.ssh.isel(Time=0)
-            ds_out['delLandIcePressure'] = ds_out.landIcePressure - \
-                ds.landIcePressure.isel(Time=0)
+        ds_out['landIceFreshwaterFlux'] = \
+            ds_ice.landIceFreshwaterFlux.isel(Time=time_index)
+        ds_out['delSsh'] = ds_out.ssh - ds_init.ssh.isel(Time=0)
+        ds_out['delLandIcePressure'] = \
+            ds_ice.landIcePressure.isel(Time=time_index) - \
+            ds_init.landIcePressure.isel(Time=0)
         return ds_out
