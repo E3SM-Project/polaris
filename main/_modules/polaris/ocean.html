@@ -114,6 +114,7 @@
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.inertial_gravity_wave</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_inertial_gravity_wave_tasks</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.internal_wave</span> <span class="kn">import</span> <span class="n">add_internal_wave_tasks</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.isomip_plus</span> <span class="kn">import</span> <span class="n">add_isomip_plus_tasks</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_manufactured_solution_tasks</span><span class="p">,</span>
@@ -136,6 +137,7 @@
         <span class="c1"># planar: please keep these in alphabetical order</span>
         <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">add_inertial_gravity_wave_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">add_internal_wave_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">add_isomip_plus_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;planar&#39;</span><span class="p">)</span>
         <span class="n">add_manufactured_solution_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 

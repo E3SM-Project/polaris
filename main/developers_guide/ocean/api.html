@@ -339,6 +339,52 @@
 </tbody>
 </table>
 </section>
+<section id="internal-wave">
+<h3>internal_wave<a class="headerlink" href="#internal-wave" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.add_internal_wave_tasks.html#polaris.ocean.tasks.internal_wave.add_internal_wave_tasks" title="polaris.ocean.tasks.internal_wave.add_internal_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_internal_wave_tasks</span></code></a>(component)</p></td>
+<td><p>Add tasks for different internal wave tests to the ocean component</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.html#polaris.ocean.tasks.internal_wave.forward.Forward" title="polaris.ocean.tasks.internal_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<td><p>A step for performing forward MPAS-Ocean runs as part of internal wave test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.init.Init.html#polaris.ocean.tasks.internal_wave.init.Init" title="polaris.ocean.tasks.internal_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir)</p></td>
+<td><p>A step for creating a mesh and initial condition for internal wave test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.init.Init.run.html#polaris.ocean.tasks.internal_wave.init.Init.run" title="polaris.ocean.tasks.internal_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.viz.Viz.html#polaris.ocean.tasks.internal_wave.viz.Viz" title="polaris.ocean.tasks.internal_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
+<td><p>A step for visualizing a cross-section through the internal wave</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.viz.Viz.run.html#polaris.ocean.tasks.internal_wave.viz.Viz.run" title="polaris.ocean.tasks.internal_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.default.Default.html#polaris.ocean.tasks.internal_wave.default.Default" title="polaris.ocean.tasks.internal_wave.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init[, ...])</p></td>
+<td><p>The default test case for the internal wave test</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.Rpe.html#polaris.ocean.tasks.internal_wave.rpe.Rpe" title="polaris.ocean.tasks.internal_wave.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, indir, init, config[, ...])</p></td>
+<td><p>The internal wave reference potential energy (RPE) test case performs a 20-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.Rpe.configure.html#polaris.ocean.tasks.internal_wave.rpe.Rpe.configure" title="polaris.ocean.tasks.internal_wave.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this test case.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.html#polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis" title="polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, nus)</p></td>
+<td><p>A step for plotting the results of a series of internal wave RPE runs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run.html#polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run" title="polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="manufactured-solution">
 <h3>manufactured_solution<a class="headerlink" href="#manufactured-solution" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

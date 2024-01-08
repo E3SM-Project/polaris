@@ -136,6 +136,34 @@
    viz.Viz.run
 ```
 
+### internal_wave
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.internal_wave
+
+.. autosummary::
+   :toctree: generated/
+
+   add_internal_wave_tasks
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.run
+
+   viz.Viz
+   viz.Viz.run
+
+   default.Default
+
+   rpe.Rpe
+   rpe.Rpe.configure
+   rpe.analysis.Analysis
+   rpe.analysis.Analysis.run
+```
+
 
 ### manufactured_solution
 
