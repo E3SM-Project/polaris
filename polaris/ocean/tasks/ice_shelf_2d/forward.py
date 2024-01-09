@@ -1,3 +1,5 @@
+from mpas_tools.cime.constants import constants
+
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
@@ -15,7 +17,7 @@ class Forward(OceanModelStep):
     def __init__(self, component, resolution, mesh, init,
                  name='forward', subdir=None, indir=None,
                  ntasks=None, min_tasks=None, openmp_threads=1,
-                 do_restart=False):
+                 do_restart=False, tidal_forcing=False):
         """
         Create a new task
 
@@ -57,6 +59,7 @@ class Forward(OceanModelStep):
 
         self.resolution = resolution
         self.do_restart = do_restart
+        self.tidal_forcing = tidal_forcing
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -68,7 +71,6 @@ class Forward(OceanModelStep):
         if do_restart:
             self.add_input_file(filename='restarts',
                                 target='../forward/restarts')
-
         self.add_output_file(
             filename='output.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness',
@@ -106,11 +108,17 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         config = self.config
-        section = config['ice_shelf_2d']
-
-        # dt is proportional to resolution: default 30 seconds per km
+        if self.tidal_forcing:
+            section = config['ice_shelf_2d_default_tidal_forcing']
+            run_duration = section.getfloat('forward_run_duration')
+            run_duration = run_duration * constants['SHR_CONST_CDAY']
+        else:
+            section = config['ice_shelf_2d_default']
+            run_duration = section.getfloat('forward_run_duration')
+            run_duration = run_duration * 60.
         time_integrator = section.get('time_integrator')
 
+        # dt is proportional to resolution: default 30 seconds per km
         if time_integrator == 'RK4':
             dt_per_km = section.getfloat('rk4_dt_per_km')
         else:
@@ -122,8 +130,6 @@ class Forward(OceanModelStep):
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * self.resolution)
 
-        section = config['ice_shelf_2d_default']
-        run_duration = section.getfloat('forward_run_duration')
         do_restart_str = 'false'
         if self.do_restart:
             do_restart_str = 'true'
@@ -135,13 +141,18 @@ class Forward(OceanModelStep):
         else:
             output_interval = run_duration
         output_interval_str = get_time_interval_string(
-            seconds=output_interval * 60.)
+            seconds=output_interval)
         run_duration_str = output_interval_str
 
         start_time = '0001-01-01_00:00:00'
         if self.do_restart:
             start_time = f"{start_time.split('_')[0]}_" \
                          f"{run_duration_str.split('_')[1]}"
+
+        if self.tidal_forcing:
+            land_ice_flux_mode = 'pressure_only'
+        else:
+            land_ice_flux_mode = 'standalone'
 
         replacements = dict(
             do_restart=do_restart_str,
@@ -151,11 +162,19 @@ class Forward(OceanModelStep):
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
-            land_ice_flux_mode='standalone',
+            land_ice_flux_mode=land_ice_flux_mode,
         )
         self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                            'forward.yaml',
                            template_replacements=replacements)
-        self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
-                           'global_stats.yaml',
-                           template_replacements=replacements)
+        if self.tidal_forcing:
+            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                               'tidal_forcing.yaml')
+        else:
+            self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
+                               'global_stats.yaml',
+                               template_replacements=replacements)
+
+        vert_levels = config.getfloat('vertical_grid', 'vert_levels')
+        if not at_setup and vert_levels == 1:
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')

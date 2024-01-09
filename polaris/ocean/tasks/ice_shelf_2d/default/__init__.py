@@ -16,7 +16,8 @@ class Default(IceShelfTask):
     """
 
     def __init__(self, component, resolution, indir, init, config,
-                 include_viz=False, include_restart=False):
+                 include_viz=False, include_restart=False,
+                 include_tides=False):
         """
         Create the test case
 
@@ -29,22 +30,38 @@ class Default(IceShelfTask):
             The resolution of the test case in km
 
         indir : str
-            The directory the task is in, to which ``name`` will be appended
+            The directory the task is in, to which the test case name will be
+            added
 
         include_viz : bool
             Include VizMap and Viz steps for each resolution
+
+        include_tides: bool
+            Include tidal forcing in the forward step
         """
-        name = 'default'
-        subdir = f'{indir}/default'
+        if include_tides and include_restart:
+            raise ValueError('Restart test is not compatible with tidal '
+                             'forcing')
+        if include_tides:
+            base_name = 'default_tidal_forcing'
+        else:
+            base_name = 'default'
+
+        test_name = base_name
+        test_subdir = f'{indir}/{base_name}'
         if include_viz:
-            name = f'{name}_with_viz'
-            subdir = f'{subdir}/with_viz'
+            test_name = f'{base_name}_with_viz'
+            test_subdir = f'{indir}/{base_name}/with_viz'
         if include_restart:
-            name = f'{name}_with_restart'
-            subdir = f'{subdir}/with_restart'
+            test_name = f'{base_name}_with_restart'
+            test_subdir = f'{indir}/{base_name}/with_restart'
+
+        ssh_dir = indir
+        forward_dir = f'{indir}/{base_name}'
+
         # Put the ssh adjustment steps in indir rather than subdir
         super().__init__(component=component, resolution=resolution,
-                         name=name, subdir=subdir, sshdir=indir)
+                         name=test_name, subdir=test_subdir, sshdir=ssh_dir)
 
         self.add_step(init, symlink='init')
 
@@ -52,28 +69,29 @@ class Default(IceShelfTask):
             init=init, config=config, config_filename='ice_shelf_2d.cfg',
             package='polaris.ocean.tasks.ice_shelf_2d')
 
-        forward_path = f'{indir}/default/forward'
+        forward_path = f'{forward_dir}/forward'
         if forward_path in component.steps:
             forward_step = component.steps[forward_path]
             symlink = 'forward'
         else:
             forward_step = Forward(component=component,
-                                   indir=f'{indir}/default',
+                                   indir=forward_dir,
                                    ntasks=None, min_tasks=None,
                                    openmp_threads=1, resolution=resolution,
-                                   mesh=init, init=last_adjust_step)
+                                   mesh=init, init=last_adjust_step,
+                                   tidal_forcing=include_tides)
             forward_step.set_shared_config(config, link='ice_shelf_2d.cfg')
             symlink = None
         self.add_step(forward_step, symlink=symlink)
 
         if include_restart:
-            restart_path = f'{indir}/default/with_restart/restart'
+            restart_path = f'{test_subdir}/restart'
             if restart_path in component.steps:
                 restart_step = component.steps[restart_path]
                 symlink = 'restart'
             else:
                 restart_step = Forward(component=component,
-                                       indir=f'{indir}/default/with_restart',
+                                       indir=test_subdir,
                                        ntasks=None, min_tasks=None,
                                        openmp_threads=1, resolution=resolution,
                                        mesh=init, init=last_adjust_step,
@@ -83,9 +101,9 @@ class Default(IceShelfTask):
             self.add_step(restart_step, symlink=symlink)
             self.add_step(Validate(component=component,
                                    step_subdirs=['forward', 'restart'],
-                                   indir=f'{indir}/default/with_restart'))
+                                   indir=test_subdir))
 
         if include_viz:
             self.add_step(
-                Viz(component=component, indir=subdir, mesh=init,
+                Viz(component=component, indir=test_subdir, mesh=init,
                     init=last_adjust_step))

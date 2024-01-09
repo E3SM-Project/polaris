@@ -45,5 +45,35 @@ def add_ice_shelf_2d_tasks(component):
                               include_restart=True)
             default.set_shared_config(config, link=config_filename)
             component.add_task(default)
-        # TODO add tidal_forcing tests
-        # for coord_type in ['z-star', 'z-level', 'single_layer']:
+
+            default = Default(component=component, resolution=resolution,
+                              indir=basedir, init=init, config=config,
+                              include_tides=True)
+            default.set_shared_config(config, link=config_filename)
+            component.add_task(default)
+
+        # The only test case that makes sense with the single_layer coordinate
+        # type is the one with barotropic tidal_forcing
+        for coord_type in ['single_layer']:
+            basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
+
+            config_filename = 'ice_shelf_2d.cfg'
+            config = PolarisConfigParser(
+                filepath=f'{basedir}/{config_filename}')
+            config.add_from_package('polaris.ocean.ice_shelf',
+                                    'ssh_adjustment.cfg')
+            config.add_from_package('polaris.ocean.tasks.ice_shelf_2d',
+                                    config_filename)
+            config.set('vertical_grid', 'coord_type', 'z-level')
+            config.set('vertical_grid', 'vert_levels', '1')
+            config.set('vertical_grid', 'partial_cell_type', 'None')
+
+            init = Init(component=component, resolution=resolution,
+                        indir=basedir)
+            init.set_shared_config(config, link=config_filename)
+
+            default = Default(component=component, resolution=resolution,
+                              indir=basedir, init=init, config=config,
+                              include_tides=True)
+            default.set_shared_config(config, link=config_filename)
+            component.add_task(default)
