@@ -539,7 +539,8 @@ def set_ld_library_path(spack_branch_base, spack_env, logger):
 
 def write_load_polaris(template_path, activ_path, conda_base, env_type,
                        activ_suffix, prefix, env_name, spack_script, machine,
-                       env_vars, conda_env_only, source_path, without_openmp):
+                       env_vars, conda_env_only, source_path, without_openmp,
+                       polaris_version):
 
     try:
         os.makedirs(activ_path)
@@ -570,10 +571,6 @@ def write_load_polaris(template_path, activ_path, conda_base, env_type,
         env_vars = f'{env_vars}\n' \
                    f'export POLARIS_MACHINE={machine}'
 
-    if env_type == 'dev':
-        env_vars = f'{env_vars}\n' \
-                   f'export POLARIS_BRANCH={source_path}'
-
     filename = f'{template_path}/load_polaris.template'
     with open(filename, 'r') as f:
         template = Template(f.read())
@@ -598,7 +595,10 @@ def write_load_polaris(template_path, activ_path, conda_base, env_type,
     script = template.render(conda_base=conda_base, polaris_env=env_name,
                              env_vars=env_vars,
                              spack=spack_script,
-                             update_polaris=update_polaris)
+                             update_polaris=update_polaris,
+                             env_type=env_type,
+                             polaris_source_path=source_path,
+                             polaris_version=polaris_version)
 
     # strip out redundant blank lines
     lines = list()
@@ -1034,7 +1034,8 @@ def main():  # noqa: C901
         script_filename = write_load_polaris(
             conda_template_path, activ_path, conda_base, env_type,
             activ_suffix, prefix, conda_env_name, spack_script, machine,
-            env_vars, args.conda_env_only, source_path, args.without_openmp)
+            env_vars, args.conda_env_only, source_path, args.without_openmp,
+            polaris_version)
 
         if args.check:
             check_env(script_filename, conda_env_name, logger)
