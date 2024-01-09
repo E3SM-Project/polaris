@@ -11,35 +11,39 @@ def add_ice_shelf_2d_tasks(component):
     component : polaris.ocean.Ocean
         the ocean component that the tasks will be added to
     """
-    # TODO add vertical coordinate
-    # TODO add restart test
     for resolution in [5., 2.]:
         resdir = resolution_to_subdir(resolution)
-        resdir = f'planar/ice_shelf_2d/{resdir}'
+        for coord_type in ['z-star', 'z-level']:
+            basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 
-        config_filename = 'ice_shelf_2d.cfg'
-        config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
-        config.add_from_package('polaris.ocean.ice_shelf',
-                                'ssh_adjustment.cfg')
-        config.add_from_package('polaris.ocean.tasks.ice_shelf_2d',
-                                config_filename)
+            config_filename = 'ice_shelf_2d.cfg'
+            config = PolarisConfigParser(
+                filepath=f'{basedir}/{config_filename}')
+            config.add_from_package('polaris.ocean.ice_shelf',
+                                    'ssh_adjustment.cfg')
+            config.add_from_package('polaris.ocean.tasks.ice_shelf_2d',
+                                    config_filename)
+            config.set('vertical_grid', 'coord_type', coord_type)
 
-        init = Init(component=component, resolution=resolution, indir=resdir)
-        init.set_shared_config(config, link=config_filename)
+            init = Init(component=component, resolution=resolution,
+                        indir=basedir)
+            init.set_shared_config(config, link=config_filename)
 
-        default = Default(component=component, resolution=resolution,
-                          indir=resdir, init=init, config=config)
-        default.set_shared_config(config, link=config_filename)
-        component.add_task(default)
+            default = Default(component=component, resolution=resolution,
+                              indir=basedir, init=init, config=config)
+            default.set_shared_config(config, link=config_filename)
+            component.add_task(default)
 
-        default = Default(component=component, resolution=resolution,
-                          indir=resdir, init=init, config=config,
-                          include_viz=True)
-        default.set_shared_config(config, link=config_filename)
-        component.add_task(default)
+            default = Default(component=component, resolution=resolution,
+                              indir=basedir, init=init, config=config,
+                              include_viz=True)
+            default.set_shared_config(config, link=config_filename)
+            component.add_task(default)
 
-        default = Default(component=component, resolution=resolution,
-                          indir=resdir, init=init, config=config,
-                          include_restart=True)
-        default.set_shared_config(config, link=config_filename)
-        component.add_task(default)
+            default = Default(component=component, resolution=resolution,
+                              indir=basedir, init=init, config=config,
+                              include_restart=True)
+            default.set_shared_config(config, link=config_filename)
+            component.add_task(default)
+        # TODO add tidal_forcing tests
+        # for coord_type in ['z-star', 'z-level', 'single_layer']:
