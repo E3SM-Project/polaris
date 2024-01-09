@@ -38,6 +38,7 @@ omega:
       filename_template: init.nc
     restart:
       output_interval: 0000_00:00:01
+      filename_template: ../forward/restarts/restart.$Y-$M-$D_$h.$m.$s.nc
     output:
       type: output
       filename_template: output.nc
