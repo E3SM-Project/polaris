@@ -323,6 +323,22 @@ you have worked with (or if you aren't sure), it is safest to not just reinstall
 the `polaris` package but also to check the dependencies by re-running:
 `./configure_polaris_envs.py`  with the same arguments as above.
 This will also reinstall the `polaris` package from the current directory.
+The activation script includes a check to see if the version of compass used
+to produce the load script is the same as the version of compass in the
+current branch.  If the two don't match, an error like the following results
+and the environment is not activated:
+
+```
+$ source load_polaris_test_morpheus_gnu_openmpi.sh 
+This load script is for a different version of polaris:
+__version__ = '0.2.0'
+
+Your code is version:
+__version__ = '0.3.0-alpha.1'
+
+You need to run ./configure_polaris_envs.py to update your conda 
+environment and load script.
+```
 
 If you need more than one conda environment (e.g. because you are testing
 multiple branches at the same time), you can choose your own name
@@ -358,10 +374,13 @@ python -m pip install -e .
 ```
 
 The activation script will do this automatically when you source it in
-the root directory of your polaris branch.  This is substantially faster
-than rerunning `./configure_polaris_envs.py ...` but risks
-dependencies being out of date.  Since dependencies change fairly rarely,
-this will usually be safe.
+the root directory of your polaris branch.  The activation script will also
+check if the current polaris version matches the one used to create the
+activation script, thus catching situations where the dependencies are out
+of date and the configure script needs to be rerun.  Since sourcing the
+activation script is substantially faster than rerunning the configure script, 
+it is best to try the activation script first and run the configure script only
+if you have to.
 :::
 
 ### Troubleshooting

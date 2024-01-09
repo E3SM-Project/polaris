@@ -187,7 +187,7 @@ want to run before setting up a polaris task.</p>
 </div>
 <p>The command-line options are:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris setup --help
-usage: polaris setup [-h] [-t PATH] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
+usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
                      [--cached STEP [STEP ...]] [--copy_executable] [--clean]
 
@@ -198,11 +198,11 @@ command-line options.</p>
 <p>The tasks to set up can be specified either by relative path or by number.
 The <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--task</span></code> flag is used to pass the relative path of the task
 within the resulting work directory.  The is the path given by
-<a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>.  Only one task at a time can be supplied to
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> this way.</p>
+<a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>.  You can specify several tasks at once, separated by
+spaces, this way.</p>
 <p>Alternatively, you can supply the task numbers of any number of tasks to
 the <code class="docutils literal notranslate"><span class="pre">-n</span></code> or <code class="docutils literal notranslate"><span class="pre">--task_number</span></code> flag.  Multiple test numbers are separated by
-spaces.  These are the test numbers  given by <a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>.</p>
+spaces.  These are the test numbers given by <a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> requires a few basic pieces of information to be able to set
 up a task.  These include places to download and cache some data files
 used in the tasks and the location where you built the MPAS model.  There
