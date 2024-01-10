@@ -355,8 +355,11 @@ def get_env_vars(machine, compiler, mpilib):
     if machine is None:
         machine = 'None'
 
-    # convert env vars from mache to a list
-    env_vars = 'export MPAS_EXTERNAL_LIBS=""\n'
+    env_vars = f'export POLARIS_COMPILER={compiler}\n' \
+               f'export POLARIS_MPI={mpilib}\n'
+
+    env_vars = f'{env_vars}' \
+               f'export MPAS_EXTERNAL_LIBS=""\n'
 
     if 'intel' in compiler and machine == 'anvil':
         env_vars = f'{env_vars}' \
