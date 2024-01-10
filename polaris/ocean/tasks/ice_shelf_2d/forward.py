@@ -167,14 +167,16 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                            'forward.yaml',
                            template_replacements=replacements)
-        if self.tidal_forcing:
+        # We only do this at set-up so that the user may change the
+        # tidal forcing parameters
+        if self.tidal_forcing and at_setup:
             self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                                'tidal_forcing.yaml')
-        else:
+        if not self.tidal_forcing:
             self.add_yaml_file('polaris.ocean.tasks.ice_shelf_2d',
                                'global_stats.yaml',
                                template_replacements=replacements)
 
         vert_levels = config.getfloat('vertical_grid', 'vert_levels')
-        if not at_setup and vert_levels == 1:
+        if vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
