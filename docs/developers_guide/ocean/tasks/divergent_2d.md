@@ -20,7 +20,7 @@ model config options related to drag and default horizontal and
 vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
 `restart`, and `output` streams.  This file has Jinja templating that is
 used to update model config options based on Polaris config options, see
-{ref}`dev-ocean-spherical-convergence`.
+{ref}`dev-ocean-convergence`.
 
 ### base_mesh
 
