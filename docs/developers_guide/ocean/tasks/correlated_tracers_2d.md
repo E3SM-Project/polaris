@@ -13,14 +13,14 @@ of convergence.
 ## framework
 
 The config options for the `correlated_tracers_2d` test is described in 
-{ref}`ocean-correlated_tracers-2d` in the User's Guide.
+{ref}`ocean-correlated-tracers-2d` in the User's Guide.
 
 Additionally, the test uses a `forward.yaml` file with a few common
 model config options related to drag and default horizontal and
 vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
 `restart`, and `output` streams.  This file has Jinja templating that is
 used to update model config options based on Polaris config options, see
-{ref}`dev-ocean-spherical-convergence`.
+{ref}`dev-ocean-convergence`.
 
 ### base_mesh
 
