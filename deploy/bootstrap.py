@@ -291,9 +291,9 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                             mpi_prefix=mpi_prefix,
                             include_mache=not local_mache)
 
-        for package in ['esmf', 'geometric_features', 'mache', 'mpas_tools',
-                        'netcdf_c', 'netcdf_fortran', 'otps', 'parallelio',
-                        'pnetcdf']:
+        for package in ['esmf', 'geometric_features', 'mache', 'metis',
+                        'mpas_tools', 'netcdf_c', 'netcdf_fortran', 'otps',
+                        'parallelio', 'pnetcdf']:
             replacements[package] = config.get('deploy', package)
 
         spec_file = template.render(**replacements)
@@ -538,6 +538,7 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
     albany = config.get('deploy', 'albany')
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
+    metis = config.get('deploy', 'metis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
 
@@ -565,6 +566,8 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
         include_e3sm_lapack = False
     else:
         include_e3sm_lapack = True
+    if metis != 'None':
+        specs.append(f'"metis@{metis}"')
     if petsc != 'None':
         specs.append(f'"petsc@{petsc}+mpi+batch"')
 
@@ -636,6 +639,10 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
         env_vars = f'{env_vars}' \
                    f'export LAPACK={spack_view}\n' \
                    f'export USE_LAPACK=true\n'
+
+    if metis != 'None':
+        env_vars = f'{env_vars}' \
+                   f'export PARMETIS_ROOT={spack_view}\n'
 
     if petsc != 'None':
         env_vars = f'{env_vars}' \
