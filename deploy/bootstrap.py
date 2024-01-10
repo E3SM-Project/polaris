@@ -539,6 +539,7 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
     metis = config.get('deploy', 'metis')
+    parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
 
@@ -568,6 +569,8 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
         include_e3sm_lapack = True
     if metis != 'None':
         specs.append(f'"metis@{metis}"')
+    if parmetis != 'None':
+        specs.append(f'"parmetis@{parmetis}"')
     if petsc != 'None':
         specs.append(f'"petsc@{petsc}+mpi+batch"')
 
@@ -641,6 +644,10 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
                    f'export USE_LAPACK=true\n'
 
     if metis != 'None':
+        env_vars = f'{env_vars}' \
+                   f'export METIS_ROOT={spack_view}\n'
+
+    if parmetis != 'None':
         env_vars = f'{env_vars}' \
                    f'export PARMETIS_ROOT={spack_view}\n'
 
