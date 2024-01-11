@@ -11,24 +11,28 @@ class SshAdjustment(Step):
     A step for iteratively adjusting the pressure from the weight of the ice
     shelf to match the sea-surface height as part of ice-shelf 2D test cases
     """
-    def __init__(self, component, resolution, init, forward, indir=None,
+    def __init__(self, component, init, forward, indir=None,
                  name='ssh_adjust'):
         """
         Create the step
 
         Parameters
         ----------
-        resolution : float
-            The resolution of the test case in m
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
-        coord_type: str
-            The coordinate type (e.g., 'z-star', 'single_layer', etc.)
+        init : polaris.Step
+            the step that produced the initial condition
 
-        iteration : int, optional
-            the iteration number
+        forward: polaris.Step
+            the step that produced the state which will be adjusted
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
+
+        name : str, optional
+            the name of this step
         """
-        self.resolution = resolution
-
         super().__init__(component=component, name=name,
                          indir=f'{indir}/ssh_adjustment')
 
@@ -46,7 +50,6 @@ class SshAdjustment(Step):
         """
         Adjust the sea surface height or land-ice pressure to be dynamically
         consistent with one another.
-
         """
         logger = self.logger
         config = self.config

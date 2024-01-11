@@ -9,7 +9,7 @@ class Validate(Step):
     Attributes
     ----------
     step_subdirs : list of str
-        The number of processors used in each run
+        The steps to be compared (full run and restart run)
     """
     def __init__(self, component, step_subdirs, indir):
         """
@@ -21,10 +21,11 @@ class Validate(Step):
             The component the step belongs to
 
         step_subdirs : list of str
-            The number of processors used in each run
+            The steps to be compared (full run and restart run)
 
         indir : str
-            the directory the step is in, to which ``name`` will be appended
+            the directory the step is in, to which ``validate`` will be
+            appended
        """
         super().__init__(component=component, name='validate', indir=indir)
 
