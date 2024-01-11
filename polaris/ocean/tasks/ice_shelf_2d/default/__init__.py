@@ -98,6 +98,7 @@ class Default(IceShelfTask):
                                        do_restart=True)
                 symlink = None
                 restart_step.set_shared_config(config, link='ice_shelf_2d.cfg')
+                restart_step.add_dependency(forward_step, forward_step.name)
             self.add_step(restart_step, symlink=symlink)
             self.add_step(Validate(component=component,
                                    step_subdirs=['forward', 'restart'],

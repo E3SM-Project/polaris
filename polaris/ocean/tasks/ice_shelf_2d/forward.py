@@ -68,9 +68,7 @@ class Forward(OceanModelStep):
                             work_dir_target=f'{init.path}/output.nc')
         self.add_input_file(filename='graph.info',
                             work_dir_target=f'{mesh.path}/culled_graph.info')
-        if do_restart:
-            self.add_input_file(filename='restarts',
-                                target='../forward/restarts')
+
         self.add_output_file(
             filename='output.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness',
