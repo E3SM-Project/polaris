@@ -20,8 +20,18 @@ class Viz(Step):
 
         Parameters
         ----------
-        test_case : compass.TestCase
-            The test case this step belongs to
+        component : polaris.Component
+            The component the step belongs to
+
+        indir : str, optional
+            the directory the step is in, to which ``viz`` will be appended
+
+        mesh: polaris.Step
+            The step used to produce the mesh
+
+        init: polaris.Step
+            The step used to produce the initial condition
+
         """
         super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(

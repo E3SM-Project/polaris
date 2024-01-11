@@ -29,7 +29,13 @@ class Forward(OceanModelStep):
         resolution : km
             The resolution of the task in km
 
-        name : str
+        mesh: polaris.Step
+            The step used to produce the mesh
+
+        init: polaris.Step
+            The step used to produce the initial condition
+
+        name : str, optional
             the name of the task
 
         subdir : str, optional
@@ -50,6 +56,12 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
+
+        do_restart : bool, optional
+            if true, the step is restart from another forward run
+
+        tidal_forcing : bool, optional
+            if true, apply tidal forcing in the forward step
         """
         if do_restart:
             name = 'restart'

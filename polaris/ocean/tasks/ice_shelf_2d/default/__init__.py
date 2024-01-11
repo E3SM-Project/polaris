@@ -7,12 +7,11 @@ from polaris.ocean.tasks.ice_shelf_2d.viz import Viz
 class Default(IceShelfTask):
     """
     The default ice shelf 2d test case simply creates the mesh and
-    initial condition, then performs a short forward run.
+    initial condition, then performs a short forward run. Optionally,
+    tidal forcing can be added or visualization and restart steps.
 
     Attributes
     ----------
-    include_viz : bool
-        Include Viz step
     """
 
     def __init__(self, component, resolution, indir, init, config,
@@ -33,10 +32,16 @@ class Default(IceShelfTask):
             The directory the task is in, to which the test case name will be
             added
 
-        include_viz : bool
+        config : polaris.config.PolarisConfigParser
+            The configuration for this task
+
+        include_viz : bool, optional
             Include VizMap and Viz steps for each resolution
 
-        include_tides: bool
+        include_restart : bool, optional
+            Include restart and validation steps to test restart capabilities
+
+        include_tides : bool, optional
             Include tidal forcing in the forward step
         """
         if include_tides and include_restart:

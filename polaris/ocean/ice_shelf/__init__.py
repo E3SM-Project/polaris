@@ -8,10 +8,22 @@ from polaris.ocean.ice_shelf.ssh_forward import SshForward
 class IceShelfTask(Task):
 
     """
-    shared_steps : dict of dict of polaris.Steps
-        The shared steps to include as symlinks
+    A class for tasks with domains containing ice shelves
+
+    Attributes
+    ----------
+    sshdir : string
+        The directory to put the ssh_adjustment steps in
+
+    component : polaris.ocean.Ocean
+        The ocean component that this task belongs to
+
+    resolution : float
+        The resolution of the test case in km
     """
     def __init__(self, component, resolution, name, subdir, sshdir=None):
+        """
+        """
         if sshdir is None:
             sshdir = subdir
         super().__init__(component=component, name=name, subdir=subdir)
@@ -24,6 +36,35 @@ class IceShelfTask(Task):
                                    yaml_filename='ssh_forward.yaml',
                                    yaml_replacements=None):
 
+        """
+        Parameters
+        ----------
+        init : polaris.Step
+            the step that produced the initial condition
+
+        config : polaris.config.PolarisConfigParser
+            The configuration for this task
+
+        config_filename : str
+            the configuration filename
+
+        package : Package
+            The package name or module object that contains ``namelist``
+            from which ssh_forward steps will derive their configuration
+
+        yaml_filename : str, optional
+            the yaml filename used for ssh_forward steps
+
+        yaml_replacements : Dict, optional
+            key, string combinations for templated replacements in the yaml
+            file
+
+        Returns
+        -------
+        shared_step : polaris.Step
+            the final ssh_adjustment step that produces the input to the next
+            forward step
+        """
         resolution = self.resolution
         component = self.component
         indir = self.sshdir

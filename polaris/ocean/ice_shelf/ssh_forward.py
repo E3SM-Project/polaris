@@ -12,11 +12,15 @@ class SshForward(OceanModelStep):
     resolution : float
         The resolution of the task in km
 
-    dt : float
-        The model time step in seconds
+    package : Package
+        The package name or module object that contains ``namelist``
 
-    btr_dt : float
-        The model barotropic time step in seconds
+    yaml_filename : str, optional
+        the yaml filename used for ssh_forward steps
+
+    yaml_replacements : Dict, optional
+        key, string combinations for templated replacements in the yaml
+        file
     """
     def __init__(self, component, resolution, mesh, init,
                  name='ssh_forward', subdir=None,
@@ -37,15 +41,31 @@ class SshForward(OceanModelStep):
         name : str
             the name of the task
 
+        mesh: polaris.Step
+            The step used to produce the mesh
+
+        init: polaris.Step
+            The step used to produce the initial condition
+
         subdir : str, optional
             the subdirectory for the step.  If neither this nor ``indir``
              are provided, the directory is the ``name``
 
-        indir : str, optional
-            the directory the step is in, to which ``name`` will be appended
+        package : str, optional
+            where ssh_forward steps will derive their configuration
+
+        yaml_filename : str, optional
+            the yaml filename used for ssh_forward steps
+
+        yaml_replacements : Dict, optional
+            key, string combinations for templated replacements in the yaml
+            file
 
         iteration : int, optional
             the iteration number
+
+        indir : str, optional
+            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
