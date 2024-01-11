@@ -23,6 +23,25 @@ class IceShelfTask(Task):
     """
     def __init__(self, component, resolution, name, subdir, sshdir=None):
         """
+        Construct ice shelf task
+
+        Parameters
+        ----------
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
+
+        resolution : float
+            The resolution of the test case in km
+
+        name : string
+            The name of the step
+
+        subdir : string
+            The subdirectory for the step
+
+        sshdir : string, optional
+            The directory to put the ssh_adjustment steps in. If None,
+            defaults to subdir.
         """
         if sshdir is None:
             sshdir = subdir
@@ -37,6 +56,8 @@ class IceShelfTask(Task):
                                    yaml_replacements=None):
 
         """
+        Setup ssh_forward and ssh_adjustment steps for all iterations
+
         Parameters
         ----------
         init : polaris.Step
