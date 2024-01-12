@@ -6,10 +6,11 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.viz.paraview_extractor import extract_vtk
+from shapely import distance
+from shapely.geometry import Point
 
 from polaris.step import Step
 
-# from shapely.geometry import Point
 # from shapely.geometry.polygon import Polygon
 
 
@@ -44,7 +45,7 @@ class LTSRegions(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
 
-        for file in ['fblts_graph.info', 'fblts_initial_state.nc']:
+        for file in ['graph.info', 'initial_state.nc']:
             self.add_output_file(filename=file)
 
         self.init_step = init_step
@@ -68,18 +69,27 @@ class LTSRegions(Step):
         """
         Run this step of the test case
         """
+        config = self.config
+
+        section = config['gaussian_bump']
+        lat_center = section.getfloat('lat_center')
+        lon_center = section.getfloat('lon_center')
 
         use_progress_bar = self.log_filename is None
-        label_mesh(mesh='initial_state.nc',
-                   graph_info='graph.info',
+        label_mesh(mesh='init.nc',
+                   graph_info='pre_fblts_graph.info',
                    num_interface=2,
                    num_interface_adjacent=10,
+                   lat_center=lat_center,
+                   lon_center=lon_center,
                    logger=self.logger,
                    use_progress_bar=use_progress_bar)
 
 
 def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
-               num_interface_adjacent, logger, use_progress_bar):
+               num_interface_adjacent,
+               lat_center, lon_center,
+               logger, use_progress_bar):
 
     # read in mesh data
     ds = xr.open_dataset(mesh)
@@ -88,21 +98,21 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
     area_cell = ds['areaCell'].values
     cells_on_edge = ds['cellsOnEdge'].values
     edges_on_cell = ds['edgesOnCell'].values
-    # lat_cell = ds['latCell']
-    # lon_cell = ds['lonCell']
+    lat_cell = ds['latCell']
+    lon_cell = ds['lonCell']
 
     # start by setting all cells to coarse
     lts_rgn = [2] * n_cells
 
     # check each cell, if in the fine region, label as fine
     logger.info('Labeling fine cells...')
-    # for icell in range(0, n_cells):
-    #    cell_pt = Point(lat_cell[icell], lon_cell[icell])
-    #    if fine_region.contains(cell_pt):
-    #        lts_rgn[icell] = 1
+    center_pt = Point(lat_center, lon_center)
+    for icell in range(0, n_cells):
+        cell_pt = Point(lat_cell[icell], lon_cell[icell])
+        if distance(cell_pt, center_pt) < np.pi / 4:
+            lts_rgn[icell] = 1
 
     # first layer of cells with label 5
-    border_cells = []
     changed_cells = [[], []]  # type: ignore [var-annotated]
     for iedge in range(0, n_edges):
         cell1 = cells_on_edge[iedge, 0] - 1
@@ -233,7 +243,7 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
 
     ds_msh = xr.open_dataset(mesh)
     ds_ltsmsh = ds_msh.copy(deep=True)
-    ltsmsh_name = 'lts_mesh.nc'
+    ltsmsh_name = 'initial_state.nc'
     write_netcdf(ds_ltsmsh, ltsmsh_name)
     mshnc = nc.Dataset(ltsmsh_name, 'a', format='NETCDF4_64BIT_OFFSET')
 
@@ -289,7 +299,7 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
                 newf += "0 1 " + lines[icell].strip() + "\n"
                 coarse_cells = coarse_cells + 1
 
-    with open('lts_graph.info', 'w') as f:
+    with open('graph.info', 'w') as f:
         f.write(newf)
 
     max_area = max(area_cell)
