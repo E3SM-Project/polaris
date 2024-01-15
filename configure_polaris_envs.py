@@ -43,7 +43,12 @@ def setup_install_env(env_name, activate_base, use_local, logger, recreate,
         channels = '--use-local'
     else:
         channels = ''
-    packages = f'jinja2 {mache} packaging progressbar2'
+    if mache == '':
+        # development mache so include dependencies
+        packages = 'importlib_resources jinja2 lxml packaging progressbar2 ' \
+                   'pyyaml'
+    else:
+        packages = f'jinja2 {mache} packaging progressbar2'
     if recreate or not os.path.exists(env_path):
         print('Setting up a conda environment for installing polaris\n')
         commands = f'{activate_base} && ' \
