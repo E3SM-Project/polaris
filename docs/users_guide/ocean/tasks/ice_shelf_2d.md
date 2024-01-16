@@ -91,7 +91,9 @@ The geometry does not represent a particularly realistic ice-shelf cavity but
 it is a quick and useful test of the parameterization of land-ice melt fluxes
 and of frazil formation below ice shelves.
 
-Two vertical coordinates, `z-star` and `z-level`, are available. In each case, there are 20 vertical levels given by the config option `vert_levels`. In the open ocean, each level is 50 m thick.
+Two vertical coordinates, `z-star` and `z-level`, are available. In each case,
+there are 50 vertical levels given by the config option `vert_levels`. In the
+open ocean, each level is 40 m thick.
 
 ```cfg
 # Options related to the vertical grid
@@ -101,7 +103,7 @@ Two vertical coordinates, `z-star` and `z-level`, are available. In each case, t
 grid_type = uniform
 
 # Number of vertical levels
-vert_levels = 20
+vert_levels = 50
 
 # The minimum number of vertical levels
 min_vert_levels = 3
@@ -151,7 +153,7 @@ Run duration will be discussed for individual test cases.
 lx = 50
 
 # length of domain in km
-ly = 220
+ly = 190
 
 # How the land ice pressure at y<y1 is determined
 y0_land_ice_height_above_floatation = 0.
