@@ -288,9 +288,9 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                             mpi_prefix=mpi_prefix,
                             include_mache=not local_mache)
 
-        for package in ['esmf', 'geometric_features', 'jigsaw', 'jigsawpy',
-                        'mache', 'mpas_tools', 'netcdf_c', 'netcdf_fortran',
-                        'otps', 'parallelio', 'pnetcdf']:
+        for package in ['esmf', 'geometric_features', 'mache', 'mpas_tools',
+                        'netcdf_c', 'netcdf_fortran', 'otps', 'parallelio',
+                        'pnetcdf']:
             replacements[package] = config.get('deploy', package)
 
         spec_file = template.render(**replacements)

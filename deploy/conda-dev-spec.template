@@ -16,8 +16,6 @@ holoviews
 hvplot
 importlib_resources
 ipython
-jigsaw={{ jigsaw }}
-jigsawpy={{ jigsawpy }}
 jupyter
 lxml
 {% if include_mache %}
