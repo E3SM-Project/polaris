@@ -11,7 +11,7 @@ class SshAdjustment(Step):
     A step for iteratively adjusting the pressure from the weight of the ice
     shelf to match the sea-surface height as part of ice-shelf 2D test cases
     """
-    def __init__(self, component, resolution, init, forward, indir=None,
+    def __init__(self, component, init, forward, indir=None,
                  name='ssh_adjust'):
         """
         Create the step
@@ -20,9 +20,6 @@ class SshAdjustment(Step):
         ----------
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
-
-        resolution : float
-            The resolution of the test case in m
 
         init : polaris.Step
             the step that produced the initial condition
@@ -36,8 +33,6 @@ class SshAdjustment(Step):
         name : str, optional
             the name of this step
         """
-        self.resolution = resolution
-
         super().__init__(component=component, name=name,
                          indir=f'{indir}/ssh_adjustment')
 

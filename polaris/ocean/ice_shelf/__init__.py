@@ -123,8 +123,8 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_adjust = SshAdjustment(
-                    component=component, resolution=resolution, indir=indir,
-                    name=name, init=init, forward=ssh_forward)
+                    component=component, indir=indir, name=name, init=init,
+                    forward=ssh_forward)
                 ssh_adjust.set_shared_config(config, link=config_filename)
                 shared_step = ssh_adjust
             if indir == self.subdir:
