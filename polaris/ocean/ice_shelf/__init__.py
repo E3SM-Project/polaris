@@ -105,9 +105,9 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_forward = ForwardStep(
-                    component=component, resolution=resolution, indir=indir,
-                    mesh=init, init=current_init, name=name, package=package,
-                    yaml_filename=yaml_filename,
+                    component=component, min_resolution=resolution,
+                    indir=indir, mesh=init, init=current_init, name=name,
+                    package=package, yaml_filename=yaml_filename,
                     yaml_replacements=yaml_replacements)
                 ssh_forward.set_shared_config(config, link=config_filename)
                 shared_step = ssh_forward

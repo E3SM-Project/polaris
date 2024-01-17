@@ -9,7 +9,7 @@ class SshForward(OceanModelStep):
     Attributes
     ----------
     resolution : float
-        The resolution of the task in km
+        The minimum resolution in km used to determine the time step
 
     package : Package
         The package name or module object that contains ``namelist``
@@ -21,7 +21,7 @@ class SshForward(OceanModelStep):
         key, string combinations for templated replacements in the yaml
         file
     """
-    def __init__(self, component, resolution, mesh, init,
+    def __init__(self, component, min_resolution, mesh, init,
                  name='ssh_forward', subdir=None,
                  package=None, yaml_filename='ssh_forward.yaml',
                  yaml_replacements=None, iteration=1, indir=None,
@@ -34,8 +34,8 @@ class SshForward(OceanModelStep):
         component : polaris.Component
             The component the step belongs to
 
-        resolution : km
-            The resolution of the task in km
+        min_resolution : float
+            The minimum resolution in km used to determine the time step
 
         name : str
             the name of the task
@@ -82,7 +82,7 @@ class SshForward(OceanModelStep):
                          indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
                          min_tasks=min_tasks, openmp_threads=openmp_threads)
 
-        self.resolution = resolution
+        self.resolution = min_resolution
         self.package = package
         self.yaml_filename = yaml_filename
         self.yaml_replacements = yaml_replacements
