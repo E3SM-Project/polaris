@@ -1,16 +1,15 @@
-from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class SshForward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel tasks.
+    A step for performing forward ocean component runs as part of ssh
+    adjustment.
 
     Attributes
     ----------
     resolution : float
-        The resolution of the task in km
+        The minimum resolution in km used to determine the time step
 
     package : Package
         The package name or module object that contains ``namelist``
@@ -22,7 +21,7 @@ class SshForward(OceanModelStep):
         key, string combinations for templated replacements in the yaml
         file
     """
-    def __init__(self, component, resolution, mesh, init,
+    def __init__(self, component, min_resolution, mesh, init,
                  name='ssh_forward', subdir=None,
                  package=None, yaml_filename='ssh_forward.yaml',
                  yaml_replacements=None, iteration=1, indir=None,
@@ -35,8 +34,8 @@ class SshForward(OceanModelStep):
         component : polaris.Component
             The component the step belongs to
 
-        resolution : km
-            The resolution of the task in km
+        min_resolution : float
+            The minimum resolution in km used to determine the time step
 
         name : str
             the name of the task
@@ -83,7 +82,7 @@ class SshForward(OceanModelStep):
                          indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
                          min_tasks=min_tasks, openmp_threads=openmp_threads)
 
-        self.resolution = resolution
+        self.resolution = min_resolution
         self.package = package
         self.yaml_filename = yaml_filename
         self.yaml_replacements = yaml_replacements
@@ -111,12 +110,8 @@ class SshForward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        section = self.config['ice_shelf_2d']
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-        cell_count = nx * ny
-        return cell_count
+        raise ValueError('compute_cell_count method must be overridden by '
+                         'spherical or planar method')
 
     def dynamic_model_config(self, at_setup):
         """

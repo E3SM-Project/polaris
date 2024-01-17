@@ -51,7 +51,7 @@ class IceShelfTask(Task):
         self.resolution = resolution
 
     def setup_ssh_adjustment_steps(self, init, config, config_filename,
-                                   package=None,
+                                   ForwardStep, package=None,
                                    yaml_filename='ssh_forward.yaml',
                                    yaml_replacements=None):
 
@@ -68,6 +68,9 @@ class IceShelfTask(Task):
 
         config_filename : str
             the configuration filename
+
+        ForwardStep : polaris.ocean_model.step
+            the step class used to create ssh_forward steps
 
         package : Package
             The package name or module object that contains ``namelist``
@@ -101,10 +104,10 @@ class IceShelfTask(Task):
             if subdir in component.steps:
                 shared_step = component.steps[subdir]
             else:
-                ssh_forward = SshForward(
-                    component=component, resolution=resolution, indir=indir,
-                    mesh=init, init=current_init, name=name, package=package,
-                    yaml_filename=yaml_filename,
+                ssh_forward = ForwardStep(
+                    component=component, min_resolution=resolution,
+                    indir=indir, mesh=init, init=current_init, name=name,
+                    package=package, yaml_filename=yaml_filename,
                     yaml_replacements=yaml_replacements)
                 ssh_forward.set_shared_config(config, link=config_filename)
                 shared_step = ssh_forward
