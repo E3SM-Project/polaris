@@ -1,11 +1,10 @@
-from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class SshForward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel tasks.
+    A step for performing forward ocean component runs as part of ssh
+    adjustment.
 
     Attributes
     ----------
@@ -111,12 +110,8 @@ class SshForward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        section = self.config['ice_shelf_2d']
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-        cell_count = nx * ny
-        return cell_count
+        raise ValueError('compute_cell_count method must be overridden by '
+                         'spherical or planar method')
 
     def dynamic_model_config(self, at_setup):
         """
