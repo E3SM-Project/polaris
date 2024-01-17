@@ -34,5 +34,5 @@ def get_time_interval_string(days=None, seconds=None):
     sec_decimal = sec_part - np.floor(sec_part)
     # https://stackoverflow.com/a/1384565/7728169
     seconds_str = time.strftime('%H:%M:%S', time.gmtime(sec_part))
-    time_str = f'{day_part:04d}_{seconds_str}.{int(sec_decimal * 1e3)}'
+    time_str = f'{day_part:04d}_{seconds_str}.{int(sec_decimal * 1e3):03d}'
     return time_str
