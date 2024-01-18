@@ -79,6 +79,26 @@ def init_z_level_vertical_coord(config, ds):
         ds.maxLevelCell)
 
 
+def update_z_level_layer_thickness(config, ds):
+    """
+    Update the z-level vertical coordinate layer thicknesses based on the
+    ``bottomDepth`` and ``ssh`` variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
+    ds['layerThickness'] = compute_z_level_layer_thickness(
+        ds.refTopDepth, ds.refBottomDepth, ds.ssh, ds.bottomDepth,
+        ds.minLevelCell, ds.maxLevelCell)
+
+
 def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth,
                                min_vert_levels=None, min_layer_thickness=None):
     """
