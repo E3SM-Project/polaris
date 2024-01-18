@@ -86,6 +86,26 @@ def init_z_star_vertical_coord(config, ds):
         ds.maxLevelCell)
 
 
+def update_z_star_layer_thickness(config, ds):
+    """
+    Update the z-star vertical coordinate layer thicknesses based on the
+    ``bottomDepth`` and ``ssh`` variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
+    ds['layerThickness'] = _compute_z_star_layer_thickness(
+        ds.restingThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
+        ds.maxLevelCell)
+
+
 def _compute_z_star_layer_thickness(restingThickness, ssh, bottomDepth,
                                     minLevelCell, maxLevelCell):
     """

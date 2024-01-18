@@ -381,11 +381,16 @@
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
    vertical.partial_cells.alter_ssh
+   vertical.sigma.init_sigma_vertical_coord
+   vertical.sigma.update_sigma_layer_thickness
+   vertical.update_layer_thickness
    vertical.zlevel.init_z_level_vertical_coord
+   vertical.zlevel.update_z_level_layer_thickness
    vertical.zlevel.compute_min_max_level_cell
    vertical.zlevel.compute_z_level_layer_thickness
    vertical.zlevel.compute_z_level_resting_thickness
    vertical.zstar.init_z_star_vertical_coord
+   vertical.zstar.update_z_star_layer_thickness
 ```
 
 ### Visualization

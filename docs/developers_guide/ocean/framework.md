@@ -421,7 +421,10 @@ this section of the config file. The function
 `minLevelCell`, `maxLevelCell`, `cellMask`, `layerThickness`, `zMid`,
 and `restingThickness` variables for {ref}`ocean-z-level` and
 {ref}`ocean-z-star` coordinates using the `ssh` and `bottomDepth` as well
-as config options from `vertical_grid`.
+as config options from `vertical_grid`. The function
+{py:func}`polaris.ocean.vertical.update_layer_thickness` can be used to update
+`layerThickness` when either or both of `bottomDepth` and `ssh` have been
+changed.
 
 (dev-ocean-rpe)=
 
