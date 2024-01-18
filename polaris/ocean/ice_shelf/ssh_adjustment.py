@@ -4,6 +4,7 @@ from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.ocean.vertical import update_layer_thickness
 
 
 class SshAdjustment(Step):
@@ -101,9 +102,7 @@ class SshAdjustment(Step):
             ds_out['landIceDraft'] = final_ssh
             # we also need to stretch layerThickness to be compatible with
             # the new SSH
-            stretch = ((final_ssh + ds_mesh.bottomDepth) /
-                       (init_ssh + ds_mesh.bottomDepth))
-            ds_out['layerThickness'] = ds_out.layerThickness * stretch
+            ds_out = update_layer_thickness(config, ds_out)
             land_ice_pressure = ds_out.landIcePressure.values
         else:
             # Moving the SSH up or down by deltaSSH would change the
