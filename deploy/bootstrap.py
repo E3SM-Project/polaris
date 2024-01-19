@@ -215,13 +215,16 @@ def get_env_setup(args, config, machine, compiler, mpi, env_type, source_path,
         ver = version.parse(polaris_version)
         release_version = '.'.join(str(vr) for vr in ver.release)
         spack_env = f'dev_polaris_{release_version}{env_suffix}'
+        conda_env = f'dev_polaris_{polaris_version}{env_suffix}'
     elif env_type == 'test_release':
         spack_env = f'test_polaris_{polaris_version}{env_suffix}'
+        conda_env = spack_env
     else:
         spack_env = f'polaris_{polaris_version}{env_suffix}'
+        conda_env = spack_env
 
     if env_name is None or env_type != 'dev':
-        env_name = spack_env
+        env_name = conda_env
 
     # add the compiler and MPI library to the spack env name
     spack_env = f'{spack_env}_{compiler}_{mpi}{lib_suffix}'
