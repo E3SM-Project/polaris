@@ -7,8 +7,8 @@ class Forward(SphericalConvergenceForward):
     external gravity wave case
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init,
-                 use_fblts):
+    def __init__(self, component, name, subdir, resolution, mesh,
+                 init, graph_path, yaml_filename):
         """
         Create a new step
 
@@ -35,13 +35,10 @@ class Forward(SphericalConvergenceForward):
         package = 'polaris.ocean.tasks.external_gravity_wave'
         validate_vars = ['normalVelocity', 'layerThickness']
 
-        # if use_fblts:
-        #    self.Step.add_input_file(filename='graph.info',
-        #                        work_dir_target=f'../../init_lts/graph.info')
-
         super().__init__(component=component, name=name, subdir=subdir,
                          resolution=resolution, mesh=mesh,
                          init=init, package=package,
-                         yaml_filename='forward.yaml',
+                         yaml_filename=yaml_filename,
+                         graph_path=graph_path,
                          output_filename='output.nc',
                          validate_vars=validate_vars)

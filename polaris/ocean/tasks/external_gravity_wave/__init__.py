@@ -23,7 +23,7 @@ def add_external_gravity_wave_tasks(component):
 
             if use_fblts:
                 filepath = (f'spherical/{prefix}/external_gravity_wave_fblts/'
-                            'external_gravity_wave.cfg')
+                            'external_gravity_wave_fblts.cfg')
             else:
                 filepath = (f'spherical/{prefix}/external_gravity_wave/'
                             'external_gravity_wave.cfg')
@@ -32,9 +32,14 @@ def add_external_gravity_wave_tasks(component):
                                     'convergence.cfg')
             config.add_from_package('polaris.ocean.convergence.spherical',
                                     'spherical.cfg')
-            config.add_from_package(('polaris.ocean.tasks.'
-                                     'external_gravity_wave'),
-                                    'external_gravity_wave.cfg')
+            if use_fblts:
+                config.add_from_package(('polaris.ocean.tasks.'
+                                        'external_gravity_wave'),
+                                        'external_gravity_wave_fblts.cfg')
+            else:
+                config.add_from_package(('polaris.ocean.tasks.'
+                                        'external_gravity_wave'),
+                                        'external_gravity_wave.cfg')
 
             for include_viz in [False, True]:
                 component.add_task(ExternalGravityWave(component=component,
@@ -94,13 +99,13 @@ class ExternalGravityWave(Task):
         if include_viz:
             subdir = f'{subdir}/with_viz'
             name = f'{name}_with_viz'
-            link = 'external_gravity_wave.cfg'
+            if use_fblts:
+                link = 'external_gravity_wave_fblts.cfg'
+            else:
+                link = 'external_gravity_wave.cfg'
         else:
             # config options live in the task already so no need for a symlink
             link = None
-
-        if use_fblts:
-            link = 'external_gravity_wave.cfg'
 
         super().__init__(component=component, name=name, subdir=subdir)
         self.resolutions = list()
@@ -195,8 +200,12 @@ class ExternalGravityWave(Task):
                     init_step = lts_step
 
             name = f'{prefix}_forward_{mesh_name}'
+            graph_path = None
+            yaml_filename = 'forward.yaml'
             if use_fblts:
                 name += '_fblts'
+                yaml_filename = 'forward_fblts.yaml'
+                graph_path = f'{ext_grav_wave_dir}/init_lts/{mesh_name}'
             subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}'
             if self.include_viz:
                 symlink = f'forward/{mesh_name}'
@@ -209,7 +218,8 @@ class ExternalGravityWave(Task):
                                        subdir=subdir, resolution=resolution,
                                        mesh=base_mesh_step,
                                        init=init_step,
-                                       use_fblts=use_fblts)
+                                       graph_path=graph_path,
+                                       yaml_filename=yaml_filename)
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][resolution] = forward_step

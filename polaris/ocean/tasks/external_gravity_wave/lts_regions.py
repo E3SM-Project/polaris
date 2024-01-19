@@ -21,7 +21,7 @@ class LTSRegions(Step):
     Attributes
     ----------
     initial_state_step :
-        compass.ocean.tests.dam_break.initial_state.InitialState
+        polaris.ocean.tasks.external_gravity_wave.init.Init
         The initial step containing input files to this step
     """
     def __init__(self, component, init_step, name, subdir):
