@@ -8,7 +8,7 @@ omega:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
-    config_number_of_time_levels: 4
+    config_number_of_time_levels: 5
   debug:
     config_disable_thick_all_tend: false
     config_disable_thick_hadv: false
