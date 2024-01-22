@@ -205,7 +205,7 @@ class ExternalGravityWave(Task):
             if use_fblts:
                 name += '_fblts'
                 yaml_filename = 'forward_fblts.yaml'
-                graph_path = f'{ext_grav_wave_dir}/init_lts/{mesh_name}'
+                graph_path = f'ocean/{ext_grav_wave_dir}/init_lts/{mesh_name}'
             subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}'
             if self.include_viz:
                 symlink = f'forward/{mesh_name}'
