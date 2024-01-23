@@ -10,9 +10,14 @@ spack:
       compiler: [gcc@11.3.0]
       providers:
         mpi: [openmpi]
+    cmake:
+      externals:
+      - spec:  cmake@3.28.1
+        prefix: /usr
+      buildable: false
     curl:
       externals:
-      - spec:  curl@7.81.0
+      - spec:  curl@8.5.0
         prefix: /usr
       buildable: false
     gcc:
