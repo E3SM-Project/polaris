@@ -1037,8 +1037,10 @@ def main():  # noqa: C901
                 print('Install local mache\n')
                 commands = f'source {conda_base}/etc/profile.d/conda.sh && ' \
                            f'conda activate {conda_env_name} && ' \
-                           'cd ../build_mache/mache && ' \
-                           'python -m pip install .'
+                           f'conda install -y importlib_resources jinja2' \
+                           f'  lxml pyyaml progressbar2 && ' \
+                           f'cd ../build_mache/mache && ' \
+                           f'python -m pip install --no-deps .'
                 check_call(commands, logger=logger)
 
             previous_conda_env = conda_env_name
