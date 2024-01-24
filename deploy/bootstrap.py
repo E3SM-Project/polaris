@@ -336,24 +336,24 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             print(f'{env_name} already exists')
 
     if env_type == 'dev':
-        # remove conda jigsaw and jigsaw-python
-        t0 = time.time()
-        commands = \
-            f'{activate_env} && ' \
-            f'conda remove -y --force-remove jigsaw jigsawpy'
-        check_call(commands, logger=logger)
-
-        commands = \
-            f'{activate_env} && ' \
-            f'cd {source_path} && ' \
-            f'git submodule update --init jigsaw-python'
-        check_call(commands, logger=logger)
-
         if recreate or update_jigsaw:
+            # remove conda jigsaw and jigsaw-python
+            t0 = time.time()
+            commands = \
+                f'{activate_env} && ' \
+                f'conda remove -y --force-remove jigsaw jigsawpy'
+            check_call(commands, logger=logger)
+
+            commands = \
+                f'{activate_env} && ' \
+                f'cd {source_path} && ' \
+                f'git submodule update --init jigsaw-python'
+            check_call(commands, logger=logger)
+
             print('Building JIGSAW\n')
             commands = \
                 f'{activate_env} && ' \
-                f'conda install -y cxx-compiler && ' \
+                f'conda install -y cxx-compiler cmake && ' \
                 f'cd {source_path}/jigsaw-python && ' \
                 f'python setup.py build_external'
             check_call(commands, logger=logger)
@@ -374,11 +374,12 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
             else:
                 logger.info(message)
 
-        # install (or reinstall) compass in edit mode
-        print('Installing compass\n')
+        # install (or reinstall) polaris in edit mode
+        print('Installing polaris\n')
         commands = \
             f'{activate_env} && ' \
             f'cd {source_path} && ' \
+            f'rm -rf polaris.egg-info && ' \
             f'python -m pip install --no-deps -e .'
         check_call(commands, logger=logger)
 
