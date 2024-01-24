@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+cwd=${PWD}
+
+module load cmake
+
+# quit on errors
+set -e
+# trace commands
+set -x
+
+{% if update_omega_submodule %}
+cd {{ polaris_source_dir }}
+git submodule update --init e3sm_submodules/Omega
+{% endif %}
+
+cd {{ omega_base_dir }}
+
+git submodule update --init --recursive externals/YAKL externals/ekat \
+    externals/scorpio cime
+
+cd ${cwd}
+
+{% if clean %}
+rm -rf build_omega/{{ build_dir }}
+{% endif %}
+mkdir -p build_omega/{{ build_dir }}
+cd build_omega/{{ build_dir }}
+
+export METIS_ROOT={{ metis_root }}
+export PARMETIS_ROOT={{ parmetis_root }}
+
+cmake \
+   -DOMEGA_BUILD_TYPE={{ build_type }} \
+   -DOMEGA_CIME_COMPILER={{ compiler }} \
+   -DOMEGA_CIME_MACHINE={{ machine }} \
+   -DOMEGA_METIS_ROOT=${METIS_ROOT} \
+   -DOMEGA_PARMETIS_ROOT=${PARMETIS_ROOT} \
+   -DOMEGA_BUILD_TEST=ON \
+   -Wno-dev \
+   -S {{ omega_base_dir }}/components/omega \
+   -B . {{ cmake_flags }}
+
+./omega_build.sh
+
+cd test
+
+ln -sfn {{ omega_mesh_filename }} OmegaMesh.nc
+
+{% if run_ctest %}
+./omega_ctest.sh
+{% endif %}
