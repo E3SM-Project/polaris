@@ -539,6 +539,7 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
     metis = config.get('deploy', 'metis')
+    moab = config.get('deploy', 'moab')
     parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
@@ -569,6 +570,9 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
         include_e3sm_lapack = True
     if metis != 'None':
         specs.append(f'"metis@{metis}~shared"')
+    if moab != 'None':
+        specs.append(
+            f'"moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest"')
     if parmetis != 'None':
         specs.append(f'"parmetis@{parmetis}~shared"')
     if petsc != 'None':
