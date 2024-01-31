@@ -27,7 +27,7 @@ class Forward(OceanModelStep):
                  indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
                  time_integrator='rk4', damping_coeff=None,
                  coord_type='sigma', forcing_type='tidal_cycle',
-                 baroclinic=None):
+                 drag_type='constant_and_rayleigh', baroclinic=False):
         """
         Create a new task
 
@@ -60,58 +60,56 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
-
-        run_time_steps : int, optional
-            Number of time steps to run for
         """
+        if drag_type != 'constant' and coord_type == 'single_layer':
+            raise ValueError(f'Drag type {drag_type} is not supported with '
+                             f'coordinate type {coord_type}')
+        if drag_type == 'constant_and_rayleigh' and damping_coeff is None:
+            raise ValueError('Damping coefficient must be specified with '
+                             f'drag type {drag_type}')
+
         self.resolution = resolution
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
                          openmp_threads=openmp_threads)
 
-        # make sure output is double precision
-        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
         self.add_input_file(filename='initial_state.nc',
-                            target='../../init/initial_state.nc')
+                            target='../init/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../../init/culled_graph.info')
+                            target='../init/culled_graph.info')
+        self.add_input_file(filename='forcing.nc',
+                            target='../init/forcing.nc')
+
+        options = dict()
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_yaml_file('polaris.ocean.tasks.drying_slope',
                            'forward.yaml')
 
-        options = dict()
+        if coord_type == 'single_layer':
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+            options['config_disable_thick_sflux'] = '.true.'
+            options['config_disable_vel_hmix'] = '.true.'
+
+        options['config_implicit_bottom_drag_type'] = drag_type
+        # for drag types not specified here, defaults are used or given in
+        # forward.yaml
+        if drag_type == 'constant':
+            options['config_implicit_constant_bottom_drag_coeff'] = '3.0e-3'
+        elif drag_type == 'constant_and_rayleigh':
+            # update the damping coefficient to the requested value *after*
+            # loading forward.yaml
+            options['config_Rayleigh_damping_coeff'] = damping_coeff
+
+        if baroclinic:
+            self.add_yaml_file('polaris.ocean.tasks.drying_slope',
+                               'baroclinic.yaml')
+
         forcing_dict = {'tidal_cycle': 'monochromatic',
                         'linear_drying': 'linear'}
 
         options['config_tidal_forcing_model'] = forcing_dict[forcing_type]
         options['config_time_integrator'] = time_integrator
-
-        if damping_coeff is not None:
-            # update the damping coefficient to the requested value *after*
-            # loading forward.yaml
-            options['config_Rayleigh_damping_coeff'] = damping_coeff
-
-        if coord_type == 'single_layer':
-            options['config_implicit_bottom_drag_type'] = 'constant'
-            options['config_implicit_constant_bottom_drag_coeff'] = '3.0e-3'
-            options['config_disable_thick_vadv'] = '.true.'
-            options['config_disable_thick_sflux'] = '.true.'
-            options['config_disable_vel_hmix'] = '.true.'
-            options['config_disable_vel_vadv'] = '.true.'
-            options['config_pressure_gradient_type'] = "'ssh_gradient'"
-        else:
-            options['config_implicit_bottom_drag_type'] = \
-                "'constant_and_rayleigh'"
-            options['config_Rayleigh_damping_depth_variable'] = '.true.'
-            options['config_use_bulk_wind_stress'] = '.false.'
-            options['config_pressure_gradient_type'] = "'pressure_and_zmid'"
-
-        if not baroclinic:
-            options['config_disable_tr_all_tend'] = '.true.'
-            options['config_compute_active_tracer_budgets'] = '.false.'
-            options['config_use_debugTracers'] = '.false.'
-            options['config_use_activeTracers'] = '.false.'
 
         self.add_model_config_options(options=options)
 
@@ -168,11 +166,11 @@ class Forward(OceanModelStep):
         # https://stackoverflow.com/a/1384565/7728169
         options['config_dt'] = \
             time.strftime('%H:%M:%S', time.gmtime(dt))
-        options['config_drying_min_cell_height'] = f'{thin_film_thickness}'
+        options['config_drying_min_cell_height'] = thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmin'] = \
-            f'{thin_film_thickness}'
+            thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmax'] = \
-            f'{thin_film_thickness * 2.}'
+            thin_film_thickness * 2.
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')

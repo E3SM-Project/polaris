@@ -12,14 +12,17 @@ omega:
     config_tidal_forcing_monochromatic_amp: 10.0
     config_tidal_forcing_monochromatic_period: 1.0
     config_tidal_forcing_monochromatic_baseline: 10.0
-  ALE_vertical_grid:
-    config_vert_coord_movement: impermeable_interfaces
-    config_ALE_thickness_proportionality: weights_only
+  Rayleigh_damping:
+    config_Rayleigh_damping_depth_variable: true
   wetting_drying:
     config_use_wetting_drying: true
     config_prevent_drying: true
     config_zero_drying_velocity: true
+    config_zero_drying_velocity_ramp: true
     config_verify_not_dry: true
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+    config_ALE_thickness_proportionality: weights_only
   advection:
     config_thickness_flux_type: upwind
   streams:
@@ -37,9 +40,10 @@ omega:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:00:01
+      output_interval: 0000_01:12:00
       clobber_mode: truncate
       contents:
+      - mesh
       - tracers
       - xtime
       - daysSinceStartOfSim
