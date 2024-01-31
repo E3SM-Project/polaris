@@ -400,13 +400,102 @@ def get_env_vars(machine, compiler, mpilib):
     return env_vars
 
 
-def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
-                    spack_env, spack_base, spack_template_path, env_vars,
-                    tmpdir, logger):
+def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
+                         polaris_version, source_path, spack_base,
+                         spack_template_path, tmpdir):
+
+    if not config.has_option('deploy', 'software_compiler'):
+        return None
+
+    compiler = config.get('deploy', 'software_compiler')
+    if not config.has_option('deploy', f'mpi_{compiler}'):
+        raise ValueError(f'Machine config file for {machine} is missing '
+                         f'mpi_{compiler}, the MPI library for the software '
+                         f'compiler.')
+    mpi = config.get('deploy', f'mpi_{compiler}')
+
+    if machine is not None:
+        spack_base = get_spack_base(spack_base, config)
+
+    if spack_base is None:
+        return None
+
+    if env_type == 'dev':
+        ver = version.parse(polaris_version)
+        release_version = '.'.join(str(vr) for vr in ver.release)
+        spack_env = f'dev_polaris_soft_{release_version}'
+    elif env_type == 'test_release':
+        spack_env = f'test_polaris_soft_{polaris_version}'
+    else:
+        spack_env = f'polaris_soft_{polaris_version}'
+
+    spack_env = spack_env.replace('.', '_')
+
+    build_dir = f'deploy_tmp/build_soft_{machine}'
+
+    try:
+        shutil.rmtree(build_dir)
+    except OSError:
+        pass
+    try:
+        os.makedirs(build_dir)
+    except FileExistsError:
+        pass
+
+    os.chdir(build_dir)
+
+    esmf = config.get('deploy', 'esmf')
+
+    spack_branch_base = f'{spack_base}/{spack_env}'
+
+    specs = list()
+
+    e3sm_hdf5_netcdf = config.getboolean('deploy', 'use_e3sm_hdf5_netcdf')
+    if not e3sm_hdf5_netcdf:
+        hdf5 = config.get('deploy', 'hdf5')
+        netcdf_c = config.get('deploy', 'netcdf_c')
+        netcdf_fortran = config.get('deploy', 'netcdf_fortran')
+        specs.extend([
+            f'"hdf5@{hdf5}+cxx+fortran+hl+mpi+shared"',
+            f'"netcdf-c@{netcdf_c}+mpi~parallel-netcdf"',
+            f'"netcdf-fortran@{netcdf_fortran}"'])
+
+    if esmf != 'None':
+        specs.append(f'"esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio"')
+
+    yaml_template: str | None = None
+    template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
+    if os.path.exists(template_path):
+        yaml_template = template_path
+
+    if machine is not None:
+        here = os.path.abspath(os.path.dirname(__file__))
+        machine_config = os.path.join(here, '..', 'polaris', 'machines',
+                                      f'{machine}.cfg')
+    else:
+        machine_config = None
+
+    if update_spack:
+        make_spack_env(spack_path=spack_branch_base, env_name=spack_env,
+                       spack_specs=specs, compiler=compiler, mpi=mpi,
+                       machine=machine, config_file=machine_config,
+                       include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
+                       yaml_template=yaml_template, tmpdir=tmpdir)
+
+    spack_view = f'{spack_branch_base}/var/spack/environments/' \
+                 f'{spack_env}/.spack-env/view'
+
+    os.chdir(source_path)
+
+    return spack_view
+
+
+def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
+                         mpi, spack_env, spack_base, spack_template_path,
+                         env_vars, tmpdir, logger):
 
     albany = config.get('deploy', 'albany')
     cmake = config.get('deploy', 'cmake')
-    esmf = config.get('deploy', 'esmf')
     lapack = config.get('deploy', 'lapack')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
@@ -430,8 +519,6 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
             f'"netcdf-fortran@{netcdf_fortran}"',
             f'"parallel-netcdf@{pnetcdf}+cxx+fortran"'])
 
-    if esmf != 'None':
-        specs.append(f'"esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio"')
     if lapack != 'None':
         specs.append(f'"netlib-lapack@{lapack}"')
         include_e3sm_lapack = False
@@ -440,19 +527,10 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
     if petsc != 'None':
         specs.append(f'"petsc@{petsc}+mpi+batch"')
 
-    custom_spack = ''
     if scorpio != 'None':
         specs.append(
             f'"scorpio'
             f'@{scorpio}+pnetcdf~timing+internal-timing~tools+malloc"')
-        # make sure scorpio, not esmf, libraries are linked
-        lib_path = f'{spack_branch_base}/var/spack/environments/' \
-                   f'{spack_env}/.spack-env/view/lib'
-        scorpio_lib_path = '$(spack find --format "{prefix}" scorpio)'
-        custom_spack = \
-            f'{custom_spack}' \
-            f'ln -sfn {scorpio_lib_path}/lib/libpioc.a {lib_path}\n' \
-            f'ln -sfn {scorpio_lib_path}/lib/libpiof.a {lib_path}\n'
 
     if albany != 'None':
         specs.append(f'"albany@{albany}+mpas"')
@@ -475,16 +553,8 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
                        machine=machine, config_file=machine_config,
                        include_e3sm_lapack=include_e3sm_lapack,
                        include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-                       yaml_template=yaml_template, tmpdir=tmpdir,
-                       custom_spack=custom_spack)
+                       yaml_template=yaml_template, tmpdir=tmpdir)
 
-        # remove ESMC/ESMF include files that interfere with MPAS time keeping
-        include_path = f'{spack_branch_base}/var/spack/environments/' \
-                       f'{spack_env}/.spack-env/view/include'
-        for prefix in ['ESMC', 'esmf']:
-            files = glob.glob(os.path.join(include_path, f'{prefix}*'))
-            for filename in files:
-                os.remove(filename)
         set_ld_library_path(spack_branch_base, spack_env, logger)
 
     spack_script = get_spack_script(
@@ -531,7 +601,7 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
                    f'export PETSC={spack_view}\n' \
                    f'export USE_PETSC=true\n'
 
-    return spack_branch_base, spack_script, env_vars
+    return spack_script, env_vars
 
 
 def set_ld_library_path(spack_branch_base, spack_env, logger):
@@ -954,6 +1024,10 @@ def main():  # noqa: C901
     permissions_dirs = []
     activ_path = None
 
+    soft_spack_view = build_spack_soft_env(
+        config, args.update_spack, machine, env_type, polaris_version,
+        source_path, args.spack_base, spack_template_path, args.tmpdir)
+
     for compiler, mpi in zip(compilers, mpis):
 
         python, recreate, conda_mpi, activ_suffix, env_suffix, \
@@ -1011,7 +1085,8 @@ def main():  # noqa: C901
         if compiler is not None:
             env_vars = get_env_vars(machine, compiler, mpi)
             if spack_base is not None:
-                _, spack_script, env_vars = build_spack_env(
+
+                spack_script, env_vars = build_spack_libs_env(
                     config, args.update_spack, machine, compiler, mpi,
                     spack_env, spack_base, spack_template_path, env_vars,
                     args.tmpdir, logger)
@@ -1024,6 +1099,14 @@ def main():  # noqa: C901
                     f'{env_vars}' \
                     f'export PIO={conda_env_path}\n' \
                     f'export OPENMP_INCLUDE=-I"{conda_env_path}/include"\n'
+
+            if soft_spack_view is None:
+                raise ValueError('A software compiler or a spack base was not '
+                                 'defined so required software was not '
+                                 'installed with spack.')
+            env_vars = f'{env_vars}' \
+                       f'export PATH="{soft_spack_view}/bin:$PATH"\n'
+
         else:
             env_vars = ''
 
@@ -1067,6 +1150,7 @@ def main():  # noqa: C901
 
     if args.update_spack or env_type != 'dev':
         # we need to update permissions on shared stuff
+
         update_permissions(config, env_type, activ_path, permissions_dirs)
 
 
