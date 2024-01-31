@@ -181,7 +181,6 @@ def install_miniforge(conda_base, activate_base, logger):
     commands = f'{activate_base} && ' \
                f'conda config --add channels conda-forge && ' \
                f'conda config --set channel_priority strict && ' \
-               f'conda install -y "conda>=23.1.0" && ' \
                f'conda update -y --all && ' \
                f'conda init --no-user'
 
