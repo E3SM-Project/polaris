@@ -91,6 +91,6 @@ def add_drying_slope_tasks(component):
     linear_drying = LinearDrying(component=component,
                                  resolution=resolution, indir=resdir,
                                  coord_type=coord_type,
-                                 time_integrator='split-explicit')
+                                 time_integrator='split_explicit')
     linear_drying.set_shared_config(config, link=config_filename)
     component.add_task(linear_drying)
