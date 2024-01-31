@@ -11,7 +11,7 @@ class LinearDrying(Task):
     """
 
     def __init__(self, component, resolution, indir, coord_type='sigma',
-                 time_integrator='split-explicit'):
+                 drag_type='mannings', time_integrator='split_explicit'):
         """
         Create the test case
 
@@ -26,7 +26,7 @@ class LinearDrying(Task):
         indir : str
             The directory the task is in, to which ``name`` will be appended
 
-        init : polaris.ocean.tasks.baroclinic_channel.init.Init
+        init : polaris.ocean.tasks.drying_slope.init.Init
             A shared step for creating the initial state
         """
         self.coord_type = coord_type
@@ -35,13 +35,14 @@ class LinearDrying(Task):
 
         self.add_step(
             Init(component=component, indir=self.subdir, resolution=resolution,
-                 baroclinic=True))
+                 baroclinic=True, drag_type=drag_type))
 
         self.add_step(
             Forward(component=component, indir=self.subdir, ntasks=None,
                     min_tasks=None, openmp_threads=1, resolution=resolution,
                     forcing_type='linear_drying', coord_type=coord_type,
-                    time_integrator=time_integrator))
+                    time_integrator=time_integrator, drag_type=drag_type,
+                    baroclinic=True))
 
         self.add_step(
             Viz(component=component, indir=self.subdir, damping_coeffs=None,

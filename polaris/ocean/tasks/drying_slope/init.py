@@ -21,7 +21,8 @@ class Init(Step):
     resolution : float
         The resolution of the task in km
     """
-    def __init__(self, component, resolution, indir, baroclinic=False):
+    def __init__(self, component, resolution, indir, baroclinic=False,
+                 drag_type='constant_and_rayleigh'):
         """
         Create the step
 
@@ -42,6 +43,7 @@ class Init(Step):
         super().__init__(component=component, name='init', indir=indir)
         self.resolution = resolution
         self.baroclinic = baroclinic
+        self.drag_type = drag_type
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
                      'forcing.nc']:
@@ -154,6 +156,11 @@ class Init(Step):
         if tidal_forcing_mask.sum() <= 0:
             raise ValueError('Input mask for tidal case is not set!')
         ds_forcing['tidalInputMask'] = tidal_forcing_mask
+        if self.drag_type == 'mannings':
+            manning_coefficient = config.getfloat('drying_slope_baroclinic',
+                                                  'manning_coefficient')
+            ds_forcing['bottomDrag'] = \
+                manning_coefficient * xr.ones_like(tidal_forcing_mask)
         write_netcdf(ds_forcing, 'forcing.nc')
 
         cell_mask = ds.maxLevelCell >= 1
@@ -165,7 +172,7 @@ class Init(Step):
         y_max = ds_mesh.yCell.max()
         x = xr.DataArray(data=[x_mid, x_mid], dims=('nPoints',))
         y = xr.DataArray(data=[y_min, y_max], dims=('nPoints',))
-        ds_transect = compute_transect(x, y, ds_mesh.isel(Time=0),
+        ds_transect = compute_transect(x, y, ds.isel(Time=0),
                                        spherical=False)
         plot_transect(ds_transect,
                       mpas_field=ds.temperature.isel(Time=0),
