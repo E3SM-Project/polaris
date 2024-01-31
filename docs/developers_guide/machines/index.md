@@ -2,11 +2,11 @@
 
 # Machines
 
-Polaris attempts to be aware of the capabilities of the machine it is running 
-on.  This  is a particular advantage for so-called "supported" machines with a 
-config file defined for them in the `polaris` package.  But even for "unknown" 
-machines,  it is not difficult to set a few config options in your user config 
-file to  describe your machine.  Then, polaris can use this data to make sure 
+Polaris attempts to be aware of the capabilities of the machine it is running
+on.  This  is a particular advantage for so-called "supported" machines with a
+config file defined for them in the `polaris` package.  But even for "unknown"
+machines,  it is not difficult to set a few config options in your user config
+file to  describe your machine.  Then, polaris can use this data to make sure
 test  cases are configured in a way that is appropriate for your machine.
 
 (dev-supported-machines)=
@@ -57,6 +57,8 @@ supported for those configurations with `gnu` compilers.
 | compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
+|              +------------+-----------+-------------------+
+|              | intel      | mpich     | intel-cray        |
 +--------------+------------+-----------+-------------------+
 ```
 
@@ -288,8 +290,8 @@ spack:
       modules: []
       environment: {}
       extra_rpaths: []
-```          
-          
+```
+
 Typically your system will already have compilers if nothing else, and this is
 what we assume here.  Give the appropriate path (replace `/usr` with the
 appropriate path on your system).  We have had better luck with `gcc` than
