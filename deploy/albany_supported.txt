@@ -4,5 +4,9 @@ anvil, gnu, openmpi
 chicoma-cpu, gnu, mpich
 chrysalis, gnu, openmpi
 compy, gnu, openmpi
+frontier, gnu, mpich
+frontier, gnugpu, mpich
+frontier, crayclang, mpich
+frontier, crayclanggpu, mpich
 pm-cpu, gnu, mpich
 morpheus, gnu, openmpi

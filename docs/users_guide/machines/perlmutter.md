@@ -6,10 +6,10 @@ interactive login:
 
 ```bash
 # for CPU:
-salloc --partition=debug --nodes=1 --time=30:00 -C cpu
+salloc --qos=debug --nodes=1 --time=30:00 -C cpu
 
 # for GPU:
-salloc --partition=debug --nodes=1 --time=30:00 -C gpu
+salloc --qos=debug --nodes=1 --time=30:00 -C gpu
 ```
 
 Compute time:
@@ -123,20 +123,11 @@ modules_after = False
 cray_compilers = True
 ```
 
-### Gnu on Perlmutter-CPU
+## Loading and running Polaris on Perlmutter
 
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /global/cfs/cdirs/e3sm/software/polaris/pm-cpu/load_latest_polaris_gnu_mpich.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] [ALBANY=true] gnu-cray
-```
+Follow the developer's guide at {ref}`dev-machines` to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.
 
 ## Jupyter notebook on remote data
 

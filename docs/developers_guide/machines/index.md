@@ -56,6 +56,10 @@ supported for those configurations with `gnu` compilers.
 +--------------+------------+-----------+-------------------+
 | compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
+| frontier     | gnu        | mpich     | gnu-cray          |
+|              +------------+-----------+-------------------+
+|              | crayclang  | mpich     | cray-cray         |
++--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
 |              +------------+-----------+-------------------+
 |              | intel      | mpich     | intel-cray        |
@@ -71,6 +75,7 @@ anvil
 chicoma
 chrysalis
 compy
+frontier
 perlmutter
 ```
 
@@ -85,13 +90,13 @@ rather than system compilers.  To create a development conda environment and
 an activation script for it, on Linux, run:
 
 ```bash
-./conda/configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
+./configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
 ```
 
 and on OSX run:
 
 ```bash
-./conda/configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
+./configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
 ```
 
 You may use `openmpi` instead of `mpich` but we have had better experiences
