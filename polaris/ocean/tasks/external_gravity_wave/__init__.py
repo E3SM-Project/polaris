@@ -141,6 +141,9 @@ class ExternalGravityWave(Task):
         resolutions = config.getlist('mesh',
                                      f'{prefix}_resolutions', dtype=float)
 
+        dts = config.getlist('convergence_forward',
+                             'dt', dtype=float)
+
         if self.resolutions == resolutions:
             return
 
@@ -207,22 +210,27 @@ class ExternalGravityWave(Task):
                 yaml_filename = 'forward_fblts.yaml'
                 graph_path = f'ocean/{ext_grav_wave_dir}/init_lts/{mesh_name}'
             subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}'
-            if self.include_viz:
-                symlink = f'forward/{mesh_name}'
-            else:
-                symlink = None
-            if subdir in component.steps:
-                forward_step = component.steps[subdir]
-            else:
-                forward_step = Forward(component=component, name=name,
-                                       subdir=subdir, resolution=resolution,
-                                       mesh=base_mesh_step,
-                                       init=init_step,
-                                       graph_path=graph_path,
-                                       yaml_filename=yaml_filename)
-                forward_step.set_shared_config(config, link=config_filename)
-            self.add_step(forward_step, symlink=symlink)
-            analysis_dependencies['forward'][resolution] = forward_step
+            for dt in dts:
+                subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}/{int(dt)}s'
+                if self.include_viz:
+                    symlink = f'forward/{mesh_name}/{int(dt)}s'
+                else:
+                    symlink = None
+                if subdir in component.steps:
+                    forward_step = component.steps[subdir]
+                else:
+                    name += f'{int(dt)}' + 's'
+                    forward_step = Forward(component=component,
+                                           name=name, subdir=subdir,
+                                           resolution=resolution,
+                                           dt=dt, mesh=base_mesh_step,
+                                           init=init_step,
+                                           graph_path=graph_path,
+                                           yaml_filename=yaml_filename)
+                    forward_step.set_shared_config(config,
+                                                   link=config_filename)
+                    self.add_step(forward_step, symlink=symlink)
+                    analysis_dependencies['forward'][resolution] = forward_step
 
             if self.include_viz:
                 if use_fblts:
@@ -253,9 +261,9 @@ class ExternalGravityWave(Task):
             step = component.steps[subdir]
             step.resolutions = resolutions
             step.dependencies_dict = analysis_dependencies
-        else:
-            step = Analysis(component=component, resolutions=resolutions,
-                            subdir=subdir,
-                            dependencies=analysis_dependencies)
-            step.set_shared_config(config, link=config_filename)
-        self.add_step(step, symlink=symlink)
+        # else:
+        #     step = Analysis(component=component, resolutions=resolutions,
+        #                     subdir=subdir,
+        #                     dependencies=analysis_dependencies)
+        #     step.set_shared_config(config, link=config_filename)
+        # self.add_step(step, symlink=symlink)

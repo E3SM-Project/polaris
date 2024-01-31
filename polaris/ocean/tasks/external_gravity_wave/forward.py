@@ -7,7 +7,7 @@ class Forward(SphericalConvergenceForward):
     external gravity wave case
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh,
+    def __init__(self, component, name, subdir, resolution, dt, mesh,
                  init, graph_path, yaml_filename):
         """
         Create a new step
@@ -41,4 +41,4 @@ class Forward(SphericalConvergenceForward):
                          yaml_filename=yaml_filename,
                          graph_path=graph_path,
                          output_filename='output.nc',
-                         validate_vars=validate_vars)
+                         validate_vars=validate_vars, dt=dt)

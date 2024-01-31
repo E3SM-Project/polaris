@@ -19,10 +19,11 @@ class ConvergenceForward(OceanModelStep):
 
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init,
-                 package, yaml_filename='forward.yaml', options=None,
-                 graph_filename='graph.info', graph_path=None,
-                 output_filename='output.nc', validate_vars=None):
+    def __init__(self, component, name, subdir, resolution,
+                 mesh, init, package, yaml_filename='forward.yaml',
+                 options=None, graph_filename='graph.info',
+                 graph_path=None, output_filename='output.nc',
+                 validate_vars=None, dt=None):
         """
         Create a new step
 
@@ -39,6 +40,9 @@ class ConvergenceForward(OceanModelStep):
 
         resolution : float
             The resolution of the (uniform) mesh in km
+
+        dt : float
+            The time step in seconds
 
         package : Package
             The package name or module object that contains the YAML file
@@ -82,6 +86,8 @@ class ConvergenceForward(OceanModelStep):
         self.add_output_file(filename=output_filename,
                              validate_vars=validate_vars)
 
+        self.dt = dt
+
     def compute_cell_count(self):
         """
         Compute the approximate number of cells in the mesh, used to constrain
@@ -114,22 +120,26 @@ class ConvergenceForward(OceanModelStep):
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         section = config['convergence_forward']
-
         time_integrator = section.get('time_integrator')
-
-        # dt is proportional to resolution: default 30 seconds per km
-        if time_integrator == 'RK4':
-            dt_per_km = section.getfloat('rk4_dt_per_km')
-        elif time_integrator == 'FB_LTS':
-            dt_per_km = section.getfloat('fb_lts_dt_per_km')
+        if self.dt is None:
+            # dt is proportional to resolution: default 30 seconds per km
+            if time_integrator == 'RK4':
+                self.dt = section.getfloat('rk4_dt_per_km')
+            elif time_integrator == 'FB_LTS':
+                self.dt = section.getfloat('fb_lts_dt_per_km')
+            else:
+                self.dt = section.getfloat('split_dt_per_km')
+            dt_str = get_time_interval_string(seconds=self.dt *
+                                              self.resolution)
+            dt_btr_scaling = section.getfloat('dt_btr_scaling')
+            dt_btr = self.dt / dt_btr_scaling
+            btr_dt_str = get_time_interval_string(seconds=dt_btr *
+                                                  self.resolution)
         else:
-            dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
-
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * self.resolution)
+            dt_str = get_time_interval_string(seconds=self.dt)
+            dt_btr_scaling = section.getfloat('dt_btr_scaling')
+            dt_btr = self.dt / dt_btr_scaling
+            btr_dt_str = get_time_interval_string(seconds=dt_btr)
 
         s_per_hour = 3600.
         run_duration = section.getfloat('run_duration')
