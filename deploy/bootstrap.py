@@ -350,10 +350,13 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                 f'git submodule update --init jigsaw-python'
             check_call(commands, logger=logger)
 
+            netcdf_c = config.get('deploy', 'netcdf_c')
+
             print('Building JIGSAW\n')
-            # add build tools to deployment env, not compass env
+            # add build tools to deployment env, not polaris env
+            jigsaw_build_deps = f'cxx-compiler cmake libnetcdf={netcdf_c}'
             commands = \
-                f'conda install -y cxx-compiler cmake && ' \
+                f'conda install -y {jigsaw_build_deps} && ' \
                 f'cd {source_path}/jigsaw-python && ' \
                 f'python setup.py build_external'
             check_call(commands, logger=logger)
