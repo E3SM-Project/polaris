@@ -17,7 +17,7 @@ Then, you can build the MPAS model with
 make [DEBUG=true] [OPENMP=true] intel-mpi
 ```
 
-For other MPI libraries (`openmpi` or `mvapich` instead of `impi`), use
+For other MPI libraries (`openmpi` instead of `impi`), use
 
 ```bash
 make [DEBUG=true] [OPENMP=true] ifort

@@ -16,6 +16,9 @@ compy, pgi, mvapich2
 pm-cpu, aocc, mpich
 pm-cpu, amdclang, mpich
 
+# cannot build MOAB in spack
+anvil, gnu, mvapich
+
 # compiles but tests unreliable (errors or hanging),
 # see https://github.com/MPAS-Dev/compass/issues/336
 anvil, intel, mvapich
