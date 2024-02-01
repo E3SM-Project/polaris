@@ -230,7 +230,7 @@ class ExternalGravityWave(Task):
                     forward_step.set_shared_config(config,
                                                    link=config_filename)
                     self.add_step(forward_step, symlink=symlink)
-                    analysis_dependencies['forward'][dt] = forward_step
+                analysis_dependencies['forward'][dt] = forward_step
 
             if self.include_viz:
                 if use_fblts:
