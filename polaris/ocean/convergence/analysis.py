@@ -55,7 +55,7 @@ class ConvergenceAnalysis(Step):
                 dimension, which should be None for variables that don't
     """
     def __init__(self, component, resolutions, subdir, dependencies,
-                 convergence_vars):
+                 convergence_vars, dts=None):
         """
         Create the step
 
@@ -108,6 +108,7 @@ class ConvergenceAnalysis(Step):
         self.resolutions = resolutions
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
+        self.dts = dts
 
         for var in convergence_vars:
             self.add_output_file(f'convergence_{var["name"]}.png')
@@ -118,21 +119,33 @@ class ConvergenceAnalysis(Step):
         user config options
         """
         dependencies = self.dependencies_dict
+        dts = self.dts
 
         for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
             base_mesh = dependencies['mesh'][resolution]
             init = dependencies['init'][resolution]
-            forward = dependencies['forward'][resolution]
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
-            self.add_input_file(
-                filename=f'{mesh_name}_output.nc',
-                work_dir_target=f'{forward.path}/output.nc')
+        if dts is None:
+            for resolution in self.resolutions:
+                mesh_name = resolution_to_subdir(resolution)
+                forward = dependencies['forward'][resolution]
+                self.add_input_file(
+                    filename=f'{mesh_name}_output.nc',
+                    work_dir_target=f'{forward.path}/output.nc')
+        else:
+            for resolution in self.resolutions:
+                for dt in dts:
+                    mesh_name = resolution_to_subdir(resolution)
+                    forward = dependencies['forward'][dt]
+                    self.add_input_file(
+                        filename=f'{mesh_name}_output.nc',
+                        work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
         """

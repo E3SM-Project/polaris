@@ -11,7 +11,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, subdir, dependencies):
+    def __init__(self, component, resolutions, subdir, dependencies, dts):
         """
         Create the step
 
@@ -35,7 +35,7 @@ class Analysis(ConvergenceAnalysis):
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars, dts=dts)
 
     def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
