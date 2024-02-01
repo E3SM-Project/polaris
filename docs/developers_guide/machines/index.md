@@ -45,8 +45,6 @@ supported for those configurations with `gnu` compilers.
 |              |            | openmpi   | ifort             |
 |              +------------+-----------+-------------------+
 |              | gnu        | openmpi   | gfortran          |
-|              |            +-----------+-------------------+
-|              |            | mvapich   | gfortran          |
 +--------------+------------+-----------+-------------------+
 | chicoma-cpu  | gnu        | mpich     | gnu-cray          |
 +--------------+------------+-----------+-------------------+

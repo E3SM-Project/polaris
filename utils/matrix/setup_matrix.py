@@ -13,9 +13,7 @@ all_build_targets = {
     'anvil': {
         ('intel', 'impi'): 'intel-mpi',
         ('intel', 'openmpi'): 'ifort',
-        ('intel', 'mvapich'): 'ifort',
-        ('gnu', 'openmpi'): 'gfortran',
-        ('gnu', 'mvapich'): 'gfortran'},
+        ('gnu', 'openmpi'): 'gfortran'},
     'chicoma-cpu': {
         ('gnu', 'mpich'): 'gnu-cray'},
     'chrysalis': {
@@ -23,10 +21,13 @@ all_build_targets = {
         ('intel', 'openmpi'): 'ifort',
         ('gnu', 'openmpi'): 'gfortran'},
     'compy': {
-        ('intel', 'impi'): 'intel-mpi',
-        ('gnu', 'openmpi'): 'gfortran'},
+        ('intel', 'impi'): 'intel-mpi'},
+    'frontier': {
+        ('gnu', 'mpich'): 'gnu-cray',
+        ('crayclang', 'mpich'): 'cray-cray'},
     'pm-cpu': {
-        ('gnu', 'mpich'): 'gnu-cray'},
+        ('gnu', 'mpich'): 'gnu-cray',
+        ('intel', 'mpich'): 'intel-cray'},
     'conda-linux': {
         ('gfortran', 'mpich'): 'gfortran',
         ('gfortran', 'openmpi'): 'gfortran'},
