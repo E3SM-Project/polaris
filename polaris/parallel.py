@@ -36,6 +36,11 @@ def get_available_parallel_resources(config):
 
         # we can only use the allocated cores
         cores_per_node = int(aiot[0])
+
+        if cores_per_node == 0:
+            # hmm, no allocated cores so I guess we'll go with total cores
+            cores_per_node = int(aiot[3])
+
         args = ['sinfo', '--noheader', '--node', node, '-o', '%Z']
         slurm_threads_per_core = _get_subprocess_int(args)
 
