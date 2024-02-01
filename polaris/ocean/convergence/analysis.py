@@ -144,22 +144,24 @@ class ConvergenceAnalysis(Step):
                     mesh_name = resolution_to_subdir(resolution)
                     forward = dependencies['forward'][dt]
                     self.add_input_file(
-                        filename=f'{mesh_name}_output.nc',
+                        filename=f'{int(dt)}_output.nc',
                         work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
         """
         Run this step of the test case
         """
+        dts = self.dts
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         for var in convergence_vars:
             self.plot_convergence(
                 variable_name=var["name"],
                 title=var["title"],
-                zidx=var["zidx"])
+                zidx=var["zidx"],
+                dts=dts)
 
-    def plot_convergence(self, variable_name, title, zidx):
+    def plot_convergence(self, variable_name, title, zidx, dts=None):
         """
         Compute the error norm for each resolution and produce a convergence
         plot
@@ -182,20 +184,38 @@ class ConvergenceAnalysis(Step):
             field_name=variable_name)
 
         error = []
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            error_res = self.compute_error(
-                mesh_name=mesh_name,
-                variable_name=variable_name,
-                zidx=zidx,
-                error_type=error_type)
-            error.append(error_res)
+        if dts is None:
+            for resolution in resolutions:
+                mesh_name = resolution_to_subdir(resolution)
+                error_res = self.compute_error(
+                    mesh_name=mesh_name,
+                    variable_name=variable_name,
+                    zidx=zidx,
+                    error_type=error_type)
+                error.append(error_res)
+        else:
+            for i in range(dts):
+                mesh_name = resolution_to_subdir(resolutions[0])
+                error_res = self.compute_error(
+                    mesh_name=mesh_name,
+                    variable_name=variable_name,
+                    zidx=zidx,
+                    error_type=error_type,
+                    dts=dts,
+                    index=i + 1)
+                error.append(error_res)
 
-        res_array = np.array(resolutions)
+        if dts is None:
+            res_array = np.array(resolutions)
+        else:
+            res_array = np.array(dts[1:])
         error_array = np.array(error)
         filename = f'convergence_{variable_name}.csv'
         data = np.stack((res_array, error_array), axis=1)
-        df = pd.DataFrame(data, columns=['resolution', error_type])
+        if dts is None:
+            df = pd.DataFrame(data, columns=['resolution', error_type])
+        else:
+            df = pd.DataFrame(data, columns=['dt', error_type])
         df.to_csv(f'convergence_{variable_name}.csv', index=False)
 
         convergence_failed = False
@@ -266,7 +286,7 @@ class ConvergenceAnalysis(Step):
             raise ValueError('Convergence rate below minimum tolerance.')
 
     def compute_error(self, mesh_name, variable_name, zidx=None,
-                      error_type='l2'):
+                      error_type='l2', dts=None, index=None):
         """
         Compute the error for a given resolution
 
@@ -297,12 +317,20 @@ class ConvergenceAnalysis(Step):
         eval_time = section.getfloat('convergence_eval_time')
         s_per_hour = 3600.0
 
-        field_exact = self.exact_solution(mesh_name, variable_name,
-                                          time=eval_time * s_per_hour,
-                                          zidx=zidx)
-        field_mpas = self.get_output_field(mesh_name, variable_name,
-                                           time=eval_time * s_per_hour,
-                                           zidx=zidx)
+        if dts is None:
+            field_exact = self.exact_solution(mesh_name, variable_name,
+                                              time=eval_time * s_per_hour,
+                                              zidx=zidx)
+            field_mpas = self.get_output_field(mesh_name, variable_name,
+                                               time=eval_time * s_per_hour,
+                                               zidx=zidx)
+        else:
+            field_exact = self.exact_solution(mesh_name, variable_name,
+                                              time=eval_time * s_per_hour,
+                                              zidx=zidx, dt=dts[0])
+            field_mpas = self.get_output_field(mesh_name, variable_name,
+                                               time=eval_time * s_per_hour,
+                                               zidx=zidx, dt=dts[index])
         diff = field_exact - field_mpas
 
         # Only the L2 norm is area-weighted
@@ -318,7 +346,7 @@ class ConvergenceAnalysis(Step):
 
         return error
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None, dt=None):
         """
         Get the exact solution
 
@@ -346,14 +374,20 @@ class ConvergenceAnalysis(Step):
             The exact solution as derived from the initial condition
         """
 
-        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
-        ds_init = ds_init.isel(Time=0)
-        if zidx is not None:
-            ds_init = ds_init.isel(nVertLevels=zidx)
+        if dt is None:
+            ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+            ds_init = ds_init.isel(Time=0)
+            if zidx is not None:
+                ds_init = ds_init.isel(nVertLevels=zidx)
 
-        return ds_init[field_name]
+            return ds_init[field_name]
+        else:
+            ref_soln = self.get_output_field(mesh_name, field_name,
+                                             time, zidx, dt)
+            return ref_soln
 
-    def get_output_field(self, mesh_name, field_name, time, zidx=None):
+    def get_output_field(self, mesh_name, field_name,
+                         time, zidx=None, dt=None):
         """
         Get the model output field at the given time and z index
 
@@ -376,7 +410,10 @@ class ConvergenceAnalysis(Step):
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+        if dt is None:
+            ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+        else:
+            ds_out = xr.open_dataset(f'{int(dt)}_output.nc')
 
         tidx = time_index_from_xtime(ds_out.xtime.values, time)
         ds_out = ds_out.isel(Time=tidx)
