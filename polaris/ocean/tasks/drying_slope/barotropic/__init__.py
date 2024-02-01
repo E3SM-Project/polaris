@@ -1,6 +1,7 @@
 from numpy import ceil
 
 from polaris import Task
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.drying_slope.forward import Forward
 from polaris.ocean.tasks.drying_slope.init import Init
 from polaris.ocean.tasks.drying_slope.viz import Viz
@@ -54,15 +55,25 @@ class Barotropic(Task):
         if drag_type == 'constant_and_rayleigh':
             self.damping_coeffs = [0.0025, 0.01]
             for damping_coeff in self.damping_coeffs:
-                forward_step = Forward(
-                    component=component, indir=subdir, ntasks=None,
-                    min_tasks=None, openmp_threads=1,
-                    name=f'forward_{damping_coeff:03g}', resolution=resolution,
-                    forcing_type=forcing_type, coord_type=coord_type,
-                    time_integrator=time_integrator, drag_type=drag_type,
-                    damping_coeff=damping_coeff, baroclinic=False,
-                    method=method)
-                self.add_step(forward_step)
+                step_name = f'forward_{damping_coeff:03g}'
+                forward_dir = f'{subdir}/{step_name}'
+                if forward_dir in component.steps:
+                    forward_step = component.steps[forward_dir]
+                    symlink = step_name
+                else:
+                    mesh_name = resolution_to_subdir(resolution)
+                    forward_step = Forward(
+                        component=component, subdir=f'{subdir}/{step_name}',
+                        ntasks=None,
+                        min_tasks=None, openmp_threads=1,
+                        name=f'{step_name}_{mesh_name}',
+                        resolution=resolution,
+                        forcing_type=forcing_type, coord_type=coord_type,
+                        time_integrator=time_integrator, drag_type=drag_type,
+                        damping_coeff=damping_coeff, baroclinic=False,
+                        method=method)
+                    symlink = None
+                self.add_step(forward_step, symlink=symlink)
         else:
             self.damping_coeffs = []
             forward_step = Forward(
