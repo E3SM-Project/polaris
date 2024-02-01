@@ -60,32 +60,8 @@ cores_per_node = 128
 partitions = debug, compute, high
 ```
 
-## Intel on Chrysalis
+## Loading and running Polaris on Chrysalis
 
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /lcrc/soft/climate/polaris/chrysalis/load_latest_polaris_intel_openmpi.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] ifort
-```
-
-## Gnu on Chrysalis
-
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /lcrc/soft/climate/polaris/chrysalis/load_latest_polaris_gnu_openmpi.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] [ALBANY=true] gfortran
-```
+Follow the developer's guide at {ref}`dev-machines` to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.

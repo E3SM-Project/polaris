@@ -39,7 +39,7 @@
             Polaris
           </a>
               <div class="version">
-                0.2.0
+                0.3.0-alpha.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -272,6 +272,10 @@ with the developers.</p>
 <p>In addition to installing Miniforge3 and creating the conda environment for you,
 this script will also:</p>
 <ul class="simple">
+<li><p>install <a class="reference external" href="https://github.com/dengwirda/jigsaw">Jigsaw</a> and
+<a class="reference external" href="https://github.com/dengwirda/jigsaw-python">Jigsaw-Python</a> from source
+from the <code class="docutils literal notranslate"><span class="pre">jigsaw-python</span></code> submodule. These tools are used to create many of
+the meshes used in Polaris.</p></li>
 <li><p>install the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package from the local branch in “development” mode
 so changes you make to the repo are immediately reflected in the conda
 environment.</p></li>
@@ -312,8 +316,12 @@ the expected packages are available.</p></li>
 to something other than the default (<code class="docutils literal notranslate"><span class="pre">dev_polaris_&lt;version&gt;</span></code> or
 <code class="docutils literal notranslate"><span class="pre">dev_polaris_&lt;version&gt;_&lt;mpi&gt;</span></code>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--with_albany</span></code></dt><dd><p>Install Albany for full MALI support (currently only with <code class="docutils literal notranslate"><span class="pre">gnu</span></code>
-compilers)</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--update_jigsaw</span></code></dt><dd><p>Used to reinstall Jigsaw and Jigsaw-Python into the conda environment if
+you have made changes to the Jigsaw (c++) code in the <code class="docutils literal notranslate"><span class="pre">jigsaw-python</span></code>
+submodule. You should not need to reinstall Jigsaw-Python if you have made
+changes only to the python code in <code class="docutils literal notranslate"><span class="pre">jigsaw-python</span></code>, as the python package
+is installed in
+<a class="reference external" href="https://setuptools.pypa.io/en/latest/userguide/development_mode.html">edit mode</a>.</p>
 </dd>
 </dl>
 </section>
@@ -415,14 +423,14 @@ The activation script includes a check to see if the version of compass used
 to produce the load script is the same as the version of compass in the
 current branch.  If the two don’t match, an error like the following results
 and the environment is not activated:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source load_polaris_test_morpheus_gnu_openmpi.sh 
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source load_polaris_test_morpheus_gnu_openmpi.sh
 This load script is for a different version of polaris:
 __version__ = &#39;0.2.0&#39;
 
 Your code is version:
 __version__ = &#39;0.3.0-alpha.1&#39;
 
-You need to run ./configure_polaris_envs.py to update your conda 
+You need to run ./configure_polaris_envs.py to update your conda
 environment and load script.
 </pre></div>
 </div>

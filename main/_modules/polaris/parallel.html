@@ -36,7 +36,7 @@
             Polaris
           </a>
               <div class="version">
-                0.2.0
+                0.3.0-alpha.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -139,16 +139,27 @@
     <span class="k">if</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
         <span class="n">job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SLURM_JOB_ID&#39;</span><span class="p">]</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SLURMD_NODENAME&#39;</span><span class="p">]</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%X</span><span class="s1">&#39;</span><span class="p">]</span>
-        <span class="n">sockets_per_node</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y&#39;</span><span class="p">]</span>
-        <span class="n">cores_per_socket</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%C&#39;</span><span class="p">]</span>
+        <span class="c1"># get allocated, idle, other and total cores</span>
+        <span class="n">aiot</span> <span class="o">=</span> <span class="n">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+
+        <span class="c1"># we can only use the allocated cores</span>
+        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aiot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">cores_per_node</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># hmm, no allocated cores so I guess we&#39;ll go with total cores</span>
+            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aiot</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%Z&#39;</span><span class="p">]</span>
+        <span class="n">slurm_threads_per_core</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">):</span>
             <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">)</span>
+            <span class="c1"># correct for this in allocated_cores, which might not match</span>
+            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="p">((</span><span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">threads_per_core</span><span class="p">)</span> <span class="o">//</span>
+                              <span class="n">slurm_threads_per_core</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%Z&#39;</span><span class="p">]</span>
-            <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">sockets_per_node</span> <span class="o">*</span> <span class="n">cores_per_socket</span> <span class="o">*</span> <span class="n">threads_per_core</span>
+            <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">slurm_threads_per_core</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%D&#39;</span><span class="p">]</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">cores</span> <span class="o">=</span> <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span>
@@ -291,9 +302,14 @@
     <span class="k">return</span> <span class="n">command_line_args</span></div>
 
 
-<span class="k">def</span> <span class="nf">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">value_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+    <span class="n">value_str</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value_str</span>
+
+
+<span class="k">def</span> <span class="nf">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">value_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">value_int</span>
 </pre></div>
 

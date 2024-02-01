@@ -39,7 +39,7 @@
             Polaris
           </a>
               <div class="version">
-                0.2.0
+                0.3.0-alpha.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -74,6 +74,7 @@
 <li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 </ul>
 </li>
@@ -165,7 +166,7 @@ supported for those configurations with <code class="docutils literal notranslat
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td rowspan="4"><p>anvil</p></td>
+<tr class="row-even"><td rowspan="3"><p>anvil</p></td>
 <td rowspan="2"><p>intel</p></td>
 <td><p>impi</p></td>
 <td><p>intel-mpi</p></td>
@@ -173,36 +174,46 @@ supported for those configurations with <code class="docutils literal notranslat
 <tr class="row-odd"><td><p>openmpi</p></td>
 <td><p>ifort</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>gnu</p></td>
-<td><p>openmpi</p></td>
-<td><p>gfortran</p></td>
-</tr>
-<tr class="row-odd"><td><p>mvapich</p></td>
-<td><p>gfortran</p></td>
-</tr>
-<tr class="row-even"><td><p>chicoma-cpu</p></td>
-<td><p>gnu</p></td>
-<td><p>mpich</p></td>
-<td><p>gnu-cray</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="2"><p>chrysalis</p></td>
-<td><p>intel</p></td>
-<td><p>openmpi</p></td>
-<td><p>ifort</p></td>
-</tr>
 <tr class="row-even"><td><p>gnu</p></td>
 <td><p>openmpi</p></td>
 <td><p>gfortran</p></td>
 </tr>
-<tr class="row-odd"><td><p>compy</p></td>
+<tr class="row-odd"><td><p>chicoma-cpu</p></td>
+<td><p>gnu</p></td>
+<td><p>mpich</p></td>
+<td><p>gnu-cray</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>chrysalis</p></td>
+<td><p>intel</p></td>
+<td><p>openmpi</p></td>
+<td><p>ifort</p></td>
+</tr>
+<tr class="row-odd"><td><p>gnu</p></td>
+<td><p>openmpi</p></td>
+<td><p>gfortran</p></td>
+</tr>
+<tr class="row-even"><td><p>compy</p></td>
 <td><p>intel</p></td>
 <td><p>impi</p></td>
 <td><p>intel-mpi</p></td>
 </tr>
-<tr class="row-even"><td><p>pm-cpu</p></td>
+<tr class="row-odd"><td rowspan="2"><p>frontier</p></td>
 <td><p>gnu</p></td>
 <td><p>mpich</p></td>
 <td><p>gnu-cray</p></td>
+</tr>
+<tr class="row-even"><td><p>crayclang</p></td>
+<td><p>mpich</p></td>
+<td><p>cray-cray</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><p>pm-cpu</p></td>
+<td><p>gnu</p></td>
+<td><p>mpich</p></td>
+<td><p>gnu-cray</p></td>
+</tr>
+<tr class="row-even"><td><p>intel</p></td>
+<td><p>mpich</p></td>
+<td><p>intel-cray</p></td>
 </tr>
 </tbody>
 </table>
@@ -213,6 +224,7 @@ supported for those configurations with <code class="docutils literal notranslat
 <li class="toctree-l1"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l1"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 </ul>
 </div>
@@ -224,11 +236,11 @@ to what was described in <a class="reference internal" href="../quick_start.html
 we will use <code class="docutils literal notranslate"><span class="pre">mpich</span></code> or <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> and the gnu compilers from conda-forge
 rather than system compilers.  To create a development conda environment and
 an activation script for it, on Linux, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>mpich
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>and on OSX run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./conda/configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>clang<span class="w"> </span>-i<span class="w"> </span>mpich
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>clang<span class="w"> </span>-i<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>You may use <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mpich</span></code> but we have had better experiences

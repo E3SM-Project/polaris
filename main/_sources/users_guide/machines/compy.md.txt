@@ -68,17 +68,8 @@ partitions = slurm
 qos = regular
 ```
 
-## Intel on CompyMcNodeFace
+## Loading and running Polaris on CompyMcNodeFace
 
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source source /share/apps/E3SM/conda_envs/polaris/load_latest_polaris_intel_impi.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] intel-mpi
-```
+Follow the developer's guide at {ref}`dev-machines` to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.

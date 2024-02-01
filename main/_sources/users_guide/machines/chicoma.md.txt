@@ -153,17 +153,8 @@ modules_before = False
 modules_after = False
 ```
 
-### Gnu on Chicoma-CPU
+## Loading and running Polaris on Chicoma
 
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /usr/projects/climate/SHARED_CLIMATE/polaris/chicoma-cpu/load_latest_polaris_gnu_mpich.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] [ALBANY=true] gnu-cray
-```
+Follow the developer's guide at {ref}`dev-machines` to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.

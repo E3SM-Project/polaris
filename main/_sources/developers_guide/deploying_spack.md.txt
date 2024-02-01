@@ -21,15 +21,29 @@ re-deploy shared spack environments on each supported machine.
 
 ### Spack
 
-Spack is for libraries used by MPAS and tools that need system MPI:
+Spack is used to build libraries used by E3SM components and tools that need
+system MPI:
 
 - ESMF
+- MOAB
 - SCORPIO
+- Metis
+- Parmetis
+- Trilinos
 - Albany
 - PETSc
 - Netlib LAPACK
 
-When we update the versions of any of these libraries in Polaris, we also need
+We build one spack environment for tools (e.g. ESMF and MOAB) and another for
+libraries.  This allows us to build the tools with one set of compilers and
+MPI libraries adn the libraries with another.  This is sometimes necessary,
+since ESMF, MOAB and/or their dependencies can't always be built or don't
+run correctly with all compiler and MPI combinations.  For example, we have
+experienced problems running ESMF built with intel compilers on Perlmutter.
+We are also not able to build ESMF or the Eigen dependency of MOAB using
+`nvidiagpu` compilers.
+
+When we update the versions of any of these packages in Polaris, we also need
 to bump the Polaris version (typically either the major or the minor version)
 and then re-deploy shared spack environments on each supported machine.
 
@@ -37,8 +51,8 @@ and then re-deploy shared spack environments on each supported machine.
 
 Conda (via conda-forge) is used for python packages and related dependencies
 that don’t need system MPI. Conda environments aren’t shared between
-developers because the polaris you’re developing is part of the conda
-environment.
+developers because the polaris python package you’re developing is part of the
+conda environment.
 
 When we update the constraints on conda dependencies, we also need to bump the
 Polaris alpha, beta or rc version.  We do not need to re-deploy spack
@@ -67,6 +81,7 @@ These config options are shared across packages including:
 - E3SM_Diags
 - zppy
 - polaris
+- compass
 - E3SM-Unified
 
 Polaris uses these config options to know how to make a job script, where to

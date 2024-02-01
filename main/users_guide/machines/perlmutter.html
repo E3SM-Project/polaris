@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Quick Start for Developers" href="../../developers_guide/quick_start.html" />
-    <link rel="prev" title="CompyMcNodeFace" href="compy.html" />
+    <link rel="prev" title="Frontier" href="frontier.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -39,7 +39,7 @@
             Polaris
           </a>
               <div class="version">
-                0.2.0
+                0.3.0-alpha.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -65,8 +65,10 @@
 <li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Perlmutter</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#perlmutter-cpu">Perlmutter-CPU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading-and-running-polaris-on-perlmutter">Loading and running Polaris on Perlmutter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jupyter-notebook-on-remote-data">Jupyter notebook on remote data</a></li>
 </ul>
 </li>
@@ -135,10 +137,10 @@
 <p>login: <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">$my_username&#64;perlmutter-p1.nersc.gov</span></code></p>
 <p>interactive login:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for CPU:</span>
-salloc<span class="w"> </span>--partition<span class="o">=</span>debug<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">30</span>:00<span class="w"> </span>-C<span class="w"> </span>cpu
+salloc<span class="w"> </span>--qos<span class="o">=</span>debug<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">30</span>:00<span class="w"> </span>-C<span class="w"> </span>cpu
 
 <span class="c1"># for GPU:</span>
-salloc<span class="w"> </span>--partition<span class="o">=</span>debug<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">30</span>:00<span class="w"> </span>-C<span class="w"> </span>gpu
+salloc<span class="w"> </span>--qos<span class="o">=</span>debug<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">30</span>:00<span class="w"> </span>-C<span class="w"> </span>gpu
 </pre></div>
 </div>
 <p>Compute time:</p>
@@ -248,18 +250,12 @@ cases or a suite:</p>
 </pre></div>
 </div>
 </section>
-<section id="gnu-on-perlmutter-cpu">
-<h3>Gnu on Perlmutter-CPU<a class="headerlink" href="#gnu-on-perlmutter-cpu" title="Permalink to this heading"></a></h3>
-<p>To load the polaris environment and modules, and set appropriate environment
-variables:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/global/cfs/cdirs/e3sm/software/polaris/pm-cpu/load_latest_polaris_gnu_mpich.sh
-</pre></div>
-</div>
-<p>To build the MPAS model with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">OPENMP</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">ALBANY</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>gnu-cray
-</pre></div>
-</div>
 </section>
+<section id="loading-and-running-polaris-on-perlmutter">
+<h2>Loading and running Polaris on Perlmutter<a class="headerlink" href="#loading-and-running-polaris-on-perlmutter" title="Permalink to this heading"></a></h2>
+<p>Follow the developer’s guide at <a class="reference internal" href="../../developers_guide/machines/index.html#dev-machines"><span class="std std-ref">Machines</span></a> to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.</p>
 </section>
 <section id="jupyter-notebook-on-remote-data">
 <h2>Jupyter notebook on remote data<a class="headerlink" href="#jupyter-notebook-on-remote-data" title="Permalink to this heading"></a></h2>
@@ -315,7 +311,7 @@ the path described in the install command output.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="compy.html" class="btn btn-neutral float-left" title="CompyMcNodeFace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="frontier.html" class="btn btn-neutral float-left" title="Frontier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../../developers_guide/quick_start.html" class="btn btn-neutral float-right" title="Quick Start for Developers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

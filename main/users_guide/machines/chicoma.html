@@ -39,7 +39,7 @@
             Polaris
           </a>
               <div class="version">
-                0.2.0
+                0.3.0-alpha.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -64,10 +64,12 @@
 <li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Chicoma</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#chicoma-cpu">Chicoma-CPU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading-and-running-polaris-on-chicoma">Loading and running Polaris on Chicoma</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 </ul>
 </li>
@@ -271,18 +273,12 @@ when setting up tasks or a suite:</p>
 </pre></div>
 </div>
 </section>
-<section id="gnu-on-chicoma-cpu">
-<h3>Gnu on Chicoma-CPU<a class="headerlink" href="#gnu-on-chicoma-cpu" title="Permalink to this heading"></a></h3>
-<p>To load the polaris environment and modules, and set appropriate environment
-variables:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/projects/climate/SHARED_CLIMATE/polaris/chicoma-cpu/load_latest_polaris_gnu_mpich.sh
-</pre></div>
-</div>
-<p>To build the MPAS model with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">OPENMP</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">ALBANY</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>gnu-cray
-</pre></div>
-</div>
 </section>
+<section id="loading-and-running-polaris-on-chicoma">
+<h2>Loading and running Polaris on Chicoma<a class="headerlink" href="#loading-and-running-polaris-on-chicoma" title="Permalink to this heading"></a></h2>
+<p>Follow the developer’s guide at <a class="reference internal" href="../../developers_guide/machines/index.html#dev-machines"><span class="std std-ref">Machines</span></a> to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.</p>
 </section>
 </section>
 
