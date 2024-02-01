@@ -22,7 +22,8 @@ class Init(Step):
     resolution : float
         The resolution of the task in km
     """
-    def __init__(self, component, resolution, indir, baroclinic=False,
+    def __init__(self, component, resolution, indir=None, subdir=None,
+                 name='init', baroclinic=False,
                  drag_type='constant_and_rayleigh'):
         """
         Create the step
@@ -41,7 +42,8 @@ class Init(Step):
         baroclinic: bool, optional
             whether the test case is baroclinic
         """
-        super().__init__(component=component, name='init', indir=indir)
+        super().__init__(component=component, name=name, indir=indir,
+                         subdir=subdir)
         self.resolution = resolution
         self.baroclinic = baroclinic
         self.drag_type = drag_type
