@@ -70,38 +70,8 @@ partitions = acme-small, acme-medium, acme-large
 qos = regular, acme_high
 ```
 
-## Intel on Anvil
+## Loading and running Polaris on Anvil
 
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /lcrc/soft/climate/polaris/anvil/load_latest_polaris_intel_impi.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] intel-mpi
-```
-
-For other MPI libraries (`openmpi` or `mvapich` instead of `impi`), use
-
-```bash
-make [DEBUG=true] [OPENMP=true] ifort
-```
-
-## Gnu on Anvil
-
-To load the polaris environment and modules, and set appropriate environment
-variables:
-
-```bash
-source /lcrc/soft/climate/polaris/anvil/load_latest_polaris_gnu_openmpi.sh
-```
-
-To build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] [ALBANY=true] gfortran
-```
+Follow the developer's guide at {ref}`dev-machines` to get set up.  There are
+currently no plans to support a different deployment strategy (e.g. a shared
+environoment) for users.

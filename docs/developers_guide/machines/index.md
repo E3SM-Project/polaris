@@ -2,11 +2,11 @@
 
 # Machines
 
-Polaris attempts to be aware of the capabilities of the machine it is running 
-on.  This  is a particular advantage for so-called "supported" machines with a 
-config file defined for them in the `polaris` package.  But even for "unknown" 
-machines,  it is not difficult to set a few config options in your user config 
-file to  describe your machine.  Then, polaris can use this data to make sure 
+Polaris attempts to be aware of the capabilities of the machine it is running
+on.  This  is a particular advantage for so-called "supported" machines with a
+config file defined for them in the `polaris` package.  But even for "unknown"
+machines,  it is not difficult to set a few config options in your user config
+file to  describe your machine.  Then, polaris can use this data to make sure
 test  cases are configured in a way that is appropriate for your machine.
 
 (dev-supported-machines)=
@@ -45,8 +45,6 @@ supported for those configurations with `gnu` compilers.
 |              |            | openmpi   | ifort             |
 |              +------------+-----------+-------------------+
 |              | gnu        | openmpi   | gfortran          |
-|              |            +-----------+-------------------+
-|              |            | mvapich   | gfortran          |
 +--------------+------------+-----------+-------------------+
 | chicoma-cpu  | gnu        | mpich     | gnu-cray          |
 +--------------+------------+-----------+-------------------+
@@ -56,7 +54,13 @@ supported for those configurations with `gnu` compilers.
 +--------------+------------+-----------+-------------------+
 | compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
+| frontier     | gnu        | mpich     | gnu-cray          |
+|              +------------+-----------+-------------------+
+|              | crayclang  | mpich     | cray-cray         |
++--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
+|              +------------+-----------+-------------------+
+|              | intel      | mpich     | intel-cray        |
 +--------------+------------+-----------+-------------------+
 ```
 
@@ -69,6 +73,7 @@ anvil
 chicoma
 chrysalis
 compy
+frontier
 perlmutter
 ```
 
@@ -83,13 +88,13 @@ rather than system compilers.  To create a development conda environment and
 an activation script for it, on Linux, run:
 
 ```bash
-./conda/configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
+./configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
 ```
 
 and on OSX run:
 
 ```bash
-./conda/configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
+./configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
 ```
 
 You may use `openmpi` instead of `mpich` but we have had better experiences
@@ -288,8 +293,8 @@ spack:
       modules: []
       environment: {}
       extra_rpaths: []
-```          
-          
+```
+
 Typically your system will already have compilers if nothing else, and this is
 what we assume here.  Give the appropriate path (replace `/usr` with the
 appropriate path on your system).  We have had better luck with `gcc` than

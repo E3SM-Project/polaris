@@ -30,16 +30,27 @@ def get_available_parallel_resources(config):
     if parallel_system == 'slurm':
         job_id = os.environ['SLURM_JOB_ID']
         node = os.environ['SLURMD_NODENAME']
-        args = ['sinfo', '--noheader', '--node', node, '-o', '%X']
-        sockets_per_node = _get_subprocess_int(args)
-        args = ['sinfo', '--noheader', '--node', node, '-o', '%Y']
-        cores_per_socket = _get_subprocess_int(args)
+        args = ['sinfo', '--noheader', '--node', node, '-o', '%C']
+        # get allocated, idle, other and total cores
+        aiot = _get_subprocess_str(args).split('/')
+
+        # we can only use the allocated cores
+        cores_per_node = int(aiot[0])
+
+        if cores_per_node == 0:
+            # hmm, no allocated cores so I guess we'll go with total cores
+            cores_per_node = int(aiot[3])
+
+        args = ['sinfo', '--noheader', '--node', node, '-o', '%Z']
+        slurm_threads_per_core = _get_subprocess_int(args)
+
         if config.has_option('parallel', 'threads_per_core'):
             threads_per_core = config.getint('parallel', 'threads_per_core')
+            # correct for this in allocated_cores, which might not match
+            cores_per_node = ((cores_per_node * threads_per_core) //
+                              slurm_threads_per_core)
         else:
-            args = ['sinfo', '--noheader', '--node', node, '-o', '%Z']
-            threads_per_core = _get_subprocess_int(args)
-        cores_per_node = sockets_per_node * cores_per_socket * threads_per_core
+            threads_per_core = slurm_threads_per_core
         args = ['squeue', '--noheader', '-j', job_id, '-o', '%D']
         nodes = _get_subprocess_int(args)
         cores = cores_per_node * nodes
@@ -182,7 +193,12 @@ def get_parallel_command(args, cpus_per_task, ntasks, config):
     return command_line_args
 
 
-def _get_subprocess_int(args):
+def _get_subprocess_str(args):
     value = subprocess.check_output(args)
-    value_int = int(value.decode('utf-8').strip('\n'))
+    value_str = value.decode('utf-8').strip('\n')
+    return value_str
+
+
+def _get_subprocess_int(args):
+    value_int = int(_get_subprocess_str(args))
     return value_int

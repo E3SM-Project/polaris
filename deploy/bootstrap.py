@@ -9,6 +9,7 @@ import shutil
 import socket
 import stat
 import subprocess
+import time
 from configparser import ConfigParser
 from typing import Dict
 
@@ -214,13 +215,16 @@ def get_env_setup(args, config, machine, compiler, mpi, env_type, source_path,
         ver = version.parse(polaris_version)
         release_version = '.'.join(str(vr) for vr in ver.release)
         spack_env = f'dev_polaris_{release_version}{env_suffix}'
+        conda_env = f'dev_polaris_{polaris_version}{env_suffix}'
     elif env_type == 'test_release':
         spack_env = f'test_polaris_{polaris_version}{env_suffix}'
+        conda_env = spack_env
     else:
         spack_env = f'polaris_{polaris_version}{env_suffix}'
+        conda_env = spack_env
 
     if env_name is None or env_type != 'dev':
-        env_name = spack_env
+        env_name = conda_env
 
     # add the compiler and MPI library to the spack env name
     spack_env = f'{spack_env}_{compiler}_{mpi}{lib_suffix}'
@@ -241,7 +245,7 @@ def get_env_setup(args, config, machine, compiler, mpi, env_type, source_path,
 def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                     python, source_path, conda_template_path, conda_base,
                     env_name, env_path, activate_base, use_local,
-                    local_conda_build, logger, local_mache):
+                    local_conda_build, logger, local_mache, update_jigsaw):
 
     if env_type != 'dev':
         install_miniforge(conda_base, activate_base, logger)
@@ -287,9 +291,9 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                             mpi_prefix=mpi_prefix,
                             include_mache=not local_mache)
 
-        for package in ['esmf', 'geometric_features', 'jigsaw', 'jigsawpy',
-                        'mache', 'mpas_tools', 'netcdf_c', 'netcdf_fortran',
-                        'otps', 'parallelio', 'pnetcdf']:
+        for package in ['esmf', 'geometric_features', 'mache', 'metis',
+                        'mpas_tools', 'netcdf_c', 'netcdf_fortran', 'otps',
+                        'parallelio', 'pnetcdf']:
             replacements[package] = config.get('deploy', package)
 
         spec_file = template.render(**replacements)
@@ -300,7 +304,10 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
     else:
         spec_filename = None
 
-    if not os.path.exists(env_path) or recreate:
+    if not os.path.exists(env_path):
+        recreate = True
+
+    if recreate:
         print(f'creating {env_name}')
         if env_type == 'dev':
             # install dev dependencies and polaris itself
@@ -309,13 +316,6 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                 f'conda create -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
-
-            commands = \
-                f'{activate_env} && ' \
-                f'cd {source_path} && ' \
-                f'python -m pip install --no-deps -e .'
-            check_call(commands, logger=logger)
-
         else:
             # conda packages don't like dashes
             version_conda = version.replace('-', '')
@@ -332,22 +332,79 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
                 f'conda install -y -n {env_name} {channels} ' \
                 f'--file {spec_filename} {packages}'
             check_call(commands, logger=logger)
-
-            commands = \
-                f'{activate_env} && ' \
-                f'cd {source_path} && ' \
-                f'python -m pip install --no-deps -e .'
-            check_call(commands, logger=logger)
         else:
             print(f'{env_name} already exists')
 
     if env_type == 'dev':
+        if recreate or update_jigsaw:
+            build_jigsaw(activate_env, source_path, env_path, logger)
+
+        # install (or reinstall) polaris in edit mode
+        print('Installing polaris\n')
+        commands = \
+            f'{activate_env} && ' \
+            f'cd {source_path} && ' \
+            f'rm -rf polaris.egg-info && ' \
+            f'python -m pip install --no-deps -e .'
+        check_call(commands, logger=logger)
+
         print('Installing pre-commit\n')
         commands = \
             f'{activate_env} && ' \
             f'cd {source_path} && ' \
             f'pre-commit install'
         check_call(commands, logger=logger)
+
+
+def build_jigsaw(activate_env, source_path, env_path, logger):
+    # remove conda jigsaw and jigsaw-python
+    t0 = time.time()
+    commands = \
+        f'{activate_env} && ' \
+        f'conda remove -y --force-remove jigsaw jigsawpy'
+    check_call(commands, logger=logger)
+
+    commands = \
+        f'{activate_env} && ' \
+        f'cd {source_path} && ' \
+        f'git submodule update --init jigsaw-python'
+    check_call(commands, logger=logger)
+
+    print('Building JIGSAW\n')
+    # add build tools to deployment env, not polaris env
+    jigsaw_build_deps = 'cxx-compiler cmake'
+    netcdf_lib = f'{env_path}/lib/libnetcdf.so'
+    cmake_args = f'-DCMAKE_BUILD_TYPE=Release -DNETCDF_LIBRARY={netcdf_lib}'
+
+    commands = \
+        f'conda install -y {jigsaw_build_deps} && ' \
+        f'cd {source_path}/jigsaw-python/external/jigsaw && ' \
+        f'rm -rf tmp && ' \
+        f'mkdir tmp && ' \
+        f'cd tmp && ' \
+        f'cmake .. {cmake_args} && ' \
+        f'cmake --build . --config Release --target install --parallel 4 && ' \
+        f'cd {source_path}/jigsaw-python && ' \
+        f'rm -rf jigsawpy/_bin jigsawpy/_lib && ' \
+        f'cp -r external/jigsaw/bin/ jigsawpy/_bin && ' \
+        f'cp -r external/jigsaw/lib/ jigsawpy/_lib'
+    check_call(commands, logger=logger)
+
+    print('Installing JIGSAW and JIGSAW-Python\n')
+    commands = \
+        f'{activate_env} && ' \
+        f'cd {source_path}/jigsaw-python && ' \
+        f'python -m pip install --no-deps -e . && ' \
+        f'cp jigsawpy/_bin/* ${{CONDA_PREFIX}}/bin'
+    check_call(commands, logger=logger)
+
+    t1 = time.time()
+    total = int(t1 - t0 + 0.5)
+    message = f'JIGSAW install took {total:.1f} s.'
+    if logger is None:
+        print(message)
+    else:
+        logger.info(message)
 
 
 def get_env_vars(machine, compiler, mpilib):
@@ -400,14 +457,106 @@ def get_env_vars(machine, compiler, mpilib):
     return env_vars
 
 
-def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
-                    spack_env, spack_base, spack_template_path, env_vars,
-                    tmpdir, logger):
+def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
+                         polaris_version, source_path, spack_base,
+                         spack_template_path, tmpdir):
+
+    if not config.has_option('deploy', 'software_compiler'):
+        return None
+
+    compiler = config.get('deploy', 'software_compiler')
+    if not config.has_option('deploy', f'mpi_{compiler}'):
+        raise ValueError(f'Machine config file for {machine} is missing '
+                         f'mpi_{compiler}, the MPI library for the software '
+                         f'compiler.')
+    mpi = config.get('deploy', f'mpi_{compiler}')
+
+    if machine is not None:
+        spack_base = get_spack_base(spack_base, config)
+
+    if spack_base is None:
+        return None
+
+    if env_type == 'dev':
+        ver = version.parse(polaris_version)
+        release_version = '.'.join(str(vr) for vr in ver.release)
+        spack_env = f'dev_polaris_soft_{release_version}'
+    elif env_type == 'test_release':
+        spack_env = f'test_polaris_soft_{polaris_version}'
+    else:
+        spack_env = f'polaris_soft_{polaris_version}'
+
+    spack_env = spack_env.replace('.', '_')
+
+    build_dir = f'deploy_tmp/build_soft_{machine}'
+
+    try:
+        shutil.rmtree(build_dir)
+    except OSError:
+        pass
+    try:
+        os.makedirs(build_dir)
+    except FileExistsError:
+        pass
+
+    os.chdir(build_dir)
+
+    esmf = config.get('deploy', 'esmf')
+
+    spack_branch_base = f'{spack_base}/{spack_env}'
+
+    specs = list()
+
+    e3sm_hdf5_netcdf = config.getboolean('deploy', 'use_e3sm_hdf5_netcdf')
+    if not e3sm_hdf5_netcdf:
+        hdf5 = config.get('deploy', 'hdf5')
+        netcdf_c = config.get('deploy', 'netcdf_c')
+        netcdf_fortran = config.get('deploy', 'netcdf_fortran')
+        specs.extend([
+            f'"hdf5@{hdf5}+cxx+fortran+hl+mpi+shared"',
+            f'"netcdf-c@{netcdf_c}+mpi~parallel-netcdf"',
+            f'"netcdf-fortran@{netcdf_fortran}"'])
+
+    if esmf != 'None':
+        specs.append(f'"esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio"')
+
+    yaml_template: str | None = None
+    template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
+    if os.path.exists(template_path):
+        yaml_template = template_path
+
+    if machine is not None:
+        here = os.path.abspath(os.path.dirname(__file__))
+        machine_config = os.path.join(here, '..', 'polaris', 'machines',
+                                      f'{machine}.cfg')
+    else:
+        machine_config = None
+
+    if update_spack:
+        make_spack_env(spack_path=spack_branch_base, env_name=spack_env,
+                       spack_specs=specs, compiler=compiler, mpi=mpi,
+                       machine=machine, config_file=machine_config,
+                       include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
+                       yaml_template=yaml_template, tmpdir=tmpdir)
+
+    spack_view = f'{spack_branch_base}/var/spack/environments/' \
+                 f'{spack_env}/.spack-env/view'
+
+    os.chdir(source_path)
+
+    return spack_view
+
+
+def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
+                         mpi, spack_env, spack_base, spack_template_path,
+                         env_vars, tmpdir, logger):
 
     albany = config.get('deploy', 'albany')
     cmake = config.get('deploy', 'cmake')
-    esmf = config.get('deploy', 'esmf')
     lapack = config.get('deploy', 'lapack')
+    metis = config.get('deploy', 'metis')
+    moab = config.get('deploy', 'moab')
+    parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
 
@@ -430,29 +579,25 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
             f'"netcdf-fortran@{netcdf_fortran}"',
             f'"parallel-netcdf@{pnetcdf}+cxx+fortran"'])
 
-    if esmf != 'None':
-        specs.append(f'"esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio"')
     if lapack != 'None':
         specs.append(f'"netlib-lapack@{lapack}"')
         include_e3sm_lapack = False
     else:
         include_e3sm_lapack = True
+    if metis != 'None':
+        specs.append(f'"metis@{metis}~shared"')
+    if moab != 'None':
+        specs.append(
+            f'"moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest"')
+    if parmetis != 'None':
+        specs.append(f'"parmetis@{parmetis}~shared"')
     if petsc != 'None':
         specs.append(f'"petsc@{petsc}+mpi+batch"')
 
-    custom_spack = ''
     if scorpio != 'None':
         specs.append(
             f'"scorpio'
             f'@{scorpio}+pnetcdf~timing+internal-timing~tools+malloc"')
-        # make sure scorpio, not esmf, libraries are linked
-        lib_path = f'{spack_branch_base}/var/spack/environments/' \
-                   f'{spack_env}/.spack-env/view/lib'
-        scorpio_lib_path = '$(spack find --format "{prefix}" scorpio)'
-        custom_spack = \
-            f'{custom_spack}' \
-            f'ln -sfn {scorpio_lib_path}/lib/libpioc.a {lib_path}\n' \
-            f'ln -sfn {scorpio_lib_path}/lib/libpiof.a {lib_path}\n'
 
     if albany != 'None':
         specs.append(f'"albany@{albany}+mpas"')
@@ -475,16 +620,8 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
                        machine=machine, config_file=machine_config,
                        include_e3sm_lapack=include_e3sm_lapack,
                        include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-                       yaml_template=yaml_template, tmpdir=tmpdir,
-                       custom_spack=custom_spack)
+                       yaml_template=yaml_template, tmpdir=tmpdir)
 
-        # remove ESMC/ESMF include files that interfere with MPAS time keeping
-        include_path = f'{spack_branch_base}/var/spack/environments/' \
-                       f'{spack_env}/.spack-env/view/include'
-        for prefix in ['ESMC', 'esmf']:
-            files = glob.glob(os.path.join(include_path, f'{prefix}*'))
-            for filename in files:
-                os.remove(filename)
         set_ld_library_path(spack_branch_base, spack_env, logger)
 
     spack_script = get_spack_script(
@@ -526,12 +663,20 @@ def build_spack_env(config, update_spack, machine, compiler, mpi,  # noqa: C901
                    f'export LAPACK={spack_view}\n' \
                    f'export USE_LAPACK=true\n'
 
+    if metis != 'None':
+        env_vars = f'{env_vars}' \
+                   f'export METIS_ROOT={spack_view}\n'
+
+    if parmetis != 'None':
+        env_vars = f'{env_vars}' \
+                   f'export PARMETIS_ROOT={spack_view}\n'
+
     if petsc != 'None':
         env_vars = f'{env_vars}' \
                    f'export PETSC={spack_view}\n' \
                    f'export USE_PETSC=true\n'
 
-    return spack_branch_base, spack_script, env_vars
+    return spack_script, env_vars
 
 
 def set_ld_library_path(spack_branch_base, spack_env, logger):
@@ -954,6 +1099,10 @@ def main():  # noqa: C901
     permissions_dirs = []
     activ_path = None
 
+    soft_spack_view = build_spack_soft_env(
+        config, args.update_spack, machine, env_type, polaris_version,
+        source_path, args.spack_base, spack_template_path, args.tmpdir)
+
     for compiler, mpi in zip(compilers, mpis):
 
         python, recreate, conda_mpi, activ_suffix, env_suffix, \
@@ -992,14 +1141,17 @@ def main():  # noqa: C901
                 config, env_type, recreate, mpi, conda_mpi, polaris_version,
                 python, source_path, conda_template_path, conda_base,
                 conda_env_name, conda_env_path, activate_base, args.use_local,
-                args.local_conda_build, logger, local_mache)
+                args.local_conda_build, logger, local_mache,
+                args.update_jigsaw)
 
             if local_mache:
                 print('Install local mache\n')
                 commands = f'source {conda_base}/etc/profile.d/conda.sh && ' \
                            f'conda activate {conda_env_name} && ' \
-                           'cd ../build_mache/mache && ' \
-                           'python -m pip install .'
+                           f'conda install -y importlib_resources jinja2' \
+                           f'  lxml pyyaml progressbar2 && ' \
+                           f'cd ../build_mache/mache && ' \
+                           f'python -m pip install --no-deps .'
                 check_call(commands, logger=logger)
 
             previous_conda_env = conda_env_name
@@ -1011,7 +1163,8 @@ def main():  # noqa: C901
         if compiler is not None:
             env_vars = get_env_vars(machine, compiler, mpi)
             if spack_base is not None:
-                _, spack_script, env_vars = build_spack_env(
+
+                spack_script, env_vars = build_spack_libs_env(
                     config, args.update_spack, machine, compiler, mpi,
                     spack_env, spack_base, spack_template_path, env_vars,
                     args.tmpdir, logger)
@@ -1024,6 +1177,14 @@ def main():  # noqa: C901
                     f'{env_vars}' \
                     f'export PIO={conda_env_path}\n' \
                     f'export OPENMP_INCLUDE=-I"{conda_env_path}/include"\n'
+
+            if soft_spack_view is None:
+                raise ValueError('A software compiler or a spack base was not '
+                                 'defined so required software was not '
+                                 'installed with spack.')
+            env_vars = f'{env_vars}' \
+                       f'export PATH="{soft_spack_view}/bin:$PATH"\n'
+
         else:
             env_vars = ''
 
@@ -1067,6 +1228,7 @@ def main():  # noqa: C901
 
     if args.update_spack or env_type != 'dev':
         # we need to update permissions on shared stuff
+
         update_permissions(config, env_type, activ_path, permissions_dirs)
 
 

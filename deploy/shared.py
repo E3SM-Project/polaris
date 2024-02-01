@@ -35,6 +35,10 @@ def parse_args(bootstrap):
                              "for building E3SM components).")
     parser.add_argument("--recreate", dest="recreate", action='store_true',
                         help="Recreate the environment if it exists.")
+    parser.add_argument("--update_jigsaw", dest="update_jigsaw",
+                        action='store_true',
+                        help="Reinstall JIGSAW even if not recreating conda "
+                             "environment.")
     parser.add_argument("-f", "--config_file", dest="config_file",
                         help="Config file to override deployment config "
                              "options.")
@@ -177,7 +181,6 @@ def install_miniforge(conda_base, activate_base, logger):
     commands = f'{activate_base} && ' \
                f'conda config --add channels conda-forge && ' \
                f'conda config --set channel_priority strict && ' \
-               f'conda install -y "conda>=23.1.0" && ' \
                f'conda update -y --all && ' \
                f'conda init --no-user'
 

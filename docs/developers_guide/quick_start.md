@@ -168,6 +168,10 @@ with the developers.
 In addition to installing Miniforge3 and creating the conda environment for you,
 this script will also:
 
+- install [Jigsaw](https://github.com/dengwirda/jigsaw) and
+  [Jigsaw-Python](https://github.com/dengwirda/jigsaw-python) from source
+  from the `jigsaw-python` submodule. These tools are used to create many of
+  the meshes used in Polaris.
 - install the `polaris` package from the local branch in "development" mode
   so changes you make to the repo are immediately reflected in the conda
   environment.
@@ -212,10 +216,14 @@ this script will also:
   to something other than the default (`dev_polaris_<version>` or
   `dev_polaris_<version>_<mpi>`).
 
-`--with_albany`
+`--update_jigsaw`
 
-: Install Albany for full MALI support (currently only with `gnu`
-  compilers)
+: Used to reinstall Jigsaw and Jigsaw-Python into the conda environment if
+  you have made changes to the Jigsaw (c++) code in the `jigsaw-python`
+  submodule. You should not need to reinstall Jigsaw-Python if you have made
+  changes only to the python code in `jigsaw-python`, as the python package
+  is installed in
+  [edit mode](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
 
 ### Activating the environment
 
@@ -329,14 +337,14 @@ current branch.  If the two don't match, an error like the following results
 and the environment is not activated:
 
 ```
-$ source load_polaris_test_morpheus_gnu_openmpi.sh 
+$ source load_polaris_test_morpheus_gnu_openmpi.sh
 This load script is for a different version of polaris:
 __version__ = '0.2.0'
 
 Your code is version:
 __version__ = '0.3.0-alpha.1'
 
-You need to run ./configure_polaris_envs.py to update your conda 
+You need to run ./configure_polaris_envs.py to update your conda
 environment and load script.
 ```
 
@@ -378,7 +386,7 @@ the root directory of your polaris branch.  The activation script will also
 check if the current polaris version matches the one used to create the
 activation script, thus catching situations where the dependencies are out
 of date and the configure script needs to be rerun.  Since sourcing the
-activation script is substantially faster than rerunning the configure script, 
+activation script is substantially faster than rerunning the configure script,
 it is best to try the activation script first and run the configure script only
 if you have to.
 :::
