@@ -27,6 +27,10 @@ omega:
     config_disable_tr_nonlocalflux: true
     config_check_ssh_consistency: false
     config_disable_tr_all_tend: true
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+  pressure_gradient:
+    config_pressure_gradient_type: ssh_gradient
   eos:
     config_eos_type: linear
   forcing:
@@ -35,7 +39,7 @@ omega:
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
-    config_use_activeTracers: false
+    config_use_activeTracers: true
     config_use_activeTracers_surface_bulk_forcing: false
   tracer_forcing_debugTracers:
     config_use_debugTracers: false
