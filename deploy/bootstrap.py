@@ -337,7 +337,8 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
 
     if env_type == 'dev':
         if recreate or update_jigsaw:
-            build_jigsaw(activate_env, source_path, env_path, logger)
+            build_jigsaw(activate_env, conda_base, source_path, env_path,
+                         logger)
 
         # install (or reinstall) polaris in edit mode
         print('Installing polaris\n')
@@ -356,7 +357,7 @@ def build_conda_env(config, env_type, recreate, mpi, conda_mpi, version,
         check_call(commands, logger=logger)
 
 
-def build_jigsaw(activate_env, source_path, env_path, logger):
+def build_jigsaw(activate_env, conda_base, source_path, env_path, logger):
     # remove conda jigsaw and jigsaw-python
     t0 = time.time()
     commands = \
@@ -377,6 +378,8 @@ def build_jigsaw(activate_env, source_path, env_path, logger):
     cmake_args = f'-DCMAKE_BUILD_TYPE=Release -DNETCDF_LIBRARY={netcdf_lib}'
 
     commands = \
+        f'source {conda_base}/etc/profile.d/conda.sh && ' \
+        f'conda activate polaris_bootstrap && ' \
         f'conda install -y {jigsaw_build_deps} && ' \
         f'cd {source_path}/jigsaw-python/external/jigsaw && ' \
         f'rm -rf tmp && ' \
