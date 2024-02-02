@@ -194,7 +194,7 @@ class ConvergenceAnalysis(Step):
                     error_type=error_type)
                 error.append(error_res)
         else:
-            for i in range(dts):
+            for i in range(1, len(dts)):
                 mesh_name = resolution_to_subdir(resolutions[0])
                 error_res = self.compute_error(
                     mesh_name=mesh_name,
@@ -202,7 +202,7 @@ class ConvergenceAnalysis(Step):
                     zidx=zidx,
                     error_type=error_type,
                     dts=dts,
-                    index=i + 1)
+                    index=i)
                 error.append(error_res)
 
         if dts is None:
@@ -235,13 +235,22 @@ class ConvergenceAnalysis(Step):
         error_title = error_dict[error_type]
 
         ax = fig.add_subplot(111)
-        ax.loglog(resolutions, order1, '--k', label='first order',
-                  alpha=0.3)
-        ax.loglog(resolutions, order2, 'k', label='second order',
-                  alpha=0.3)
-        ax.loglog(res_array, fit, 'k',
-                  label=f'linear fit (order={conv_round})')
-        ax.loglog(res_array, error_array, 'o', label='numerical')
+        if dts is None:
+            ax.loglog(resolutions, order1, '--k', label='first order',
+                      alpha=0.3)
+            ax.loglog(resolutions, order2, 'k', label='second order',
+                      alpha=0.3)
+            ax.loglog(res_array, fit, 'k',
+                      label=f'linear fit (order={conv_round})')
+            ax.loglog(res_array, error_array, 'o', label='numerical')
+        else:
+            ax.loglog(dts[1:], order1, '--k', label='first order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order2, 'k', label='second order',
+                      alpha=0.3)
+            ax.loglog(res_array, fit, 'k',
+                      label=f'linear fit (order={conv_round})')
+            ax.loglog(res_array, error_array, 'o', label='numerical')
 
         if self.baseline_dir is not None:
             baseline_filename = os.path.join(self.baseline_dir, filename)
@@ -264,7 +273,10 @@ class ConvergenceAnalysis(Step):
                     ax.loglog(res_array, fit, color='#ff7f0e',
                               label=f'linear fit, baseline '
                                     f'(order={conv_round})')
-        ax.set_xlabel('resolution (km)')
+        if dts is None:
+            ax.set_xlabel('resolution (km)')
+        else:
+            ax.set_xlabel('dt (s)')
         ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
@@ -288,7 +300,7 @@ class ConvergenceAnalysis(Step):
     def compute_error(self, mesh_name, variable_name, zidx=None,
                       error_type='l2', dts=None, index=None):
         """
-        Compute the error for a given resolution
+        Compute the error for a given resolution or dt
 
         Parameters
         ----------
