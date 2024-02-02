@@ -44,8 +44,7 @@ class Convergence(Task):
         name = f'convergence_{method}'
         super().__init__(component=component, name=name, subdir=subdir)
 
-        self.set_shared_config(config)
-        config_filename = self.config_filename
+        config_filename = 'drying.cfg'
         self.damping_coeffs = []
         self.resolutions = [0.25, 0.5, 1, 2]
         # self.resolutions = self.config.getlist('drying_slope_convergence',
@@ -55,20 +54,23 @@ class Convergence(Task):
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
-            init_dir = f'{group_dir}/{mesh_name}/barotropic/init'
+            init_dir = f'{group_dir}/barotropic/{mesh_name}/init'
+            symlink = f'init_{mesh_name}'
             if init_dir in component.steps:
                 init_step = component.steps[init_dir]
             else:
                 init_step = Init(component=component, resolution=resolution,
                                  name=f'init_{mesh_name}', subdir=init_dir)
                 init_step.set_shared_config(config, link=config_filename)
+            self.add_step(init_step, symlink=symlink)
+
             damping_coeff = 0.01
-            self.add_step(init_step, symlink=f'init/{mesh_name}')
             step_name = f'forward_{damping_coeff:03g}'
-            forward_dir = f'{group_dir}/{mesh_name}/barotropic/{method}/' \
+            forward_dir = f'{group_dir}/barotropic/{mesh_name}/{method}/' \
                           f'{step_name}'
+            symlink = f'{step_name}_{mesh_name}'
             if forward_dir in component.steps:
-                forward_step = component.steps[subdir]
+                forward_step = component.steps[forward_dir]
             else:
                 forward_step = Forward(component=component,
                                        name=f'{step_name}_{mesh_name}',
@@ -78,7 +80,7 @@ class Convergence(Task):
                                        damping_coeff=damping_coeff,
                                        coord_type=coord_type, method=method)
                 forward_step.set_shared_config(config, link=config_filename)
-            self.add_step(forward_step, symlink=f'forward/{mesh_name}')
+            self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['mesh'][resolution] = init_step
             analysis_dependencies['init'][resolution] = init_step
             analysis_dependencies['forward'][resolution] = forward_step
