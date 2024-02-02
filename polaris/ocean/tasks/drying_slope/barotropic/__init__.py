@@ -44,7 +44,8 @@ class Barotropic(Task):
         method : str
             The type of wetting-and-drying algorithm
         """
-        name = f'barotropic_{method}'
+        mesh_name = resolution_to_subdir(resolution)
+        name = f'barotropic_{method}_{mesh_name}'
         if drag_type == 'loglaw':
             name = f'{name}_{drag_type}'
             subdir = f'{subdir}_{drag_type}'
@@ -61,7 +62,6 @@ class Barotropic(Task):
                     forward_step = component.steps[forward_dir]
                     symlink = step_name
                 else:
-                    mesh_name = resolution_to_subdir(resolution)
                     forward_step = Forward(
                         component=component, subdir=f'{subdir}/{step_name}',
                         ntasks=None,
