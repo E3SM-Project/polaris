@@ -16,45 +16,32 @@ def add_drying_slope_tasks(component):
     """
     config_filename = 'drying_slope.cfg'
 
-    for coord_type in ['sigma', 'single_layer']:
+    for coord_type in ['sigma', 'single_layer', 'z-star']:
         group_dir = f'planar/drying_slope/{coord_type}'
 
-        # Add convergence test only for sigma coordinate
-        if coord_type == 'sigma':
-            method = 'ramp'
-            task_dir = f'{group_dir}/convergence/{method}'
-            config = PolarisConfigParser(
-                filepath=f'{task_dir}/{config_filename}')
-            config.add_from_package('polaris.ocean.convergence.spherical',
-                                    'spherical.cfg')
-            config.add_from_package('polaris.ocean.tasks.drying_slope',
-                                    config_filename)
-            convergence = Convergence(component=component,
-                                      subdir=task_dir, group_dir=group_dir,
-                                      config=config,
-                                      method=method)
+        # The config file lives in the coord_type directory because
+        # config options change between coordinate types
+        config = PolarisConfigParser(
+            filepath=f'{group_dir}/{config_filename}')
+        config.set('vertical_grid', 'coord_type', coord_type)
+        config.add_from_package('polaris.ocean.convergence.spherical',
+                                'spherical.cfg')
+        config.add_from_package('polaris.ocean.tasks.drying_slope',
+                                config_filename)
 
-            # This happens in convergence__init__.py:
-            # convergence.set_shared_config(config, link=config_filename)
-            component.add_task(convergence)
-
+        case_dir = f'{group_dir}/barotropic'
         for resolution in [0.25, 1.]:
             resdir = resolution_to_subdir(resolution)
+            indir = f'{case_dir}/{resdir}'
 
-            indir = f'{group_dir}/{resdir}/barotropic'
-            config = PolarisConfigParser(
-                filepath=f'{indir}/{config_filename}')
-            config.set('vertical_grid', 'coord_type', coord_type)
-
-            config.add_from_package('polaris.ocean.tasks.drying_slope',
-                                    config_filename)
-
+            # Add one init step per resolution in barotropic
             init_dir = f'{indir}/init'
             if init_dir in component.steps:
                 init = component.steps[init_dir]
             else:
                 init = Init(component=component, resolution=resolution,
-                            indir=indir, baroclinic=False)
+                            name=f'init_{resdir}', subdir=init_dir,
+                            baroclinic=False)
                 init.set_shared_config(config, link=config_filename)
 
             for method in ['standard', 'ramp']:
@@ -92,28 +79,33 @@ def add_drying_slope_tasks(component):
                     decomp.set_shared_config(config, link=config_filename)
                     component.add_task(decomp)
 
-    for coord_type in ['sigma', 'z-star']:
-        forcing_type = 'linear_drying'
-        method = 'ramp'
-        group_dir = f'planar/drying_slope/{coord_type}'
-        resolution = 1.
-        resdir = resolution_to_subdir(resolution)
-        indir = f'{group_dir}/{resdir}/baroclinic'
+        # Add convergence test only for sigma coordinate
+        if coord_type == 'sigma':
+            method = 'ramp'
+            task_dir = f'{case_dir}/convergence/{method}'
+            convergence = Convergence(component=component,
+                                      subdir=task_dir, group_dir=group_dir,
+                                      config=config, method=method)
+            convergence.set_shared_config(config, link=config_filename)
+            component.add_task(convergence)
 
-        config = PolarisConfigParser(
-            filepath=f'{indir}/{config_filename}')
-        config.add_from_package('polaris.ocean.tasks.drying_slope',
-                                config_filename)
-        config.set('vertical_grid', 'coord_type', coord_type)
+        if coord_type != 'single_layer':
+            case_dir = f'{group_dir}/baroclinic'
+            forcing_type = 'linear_drying'
+            resolution = 1.
+            resdir = resolution_to_subdir(resolution)
+            indir = f'{case_dir}/{resdir}'
+            method = 'ramp'
 
-        init = Init(component=component, indir=indir,
-                    resolution=resolution, baroclinic=True)
-        init.set_shared_config(config, link=config_filename)
+            # Create a new initial condition for the baroclinic case
+            init = Init(component=component, indir=indir,
+                        resolution=resolution, baroclinic=True)
+            init.set_shared_config(config, link=config_filename)
 
-        baroclinic = Baroclinic(component=component, resolution=resolution,
-                                init=init, subdir=f'{indir}/{method}',
-                                coord_type=coord_type, method=method,
-                                forcing_type=forcing_type,
-                                time_integrator='split_explicit')
-        baroclinic.set_shared_config(config, link=config_filename)
-        component.add_task(baroclinic)
+            baroclinic = Baroclinic(component=component, resolution=resolution,
+                                    init=init, subdir=f'{indir}/{method}',
+                                    coord_type=coord_type, method=method,
+                                    forcing_type=forcing_type,
+                                    time_integrator='split_explicit')
+            baroclinic.set_shared_config(config, link=config_filename)
+            component.add_task(baroclinic)
