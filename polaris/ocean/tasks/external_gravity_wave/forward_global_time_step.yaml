@@ -1,0 +1,71 @@
+omega:
+  run_modes:
+    config_ocean_run_mode: forward
+  time_management:
+    config_run_duration: {{ run_duration }}
+  decomposition:
+    config_block_decomp_file_prefix: graph.info.part.
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  debug:
+    config_disable_thick_all_tend: false
+    config_disable_thick_hadv: false
+    config_disable_thick_vadv: true
+    config_disable_thick_sflux: true
+    config_disable_vel_all_tend: false
+    config_disable_vel_coriolis: true
+    config_disable_vel_pgrad: false
+    config_disable_vel_hmix: true
+    config_disable_vel_surface_stress: true
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_vel_vmix: true
+    config_disable_vel_vadv: true
+    config_disable_tr_hmix: true
+    config_disable_tr_vmix: true
+    config_disable_tr_sflux: true
+    config_disable_tr_nonlocalflux: true
+    config_check_ssh_consistency: false
+    config_disable_tr_all_tend: true
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+  pressure_gradient:
+    config_pressure_gradient_type: ssh_gradient
+  eos:
+    config_eos_type: linear
+  forcing:
+    config_use_bulk_wind_stress: false
+    config_use_bulk_thickness_flux: false
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
+    config_use_activeTracers: true
+    config_use_activeTracers_surface_bulk_forcing: false
+  tracer_forcing_debugTracers:
+    config_use_debugTracers: false
+  AM_mixedLayerDepths:
+    config_AM_mixedLayerDepths_enable: false
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    restart:
+      output_interval: 0030_00:00:00
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - tracers
+      - mesh
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - refZMid
+      - refLayerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+      - LTSRegion
