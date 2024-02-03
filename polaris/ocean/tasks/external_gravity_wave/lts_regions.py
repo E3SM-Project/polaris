@@ -62,7 +62,7 @@ class LTSRegions(Step):
         self.add_input_file(filename='init.nc', work_dir_target=tgt1)
 
         tgt2 = os.path.join(init_path, 'graph.info')
-        self.add_input_file(filename='pre_fblts_graph.info',
+        self.add_input_file(filename='pre_lts_graph.info',
                             work_dir_target=tgt2)
 
     def run(self):
@@ -77,7 +77,7 @@ class LTSRegions(Step):
 
         use_progress_bar = self.log_filename is None
         label_mesh(mesh='init.nc',
-                   graph_info='pre_fblts_graph.info',
+                   graph_info='pre_lts_graph.info',
                    num_interface=2,
                    num_interface_adjacent=10,
                    lat_center=lat_center,

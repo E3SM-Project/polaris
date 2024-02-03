@@ -7,7 +7,6 @@ from polaris.ocean.tasks.external_gravity_wave.analysis import Analysis
 from polaris.ocean.tasks.external_gravity_wave.forward import Forward
 from polaris.ocean.tasks.external_gravity_wave.init import Init
 from polaris.ocean.tasks.external_gravity_wave.lts_regions import LTSRegions
-from polaris.ocean.tasks.external_gravity_wave.viz import Viz
 
 
 def add_external_gravity_wave_tasks(component):
@@ -19,34 +18,33 @@ def add_external_gravity_wave_tasks(component):
     """
 
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-        for use_fblts in [True, False]:
+        for use_lts in [True, False]:
 
-            if use_fblts:
-                filepath = (f'spherical/{prefix}/external_gravity_wave_fblts/'
-                            'external_gravity_wave_fblts.cfg')
+            egw = 'ext_grav_wav'
+            if use_lts:
+                filepath = (f'spherical/{prefix}/{egw}_local_time_step/'
+                            '{egw}_local_time_step.cfg')
             else:
-                filepath = (f'spherical/{prefix}/external_gravity_wave/'
-                            'external_gravity_wave.cfg')
+                filepath = (f'spherical/{prefix}/{egw}_global_time_step/'
+                            '{egw}_global_time_step.cfg')
             config = PolarisConfigParser(filepath=filepath)
             config.add_from_package('polaris.ocean.convergence',
                                     'convergence.cfg')
             config.add_from_package('polaris.ocean.convergence.spherical',
                                     'spherical.cfg')
-            if use_fblts:
+            if use_lts:
                 config.add_from_package(('polaris.ocean.tasks.'
                                         'external_gravity_wave'),
-                                        'external_gravity_wave_fblts.cfg')
+                                        'ext_grav_wav_local_time_step.cfg')
             else:
                 config.add_from_package(('polaris.ocean.tasks.'
                                         'external_gravity_wave'),
-                                        'external_gravity_wave.cfg')
+                                        'ext_grav_wav_global_time_step.cfg')
 
-            for include_viz in [False, True]:
-                component.add_task(ExternalGravityWave(component=component,
-                                                       config=config,
-                                                       icosahedral=icosahedral,
-                                                       include_viz=include_viz,
-                                                       use_fblts=use_fblts))
+            component.add_task(ExternalGravityWave(component=component,
+                                                   config=config,
+                                                   icosahedral=icosahedral,
+                                                   use_lts=use_lts))
 
 
 class ExternalGravityWave(Task):
@@ -55,16 +53,17 @@ class ExternalGravityWave(Task):
 
     Attributes
     ----------
-    resolutions : list of float
-        A list of mesh resolutions
+    resolution : float
+        Mesh resolution
 
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
 
-    include_viz : bool
-        Include VizMap and Viz steps for each resolution
+    use_lts : bool
+        Whether local time stepping is to be used
+
     """
-    def __init__(self, component, config, icosahedral, include_viz, use_fblts):
+    def __init__(self, component, config, icosahedral, use_lts):
         """
         Create the convergence test
 
@@ -80,38 +79,28 @@ class ExternalGravityWave(Task):
             Whether to use icosahedral, as opposed to less regular, JIGSAW
             meshes
 
-        include_viz : bool
-            Include VizMap and Viz steps for each resolution
-
-        use_fblts : bool
-            Label mesh with LTS regions for use with FB_LTS
+        use_lts : bool
+            Whether local time stepping is to be used
         """
         if icosahedral:
             prefix = 'icos'
         else:
             prefix = 'qu'
 
-        subdir = f'spherical/{prefix}/external_gravity_wave'
-        name = f'{prefix}_external_gravity_wave'
-        if use_fblts:
-            subdir += '_fblts'
-            name += '_fblts'
-        if include_viz:
-            subdir = f'{subdir}/with_viz'
-            name = f'{name}_with_viz'
-            if use_fblts:
-                link = 'external_gravity_wave_fblts.cfg'
-            else:
-                link = 'external_gravity_wave.cfg'
+        subdir = f'spherical/{prefix}/ext_grav_wav'
+        name = f'{prefix}_ext_grav_wav'
+        if use_lts:
+            subdir += '_local_time_step'
+            name += '_local_time_step'
         else:
-            # config options live in the task already so no need for a symlink
-            link = None
+            subdir += '_global_time_step'
+            name += '_global_time_step'
+        link = None
 
         super().__init__(component=component, name=name, subdir=subdir)
-        self.resolutions = list()
         self.icosahedral = icosahedral
-        self.include_viz = include_viz
-        self.use_fblts = use_fblts
+        self.resolution = None
+        self.use_lts = use_lts
 
         self.set_shared_config(config, link=link)
 
@@ -129,7 +118,7 @@ class ExternalGravityWave(Task):
     def _setup_steps(self):  # noqa: C901
         """ setup steps given resolutions """
         icosahedral = self.icosahedral
-        use_fblts = self.use_fblts
+        use_lts = self.use_lts
         config = self.config
         config_filename = self.config_filename
 
@@ -138,131 +127,108 @@ class ExternalGravityWave(Task):
         else:
             prefix = 'qu'
 
-        resolutions = config.getlist('mesh',
-                                     f'{prefix}_resolutions', dtype=float)
+        section = config['mesh']
+        resolution = section.getfloat(f'{prefix}_resolution')
 
         dts = config.getlist('convergence_forward',
                              'dt', dtype=float)
 
-        if self.resolutions == resolutions:
+        if self.resolution == resolution:
             return
 
         # start fresh with no steps
         for step in list(self.steps.values()):
             self.remove_step(step)
 
-        self.resolutions = resolutions
+        self.resolution = resolution
 
         component = self.component
 
         analysis_dependencies: Dict[str, Dict[str, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
-        for resolution in resolutions:
-            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral)
-            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
-            analysis_dependencies['mesh'][resolution] = base_mesh_step
+        base_mesh_step, mesh_name = add_spherical_base_mesh_step(
+            component, resolution, icosahedral)
+        self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+        analysis_dependencies['mesh'][resolution] = base_mesh_step
 
-            ext_grav_wave_dir = f'spherical/{prefix}/external_gravity_wave'
-            if use_fblts:
-                ext_grav_wave_dir += '_fblts'
-
-            name = f'{prefix}_init_{mesh_name}'
-            if use_fblts:
-                name += '_fblts'
-            subdir = f'{ext_grav_wave_dir}/init/{mesh_name}'
-            if self.include_viz:
-                symlink = f'init/{mesh_name}'
-            else:
-                symlink = None
-            if subdir in component.steps:
-                init_step = component.steps[subdir]
-            else:
-                init_step = Init(component=component, name=name, subdir=subdir,
-                                 base_mesh=base_mesh_step)
-                init_step.set_shared_config(config, link=config_filename)
-            self.add_step(init_step, symlink=symlink)
-            analysis_dependencies['init'][resolution] = init_step
-
-            if use_fblts:
-                name = f'{prefix}_init_lts_{mesh_name}_fblts'
-                subdir = f'{ext_grav_wave_dir}/init_lts/{mesh_name}'
-                if self.include_viz:
-                    symlink = f'init_lts/{mesh_name}'
-                else:
-                    symlink = None
-                if subdir in component.steps:
-                    lts_step = component.steps[subdir]
-                else:
-                    lts_step = LTSRegions(component, init_step,
-                                          name=name, subdir=subdir)
-                    lts_step.set_shared_config(config, link=config_filename)
-
-                self.add_step(lts_step, symlink=symlink)
-                if use_fblts:
-                    init_step = lts_step
-
-            name = f'{prefix}_forward_{mesh_name}'
-            graph_path = None
-            yaml_filename = 'forward.yaml'
-            if use_fblts:
-                name += '_fblts'
-                yaml_filename = 'forward_fblts.yaml'
-                graph_path = f'ocean/{ext_grav_wave_dir}/init_lts/{mesh_name}'
-            subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}'
-            for dt in dts:
-                subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}/{int(dt)}s'
-                if self.include_viz:
-                    symlink = f'forward/{mesh_name}/{int(dt)}s'
-                else:
-                    symlink = None
-                if subdir in component.steps:
-                    forward_step = component.steps[subdir]
-                else:
-                    name += f'{int(dt)}' + 's'
-                    forward_step = Forward(component=component,
-                                           name=name, subdir=subdir,
-                                           resolution=resolution,
-                                           dt=dt, mesh=base_mesh_step,
-                                           init=init_step,
-                                           graph_path=graph_path,
-                                           yaml_filename=yaml_filename)
-                    forward_step.set_shared_config(config,
-                                                   link=config_filename)
-                    self.add_step(forward_step, symlink=symlink)
-                analysis_dependencies['forward'][dt] = forward_step
-
-            if self.include_viz:
-                if use_fblts:
-                    with_viz_dir = (f'spherical/{prefix}/'
-                                    'external_gravity_wave_fblts/with_viz')
-                    name = f'{prefix}_viz_{mesh_name}_fblts'
-                else:
-                    with_viz_dir = (f'spherical/{prefix}/'
-                                    'external_gravity_wave/with_viz')
-                    name = f'{prefix}_viz_{mesh_name}'
-                subdir = f'{with_viz_dir}/viz/{mesh_name}'
-                step = Viz(component=component, name=name,
-                           subdir=subdir, base_mesh=base_mesh_step,
-                           init=init_step, forward=forward_step,
-                           mesh_name=mesh_name)
-                step.set_shared_config(config, link=config_filename)
-                self.add_step(step)
-
-        if use_fblts:
-            subdir = f'spherical/{prefix}/external_gravity_wave_fblts/analysis'
+        ext_grav_wave_dir = f'spherical/{prefix}/ext_grav_wav'
+        if use_lts:
+            ext_grav_wave_dir += '_local_time_step'
         else:
-            subdir = f'spherical/{prefix}/external_gravity_wave/analysis'
-        if self.include_viz:
-            symlink = 'analysis'
+            ext_grav_wave_dir += '_global_time_step'
+
+        name = f'{prefix}_init_{mesh_name}'
+        if use_lts:
+            name += '_local_time_step'
         else:
+            name += 'global_time_step'
+        subdir = f'{ext_grav_wave_dir}/init/{mesh_name}'
+        symlink = None
+        if subdir in component.steps:
+            init_step = component.steps[subdir]
+        else:
+            init_step = Init(component=component, name=name, subdir=subdir,
+                             base_mesh=base_mesh_step)
+            init_step.set_shared_config(config, link=config_filename)
+        self.add_step(init_step, symlink=symlink)
+        analysis_dependencies['init'][resolution] = init_step
+
+        if use_lts:
+            name = f'{prefix}_init_lts_{mesh_name}_local_time_step'
+            subdir = f'{ext_grav_wave_dir}/init_lts/{mesh_name}'
             symlink = None
+            if subdir in component.steps:
+                lts_step = component.steps[subdir]
+            else:
+                lts_step = LTSRegions(component, init_step,
+                                      name=name, subdir=subdir)
+                lts_step.set_shared_config(config, link=config_filename)
+
+            self.add_step(lts_step, symlink=symlink)
+            if use_lts:
+                init_step = lts_step
+
+        name = f'{prefix}_forward_{mesh_name}'
+        graph_path = None
+        if use_lts:
+            name += '_local_time_step'
+            yaml_filename = 'forward_local_time_step.yaml'
+            graph_path = f'ocean/{ext_grav_wave_dir}/init_lts/{mesh_name}'
+        else:
+            name += '_global_time_step'
+            yaml_filename = 'forward_global_time_step.yaml'
+        subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}'
+        for dt in dts:
+            subdir = f'{ext_grav_wave_dir}/forward/{mesh_name}/{int(dt)}s'
+            symlink = None
+            if subdir in component.steps:
+                forward_step = component.steps[subdir]
+            else:
+                name += f'{int(dt)}' + 's'
+                forward_step = Forward(component=component,
+                                       name=name, subdir=subdir,
+                                       resolution=resolution,
+                                       dt=dt, mesh=base_mesh_step,
+                                       init=init_step,
+                                       graph_path=graph_path,
+                                       yaml_filename=yaml_filename)
+                forward_step.set_shared_config(config,
+                                               link=config_filename)
+                self.add_step(forward_step, symlink=symlink)
+            analysis_dependencies['forward'][dt] = forward_step
+
+        egw = 'ext_grav_wav'
+        if use_lts:
+            subdir = f'spherical/{prefix}/{egw}_local_time_step/analysis'
+        else:
+            subdir = f'spherical/{prefix}/{egw}_global_time_step/analysis'
+        symlink = None
         if subdir in component.steps:
             step = component.steps[subdir]
-            step.resolutions = resolutions
+            step.resolution = resolution
             step.dependencies_dict = analysis_dependencies
         else:
-            step = Analysis(component=component, resolutions=resolutions,
+            step = Analysis(component=component, resolution=resolution,
                             subdir=subdir,
                             dependencies=analysis_dependencies, dts=dts)
             step.set_shared_config(config, link=config_filename)

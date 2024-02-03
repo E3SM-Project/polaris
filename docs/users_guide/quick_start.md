@@ -333,7 +333,8 @@ list the tasks.  If the task was set up properly, the directory
 should contain a file `task.pickle` that contains the information
 polaris needs to run the task.  The load script
 `load_polaris_env.sh` is a link to whatever load script you sourced before
-setting up the task (see {ref}`conda-env`).
+setting up the task (see {ref}`conda-env`). To run a task that has already
+been run, it is necessary to first delete `polaris_step_complete.log` file.
 
 ## Running with a job script
 

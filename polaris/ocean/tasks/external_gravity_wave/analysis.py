@@ -5,7 +5,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, subdir, dependencies, dts):
+    def __init__(self, component, resolution, subdir, dependencies, dts):
         """
         Create the step
 
@@ -14,8 +14,8 @@ class Analysis(ConvergenceAnalysis):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of float
-            The resolutions of the meshes that have been run
+        resolution : float
+            Mesh resolution
 
         subdir : str
             The subdirectory that the step resides in
@@ -30,6 +30,6 @@ class Analysis(ConvergenceAnalysis):
                              'title': 'layer thickness',
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
+                         resolutions=resolution,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars, dts=dts)

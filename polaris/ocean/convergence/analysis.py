@@ -103,6 +103,10 @@ class ConvergenceAnalysis(Step):
                 zidx : int
                     The z-index to use for variables that have an nVertLevels
                     dimension, which should be None for variables that don't
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
@@ -177,6 +181,11 @@ class ConvergenceAnalysis(Step):
         zidx : int
             The z-index to use for variables that have an nVertLevels
             dimension, which should be None for variables that don't
+
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
         """
         resolutions = self.resolutions
         logger = self.logger
@@ -227,6 +236,8 @@ class ConvergenceAnalysis(Step):
 
         order1 = 0.5 * error_array[-1] * (res_array / res_array[-1])
         order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
+        order3 = 0.5 * error_array[-1] * (res_array / res_array[-1])**3
+        order4 = 0.5 * error_array[-1] * (res_array / res_array[-1])**4
 
         use_mplstyle()
         fig = plt.figure()
@@ -240,6 +251,8 @@ class ConvergenceAnalysis(Step):
                       alpha=0.3)
             ax.loglog(resolutions, order2, 'k', label='second order',
                       alpha=0.3)
+            ax.loglog(resolutions, order4, 'k', label='second order',
+                      alpha=0.3)
             ax.loglog(res_array, fit, 'k',
                       label=f'linear fit (order={conv_round})')
             ax.loglog(res_array, error_array, 'o', label='numerical')
@@ -247,6 +260,10 @@ class ConvergenceAnalysis(Step):
             ax.loglog(dts[1:], order1, '--k', label='first order',
                       alpha=0.3)
             ax.loglog(dts[1:], order2, 'k', label='second order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order3, '-k', label='third order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order4, '-.k', label='fourth order',
                       alpha=0.3)
             ax.loglog(res_array, fit, 'k',
                       label=f'linear fit (order={conv_round})')
@@ -317,6 +334,15 @@ class ConvergenceAnalysis(Step):
         error_type: {'l2', 'inf'}, optional
             The type of error to compute
 
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
+
+        index: integer, optional
+            Integer that steps through the solutions to get the
+            convergence plot
+
         Returns
         -------
         error : float
@@ -380,10 +406,16 @@ class ConvergenceAnalysis(Step):
             The z-index for the vertical level at which to evaluate the exact
             solution
 
+        dt: float, optional
+            If provided, it extracts the numerical solution associated
+            with the first dt in the dt list in the cfg file
+
         Returns
         -------
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
+            or (in case dt is provided) the numerical reference
+            solution for the temporal convergence test
         """
 
         if dt is None:
@@ -416,6 +448,10 @@ class ConvergenceAnalysis(Step):
 
         zidx : int, optional
             The z-index for the vertical level to take the field from
+
+        dt: float, optional
+            If provided, it extracts the numerical solution that
+            has been computed with dt
 
         Returns
         -------

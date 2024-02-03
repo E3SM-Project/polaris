@@ -54,12 +54,21 @@ class ConvergenceForward(OceanModelStep):
             A dictionary of options and value to replace model config options
             with new values
 
+        graph_filename: str, optional
+            The name of the graph info file
+
+        graph_path: path, optional
+            The path to the graph info file
+
         output_filename : str, optional
             The output file that will be written out at the end of the forward
             run
 
         validate_vars : list of str, optional
             A list of variables to validate against a baseline if requested
+
+        dt: float, optional
+            The time step to be used in the forward run
         """
         super().__init__(component=component, name=name, subdir=subdir,
                          openmp_threads=1)
@@ -127,8 +136,17 @@ class ConvergenceForward(OceanModelStep):
                 self.dt = section.getfloat('rk4_dt_per_km')
             elif time_integrator == 'FB_LTS':
                 self.dt = section.getfloat('fb_lts_dt_per_km')
+            elif time_integrator == 'LTS':
+                self.dt = section.getfloat('lts_dt_per_km')
+            elif time_integrator == 'unsplit_explicit':
+                self.dt = section.getfloat('unsplit_explicit_dt_per_km')
+            elif time_integrator == 'split_implicit':
+                self.dt = section.getfloat('split_implicit_dt_per_km')
+            elif time_integrator == 'split_explicit_ab2':
+                self.dt = section.getfloat('split_explicit_ab2_dt_per_km')
             else:
-                self.dt = section.getfloat('split_dt_per_km')
+                raise ValueError('Time integrator selected is not available.')
+
             dt_str = get_time_interval_string(seconds=self.dt *
                                               self.resolution)
             dt_btr_scaling = section.getfloat('dt_btr_scaling')
