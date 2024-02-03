@@ -251,15 +251,13 @@ class ConvergenceAnalysis(Step):
                       alpha=0.3)
             ax.loglog(resolutions, order2, 'k', label='second order',
                       alpha=0.3)
-            ax.loglog(resolutions, order4, 'k', label='second order',
-                      alpha=0.3)
             ax.loglog(res_array, fit, 'k',
                       label=f'linear fit (order={conv_round})')
             ax.loglog(res_array, error_array, 'o', label='numerical')
         else:
             ax.loglog(dts[1:], order1, '--k', label='first order',
                       alpha=0.3)
-            ax.loglog(dts[1:], order2, 'k', label='second order',
+            ax.loglog(dts[1:], order2, ':k', label='second order',
                       alpha=0.3)
             ax.loglog(dts[1:], order3, '-k', label='third order',
                       alpha=0.3)
