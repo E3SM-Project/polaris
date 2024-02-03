@@ -29,7 +29,8 @@ class Analysis(ConvergenceAnalysis):
                             {'name': 'layerThickness',
                              'title': 'layer thickness',
                              'zidx': 0}]
+        resolutions = [resolution]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolution,
+                         resolutions=resolutions,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars, dts=dts)

@@ -23,15 +23,13 @@ def add_external_gravity_wave_tasks(component):
             egw = 'ext_grav_wav'
             if use_lts:
                 filepath = (f'spherical/{prefix}/{egw}_local_time_step/'
-                            '{egw}_local_time_step.cfg')
+                            'ext_grav_wav_local_time_step.cfg')
             else:
                 filepath = (f'spherical/{prefix}/{egw}_global_time_step/'
-                            '{egw}_global_time_step.cfg')
+                            'ext_grav_wav_global_time_step.cfg')
             config = PolarisConfigParser(filepath=filepath)
             config.add_from_package('polaris.ocean.convergence',
                                     'convergence.cfg')
-            config.add_from_package('polaris.ocean.convergence.spherical',
-                                    'spherical.cfg')
             if use_lts:
                 config.add_from_package(('polaris.ocean.tasks.'
                                         'external_gravity_wave'),
