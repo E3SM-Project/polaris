@@ -203,6 +203,6 @@ class Forward(OceanModelStep):
         options['config_zero_drying_velocity_ramp_hmin'] = \
             thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmax'] = \
-            thin_film_thickness * 2.
+            thin_film_thickness * 10.
 
         self.add_model_config_options(options=options)
