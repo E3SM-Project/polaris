@@ -262,10 +262,11 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
     mshnc.close()
 
     extract_vtk(ignore_time=True, lonlat=0,
-                dimension_list=['maxEdges='],
+                dimension_list=['maxEdges=', 'nVertLevels='],
                 variable_list=['allOnCells'],
                 filename_pattern=ltsmsh_name,
-                out_dir='lts_mesh_vtk', use_progress_bar=use_progress_bar)
+                out_dir='lts_mesh_vtk',
+                use_progress_bar=use_progress_bar)
 
     # label cells in graph.info
 
