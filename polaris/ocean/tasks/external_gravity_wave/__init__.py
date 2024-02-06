@@ -202,9 +202,9 @@ class ExternalGravityWave(Task):
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
             else:
-                name += f'{int(dt)}' + 's'
+                dt_step_name = name + f'_{int(dt)}s'
                 forward_step = Forward(component=component,
-                                       name=name, subdir=subdir,
+                                       name=dt_step_name, subdir=subdir,
                                        resolution=resolution,
                                        dt=dt, mesh=base_mesh_step,
                                        init=init_step,
