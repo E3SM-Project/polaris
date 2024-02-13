@@ -12,7 +12,7 @@ class SshAdjustment(Step):
     A step for iteratively adjusting the pressure from the weight of the ice
     shelf to match the sea-surface height as part of ice-shelf 2D test cases
     """
-    def __init__(self, component, init, forward, indir=None,
+    def __init__(self, component, mesh_filename, forward, indir=None,
                  name='ssh_adjust'):
         """
         Create the step
@@ -22,8 +22,8 @@ class SshAdjustment(Step):
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
 
-        init : polaris.Step
-            the step that produced the initial condition
+        mesh_filename : str
+            the mesh filename (relative to the base work directory)
 
         forward: polaris.Step
             the step that produced the state which will be adjusted
@@ -42,7 +42,7 @@ class SshAdjustment(Step):
         self.add_input_file(filename='init.nc',
                             work_dir_target=f'{forward.path}/init.nc')
         self.add_input_file(filename='mesh.nc',
-                            work_dir_target=f'{init.path}/culled_mesh.nc')
+                            work_dir_target=mesh_filename)
         self.add_output_file(filename='output.nc')
 
     # no setup() is needed
@@ -81,13 +81,13 @@ class SshAdjustment(Step):
         on_a_sphere = ds_out.attrs['on_a_sphere'].lower() == 'yes'
 
         if 'minLevelCell' in ds_final:
-            minLevelCell = ds_final.minLevelCell - 1
+            min_level_cell = ds_final.minLevelCell - 1
         else:
-            minLevelCell = ds_mesh.minLevelCell - 1
+            min_level_cell = ds_mesh.minLevelCell - 1
 
         init_ssh = ds_init.ssh
         final_ssh = ds_final.ssh
-        top_density = ds_final.density.isel(nVertLevels=minLevelCell)
+        top_density = ds_final.density.isel(nVertLevels=min_level_cell)
 
         mask = ds_init[mask_variable]
         delta_ssh = mask * (final_ssh - init_ssh)
@@ -102,7 +102,7 @@ class SshAdjustment(Step):
             ds_out['landIceDraft'] = final_ssh
             # we also need to stretch layerThickness to be compatible with
             # the new SSH
-            ds_out = update_layer_thickness(config, ds_out)
+            update_layer_thickness(config, ds_out)
             land_ice_pressure = ds_out.landIcePressure.values
         else:
             # Moving the SSH up or down by deltaSSH would change the

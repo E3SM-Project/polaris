@@ -18,10 +18,10 @@ class IceShelfTask(Task):
     component : polaris.ocean.Ocean
         The ocean component that this task belongs to
 
-    resolution : float
+    min_resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, component, resolution, name, subdir, sshdir=None):
+    def __init__(self, component, min_resolution, name, subdir, sshdir=None):
         """
         Construct ice shelf task
 
@@ -30,7 +30,7 @@ class IceShelfTask(Task):
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
 
-        resolution : float
+        min_resolution : float
             The resolution of the test case in km
 
         name : string
@@ -48,9 +48,10 @@ class IceShelfTask(Task):
         super().__init__(component=component, name=name, subdir=subdir)
         self.sshdir = sshdir
         self.component = component
-        self.resolution = resolution
+        self.min_resolution = min_resolution
 
-    def setup_ssh_adjustment_steps(self, init, config, config_filename,
+    def setup_ssh_adjustment_steps(self, mesh_filename, graph_filename,
+                                   init_filename, config, config_filename,
                                    ForwardStep, package=None,
                                    yaml_filename='ssh_forward.yaml',
                                    yaml_replacements=None):
@@ -60,16 +61,23 @@ class IceShelfTask(Task):
 
         Parameters
         ----------
-        init : polaris.Step
-            the step that produced the initial condition
-
         config : polaris.config.PolarisConfigParser
             The configuration for this task
+
+        mesh_filename : str
+            the mesh filename (relative to the base work directory)
+
+        graph_filename : str
+            the graph filename (relative to the base work directory)
+
+        init_filename : str
+            the initial condition filename (relative to the base work
+            directory)
 
         config_filename : str
             the configuration filename
 
-        ForwardStep : polaris.ocean_model.step
+        ForwardStep : polaris.ocean.ice_shelf.ssh_forward.SshForward
             the step class used to create ssh_forward steps
 
         package : Package
@@ -89,7 +97,7 @@ class IceShelfTask(Task):
             the final ssh_adjustment step that produces the input to the next
             forward step
         """
-        resolution = self.resolution
+        min_resolution = self.min_resolution
         component = self.component
         indir = self.sshdir
 
@@ -97,7 +105,7 @@ class IceShelfTask(Task):
 
         # for the first iteration, ssh_forward step is run from the initial
         # state
-        current_init = init
+        current_init_filename = init_filename
         for iteration in range(num_iterations):
             name = f'ssh_forward_{iteration}'
             subdir = f'{indir}/ssh_adjustment/{name}'
@@ -105,8 +113,9 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_forward = ForwardStep(
-                    component=component, min_resolution=resolution,
-                    indir=indir, mesh=init, init=current_init, name=name,
+                    component=component, min_resolution=min_resolution,
+                    indir=indir, graph_filename=graph_filename,
+                    init_filename=current_init_filename, name=name,
                     package=package, yaml_filename=yaml_filename,
                     yaml_replacements=yaml_replacements)
                 ssh_forward.set_shared_config(config, link=config_filename)
@@ -123,8 +132,8 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_adjust = SshAdjustment(
-                    component=component, indir=indir, name=name, init=init,
-                    forward=ssh_forward)
+                    component=component, indir=indir, name=name,
+                    mesh_filename=mesh_filename, forward=ssh_forward)
                 ssh_adjust.set_shared_config(config, link=config_filename)
                 shared_step = ssh_adjust
             if indir == self.subdir:
@@ -134,6 +143,6 @@ class IceShelfTask(Task):
             self.add_step(shared_step, symlink=symlink)
             # for the next iteration, ssh_forward is run from the adjusted
             # initial state (the output of ssh_adustment)
-            current_init = shared_step
+            current_init_filename = f'{shared_step.path}/output.nc'
 
         return shared_step

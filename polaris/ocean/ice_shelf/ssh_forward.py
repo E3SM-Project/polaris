@@ -8,7 +8,7 @@ class SshForward(OceanModelStep):
 
     Attributes
     ----------
-    resolution : float
+    min_resolution : float
         The minimum resolution in km used to determine the time step
 
     package : Package
@@ -21,11 +21,11 @@ class SshForward(OceanModelStep):
         key, string combinations for templated replacements in the yaml
         file
     """
-    def __init__(self, component, min_resolution, mesh, init,
-                 name='ssh_forward', subdir=None,
+    def __init__(self, component, min_resolution, init_filename,
+                 graph_filename, name='ssh_forward', subdir=None,
                  package=None, yaml_filename='ssh_forward.yaml',
-                 yaml_replacements=None, iteration=1, indir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1):
+                 yaml_replacements=None, indir=None, ntasks=None,
+                 min_tasks=None, openmp_threads=1):
         """
         Create a new task
 
@@ -37,14 +37,15 @@ class SshForward(OceanModelStep):
         min_resolution : float
             The minimum resolution in km used to determine the time step
 
-        name : str
+        init_filename : str
+            the initial condition filename (relative to the base work
+            directory)
+
+        graph_filename : str
+            the graph filename (relative to the base work directory)
+
+        name : str, optional
             the name of the task
-
-        mesh: polaris.Step
-            The step used to produce the mesh
-
-        init: polaris.Step
-            The step used to produce the initial condition
 
         subdir : str, optional
             the subdirectory for the step.  If neither this nor ``indir``
@@ -59,9 +60,6 @@ class SshForward(OceanModelStep):
         yaml_replacements : Dict, optional
             key, string combinations for templated replacements in the yaml
             file
-
-        iteration : int, optional
-            the iteration number
 
         indir : str, optional
             the directory the step is in, to which ``name`` will be appended
@@ -82,7 +80,7 @@ class SshForward(OceanModelStep):
                          indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
                          min_tasks=min_tasks, openmp_threads=openmp_threads)
 
-        self.resolution = min_resolution
+        self.min_resolution = min_resolution
         self.package = package
         self.yaml_filename = yaml_filename
         self.yaml_replacements = yaml_replacements
@@ -91,9 +89,9 @@ class SshForward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='init.nc',
-                            work_dir_target=f'{init.path}/output.nc')
+                            work_dir_target=init_filename)
         self.add_input_file(filename='graph.info',
-                            work_dir_target=f'{mesh.path}/culled_graph.info')
+                            work_dir_target=graph_filename)
 
         self.add_output_file(
             filename='output.nc',
@@ -135,19 +133,20 @@ class SshForward(OceanModelStep):
 
         section = config['ssh_adjustment']
 
-        # dt is proportional to resolution: default 30 seconds per km
+        # dt is proportional to resolution
         time_integrator = section.get('time_integrator')
 
         if time_integrator == 'RK4':
             dt_per_km = section.getfloat('rk4_dt_per_km')
         else:
             dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
+        dt_str = get_time_interval_string(
+            seconds=dt_per_km * self.min_resolution)
 
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
+        # btr_dt is also proportional to resolution
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
         btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * self.resolution)
+            seconds=btr_dt_per_km * self.min_resolution)
 
         s_per_hour = 3600.
         run_duration = section.getfloat('run_duration')
