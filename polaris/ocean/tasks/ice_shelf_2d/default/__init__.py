@@ -66,13 +66,16 @@ class Default(IceShelfTask):
         forward_dir = f'{indir}/{base_name}'
 
         # Put the ssh adjustment steps in indir rather than subdir
-        super().__init__(component=component, resolution=resolution,
+        super().__init__(component=component, min_resolution=resolution,
                          name=test_name, subdir=test_subdir, sshdir=ssh_dir)
 
         self.add_step(init, symlink='init')
 
         last_adjust_step = self.setup_ssh_adjustment_steps(
-            init=init, config=config, config_filename='ice_shelf_2d.cfg',
+            mesh_filename=f'{init.path}/culled_mesh.nc',
+            graph_filename=f'{init.path}/culled_graph.info',
+            init_filename=f'{init.path}/output.nc',
+            config=config, config_filename='ice_shelf_2d.cfg',
             ForwardStep=SshForward,
             package='polaris.ocean.tasks.ice_shelf_2d')
 
