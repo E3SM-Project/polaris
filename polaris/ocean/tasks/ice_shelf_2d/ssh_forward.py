@@ -23,6 +23,6 @@ class SshForward(IceShelfSshForward):
         section = self.config['ice_shelf_2d']
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.min_resolution)
         cell_count = nx * ny
         return cell_count
