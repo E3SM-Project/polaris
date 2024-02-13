@@ -35,7 +35,7 @@ in {ref}`ocean-geostrophic-init` in the User's Guide.
 The class {py:class}`polaris.ocean.tasks.geostrophic.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
 and defines a step for running MPAS-Ocean from an initial condition produced in
-an `init` step. See {ref}`dev-ocean-spherical-convergence` for some relevant
+an `init` step. See {ref}`dev-ocean-convergence` for some relevant
 discussion of the parent class. The time step is determined from the resolution
 based on the `dt_per_km` config option in the `[spherical_convergences]` 
 section.  Other model config options are taken from `forward.yaml`.

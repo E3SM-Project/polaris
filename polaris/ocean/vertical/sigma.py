@@ -74,6 +74,25 @@ def init_sigma_vertical_coord(config, ds):
         ds.refInterfaces, ds.ssh, ds.bottomDepth)
 
 
+def update_sigma_layer_thickness(config, ds):
+    """
+    Update the sigma vertical coordinate layer thicknesses based on the
+    ``bottomDepth`` and ``ssh`` variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
+    ds['layerThickness'] = compute_sigma_layer_thickness(
+        ds.refInterfaces, ds.ssh, ds.bottomDepth)
+
+
 def compute_sigma_layer_thickness(ref_interfaces, ssh, bottom_depth,
                                   max_level=None):
     """

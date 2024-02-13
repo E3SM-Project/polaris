@@ -1,0 +1,13 @@
+omega:
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: 10.0
+  bottom_drag:
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 1.0e-3
+  eos:
+    config_eos_type: jm
+  pressure_gradient:
+    config_pressure_gradient_type: Jacobian_from_TS
+  frazil_ice:
+    config_use_frazil_ice_formation: false
