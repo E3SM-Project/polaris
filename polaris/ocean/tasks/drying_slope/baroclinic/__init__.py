@@ -41,7 +41,7 @@ class Baroclinic(Task):
 
         self.add_step(init, symlink='init')
         self.add_step(
-            Forward(component=component, indir=subdir, subdir=None,
+            Forward(component=component, init=init, indir=subdir, subdir=None,
                     ntasks=None,
                     min_tasks=None, openmp_threads=1, resolution=resolution,
                     forcing_type=forcing_type, coord_type=coord_type,
