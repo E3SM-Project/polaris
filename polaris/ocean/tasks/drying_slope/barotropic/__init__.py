@@ -63,7 +63,8 @@ class Barotropic(Task):
                     symlink = step_name
                 else:
                     forward_step = Forward(
-                        component=component, subdir=f'{subdir}/{step_name}',
+                        component=component, init=init,
+                        subdir=f'{subdir}/{step_name}',
                         ntasks=None,
                         min_tasks=None, openmp_threads=1,
                         name=f'{step_name}_{mesh_name}',
@@ -77,7 +78,7 @@ class Barotropic(Task):
         else:
             self.damping_coeffs = []
             forward_step = Forward(
-                component=component, indir=subdir, ntasks=None,
+                component=component, init=init, indir=subdir, ntasks=None,
                 min_tasks=None, openmp_threads=1, resolution=resolution,
                 forcing_type=forcing_type, coord_type=coord_type,
                 time_integrator=time_integrator, drag_type=drag_type,

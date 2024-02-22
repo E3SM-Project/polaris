@@ -23,9 +23,9 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, component, resolution, name='forward', subdir=None,
-                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
-                 time_integrator='rk4', damping_coeff=None,
+    def __init__(self, component, resolution, init, name='forward',
+                 subdir=None, indir=None, ntasks=None, min_tasks=None,
+                 openmp_threads=1, time_integrator='rk4', damping_coeff=None,
                  coord_type='sigma', forcing_type='tidal_cycle',
                  drag_type='constant_and_rayleigh', baroclinic=False,
                  method='ramp', run_time_steps=None):
@@ -81,11 +81,11 @@ class Forward(OceanModelStep):
                          openmp_threads=openmp_threads)
 
         self.add_input_file(filename='initial_state.nc',
-                            target='../init/initial_state.nc')
+                            work_dir_target=f'{init.path}/initial_state.nc')
         self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
+                            work_dir_target=f'{init.path}/culled_graph.info')
         self.add_input_file(filename='forcing.nc',
-                            target='../init/forcing.nc')
+                            work_dir_target=f'{init.path}/forcing.nc')
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
