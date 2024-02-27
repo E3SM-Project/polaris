@@ -252,7 +252,7 @@ def _edge_mask_from_cell_mask(ds, cell_mask):
 
 def _remove_boundary_edges_from_mask(ds, mask):
     area_cell = ds.areaCell.values
-    mean_area_cell = np.mean(area_cell)
+    max_area_cell = np.max(area_cell)
     cells_on_edge = ds.cellsOnEdge.values - 1
     vertices_on_edge = ds.verticesOnEdge.values - 1
     x_cell = ds.xCell.values
@@ -281,7 +281,7 @@ def _remove_boundary_edges_from_mask(ds, mask):
         # Remove edges that span the periodic boundaries
         dx = max(vertices[:, 0]) - min(vertices[:, 0])
         dy = max(vertices[:, 1]) - min(vertices[:, 1])
-        if dx * dy / 10 > mean_area_cell:
+        if dx * dy / 2 > max_area_cell:
             mask[edge_index] = 0
 
     return mask
