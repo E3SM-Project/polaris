@@ -80,13 +80,12 @@ def download_mesh(config):
     """
     Download and symlink a mesh to use for testing.
     """
-    base_url = config.get('download', 'server_base_url')
     database_root = config.get('paths', 'database_root')
 
-    filepath = 'ocean/polaris_cache/global_convergence/icos/cosine_bell/' \
-               'Icos480/mesh/mesh.230220.nc'
+    filepath = 'ocean/omega_ctest/ocean.QU.240km.151209.nc'
 
-    url = f'{base_url}/{filepath}'
+    url = 'https://web.lcrc.anl.gov/public/e3sm/inputdata/ocn/mpas-o/oQU240/' \
+          'ocean.QU.240km.151209.nc'
     download_path = os.path.join(database_root, filepath)
     download_target = download(url, download_path, config)
     return download_target
