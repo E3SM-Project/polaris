@@ -23,8 +23,8 @@ def add_drying_slope_tasks(component):
         # config options change between coordinate types
         config = PolarisConfigParser(
             filepath=f'{group_dir}/{config_filename}')
-        config.add_from_package('polaris.ocean.convergence.spherical',
-                                'spherical.cfg')
+        config.add_from_package('polaris.ocean.convergence',
+                                'convergence.cfg')
         config.add_from_package('polaris.ocean.tasks.drying_slope',
                                 config_filename)
         if coord_type == 'single_layer':
