@@ -73,6 +73,7 @@ class Forward(OceanModelStep):
                 raise ValueError('Damping coefficient must be specified with '
                                  f'drag type {drag_type}')
 
+        self.baroclinic = baroclinic
         self.resolution = resolution
         self.run_time_steps = run_time_steps
         super().__init__(component=component, name=name, subdir=subdir,
@@ -140,7 +141,10 @@ class Forward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        section = self.config['drying_slope']
+        if self.baroclinic:
+            section = self.config['drying_slope_baroclinic']
+        else:
+            section = self.config['drying_slope_barotropic']
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
@@ -190,6 +194,10 @@ class Forward(OceanModelStep):
             options['run_duration'] = time.strftime(
                 '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
 
+        if self.baroclinic:
+            section = self.config['drying_slope_baroclinic']
+        else:
+            section = self.config['drying_slope_barotropic']
         thin_film_thickness = section.getfloat('thin_film_thickness')
         options['config_drying_min_cell_height'] = thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmin'] = \
