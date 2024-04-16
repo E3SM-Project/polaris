@@ -80,26 +80,22 @@ class Init(Step):
 
         # config options used in both configurations but which have different
         # values in each
-        thin_film_thickness = section.getfloat('thin_film_thickness')
+        thin_film_thickness = section.getfloat('thin_film_thickness') + 1.e-8
         drying_length = section.getfloat('ly_analysis') * 1e3
         lx = section.getfloat('lx')
-        print(lx)
         ly = section.getfloat('ly')
         right_bottom_depth = section.getfloat('right_bottom_depth')
         left_bottom_depth = section.getfloat('left_bottom_depth')
         right_tidal_height = section.getfloat('right_tidal_height')
 
-        section = config['vertical_grid']
-        vert_levels = section.getint('vert_levels')
-        config.set('vertical_grid', 'min_layer_thickness',
-                   thin_film_thickness)
+        vert_levels = config.getint('vertical_grid', 'vert_levels')
 
         domain_length = ly * 1e3
         # Check config options
         if domain_length < drying_length:
             raise ValueError('Domain is not long enough to capture wetting '
                              'front')
-        if right_bottom_depth < left_bottom_depth:
+        if right_bottom_depth > left_bottom_depth:
             raise ValueError('Right boundary must be deeper than left '
                              'boundary')
 
@@ -124,8 +120,9 @@ class Init(Step):
         y_max = y_cell.max()
         dc_edge_min = ds.dcEdge.min()
 
-        bottom_depth = (right_bottom_depth - (y_max - y_cell) / drying_length *
-                        (right_bottom_depth - left_bottom_depth))
+        bottom_depth = (-right_bottom_depth -
+                        (y_max - y_cell) / drying_length *
+                        (-right_bottom_depth + left_bottom_depth))
         ds['bottomDepth'] = bottom_depth
 
         # SSH is constant except when it would result in a water column less
