@@ -3,6 +3,7 @@ from typing import Dict
 from numpy import ceil
 
 from polaris import Step, Task
+from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.drying_slope.convergence.analysis import Analysis
 from polaris.ocean.tasks.drying_slope.convergence.forward import Forward
@@ -42,26 +43,26 @@ class Convergence(Task):
             The wetting-and-drying method (``standard``, ``ramp``)
         """
         name = f'convergence_{method}'
+        config_filename = 'drying_slope.cfg'
         super().__init__(component=component, name=name, subdir=subdir)
 
-        config_filename = 'drying.cfg'
         self.damping_coeffs = []
-        self.resolutions = [0.25, 0.5, 1, 2]
-        # self.resolutions = self.config.getlist('drying_slope_convergence',
-        #                                        'resolutions')
+        self.resolutions = config.getlist('drying_slope_convergence',
+                                          'resolutions', dtype=float)
 
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
             init_dir = f'{group_dir}/barotropic/{mesh_name}/init'
-            symlink = f'init_{mesh_name}'
             if init_dir in component.steps:
                 init_step = component.steps[init_dir]
+                symlink = f'init_{mesh_name}'
             else:
                 init_step = Init(component=component, resolution=resolution,
                                  name=f'init_{mesh_name}', subdir=init_dir)
                 init_step.set_shared_config(config, link=config_filename)
+                symlink = None
             self.add_step(init_step, symlink=symlink)
 
             damping_coeff = 0.01

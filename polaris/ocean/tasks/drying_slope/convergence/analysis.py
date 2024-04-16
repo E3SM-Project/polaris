@@ -15,12 +15,6 @@ class Analysis(ConvergenceAnalysis):
     ----------
     damping_coeff : float
         The Rayleigh damping coefficient used for the forward runs
-
-    resolutions : float
-        The resolution of the test case
-
-    times : list of float
-        The times at which to compare to the analytical solution
     """
     def __init__(self, component, resolutions, subdir, dependencies,
                  damping_coeff):
@@ -53,6 +47,14 @@ class Analysis(ConvergenceAnalysis):
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
+        # We won't use all of these files but we link them all just in case
+        # the user changes convergence_eval_time
+        for time in ['0.05', '0.15', '0.25', '0.30', '0.40', '0.50']:
+            filename = f'r{damping_coeff}d{time}-' \
+                       f'analytical.csv'
+            self.add_input_file(filename=filename, target=filename,
+                                database='drying_slope')
+
     def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
         Get the exact solution
@@ -82,23 +84,38 @@ class Analysis(ConvergenceAnalysis):
         """
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')
-        # we need to convert time from seconds to days for filename
-        day = time / (3600. * 24.)
-        datafile = f'./r{self.damping_coeff}d{day:02g}-'\
-                   f'analytical.csv'
+
+        # Get the MPAS cell locations
         init = xr.open_dataset(f'{mesh_name}_init.nc')
+        y_min = init.yCell.min()
+        x_offset = y_min.values / 1000.
         init = init.drop_vars(np.setdiff1d([j for j in init.variables],
                                            ['yCell', 'ssh']))
-        init = init.isel(Time=0)
 
+        init = init.isel(Time=0)
+        x_mpas = init.yCell / 1000.0
+
+        # Load the analytical solution
+        # we need to convert time from seconds to days for filename
+        day = time / (3600. * 24.)
+        datafile = f'./r{self.damping_coeff}d{day:.2f}-'\
+                   f'analytical.csv'
         data = pd.read_csv(datafile, header=None)
-        x_exact = data[0]
+        x_exact = data[0] + x_offset
         ssh_exact = -data[1]
-        f = interp1d(x_exact, ssh_exact)
-        x_mpas = init.yCell.values / 1000.0
+
+        # Set MPAS locations out of analytical bounds to nans
+        x_min = np.min(x_exact)
+        x_max = np.max(x_exact)
+        x_mpas[x_mpas < x_min] = np.nan
+        x_mpas[x_mpas > x_max] = np.nan
+
+        # In the original version we interpolated mpas data to exact data
+        # location
+        # here we do the opposite because we don't want to have to get the
+        # exact data locations from within the shared convergence step
         # we need to interpolate to the mpas mesh locations
-        idx_min = np.argwhere(x_exact - x_mpas[0] >= 0.).item(0)
-        idx_max = np.argwhere(x_exact - x_mpas[-1] <= 0.).item(-1)
-        ssh_exact_interp = xr.full_like(x_mpas, fill_value=np.nan)
-        ssh_exact_interp[idx_min:idx_max] = f(x_mpas[idx_min:idx_max])
+        f = interp1d(x_exact, ssh_exact)
+        ssh_exact_interp = f(x_mpas)
+
         return ssh_exact_interp

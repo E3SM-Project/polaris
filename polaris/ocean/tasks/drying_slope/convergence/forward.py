@@ -1,4 +1,4 @@
-import numpy as np
+import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.convergence import ConvergenceForward
@@ -58,6 +58,7 @@ class Forward(ConvergenceForward):
                          resolution=resolution, mesh=init, init=init,
                          package='polaris.ocean.tasks.drying_slope',
                          yaml_filename='forward.yaml',
+                         init_filename='initial_state.nc',
                          graph_filename='culled_graph.info',
                          output_filename='output.nc',
                          forcing=True, options=options,
@@ -73,9 +74,9 @@ class Forward(ConvergenceForward):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        section = self.config['drying_slope']
+        section = self.config['drying_slope_barotropic']
         lx = section.getfloat('lx')
-        ly = np.sqrt(3.0) / 2.0 * lx
+        ly = section.getfloat('ly')
         nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
         cell_count = nx * ny
         return cell_count
@@ -91,14 +92,34 @@ class Forward(ConvergenceForward):
             opposed to at runtime
         """
         super().dynamic_model_config(at_setup=at_setup)
+        options = dict()
         config = self.config
         section = config['drying_slope']
+        time_integrator = section.get('time_integrator')
+        options['config_time_integrator'] = time_integrator
+
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        if time_integrator == 'split_explicit':
+            dt_per_km = section.getfloat('split_dt_per_km')
+            # btr_dt is also proportional to resolution
+            btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')
+            btr_dt = btr_dt_per_km * self.resolution
+            options['config_btr_dt'] = \
+                time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+            self.btr_dt = btr_dt
+        dt = dt_per_km * self.resolution
+        # https://stackoverflow.com/a/1384565/7728169
+        options['config_dt'] = \
+            time.strftime('%H:%M:%S', time.gmtime(dt))
+        self.dt = dt
+
+        section = self.config['drying_slope_barotropic']
         thin_film_thickness = section.getfloat('thin_film_thickness')
 
-        options = dict()
         options['config_drying_min_cell_height'] = thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmin'] = \
             thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmax'] = \
-            thin_film_thickness * 2.
+            thin_film_thickness * 10.
         self.add_model_config_options(options=options)
