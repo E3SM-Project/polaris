@@ -57,33 +57,10 @@ class Baroclinic(Task):
         """
         Change config options as needed
         """
-        right_bottom_depth = 2.5
-        lx = 6.
-        ly_analysis = 50.
-        y_buffer = 5.
-        ly = ly_analysis + y_buffer
-
-        hmin = 0.5  # water-column thickness in thin film region
-        nz = self.config.getint('vertical_grid', 'vert_levels')
+        config = self.config
+        hmin = config.getfloat('drying_slope_baroclinic',
+                               'min_column_thickness')
+        nz = config.getint('vertical_grid', 'vert_levels')
         self.config.set(
             'drying_slope', 'thin_film_thickness', f'{hmin / nz}',
             comment='Thickness of each layer in the thin film region')
-
-        self.config.set('drying_slope', 'right_bottom_depth',
-                        f'{right_bottom_depth}')
-        self.config.set(
-            'drying_slope', 'right_tidal_height', '0.',
-            comment='Initial tidal height at the right side of the domain')
-        self.config.set('vertical_grid', 'bottom_depth',
-                        str(right_bottom_depth))
-        self.config.set(
-            'drying_slope', 'ly_analysis', f'{ly_analysis}',
-            comment='Length over which wetting and drying actually occur')
-        self.config.set(
-            'drying_slope', 'ly', f'{ly}',
-            comment='Domain length in the along-slope direction')
-        self.config.set(
-            'drying_slope', 'lx', f'{lx}',
-            comment='Domain width in the across-slope direction')
-
-        self.config.set('vertical_grid', 'coord_type', self.coord_type)

@@ -63,23 +63,38 @@ class Init(Step):
         logger = self.logger
         resolution = self.resolution
 
-        section = config['vertical_grid']
-        vert_levels = section.getint('vert_levels')
         section = config['drying_slope']
-        thin_film_thickness = section.getfloat('thin_film_thickness') + 1.0e-9
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-        domain_length = ly * 1e3
+        coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        if self.baroclinic:
+            section = config['drying_slope_baroclinic']
+            right_salinity = section.getfloat('right_salinity')
+            left_salinity = section.getfloat('left_salinity')
+            manning_coefficient = section.getfloat('manning_coefficient')
+        else:
+            section = config['drying_slope_barotropic']
+            plug_width_frac = section.getfloat('plug_width_frac')
+            plug_temperature = section.getfloat('plug_temperature')
+            background_temperature = section.getfloat('background_temperature')
+            background_salinity = section.getfloat('background_salinity')
+
+        # config options used in both configurations but which have different
+        # values in each
+        thin_film_thickness = section.getfloat('thin_film_thickness')
         drying_length = section.getfloat('ly_analysis') * 1e3
-        plug_width_frac = section.getfloat('plug_width_frac')
+        lx = section.getfloat('lx')
+        print(lx)
+        ly = section.getfloat('ly')
         right_bottom_depth = section.getfloat('right_bottom_depth')
         left_bottom_depth = section.getfloat('left_bottom_depth')
-        plug_temperature = section.getfloat('plug_temperature')
-        background_temperature = section.getfloat('background_temperature')
-        background_salinity = section.getfloat('background_salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
         right_tidal_height = section.getfloat('right_tidal_height')
 
+        section = config['vertical_grid']
+        vert_levels = section.getint('vert_levels')
+        config.set('vertical_grid', 'min_layer_thickness',
+                   thin_film_thickness)
+
+        domain_length = ly * 1e3
         # Check config options
         if domain_length < drying_length:
             raise ValueError('Domain is not long enough to capture wetting '
@@ -90,12 +105,6 @@ class Init(Step):
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
-        ny = round(domain_length / dc)
-        # This is just for consistency with previous implementations and could
-        # be removed
-        if resolution < 1.:
-            ny += 2
-        ny = 2 * round(ny / 2)
 
         ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
                                        nonperiodic_x=False,
@@ -118,12 +127,13 @@ class Init(Step):
         bottom_depth = (right_bottom_depth - (y_max - y_cell) / drying_length *
                         (right_bottom_depth - left_bottom_depth))
         ds['bottomDepth'] = bottom_depth
-        # Set the water column to dry everywhere
+
+        # SSH is constant except when it would result in a water column less
+        # than the minimum thickness
         ds['ssh'] = np.maximum(
             right_tidal_height,
             -bottom_depth + thin_film_thickness * vert_levels)
-        # We don't use config_tidal_forcing_monochromatic_baseline because the
-        # default value doesn't alter the initial state
+
         init_vertical_coord(config, ds)
 
         plug_width = domain_length * plug_width_frac
@@ -133,9 +143,6 @@ class Init(Step):
         temperature, _ = xr.broadcast(temperature, ds.refBottomDepth)
         ds['temperature'] = temperature.expand_dims(dim='Time', axis=0)
         if self.baroclinic:
-            section = config['drying_slope_baroclinic']
-            right_salinity = section.getfloat('right_salinity')
-            left_salinity = section.getfloat('left_salinity')
             salinity = (right_salinity - (y_max - y_cell) / drying_length *
                         (right_salinity - left_salinity))
             # Use a debug tracer for validation
@@ -161,9 +168,7 @@ class Init(Step):
         if tidal_forcing_mask.sum() <= 0:
             raise ValueError('Input mask for tidal case is not set!')
         ds_forcing['tidalInputMask'] = tidal_forcing_mask
-        if self.drag_type == 'mannings':
-            manning_coefficient = config.getfloat('drying_slope_baroclinic',
-                                                  'manning_coefficient')
+        if self.baroclinic and self.drag_type == 'mannings':
             ds_forcing['bottomDrag'] = \
                 manning_coefficient * xr.ones_like(tidal_forcing_mask)
         write_netcdf(ds_forcing, 'forcing.nc')

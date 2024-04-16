@@ -16,18 +16,23 @@ def add_drying_slope_tasks(component):
     """
     config_filename = 'drying_slope.cfg'
 
-    for coord_type in ['sigma', 'single_layer', 'z-star']:
+    for coord_type in ['sigma', 'single_layer']:
         group_dir = f'planar/drying_slope/{coord_type}'
 
         # The config file lives in the coord_type directory because
         # config options change between coordinate types
         config = PolarisConfigParser(
             filepath=f'{group_dir}/{config_filename}')
-        config.set('vertical_grid', 'coord_type', coord_type)
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.drying_slope',
                                 config_filename)
+        if coord_type == 'single_layer':
+            config.set('vertical_grid', 'vert_levels', '1',
+                       comment='Number of vertical levels')
+            config.set('vertical_grid', 'coord_type', 'z-level')
+        else:
+            config.set('vertical_grid', 'coord_type', 'sigma')
 
         case_dir = f'{group_dir}/barotropic'
         for resolution in [0.25, 1.]:
