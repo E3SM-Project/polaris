@@ -94,17 +94,18 @@ class Forward(OceanModelStep):
         options = dict()
         if coord_type == 'single_layer':
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
-            options['config_disable_thick_sflux'] = '.true.'
-            options['config_disable_vel_hmix'] = '.true.'
+            options['config_disable_thick_sflux'] = True
+            options['config_disable_vel_hmix'] = True
 
         if method == 'ramp':
-            options['config_zero_drying_velocity_ramp'] = '.true.'
+            options['config_zero_drying_velocity_ramp'] = True
 
         options['config_implicit_bottom_drag_type'] = drag_type
         # for drag types not specified here, defaults are used or given in
         # forward.yaml
         if drag_type == 'constant':
-            options['config_implicit_constant_bottom_drag_coeff'] = '3.0e-3'
+            options['config_implicit_constant_bottom_drag_coeff'] = \
+                3.0e-3   # type: ignore[assignment]
         elif drag_type == 'constant_and_rayleigh':
             # update the damping coefficient to the requested value *after*
             # loading forward.yaml
@@ -117,7 +118,8 @@ class Forward(OceanModelStep):
         forcing_dict = {'tidal_cycle': 'monochromatic',
                         'linear_drying': 'linear'}
 
-        options['config_tidal_forcing_model'] = forcing_dict[forcing_type]
+        options['config_tidal_forcing_model'] = \
+            forcing_dict[forcing_type]   # type: ignore[assignment]
         self.add_model_config_options(options=options)
 
         self.add_output_file(
@@ -168,29 +170,31 @@ class Forward(OceanModelStep):
         time_integrator = section.get('time_integrator')
         options['config_time_integrator'] = time_integrator
 
-        dt_per_km = section.getfloat('dt_per_km')
-        thin_film_thickness = section.getfloat('thin_film_thickness')
-
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        if time_integrator == 'split_explicit':
+            dt_per_km = section.getfloat('split_dt_per_km')
+            # btr_dt is also proportional to resolution
+            btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')
+            btr_dt = btr_dt_per_km * self.resolution
+            options['config_btr_dt'] = \
+                time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+            self.btr_dt = btr_dt
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
         options['config_dt'] = \
             time.strftime('%H:%M:%S', time.gmtime(dt))
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')
-        btr_dt = btr_dt_per_km * self.resolution
-        options['config_btr_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+        self.dt = dt
 
         if self.run_time_steps is not None:
             options['run_duration'] = time.strftime(
                 '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
+
+        thin_film_thickness = section.getfloat('thin_film_thickness')
         options['config_drying_min_cell_height'] = thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmin'] = \
             thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmax'] = \
             thin_film_thickness * 2.
-
-        self.dt = dt
-        self.btr_dt = btr_dt
 
         self.add_model_config_options(options=options)
