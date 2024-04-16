@@ -183,7 +183,6 @@ class Init(Step):
             mpas_field=ds.layerThickness.isel(Time=0),
             out_filename='layerThickness_depth_init.png',
             title='layer thickness',
-            transect_start=None, transect_end=None,
             outline_color=None, ssh_color='blue', seafloor_color='black',
             interface_color='grey',
             colorbar_label=r'm', cmap='cmo.thermal')
