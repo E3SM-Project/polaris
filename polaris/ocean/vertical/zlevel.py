@@ -79,7 +79,28 @@ def init_z_level_vertical_coord(config, ds):
         ds.maxLevelCell)
 
 
-def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth):
+def update_z_level_layer_thickness(config, ds):
+    """
+    Update the z-level vertical coordinate layer thicknesses based on the
+    ``bottomDepth`` and ``ssh`` variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
+    ds['layerThickness'] = compute_z_level_layer_thickness(
+        ds.refTopDepth, ds.refBottomDepth, ds.ssh, ds.bottomDepth,
+        ds.minLevelCell, ds.maxLevelCell)
+
+
+def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth,
+                               min_vert_levels=None, min_layer_thickness=None):
     """
     Compute ``minLevelCell`` and ``maxLevelCell`` indices as well as a cell
     mask for the given reference grid and top and bottom topography.
@@ -110,7 +131,10 @@ def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth):
     cellMask : xarray.DataArray
         A boolean mask of where there are valid cells
     """
-    valid = bottomDepth > -ssh
+    if min_layer_thickness is not None:
+        valid = bottomDepth + min_layer_thickness * min_vert_levels >= -ssh
+    else:
+        valid = bottomDepth > -ssh
 
     aboveTopMask = (refBottomDepth <= -ssh).transpose('nCells', 'nVertLevels')
     aboveBottomMask = (refTopDepth < bottomDepth).transpose(
@@ -119,7 +143,9 @@ def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth):
 
     minLevelCell = (aboveTopMask.sum(dim='nVertLevels')).where(valid, 0)
     maxLevelCell = (aboveBottomMask.sum(dim='nVertLevels') - 1).where(valid, 0)
-
+    if min_vert_levels is not None:
+        maxLevelCell = numpy.maximum(maxLevelCell,
+                                     minLevelCell + min_vert_levels - 1)
     cellMask = numpy.logical_and(numpy.logical_not(aboveTopMask),
                                  aboveBottomMask)
     cellMask = numpy.logical_and(cellMask, valid)

@@ -65,9 +65,14 @@ def init_z_star_vertical_coord(config, ds):
     ds['vertCoordMovementWeights'] = xarray.ones_like(ds.refBottomDepth)
 
     restingSSH = xarray.zeros_like(ds.bottomDepth)
+    min_vert_levels = config.getint('vertical_grid', 'min_vert_levels')
+    min_layer_thickness = config.getfloat('vertical_grid',
+                                          'min_layer_thickness')
     ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = \
         compute_min_max_level_cell(ds.refTopDepth, ds.refBottomDepth,
-                                   restingSSH, ds.bottomDepth)
+                                   restingSSH, ds.bottomDepth,
+                                   min_vert_levels=min_vert_levels,
+                                   min_layer_thickness=min_layer_thickness)
 
     ds['bottomDepth'], ds['maxLevelCell'] = alter_bottom_depth(
         config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell)
@@ -76,6 +81,26 @@ def init_z_star_vertical_coord(config, ds):
         ds.refTopDepth, ds.refBottomDepth, restingSSH, ds.bottomDepth,
         ds.minLevelCell, ds.maxLevelCell)
 
+    ds['layerThickness'] = _compute_z_star_layer_thickness(
+        ds.restingThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
+        ds.maxLevelCell)
+
+
+def update_z_star_layer_thickness(config, ds):
+    """
+    Update the z-star vertical coordinate layer thicknesses based on the
+    ``bottomDepth`` and ``ssh`` variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
     ds['layerThickness'] = _compute_z_star_layer_thickness(
         ds.restingThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
         ds.maxLevelCell)
@@ -113,7 +138,7 @@ def _compute_z_star_layer_thickness(restingThickness, ssh, bottomDepth,
     nVertLevels = restingThickness.sizes['nVertLevels']
     layerThickness = []
 
-    layerStretch = (ssh + bottomDepth) / bottomDepth
+    layerStretch = (ssh + bottomDepth) / numpy.sum(restingThickness, axis=1)
     for zIndex in range(nVertLevels):
         mask = numpy.logical_and(zIndex >= minLevelCell,
                                  zIndex <= maxLevelCell)
