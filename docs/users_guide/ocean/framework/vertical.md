@@ -36,6 +36,12 @@ partial_cell_type = full
 
 # The minimum fraction of a layer for partial cells
 min_pc_fraction = 0.1
+
+# The minimum number of vertical levels for z-star coordinate
+min_vert_levels = 1
+
+# Minimum thickness of each layer for z-star coordinate
+min_layer_thickness = 0
 ```
 
 The vertical coordinate is typically defined based on a 1D reference grid.
