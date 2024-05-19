@@ -190,7 +190,8 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="compute_min_max_level_cell"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">[docs]</a><span class="k">def</span> <span class="nf">compute_min_max_level_cell</span><span class="p">(</span><span class="n">refTopDepth</span><span class="p">,</span> <span class="n">refBottomDepth</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottomDepth</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_min_max_level_cell"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">[docs]</a><span class="k">def</span> <span class="nf">compute_min_max_level_cell</span><span class="p">(</span><span class="n">refTopDepth</span><span class="p">,</span> <span class="n">refBottomDepth</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottomDepth</span><span class="p">,</span>
+                               <span class="n">min_vert_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_layer_thickness</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute ``minLevelCell`` and ``maxLevelCell`` indices as well as a cell</span>
 <span class="sd">    mask for the given reference grid and top and bottom topography.</span>
@@ -221,7 +222,10 @@
 <span class="sd">    cellMask : xarray.DataArray</span>
 <span class="sd">        A boolean mask of where there are valid cells</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">valid</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ssh</span>
+    <span class="k">if</span> <span class="n">min_layer_thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">min_layer_thickness</span> <span class="o">*</span> <span class="n">min_vert_levels</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">ssh</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ssh</span>
 
     <span class="n">aboveTopMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">refBottomDepth</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">ssh</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
     <span class="n">aboveBottomMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">refTopDepth</span> <span class="o">&lt;</span> <span class="n">bottomDepth</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
@@ -230,7 +234,9 @@
 
     <span class="n">minLevelCell</span> <span class="o">=</span> <span class="p">(</span><span class="n">aboveTopMask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="p">(</span><span class="n">aboveBottomMask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="n">min_vert_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">maxLevelCell</span><span class="p">,</span>
+                                     <span class="n">minLevelCell</span> <span class="o">+</span> <span class="n">min_vert_levels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">cellMask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">aboveTopMask</span><span class="p">),</span>
                                  <span class="n">aboveBottomMask</span><span class="p">)</span>
     <span class="n">cellMask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">cellMask</span><span class="p">,</span> <span class="n">valid</span><span class="p">)</span>
