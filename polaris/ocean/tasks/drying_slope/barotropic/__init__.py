@@ -9,7 +9,7 @@ from polaris.ocean.tasks.drying_slope.viz import Viz
 
 class Barotropic(Task):
     """
-    The default drying_slope test case
+    The default drying_slope test case with a sinusoidal forcing function
 
     Attributes
     ----------
@@ -18,6 +18,9 @@ class Barotropic(Task):
 
     coord_type : str
         The type of vertical coordinate (``sigma``, ``single_layer``, etc.)
+
+    damping_coeff : float
+        The damping coefficient for the rayleigh drag option
     """
 
     def __init__(self, component, resolution, init, subdir,
@@ -29,20 +32,33 @@ class Barotropic(Task):
 
         Parameters
         ----------
-        test_group : compass.ocean.tests.drying_slope.DryingSlope
-            The test group that this test case belongs to
+        component : polaris.ocean.Ocean
+            The ocean component that this task belongs to
 
         resolution : float
             The resolution of the test case in km
 
+        init : polaris.ocean.tasks.drying_slope.init.Init
+            A shared step for creating the initial state
+
         subdir : str
-            TODO
+            The subdirectory to put the task group in
 
-        coord_type : str
-            The type of vertical coordinate (``sigma``, ``single_layer``)
+        coord_type : str, optional
+            The vertical coordinate type
 
-        method : str
-            The type of wetting-and-drying algorithm
+        forcing_type : str, optional
+            The forcing type to apply at the "tidal" boundary as a namelist
+            option
+
+        method : str, optional
+            The type of wetting and drying algorithm to use
+
+        drag_type : str, optional
+            The bottom drag type to apply as a namelist option
+
+        time_integrator : str, optional
+            The time integration scheme to apply as a namelist option
         """
         mesh_name = resolution_to_subdir(resolution)
         name = f'barotropic_{method}_{mesh_name}'
