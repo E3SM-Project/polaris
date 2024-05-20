@@ -9,8 +9,6 @@ from polaris.ocean.tasks.drying_slope.convergence.analysis import Analysis
 from polaris.ocean.tasks.drying_slope.convergence.forward import Forward
 from polaris.ocean.tasks.drying_slope.init import Init
 
-# from polaris.ocean.tasks.drying_slope.viz import Viz
-
 
 class Convergence(Task):
     """
@@ -18,13 +16,10 @@ class Convergence(Task):
 
     Attributes
     ----------
-    resolution : float
+    resolutions : list of float
         The resolution of the test case in km
 
-    coord_type : str
-        The type of vertical coordinate (``sigma``, ``single_layer``, etc.)
-
-    damping_coeffs: list of float
+    damping_coeffs : list of float
         The damping coefficients at which to evaluate convergence. Must be of
         length 1.
     """
@@ -39,8 +34,23 @@ class Convergence(Task):
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
 
-        method: str
+        init : polaris.ocean.tasks.drying_slope.init.Init
+            A shared step for creating the initial state
+
+        subdir : str
+            The subdirectory to put the task in
+
+        group_dir : str
+            The subdirectory to put the task group in
+
+        config : polaris.config.PolarisConfigParser
+            A shared config parser
+
+        method: str, optional
             The wetting-and-drying method (``standard``, ``ramp``)
+        coord_type : str, optional
+            The type of vertical coordinate (``sigma``, ``single_layer``, etc.)
+
         """
         name = f'convergence_{method}'
         config_filename = 'drying_slope.cfg'
@@ -92,6 +102,3 @@ class Convergence(Task):
             subdir=f'{subdir}/analysis',
             damping_coeff=damping_coeff,
             dependencies=analysis_dependencies))
-        # self.add_step(Viz(component=component, resolutions=self.resolutions,
-        #                   taskdir=self.subdir),
-        #               run_by_default=False)
