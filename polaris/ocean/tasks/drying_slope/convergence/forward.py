@@ -33,6 +33,18 @@ class Forward(ConvergenceForward):
 
         init : polaris.Step
             The step which generates the mesh and initial condition
+
+        damping_coeff : float
+            the vertical coordinate type
+
+        coord_type : str
+            the vertical coordinate type
+
+        method : str, optional
+            The type of wetting and drying algorithm to use
+
+        drag_type : str, optional
+            The bottom drag type to apply as a namelist option
         """
         options = dict()
         if coord_type == 'single_layer':

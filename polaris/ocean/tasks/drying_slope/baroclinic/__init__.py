@@ -8,6 +8,14 @@ class Baroclinic(Task):
     """
     The baroclinic version of the drying slope test case creates the mesh
     and initial condition, then performs a short forward run on 4 cores.
+
+    Attributes
+    ----------
+    coord_type : str, optional
+        The vertical coordinate type
+
+    config : polaris.config.PolarisConfigParser
+        A shared config parser
     """
 
     def __init__(self, component, resolution, init, subdir,
@@ -26,11 +34,27 @@ class Baroclinic(Task):
         resolution : float
             The resolution of the test case in km
 
-        subdir : str
-            TODO
-
         init : polaris.ocean.tasks.drying_slope.init.Init
             A shared step for creating the initial state
+
+        subdir : str
+            The subdirectory to put the task group in
+
+        coord_type : str, optional
+            The vertical coordinate type
+
+        forcing_type : str, optional
+            The forcing type to apply at the "tidal" boundary as a namelist
+            option
+
+        method : str, optional
+            The type of wetting and drying algorithm to use
+
+        drag_type : str, optional
+            The bottom drag type to apply as a namelist option
+
+        time_integrator : str, optional
+            The time integration scheme to apply as a namelist option
         """
         name = f'baroclinic_{method}'
         if drag_type == 'loglaw':

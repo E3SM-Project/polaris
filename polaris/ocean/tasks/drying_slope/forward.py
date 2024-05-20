@@ -14,6 +14,9 @@ class Forward(OceanModelStep):
     resolution : float
         The resolution of the task in km
 
+    baroclinic : logical
+        Whether this test case is the baroclinic version
+
     dt : float
         The model time step in seconds
 
@@ -61,6 +64,22 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
+
+        coord_type : str, optional
+            The vertical coordinate type
+
+        forcing_type : str, optional
+            The forcing type to apply at the "tidal" boundary as a namelist
+            option
+
+        method : str, optional
+            The type of wetting and drying algorithm to use
+
+        drag_type : str, optional
+            The bottom drag type to apply as a namelist option
+
+        time_integrator : str, optional
+            The time integration scheme to apply as a namelist option
 
         run_time_steps : int or None
             Number of time steps to run for

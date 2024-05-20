@@ -27,6 +27,12 @@ class Decomp(Task):
 
         init : polaris.ocean.tasks.drying_slope.init.Init
             A shared step for creating the initial state
+
+        coord_type : str, optional
+            The vertical coordinate type
+
+        method : str, optional
+            The type of wetting and drying algorithm to use
         """
 
         super().__init__(component=component, name='decomp', indir=indir)

@@ -21,6 +21,12 @@ class Init(Step):
     ----------
     resolution : float
         The resolution of the task in km
+
+    baroclinic: bool, optional
+        whether the test case is baroclinic
+
+    drag_type : str, optional
+        The bottom drag type to apply as a namelist option
     """
     def __init__(self, component, resolution, indir=None, subdir=None,
                  name='init', baroclinic=False,
@@ -39,8 +45,14 @@ class Init(Step):
         indir : str
             the directory the step is in, to which ``name`` will be appended
 
+        name : str, optional
+            the name of the step
+
         baroclinic: bool, optional
             whether the test case is baroclinic
+
+        drag_type : str, optional
+            The bottom drag type to apply as a namelist option
         """
         super().__init__(component=component, name=name, indir=indir,
                          subdir=subdir)

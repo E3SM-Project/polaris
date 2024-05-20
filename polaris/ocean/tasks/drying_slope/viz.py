@@ -15,6 +15,28 @@ from polaris.viz.style import use_mplstyle
 class Viz(Step):
     """
     A step for plotting the results of a series of drying_slope runs
+
+    Attributes
+    ----------
+    damping_coeffs : list of float
+        The damping coefficients that correspond to each forward run to be
+        plotted
+
+    coord_type : str, optional
+        The vertical coordinate type
+
+    forcing_type : str, optional
+        The forcing type to apply at the "tidal" boundary as a namelist
+        option
+
+    baroclinic : logical
+        Whether this test case is the baroclinic version
+
+    times : list of float
+        The solution times at which to plot
+
+    datatypes : list of str
+        The datatypes to plot
     """
     def __init__(self, component, indir=None, subdir=None, name='viz',
                  damping_coeffs=[],
@@ -30,6 +52,20 @@ class Viz(Step):
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
+
+        damping_coeffs : list of float
+            The damping coefficients that correspond to each forward run to be
+            plotted
+
+        coord_type : str, optional
+            The vertical coordinate type
+
+        forcing_type : str, optional
+            The forcing type to apply at the "tidal" boundary as a namelist
+            option
+
+        baroclinic : logical
+            Whether this test case is the baroclinic version
         """
         super().__init__(component=component, name=name, indir=indir,
                          subdir=subdir)
