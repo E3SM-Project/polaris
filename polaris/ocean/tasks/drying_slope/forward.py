@@ -214,10 +214,14 @@ class Forward(OceanModelStep):
                 '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
 
         if self.baroclinic:
+            section = self.config['vertical_grid']
+            vert_levels = section.getint('vert_levels')
             section = self.config['drying_slope_baroclinic']
+            thin_film_thickness = section.getfloat('min_column_thickness') / \
+                vert_levels
         else:
             section = self.config['drying_slope_barotropic']
-        thin_film_thickness = section.getfloat('thin_film_thickness')
+            thin_film_thickness = section.getfloat('thin_film_thickness')
         options['config_drying_min_cell_height'] = thin_film_thickness
         options['config_zero_drying_velocity_ramp_hmin'] = \
             thin_film_thickness
