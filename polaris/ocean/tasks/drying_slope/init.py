@@ -77,30 +77,32 @@ class Init(Step):
 
         section = config['drying_slope']
         coriolis_parameter = section.getfloat('coriolis_parameter')
+        background_temperature = section.getfloat('background_temperature')
+        vert_levels = config.getint('vertical_grid', 'vert_levels')
 
         if self.baroclinic:
             section = config['drying_slope_baroclinic']
             right_salinity = section.getfloat('right_salinity')
             left_salinity = section.getfloat('left_salinity')
             manning_coefficient = section.getfloat('manning_coefficient')
+            thin_film_thickness = section.getfloat('min_column_thickness') / \
+                vert_levels + 1.e-8
         else:
             section = config['drying_slope_barotropic']
             plug_width_frac = section.getfloat('plug_width_frac')
             plug_temperature = section.getfloat('plug_temperature')
-            background_temperature = section.getfloat('background_temperature')
             background_salinity = section.getfloat('background_salinity')
+            thin_film_thickness = section.getfloat('thin_film_thickness') + \
+                1.e-8
 
         # config options used in both configurations but which have different
         # values in each
-        thin_film_thickness = section.getfloat('thin_film_thickness') + 1.e-8
         drying_length = section.getfloat('ly_analysis') * 1e3
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         right_bottom_depth = section.getfloat('right_bottom_depth')
         left_bottom_depth = section.getfloat('left_bottom_depth')
         right_tidal_height = section.getfloat('right_tidal_height')
-
-        vert_levels = config.getint('vertical_grid', 'vert_levels')
 
         domain_length = ly * 1e3
         # Check config options
@@ -145,10 +147,13 @@ class Init(Step):
 
         init_vertical_coord(config, ds)
 
-        plug_width = domain_length * plug_width_frac
-        y_plug_boundary = y_min + plug_width
-        temperature = xr.where(y_cell < y_plug_boundary,
-                               plug_temperature, background_temperature)
+        if self.baroclinic:
+            temperature = background_temperature * xr.ones_like(y_cell)
+        else:
+            plug_width = domain_length * plug_width_frac
+            y_plug_boundary = y_min + plug_width
+            temperature = xr.where(y_cell < y_plug_boundary,
+                                   plug_temperature, background_temperature)
         temperature, _ = xr.broadcast(temperature, ds.refBottomDepth)
         ds['temperature'] = temperature.expand_dims(dim='Time', axis=0)
         if self.baroclinic:
