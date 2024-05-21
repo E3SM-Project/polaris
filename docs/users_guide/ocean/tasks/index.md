@@ -9,6 +9,7 @@ baroclinic_channel
 barotropic_gyre
 correlated_tracers_2d
 cosine_bell
+drying_slope
 geostrophic
 divergent_2d
 ice_shelf_2d
