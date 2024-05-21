@@ -38,10 +38,9 @@ algorithms in a multi-layer configuration with vertial gradients in scalars.
 
 ### description
 
-Description of the test case. Images that show the test case configuration or
-results are particularly welcome here.
-
-```{image} images/cosine_bell_convergence.png
+Description of the test case.
+ 
+```{image} images/drying_slope_baroclinic.png
 :align: center
 :width: 500 px
 ```
@@ -164,6 +163,14 @@ and what those defaults are.
 
 ## barotropic
 
+### description
+
+Description of the test case.
+ 
+```{image} images/drying_slope_barotropic.png
+:align: center
+:width: 500 px
+```
 ### vertical grid
 
 The vertical grid is the same as baroclinic except a single layer may be used and
@@ -214,6 +221,12 @@ thin_film_thickness = 1.0e-3
 
 ## convergence
 
+### description
+
+```{image} images/drying_slope_convergence.png
+:align: center
+:width: 500 px
+```
 ### config options
 
 The config options define the resolutions to use in the convergence test:
