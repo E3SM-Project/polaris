@@ -28,7 +28,8 @@ def mesh_to_triangles(ds_mesh):
         to cell centers as well as the cell index that each triangle is in and
         cell indices and weights for interpolating data defined at cell centers
         to triangle nodes.  ``ds_tris`` includes variables ``triCellIndices``,
-        the cell that each triangle is part of; ``nodeCellIndices`` and
+        the cell that each triangle is part of; ``triEdgeIndices``, the edge
+        that each triangle is adjacent to; ``nodeCellIndices`` and
         ``nodeCellWeights``, the indices and weights used to interpolate from
         MPAS cell centers to triangle nodes; Cartesian coordinates ``xNode``,
         ``yNode``, and ``zNode``; and ``lonNode``` and ``latNode`` in radians.
@@ -40,6 +41,7 @@ def mesh_to_triangles(ds_mesh):
     n_vertices_on_cell = ds_mesh.nEdgesOnCell.values
     vertices_on_cell = ds_mesh.verticesOnCell.values - 1
     cells_on_vertex = ds_mesh.cellsOnVertex.values - 1
+    edges_on_cell = ds_mesh.edgesOnCell.values - 1
 
     on_a_sphere = ds_mesh.attrs['on_a_sphere'].strip() == 'YES'
     is_periodic = False
@@ -83,6 +85,9 @@ def mesh_to_triangles(ds_mesh):
                                       indexing='ij')
     tri_cell_indices = tri_cell_indices[valid]
 
+    # find the edge index for each triangle
+    tri_edge_indices = edges_on_cell[edges_on_cell >= 0]
+
     # find list of cells and weights for each triangle node
     node_cell_indices = -1 * np.ones((n_triangles, 3, 3), dtype=int)
     node_cell_weights = np.zeros((n_triangles, 3, 3))
@@ -105,6 +110,7 @@ def mesh_to_triangles(ds_mesh):
 
     ds_tris = xr.Dataset()
     ds_tris['triCellIndices'] = ('nTriangles', tri_cell_indices)
+    ds_tris['triEdgeIndices'] = ('nTriangles', tri_edge_indices)
     ds_tris['nodeCellIndices'] = (('nTriangles', 'nNodes', 'nInterp'),
                                   node_cell_indices)
     ds_tris['nodeCellWeights'] = (('nTriangles', 'nNodes', 'nInterp'),
@@ -231,8 +237,9 @@ def find_spherical_transect_cells_and_weights(
         triangle for the edge associated with the intersection is given by
         ``numpy.mod(horizTriangleNodeIndices + 1, 3)``.
 
-        The MPAS cell that a given node belongs to is given by
-        ``horizCellIndices``. Each node also has an associated set of 6
+        The MPAS cell and edge that a given node belongs to are given by
+        ``horizCellIndices`` and ``horizEdgeIndices``, respectively. Each node
+        also has an associated set of 6
         ``interpHorizCellIndices`` and ``interpHorizCellWeights`` that can be
         used to interpolate from MPAS cell centers to nodes first with
         area-weighted averaging to MPAS vertices and then linear interpolation
@@ -407,9 +414,14 @@ def find_spherical_transect_cells_and_weights(
                                             degrees)
 
     valid_segs = seg_tris >= 0
+    valid_seg_tris = seg_tris[valid_segs]
     cell_indices = -1 * np.ones(seg_tris.shape, dtype=int)
     cell_indices[valid_segs] = (
-        ds_tris.triCellIndices.values[seg_tris[valid_segs]])
+        ds_tris.triCellIndices.values[valid_seg_tris])
+
+    edge_indices = -1 * np.ones(seg_tris.shape, dtype=int)
+    edge_indices[valid_segs] = (
+        ds_tris.triEdgeIndices.values[valid_seg_tris])
 
     ds_out = xr.Dataset()
     ds_out['xCartNode'] = (('nNodes',), x_out)
@@ -421,6 +433,7 @@ def find_spherical_transect_cells_and_weights(
 
     ds_out['horizTriangleIndices'] = ('nSegments', seg_tris)
     ds_out['horizCellIndices'] = ('nSegments', cell_indices)
+    ds_out['horizEdgeIndices'] = ('nSegments', edge_indices)
     ds_out['horizTriangleNodeIndices'] = (('nSegments', 'nHorizBounds'),
                                           seg_nodes)
     ds_out['interpHorizCellIndices'] = (('nNodes', 'nHorizWeights'),
@@ -505,8 +518,9 @@ def find_planar_transect_cells_and_weights(
         with the intersection is given by
         ``numpy.mod(horizTriangleNodeIndices + 1, 3)``.
 
-        The MPAS cell that a given node belongs to is given by
-        ``horizCellIndices``. Each node also has an associated set of 6
+        The MPAS cell and edge that a given node belongs to are given by
+        ``horizCellIndices`` and ``horizEdgeIndices``, respectively. Each node
+        also has an associated set of 6
         ``interpHorizCellIndices`` and ``interpHorizCellWeights`` that can be
         used to interpolate from MPAS cell centers to nodes first with
         area-weighted averaging to MPAS vertices and then linear interpolation
@@ -691,9 +705,14 @@ def find_planar_transect_cells_and_weights(
         epsilon)
 
     valid_segs = seg_tris >= 0
+    valid_seg_tris = seg_tris[valid_segs]
     cell_indices = -1 * np.ones(seg_tris.shape, dtype=int)
     cell_indices[valid_segs] = (
-        ds_tris.triCellIndices.values[seg_tris[valid_segs]])
+        ds_tris.triCellIndices.values[valid_seg_tris])
+
+    edge_indices = -1 * np.ones(seg_tris.shape, dtype=int)
+    edge_indices[valid_segs] = (
+        ds_tris.triEdgeIndices.values[valid_seg_tris])
 
     ds_out = xr.Dataset()
     ds_out['xNode'] = (('nNodes',), x_out)
@@ -702,6 +721,7 @@ def find_planar_transect_cells_and_weights(
 
     ds_out['horizTriangleIndices'] = ('nSegments', seg_tris)
     ds_out['horizCellIndices'] = ('nSegments', cell_indices)
+    ds_out['horizEdgeIndices'] = ('nSegments', edge_indices)
     ds_out['horizTriangleNodeIndices'] = (('nSegments', 'nHorizBounds'),
                                           seg_nodes)
     ds_out['interpHorizCellIndices'] = (('nNodes', 'nHorizWeights'),
