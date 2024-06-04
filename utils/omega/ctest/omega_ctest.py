@@ -12,6 +12,7 @@ from polaris.job import _clean_up_whitespace, get_slurm_options
 
 
 def make_build_script(machine, compiler, branch, build_only, mesh_filename,
+                      planar_mesh_filename, sphere_mesh_filename,
                       debug, clean, cmake_flags):
     """
     Make a shell script for checking out Omega and its submodules, building
@@ -53,6 +54,8 @@ def make_build_script(machine, compiler, branch, build_only, mesh_filename,
                              metis_root=metis_root,
                              parmetis_root=parmetis_root,
                              omega_mesh_filename=mesh_filename,
+                             omega_planar_mesh_filename=planar_mesh_filename,
+                             omega_sphere_mesh_filename=sphere_mesh_filename,
                              run_ctest=(not build_only),
                              build_type=build_type,
                              clean=clean,
@@ -76,19 +79,27 @@ def make_build_script(machine, compiler, branch, build_only, mesh_filename,
     return script_filename
 
 
-def download_mesh(config):
+def download_meshes(config):
     """
     Download and symlink a mesh to use for testing.
     """
     database_root = config.get('paths', 'database_root')
 
-    filepath = 'ocean/omega_ctest/ocean.QU.240km.151209.nc'
+    base_url = 'https://web.lcrc.anl.gov/public/e3sm/polaris/'
 
-    url = 'https://web.lcrc.anl.gov/public/e3sm/inputdata/ocn/mpas-o/oQU240/' \
-          'ocean.QU.240km.151209.nc'
-    download_path = os.path.join(database_root, filepath)
-    download_target = download(url, download_path, config)
-    return download_target
+    files = ['ocean.QU.240km.151209.nc',
+             'PlanarPeriodic48x48.nc',
+             'cosine_bell_icos480_initial_state.230220.nc']
+
+    database_path = 'ocean/omega_ctest'
+
+    download_targets = []
+    for filename in files:
+        download_path = os.path.join(database_root, database_path, filename)
+        url = f'{base_url}/{database_path}/{filename}'
+        download_target = download(url, download_path, config)
+        download_targets.append(download_target)
+    return download_targets
 
 
 def write_job_script(config, machine, compiler, submit):
@@ -196,13 +207,15 @@ def main():
     else:
         build_only = True
 
-    mesh_filename = download_mesh(config=config)
+    mesh_filename, planar_mesh_filename, sphere_mesh_filename = \
+        download_meshes(config=config)
 
-    script_filename = make_build_script(machine=machine, compiler=compiler,
-                                        branch=branch, build_only=build_only,
-                                        mesh_filename=mesh_filename,
-                                        debug=debug, clean=clean,
-                                        cmake_flags=cmake_flags)
+    script_filename = make_build_script(
+        machine=machine, compiler=compiler, branch=branch,
+        build_only=build_only, mesh_filename=mesh_filename,
+        planar_mesh_filename=planar_mesh_filename,
+        sphere_mesh_filename=sphere_mesh_filename,
+        debug=debug, clean=clean, cmake_flags=cmake_flags)
 
     # clear environment variables and start fresh with those from login
     # so spack doesn't get confused by conda

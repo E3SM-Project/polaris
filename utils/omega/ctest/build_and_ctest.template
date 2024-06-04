@@ -46,6 +46,8 @@ cmake \
 cd test
 
 ln -sfn {{ omega_mesh_filename }} OmegaMesh.nc
+ln -sfn {{ omega_planar_mesh_filename }} OmegaPlanarMesh.nc
+ln -sfn {{ omega_sphere_mesh_filename }} OmegaSphereMesh.nc
 
 {% if run_ctest %}
 ./omega_ctest.sh
