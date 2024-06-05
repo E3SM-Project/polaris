@@ -65,6 +65,7 @@ def mesh_to_triangles(ds_mesh):
 
     # find the third vertex for each triangle
     next_vertex = -1 * np.ones(vertices_on_cell.shape, int)
+    next_edge = -1 * np.ones(edges_on_cell.shape, int)
     for i_vertex in range(max_edges):
         valid = i_vertex < n_vertices_on_cell
         invalid = np.logical_not(valid)
@@ -74,6 +75,8 @@ def mesh_to_triangles(ds_mesh):
         i_next = np.where(i_vertex < nv - 1, i_vertex + 1, 0)
         next_vertex[:, i_vertex][valid] = (
             vertices_on_cell[cell_indices, i_next])
+        next_edge[:, i_vertex][valid] = (
+            edges_on_cell[cell_indices, i_next])
 
     valid = vertices_on_cell >= 0
     vertices_on_cell = vertices_on_cell[valid]
@@ -85,8 +88,9 @@ def mesh_to_triangles(ds_mesh):
                                       indexing='ij')
     tri_cell_indices = tri_cell_indices[valid]
 
-    # find the edge index for each triangle
-    tri_edge_indices = edges_on_cell[edges_on_cell >= 0]
+    # find the edge index for each triangle.  Since the nth edge lies between
+    # the nth and n+1st vertex, this is next_edge, rather than edges_on_cell
+    tri_edge_indices = next_edge[valid]
 
     # find list of cells and weights for each triangle node
     node_cell_indices = -1 * np.ones((n_triangles, 3, 3), dtype=int)
