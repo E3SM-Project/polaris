@@ -55,7 +55,7 @@ class ConvergenceAnalysis(Step):
                 dimension, which should be None for variables that don't
     """
     def __init__(self, component, resolutions, subdir, dependencies,
-                 convergence_vars):
+                 convergence_vars, dts=None):
         """
         Create the step
 
@@ -103,11 +103,16 @@ class ConvergenceAnalysis(Step):
                 zidx : int
                     The z-index to use for variables that have an nVertLevels
                     dimension, which should be None for variables that don't
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
         self.resolutions = resolutions
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
+        self.dts = dts
 
         for var in convergence_vars:
             self.add_output_file(f'convergence_{var["name"]}.png')
@@ -118,35 +123,49 @@ class ConvergenceAnalysis(Step):
         user config options
         """
         dependencies = self.dependencies_dict
+        dts = self.dts
 
         for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
             base_mesh = dependencies['mesh'][resolution]
             init = dependencies['init'][resolution]
-            forward = dependencies['forward'][resolution]
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
-            self.add_input_file(
-                filename=f'{mesh_name}_output.nc',
-                work_dir_target=f'{forward.path}/output.nc')
+        if dts is None:
+            for resolution in self.resolutions:
+                mesh_name = resolution_to_subdir(resolution)
+                forward = dependencies['forward'][resolution]
+                self.add_input_file(
+                    filename=f'{mesh_name}_output.nc',
+                    work_dir_target=f'{forward.path}/output.nc')
+        else:
+            for resolution in self.resolutions:
+                for dt in dts:
+                    mesh_name = resolution_to_subdir(resolution)
+                    forward = dependencies['forward'][dt]
+                    self.add_input_file(
+                        filename=f'{int(dt)}_output.nc',
+                        work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
         """
         Run this step of the test case
         """
+        dts = self.dts
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         for var in convergence_vars:
             self.plot_convergence(
                 variable_name=var["name"],
                 title=var["title"],
-                zidx=var["zidx"])
+                zidx=var["zidx"],
+                dts=dts)
 
-    def plot_convergence(self, variable_name, title, zidx):
+    def plot_convergence(self, variable_name, title, zidx, dts=None):
         """
         Compute the error norm for each resolution and produce a convergence
         plot
@@ -162,6 +181,11 @@ class ConvergenceAnalysis(Step):
         zidx : int
             The z-index to use for variables that have an nVertLevels
             dimension, which should be None for variables that don't
+
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
         """
         resolutions = self.resolutions
         logger = self.logger
@@ -169,20 +193,38 @@ class ConvergenceAnalysis(Step):
             field_name=variable_name)
 
         error = []
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            error_res = self.compute_error(
-                mesh_name=mesh_name,
-                variable_name=variable_name,
-                zidx=zidx,
-                error_type=error_type)
-            error.append(error_res)
+        if dts is None:
+            for resolution in resolutions:
+                mesh_name = resolution_to_subdir(resolution)
+                error_res = self.compute_error(
+                    mesh_name=mesh_name,
+                    variable_name=variable_name,
+                    zidx=zidx,
+                    error_type=error_type)
+                error.append(error_res)
+        else:
+            for i in range(1, len(dts)):
+                mesh_name = resolution_to_subdir(resolutions[0])
+                error_res = self.compute_error(
+                    mesh_name=mesh_name,
+                    variable_name=variable_name,
+                    zidx=zidx,
+                    error_type=error_type,
+                    dts=dts,
+                    index=i)
+                error.append(error_res)
 
-        res_array = np.array(resolutions)
+        if dts is None:
+            res_array = np.array(resolutions)
+        else:
+            res_array = np.array(dts[1:])
         error_array = np.array(error)
         filename = f'convergence_{variable_name}.csv'
         data = np.stack((res_array, error_array), axis=1)
-        df = pd.DataFrame(data, columns=['resolution', error_type])
+        if dts is None:
+            df = pd.DataFrame(data, columns=['resolution', error_type])
+        else:
+            df = pd.DataFrame(data, columns=['dt', error_type])
         df.to_csv(f'convergence_{variable_name}.csv', index=False)
 
         convergence_failed = False
@@ -194,6 +236,8 @@ class ConvergenceAnalysis(Step):
 
         order1 = 0.5 * error_array[-1] * (res_array / res_array[-1])
         order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
+        order3 = 0.5 * error_array[-1] * (res_array / res_array[-1])**3
+        order4 = 0.5 * error_array[-1] * (res_array / res_array[-1])**4
 
         use_mplstyle()
         fig = plt.figure()
@@ -202,13 +246,26 @@ class ConvergenceAnalysis(Step):
         error_title = error_dict[error_type]
 
         ax = fig.add_subplot(111)
-        ax.loglog(resolutions, order1, '--k', label='first order',
-                  alpha=0.3)
-        ax.loglog(resolutions, order2, 'k', label='second order',
-                  alpha=0.3)
-        ax.loglog(res_array, fit, 'k',
-                  label=f'linear fit (order={conv_round})')
-        ax.loglog(res_array, error_array, 'o', label='numerical')
+        if dts is None:
+            ax.loglog(resolutions, order1, '--k', label='first order',
+                      alpha=0.3)
+            ax.loglog(resolutions, order2, 'k', label='second order',
+                      alpha=0.3)
+            ax.loglog(res_array, fit, 'k',
+                      label=f'linear fit (order={conv_round})')
+            ax.loglog(res_array, error_array, 'o', label='numerical')
+        else:
+            ax.loglog(dts[1:], order1, '--k', label='first order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order2, ':k', label='second order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order3, '-k', label='third order',
+                      alpha=0.3)
+            ax.loglog(dts[1:], order4, '-.k', label='fourth order',
+                      alpha=0.3)
+            ax.loglog(res_array, fit, 'k',
+                      label=f'linear fit (order={conv_round})')
+            ax.loglog(res_array, error_array, 'o', label='numerical')
 
         if self.baseline_dir is not None:
             baseline_filename = os.path.join(self.baseline_dir, filename)
@@ -231,7 +288,10 @@ class ConvergenceAnalysis(Step):
                     ax.loglog(res_array, fit, color='#ff7f0e',
                               label=f'linear fit, baseline '
                                     f'(order={conv_round})')
-        ax.set_xlabel('resolution (km)')
+        if dts is None:
+            ax.set_xlabel('resolution (km)')
+        else:
+            ax.set_xlabel('dt (s)')
         ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
@@ -253,9 +313,9 @@ class ConvergenceAnalysis(Step):
             raise ValueError('Convergence rate below minimum tolerance.')
 
     def compute_error(self, mesh_name, variable_name, zidx=None,
-                      error_type='l2'):
+                      error_type='l2', dts=None, index=None):
         """
-        Compute the error for a given resolution
+        Compute the error for a given resolution or dt
 
         Parameters
         ----------
@@ -272,6 +332,15 @@ class ConvergenceAnalysis(Step):
         error_type: {'l2', 'inf'}, optional
             The type of error to compute
 
+        dts: list of float, optional
+            Time step for the temporal convergence analysis
+            Note that the first one on the list is the one used for the
+            reference solution used to compute errors
+
+        index: integer, optional
+            Integer that steps through the solutions to get the
+            convergence plot
+
         Returns
         -------
         error : float
@@ -284,12 +353,20 @@ class ConvergenceAnalysis(Step):
         eval_time = section.getfloat('convergence_eval_time')
         s_per_hour = 3600.0
 
-        field_exact = self.exact_solution(mesh_name, variable_name,
-                                          time=eval_time * s_per_hour,
-                                          zidx=zidx)
-        field_mpas = self.get_output_field(mesh_name, variable_name,
-                                           time=eval_time * s_per_hour,
-                                           zidx=zidx)
+        if dts is None:
+            field_exact = self.exact_solution(mesh_name, variable_name,
+                                              time=eval_time * s_per_hour,
+                                              zidx=zidx)
+            field_mpas = self.get_output_field(mesh_name, variable_name,
+                                               time=eval_time * s_per_hour,
+                                               zidx=zidx)
+        else:
+            field_exact = self.exact_solution(mesh_name, variable_name,
+                                              time=eval_time * s_per_hour,
+                                              zidx=zidx, dt=dts[0])
+            field_mpas = self.get_output_field(mesh_name, variable_name,
+                                               time=eval_time * s_per_hour,
+                                               zidx=zidx, dt=dts[index])
         diff = field_exact - field_mpas
 
         # Only the L2 norm is area-weighted
@@ -305,7 +382,7 @@ class ConvergenceAnalysis(Step):
 
         return error
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None, dt=None):
         """
         Get the exact solution
 
@@ -327,20 +404,32 @@ class ConvergenceAnalysis(Step):
             The z-index for the vertical level at which to evaluate the exact
             solution
 
+        dt: float, optional
+            If provided, it extracts the numerical solution associated
+            with the first dt in the dt list in the cfg file
+
         Returns
         -------
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
+            or (in case dt is provided) the numerical reference
+            solution for the temporal convergence test
         """
 
-        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
-        ds_init = ds_init.isel(Time=0)
-        if zidx is not None:
-            ds_init = ds_init.isel(nVertLevels=zidx)
+        if dt is None:
+            ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+            ds_init = ds_init.isel(Time=0)
+            if zidx is not None:
+                ds_init = ds_init.isel(nVertLevels=zidx)
 
-        return ds_init[field_name]
+            return ds_init[field_name]
+        else:
+            ref_soln = self.get_output_field(mesh_name, field_name,
+                                             time, zidx, dt)
+            return ref_soln
 
-    def get_output_field(self, mesh_name, field_name, time, zidx=None):
+    def get_output_field(self, mesh_name, field_name,
+                         time, zidx=None, dt=None):
         """
         Get the model output field at the given time and z index
 
@@ -358,12 +447,19 @@ class ConvergenceAnalysis(Step):
         zidx : int, optional
             The z-index for the vertical level to take the field from
 
+        dt: float, optional
+            If provided, it extracts the numerical solution that
+            has been computed with dt
+
         Returns
         -------
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+        if dt is None:
+            ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+        else:
+            ds_out = xr.open_dataset(f'{int(dt)}_output.nc')
 
         tidx = time_index_from_xtime(ds_out.xtime.values, time)
         ds_out = ds_out.isel(Time=tidx)
