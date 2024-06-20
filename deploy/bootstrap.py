@@ -588,12 +588,12 @@ def build_spack_libs_env(config, update_spack, machine, compiler,  # noqa: C901
     else:
         include_e3sm_lapack = True
     if metis != 'None':
-        specs.append(f'"metis@{metis}~shared"')
+        specs.append(f'"metis@{metis}+int64+real64~shared"')
     if moab != 'None':
         specs.append(
             f'"moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest"')
     if parmetis != 'None':
-        specs.append(f'"parmetis@{parmetis}~shared"')
+        specs.append(f'"parmetis@{parmetis}+int64~shared"')
     if petsc != 'None':
         specs.append(f'"petsc@{petsc}+mpi+batch"')
 
