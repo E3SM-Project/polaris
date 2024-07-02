@@ -16,7 +16,7 @@ Supported models include:
 
 The latest Polaris documentation can be found here:
 
-[http://e3sm-project.github.io/polaris/main/](http://e3sm-project.github.io/polaris/main/)
+[https://docs.e3sm.org/polaris/](https://docs.e3sm.org/polaris/)
 
 Documentation on its predecessor, Compass, can be found here:
 
