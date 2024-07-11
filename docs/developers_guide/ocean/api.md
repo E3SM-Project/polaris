@@ -107,6 +107,40 @@
    viz.Viz.run
 ```
 
+### drying_slope
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.drying_slope
+
+.. autosummary::
+   :toctree: generated/
+
+   add_drying_slope_tasks
+
+   baroclinic.Baroclinic
+   baroclinic.Baroclinic.configure
+
+   barotropic.Barotropic
+
+   convergence.Convergence
+   convergence.analysis.Analysis
+   convergence.analysis.Analysis.exact_solution
+   convergence.forward.Forward
+   convergence.forward.Forward.compute_cell_count
+   convergence.forward.Forward.dynamic_model_config
+
+   decomp.Decomp
+
+   init.Init
+   init.Init.run
+
+   validate.Validate
+   validate.Validate.run
+
+   viz.Viz
+   viz.Viz.run
+```
+
 ### inertial_gravity_wave 
 
 ```{eval-rst}

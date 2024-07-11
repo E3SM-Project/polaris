@@ -8,6 +8,7 @@
 baroclinic_channel
 correlated_tracers_2d
 cosine_bell
+drying_slope
 geostrophic
 divergent_2d
 inertial_gravity_wave

@@ -126,7 +126,7 @@ class ConvergenceAnalysis(Step):
             forward = dependencies['forward'][resolution]
             self.add_input_file(
                 filename=f'{mesh_name}_mesh.nc',
-                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/culled_mesh.nc')
             self.add_input_file(
                 filename=f'{mesh_name}_init.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
@@ -290,13 +290,19 @@ class ConvergenceAnalysis(Step):
         field_mpas = self.get_output_field(mesh_name, variable_name,
                                            time=eval_time * s_per_hour,
                                            zidx=zidx)
-        diff = field_exact - field_mpas
+        # We support nans in the fields, used to indicate regions where
+        # convergence should not be evaluated
+        mask = np.logical_and(field_exact == field_exact,
+                              field_mpas == field_mpas)
 
+        diff = field_exact - field_mpas
         # Only the L2 norm is area-weighted
         if error_type == 'l2':
             area = area_for_field(ds_mesh, diff)
-            field_exact = field_exact * area
-            diff = diff * area
+            mean_area = area.mean()
+            field_exact = field_exact[mask] * area[mask] / mean_area
+            diff = diff[mask] * area[mask] / mean_area
+
         error = np.linalg.norm(diff, ord=norm_type[error_type])
 
         # Normalize the error norm by the vector norm of the exact solution
