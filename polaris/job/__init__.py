@@ -42,7 +42,7 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
     cores = np.sqrt(target_cores * min_cores)
     nodes = int(np.ceil(cores / cores_per_node))
 
-    partition, qos, constraint, wall_time = get_slurm_options(
+    partition, qos, constraint, gpus_per_node, wall_time = get_slurm_options(
         config, machine, nodes)
 
     job_name = config.get('job', 'job_name')
@@ -58,7 +58,7 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
     text = template.render(job_name=job_name, account=account,
                            nodes=f'{nodes}', wall_time=wall_time, qos=qos,
                            partition=partition, constraint=constraint,
-                           suite=suite)
+                           gpus_per_node=gpus_per_node, suite=suite)
     text = clean_up_whitespace(text)
     if suite == '':
         script_filename = 'job_script.sh'
@@ -94,6 +94,9 @@ def get_slurm_options(config, machine, nodes):
 
     constraint : str
         Slurm constraint
+
+    gpus_per_node : str
+        The numer of GPUs per node (if any)
 
     wall_time : str
         Slurm wall time
@@ -131,9 +134,14 @@ def get_slurm_options(config, machine, nodes):
         else:
             constraint = ''
 
+    if config.has_option('parallel', 'gpus_per_node'):
+        gpus_per_node = config.get('parallel', 'gpus_per_node')
+    else:
+        gpus_per_node = ''
+
     wall_time = config.get('job', 'wall_time')
 
-    return partition, qos, constraint, wall_time
+    return partition, qos, constraint, gpus_per_node, wall_time
 
 
 def clean_up_whitespace(text):

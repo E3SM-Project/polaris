@@ -120,7 +120,7 @@ def write_job_script(config, machine, compiler, submit):
 
     nodes = 1
 
-    partition, qos, constraint, _ = get_slurm_options(
+    partition, qos, constraint, gpus_per_node, _ = get_slurm_options(
         config, machine, nodes)
 
     wall_time = '0:15:00'
@@ -156,7 +156,7 @@ def write_job_script(config, machine, compiler, submit):
     script = template.render(job_name=job_name, account=account,
                              nodes=f'{nodes}', wall_time=wall_time, qos=qos,
                              partition=partition, constraint=constraint,
-                             build_dir=build_dir)
+                             gpus_per_node=gpus_per_node, build_dir=build_dir)
     script = clean_up_whitespace(script)
 
     build_omega_dir = os.path.abspath('build_omega')
