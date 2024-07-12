@@ -1,4 +1,6 @@
+import grp
 import os
+import stat
 import tempfile
 from urllib.parse import urlparse
 
@@ -194,6 +196,148 @@ def symlink(target, link_name, overwrite=True):
         if os.path.islink(temp_link_name):
             os.remove(temp_link_name)
         raise
+
+
+def update_permissions(directories, group, show_progressbar=True):
+    """
+    Fix permissions on the databases where files were downloaded so
+    everyone in the group can read/write to them
+
+    Parameters
+    ----------
+    directories : list
+        directories to change permissions on
+
+    group : str
+        The name of the group to set permissions to
+
+    show_progressbar : bool, optional
+        Whether to show a progress bar as permissions are updated
+    """
+    new_uid = os.getuid()
+    new_gid = grp.getgrnam(group).gr_gid
+
+    write_perm = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP |
+                  stat.S_IWGRP | stat.S_IROTH)
+    exec_perm = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                 stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP |
+                 stat.S_IROTH | stat.S_IXOTH)
+
+    mask = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
+
+    if show_progressbar:
+        print('changing permissions on downloaded files')
+
+    # first the base directories that don't seem to be included in
+    # os.walk()
+    for directory in directories:
+        root = None
+        _set_dir_perms(root, directory, mask, exec_perm, new_uid, new_gid)
+
+    files_and_dirs = _walk_dirs(directories)
+
+    if show_progressbar:
+        widgets = [progressbar.Percentage(), ' ', progressbar.Bar(),
+                   ' ', progressbar.ETA()]
+        bar = progressbar.ProgressBar(widgets=widgets,
+                                      maxval=len(files_and_dirs)).start()
+    else:
+        bar = None
+    progress = 0
+    for base in directories:
+        for root, dirs, files in os.walk(base):
+            for directory in dirs:
+                progress += 1
+                if show_progressbar:
+                    bar.update(progress)
+
+                _set_dir_perms(root, directory, mask, exec_perm, new_uid,
+                               new_gid)
+
+            for file_name in files:
+                progress += 1
+                if show_progressbar:
+                    bar.update(progress)
+                file_name = os.path.join(root, file_name)
+                _set_file_perms(root, file_name, mask, exec_perm, write_perm,
+                                new_uid, new_gid)
+
+    if show_progressbar:
+        bar.finish()
+        print('  done.')
+
+
+def _walk_dirs(directories):
+    """
+    Walk through directories to find files to change
+    """
+    files_and_dirs = []
+    for base in directories:
+        for root, dirs, files in os.walk(base):
+            files_and_dirs.extend(dirs)
+            files_and_dirs.extend(files)
+    return files_and_dirs
+
+
+def _set_dir_perms(root, directory, mask, exec_perm, new_uid, new_gid):
+    """
+    Set permissions for a directory
+    """
+    if root is not None:
+        directory = os.path.join(root, directory)
+
+    try:
+        dir_stat = os.stat(directory)
+    except OSError:
+        return
+
+    if dir_stat.st_uid != new_uid:
+        # current user doesn't own this dir so let's move on
+        return
+
+    perm = dir_stat.st_mode & mask
+
+    if perm == exec_perm and dir_stat.st_gid == new_gid:
+        return
+
+    try:
+        os.chown(directory, new_uid, new_gid)
+        os.chmod(directory, exec_perm)
+    except OSError:
+        return
+
+
+def _set_file_perms(root, file_name, mask, exec_perm, write_perm, new_uid,
+                    new_gid):
+    """
+    Set permissions for a directory
+    """
+    file_name = os.path.join(root, file_name)
+    try:
+        file_stat = os.stat(file_name)
+    except OSError:
+        return
+
+    if file_stat.st_uid != new_uid:
+        # current user doesn't own this file so let's move on
+        return
+
+    perm = file_stat.st_mode & mask
+
+    if perm & stat.S_IXUSR:
+        # executable, so make sure others can execute it
+        new_perm = exec_perm
+    else:
+        new_perm = write_perm
+
+    if perm == new_perm and file_stat.st_gid == new_gid:
+        return
+
+    try:
+        os.chown(file_name, new_uid, new_gid)
+        os.chmod(file_name, new_perm)
+    except OSError:
+        return
 
 
 # From https://stackoverflow.com/a/1094933/7728169

@@ -7,7 +7,7 @@ import subprocess
 from jinja2 import Template
 
 from polaris.config import PolarisConfigParser
-from polaris.io import download
+from polaris.io import download, update_permissions
 from polaris.job import _clean_up_whitespace, get_slurm_options
 
 
@@ -99,6 +99,12 @@ def download_meshes(config):
         url = f'{base_url}/{database_path}/{filename}'
         download_target = download(url, download_path, config)
         download_targets.append(download_target)
+
+    if config.has_option('e3sm_unified', 'group'):
+        database_path = os.path.join(database_root, database_path)
+        group = config.get('e3sm_unified', 'group')
+        update_permissions([database_path], group)
+
     return download_targets
 
 

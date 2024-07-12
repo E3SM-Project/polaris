@@ -76,3 +76,47 @@ gets downloaded into the bathymetry database (if it's not already there).
 Then, we create a local symlink called `topography.nc` to the file in the
 bathymetry database.
 
+## Permissions
+
+After downloading a file to a shared location, it is typically a good idea to
+change permissions so others can access the file and write to the directory it
+is stored in.
+
+This can be accomplished with {py:func}`polaris.io.update_permissions()`,
+which takes a list of one or more directories on which to update permissions,
+along with a group name that files should belong to. As an example, if we
+download a file `ocean.QU.240km.151209.nc` to a database `ocean/omega_ctest`,
+we would then change permissions on the database so it is readable and writable
+by the group identified by the `[e3sm_unified]/group` config option (if any) as
+follows:
+```python
+import os
+from polaris.io import download, update_permissions
+
+
+machine = os.environ['POLARIS_MACHINE']
+
+config = PolarisConfigParser()
+config.add_from_package('polaris', 'default.cfg')
+config.add_from_package('mache.machines', f'{machine}.cfg')
+config.add_from_package('polaris.machines', f'{machine}.cfg')
+
+database_root = config.get('paths', 'database_root')
+
+base_url = 'https://web.lcrc.anl.gov/public/e3sm/polaris/'
+
+filename = 'ocean.QU.240km.151209.nc'
+
+database_path = 'ocean/omega_ctest'
+
+download_path = os.path.join(database_root, database_path, filename)
+url = f'{base_url}/{database_path}/{filename}'
+download_target = download(url, download_path, config)
+
+if config.has_option('e3sm_unified', 'group'):
+    full_path = os.path.join(database_root, database_path)
+    group = config.get('e3sm_unified', 'group')
+    update_permissions([full_path], group)
+```
+This counts on us having set the `$POLARIS_MACHINE` environment variable, which
+would be the case if the user has sourced a polaris load script.
