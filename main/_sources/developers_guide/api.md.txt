@@ -169,7 +169,7 @@ seaice/api
 
 .. autosummary::
    :toctree: generated/
-   
+
    ModelStep
    ModelStep.setup
    ModelStep.set_model_resources
@@ -219,6 +219,7 @@ seaice/api
 
    download
    symlink
+   update_permissions
 ```
 
 ### job
@@ -250,7 +251,7 @@ seaice/api
 
 .. autosummary::
    :toctree: generated/
-   
+
    planar.compute_planar_hex_nx_ny
 
    spherical.SphericalBaseStep
@@ -280,7 +281,7 @@ seaice/api
 
 .. autosummary::
    :toctree: generated/
-   
+
    make_graph_file
 ```
 
@@ -291,7 +292,7 @@ seaice/api
 
 .. autosummary::
    :toctree: generated/
-   
+
    area_for_field
    time_index_from_xtime
 ```
@@ -409,7 +410,7 @@ seaice/api
    PolarisYaml.read
    PolarisYaml.update
    PolarisYaml.write
-   
+
    mpas_namelist_and_streams_to_yaml
    yaml_to_mpas_streams
 

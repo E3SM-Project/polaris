@@ -74,6 +74,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">IO</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#symlinks">Symlinks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#permissions">Permissions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
@@ -193,6 +194,50 @@ and adding it as an input to the step.  No current tasks use
 gets downloaded into the bathymetry database (if it’s not already there).
 Then, we create a local symlink called <code class="docutils literal notranslate"><span class="pre">topography.nc</span></code> to the file in the
 bathymetry database.</p>
+</section>
+<section id="permissions">
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading"></a></h2>
+<p>After downloading a file to a shared location, it is typically a good idea to
+change permissions so others can access the file and write to the directory it
+is stored in.</p>
+<p>This can be accomplished with <a class="reference internal" href="../generated/polaris.io.update_permissions.html#polaris.io.update_permissions" title="polaris.io.update_permissions"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.update_permissions()</span></code></a>,
+which takes a list of one or more directories on which to update permissions,
+along with a group name that files should belong to. As an example, if we
+download a file <code class="docutils literal notranslate"><span class="pre">ocean.QU.240km.151209.nc</span></code> to a database <code class="docutils literal notranslate"><span class="pre">ocean/omega_ctest</span></code>,
+we would then change permissions on the database so it is readable and writable
+by the group identified by the <code class="docutils literal notranslate"><span class="pre">[e3sm_unified]/group</span></code> config option (if any) as
+follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">download</span><span class="p">,</span> <span class="n">update_permissions</span>
+
+
+<span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;default.cfg&#39;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+
+<span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;database_root&#39;</span><span class="p">)</span>
+
+<span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://web.lcrc.anl.gov/public/e3sm/polaris/&#39;</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;ocean.QU.240km.151209.nc&#39;</span>
+
+<span class="n">database_path</span> <span class="o">=</span> <span class="s1">&#39;ocean/omega_ctest&#39;</span>
+
+<span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="n">download_target</span> <span class="o">=</span> <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">download_path</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">):</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_path</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
+    <span class="n">update_permissions</span><span class="p">([</span><span class="n">full_path</span><span class="p">],</span> <span class="n">group</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This counts on us having set the <code class="docutils literal notranslate"><span class="pre">$POLARIS_MACHINE</span></code> environment variable, which
+would be the case if the user has sourced a polaris load script.</p>
 </section>
 </section>
 
