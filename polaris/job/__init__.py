@@ -59,7 +59,7 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
                            nodes=f'{nodes}', wall_time=wall_time, qos=qos,
                            partition=partition, constraint=constraint,
                            suite=suite)
-    text = _clean_up_whitespace(text)
+    text = clean_up_whitespace(text)
     if suite == '':
         script_filename = 'job_script.sh'
     else:
@@ -136,7 +136,20 @@ def get_slurm_options(config, machine, nodes):
     return partition, qos, constraint, wall_time
 
 
-def _clean_up_whitespace(text):
+def clean_up_whitespace(text):
+    """
+    Clean up whitespace after jinja templating
+
+    Parameters
+    ----------
+    text : str
+        Text to clean up
+
+    Returns
+    -------
+    text : str
+        Text with extra blank lines removed
+    """
     prev_line = None
     lines = text.split('\n')
     trimmed = list()
