@@ -145,7 +145,7 @@ class SphereTransport(Task):
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in resolutions:
             base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral)
+                component=component, prefix=prefix, resolution=resolution)
             self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
             analysis_dependencies['mesh'][resolution] = base_mesh_step
 
