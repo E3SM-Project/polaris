@@ -7,6 +7,7 @@ from polaris.mesh.spherical import (
     QuasiUniformSphericalMeshStep,
     SphericalBaseStep,
 )
+from polaris.ocean.mesh.spherical.rrs import RRSBaseMesh
 from polaris.ocean.resolution import resolution_to_subdir
 
 
@@ -96,4 +97,12 @@ def _get_uniform_base_mesh(prefix, component, name, subdir, resolution):
 
 
 def _get_nonuniform_base_mesh(prefix, component, name, subdir, resolutions):
-    raise ValueError(f'Unexpected prefix {prefix} for non-uniform mesh')
+    base_mesh: Union[SphericalBaseStep, None] = None
+    if prefix == 'rrs':
+        base_mesh = RRSBaseMesh(
+            component=component, resolutions=resolutions, name=name,
+            subdir=subdir)
+    else:
+        raise ValueError(f'Unexpected prefix {prefix} for non-uniform mesh')
+
+    return base_mesh
