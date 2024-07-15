@@ -77,10 +77,15 @@ class SphericalBaseStep(Step):
         Add output files
         """
         config = self.config
-        for option in ['jigsaw_mesh_filename', 'mpas_mesh_filename',
-                       'cell_width_filename']:
+        for option in ['jigsaw_mesh_filename', 'cell_width_filename']:
             filename = config.get('spherical_mesh', option)
             self.add_output_file(filename=filename)
+        filename = config.get('spherical_mesh', 'mpas_mesh_filename')
+        validate_vars = ['xCell', 'yCell', 'zCell', 'latCell', 'lonCell',
+                         'xEdge', 'yEdge', 'zEdge', 'latEdge', 'lonEdge',
+                         'xVertex', 'yVertex', 'zVertes', 'latVertex',
+                         'lonVertex']
+        self.add_output_file(filename=filename, validate_vars=validate_vars)
         self.add_output_file(filename='graph.info')
 
     def run(self):
