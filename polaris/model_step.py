@@ -177,8 +177,8 @@ class ModelStep(Step):
         config = self.config
         component_path = config.get('executables', 'component')
         model_basename = os.path.basename(component_path)
-        self.args = [f'./{model_basename}', '-n', self.namelist,
-                     '-s', self.streams]
+        self.args = [[f'./{model_basename}', '-n', self.namelist,
+                      '-s', self.streams]]
 
     def set_model_resources(self, ntasks=None, min_tasks=None,
                             openmp_threads=None, max_memory=None):
