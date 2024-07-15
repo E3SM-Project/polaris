@@ -1,6 +1,7 @@
 import numpy as np
 import pyproj
 from mpas_tools.io import write_netcdf
+from mpas_tools.mesh.conversion import cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 from mpas_tools.translate import translate
 
@@ -79,4 +80,6 @@ class PlanarMesh(Step):
             ds_mesh[f'lon{suffix}'] = (f'n{suffix}', np.deg2rad(lon))
 
         add_isomip_plus_xy(ds_mesh)
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        # cull the mesh to remove periodicity
+        ds_nonperiodic = cull(ds_mesh)
+        write_netcdf(ds_nonperiodic, 'base_mesh.nc')
