@@ -381,21 +381,36 @@ class MappingFileStep(Step):
         Create a remapper and set the command-line arguments
         """
         remapper = self.get_remapper()
-        self.args = _build_mapping_file_args(remapper, self.method,
-                                             self.expand_distance,
-                                             self.expand_factor,
-                                             self.src_mesh_filename,
-                                             self.dst_mesh_filename)
+        remap_tool = self.config.get('remap', 'remap_tool')
+        _check_remapper(remapper, self.method, remap_tool=remap_tool)
+
+        if remap_tool == 'esmf':
+            self.args = [_esmf_build_map_args(remapper, self.method,
+                                              self.expand_distance,
+                                              self.expand_factor,
+                                              self.src_mesh_filename,
+                                              self.dst_mesh_filename)]
 
 
-def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
-                             src_mesh_filename, dst_mesh_filename):
+def _check_remapper(remapper, method, remap_tool):
+    """
+    Check for inconsistencies in the remapper
+    """
+    if isinstance(remapper.destinationDescriptor,
+                  PointCollectionDescriptor) and \
+            method not in ['bilinear', 'neareststod']:
+        raise ValueError(f'method {method} not supported for destination '
+                         'grid of type PointCollectionDescriptor.')
+
+    if remap_tool == 'moab' and method == 'neareststod':
+        raise ValueError('method neareststod not supported by mbtempest.')
+
+
+def _esmf_build_map_args(remapper, method, expand_distance, expand_factor,
+                         src_mesh_filename, dst_mesh_filename):
     """
     Get command-line arguments for making a mapping file
     """
-
-    _check_remapper(remapper, method)
-
     src_descriptor = remapper.sourceDescriptor
     src_descriptor.to_scrip(src_mesh_filename)
 
@@ -408,8 +423,7 @@ def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
             '--destination', dst_mesh_filename,
             '--weight', remapper.mappingFileName,
             '--method', method,
-            '--netcdf4',
-            '--no_log']
+            '--netcdf4']
 
     if src_descriptor.regional:
         args.append('--src_regional')
@@ -423,19 +437,10 @@ def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
     return args
 
 
-def _check_remapper(remapper, method):
-    """
-    Check for inconsistencies in the remapper
-    """
-    if isinstance(remapper.destinationDescriptor,
-                  PointCollectionDescriptor) and \
-            method not in ['bilinear', 'neareststod']:
-        raise ValueError(f'method {method} not supported for destination '
-                         'grid of type PointCollectionDescriptor.')
-
-
 def _get_descriptor(info):
-    """ Get a mesh descriptor from the mesh info """
+    """
+    Get a mesh descriptor from the mesh info
+    """
     grid_type = info['type']
     if grid_type == 'mpas':
         descriptor = _get_mpas_descriptor(info)
@@ -451,7 +456,9 @@ def _get_descriptor(info):
 
 
 def _get_mpas_descriptor(info):
-    """ Get an MPAS mesh descriptor from the given info """
+    """
+    Get an MPAS mesh descriptor from the given info
+    """
     mesh_type = info['mpas_mesh_type']
     filename = info['filename']
     mesh_name = info['name']
@@ -472,7 +479,9 @@ def _get_mpas_descriptor(info):
 
 
 def _get_lon_lat_descriptor(info):
-    """ Get a lon-lat descriptor from the given info """
+    """
+    Get a lon-lat descriptor from the given info
+    """
 
     if 'dlat' in info and 'dlon' in info:
         lon_min = info['lon_min']
@@ -510,7 +519,9 @@ def _get_lon_lat_descriptor(info):
 
 
 def _get_proj_descriptor(info):
-    """ Get a ProjectionGridDescriptor from the given info """
+    """
+    Get a ProjectionGridDescriptor from the given info
+    """
     filename = info['filename']
     grid_name = info['name']
     x = info['x']
@@ -533,7 +544,9 @@ def _get_proj_descriptor(info):
 
 
 def _get_points_descriptor(info):
-    """ Get a PointCollectionDescriptor from the given info """
+    """
+    Get a PointCollectionDescriptor from the given info
+    """
     filename = info['filename']
     collection_name = info['name']
     lon_var = info['lon']
