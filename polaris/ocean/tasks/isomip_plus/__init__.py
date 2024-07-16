@@ -75,9 +75,10 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
         base_mesh.set_shared_config(config, link='isomip_plus_topo.cfg')
 
     subdir = f'{resdir}/topo/map_base'
-    # we remap the topography onto the base mesh with smoothing, which
-    # requires the conserve method.  This only works because we have already
-    # culled planar meshes to remove periodicity
+    # we remap the topography onto the base mesh without smoothing the
+    # smoothing doesn't expand the domain.  We can use conservative
+    # interpolation because we have already culled planar meshes to remove
+    # periodicity
     topo_map_base = TopoMap(component=component,
                             name='topo_map_base',
                             subdir=subdir,
@@ -86,7 +87,7 @@ def _get_shared_steps(mesh_type, resolution, mesh_name, resdir, component,
                             mesh_step=base_mesh,
                             mesh_filename='base_mesh.nc',
                             method='conserve',
-                            smooth=True)
+                            smooth=False)
 
     subdir = f'{resdir}/topo/remap_base'
     topo_remap_base = TopoRemap(component=component,
