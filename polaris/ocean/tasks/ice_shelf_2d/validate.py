@@ -83,10 +83,12 @@ class Validate(Step):
                                         logger=self.logger)
         if not output_pass:
             raise ValueError(f'Validation failed comparing outputs between '
-                             f'{step_subdirs[0]} and {step_subdirs[3]}.')
+                             f'{step_subdirs[0]} and {step_subdirs[1]}.')
         if not land_ice_pass:
-            raise ValueError(f'Validation failed comparing outputs between '
-                             f'{step_subdirs[1]} and {step_subdirs[4]}.')
+            raise ValueError(f'Validation failed comparing land ice outputs '
+                             f'between {step_subdirs[0]} and '
+                             f'{step_subdirs[1]}.')
         if not frazil_pass:
-            raise ValueError(f'Validation failed comparing outputs between '
-                             f'{step_subdirs[2]} and {step_subdirs[5]}.')
+            raise ValueError(f'Validation failed comparing frazil ice outputs '
+                             f'between {step_subdirs[0]} and '
+                             f'{step_subdirs[1]}.')
