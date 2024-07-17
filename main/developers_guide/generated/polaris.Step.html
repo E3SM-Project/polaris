@@ -218,7 +218,9 @@ it directly from the task.  It is useful to run a step as a
 subprocess if there is not a good way to redirect output to a log
 file (e.g. if the step calls external code that, in turn, calls
 additional subprocesses).</p></li>
-<li><p><strong>args</strong> (<em>{list</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>None}</em>) – A list of command-line arguments to call in parallel</p></li>
+<li><p><strong>args</strong> (<em>{list</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>None}</em>) – A list of lists of command-line arguments to call in parallel.  Each
+inner list represents a single command.  All commands must use the
+same parallel resources.</p></li>
 </ul>
 </dd>
 </dl>

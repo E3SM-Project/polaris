@@ -475,9 +475,21 @@
         <span class="n">out_descriptor</span> <span class="o">=</span> <span class="n">_get_descriptor</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">map_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mapping&#39;</span><span class="p">,</span> <span class="s1">&#39;map_tool&#39;</span><span class="p">)</span>
+            <span class="n">prefixes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;esmf&#39;</span><span class="p">:</span> <span class="s1">&#39;esmf&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;moab&#39;</span><span class="p">:</span> <span class="s1">&#39;mbtr&#39;</span>
+            <span class="p">}</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;conserve&#39;</span><span class="p">:</span> <span class="s1">&#39;aave&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span> <span class="s1">&#39;bilin&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;neareststod&#39;</span><span class="p">:</span> <span class="s1">&#39;neareststod&#39;</span>
+            <span class="p">}</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefixes</span><span class="p">[</span><span class="n">map_tool</span><span class="p">]</span><span class="si">}{</span><span class="n">suffixes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> \
                 <span class="sa">f</span><span class="s1">&#39;map_</span><span class="si">{</span><span class="n">in_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">out_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">&#39;</span> \
-                <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s1">.nc&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span><span class="p">))</span>
@@ -490,35 +502,62 @@
 <span class="sd">        Create a remapper and set the command-line arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">remapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-                                             <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span>
-                                             <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span><span class="p">,</span>
+        <span class="n">map_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mapping&#39;</span><span class="p">,</span> <span class="s1">&#39;map_tool&#39;</span><span class="p">)</span>
+        <span class="n">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="o">=</span><span class="n">map_tool</span><span class="p">)</span>
+
+        <span class="n">src_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span>
+        <span class="n">src_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">)</span>
+
+        <span class="n">dst_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span>
+        <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">,</span>
+                                <span class="n">expandDist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span>
+                                <span class="n">expandFactor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;esmf&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_esmf_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                                             <span class="n">src_descriptor</span><span class="p">,</span>
                                              <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">,</span>
+                                             <span class="n">dst_descriptor</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;moab&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_moab_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                                             <span class="n">src_descriptor</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">,</span>
+                                             <span class="n">dst_descriptor</span><span class="p">,</span>
                                              <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">)</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_build_mapping_file_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">expand_distance</span><span class="p">,</span> <span class="n">expand_factor</span><span class="p">,</span>
-                             <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get command-line arguments for making a mapping file</span>
+<span class="sd">    Check for inconsistencies in the remapper</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">map_tool</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;moab&#39;</span><span class="p">,</span> <span class="s1">&#39;esmf&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected map_tool </span><span class="si">{</span><span class="n">map_tool</span><span class="si">}</span><span class="s1">. Valid &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;values are &quot;esmf&quot; or &quot;moab&quot;.&#39;</span><span class="p">)</span>
 
-    <span class="n">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span><span class="p">,</span>
+                  <span class="n">PointCollectionDescriptor</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> not supported for destination &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;grid of type PointCollectionDescriptor.&#39;</span><span class="p">)</span>
 
-    <span class="n">src_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span>
-    <span class="n">src_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">src_mesh_filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;moab&#39;</span> <span class="ow">and</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method neareststod not supported by mbtempest.&#39;</span><span class="p">)</span>
 
-    <span class="n">dst_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span>
-    <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">dst_mesh_filename</span><span class="p">,</span> <span class="n">expandDist</span><span class="o">=</span><span class="n">expand_distance</span><span class="p">,</span>
-                            <span class="n">expandFactor</span><span class="o">=</span><span class="n">expand_factor</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_esmf_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+                         <span class="n">dst_descriptor</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get command-line arguments for making a mapping file with</span>
+<span class="sd">    ESMF_RegridWeightGen</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ESMF_RegridWeightGen&#39;</span><span class="p">,</span>
             <span class="s1">&#39;--source&#39;</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
             <span class="s1">&#39;--destination&#39;</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">,</span>
             <span class="s1">&#39;--weight&#39;</span><span class="p">,</span> <span class="n">remapper</span><span class="o">.</span><span class="n">mappingFileName</span><span class="p">,</span>
             <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
-            <span class="s1">&#39;--netcdf4&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;--no_log&#39;</span><span class="p">]</span>
+            <span class="s1">&#39;--netcdf4&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--src_regional&#39;</span><span class="p">)</span>
@@ -529,22 +568,59 @@
     <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--ignore_unmapped&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">args</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_moab_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+                         <span class="n">dst_descriptor</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check for inconsistencies in the remapper</span>
+<span class="sd">    Get command-line arguments for making a mapping file with mbtempest</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span><span class="p">,</span>
-                  <span class="n">PointCollectionDescriptor</span><span class="p">)</span> <span class="ow">and</span> \
-            <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> not supported for destination &#39;</span>
-                         <span class="s1">&#39;grid of type PointCollectionDescriptor.&#39;</span><span class="p">)</span>
+    <span class="n">fvmethod</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;conserve&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span> <span class="s1">&#39;bilin&#39;</span><span class="p">}</span>
+
+    <span class="n">map_filename</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">mappingFileName</span>
+    <span class="n">intx_filename</span> <span class="o">=</span> \
+        <span class="sa">f</span><span class="s1">&#39;moab_intx_</span><span class="si">{</span><span class="n">src_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dst_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">.h5m&#39;</span>
+
+    <span class="n">intx_args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;mbtempest&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--type&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--intx&#39;</span><span class="p">,</span> <span class="n">intx_filename</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
+        <span class="n">intx_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--rrmgrids&#39;</span><span class="p">)</span>
+
+    <span class="n">map_args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;mbtempest&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--type&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--intx&#39;</span><span class="p">,</span> <span class="n">intx_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--weights&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--file&#39;</span><span class="p">,</span> <span class="n">map_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--order&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--order&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--fvmethod&#39;</span><span class="p">,</span> <span class="n">fvmethod</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;conserve&#39;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span>
+                                 <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">):</span>
+        <span class="n">map_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--rrmgrids&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">intx_args</span><span class="p">,</span> <span class="n">map_args</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a mesh descriptor from the mesh info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a mesh descriptor from the mesh info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">grid_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;mpas&#39;</span><span class="p">:</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
@@ -556,11 +632,16 @@
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected grid type </span><span class="si">{</span><span class="n">grid_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># for compatibility with mbtempest</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;NETCDF3_64BIT_DATA&#39;</span>
     <span class="k">return</span> <span class="n">descriptor</span>
 
 
 <span class="k">def</span> <span class="nf">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get an MPAS mesh descriptor from the given info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an MPAS mesh descriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mesh_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;mpas_mesh_type&#39;</span><span class="p">]</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
     <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
@@ -581,7 +662,9 @@
 
 
 <span class="k">def</span> <span class="nf">_get_lon_lat_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a lon-lat descriptor from the given info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a lon-lat descriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="s1">&#39;dlat&#39;</span> <span class="ow">in</span> <span class="n">info</span> <span class="ow">and</span> <span class="s1">&#39;dlon&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
         <span class="n">lon_min</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon_min&#39;</span><span class="p">]</span>
@@ -619,7 +702,9 @@
 
 
 <span class="k">def</span> <span class="nf">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a ProjectionGridDescriptor from the given info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a ProjectionGridDescriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
     <span class="n">grid_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
@@ -642,7 +727,9 @@
 
 
 <span class="k">def</span> <span class="nf">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get a PointCollectionDescriptor from the given info &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a PointCollectionDescriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
     <span class="n">collection_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
     <span class="n">lon_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>

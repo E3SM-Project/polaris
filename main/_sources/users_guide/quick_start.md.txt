@@ -17,7 +17,8 @@ documentation as soon as there is one.  Until then please refer to the
 For each polaris release, we maintain a
 [conda environment](https://docs.conda.io/en/latest/). that includes the
 `polaris` package as well as all of its dependencies and some libraries
-(currently [ESMF](https://earthsystemmodeling.org/) and
+(currently [ESMF](https://earthsystemmodeling.org/),
+[MOAB](https://sigma.mcs.anl.gov/moab-library/) and
 [SCORPIO](https://e3sm.org/scorpio-parallel-io-library/)) built with system
 MPI using [spack](https://spack.io/) on our standard machines (Anvil, Chicoma,
 Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,

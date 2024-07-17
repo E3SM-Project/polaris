@@ -117,5 +117,5 @@ of your user config file:
 parallel_executable = mpirun -host localhost
 ```
 
-The [example config file](https://github.com/E3SM-Project/polaris/blob/main/exmaple.cfg)
+The [example config file](https://github.com/E3SM-Project/polaris/blob/main/example.cfg)
 has been updated to include this flag.

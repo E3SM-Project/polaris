@@ -182,7 +182,8 @@ this script will also:
   build several libraries with system compilers and MPI library, including:
   [SCORPIO](https://github.com/E3SM-Project/scorpio) (parallel i/o for E3SM
   components) [ESMF](https://earthsystemmodeling.org/) (making mapping files
-  in parallel), [Trilinos](https://trilinos.github.io/),
+  in parallel), [MOAB](https://sigma.mcs.anl.gov/moab-library/),
+  [Trilinos](https://trilinos.github.io/),
   [Albany](https://github.com/sandialabs/Albany),
   [Netlib-LAPACK](http://www.netlib.org/lapack/) and
   [PETSc](https://petsc.org/). **Please uses these flags with caution, as

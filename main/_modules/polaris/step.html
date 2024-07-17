@@ -251,8 +251,10 @@
 <span class="sd">        file (e.g. if the step calls external code that, in turn, calls</span>
 <span class="sd">        additional subprocesses).</span>
 
-<span class="sd">    args : {list of str, None}</span>
-<span class="sd">        A list of command-line arguments to call in parallel</span>
+<span class="sd">    args : {list of list of str, None}</span>
+<span class="sd">        A list of lists of command-line arguments to call in parallel.  Each</span>
+<span class="sd">        inner list represents a single command.  All commands must use the</span>
+<span class="sd">        same parallel resources.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Step.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

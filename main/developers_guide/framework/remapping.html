@@ -133,7 +133,8 @@ interpolate between meshes) and using them to remap files or
 <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.6.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.  Polaris provides a step for producing
 such a mapping file.  Under the hood, <code class="docutils literal notranslate"><span class="pre">pyremap</span></code> uses the
 <a class="reference external" href="https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node3.html#SECTION03020000000000000000">ESMF_RegridWeightGen</a>
-tool, which uses MPI parallelism.  To better support task parallelism, it is
+or <a class="reference external" href="https://sigma.mcs.anl.gov/moab/offline-remapping-workflow-with-mbtempest/">mbtempest</a>
+tools, which use MPI parallelism.  To better support task parallelism, it is
 best to have each MPI task be a separate polaris step.  For this reason, we
 provide <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> to perform remapping.</p>
 <p>A remapping step can be added to a task either by creating a
@@ -144,12 +145,18 @@ MPAS mesh. This could happen in the task’s <code class="docutils literal notra
 method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span> <span class="nn">polaris.remap</span> <span class="kn">import</span> <span class="n">MappingFileStep</span>
 
 <span class="k">class</span> <span class="nc">MyTestCase</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-        <span class="n">step</span> <span class="o">=</span> <span class="n">MappingFileStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;make_map&#39;</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> 
+        <span class="n">step</span> <span class="o">=</span> <span class="n">MappingFileStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;make_map&#39;</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
                                <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">)</span>
+        <span class="c1"># add required config options related to mapping</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;mapping.cfg&#39;</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;my_test_case.cfg&#39;</span><span class="p">)</span>
+
         <span class="c1"># indicate the the mesh from another step is an input to this step</span>
         <span class="c1"># note: the target is relative to the step, not the task.</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
@@ -158,7 +165,7 @@ method:</p>
 
         <span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
                             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../mesh/mesh.nc&#39;</span><span class="p">)</span>
-        
+
         <span class="c1"># you need to specify what type of source and destination mesh you</span>
         <span class="c1"># will use</span>
         <span class="n">step</span><span class="o">.</span><span class="n">src_from_lon_lat</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
@@ -180,7 +187,7 @@ before running the task:</p>
 
 
 <span class="k">class</span> <span class="nc">VizMap</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">ntasks</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
@@ -199,11 +206,25 @@ before running the task:</p>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>With either approach, you will need to call one of the <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to
-set up the source mesh or grid and one of the <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> to configure the
-destination.  Expect for lon-lat grids, you will need to provide a name for
-the mesh or grid, typically describing its resolution and perhaps its extent
-and the region covered.</p>
+<p>It is important that the task that the step belongs to includes the required
+config options related to mapping.  This could be accomplished either by
+calling:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;mapping.cfg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or by including the corresponding config options in the task’s config file:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options related to creating mapping files</span>
+<span class="k">[mapping]</span>
+
+<span class="c1"># The tool to use for creating mapping files: esmf or moab</span>
+<span class="na">map_tool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">moab</span>
+</pre></div>
+</div>
+<p>Whether you create a <code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> object directly or create a subclass,
+you will need to call one of the <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to set up the source mesh or
+grid and one of the <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> to configure the destination.  Expect for lon-lat
+grids, you will need to provide a name for the mesh or grid, typically
+describing its resolution and perhaps its extent and the region covered.</p>
 <p>In nearly all situations, creating the mapping file is only one step in the
 workflow. After that, the mapping file will be used to remap data between
 the meshes or grids.  Steps that want to do this remapping need to have
