@@ -181,6 +181,10 @@ class Init(Step):
         shortwave_heat_flux = section.getfloat('shortwave_heat_flux')
         evaporation_flux = section.getfloat('evaporation_flux')
         rain_flux = section.getfloat('rain_flux')
+        river_runoff_flux = section.getfloat('river_runoff_flux')
+        ice_runoff_flux = section.getfloat('ice_runoff_flux')
+        subglacial_runoff_flux = section.getfloat('subglacial_runoff_flux')
+        iceberg_flux = section.getfloat('iceberg_flux')
         wind_stress_zonal = section.getfloat('wind_stress_zonal')
         wind_stress_meridional = section.getfloat('wind_stress_meridional')
 
@@ -221,4 +225,11 @@ class Init(Step):
             evaporation_flux * forcing_array_surface
         )
         ds_forcing['rainFlux'] = rain_flux * forcing_array_surface
+        ds_forcing['riverRunoffFlux'] = \
+            river_runoff_flux * forcing_array_surface
+        ds_forcing['iceRunoffFlux'] = ice_runoff_flux * forcing_array_surface
+        ds_forcing['subglacialRunoffFlux'] = \
+            subglacial_runoff_flux * forcing_array_surface
+        ds_forcing['icebergFreshWaterFlux'] = \
+            iceberg_flux * forcing_array_surface
         write_netcdf(ds_forcing, 'forcing.nc')
