@@ -490,10 +490,11 @@ def _run_step(task, step, new_log_file, available_resources,
         if step.args is not None:
             step_logger.info('\nBypassing step\'s run() method and running '
                              'with command line args\n')
-            log_function_call(function=run_command, logger=step_logger)
-            step_logger.info('')
-            run_command(step.args, step.cpus_per_task, step.ntasks,
-                        step.openmp_threads, step.config, step.logger)
+            for args in step.args:
+                log_function_call(function=run_command, logger=step_logger)
+                step_logger.info('')
+                run_command(args, step.cpus_per_task, step.ntasks,
+                            step.openmp_threads, step.config, step.logger)
         else:
             step_logger.info('')
             log_method_call(method=step.run, logger=step_logger)

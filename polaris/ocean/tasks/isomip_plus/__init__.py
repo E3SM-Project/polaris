@@ -34,6 +34,8 @@ def add_isomip_plus_tasks(component, mesh_type):
             config.set('spherical_mesh', 'mpas_mesh_filename',
                        'base_mesh_without_xy.nc')
 
+        config.add_from_package('polaris.remap', 'mapping.cfg')
+
         config.add_from_package('polaris.ocean.tasks.isomip_plus',
                                 'isomip_plus.cfg')
 

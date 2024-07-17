@@ -366,9 +366,21 @@ class MappingFileStep(Step):
         out_descriptor = _get_descriptor(dst)
 
         if self.map_filename is None:
+            map_tool = self.config.get('mapping', 'map_tool')
+            prefixes = {
+                'esmf': 'esmf',
+                'moab': 'mbtr'
+            }
+            suffixes = {
+                'conserve': 'aave',
+                'bilinear': 'bilin',
+                'neareststod': 'neareststod'
+            }
+            suffix = f'{prefixes[map_tool]}{suffixes[self.method]}'
+
             self.map_filename = \
                 f'map_{in_descriptor.meshName}_to_{out_descriptor.meshName}' \
-                f'_{self.method}.nc'
+                f'_{suffix}.nc'
 
         self.map_filename = os.path.abspath(os.path.join(
             self.work_dir, self.map_filename))
@@ -381,35 +393,62 @@ class MappingFileStep(Step):
         Create a remapper and set the command-line arguments
         """
         remapper = self.get_remapper()
-        self.args = _build_mapping_file_args(remapper, self.method,
-                                             self.expand_distance,
-                                             self.expand_factor,
+        map_tool = self.config.get('mapping', 'map_tool')
+        _check_remapper(remapper, self.method, map_tool=map_tool)
+
+        src_descriptor = remapper.sourceDescriptor
+        src_descriptor.to_scrip(self.src_mesh_filename)
+
+        dst_descriptor = remapper.destinationDescriptor
+        dst_descriptor.to_scrip(self.dst_mesh_filename,
+                                expandDist=self.expand_distance,
+                                expandFactor=self.expand_factor)
+
+        if map_tool == 'esmf':
+            self.args = _esmf_build_map_args(remapper, self.method,
+                                             src_descriptor,
                                              self.src_mesh_filename,
+                                             dst_descriptor,
+                                             self.dst_mesh_filename)
+        elif map_tool == 'moab':
+            self.args = _moab_build_map_args(remapper, self.method,
+                                             src_descriptor,
+                                             self.src_mesh_filename,
+                                             dst_descriptor,
                                              self.dst_mesh_filename)
 
 
-def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
-                             src_mesh_filename, dst_mesh_filename):
+def _check_remapper(remapper, method, map_tool):
     """
-    Get command-line arguments for making a mapping file
+    Check for inconsistencies in the remapper
     """
+    if map_tool not in ['moab', 'esmf']:
+        raise ValueError(f'Unexpected map_tool {map_tool}. Valid '
+                         f'values are "esmf" or "moab".')
 
-    _check_remapper(remapper, method)
+    if isinstance(remapper.destinationDescriptor,
+                  PointCollectionDescriptor) and \
+            method not in ['bilinear', 'neareststod']:
+        raise ValueError(f'method {method} not supported for destination '
+                         f'grid of type PointCollectionDescriptor.')
 
-    src_descriptor = remapper.sourceDescriptor
-    src_descriptor.to_scrip(src_mesh_filename)
+    if map_tool == 'moab' and method == 'neareststod':
+        raise ValueError('method neareststod not supported by mbtempest.')
 
-    dst_descriptor = remapper.destinationDescriptor
-    dst_descriptor.to_scrip(dst_mesh_filename, expandDist=expand_distance,
-                            expandFactor=expand_factor)
+
+def _esmf_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
+                         dst_descriptor, dst_mesh_filename):
+    """
+    Get command-line arguments for making a mapping file with
+    ESMF_RegridWeightGen
+    """
 
     args = ['ESMF_RegridWeightGen',
             '--source', src_mesh_filename,
             '--destination', dst_mesh_filename,
             '--weight', remapper.mappingFileName,
             '--method', method,
-            '--netcdf4',
-            '--no_log']
+            '--netcdf4']
 
     if src_descriptor.regional:
         args.append('--src_regional')
@@ -420,22 +459,59 @@ def _build_mapping_file_args(remapper, method, expand_distance, expand_factor,
     if src_descriptor.regional or dst_descriptor.regional:
         args.append('--ignore_unmapped')
 
-    return args
+    return [args]
 
 
-def _check_remapper(remapper, method):
+def _moab_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
+                         dst_descriptor, dst_mesh_filename):
     """
-    Check for inconsistencies in the remapper
+    Get command-line arguments for making a mapping file with mbtempest
     """
-    if isinstance(remapper.destinationDescriptor,
-                  PointCollectionDescriptor) and \
-            method not in ['bilinear', 'neareststod']:
-        raise ValueError(f'method {method} not supported for destination '
-                         'grid of type PointCollectionDescriptor.')
+    fvmethod = {
+        'conserve': 'none',
+        'bilinear': 'bilin'}
+
+    map_filename = remapper.mappingFileName
+    intx_filename = \
+        f'moab_intx_{src_descriptor.meshName}_to_{dst_descriptor.meshName}.h5m'
+
+    intx_args = [
+        'mbtempest',
+        '--type', '5',
+        '--load', src_mesh_filename,
+        '--load', dst_mesh_filename,
+        '--intx', intx_filename
+    ]
+
+    if src_descriptor.regional or dst_descriptor.regional:
+        intx_args.append('--rrmgrids')
+
+    map_args = [
+        'mbtempest',
+        '--type', '5',
+        '--load', src_mesh_filename,
+        '--load', dst_mesh_filename,
+        '--intx', intx_filename,
+        '--weights',
+        '--method', 'fv',
+        '--method', 'fv',
+        '--file', map_filename,
+        '--order', '1',
+        '--order', '1',
+        '--fvmethod', fvmethod[method]
+    ]
+
+    if method == 'conserve' and (src_descriptor.regional or
+                                 dst_descriptor.regional):
+        map_args.append('--rrmgrids')
+
+    return [intx_args, map_args]
 
 
 def _get_descriptor(info):
-    """ Get a mesh descriptor from the mesh info """
+    """
+    Get a mesh descriptor from the mesh info
+    """
     grid_type = info['type']
     if grid_type == 'mpas':
         descriptor = _get_mpas_descriptor(info)
@@ -447,11 +523,16 @@ def _get_descriptor(info):
         descriptor = _get_points_descriptor(info)
     else:
         raise ValueError(f'Unexpected grid type {grid_type}')
+
+    # for compatibility with mbtempest
+    descriptor.format = 'NETCDF3_64BIT_DATA'
     return descriptor
 
 
 def _get_mpas_descriptor(info):
-    """ Get an MPAS mesh descriptor from the given info """
+    """
+    Get an MPAS mesh descriptor from the given info
+    """
     mesh_type = info['mpas_mesh_type']
     filename = info['filename']
     mesh_name = info['name']
@@ -472,7 +553,9 @@ def _get_mpas_descriptor(info):
 
 
 def _get_lon_lat_descriptor(info):
-    """ Get a lon-lat descriptor from the given info """
+    """
+    Get a lon-lat descriptor from the given info
+    """
 
     if 'dlat' in info and 'dlon' in info:
         lon_min = info['lon_min']
@@ -510,7 +593,9 @@ def _get_lon_lat_descriptor(info):
 
 
 def _get_proj_descriptor(info):
-    """ Get a ProjectionGridDescriptor from the given info """
+    """
+    Get a ProjectionGridDescriptor from the given info
+    """
     filename = info['filename']
     grid_name = info['name']
     x = info['x']
@@ -533,7 +618,9 @@ def _get_proj_descriptor(info):
 
 
 def _get_points_descriptor(info):
-    """ Get a PointCollectionDescriptor from the given info """
+    """
+    Get a PointCollectionDescriptor from the given info
+    """
     filename = info['filename']
     collection_name = info['name']
     lon_var = info['lon']

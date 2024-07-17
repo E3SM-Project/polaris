@@ -142,8 +142,10 @@ class Step:
         file (e.g. if the step calls external code that, in turn, calls
         additional subprocesses).
 
-    args : {list of str, None}
-        A list of command-line arguments to call in parallel
+    args : {list of list of str, None}
+        A list of lists of command-line arguments to call in parallel.  Each
+        inner list represents a single command.  All commands must use the
+        same parallel resources.
     """
 
     def __init__(self, component, name, subdir=None, indir=None,
