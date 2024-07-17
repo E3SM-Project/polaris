@@ -1,5 +1,7 @@
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave
 # ocean/planar/manufactured_solution

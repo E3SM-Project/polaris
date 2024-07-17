@@ -1,0 +1,104 @@
+omega:
+  io:
+    config_write_output_on_startup: false
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: 10.0
+  bottom_drag:
+    config_use_implicit_top_drag: true
+    config_implicit_top_drag_coeff: 2.5e-3
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 1.0e-3
+  time_management:
+    config_do_restart: {{ do_restart }}
+    config_run_duration: {{ run_duration }}
+    config_start_time: {{ start_time }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  eos:
+    config_eos_type: jm
+  pressure_gradient:
+    config_pressure_gradient_type: Jacobian_from_TS
+  time_varying_forcing:
+    config_time_varying_land_ice_forcing_start_time: 0001-01-01_00:00:00
+    config_time_varying_land_ice_forcing_reference_time: 0001-01-01_00:00:00
+    config_time_varying_land_ice_forcing_cycle_start: none
+    config_time_varying_land_ice_forcing_cycle_duration: 0002-00-00_00:00:00
+    config_time_varying_land_ice_forcing_interval: 0001-00-00_00:00:00
+  land_ice_fluxes:
+    config_land_ice_flux_mode: {{ land_ice_flux_mode }}
+  frazil_ice:
+    config_use_frazil_ice_formation: true
+    config_frazil_maximum_depth: 2000.0
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    restart:
+      output_interval: 0000_00:00:01
+      filename_template: ../forward/restarts/restart.$Y-$M-$D_$h.$m.$s.nc
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - mesh
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - layerThickness
+      - zMid
+      - minLevelCell
+      - maxLevelCell
+      - ssh
+      - density
+      - velocityX
+      - velocityY
+      - atmosphericPressure
+    land_ice_fluxes:
+      type: output
+      precision: double
+      filename_template: land_ice_fluxes.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - ssh
+      - landIcePressure
+      - landIceDraft
+      - landIceFraction
+      - landIceMask
+      - landIceFrictionVelocity
+      - topDrag
+      - topDragMagnitude
+      - landIceFreshwaterFlux
+      - landIceHeatFlux
+      - heatFluxToLandIce
+      - landIceInterfaceTracers
+      - landIceBoundaryLayerTracers
+      - landIceTracerTransferVelocities
+      - effectiveDensityInLandIce
+      - accumulatedLandIceMass
+      - accumulatedLandIceHeat
+    frazil:
+      type: output
+      precision: double
+      filename_template: frazil.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - seaIceEnergy
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - frazilSurfacePressure
+      - accumulatedLandIceFrazilMass

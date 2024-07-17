@@ -1,0 +1,48 @@
+omega:
+  io:
+    config_write_output_on_startup: true
+  time_management:
+    config_do_restart: false
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  land_ice_fluxes:
+    config_land_ice_flux_mode: pressure_only
+  debug:
+    config_check_ssh_consistency: false
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - mesh
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - layerThickness
+      - zMid
+      - minLevelCell
+      - maxLevelCell
+      - ssh
+      - density
+      - velocityX
+      - velocityY
+      - atmosphericPressure
+      - landIceInterfaceTracers
+      - landIceBoundaryLayerTracers
+      - landIcePressure
+      - landIceDraft
+      - landIceFraction
+      - landIceMask
+      - landIceFrictionVelocity
+      - landIceFreshwaterFlux
+      - landIceHeatFlux

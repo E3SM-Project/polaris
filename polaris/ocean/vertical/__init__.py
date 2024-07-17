@@ -1,9 +1,18 @@
-import numpy
-import xarray
+import numpy as np
+import xarray as xr
 
-from polaris.ocean.vertical.sigma import init_sigma_vertical_coord
-from polaris.ocean.vertical.zlevel import init_z_level_vertical_coord
-from polaris.ocean.vertical.zstar import init_z_star_vertical_coord
+from polaris.ocean.vertical.sigma import (
+    init_sigma_vertical_coord,
+    update_sigma_layer_thickness,
+)
+from polaris.ocean.vertical.zlevel import (
+    init_z_level_vertical_coord,
+    update_z_level_layer_thickness,
+)
+from polaris.ocean.vertical.zstar import (
+    init_z_star_vertical_coord,
+    update_z_star_layer_thickness,
+)
 
 
 def init_vertical_coord(config, ds):
@@ -101,13 +110,56 @@ def init_vertical_coord(config, ds):
     ds['maxLevelCell'] = ds.maxLevelCell + 1
 
 
+def update_layer_thickness(config, ds):
+    """
+    Update the layer thicknesses in ds after the vertical coordinate has
+    already been initialized based on the ``bottomDepth`` and ``ssh``
+    variables of the mesh data set.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters used to construct the vertical
+        grid
+
+    ds : xarray.Dataset
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
+    """
+
+    for var in ['bottomDepth', 'ssh']:
+        if var not in ds:
+            raise ValueError(f'{var} must be added to ds before this call.')
+
+    if 'Time' in ds.ssh.dims:
+        # drop it for now, we'll add it back at the end
+        ds['ssh'] = ds.ssh.isel(Time=0)
+
+    coord_type = config.get('vertical_grid', 'coord_type')
+
+    if coord_type == 'z-level':
+        update_z_level_layer_thickness(config, ds)
+    elif coord_type == 'z-star':
+        update_z_star_layer_thickness(config, ds)
+    elif coord_type == 'sigma':
+        update_sigma_layer_thickness(config, ds)
+    elif coord_type == 'haney-number':
+        raise ValueError('Haney Number coordinate not yet supported.')
+    else:
+        raise ValueError(f'Unknown coordinate type {coord_type}')
+
+    # add (back) Time dimension
+    ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
+    ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
+
+
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
     cellMask = []
     for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(zIndex >= minLevelCell,
-                                 zIndex <= maxLevelCell)
+        mask = np.logical_and(zIndex >= minLevelCell,
+                              zIndex <= maxLevelCell)
         cellMask.append(mask)
-    cellMaskArray = xarray.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
+    cellMaskArray = xr.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
     cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
     return cellMaskArray
 
@@ -142,6 +194,6 @@ def _compute_zmid_from_layer_thickness(layerThickness, ssh, cellMask):
         z = (zTop - 0.5 * thickness).where(mask)
         zMid.append(z)
         zTop -= thickness
-    zMid = xarray.concat(zMid, dim='nVertLevels').transpose('Time', 'nCells',
-                                                            'nVertLevels')
+    zMid = xr.concat(zMid, dim='nVertLevels').transpose('Time', 'nCells',
+                                                        'nVertLevels')
     return zMid

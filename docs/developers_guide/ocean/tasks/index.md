@@ -10,6 +10,7 @@ correlated_tracers_2d
 cosine_bell
 geostrophic
 divergent_2d
+ice_shelf_2d
 inertial_gravity_wave
 internal_wave
 manufactured_solution
