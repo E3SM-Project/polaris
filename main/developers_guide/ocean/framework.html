@@ -78,6 +78,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convergence-tests">Convergence Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#visualization">Visualization</a></li>
@@ -485,6 +486,21 @@ rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to
 the evaluation time specified by the <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> config option.</p>
 </section>
+<section id="ice-shelf-tasks">
+<span id="dev-ocean-framework-ice-shelf"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#ice-shelf-tasks" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf</span></code> module provides support for ice shelf tasks.</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf</span></code> class can serve as a parent
+class for ice shelf tests, such as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.IceShelf2d</span></code>.</p>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()</span></code>
+sets up <code class="docutils literal notranslate"><span class="pre">ssh_forward</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps from the classes
+<a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward" title="polaris.ocean.ice_shelf.ssh_forward.SshForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_forward.SshForward</span></code></a>
+<a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment</span></code></a>.
+The <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> section of the config file sets the parameters for these
+steps, as described in <a class="reference internal" href="../../users_guide/ocean/framework/ice_shelf.html#ocean-ssh-adjustment"><span class="std std-ref">SSH adjustment steps</span></a>. It returns the last
+<code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> step, which is typically used as the
+initial state for subsequent forward steps.</p>
+</section>
 <section id="vertical-coordinate">
 <span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
@@ -500,7 +516,10 @@ this section of the config file. The function
 <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">zMid</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> variables for <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-level"><span class="std std-ref">z-level</span></a> and
 <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinates using the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> as well
-as config options from <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>.</p>
+as config options from <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>. The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.update_layer_thickness.html#polaris.ocean.vertical.update_layer_thickness" title="polaris.ocean.vertical.update_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.update_layer_thickness()</span></code></a> can be used to update
+<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when either or both of <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> have been
+changed.</p>
 </section>
 <section id="reference-resting-potential-energy-rpe">
 <span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Permalink to this heading"></a></h2>

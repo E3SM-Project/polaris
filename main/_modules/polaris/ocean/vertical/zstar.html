@@ -197,6 +197,26 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="update_z_star_layer_thickness"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zstar.update_z_star_layer_thickness.html#polaris.ocean.vertical.zstar.update_z_star_layer_thickness">[docs]</a><span class="k">def</span> <span class="nf">update_z_star_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the z-star vertical coordinate layer thicknesses based on the</span>
+<span class="sd">    ``bottomDepth`` and ``ssh`` variables of the mesh data set.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters used to construct the vertical</span>
+<span class="sd">        grid</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A data set containing ``bottomDepth`` and ``ssh`` variables used to</span>
+<span class="sd">        construct the vertical coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_z_star_layer_thickness</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">)</span></div>
+
+
 <span class="k">def</span> <span class="nf">_compute_z_star_layer_thickness</span><span class="p">(</span><span class="n">restingThickness</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottomDepth</span><span class="p">,</span>
                                     <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>

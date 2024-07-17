@@ -107,6 +107,32 @@
    viz.Viz.run
 ```
 
+### ice_shelf_2d
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d
+
+.. autosummary::
+   :toctree: generated/
+
+   add_ice_shelf_2d_tasks
+
+   default.Default
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.run
+
+   validate.Validate
+   validate.Validate.run
+   
+   viz.Viz
+   viz.Viz.run
+```
+
 ### inertial_gravity_wave 
 
 ```{eval-rst}
@@ -283,6 +309,25 @@
    SphericalConvergenceForward.compute_cell_count
 ```
 
+### Ice Shelf
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. autosummary::
+   :toctree: generated/
+
+   IceShelfTask
+   IceShelfTask.setup_ssh_adjustment_steps
+
+   SshAdjustment
+   SshAdjustment.run
+
+   SshForward
+   SshForward.compute_cell_count
+   SshForward.dynamic_model_config
+```
+
 ### Ocean Model
 
 ```{eval-rst}
@@ -336,11 +381,16 @@
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
    vertical.partial_cells.alter_ssh
+   vertical.sigma.init_sigma_vertical_coord
+   vertical.sigma.update_sigma_layer_thickness
+   vertical.update_layer_thickness
    vertical.zlevel.init_z_level_vertical_coord
+   vertical.zlevel.update_z_level_layer_thickness
    vertical.zlevel.compute_min_max_level_cell
    vertical.zlevel.compute_z_level_layer_thickness
    vertical.zlevel.compute_z_level_resting_thickness
    vertical.zstar.init_z_star_vertical_coord
+   vertical.zstar.update_z_star_layer_thickness
 ```
 
 ### Visualization

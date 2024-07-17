@@ -110,6 +110,8 @@
   <h1>Source code for polaris.ocean.model.time</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">time</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 
 <div class="viewcode-block" id="get_time_interval_string"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string">[docs]</a><span class="k">def</span> <span class="nf">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -139,10 +141,10 @@
 
     <span class="n">day_part</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total</span> <span class="o">/</span> <span class="n">sec_per_day</span><span class="p">)</span>
     <span class="n">sec_part</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">day_part</span> <span class="o">*</span> <span class="n">sec_per_day</span>
-
+    <span class="n">sec_decimal</span> <span class="o">=</span> <span class="n">sec_part</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">sec_part</span><span class="p">)</span>
     <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
     <span class="n">seconds_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">sec_part</span><span class="p">))</span>
-    <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">day_part</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">seconds_str</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">day_part</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">seconds_str</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">sec_decimal</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="p">)</span><span class="si">:</span><span class="s1">03d</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="k">return</span> <span class="n">time_str</span></div>
 </pre></div>
 

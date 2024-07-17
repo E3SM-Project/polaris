@@ -75,6 +75,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
 <li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
 <li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
@@ -164,7 +165,7 @@ in <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrop
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.forward.Forward.html#polaris.ocean.tasks.geostrophic.forward.Forward" title="polaris.ocean.tasks.geostrophic.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.forward.Forward</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
 and defines a step for running MPAS-Ocean from an initial condition produced in
-an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <span class="xref std std-ref">dev-ocean-spherical-convergence</span> for some relevant
+an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
 discussion of the parent class. The time step is determined from the resolution
 based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[spherical_convergences]</span></code>
 section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>

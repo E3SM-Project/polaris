@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.ice\_shelf\_2d.viz.Viz.run
+==============================================
+
+.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d.viz
+
+.. automethod:: Viz.run
