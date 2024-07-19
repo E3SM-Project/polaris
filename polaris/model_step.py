@@ -465,12 +465,12 @@ class ModelStep(Step):
         copy_executable = config.getboolean('setup', 'copy_executable')
         if copy_executable:
             # make a copy of the model executable, then link to that
-            mpas_subdir = os.path.basename(
-                config.get('paths', 'mpas_model'))
-            mpas_workdir = os.path.join(base_work_dir, mpas_subdir)
-            target = os.path.join(mpas_workdir, filename)
+            component_subdir = os.path.basename(
+                config.get('paths', 'component_path'))
+            component_workdir = os.path.join(base_work_dir, component_subdir)
+            target = os.path.join(component_workdir, filename)
             try:
-                os.makedirs(mpas_workdir)
+                os.makedirs(component_workdir)
             except FileExistsError:
                 pass
 
