@@ -6,8 +6,8 @@ import os
 import subprocess
 
 
-def run(launch_path, mpas_path, work_base, load_script, make_command,
-        setup_command, run_command):
+def run(launch_path, e3sm_path, mpas_path, work_base, load_script,
+        make_command, setup_command, run_command):
     """
     This function runs a single step in the bisection process.  It is typically
     called through ``git bisect run`` within the ``utils/bisect/bisect.py`` but
@@ -19,6 +19,8 @@ def run(launch_path, mpas_path, work_base, load_script, make_command,
         The path from which relative paths in the config file are defined,
         typically the root of the polaris branch where the config file
         resides and where ``utils/bisect/bisect.py`` was called.
+    e3sm_path : str
+        The relative or absolute path to the e3sm branch to build from.
     mpas_path : str
         The relative or absolute path to the mpas component to be built.
     work_base : str
@@ -38,6 +40,7 @@ def run(launch_path, mpas_path, work_base, load_script, make_command,
         test case(s)
     """
 
+    e3sm_path = to_abs(e3sm_path, launch_path)
     mpas_path = to_abs(mpas_path, launch_path)
     work_base = to_abs(work_base, launch_path)
     load_script = to_abs(load_script, launch_path)
@@ -55,10 +58,12 @@ def run(launch_path, mpas_path, work_base, load_script, make_command,
     except FileExistsError:
         pass
 
-    os.chdir(mpas_path)
     commands = f'source {load_script} && ' \
+               f'cd {e3sm_path} && ' \
+               f'rm -rf * && ' \
+               f'git reset --hard HEAD && ' \
                f'git submodule update --init --recursive && ' \
-               f'make clean >& {work_path}/clean.log && ' \
+               f'cd {mpas_path} && ' \
                f'{make_command} >& {work_path}/make.log && ' \
                f'{setup_command} -p {mpas_path} -w {work_path} && ' \
                f'cd {work_path} && ' \
@@ -112,7 +117,8 @@ def main():
     launch_path = os.path.dirname(args.config_file)
 
     section = config['bisect']
-    run(launch_path=launch_path, mpas_path=section['mpas_path'],
+    run(launch_path=launch_path, e3sm_path=section['e3sm_path'],
+        mpas_path=section['mpas_path'],
         work_base=section['work_base'], load_script=section['load_script'],
         make_command=section['make_command'],
         setup_command=section['setup_command'],
