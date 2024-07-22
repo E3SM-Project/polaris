@@ -231,6 +231,7 @@ seaice/api
 
    write_job_script
    get_slurm_options
+   clean_up_whitespace
 ```
 
 ### logging

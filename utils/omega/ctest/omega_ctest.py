@@ -8,7 +8,7 @@ from jinja2 import Template
 
 from polaris.config import PolarisConfigParser
 from polaris.io import download, update_permissions
-from polaris.job import _clean_up_whitespace, get_slurm_options
+from polaris.job import clean_up_whitespace, get_slurm_options
 
 
 def make_build_script(machine, compiler, branch, build_only, mesh_filename,
@@ -61,7 +61,7 @@ def make_build_script(machine, compiler, branch, build_only, mesh_filename,
                              clean=clean,
                              cmake_flags=cmake_flags)
 
-    script = _clean_up_whitespace(script)
+    script = clean_up_whitespace(script)
 
     build_omega_dir = os.path.abspath('build_omega')
     os.makedirs(build_omega_dir, exist_ok=True)
@@ -120,7 +120,7 @@ def write_job_script(config, machine, compiler, submit):
 
     nodes = 1
 
-    partition, qos, constraint, _ = get_slurm_options(
+    partition, qos, constraint, gpus_per_node, _ = get_slurm_options(
         config, machine, nodes)
 
     wall_time = '0:15:00'
@@ -156,8 +156,8 @@ def write_job_script(config, machine, compiler, submit):
     script = template.render(job_name=job_name, account=account,
                              nodes=f'{nodes}', wall_time=wall_time, qos=qos,
                              partition=partition, constraint=constraint,
-                             build_dir=build_dir)
-    script = _clean_up_whitespace(script)
+                             gpus_per_node=gpus_per_node, build_dir=build_dir)
+    script = clean_up_whitespace(script)
 
     build_omega_dir = os.path.abspath('build_omega')
     script_filename = f'job_build_and_ctest_omega_{machine}_{compiler}.sh'
