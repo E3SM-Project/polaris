@@ -511,6 +511,11 @@ def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
 
     esmf = config.get('deploy', 'esmf')
 
+    if config.has_option('deploy', 'spack_mirror'):
+        spack_mirror = config.get('deploy', 'spack_mirror')
+    else:
+        spack_mirror = None
+
     spack_branch_base = f'{spack_base}/{spack_env}'
 
     specs = list()
@@ -545,7 +550,8 @@ def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
                        spack_specs=specs, compiler=compiler, mpi=mpi,
                        machine=machine, config_file=machine_config,
                        include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-                       yaml_template=yaml_template, tmpdir=tmpdir)
+                       yaml_template=yaml_template, tmpdir=tmpdir,
+                       spack_mirror=spack_mirror)
 
     spack_view = f'{spack_branch_base}/var/spack/environments/' \
                  f'{spack_env}/.spack-env/view'
