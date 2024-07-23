@@ -13,7 +13,7 @@ from polaris.job import clean_up_whitespace, get_slurm_options
 
 def make_build_script(machine, compiler, branch, build_only, mesh_filename,
                       planar_mesh_filename, sphere_mesh_filename,
-                      debug, clean, cmake_flags):
+                      debug, clean, cmake_flags, account):
     """
     Make a shell script for checking out Omega and its submodules, building
     Omega and its ctests, linking to testing data files, and running ctests.
@@ -44,6 +44,9 @@ def make_build_script(machine, compiler, branch, build_only, mesh_filename,
 
     if cmake_flags is None:
         cmake_flags = ''
+
+    if account is not None:
+        cmake_flags = f'{cmake_flags} -DOMEGA_CIME_PROJECT={account}'
 
     script = template.render(update_omega_submodule=update_omega_submodule,
                              polaris_source_dir=polaris_source_dir,
@@ -108,15 +111,16 @@ def download_meshes(config):
     return download_targets
 
 
-def write_job_script(config, machine, compiler, submit):
+def write_job_script(config, machine, compiler, account, submit):
     """
     Write a job script for running the build script
     """
 
-    if config.has_option('parallel', 'account'):
-        account = config.get('parallel', 'account')
-    else:
-        account = ''
+    if account is None:
+        if config.has_option('parallel', 'account'):
+            account = config.get('parallel', 'account')
+        else:
+            account = ''
 
     nodes = 1
 
@@ -190,6 +194,8 @@ def main():
                         help='Whether to only build Omega in debug mode')
     parser.add_argument('--cmake_flags', dest='cmake_flags',
                         help='Quoted string with additional cmake flags')
+    parser.add_argument('--account', dest='account',
+                        help='slurm account to submit the job to')
 
     args = parser.parse_args()
 
@@ -206,6 +212,7 @@ def main():
     debug = args.debug
     clean = args.clean
     cmake_flags = args.cmake_flags
+    account = args.account
 
     if 'SLURM_JOB_ID' in os.environ:
         # already on a comptue node so we will just run ctests directly
@@ -221,7 +228,8 @@ def main():
         build_only=build_only, mesh_filename=mesh_filename,
         planar_mesh_filename=planar_mesh_filename,
         sphere_mesh_filename=sphere_mesh_filename,
-        debug=debug, clean=clean, cmake_flags=cmake_flags)
+        debug=debug, clean=clean, cmake_flags=cmake_flags,
+        account=account)
 
     # clear environment variables and start fresh with those from login
     # so spack doesn't get confused by conda
@@ -229,7 +237,7 @@ def main():
                           shell=True)
 
     write_job_script(config=config, machine=machine, compiler=compiler,
-                     submit=submit)
+                     account=account, submit=submit)
 
 
 if __name__ == '__main__':
