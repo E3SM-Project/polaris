@@ -12,66 +12,14 @@ from deploy.shared import (
 )
 
 
-def get_config(config_file):
-    # we can't load polaris so we find the config files
-    here = os.path.abspath(os.path.dirname(__file__))
-    default_config = os.path.join(here, 'deploy/default.cfg')
-    config = ConfigParser()
-    config.read(default_config)
-
-    if config_file is not None:
-        config.read(config_file)
-
-    return config
-
-
-def bootstrap(activate_install_env, source_path, local_conda_build):
-
-    print('Creating the polaris conda environment\n')
-    bootstrap_command = f'{source_path}/deploy/bootstrap.py'
-    command = f'{activate_install_env} && ' \
-              f'{bootstrap_command} {" ".join(sys.argv[1:])}'
-    if local_conda_build is not None:
-        command = f'{command} --local_conda_build {local_conda_build}'
-    check_call(command)
-
-
-def setup_install_env(env_name, activate_base, use_local, logger, recreate,
-                      conda_base, mache):
-    env_path = os.path.join(conda_base, 'envs', env_name)
-    if use_local:
-        channels = '--use-local'
-    else:
-        channels = ''
-    if mache == '':
-        # development mache so include dependencies
-        packages = 'importlib_resources jinja2 lxml packaging progressbar2 ' \
-                   'pyyaml'
-    else:
-        packages = f'jinja2 {mache} packaging progressbar2'
-    if recreate or not os.path.exists(env_path):
-        print('Setting up a conda environment for installing polaris\n')
-        commands = f'{activate_base} && ' \
-                   f'conda create -y -n {env_name} {channels} {packages}'
-    else:
-        print('Updating conda environment for installing polaris\n')
-        commands = f'{activate_base} && ' \
-                   f'conda install -y -n {env_name} {channels} {packages}'
-
-    check_call(commands, logger=logger)
-
-
 def main():
     args = parse_args(bootstrap=False)
     source_path = os.getcwd()
 
     if args.tmpdir is not None:
-        try:
-            os.makedirs(args.tmpdir)
-        except FileExistsError:
-            pass
+        os.makedirs(name=args.tmpdir, exist_ok=True)
 
-    config = get_config(args.config_file)
+    config = _get_config(args.config_file)
 
     conda_base = get_conda_base(args.conda_base, config, warn=True)
     conda_base = os.path.abspath(conda_base)
@@ -86,10 +34,7 @@ def main():
     activate_install_env = \
         f'{source_activation_scripts} && ' \
         f'conda activate {env_name}'
-    try:
-        os.makedirs('deploy_tmp/logs')
-    except OSError:
-        pass
+    os.makedirs(name='deploy_tmp/logs', exist_ok=True)
 
     if args.verbose:
         logger = None
@@ -101,14 +46,16 @@ def main():
     install_miniforge(conda_base, activate_base, logger)
 
     local_mache = args.mache_fork is not None and args.mache_branch is not None
-    if local_mache:
-        mache = ''
-    else:
-        mache_version = config.get('deploy', 'mache')
-        mache = f'"mache={mache_version}"'
 
-    setup_install_env(env_name, activate_base, args.use_local, logger,
-                      args.recreate, conda_base, mache)
+    packages = '--file deploy/spec-bootstrap.txt'
+    if not local_mache:
+        # we need to specify the mache version and all dependencies
+        # since we won't be installing from mache's spec file
+        mache_version = config.get('deploy', 'mache')
+        packages = f'{packages} "mache={mache_version}"'
+
+    _setup_install_env(env_name, activate_base, args.use_local, logger,
+                       args.recreate, conda_base, packages)
 
     if local_mache:
         print('Clone and install local mache\n')
@@ -124,6 +71,7 @@ def main():
 
         check_call(commands, logger=logger)
 
+    # polaris only uses 'dev' environment type, but E3SM-Unified uses others
     env_type = config.get('deploy', 'env_type')
     if env_type not in ['dev', 'test_release', 'release']:
         raise ValueError(f'Unexpected env_type: {env_type}')
@@ -133,7 +81,52 @@ def main():
     else:
         local_conda_build = None
 
-    bootstrap(activate_install_env, source_path, local_conda_build)
+    _bootstrap(activate_install_env, source_path, local_conda_build)
+
+
+def _get_config(config_file):
+    # we can't load polaris so we find the config files
+    here = os.path.abspath(os.path.dirname(__file__))
+    default_config = os.path.join(here, 'deploy/default.cfg')
+    config = ConfigParser()
+    config.read(default_config)
+
+    if config_file is not None:
+        config.read(config_file)
+
+    return config
+
+
+def _setup_install_env(env_name, activate_base, use_local, logger, recreate,
+                       conda_base, packages):
+    env_path = os.path.join(conda_base, 'envs', env_name)
+
+    if use_local:
+        channels = '--use-local'
+    else:
+        channels = ''
+
+    if recreate or not os.path.exists(env_path):
+        print('Setting up a conda environment for installing polaris\n')
+        conda_command = 'create'
+    else:
+        print('Updating conda environment for installing polaris\n')
+        conda_command = 'install'
+    commands = f'{activate_base} && ' \
+               f'conda {conda_command} -y -n {env_name} {channels} {packages}'
+
+    check_call(commands, logger=logger)
+
+
+def _bootstrap(activate_install_env, source_path, local_conda_build):
+
+    print('Creating the polaris conda environment\n')
+    bootstrap_command = f'{source_path}/deploy/bootstrap.py'
+    command = f'{activate_install_env} && ' \
+              f'{bootstrap_command} {" ".join(sys.argv[1:])}'
+    if local_conda_build is not None:
+        command = f'{command} --local_conda_build {local_conda_build}'
+    check_call(command)
 
 
 if __name__ == '__main__':
