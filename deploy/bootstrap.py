@@ -23,10 +23,21 @@ from shared import (
     check_call,
     get_conda_base,
     get_logger,
-    get_spack_base,
     install_miniforge,
     parse_args,
 )
+
+
+def _get_spack_base(spack_base, config):
+    if spack_base is None:
+        if config.has_option('deploy', 'spack'):
+            spack_base = config.get('deploy', 'spack')
+        else:
+            raise ValueError('No spack base provided with --spack and none is '
+                             'provided in a config file.')
+    # handle "~" in the path
+    spack_base = os.path.abspath(os.path.expanduser(spack_base))
+    return spack_base
 
 
 def get_config(config_file, machine):
@@ -481,7 +492,7 @@ def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
     mpi = config.get('deploy', f'mpi_{compiler}')
 
     if machine is not None:
-        spack_base = get_spack_base(spack_base, config)
+        spack_base = _get_spack_base(spack_base, config)
 
     if spack_base is None:
         return None
@@ -1141,7 +1152,7 @@ def main():  # noqa: C901
         if args.spack_base is not None:
             spack_base = args.spack_base
         elif known_machine and compiler is not None:
-            spack_base = get_spack_base(args.spack_base, config)
+            spack_base = _get_spack_base(args.spack_base, config)
         else:
             spack_base = None
 

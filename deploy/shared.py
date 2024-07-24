@@ -110,18 +110,6 @@ def get_conda_base(conda_base, config, shared=False, warn=False):
     return conda_base
 
 
-def get_spack_base(spack_base, config):
-    if spack_base is None:
-        if config.has_option('deploy', 'spack'):
-            spack_base = config.get('deploy', 'spack')
-        else:
-            raise ValueError('No spack base provided with --spack and none is '
-                             'provided in a config file.')
-    # handle "~" in the path
-    spack_base = os.path.abspath(os.path.expanduser(spack_base))
-    return spack_base
-
-
 def check_call(commands, env=None, logger=None):
     command_list = commands.replace(' && ', '; ').split('; ')
     print_command = '\n   '.join(command_list)
