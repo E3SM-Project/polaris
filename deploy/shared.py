@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 import platform
-import shutil
 import subprocess
 import sys
 from urllib.request import Request, urlopen
@@ -185,26 +184,6 @@ def install_miniforge(conda_base, activate_base, logger):
                f'conda init --no-user'
 
     check_call(commands, logger=logger)
-
-
-def backup_bashrc():
-    home_dir = os.path.expanduser('~')
-    files = ['.bashrc', '.bash_profile']
-    for filename in files:
-        src = os.path.join(home_dir, filename)
-        dst = os.path.join(home_dir, f'{filename}.conda_bak')
-        if os.path.exists(src):
-            shutil.copyfile(src, dst)
-
-
-def restore_bashrc():
-    home_dir = os.path.expanduser('~')
-    files = ['.bashrc', '.bash_profile']
-    for filename in files:
-        src = os.path.join(home_dir, f'{filename}.conda_bak')
-        dst = os.path.join(home_dir, filename)
-        if os.path.exists(src):
-            shutil.move(src, dst)
 
 
 def get_logger(name, log_filename):
