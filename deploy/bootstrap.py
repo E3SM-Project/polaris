@@ -510,14 +510,8 @@ def build_spack_soft_env(config, update_spack, machine, env_type,  # noqa: C901
 
     build_dir = f'deploy_tmp/build_soft_{machine}'
 
-    try:
-        shutil.rmtree(build_dir)
-    except OSError:
-        pass
-    try:
-        os.makedirs(build_dir)
-    except FileExistsError:
-        pass
+    _safe_rmtree(build_dir)
+    os.makedirs(name=build_dir, exist_ok=True)
 
     os.chdir(build_dir)
 
@@ -719,10 +713,7 @@ def write_load_polaris(template_path, activ_path, conda_base, env_type,
                        env_vars, conda_env_only, source_path, without_openmp,
                        polaris_version):
 
-    try:
-        os.makedirs(activ_path)
-    except FileExistsError:
-        pass
+    os.makedirs(name=activ_path, exist_ok=True)
 
     if prefix.endswith(activ_suffix):
         # avoid a redundant activation script name if the suffix is already
@@ -861,10 +852,7 @@ def update_permissions(config, env_type, activ_path,  # noqa: C901
     # first the base directories that don't seem to be included in
     # os.walk()
     for directory in directories:
-        try:
-            dir_stat = os.stat(directory)
-        except OSError:
-            continue
+        dir_stat = _safe_stat(directory)
 
         perm = dir_stat.st_mode & mask
 
@@ -903,10 +891,7 @@ def update_permissions(config, env_type, activ_path,  # noqa: C901
 
                 directory = os.path.join(root, directory)
 
-                try:
-                    dir_stat = os.stat(directory)
-                except OSError:
-                    continue
+                dir_stat = _safe_stat(directory)
 
                 if dir_stat.st_uid != new_uid:
                     # current user doesn't own this dir so let's move on
@@ -930,10 +915,7 @@ def update_permissions(config, env_type, activ_path,  # noqa: C901
                 except ValueError:
                     pass
                 file_name = os.path.join(root, file_name)
-                try:
-                    file_stat = os.stat(file_name)
-                except OSError:
-                    continue
+                file_stat = _safe_stat(file_name)
 
                 if file_stat.st_uid != new_uid:
                     # current user doesn't own this file so let's move on
@@ -1002,11 +984,23 @@ def check_supported(library, machine, compiler, mpi, source_path):
                      f'on {machine}')
 
 
-def safe_rmtree(path):
-    try:
-        shutil.rmtree(path)
-    except OSError:
-        pass
+def _ignore_file_errors(f):
+    def _wrapper(*args, **kwargs):
+        try:
+            f(*args, **kwargs)
+        except (PermissionError, FileNotFoundError):
+            pass
+    return _wrapper
+
+
+@_ignore_file_errors
+def _safe_rmtree(path):
+    shutil.rmtree(path)
+
+
+@_ignore_file_errors
+def _safe_stat(path):
+    os.stat(path)
 
 
 def discover_machine(quiet=False):
@@ -1138,14 +1132,8 @@ def main():  # noqa: C901
 
         build_dir = f'deploy_tmp/build{activ_suffix}'
 
-        try:
-            shutil.rmtree(build_dir)
-        except OSError:
-            pass
-        try:
-            os.makedirs(build_dir)
-        except FileExistsError:
-            pass
+        _safe_rmtree(build_dir)
+        os.makedirs(name=build_dir, exist_ok=True)
 
         os.chdir(build_dir)
 
