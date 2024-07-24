@@ -574,12 +574,12 @@
         <span class="n">copy_executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
             <span class="c1"># make a copy of the model executable, then link to that</span>
-            <span class="n">mpas_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_model&#39;</span><span class="p">))</span>
-            <span class="n">mpas_workdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">mpas_subdir</span><span class="p">)</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mpas_workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">component_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">))</span>
+            <span class="n">component_workdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component_subdir</span><span class="p">)</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">mpas_workdir</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">component_workdir</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
