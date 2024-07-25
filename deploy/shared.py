@@ -156,9 +156,7 @@ def check_call(commands, env=None, logger=None):
 def install_miniforge(conda_base, activate_base, logger):
     if not os.path.exists(conda_base):
         print('Installing Miniforge3')
-        if platform.system() == 'Linux':
-            system = 'Linux'
-        elif platform.system() == 'Darwin':
+        if platform.system() == 'Darwin':
             system = 'MacOSX'
         else:
             system = 'Linux'
@@ -190,7 +188,7 @@ def get_logger(name, log_filename):
     print(f'Logging to: {log_filename}\n')
     try:
         os.remove(log_filename)
-    except OSError:
+    except FileNotFoundError:
         pass
     logger = logging.getLogger(name)
     handler = logging.FileHandler(log_filename)
