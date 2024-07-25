@@ -49,8 +49,8 @@ def main():
 
     packages = '--file deploy/spec-bootstrap.txt'
     if not local_mache:
-        # we need to specify the mache version and all dependencies
-        # since we won't be installing from mache's spec file
+        # we need to add the mache package, specifying a version,
+        # since we won't be installing mache from a local clone of a branch
         mache_version = config.get('deploy', 'mache')
         packages = f'{packages} "mache={mache_version}"'
 
