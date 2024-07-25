@@ -8,11 +8,11 @@ default config options:
 
 ```cfg
 # This config file has default config options for the ocean component, which
-# can either be MPAS-Ocean or OMEGA
+# can either be MPAS-Ocean or Omega
 
 # Options related the ocean component
 [ocean]
-# Which model, MPAS-Ocean or OMEGA, is used
+# Which model, MPAS-Ocean or Omega, is used
 model = mpas-ocean
 
 
@@ -32,7 +32,7 @@ MPAS-Ocean tasks also have these config options:
 [paths]
 
 # the relative or absolute path to the root of a branch where MPAS-Ocean
-# or OMEGA has been built
+# or Omega has been built
 component_path = ${paths:compass_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean
 
 # The namelists section defines paths to example_compact namelists that will
@@ -57,7 +57,7 @@ init    = ${paths:component_path}/default_inputs/streams.ocean.init
 # The executables section defines paths to required executables. These
 # executables are provided for use by specific tasks.  Most tools that
 # compass needs should be in the conda environment, so this is only the path
-# to the MPAS-Ocean or OMEGA executable by default.
+# to the MPAS-Ocean or Omega executable by default.
 [executables]
 component = ${paths:component_path}/ocean_model
 ```
@@ -72,9 +72,9 @@ of the submodule should always be guaranteed to be compatible with the
 corresponding version of polaris.
 
 Similarly, the `e3sm_submodules/Omega` submodule is where you can find
-a verison of OMEGA that is compatible with the current polaris.  The model
+a verison of Omega that is compatible with the current polaris.  The model
 can be built from the `components/omega` directory.  The  submodule may not 
-point to the latest OMEGA code in on the `Omega`
+point to the latest Omega code in on the `Omega`
 [develop](https://github.com/E3SM-Project/Omega/tree/develop)
 branch but, again, the plan is to update the submodule frequently and to
 maintain compatibility of the submodule with polaris.

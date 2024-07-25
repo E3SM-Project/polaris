@@ -123,8 +123,8 @@ You can supply the directory where you have built the MPAS component with the
 default for the `landice` component is 
 `e3sm_submodules/MALI-Dev/components/mpas-albany-landice`
 and the default for the `ocean` component depends on whether you are using
-MPAS-Ocean or OMEGA.  For MPAS-Ocean, it is
-`e3sm_submodules/E3SM-Project/components/mpas-ocean`.  For OMEGA, it is
+MPAS-Ocean or Omega.  For MPAS-Ocean, it is
+`e3sm_submodules/E3SM-Project/components/mpas-ocean`.  For Omega, it is
 `e3sm_submodules/Omega/components/omega`
 
 You can also supply a config file with config options pointing to the
@@ -348,5 +348,5 @@ because the compass namelist files don't include the namelist sections,
 required by the yaml format.  Note that, for the `ocean` component, the `model`
 is a keyword that will be added at the top of the yaml file but is ignored when
 the yaml file gets parsed, so its value doesn't matter.  We recommend using
-`omega` since the yaml file is in OMEGA's format, but it will also be usable
+`omega` since the yaml file is in Omega's format, but it will also be usable
 when the task is configured for MPAS-Ocean.
