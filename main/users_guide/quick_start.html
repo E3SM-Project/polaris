@@ -142,7 +142,7 @@ documentation as soon as there is one.  Until then please refer to the
 MPI using <a class="reference external" href="https://spack.io/">spack</a> on our standard machines (Anvil, Chicoma,
 Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,
 these will be the commands to load the environments and set you up for building
-the desired E3SM component (MPAS-Ocean, MALI or OMEGA):</p>
+the desired E3SM component (MPAS-Ocean, MALI or Omega):</p>
 <ul class="simple">
 <li><p>Anvil (Blues):</p></li>
 </ul>
@@ -226,8 +226,8 @@ load script.</p>
 <p>You will need to check out a branch of E3SM to build one of the supported
 components.</p>
 <p>Typically, for MPAS-Ocean, you will clone
-<a class="reference external" href="https://github.com/E3SM-Project/E3SM">E3SM</a>, for OMEGA, you will clone
-<a class="reference external" href="https://github.com/E3SM-Project/Omega">OMEGA</a>, and for MALI, you will clone
+<a class="reference external" href="https://github.com/E3SM-Project/E3SM">E3SM</a>, for Omega, you will clone
+<a class="reference external" href="https://github.com/E3SM-Project/Omega">Omega</a>, and for MALI, you will clone
 <a class="reference external" href="https://github.com/MALI-Dev/E3SM">MALI-Dev</a>.</p>
 <p>To build MPAS-Ocean, first source the appropriate load script (see
 <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>) then run:</p>
@@ -236,7 +236,7 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
 make<span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
 </div>
-<p>OMEGA is still in the early stages of development to the appropriate commands
+<p>Omega is still in the early stages of development to the appropriate commands
 have not yet been determined for building it.</p>
 <p>MALI can be compiled with or without the Albany library that contains the
 first-order velocity solver.  The Albany first-order velocity solver is the
@@ -360,7 +360,7 @@ in the repository.</p>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">database_root</span></code> directory can point to a location where you would like to
-download data for MALI, MPAS-Seaice, MPAS-Ocean and OMEGA.  This data is
+download data for MALI, MPAS-Seaice, MPAS-Ocean and Omega.  This data is
 downloaded  only once and cached for the next time you call <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> (see below).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> config option will default to the number of CPUs on your

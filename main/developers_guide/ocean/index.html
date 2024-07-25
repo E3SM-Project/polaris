@@ -120,11 +120,11 @@
 class. All tasks in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component share the following set of
 default config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for the ocean component, which</span>
-<span class="c1"># can either be MPAS-Ocean or OMEGA</span>
+<span class="c1"># can either be MPAS-Ocean or Omega</span>
 
 <span class="c1"># Options related the ocean component</span>
 <span class="k">[ocean]</span>
-<span class="c1"># Which model, MPAS-Ocean or OMEGA, is used</span>
+<span class="c1"># Which model, MPAS-Ocean or Omega, is used</span>
 <span class="na">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpas-ocean</span>
 
 
@@ -143,7 +143,7 @@ default config options:</p>
 <span class="k">[paths]</span>
 
 <span class="c1"># the relative or absolute path to the root of a branch where MPAS-Ocean</span>
-<span class="c1"># or OMEGA has been built</span>
+<span class="c1"># or Omega has been built</span>
 <span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:compass_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean</span>
 
 <span class="c1"># The namelists section defines paths to example_compact namelists that will</span>
@@ -168,7 +168,7 @@ default config options:</p>
 <span class="c1"># The executables section defines paths to required executables. These</span>
 <span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
 <span class="c1"># compass needs should be in the conda environment, so this is only the path</span>
-<span class="c1"># to the MPAS-Ocean or OMEGA executable by default.</span>
+<span class="c1"># to the MPAS-Ocean or Omega executable by default.</span>
 <span class="k">[executables]</span>
 <span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/ocean_model</span>
 </pre></div>
@@ -182,9 +182,9 @@ branch but the plan is to update the submodule frequently.  The current version
 of the submodule should always be guaranteed to be compatible with the
 corresponding version of polaris.</p>
 <p>Similarly, the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega</span></code> submodule is where you can find
-a verison of OMEGA that is compatible with the current polaris.  The model
+a verison of Omega that is compatible with the current polaris.  The model
 can be built from the <code class="docutils literal notranslate"><span class="pre">components/omega</span></code> directory.  The  submodule may not
-point to the latest OMEGA code in on the <code class="docutils literal notranslate"><span class="pre">Omega</span></code>
+point to the latest Omega code in on the <code class="docutils literal notranslate"><span class="pre">Omega</span></code>
 <a class="reference external" href="https://github.com/E3SM-Project/Omega/tree/develop">develop</a>
 branch but, again, the plan is to update the submodule frequently and to
 maintain compatibility of the submodule with polaris.</p>

@@ -4,9 +4,9 @@
 
 The `ocean` component in polaris contains tasks for the
 [MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and 
-[OMEGA](https://github.com/E3SM-Project/Omega) components of E3SM.  For more
+[Omega](https://github.com/E3SM-Project/Omega) components of E3SM.  For more
 information on MPAS-Ocean, see the most recent
-[user's guide](https://doi.org/10.5281/zenodo.1246893) for version 6.  OMEGA
+[user's guide](https://doi.org/10.5281/zenodo.1246893) for version 6.  Omega
 is still in the early stages of development, but more information will be
 provided in the coming months and years.
 
