@@ -3,7 +3,7 @@
 # Components
 
 Currently, there are two components, `ocean`, which encompasses all the tasks 
-for MPAS-Ocean and OMEGA, and `seaice`, which implements tasks for MPAS-Seaice.
+for MPAS-Ocean and Omega, and `seaice`, which implements tasks for MPAS-Seaice.
 
 From a developer's perspective, a component is a package within polaris
 that has four major pieces:

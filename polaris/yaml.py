@@ -11,7 +11,7 @@ from ruamel.yaml import YAML
 class PolarisYaml:
     """
     A class for reading writing and combining config files in yaml format
-    (e.g. as used in OMEGA).
+    (e.g. as used in Omega).
 
     Attributes
     ----------

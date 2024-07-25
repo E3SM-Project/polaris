@@ -15,7 +15,7 @@ Compass
 Component
 
 : This term refers to the collection of tasks associated with one or more
-  E3SM components, `ocean` for MPAS-Ocean and OMEGA, `seaice` for MPAS-Seaice,
+  E3SM components, `ocean` for MPAS-Ocean and Omega, `seaice` for MPAS-Seaice,
   and `landice` for MALI.
 
 Step

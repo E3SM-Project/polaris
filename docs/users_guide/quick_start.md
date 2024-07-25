@@ -23,7 +23,7 @@ For each polaris release, we maintain a
 MPI using [spack](https://spack.io/) on our standard machines (Anvil, Chicoma,
 Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,
 these will be the commands to load the environments and set you up for building
-the desired E3SM component (MPAS-Ocean, MALI or OMEGA):
+the desired E3SM component (MPAS-Ocean, MALI or Omega):
 
 - Anvil (Blues):
 
@@ -121,8 +121,8 @@ You will need to check out a branch of E3SM to build one of the supported
 components.
 
 Typically, for MPAS-Ocean, you will clone
-[E3SM](https://github.com/E3SM-Project/E3SM), for OMEGA, you will clone
-[OMEGA](https://github.com/E3SM-Project/Omega), and for MALI, you will clone
+[E3SM](https://github.com/E3SM-Project/E3SM), for Omega, you will clone
+[Omega](https://github.com/E3SM-Project/Omega), and for MALI, you will clone
 [MALI-Dev](https://github.com/MALI-Dev/E3SM).
 
 To build MPAS-Ocean, first source the appropriate load script (see
@@ -134,7 +134,7 @@ git submodule update --init --recursive
 make <mpas_make_target>
 ```
 
-OMEGA is still in the early stages of development to the appropriate commands
+Omega is still in the early stages of development to the appropriate commands
 have not yet been determined for building it.
 
 MALI can be compiled with or without the Albany library that contains the
@@ -288,7 +288,7 @@ parallel_executable = mpirun -host localhost
 ```
 
 The `database_root` directory can point to a location where you would like to
-download data for MALI, MPAS-Seaice, MPAS-Ocean and OMEGA.  This data is
+download data for MALI, MPAS-Seaice, MPAS-Ocean and Omega.  This data is
 downloaded  only once and cached for the next time you call `polaris setup` or
 `polaris suite` (see below).
 

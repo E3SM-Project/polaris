@@ -27,7 +27,7 @@ git submodule update --init --recursive
 ```
 
 There are 3 submodules with different versions of E3SM (`E3SM-Project` for
-MPAS-Ocean, `OMEGA` for OMEGA and `MALI-Dev` for MALI) in a `e3sm_submodules`
+MPAS-Ocean, `Omega` for Omega and `MALI-Dev` for MALI) in a `e3sm_submodules`
 directory of the polaris repository.
 
 (dev-conda-env)=
@@ -487,7 +487,7 @@ For MPAS-Ocean and MALI both, see the last column of the table in
 {ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
 
-Instructions for building OMEGA will be added as development proceeds.
+Instructions for building Omega will be added as development proceeds.
 
 (dev-working-with-polaris)=
 
