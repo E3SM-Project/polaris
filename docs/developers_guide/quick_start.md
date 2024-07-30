@@ -487,7 +487,9 @@ For MPAS-Ocean and MALI both, see the last column of the table in
 {ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
 
-Instructions for building Omega will be added as development proceeds.
+Instructions for building Omega will be added as development proceeds. For now,
+you can run 
+[Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md). 
 
 (dev-working-with-polaris)=
 
