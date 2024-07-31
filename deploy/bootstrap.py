@@ -237,7 +237,7 @@ def _get_spack_base(options):
         os.path.abspath(os.path.expanduser(spack_base))
 
 
-def get_config(config_file, machine):
+def _get_config(config_file, machine):
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'default.cfg')
@@ -267,7 +267,7 @@ def get_config(config_file, machine):
     return config
 
 
-def get_version():
+def _get_version():
     # we can't import polaris because we probably don't have the necessary
     # dependencies, so we get the version by parsing (same approach used in
     # the root setup.py)
@@ -288,7 +288,7 @@ def _get_compilers_mpis(options):  # noqa: C901
     machine = options['machine']
     source_path = options['source_path']
 
-    unsupported = parse_unsupported(machine, source_path)
+    unsupported = _parse_unsupported(machine, source_path)
     if machine == 'conda-linux':
         all_compilers = ['gfortran']
         all_mpis = ['mpich', 'openmpi']
@@ -427,10 +427,10 @@ def _get_env_setup(options, compiler, mpi):
         activ_path = os.path.abspath(os.path.join(conda_base, '..'))
 
     if options['with_albany']:
-        check_supported('albany', machine, compiler, mpi, source_path)
+        _check_supported('albany', machine, compiler, mpi, source_path)
 
     if options['with_petsc']:
-        check_supported('petsc', machine, compiler, mpi, source_path)
+        _check_supported('petsc', machine, compiler, mpi, source_path)
 
     if env_type == 'dev':
         ver = version.parse(polaris_version)
@@ -664,7 +664,7 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
         logger.info(message)
 
 
-def get_env_vars(machine, compiler, mpilib):
+def _get_env_vars(machine, compiler, mpilib):
 
     if machine is None:
         machine = 'None'
@@ -1062,15 +1062,15 @@ def _check_env(options, script_filename, conda_env_name):
 
     for import_name in imports:
         command = f'{activate} && python -c "import {import_name}"'
-        test_command(command, os.environ, import_name, logger)
+        _test_command(command, os.environ, import_name, logger)
 
     for command_list in commands:
         package = command_list[0]
         command = f'{activate} && {" ".join(command_list)}'
-        test_command(command, os.environ, package, logger)
+        _test_command(command, os.environ, package, logger)
 
 
-def test_command(command, env, package, logger):
+def _test_command(command, env, package, logger):
     try:
         check_call(command, env=env, logger=logger)
     except subprocess.CalledProcessError as e:
@@ -1204,7 +1204,7 @@ def _update_permissions(options, directories):  # noqa: C901
     print('  done.')
 
 
-def parse_unsupported(machine, source_path):
+def _parse_unsupported(machine, source_path):
     with open(os.path.join(source_path, 'deploy', 'unsupported.txt'), 'r') \
             as f:
         content = f.readlines()
@@ -1226,7 +1226,7 @@ def parse_unsupported(machine, source_path):
     return unsupported
 
 
-def check_supported(library, machine, compiler, mpi, source_path):
+def _check_supported(library, machine, compiler, mpi, source_path):
     filename = os.path.join(source_path, 'deploy', f'{library}_supported.txt')
     with open(filename, 'r') as f:
         content = f.readlines()
@@ -1265,7 +1265,7 @@ def _safe_stat(path):
     os.stat(path)
 
 
-def discover_machine(quiet=False):
+def _discover_machine(quiet=False):
     """
     Figure out the machine from the host name
 
@@ -1281,7 +1281,7 @@ def discover_machine(quiet=False):
     """
     machine = mache_discover_machine(quiet=quiet)
     if machine is None:
-        possible_hosts = get_possible_hosts()
+        possible_hosts = _get_possible_hosts()
         hostname = socket.gethostname()
         for possible_machine, hostname_contains in possible_hosts.items():
             if hostname_contains in hostname:
@@ -1290,7 +1290,7 @@ def discover_machine(quiet=False):
     return machine
 
 
-def get_possible_hosts():
+def _get_possible_hosts():
     here = os.path.abspath(os.path.dirname(__file__))
     files = sorted(glob.glob(os.path.join(
         here, '..', 'polaris', 'machines', '*.cfg')))
@@ -1307,203 +1307,6 @@ def get_possible_hosts():
             possible_hosts[machine] = hostname_contains
 
     return possible_hosts
-
-
-def main():  # noqa: C901
-    args = parse_args(bootstrap=True)
-    options = vars(args)
-    options['conda_env_name'] = options['env_name']
-
-    if options['verbose']:
-        options['logger'] = None
-    else:
-        options['logger'] = get_logger(
-            log_filename='deploy_tmp/logs/bootstrap.log', name=__name__)
-
-    source_path = os.getcwd()
-    options['source_path'] = source_path
-    options['conda_template_path'] = f'{source_path}/deploy'
-    options['spack_template_path'] = f'{source_path}/deploy/spack'
-
-    polaris_version = get_version()
-    options['polaris_version'] = polaris_version
-
-    options['local_mache'] = options['mache_fork'] is not None \
-        and options['mache_branch'] is not None
-
-    machine = None
-    if not options['conda_env_only']:
-        if options['machine'] is None:
-            machine = discover_machine()
-        else:
-            machine = options['machine']
-
-    options['known_machine'] = machine is not None
-
-    if machine is None and not options['conda_env_only']:
-        if platform.system() == 'Linux':
-            machine = 'conda-linux'
-        elif platform.system() == 'Darwin':
-            machine = 'conda-osx'
-
-    options['config'] = get_config(options['config_file'], machine)
-    options['machine'] = machine
-
-    env_type = options['config'].get('deploy', 'env_type')
-    if env_type not in ['dev', 'test_release', 'release']:
-        raise ValueError(f'Unexpected env_type: {env_type}')
-    shared = (env_type != 'dev')
-    conda_base = get_conda_base(options['conda_base'], options['config'],
-                                shared=shared, warn=False)
-    options['env_type'] = env_type
-    conda_base = os.path.abspath(conda_base)
-    options['conda_base'] = conda_base
-
-    source_activation_scripts = \
-        f'source {conda_base}/etc/profile.d/conda.sh'
-
-    activate_base = f'{source_activation_scripts} && conda activate'
-
-    if machine is None:
-        compilers = [None]
-        mpis = ['nompi']
-    else:
-        _get_compilers_mpis(options)
-
-        compilers = options['compilers']
-        mpis = options['mpis']
-
-        # write out a log file for use by matrix builds
-        with open('deploy_tmp/logs/matrix.log', 'w') as f:
-            f.write(f'{machine}\n')
-            for compiler, mpi in zip(compilers, mpis):
-                f.write(f'{compiler}, {mpi}\n')
-
-        print('Configuring environment(s) for the following compilers and MPI '
-              'libraries:')
-        for compiler, mpi in zip(compilers, mpis):
-            print(f'  {compiler}, {mpi}')
-        print('')
-
-    previous_conda_env = None
-
-    permissions_dirs = []
-    activ_path = None
-
-    soft_spack_view = _build_spack_soft_env(options)
-
-    for compiler, mpi in zip(compilers, mpis):
-
-        _get_env_setup(options, compiler, mpi)
-
-        build_dir = f'deploy_tmp/build{options["activ_suffix"]}'
-
-        _safe_rmtree(build_dir)
-        os.makedirs(name=build_dir, exist_ok=True)
-
-        os.chdir(build_dir)
-
-        if options['spack_base'] is not None:
-            spack_base = options['spack_base']
-        elif options['known_machine'] and compiler is not None:
-            _get_spack_base(options)
-        else:
-            spack_base = None
-
-        if spack_base is not None and options['update_spack']:
-            # even if this is not a release, we need to update permissions on
-            # shared system libraries
-            permissions_dirs.append(spack_base)
-
-        conda_env_name = options['conda_env_name']
-        if previous_conda_env != conda_env_name:
-            _build_conda_env(options, mpi, activate_base)
-
-            if options['local_mache']:
-                print('Install local mache\n')
-                commands = f'source {conda_base}/etc/profile.d/conda.sh && ' \
-                           f'conda activate {conda_env_name} && ' \
-                           f'conda install -y importlib_resources jinja2' \
-                           f'  lxml pyyaml progressbar2 && ' \
-                           f'cd ../build_mache/mache && ' \
-                           f'python -m pip install --no-deps .'
-                check_call(commands, logger=options['logger'])
-
-            previous_conda_env = conda_env_name
-
-            if env_type != 'dev':
-                permissions_dirs.append(conda_base)
-
-        spack_script = ''
-        if compiler is not None:
-            env_vars = get_env_vars(options['machine'], compiler, mpi)
-            if spack_base is not None:
-
-                spack_script, env_vars = _build_spack_libs_env(
-                    options, compiler, mpi, env_vars)
-
-                spack_script = f'echo Loading Spack environment...\n' \
-                               f'{spack_script}\n' \
-                               f'echo Done.\n' \
-                               f'echo\n'
-            else:
-                conda_env_path = options['conda_env_path']
-                env_vars = \
-                    f'{env_vars}' \
-                    f'export PIO={conda_env_path}\n' \
-                    f'export OPENMP_INCLUDE=-I"{conda_env_path}/include"\n'
-
-            if soft_spack_view is not None:
-                env_vars = f'{env_vars}' \
-                           f'export PATH="{soft_spack_view}/bin:$PATH"\n'
-            elif options['known_machine']:
-                raise ValueError('A software compiler or a spack base was not '
-                                 'defined so required software was not '
-                                 'installed with spack.')
-
-        else:
-            env_vars = ''
-
-        if env_type == 'dev':
-            if conda_env_name is not None:
-                prefix = f'load_{conda_env_name}'
-            else:
-                prefix = f'load_dev_polaris_{polaris_version}'
-        elif env_type == 'test_release':
-            prefix = f'test_polaris_{polaris_version}'
-        else:
-            prefix = f'load_polaris_{polaris_version}'
-
-        script_filename = \
-            _write_load_polaris(options, prefix, spack_script, env_vars)
-
-        if options['check']:
-            _check_env(options, script_filename, conda_env_name)
-
-        if env_type == 'release' and not (options['with_albany'] or
-                                          options['with_petsc']):
-            activ_path = options['activ_path']
-            # make a symlink to the activation script
-            link = os.path.join(activ_path,
-                                f'load_latest_polaris_{compiler}_{mpi}.sh')
-            check_call(f'ln -sfn {script_filename} {link}')
-
-            default_compiler = options['config'].get('deploy', 'compiler')
-            default_mpi = options['config'].get('deploy',
-                                                f'mpi_{default_compiler}')
-            if compiler == default_compiler and mpi == default_mpi:
-                # make a default symlink to the activation script
-                link = os.path.join(activ_path, 'load_latest_polaris.sh')
-                check_call(f'ln -sfn {script_filename} {link}')
-        os.chdir(options['source_path'])
-
-    commands = f'{activate_base} && conda clean -y -p -t'
-    check_call(commands, logger=options['logger'])
-
-    if options['update_spack'] or env_type != 'dev':
-        # we need to update permissions on shared stuff
-
-        _update_permissions(options, permissions_dirs)
 
 
 if __name__ == '__main__':
