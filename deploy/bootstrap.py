@@ -378,7 +378,7 @@ def build_jigsaw(activate_env, conda_base, source_path, env_path, logger):
         jigsaw_build_deps = f'{jigsaw_build_deps} sysroot_linux-64=2.17'
     elif platform.system() == 'Darwin':
         jigsaw_build_deps = \
-            f'{jigsaw_build_deps} macosx_deployment_target=10.13'
+            f'{jigsaw_build_deps} macosx_deployment_target_osx-64=10.13'
     netcdf_lib = f'{env_path}/lib/libnetcdf.so'
     cmake_args = f'-DCMAKE_BUILD_TYPE=Release -DNETCDF_LIBRARY={netcdf_lib}'
 
