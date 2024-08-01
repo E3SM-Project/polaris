@@ -90,16 +90,15 @@ jobs:
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
           ./configure_polaris_envs.py \
-            --conda_env_only \
             --env_name polaris_test \
             --verbose \
             --python=${{ matrix.python-version }}
-          source load_polaris_test.sh
+          source load_polaris_test_mpich.sh
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs
         run: |
-          source load_polaris_test.sh
+          source load_polaris_test_mpich.sh
           # sphinx-multiversion expects at least a "main" branch
           git branch main || echo "branch main already exists."
           cd docs
