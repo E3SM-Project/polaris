@@ -1192,12 +1192,13 @@ def main():  # noqa: C901
                     f'export PIO={conda_env_path}\n' \
                     f'export OPENMP_INCLUDE=-I"{conda_env_path}/include"\n'
 
-            if soft_spack_view is None:
+            if soft_spack_view is not None:
+                env_vars = f'{env_vars}' \
+                           f'export PATH="{soft_spack_view}/bin:$PATH"\n'
+            elif known_machine:
                 raise ValueError('A software compiler or a spack base was not '
                                  'defined so required software was not '
                                  'installed with spack.')
-            env_vars = f'{env_vars}' \
-                       f'export PATH="{soft_spack_view}/bin:$PATH"\n'
 
         else:
             env_vars = ''
