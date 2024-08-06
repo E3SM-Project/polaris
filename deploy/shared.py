@@ -17,7 +17,7 @@ def parse_args(bootstrap):
                         help="Path to the conda base.")
     parser.add_argument("--spack", dest="spack_base",
                         help="Path to the spack base.")
-    parser.add_argument("--env_name", dest="env_name",
+    parser.add_argument("--env_name", dest="conda_env_name",
                         help="The conda environment name and activation script"
                              " prefix.")
     parser.add_argument("-p", "--python", dest="python", type=str,
