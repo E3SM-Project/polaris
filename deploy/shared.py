@@ -9,7 +9,7 @@ from urllib.request import Request, urlopen
 
 def parse_args(bootstrap):
     parser = argparse.ArgumentParser(
-        description='Deploy a compass conda environment')
+        description='Deploy a polaris conda environment')
     parser.add_argument("-m", "--machine", dest="machine",
                         help="The name of the machine for loading machine-"
                              "related config options.")
