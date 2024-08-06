@@ -796,8 +796,7 @@ def check_env(script_filename, env_name, logger):
                 ['ffmpeg', '--help'],
                 ['polaris', 'list'],
                 ['polaris', 'setup', '--help'],
-                ['polaris', 'suite', '--help'],
-                ['polaris', 'clean', '--help']]
+                ['polaris', 'suite', '--help']]
 
     for import_name in imports:
         command = f'{activate} && python -c "import {import_name}"'
