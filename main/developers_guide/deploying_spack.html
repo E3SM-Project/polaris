@@ -178,7 +178,7 @@ system MPI:</p>
 </ul>
 <p>We build one spack environment for tools (e.g. ESMF and MOAB) and another for
 libraries.  This allows us to build the tools with one set of compilers and
-MPI libraries adn the libraries with another.  This is sometimes necessary,
+MPI libraries and the libraries with another.  This is sometimes necessary,
 since ESMF, MOAB and/or their dependencies can’t always be built or don’t
 run correctly with all compiler and MPI combinations.  For example, we have
 experienced problems running ESMF built with intel compilers on Perlmutter.
@@ -201,7 +201,8 @@ environments on share machines because they remain unaffected.</p>
 </section>
 <section id="id1">
 <h2>Mache<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
-<p>A brief tour of mache.</p>
+<p>A brief tour of mache. For additional information about mache, check out the
+<a class="reference external" href="https://docs.e3sm.org/mache/">mache documentation</a>.</p>
 <section id="identifying-e3sm-machines">
 <h3>Identifying E3SM machines<a class="headerlink" href="#identifying-e3sm-machines" title="Permalink to this heading"></a></h3>
 <p>Polaris and other packages use mache to identify what machine they’re on (when
@@ -235,7 +236,7 @@ in the package <a class="reference external" href="https://github.com/E3SM-Proje
 We try to keep a close eye on E3SM master and update mache when system modules
 for machines that mache knows about get updated.  When this happens, we update
 mache’s copy of <code class="docutils literal notranslate"><span class="pre">config_machines.xml</span></code> and that tells me which modules to
-update in spack, see below.dev_quick_start</p>
+update in spack, see below.</p>
 </section>
 <section id="creating-spack-environments">
 <h3>Creating spack environments<a class="headerlink" href="#creating-spack-environments" title="Permalink to this heading"></a></h3>
@@ -267,7 +268,7 @@ that fork (e.g. <code class="docutils literal notranslate"><span class="pre">mai
 <p>We also need to make sure there is a spack branch for the version of Polaris.
 The spack branch is a branch off of the develop branch on
 <a class="reference external" href="https://github.com/E3SM-Project/spack">E3SM’s spack repo</a> that has any
-uupdates to packages required for this version of mache.  The remote branch
+updates to packages required for this version of mache.  The remote branch
 is named after the release version of mache (omitting any alpha, beta or rc
 suffix because it is intended to be the spack branch we will use once the
 <code class="docutils literal notranslate"><span class="pre">mache</span></code> release happens).  In this example, we will work with the branch
@@ -530,7 +531,7 @@ file, see the <a class="reference external" href="https://github.com/E3SM-Projec
 <span class="c1"># get any changes</span>
 git<span class="w"> </span>fetch<span class="w"> </span>--all<span class="w"> </span>-p
 <span class="c1"># hard reset if there are changes</span>
-git<span class="w"> </span>reset<span class="w"> </span>–hard<span class="w"> </span>xylar/polaris/simplify_local_mache
+git<span class="w"> </span>reset<span class="w"> </span>–-hard<span class="w"> </span>xylar/polaris/simplify_local_mache
 </pre></div>
 </div>
 <section id="deploy-spack-for-polaris-without-albany-or-petsc">

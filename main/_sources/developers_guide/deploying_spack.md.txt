@@ -36,7 +36,7 @@ system MPI:
 
 We build one spack environment for tools (e.g. ESMF and MOAB) and another for
 libraries.  This allows us to build the tools with one set of compilers and
-MPI libraries adn the libraries with another.  This is sometimes necessary,
+MPI libraries and the libraries with another.  This is sometimes necessary,
 since ESMF, MOAB and/or their dependencies can't always be built or don't
 run correctly with all compiler and MPI combinations.  For example, we have
 experienced problems running ESMF built with intel compilers on Perlmutter.
@@ -60,7 +60,8 @@ environments on share machines because they remain unaffected.
 
 ## Mache
 
-A brief tour of mache.
+A brief tour of mache. For additional information about mache, check out the 
+[mache documentation](https://docs.e3sm.org/mache/).
 
 ### Identifying E3SM machines
 
@@ -95,7 +96,7 @@ in the package [here](https://github.com/E3SM-Project/mache/blob/main/mache/cime
 We try to keep a close eye on E3SM master and update mache when system modules
 for machines that mache knows about get updated.  When this happens, we update
 mache’s copy of `config_machines.xml` and that tells me which modules to
-update in spack, see below.dev_quick_start
+update in spack, see below.
 
 ### Creating spack environments
 
@@ -130,7 +131,7 @@ that fork (e.g. `main`).
 We also need to make sure there is a spack branch for the version of Polaris.
 The spack branch is a branch off of the develop branch on
 [E3SM’s spack repo](https://github.com/E3SM-Project/spack) that has any
-uupdates to packages required for this version of mache.  The remote branch
+updates to packages required for this version of mache.  The remote branch
 is named after the release version of mache (omitting any alpha, beta or rc
 suffix because it is intended to be the spack branch we will use once the
 ``mache`` release happens).  In this example, we will work with the branch
@@ -427,7 +428,7 @@ cd simplify_local_mache
 # get any changes
 git fetch --all -p
 # hard reset if there are changes
-git reset –hard xylar/polaris/simplify_local_mache
+git reset –-hard xylar/polaris/simplify_local_mache
 ```
 
 ### Deploy spack for polaris without Albany or PETSc
