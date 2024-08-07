@@ -332,8 +332,8 @@ you have worked with (or if you aren't sure), it is safest to not just reinstall
 the `polaris` package but also to check the dependencies by re-running:
 `./configure_polaris_envs.py`  with the same arguments as above.
 This will also reinstall the `polaris` package from the current directory.
-The activation script includes a check to see if the version of compass used
-to produce the load script is the same as the version of compass in the
+The activation script includes a check to see if the version of polaris used
+to produce the load script is the same as the version of polaris in the
 current branch.  If the two don't match, an error like the following results
 and the environment is not activated:
 

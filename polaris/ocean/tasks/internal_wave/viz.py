@@ -16,7 +16,7 @@ class Viz(Step):
 
         Parameters
         ----------
-        test_case : compass.TestCase
+        test_case : polaris.TestCase
             The test case this step belongs to
         """
         super().__init__(component=component, name='viz', indir=indir)

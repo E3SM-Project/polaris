@@ -43,7 +43,7 @@ uniform temperature and zero initial velocity.
 
 ### forward
 
-The class {py:class}`compass.ocean.tests.ice_shelf_2d.forward.Forward`
+The class {py:class}`polaris.ocean.tests.ice_shelf_2d.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
 the `init` step. For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean 

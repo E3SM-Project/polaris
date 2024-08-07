@@ -28,12 +28,12 @@ MPAS-Ocean tasks also have these config options:
 ```cfg
 # This config file has default config options for MPAS-Ocean
 
-# The paths section points compass to external paths
+# The paths section points polaris to external paths
 [paths]
 
 # the relative or absolute path to the root of a branch where MPAS-Ocean
 # or Omega has been built
-component_path = ${paths:compass_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean
+component_path = ${paths:polaris_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean
 
 # The namelists section defines paths to example_compact namelists that will
 # be used to generate specific namelists. By default, these point to the
@@ -56,7 +56,7 @@ init    = ${paths:component_path}/default_inputs/streams.ocean.init
 
 # The executables section defines paths to required executables. These
 # executables are provided for use by specific tasks.  Most tools that
-# compass needs should be in the conda environment, so this is only the path
+# polaris needs should be in the conda environment, so this is only the path
 # to the MPAS-Ocean or Omega executable by default.
 [executables]
 component = ${paths:component_path}/ocean_model
