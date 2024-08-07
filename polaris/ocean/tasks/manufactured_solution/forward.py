@@ -76,9 +76,9 @@ class Forward(ConvergenceForward):
 
         exact_solution = ExactSolution(self.config)
         options = {'config_manufactured_solution_amplitude':
-                   exact_solution.eta0,
+                   float(exact_solution.eta0),
                    'config_manufactured_solution_wavelength_x':
-                   exact_solution.lambda_x,
+                   float(exact_solution.lambda_x),
                    'config_manufactured_solution_wavelength_y':
-                   exact_solution.lambda_y}
+                   float(exact_solution.lambda_y)}
         self.add_model_config_options(options)
