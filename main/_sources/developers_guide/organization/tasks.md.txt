@@ -535,7 +535,7 @@ def configure(self):
     """
     Modify the configuration options for this task
     """
-    package = 'compass.ocean.tests.global_ocean.files_for_e3sm'
+    package = 'polaris.ocean.tests.global_ocean.files_for_e3sm'
     target = imp_res.files(package).joinpath('README')
     symlink(str(target), f'{self.work_dir}/README')
 ```

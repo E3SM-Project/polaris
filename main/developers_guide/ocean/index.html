@@ -139,12 +139,12 @@ default config options:</p>
 <p>MPAS-Ocean tasks also have these config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for MPAS-Ocean</span>
 
-<span class="c1"># The paths section points compass to external paths</span>
+<span class="c1"># The paths section points polaris to external paths</span>
 <span class="k">[paths]</span>
 
 <span class="c1"># the relative or absolute path to the root of a branch where MPAS-Ocean</span>
 <span class="c1"># or Omega has been built</span>
-<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:compass_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean</span>
+<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:polaris_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean</span>
 
 <span class="c1"># The namelists section defines paths to example_compact namelists that will</span>
 <span class="c1"># be used to generate specific namelists. By default, these point to the</span>
@@ -167,7 +167,7 @@ default config options:</p>
 
 <span class="c1"># The executables section defines paths to required executables. These</span>
 <span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
-<span class="c1"># compass needs should be in the conda environment, so this is only the path</span>
+<span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
 <span class="c1"># to the MPAS-Ocean or Omega executable by default.</span>
 <span class="k">[executables]</span>
 <span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/ocean_model</span>
