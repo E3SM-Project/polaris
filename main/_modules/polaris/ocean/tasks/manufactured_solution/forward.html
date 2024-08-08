@@ -187,11 +187,11 @@
 
         <span class="n">exact_solution</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span>
-                   <span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span><span class="p">,</span>
+                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span><span class="p">),</span>
                    <span class="s1">&#39;config_manufactured_solution_wavelength_x&#39;</span><span class="p">:</span>
-                   <span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span><span class="p">,</span>
+                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span><span class="p">),</span>
                    <span class="s1">&#39;config_manufactured_solution_wavelength_y&#39;</span><span class="p">:</span>
-                   <span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span><span class="p">}</span>
+                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></div>
 </pre></div>
 
