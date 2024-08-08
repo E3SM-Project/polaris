@@ -89,23 +89,30 @@ class PolarisYaml:
         yaml.configs = configs
         return yaml
 
-    def update(self, configs, quiet=True):
+    def update(self, configs=None, options=None, quiet=True):
         """
         Add config options from a dictionary
 
         Parameters
         ----------
-        configs : dict
+        configs : dict, optional
             A nested dictionary of config sections, options and values
+
+        options : dict, optional
+            A flat dictionary of options and values
 
         quiet : bool, optional
             Whether or not to print the updated config options as they are
             replaced
         """
-        if self.model in configs:
-            # we want one layer deeper
-            configs = configs[self.model]
-        _update_section(configs, self.configs, quiet)
+        if configs is not None:
+            if self.model in configs:
+                # we want one layer deeper
+                configs = configs[self.model]
+            _update_section(configs, self.configs, quiet)
+
+        if options is not None:
+            _update_options(options, self.configs, quiet)
 
     def write(self, filename):
         """
@@ -273,6 +280,41 @@ def _update_section(src, dst, quiet, print_section=None):
             if not quiet:
                 print(f'  {print_section}: {name} = {src[name]}')
             dst[name] = src[name]
+
+
+def _update_options(src, dst, quiet):
+    """
+    Update config options by searching in the destination nested dictionary
+    """
+    for name in src:
+        success = _update_option(name, src[name], dst, quiet)
+        if not success:
+            raise ValueError(
+                f'Attempting to modify a nonexistent config '
+                f'options: {name}')
+
+
+def _update_option(option, value, dst, quiet, print_section=None):
+    """
+    Recursively attempt to find and replace the value of the
+    given option
+    """
+    for name in dst:
+        if isinstance(dst[name], (dict, OrderedDict)):
+            if print_section is not None:
+                print_subsection = f'{print_section}: {name}'
+            else:
+                print_subsection = name
+            success = _update_option(option, value, dst[name], quiet,
+                                     print_subsection)
+            if success:
+                return True
+        elif name == option:
+            dst[name] = value
+            if not quiet:
+                print(f'  {print_section}: {name} = {value}')
+            return True
+    return False
 
 
 def _read_namelist(namelist_template, namelist_filename):

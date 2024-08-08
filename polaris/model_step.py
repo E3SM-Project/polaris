@@ -658,7 +658,12 @@ class ModelStep(Step):
         if not self.model_config_data:
             return
 
-        replacements = dict()
+        if self._yaml is None:
+            raise ValueError('Trying to update a yaml object but it was '
+                             'never created.')
+
+        if not quiet:
+            print(f'Warning: replacing yaml options in {self.yaml}')
 
         for entry in self.model_config_data:
             if 'namelist' in entry:
@@ -666,22 +671,15 @@ class ModelStep(Step):
                                  'namelist file.')
 
             if 'options' in entry:
-                # this is a dictionary of replacement namelist options
+                # this is a dictionary of replacement model config options
                 options = entry['options']
+                self._yaml.update(options=options, quiet=quiet)
             else:
                 yaml = PolarisYaml.read(filename=entry['yaml'],
                                         package=entry['package'],
                                         replacements=entry['replacements'])
-                options = yaml.configs
-            replacements.update(options)
 
-        if not quiet:
-            print(f'Warning: replacing yaml options in {self.yaml}')
-
-        if self._yaml is None:
-            raise ValueError('Trying to update a yaml object but it was '
-                             'never created.')
-        self._yaml = self._yaml.update(replacements, quiet=quiet)
+                self._yaml.update(configs=yaml.configs, quiet=quiet)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',
