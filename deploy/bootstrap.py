@@ -29,6 +29,10 @@ from shared import (
 
 
 def main():  # noqa: C901
+    """
+    Entry point for bootstrap
+    """
+
     args = parse_args(bootstrap=True)
     options = vars(args)
 
@@ -135,7 +139,7 @@ def main():  # noqa: C901
 
         conda_env_name = options['conda_env_name']
         if previous_conda_env != conda_env_name:
-            _build_conda_env(options, mpi, activate_base)
+            _build_conda_env(options, activate_base)
 
             if options['local_mache']:
                 print('Install local mache\n')
@@ -224,6 +228,10 @@ def main():  # noqa: C901
 
 
 def _get_spack_base(options):
+    """
+    Get the absolute path to the spack base files
+    """
+
     config = options['config']
     spack_base = options['spack_base']
     if spack_base is None:
@@ -238,6 +246,10 @@ def _get_spack_base(options):
 
 
 def _get_config(config_file, machine):
+    """
+    Read in the options from the config file and return the config object
+    """
+
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'default.cfg')
@@ -268,6 +280,10 @@ def _get_config(config_file, machine):
 
 
 def _get_version():
+    """
+    Get the Polaris version by parsing the version file
+    """
+
     # we can't import polaris because we probably don't have the necessary
     # dependencies, so we get the version by parsing (same approach used in
     # the root setup.py)
@@ -282,6 +298,10 @@ def _get_version():
 
 
 def _get_compilers_mpis(options):  # noqa: C901
+    """
+    Get the compilers and MPI variants from the config object
+    """
+
     compilers = options['compilers']
     mpis = options['mpis']
     config = options['config']
@@ -371,6 +391,10 @@ def _get_compilers_mpis(options):  # noqa: C901
 
 
 def _get_env_setup(options, compiler, mpi):
+    """
+    Setup the options for the environment for the given compiler and MPI
+    variant
+    """
 
     conda_env_name = options['conda_env_name']
     env_type = options['env_type']
@@ -472,7 +496,10 @@ def _get_env_setup(options, compiler, mpi):
     options['spack_env'] = spack_env
 
 
-def _build_conda_env(options, mpi, activate_base):
+def _build_conda_env(options, activate_base):
+    """
+    Build the conda environment
+    """
 
     config = options['config']
     logger = options['logger']
@@ -497,7 +524,7 @@ def _build_conda_env(options, mpi, activate_base):
     if conda_mpi == 'nompi':
         mpi_prefix = 'nompi'
     else:
-        mpi_prefix = f'mpi_{mpi}'
+        mpi_prefix = f'mpi_{conda_mpi}'
 
     channel_list = ['-c conda-forge', '-c defaults']
     if use_local:
@@ -603,6 +630,10 @@ def _build_conda_env(options, mpi, activate_base):
 
 
 def _build_jigsaw(options, activate_env, source_path, conda_env_path):
+    """
+    Build the JIGSAW and JIGSAW-Python tools using conda-forge compilers
+    """
+
     logger = options['logger']
     conda_base = options['conda_base']
 
@@ -664,13 +695,17 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
         logger.info(message)
 
 
-def _get_env_vars(machine, compiler, mpilib):
+def _get_env_vars(machine, compiler, mpi):
+    """
+    Get the environment variables for the given machine, compiler, and MPI
+    variant
+    """
 
     if machine is None:
         machine = 'None'
 
     env_vars = f'export POLARIS_COMPILER={compiler}\n' \
-               f'export POLARIS_MPI={mpilib}\n'
+               f'export POLARIS_MPI={mpi}\n'
 
     env_vars = f'{env_vars}' \
                f'export MPAS_EXTERNAL_LIBS=""\n'
@@ -693,7 +728,7 @@ def _get_env_vars(machine, compiler, mpilib):
             f'{env_vars}' \
             f'export MPAS_EXTERNAL_LIBS="${{MPAS_EXTERNAL_LIBS}} -lgomp"\n'
 
-    if mpilib == 'mvapich':
+    if mpi == 'mvapich':
         env_vars = f'{env_vars}' \
                    f'export MV2_ENABLE_AFFINITY=0\n' \
                    f'export MV2_SHOW_CPU_BINDING=1\n'
@@ -715,6 +750,10 @@ def _get_env_vars(machine, compiler, mpilib):
 
 
 def _build_spack_soft_env(options):  # noqa: C901
+    """
+    Build the software spack environment
+    """
+
     update_spack = options['update_spack']
     spack_template_path = options['spack_template_path']
     tmpdir = options['tmpdir']
@@ -812,6 +851,9 @@ def _build_spack_soft_env(options):  # noqa: C901
 
 
 def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
+    """
+    Build the library spack environment
+    """
 
     config = options['config']
     machine = options['machine']
@@ -950,6 +992,11 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
 
 
 def _set_ld_library_path(options, spack_branch_base, spack_env):
+    """
+    Set the ``LD_LIBRARY_PATH environment variable for the given spack branch
+    and environment
+    """
+
     commands = \
         f'source {spack_branch_base}/share/spack/setup-env.sh && ' \
         f'spack env activate {spack_env} && ' \
@@ -959,6 +1006,9 @@ def _set_ld_library_path(options, spack_branch_base, spack_env):
 
 
 def _write_load_polaris(options, prefix, spack_script, env_vars):
+    """
+    Write the Polaris load (activation) script
+    """
 
     env_type = options['env_type']
     conda_env_name = options['conda_env_name']
@@ -1048,6 +1098,10 @@ def _write_load_polaris(options, prefix, spack_script, env_vars):
 
 
 def _check_env(options, script_filename, conda_env_name):
+    """
+    Check that polaris has been installed correctly
+    """
+
     logger = options['logger']
     print(f'Checking the environment {conda_env_name}')
 
@@ -1071,6 +1125,10 @@ def _check_env(options, script_filename, conda_env_name):
 
 
 def _test_command(command, env, package, logger):
+    """
+    Test package commands and print status of each command to logger
+    """
+
     try:
         check_call(command, env=env, logger=logger)
     except subprocess.CalledProcessError as e:
@@ -1080,6 +1138,10 @@ def _test_command(command, env, package, logger):
 
 
 def _update_permissions(options, directories):  # noqa: C901
+    """
+    Update permissions in given directories
+    """
+
     config = options['config']
     env_type = options['env_type']
     activ_path = options['activ_path']
@@ -1205,6 +1267,10 @@ def _update_permissions(options, directories):  # noqa: C901
 
 
 def _parse_unsupported(machine, source_path):
+    """
+    Get the unsupported compilers and MPI variants for the given machine
+    """
+
     with open(os.path.join(source_path, 'deploy', 'unsupported.txt'), 'r') \
             as f:
         content = f.readlines()
@@ -1227,6 +1293,11 @@ def _parse_unsupported(machine, source_path):
 
 
 def _check_supported(library, machine, compiler, mpi, source_path):
+    """
+    Check that the given library is supported for the given machine, compiler,
+    and MPI variant
+    """
+
     filename = os.path.join(source_path, 'deploy', f'{library}_supported.txt')
     with open(filename, 'r') as f:
         content = f.readlines()
@@ -1247,6 +1318,10 @@ def _check_supported(library, machine, compiler, mpi, source_path):
 
 
 def _ignore_file_errors(f):
+    """
+    Ignore any permission and missing file errors, but pass others on
+    """
+
     def _wrapper(*args, **kwargs):
         try:
             f(*args, **kwargs)
@@ -1279,6 +1354,7 @@ def _discover_machine(quiet=False):
     machine : str
         The name of the current machine
     """
+
     machine = mache_discover_machine(quiet=quiet)
     if machine is None:
         possible_hosts = _get_possible_hosts()
@@ -1291,6 +1367,10 @@ def _discover_machine(quiet=False):
 
 
 def _get_possible_hosts():
+    """
+    Get a list of possible hosts from the existing machine config files
+    """
+
     here = os.path.abspath(os.path.dirname(__file__))
     files = sorted(glob.glob(os.path.join(
         here, '..', 'polaris', 'machines', '*.cfg')))
