@@ -8,6 +8,21 @@ from urllib.request import Request, urlopen
 
 
 def parse_args(bootstrap):
+    """
+    Parse arguments from the configure conda environment script call
+
+    Parameters
+    ----------
+    bootstrap : bool
+        Whether the environment being set up is a bootstrap environment
+
+    Returns
+    -------
+    args : list[str]
+        A list of each command-line argument provided in the call to the
+        configure conda environment script
+    """
+
     parser = argparse.ArgumentParser(
         description='Deploy a polaris conda environment')
     parser.add_argument("-m", "--machine", dest="machine",
@@ -89,6 +104,29 @@ def parse_args(bootstrap):
 
 
 def get_conda_base(conda_base, config, shared=False, warn=False):
+    """
+    Get the absolute path to the files for the conda base environment
+
+    Parameters
+    ----------
+    conda_base : str
+        The relative or absolute path to the conda base files
+
+    config : ConfigParser
+        Config object
+
+    shared : bool, optional
+        Whether we are working in a shared conda environment
+
+    warn : bool, optional
+        Whether to print a warning that the conda path was not supplied
+
+    Returns
+    -------
+    conda_base : str
+        Path to the conda base environment
+    """
+
     if shared:
         conda_base = config.get('paths', 'polaris_envs')
     elif conda_base is None:
@@ -111,6 +149,21 @@ def get_conda_base(conda_base, config, shared=False, warn=False):
 
 
 def check_call(commands, env=None, logger=None):
+    """
+    Wrapper for making a shell call with logging and error management
+
+    Parameters
+    ----------
+    commands : list[str]
+        A list of each command given as a string
+
+    env : Mapping[str, str], optional
+        Any environment variables required for the command
+
+    logger : logging.Logger, optional
+        The logger for output
+    """
+
     command_list = commands.replace(' && ', '; ').split('; ')
     print_command = '\n   '.join(command_list)
     if logger is None:
@@ -142,6 +195,21 @@ def check_call(commands, env=None, logger=None):
 
 
 def install_miniforge(conda_base, activate_base, logger):
+    """
+    Install Miniforge if it isn't installed already
+
+    Parameters
+    ----------
+    conda_base : str
+        Absolute path to the conda base environment files
+
+    activate_base : str
+        Command to activate the conda base environment
+
+    logger : logging.Logger
+        The logger for output
+    """
+
     if not os.path.exists(conda_base):
         print('Installing Miniforge3')
         if platform.system() == 'Darwin':
@@ -173,6 +241,23 @@ def install_miniforge(conda_base, activate_base, logger):
 
 
 def get_logger(name, log_filename):
+    """
+    Get the logger for logging output
+
+    Parameters
+    ----------
+    name : str
+        Name of the logger
+
+    log_filename : str
+        Filepath for the logging file
+
+    Returns
+    -------
+    logger : logging.Logger
+        The logger for output
+    """
+
     print(f'Logging to: {log_filename}\n')
     try:
         os.remove(log_filename)

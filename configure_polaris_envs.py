@@ -13,6 +13,10 @@ from deploy.shared import (
 
 
 def main():
+    """
+    Entry point for the configure script
+    """
+
     args = parse_args(bootstrap=False)
     source_path = os.getcwd()
 
@@ -85,6 +89,10 @@ def main():
 
 
 def _get_config(config_file):
+    """
+    Read in the options from the config file and return the config object
+    """
+
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'deploy/default.cfg')
@@ -99,6 +107,10 @@ def _get_config(config_file):
 
 def _setup_install_env(env_name, activate_base, use_local, logger, recreate,
                        conda_base, packages):
+    """
+    Setup a conda environment for installing polaris
+    """
+
     env_path = os.path.join(conda_base, 'envs', env_name)
 
     if use_local:
@@ -119,6 +131,9 @@ def _setup_install_env(env_name, activate_base, use_local, logger, recreate,
 
 
 def _bootstrap(activate_install_env, source_path, local_conda_build):
+    """
+    Activate the environment for installing polaris and call bootstrap
+    """
 
     print('Creating the polaris conda environment\n')
     bootstrap_command = f'{source_path}/deploy/bootstrap.py'
