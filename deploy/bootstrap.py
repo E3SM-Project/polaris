@@ -524,7 +524,7 @@ def _build_conda_env(options, activate_base):
     if conda_mpi == 'nompi':
         mpi_prefix = 'nompi'
     else:
-        mpi_prefix = conda_mpi
+        mpi_prefix = f'mpi_{conda_mpi}'
 
     channel_list = ['-c conda-forge', '-c defaults']
     if use_local:
