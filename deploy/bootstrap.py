@@ -139,7 +139,7 @@ def main():  # noqa: C901
 
         conda_env_name = options['conda_env_name']
         if previous_conda_env != conda_env_name:
-            _build_conda_env(options, mpi, activate_base)
+            _build_conda_env(options, activate_base)
 
             if options['local_mache']:
                 print('Install local mache\n')
@@ -496,9 +496,9 @@ def _get_env_setup(options, compiler, mpi):
     options['spack_env'] = spack_env
 
 
-def _build_conda_env(options, mpi, activate_base):
+def _build_conda_env(options, activate_base):
     """
-    Build the conda environment for the given mpi
+    Build the conda environment
     """
 
     config = options['config']
@@ -524,7 +524,7 @@ def _build_conda_env(options, mpi, activate_base):
     if conda_mpi == 'nompi':
         mpi_prefix = 'nompi'
     else:
-        mpi_prefix = f'mpi_{mpi}'
+        mpi_prefix = conda_mpi
 
     channel_list = ['-c conda-forge', '-c defaults']
     if use_local:
@@ -695,17 +695,17 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
         logger.info(message)
 
 
-def _get_env_vars(machine, compiler, mpilib):
+def _get_env_vars(machine, compiler, mpi):
     """
-    Get the environment variables for the given machine, compiler, and mpi
-    library
+    Get the environment variables for the given machine, compiler, and MPI
+    variant
     """
 
     if machine is None:
         machine = 'None'
 
     env_vars = f'export POLARIS_COMPILER={compiler}\n' \
-               f'export POLARIS_MPI={mpilib}\n'
+               f'export POLARIS_MPI={mpi}\n'
 
     env_vars = f'{env_vars}' \
                f'export MPAS_EXTERNAL_LIBS=""\n'
@@ -728,7 +728,7 @@ def _get_env_vars(machine, compiler, mpilib):
             f'{env_vars}' \
             f'export MPAS_EXTERNAL_LIBS="${{MPAS_EXTERNAL_LIBS}} -lgomp"\n'
 
-    if mpilib == 'mvapich':
+    if mpi == 'mvapich':
         env_vars = f'{env_vars}' \
                    f'export MV2_ENABLE_AFFINITY=0\n' \
                    f'export MV2_SHOW_CPU_BINDING=1\n'
