@@ -252,6 +252,50 @@ class ModelStep(Step):
         self.streams_data.append(dict(package=package, yaml=yaml,
                                       replacements=template_replacements))
 
+    def map_yaml_options(self, options):
+        """
+        A mapping between model config options between different models.  This
+        method should be overridden for situations in which yaml config
+        options have diverged in name or structure from their counterparts in
+        another model (e.g. when translating from MPAS-Ocean namelist options
+        to Omega config options)
+
+        Parameters
+        ----------
+        options : dict
+            A dictionary of yaml options and value to use as replacements for
+            existing values
+
+        Returns
+        -------
+        options : dict
+            A revised dictionary of yaml options and value to use as
+            replacements for existing values
+        """
+        return options
+
+    def map_yaml_configs(self, configs):
+        """
+        A mapping between model config options between different models.  This
+        method should be overridden for situations in which yaml config
+        options have diverged in name or structure from their counterparts in
+        another model (e.g. when translating from MPAS-Ocean namelist options
+        to Omega config options)
+
+        Parameters
+        ----------
+        configs : dict
+            A nested dictionary of yaml sections, options and value to use as
+            replacements for existing values
+
+        Returns
+        -------
+        configs : dict
+            A revised nested dictionary of yaml sections, options and value to
+            use as replacements for existing values
+        """
+        return configs
+
     def map_yaml_to_namelist(self, options):
         """
         A mapping from yaml model config options to namelist options.  This
@@ -673,13 +717,15 @@ class ModelStep(Step):
             if 'options' in entry:
                 # this is a dictionary of replacement model config options
                 options = entry['options']
+                options = self.map_yaml_options(options=entry['options'])
                 self._yaml.update(options=options, quiet=quiet)
             else:
                 yaml = PolarisYaml.read(filename=entry['yaml'],
                                         package=entry['package'],
                                         replacements=entry['replacements'])
 
-                self._yaml.update(configs=yaml.configs, quiet=quiet)
+                configs = self.map_yaml_configs(configs=yaml.configs)
+                self._yaml.update(configs=configs, quiet=quiet)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',

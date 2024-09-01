@@ -1,3 +1,8 @@
+import importlib.resources as imp_res
+from typing import Dict, List, Union
+
+from ruamel.yaml import YAML
+
 from polaris.model_step import ModelStep
 
 
@@ -11,6 +16,10 @@ class OceanModelStep(ModelStep):
         Whether the target and minimum number of MPI tasks (``ntasks`` and
         ``min_tasks``) are computed dynamically from the number of cells
         in the mesh
+
+    map : dict
+        A nested dictionary that maps from MPAS-Ocean to Omega model config
+        options
     """
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
@@ -88,6 +97,8 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
+        self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+
     def setup(self):
         """
         Determine if we will make yaml files or namelists and streams files,
@@ -98,6 +109,7 @@ class OceanModelStep(ModelStep):
         model = config.get('ocean', 'model')
         if model == 'omega':
             self.make_yaml = True
+            self._read_map()
         elif model == 'mpas-ocean':
             self.make_yaml = False
         else:
@@ -130,29 +142,50 @@ class OceanModelStep(ModelStep):
         """
         return None
 
-    def map_yaml_to_namelist(self, options):
+    def map_yaml_options(self, options):
         """
-        A mapping from yaml model config options to namelist options.  This
-        method should be overridden for situations in which yaml config
-        options have diverged in name or structure from their namelist
-        counterparts (e.g. when translating from Omega yaml to MPAS-Ocean
-        namelists)
+        A mapping between model config options from MPAS-Ocean to Omega
 
         Parameters
         ----------
         options : dict
+            A dictionary of yaml options and value to use as replacements for
+            existing values
+
+        Returns
+        -------
+        options : dict
+            A revised dictionary of yaml options and value to use as
+            replacements for existing values
+        """
+        config = self.config
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            options = self._map_mpaso_to_omega_options(options)
+        return options
+
+    def map_yaml_configs(self, configs):
+        """
+        A mapping between model sections and config options from MPAS-Ocean to
+        Omega
+
+        Parameters
+        ----------
+        configs : dict
             A nested dictionary of yaml sections, options and value to use as
             replacements for existing values
 
         Returns
         -------
-        options : dict
-            A nested dictionary of namelist sections, options and value to use
-            as replacements for existing values
+        configs : dict
+            A revised nested dictionary of yaml sections, options and value to
+            use as replacements for existing values
         """
-        # for now, just call the super class version but this will also handle
-        # renaming in the future
-        return super().map_yaml_to_namelist(options)
+        config = self.config
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            configs = self._map_mpaso_to_omega_configs(configs)
+        return configs
 
     def add_namelist_file(self, package, namelist):
         """
@@ -214,3 +247,162 @@ class OceanModelStep(ModelStep):
         # In a pinch, about 2000 cells per core
         self.min_tasks = max(1,
                              4 * round(cell_count / (4 * max_cells_per_core)))
+
+    def _read_map(self):
+        """
+        Read the map from MPAS-Ocean to Omega config options
+        """
+        package = 'polaris.ocean.model'
+        filename = 'mpaso_to_omega.yaml'
+        text = imp_res.files(package).joinpath(filename).read_text()
+
+        yaml_data = YAML(typ='rt')
+        nested_dict = yaml_data.load(text)
+        self.map = nested_dict['map']
+
+    def _map_mpaso_to_omega_options(self, options):
+        """
+        Map MPAS-Ocean namelist options to Omega config options
+        """
+
+        out_options: Dict[str, str] = {}
+        not_found = []
+        for mpaso_option, mpaso_value in options.items():
+            try:
+                omega_option, omega_value = self._map_mpaso_to_omega_option(
+                    option=mpaso_option, value=mpaso_value)
+                out_options[omega_option] = omega_value
+            except ValueError:
+                not_found.append(mpaso_option)
+
+        self._warn_not_found(not_found)
+
+        return out_options
+
+    def _map_mpaso_to_omega_option(self, option, value):
+        """
+        Map MPAS-Ocean namelist option to Omega equivalent
+        """
+        out_option = option
+        found = False
+
+        assert self.map is not None
+        # traverse the map
+        for entry in self.map:
+            options_dict = entry['options']
+            for mpaso_option, omega_option in options_dict.items():
+                if option == mpaso_option:
+                    found = True
+                    out_option = omega_option
+                    break
+
+            if found:
+                break
+
+        if not found:
+            raise ValueError(f'No mapping found for {option}')
+
+        out_option, out_value = self._map_handle_not(out_option, value)
+
+        return out_option, out_value
+
+    def _map_mpaso_to_omega_configs(self, configs):
+        """
+        Map MPAS-Ocean namelist options to Omega config options
+        """
+        if 'mpas-ocean' not in configs:
+            return configs
+
+        if 'omega' in configs:
+            omega_configs = configs['omega']
+        else:
+            omega_configs = None
+
+        configs = configs['mpas-ocean']
+
+        out_configs: Dict[str, Dict[str, str]] = {}
+        not_found = []
+        for section, options in configs.items():
+            for option, mpaso_value in options.items():
+                try:
+                    omega_section, omega_option, omega_value = \
+                        self._map_mpaso_to_omega_section_option(
+                            section=section, option=option, value=mpaso_value)
+                    if omega_section not in out_configs:
+                        out_configs[omega_section] = {}
+                    out_configs[omega_section][omega_option] = omega_value
+                except ValueError:
+                    not_found.append(f'{section}/{option}')
+
+        self._warn_not_found(not_found)
+
+        result = {'omega': out_configs}
+        if omega_configs is not None:
+            # copy over the omega config options, too
+            result['omega'].update(omega_configs)
+        return result
+
+    def _map_mpaso_to_omega_section_option(self, section, option, value):
+        """
+        Map MPAS-Ocean namelist section and option to Omega equivalent
+        """
+        out_section = section
+        out_option = option
+
+        assert self.map is not None
+
+        section_found = False
+        option_found = False
+
+        # traverse the map
+        for entry in self.map:
+            section_found = False
+            section_dict = entry['section']
+            for mpaso_section, omega_seciton in section_dict.items():
+                if section == mpaso_section:
+                    section_found = True
+                    break
+
+            if not section_found:
+                continue
+
+            options_dict = entry['options']
+            for mpaso_option, omega_option in options_dict.items():
+                if option == mpaso_option:
+                    option_found = True
+                    break
+
+            if option_found:
+                out_section = omega_seciton
+                out_option = omega_option
+                break
+
+        if not option_found:
+            raise ValueError(f'No mapping found for {section}/{option}')
+
+        out_option, out_value = self._map_handle_not(out_option, value)
+
+        return out_section, out_option, out_value
+
+    @staticmethod
+    def _warn_not_found(not_found):
+        """ Warn about options that were not found in the map """
+        if len(not_found) == 0:
+            return
+
+        print('WARNING: No Omega mapping found for these MPASO options:')
+        for string in not_found:
+            print(f'    {string}')
+        print()
+
+    @staticmethod
+    def _map_handle_not(option, value):
+        """
+        Handle negation of boolean value if the option starts with "not"
+        """
+        if option.startswith('not '):
+            # a special case where we want the opposite of a boolean value
+            option = option[4:]
+            value = not value
+
+        return option, value
