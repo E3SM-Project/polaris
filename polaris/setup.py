@@ -17,7 +17,7 @@ from polaris.machines import discover_machine
 def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
                 machine=None, baseline_dir=None, component_path=None,
                 suite_name='custom', cached=None, copy_executable=False,
-                clean=False):
+                clean=False, model=None):
     """
     Set up one or more tasks
 
@@ -65,6 +65,9 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         Whether to delete the contents of the base work directory before
         setting up tasks
 
+    model : str, optional
+        The model to run
+
     Returns
     -------
     tasks : dict of polaris.Task
@@ -98,7 +101,7 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     component = tasks[first_path].component
 
     basic_config = _get_basic_config(config_file, machine, component_path,
-                                     component)
+                                     component, model)
 
     provenance.write(work_dir, tasks, config=basic_config)
 
@@ -111,12 +114,12 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         print('')
 
     _setup_configs(component, tasks, work_dir, config_file, machine,
-                   component_path, copy_executable)
+                   component_path, copy_executable, model)
 
     print('Setting up tasks:')
     for path, task in tasks.items():
         setup_task(path, task, machine, work_dir,
-                   baseline_dir, cached_steps=cached_steps[path])
+                   baseline_dir, cached_steps=cached_steps[path], model=model)
 
     _check_dependencies(tasks)
 
@@ -144,7 +147,8 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     return tasks
 
 
-def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
+def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps,
+               model):
     """
     Set up one or more tasks
 
@@ -169,6 +173,9 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     cached_steps : list of str
         Which steps (if any) should be cached, identified by a list of
         subdirectories in the component
+
+    model : str, optional
+        The model to run
     """
 
     print(f'  {path}')
@@ -277,6 +284,9 @@ def main():
     parser.add_argument("--clean", dest="clean", action="store_true",
                         help="If the base work directory should be deleted "
                              "before setting up the tasks.")
+    parser.add_argument("--model", dest="model",
+                        help="The model to run (one of 'mpas-ocean', 'omega', "
+                             "or 'mpas-seaice')")
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -295,7 +305,7 @@ def main():
                 work_dir=args.work_dir, baseline_dir=args.baseline_dir,
                 component_path=args.component_path, suite_name=args.suite_name,
                 cached=cached, copy_executable=args.copy_executable,
-                clean=args.clean)
+                clean=args.clean, model=args.model)
 
 
 def _expand_and_mark_cached_steps(tasks, cached_steps):
@@ -313,11 +323,11 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
 
 def _setup_configs(component, tasks, work_dir, config_file, machine,
-                   component_path, copy_executable):
+                   component_path, copy_executable, model):
     """ Set up config parsers for this component """
 
     common_config = _get_basic_config(config_file, machine, component_path,
-                                      component)
+                                      component, model)
     if copy_executable:
         common_config.set('setup', 'copy_executable', 'True')
 
@@ -532,7 +542,7 @@ def __get_machine_and_check_params(machine, config_file, tasks, numbers,
     return machine
 
 
-def _get_basic_config(config_file, machine, component_path, component):
+def _get_basic_config(config_file, machine, component_path, component, model):
     """
     Get a base config parser for the machine and component but not a specific
     task
@@ -541,6 +551,10 @@ def _get_basic_config(config_file, machine, component_path, component):
 
     if config_file is not None:
         config.add_user_config(config_file)
+
+    # set the model from the command line if provided
+    if model is not None:
+        config.set(component.name, 'model', model, user=True)
 
     # start with default polaris config options
     config.add_from_package('polaris', 'default.cfg')
