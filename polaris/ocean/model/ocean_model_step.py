@@ -109,6 +109,7 @@ class OceanModelStep(ModelStep):
         model = config.get('ocean', 'model')
         if model == 'omega':
             self.make_yaml = True
+            self.yaml = 'omega.yml'
             self._read_map()
         elif model == 'mpas-ocean':
             self.make_yaml = False
