@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   time_management:
     config_start_time: {{ start_time }}
     config_run_duration: {{ run_duration }}

@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   tidal_forcing:
     config_use_tidal_forcing: true
     config_use_tidal_forcing_tau: 10000

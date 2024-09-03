@@ -86,7 +86,8 @@ class Forward(OceanModelStep):
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml
-            self.add_model_config_options(options=dict(config_mom_del2=nu))
+            self.add_model_config_options(options=dict(config_mom_del2=nu),
+                                          config_model='mpas-ocean')
 
         self.add_output_file(
             filename='output.nc',
@@ -153,4 +154,5 @@ class Forward(OceanModelStep):
         self.dt = dt
         self.btr_dt = btr_dt
 
-        self.add_model_config_options(options=options)
+        self.add_model_config_options(options=options,
+                                      config_model='mpas-ocean')

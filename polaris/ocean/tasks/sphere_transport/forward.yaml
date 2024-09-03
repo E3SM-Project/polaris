@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   run_modes:
     config_ocean_run_mode: forward
   time_management:
