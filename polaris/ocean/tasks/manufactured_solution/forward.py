@@ -81,4 +81,4 @@ class Forward(ConvergenceForward):
                    float(exact_solution.lambda_x),
                    'config_manufactured_solution_wavelength_y':
                    float(exact_solution.lambda_y)}
-        self.add_model_config_options(options)
+        self.add_model_config_options(options, config_model='mpas-ocean')
