@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   io:
     config_write_output_on_startup: true
   time_management:

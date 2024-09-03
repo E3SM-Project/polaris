@@ -47,8 +47,8 @@ class ConvergenceForward(OceanModelStep):
             A YAML file that is a Jinja2 template with model config options
 
         options : dict, optional
-            A dictionary of options and value to replace model config options
-            with new values
+            A nested dictionary of options and value for each ``config_model``
+            to replace model config options with new values
 
         output_filename : str, optional
             The output file that will be written out at the end of the forward
@@ -68,7 +68,9 @@ class ConvergenceForward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         if options is not None:
-            self.add_model_config_options(options=options)
+            for config_model in options:
+                self.add_model_config_options(options=options[config_model],
+                                              config_model=config_model)
 
         self.add_input_file(
             filename='init.nc',
