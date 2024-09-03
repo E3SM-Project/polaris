@@ -34,7 +34,7 @@ class PolarisYaml:
         self.model = None
 
     @classmethod
-    def read(cls, filename, package=None, replacements=None):
+    def read(cls, filename, package=None, replacements=None, model=None):
         """
         Add config options from a yaml file
 
@@ -50,6 +50,10 @@ class PolarisYaml:
             A dictionary of replacements, which, if provided, is used to
             replace Jinja variables and the yaml file is assumed do be a Jinja
             template
+
+        model : str, optional
+            The name of the model to parse if the yaml file might have multiple
+            models
 
         Returns
         -------
@@ -73,18 +77,24 @@ class PolarisYaml:
         yaml_data = YAML(typ='rt')
         configs = yaml_data.load(text)
 
-        keys = list(configs)
-        if len(keys) > 1:
-            raise ValueError(
-                f'Config yaml file contains unexpected sections:\n '
-                f'{keys[1:]}')
-        yaml.model = keys[0]
-        yaml.streams = dict()
-        configs = configs[yaml.model]
-        if 'streams' in configs:
-            yaml.streams = configs['streams']
-            configs = dict(configs)
-            configs.pop('streams')
+        if model is None:
+            keys = list(configs)
+            if len(keys) > 1:
+                raise ValueError(
+                    f'Config yaml file contains unexpected sections:\n '
+                    f'{keys[1:]}')
+            model = keys[0]
+
+        yaml.model = model
+        yaml.streams = {}
+        if model in configs:
+            configs = configs[model]
+            if 'streams' in configs:
+                yaml.streams = configs['streams']
+                configs = dict(configs)
+                configs.pop('streams')
+        else:
+            configs = {}
 
         yaml.configs = configs
         return yaml

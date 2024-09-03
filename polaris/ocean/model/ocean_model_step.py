@@ -109,9 +109,11 @@ class OceanModelStep(ModelStep):
         model = config.get('ocean', 'model')
         if model == 'omega':
             self.make_yaml = True
+            self.config_models = ['ocean', 'omega']
             self.yaml = 'omega.yml'
             self._read_map()
         elif model == 'mpas-ocean':
+            self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
@@ -143,7 +145,7 @@ class OceanModelStep(ModelStep):
         """
         return None
 
-    def map_yaml_options(self, options):
+    def map_yaml_options(self, options, config_model):
         """
         A mapping between model config options from MPAS-Ocean to Omega
 
@@ -153,6 +155,10 @@ class OceanModelStep(ModelStep):
             A dictionary of yaml options and value to use as replacements for
             existing values
 
+        config_model : str or None
+            If config options are available for multiple models, the model that
+            the config options are from
+
         Returns
         -------
         options : dict
@@ -161,11 +167,11 @@ class OceanModelStep(ModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        if model == 'omega':
+        if model == 'omega' and config_model == 'ocean':
             options = self._map_mpaso_to_omega_options(options)
         return options
 
-    def map_yaml_configs(self, configs):
+    def map_yaml_configs(self, configs, config_model):
         """
         A mapping between model sections and config options from MPAS-Ocean to
         Omega
@@ -176,6 +182,10 @@ class OceanModelStep(ModelStep):
             A nested dictionary of yaml sections, options and value to use as
             replacements for existing values
 
+        config_model : str or None
+            If config options are available for multiple models, the model that
+            the config options are from
+
         Returns
         -------
         configs : dict
@@ -184,7 +194,7 @@ class OceanModelStep(ModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        if model == 'omega':
+        if model == 'omega' and config_model == 'ocean':
             configs = self._map_mpaso_to_omega_configs(configs)
         return configs
 
@@ -311,16 +321,6 @@ class OceanModelStep(ModelStep):
         """
         Map MPAS-Ocean namelist options to Omega config options
         """
-        if 'mpas-ocean' not in configs:
-            return configs
-
-        if 'omega' in configs:
-            omega_configs = configs['omega']
-        else:
-            omega_configs = None
-
-        configs = configs['mpas-ocean']
-
         out_configs: Dict[str, Dict[str, str]] = {}
         not_found = []
         for section, options in configs.items():
@@ -337,11 +337,7 @@ class OceanModelStep(ModelStep):
 
         self._warn_not_found(not_found)
 
-        result = {'omega': out_configs}
-        if omega_configs is not None:
-            # copy over the omega config options, too
-            result['omega'].update(omega_configs)
-        return result
+        return out_configs
 
     def _map_mpaso_to_omega_section_option(self, section, option, value):
         """
