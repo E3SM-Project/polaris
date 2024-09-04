@@ -175,6 +175,8 @@ seaice/api
    ModelStep.set_model_resources
    ModelStep.add_model_config_options
    ModelStep.add_yaml_file
+   ModelStep.map_yaml_options
+   ModelStep.map_yaml_configs
    ModelStep.map_yaml_to_namelist
    ModelStep.add_namelist_file
    ModelStep.add_streams_file
