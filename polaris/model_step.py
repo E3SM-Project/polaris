@@ -627,18 +627,29 @@ class ModelStep(Step):
         replacements = dict()
 
         for entry in self.model_config_data:
-            if 'options' in entry:
-                # this is a dictionary of replacement namelist options
-                options = self.map_yaml_to_namelist(entry['options'])
-            elif 'yaml' in entry:
-                yaml = PolarisYaml.read(filename=entry['yaml'],
-                                        package=entry['package'],
-                                        replacements=entry['replacements'])
-                options = self.map_yaml_to_namelist(yaml.configs)
-            else:
+            if 'namelist' in entry:
                 options = polaris.namelist.parse_replacements(
                     entry['package'], entry['namelist'])
-            replacements.update(options)
+                replacements.update(options)
+            for config_model in self.config_models:
+                if 'options' in entry and \
+                        entry['config_model'] == config_model:
+                    # this is a dictionary of replacement model config options
+                    options = entry['options']
+                    options = self.map_yaml_options(options=entry['options'],
+                                                    config_model=config_model)
+                    options = self.map_yaml_to_namelist(options)
+                    replacements.update(options)
+                if 'yaml' in entry:
+                    yaml = PolarisYaml.read(filename=entry['yaml'],
+                                            package=entry['package'],
+                                            replacements=entry['replacements'],
+                                            model=config_model)
+
+                    configs = self.map_yaml_configs(configs=yaml.configs,
+                                                    config_model=config_model)
+                    configs = self.map_yaml_to_namelist(configs)
+                    replacements.update(configs)
 
         if not quiet:
             print(f'Warning: replacing namelist options in {self.namelist}')
@@ -671,19 +682,7 @@ class ModelStep(Step):
         for entry in self.streams_data:
             package = entry['package']
             replacements = entry['replacements']
-            if 'yaml' in entry:
-                yaml_filename = entry['yaml']
-                if not quiet:
-                    print(f'{package} {yaml_filename}')
-
-                yaml = PolarisYaml.read(filename=yaml_filename,
-                                        package=package,
-                                        replacements=replacements)
-                assert processed_registry_filename is not None
-                new_tree = yaml_to_mpas_streams(processed_registry_filename,
-                                                yaml)
-                tree = polaris.streams.update_tree(tree, new_tree)
-            else:
+            if 'streams' in entry:
                 streams_filename = entry['streams']
                 if not quiet:
                     print(f'{package} {streams_filename}')
@@ -691,6 +690,11 @@ class ModelStep(Step):
                 tree = polaris.streams.read(
                     package=package, streams_filename=streams_filename,
                     replacements=replacements, tree=tree)
+            for config_model in self.config_models:
+                if 'yaml' in entry:
+                    tree = self._process_yaml_streams(
+                        entry['yaml'], package, replacements, config_model,
+                        processed_registry_filename, tree, quiet)
 
             if not quiet and replacements is not None:
                 for key, value in replacements.items():
@@ -722,6 +726,23 @@ class ModelStep(Step):
                         break
                 if not found:
                     defaults.remove(default)
+
+    @staticmethod
+    def _process_yaml_streams(yaml_filename, package, replacements,
+                              config_model, processed_registry_filename,
+                              tree, quiet):
+        if not quiet:
+            print(f'{package} {yaml_filename}')
+
+        yaml = PolarisYaml.read(filename=yaml_filename,
+                                package=package,
+                                replacements=replacements,
+                                model=config_model)
+        assert processed_registry_filename is not None
+        new_tree = yaml_to_mpas_streams(
+            processed_registry_filename, yaml)
+        tree = polaris.streams.update_tree(tree, new_tree)
+        return tree
 
     def _process_yaml(self, quiet):
         """
