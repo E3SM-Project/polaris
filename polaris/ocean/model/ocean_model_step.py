@@ -355,7 +355,7 @@ class OceanModelStep(ModelStep):
         for entry in self.map:
             section_found = False
             section_dict = entry['section']
-            for mpaso_section, omega_seciton in section_dict.items():
+            for mpaso_section, omega_section in section_dict.items():
                 if section == mpaso_section:
                     section_found = True
                     break
@@ -370,7 +370,7 @@ class OceanModelStep(ModelStep):
                     break
 
             if option_found:
-                out_section = omega_seciton
+                out_section = omega_section
                 out_option = omega_option
                 break
 
