@@ -19,10 +19,11 @@ class ConvergenceForward(OceanModelStep):
 
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init,
-                 package, yaml_filename='forward.yaml', options=None,
-                 graph_filename='graph.info', output_filename='output.nc',
-                 validate_vars=None):
+    def __init__(self, component, name, subdir, resolution,
+                 mesh, init, package, yaml_filename='forward.yaml',
+                 options=None, graph_filename='graph.info',
+                 graph_path=None, output_filename='output.nc',
+                 validate_vars=None, dt=None):
         """
         Create a new step
 
@@ -40,6 +41,9 @@ class ConvergenceForward(OceanModelStep):
         resolution : float
             The resolution of the (uniform) mesh in km
 
+        dt : float
+            The time step in seconds
+
         package : Package
             The package name or module object that contains the YAML file
 
@@ -50,12 +54,21 @@ class ConvergenceForward(OceanModelStep):
             A dictionary of options and value to replace model config options
             with new values
 
+        graph_filename: str, optional
+            The name of the graph info file
+
+        graph_path: path, optional
+            The path to the graph info file
+
         output_filename : str, optional
             The output file that will be written out at the end of the forward
             run
 
         validate_vars : list of str, optional
             A list of variables to validate against a baseline if requested
+
+        dt: float, optional
+            The time step to be used in the forward run
         """
         super().__init__(component=component, name=name, subdir=subdir,
                          openmp_threads=1)
@@ -73,12 +86,16 @@ class ConvergenceForward(OceanModelStep):
         self.add_input_file(
             filename='init.nc',
             work_dir_target=f'{init.path}/initial_state.nc')
+        if graph_path is None:
+            graph_path = mesh.path
         self.add_input_file(
             filename='graph.info',
-            work_dir_target=f'{mesh.path}/{graph_filename}')
+            work_dir_target=f'{graph_path}/{graph_filename}')
 
         self.add_output_file(filename=output_filename,
                              validate_vars=validate_vars)
+
+        self.dt = dt
 
     def compute_cell_count(self):
         """
@@ -112,20 +129,35 @@ class ConvergenceForward(OceanModelStep):
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         section = config['convergence_forward']
-
         time_integrator = section.get('time_integrator')
+        if self.dt is None:
+            # dt is proportional to resolution: default 30 seconds per km
+            if time_integrator == 'RK4':
+                self.dt = section.getfloat('rk4_dt_per_km')
+            elif time_integrator == 'FB_LTS':
+                self.dt = section.getfloat('fb_lts_dt_per_km')
+            elif time_integrator == 'LTS':
+                self.dt = section.getfloat('lts_dt_per_km')
+            elif time_integrator == 'unsplit_explicit':
+                self.dt = section.getfloat('unsplit_explicit_dt_per_km')
+            elif time_integrator == 'split_implicit':
+                self.dt = section.getfloat('split_implicit_dt_per_km')
+            elif time_integrator == 'split_explicit_ab2':
+                self.dt = section.getfloat('split_explicit_ab2_dt_per_km')
+            else:
+                raise ValueError('Time integrator selected is not available.')
 
-        # dt is proportional to resolution: default 30 seconds per km
-        if time_integrator == 'RK4':
-            dt_per_km = section.getfloat('rk4_dt_per_km')
+            dt_str = get_time_interval_string(seconds=self.dt *
+                                              self.resolution)
+            dt_btr_scaling = section.getfloat('dt_btr_scaling')
+            dt_btr = self.dt / dt_btr_scaling
+            btr_dt_str = get_time_interval_string(seconds=dt_btr *
+                                                  self.resolution)
         else:
-            dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
-
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * self.resolution)
+            dt_str = get_time_interval_string(seconds=self.dt)
+            dt_btr_scaling = section.getfloat('dt_btr_scaling')
+            dt_btr = self.dt / dt_btr_scaling
+            btr_dt_str = get_time_interval_string(seconds=dt_btr)
 
         s_per_hour = 3600.
         run_duration = section.getfloat('run_duration')
