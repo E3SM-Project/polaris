@@ -73,7 +73,7 @@ if you don't already have it.  Then, create a new conda environment (called
 `polaris` in this example) as follows:
 
 ```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.11 \
+conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.12 \
     "polaris=*=mpi_mpich*"
 ```
 
@@ -85,7 +85,7 @@ system with its own MPI), use `"polaris=*=nompi*"`
 To get a specific version of polaris, you can instead run:
 
 ```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.11 \
+conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.12 \
     "polaris=1.0.0=mpi_mpich*"
 ```
 
