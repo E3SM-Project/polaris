@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.yaml.yaml_to_mpas_streams</title>
@@ -13,9 +13,10 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -149,14 +150,14 @@
 <span class="sig-prename descclassname"><span class="pre">polaris.yaml.</span></span><span class="sig-name descname"><span class="pre">yaml_to_mpas_streams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processed_registry_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/yaml.html#yaml_to_mpas_streams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.yaml.yaml_to_mpas_streams" title="Permalink to this definition"></a></dt>
 <dd><p>Add config options from a yaml file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>processed_registry_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The processed registry file, used to determine the types of variables
 each steam (since the yaml format doesn’t supply that information).</p></li>
 <li><p><strong>yaml</strong> (<a class="reference internal" href="polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml" title="polaris.yaml.PolarisYaml"><em>polaris.yaml.PolarisYaml</em></a>) – A yaml object with the namelists and streams</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>tree</strong> (<em>lxml.etree</em>) – A tree of XML data describing MPAS i/o streams with the content from
 the streams in the yaml file</p>
 </dd>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.ice_shelf.SshForward</title>
@@ -13,9 +13,10 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -132,7 +133,7 @@
 <dd><p>A step for performing forward ocean component runs as part of ssh
 adjustment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>min_resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The minimum resolution in km used to determine the time step</p></li>
 <li><p><strong>package</strong> (<em>Package</em>) – The package name or module object that contains <code class="docutils literal notranslate"><span class="pre">namelist</span></code></p></li>
@@ -147,7 +148,7 @@ file</p></li>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ssh_forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ssh_forward.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_replacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/ice_shelf/ssh_forward.html#SshForward.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.ice_shelf.SshForward.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new task</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
 <li><p><strong>min_resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The minimum resolution in km used to determine the time step</p></li>
@@ -178,6 +179,10 @@ than this number of tasks, the step will fail</p></li>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.ice_shelf.SshForward.__init__" title="polaris.ocean.ice_shelf.SshForward.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, min_resolution, ...[, ...])</p></td>
 <td><p>Create a new task</p></td>

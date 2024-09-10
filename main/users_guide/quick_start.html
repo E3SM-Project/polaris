@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quick Start for Users</title>
@@ -13,9 +13,10 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -188,7 +189,7 @@ To install your own polaris conda environment on non-E3SM-supported machines,
 first, install <a class="reference external" href="https://github.com/conda-forge/miniforge#miniforge3">Miniforge3</a>
 if you don’t already have it.  Then, create a new conda environment (called
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> in this example) as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;polaris=*=mpi_mpich*&quot;</span>
 </pre></div>
 </div>
@@ -197,7 +198,7 @@ package.  If you want OpenMPI, use <code class="docutils literal notranslate"><s
 you do not want MPI from conda-forge (e.g. because you are working with a
 system with its own MPI), use <code class="docutils literal notranslate"><span class="pre">&quot;polaris=*=nompi*&quot;</span></code></p>
 <p>To get a specific version of polaris, you can instead run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;polaris=1.0.0=mpi_mpich*&quot;</span>
 </pre></div>
 </div>

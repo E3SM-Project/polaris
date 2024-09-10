@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.compute_transect</title>
@@ -13,9 +13,10 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -133,7 +134,7 @@
 This can be used to plot transects of fields with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> and
 <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> using <a class="reference internal" href="polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.plot_transect()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.7.1.dev0)"><em>xarray.DataArray</em></a>) – The x or longitude coordinate of the transect</p></li>
 <li><p><strong>y</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.7.1.dev0)"><em>xarray.DataArray</em></a>) – The y or latitude coordinate of the transect</p></li>
@@ -147,7 +148,7 @@ This can be used to plot transects of fields with dimensions <code class="docuti
 <li><p><strong>spherical</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the x and y coordinates are latitude and longitude in degrees</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>ds_transect</strong> (<em>xarray.Dataset</em>) – The transect dataset, see
 <a class="reference internal" href="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights.html#polaris.ocean.viz.transect.vert.find_transect_levels_and_weights" title="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.vert.find_transect_levels_and_weights()</span></code></a>
 for details</p>

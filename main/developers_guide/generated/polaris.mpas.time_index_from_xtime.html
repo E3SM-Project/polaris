@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.mpas.time_index_from_xtime</title>
@@ -13,9 +13,10 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -145,14 +146,14 @@
 <span class="sig-prename descclassname"><span class="pre">polaris.mpas.</span></span><span class="sig-name descname"><span class="pre">time_index_from_xtime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xtime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_xtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mpas/time.html#time_index_from_xtime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mpas.time_index_from_xtime" title="Permalink to this definition"></a></dt>
 <dd><p>Determine the time index closest to the target time</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>xtime</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><em>numpy.ndarray</em></a><em> of </em><em>numpy.char</em>) – Times in the dataset</p></li>
+<li><p><strong>xtime</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em> of </em><em>numpy.char</em>) – Times in the dataset</p></li>
 <li><p><strong>dt_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Time in seconds since the first time in the list of <code class="docutils literal notranslate"><span class="pre">xtime</span></code> values</p></li>
 <li><p><strong>start_xtime</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The start time, the first entry in <code class="docutils literal notranslate"><span class="pre">xtime</span></code> by default</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>time_index</strong> (<em>int</em>) – Index in xtime that is closest to dt_target</p>
 </dd>
 </dl>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.parallel.get_parallel_command</title>
@@ -13,9 +13,10 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -147,7 +148,7 @@
 <span class="sig-prename descclassname"><span class="pre">polaris.parallel.</span></span><span class="sig-name descname"><span class="pre">get_parallel_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/parallel.html#get_parallel_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.parallel.get_parallel_command" title="Permalink to this definition"></a></dt>
 <dd><p>Run a subprocess with the given command-line arguments and resources</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The command-line arguments to run in parallel</p></li>
 <li><p><strong>cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – the number of cores per task the process would ideally use.  If
@@ -161,7 +162,7 @@ fewer tasks as long as as this is not below <code class="docutils literal notran
 <li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.12)"><em>configparser.ConfigParser</em></a>) – Configuration options for the test case</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>command_line_args</strong> (<em>list</em>) – The full parallel command</p>
 </dd>
 </dl>

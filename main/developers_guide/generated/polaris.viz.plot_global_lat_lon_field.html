@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.viz.plot_global_lat_lon_field</title>
@@ -13,9 +13,10 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -147,11 +148,11 @@
 <span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">plot_global_lat_lon_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_land</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/spherical.html#plot_global_lat_lon_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.plot_global_lat_lon_field" title="Permalink to this definition"></a></dt>
 <dd><p>Plots a data set as a longitude-latitude map</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><em>numpy.ndarray</em></a>) – 1D longitude coordinate</p></li>
-<li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><em>numpy.ndarray</em></a>) – 1D latitude coordinate</p></li>
-<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><em>numpy.ndarray</em></a>) – 2D data array to plot</p></li>
+<li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a>) – 1D longitude coordinate</p></li>
+<li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a>) – 1D latitude coordinate</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a>) – 2D data array to plot</p></li>
 <li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The image file name to be written</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options to use for colormap settings</p></li>
 <li><p><strong>colormap_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The name of a section in the config options. Options must include:</p>
