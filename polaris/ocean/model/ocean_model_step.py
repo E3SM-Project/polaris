@@ -348,31 +348,26 @@ class OceanModelStep(ModelStep):
 
         assert self.map is not None
 
-        section_found = False
         option_found = False
-
         # traverse the map
         for entry in self.map:
-            section_found = False
             section_dict = entry['section']
-            for mpaso_section, omega_section in section_dict.items():
-                if section == mpaso_section:
-                    section_found = True
-                    break
-
-            if not section_found:
+            try:
+                omega_section = section_dict[section]
+            except KeyError:
                 continue
-
-            options_dict = entry['options']
-            for mpaso_option, omega_option in options_dict.items():
-                if option == mpaso_option:
+            else:
+                options_dict = entry['options']
+                option_found = False
+                try:
+                    omega_option = options_dict[option]
+                except KeyError:
+                    continue
+                else:
                     option_found = True
+                    out_section = omega_section
+                    out_option = omega_option
                     break
-
-            if option_found:
-                out_section = omega_section
-                out_option = omega_option
-                break
 
         if not option_found:
             raise ValueError(f'No mapping found for {section}/{option}')
