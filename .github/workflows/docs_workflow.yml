@@ -36,7 +36,7 @@ jobs:
         with:
           activate-environment: "polaris_ci"
           miniforge-version: latest
-          channels: conda-forge,e3sm/label/polaris,defaults
+          channels: conda-forge,e3sm/label/polaris
           channel-priority: strict
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
