@@ -44,6 +44,17 @@ class Forward(ConvergenceForward):
                          output_filename='output.nc',
                          validate_vars=['layerThickness', 'normalVelocity'])
 
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        config = self.config
+        model = config.get('ocean', 'model')
+        # TODO: remove as soon as Omega supports I/O streams
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+
     def compute_cell_count(self):
         """
         Compute the approximate number of cells in the mesh, used to constrain
