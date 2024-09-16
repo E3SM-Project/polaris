@@ -31,7 +31,7 @@ mpas-ocean:
   debug:
     config_disable_vel_hmix: true
 
-omega:
+Omega:
   Tendencies:
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false

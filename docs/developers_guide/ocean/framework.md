@@ -62,14 +62,14 @@ mpas-ocean:
   debug:
     config_disable_vel_hmix: true
 
-omega:
+Omega:
   Tendencies:
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
 ```
 
 When model config options are set in code, it is also important to specify
-which `config_model` they apply to (`ocean`, `mpas-ocean` or `omega`):
+which `config_model` they apply to (`ocean`, `mpas-ocean` or `Omega`):
 ```python
 self.add_model_config_options(options=dict(config_mom_del2=nu),
                               config_model='ocean')
@@ -81,7 +81,8 @@ names for the `ocean` config options in the methods
 {py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_configs()`.
 As new config options are added to Omega, they should be added to the
 map in the [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
-file.
+file. Note that `config_model='Omega'` must be capitalized since this is the
+convention on the model name in Omega's own YAML files.
 
 #### Setting MPI resources
 
