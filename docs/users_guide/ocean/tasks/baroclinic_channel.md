@@ -9,9 +9,13 @@ from [Ilicak et al. (2012)](https://doi.org/10.1016/j.ocemod.2011.10.003).
 
 Polaris includes includes 5 baroclinic channel test cases.  All test cases have
 at least 2 steps, `init`, which defines the mesh and initial conditions for the
-model, and some variation on `forward` (given another name in many test cases 
-to distinguish multiple forward runs), which performs time integration of the 
+model, and some variation on `forward` (given another name in many test cases
+to distinguish multiple forward runs), which performs time integration of the
 model.
+
+## suppported models
+
+These tasks support only MPAS-Ocean.
 
 ## mesh
 
@@ -23,7 +27,7 @@ resolution.
 
 ## vertical grid
 
-By default, all tests have 20 vertical layers of 50-m uniform thickness. The 
+By default, all tests have 20 vertical layers of 50-m uniform thickness. The
 domain bottom is flat.
 
 ```cfg
@@ -86,7 +90,7 @@ $$
 T_0(y) = \begin{cases}
     T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
     (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &
-    \text{ if } y_{min}(x) \le y \le y_{max}(x); 
+    \text{ if } y_{min}(x) \le y \le y_{max}(x);
     \frac{4}{6} l_x \le x \le \frac{5}{6} l_x \\
     T_0(z) - \Delta T \: f(y) & \text{otherwise}
 \end{cases}
@@ -170,7 +174,7 @@ coriolis_parameter = -1.2e-4
 ```
 
 The default domain size (`lx` and `ly`) is designed to be consistent with the
-literature, but can be modified by users to suit their needs.  
+literature, but can be modified by users to suit their needs.
 
 The config options `dt_per_km` and `btr_dt_per_km` are used to determine a
 time steps that is consistent with a given resolution.  Changing these config
@@ -187,7 +191,7 @@ All units are mks, with temperature in degrees Celsius and salinity in PSU.
 
 `ocean/baroclinic_channel/10km/default` is the default version of the
 baroclinic eddies test case for a short (15 min) test run and validation of
-prognostic variables for regression testing.  
+prognostic variables for regression testing.
 
 ### mesh
 
@@ -227,7 +231,7 @@ The number of processors is hard-coded to be 4 for this case.
 of the model forward in time on 4 (`4proc` step) and then on 8 processors
 (`8proc` step) to make sure the resulting prognostic variables are
 bit-for-bit identical between the two runs.
- 
+
 ### mesh
 
 See {ref}`ocean-baroclinic-channel`. Currently, only 10-km horizontal

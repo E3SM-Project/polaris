@@ -38,6 +38,10 @@ SSH fields.
 :width: 500 px
 ```
 
+## suppported models
+
+These tasks support only MPAS-Ocean.
+
 ## mesh
 
 For each resolution, the `init` step generates and planar hexagonal
@@ -55,7 +59,7 @@ single layer configuration.
 grid_type = uniform
 
 # Number of vertical levels
-vert_levels = 1 
+vert_levels = 1
 
 # Depth of the bottom of the ocean
 bottom_depth = 1000.0
