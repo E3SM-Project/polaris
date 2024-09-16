@@ -1,5 +1,6 @@
 mpas-ocean:
   time_management:
+    config_stop_time: none
     config_run_duration: 20_00:00:00
   streams:
     output:

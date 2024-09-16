@@ -138,5 +138,6 @@ class Forward(OceanModelStep):
             run_seconds = self.run_time_steps * dt
             options['config_run_duration'] = \
                 time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+            options['config_stop_time'] = 'none'
         self.add_model_config_options(options=options,
                                       config_model='mpas-ocean')

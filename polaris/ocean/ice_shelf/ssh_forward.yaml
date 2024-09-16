@@ -3,6 +3,7 @@ mpas-ocean:
     config_write_output_on_startup: true
   time_management:
     config_do_restart: false
+    config_stop_time: none
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
