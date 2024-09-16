@@ -530,6 +530,10 @@ location you like.  If you build in a location other than
 relative or absolute path using the `-p` flag when you call `polaris setup` or
 `polaris suite`.
 
+To set up tasks and suites to use Omega, you need to supply `--model=omega`
+to `polaris setup` or `polaris suite`.  Otherwise, it will default to
+MPAS-Ocean.
+
 (dev-working-with-polaris)=
 
 ## Running polaris from the repo
