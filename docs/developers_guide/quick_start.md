@@ -507,6 +507,7 @@ git submodule update --init --recursive externals/YAKL externals/ekat \
     externals/scorpio cime
 cd components/omega
 mkdir build
+cd build
 cmake \
    -DOMEGA_BUILD_TYPE=Release \
    -DOMEGA_CIME_COMPILER=${POLARIS_COMPILER} \
