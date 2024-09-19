@@ -21,9 +21,18 @@ class Forward(ConvergenceForward):
     refinement : str
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
+
+    resolution : float
+        The resolution of the test case in km
+
+    del2 : bool
+        Whether to evaluate the momentum del2 operator
+
+    del4 : bool
+        Whether to evaluate the momentum del4 operator
     """
     def __init__(self, component, name, refinement_factor, subdir,
-                 init, refinement='both'):
+                 init, refinement='both', del2=False, del4=False):
         """
         Create a new test case
 
@@ -47,6 +56,12 @@ class Forward(ConvergenceForward):
         refinement : str, optional
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
+
+        del2 : bool
+            Whether to evaluate the momentum del2 operator
+
+        del4 : bool
+            Whether to evaluate the momentum del4 operator
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,
@@ -68,6 +83,8 @@ class Forward(ConvergenceForward):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        self.del2 = del2
+        self.del4 = del4
 
     def compute_cell_count(self):
         """
@@ -107,5 +124,15 @@ class Forward(ConvergenceForward):
                    'config_manufactured_solution_wavelength_x':
                    float(exact_solution.lambda_x),
                    'config_manufactured_solution_wavelength_y':
-                   float(exact_solution.lambda_y)}
+                   float(exact_solution.lambda_y),
+                   'config_disable_vel_hmix':
+                   True}
+
+        if self.del2:
+            options['config_disable_vel_hmix'] = False
+            options['config_use_mom_del2'] = True
+        if self.del4:
+            options['config_disable_vel_hmix'] = False
+            options['config_use_mom_del4'] = True
+
         self.add_model_config_options(options, config_model='mpas-ocean')

@@ -35,6 +35,14 @@ def add_manufactured_solution_tasks(component):
         component.add_task(ManufacturedSolution(component=component,
                                                 config=config,
                                                 refinement=refinement))
+    component.add_task(ManufacturedSolution(component=component,
+                                            config=config,
+                                            refinement='space',
+                                            del2=True))
+    component.add_task(ManufacturedSolution(component=component,
+                                            config=config,
+                                            refinement='space',
+                                            del4=True))
 
 
 class ManufacturedSolution(Task):
@@ -42,7 +50,8 @@ class ManufacturedSolution(Task):
     The convergence test case using the method of manufactured solutions
     """
 
-    def __init__(self, component, config, refinement='both'):
+    def __init__(self, component, config, refinement='both', del2=False,
+                 del4=False):
         """
         Create the test case
 
@@ -56,11 +65,32 @@ class ManufacturedSolution(Task):
 
         refinement : str, optional
             Whether to refine in space, time or both space and time
+
+        del2 : bool
+            Whether to evaluate the momentum del2 operator
+
+        del4 : bool
+            Whether to evaluate the momentum del4 operator
         """
-        name = f'manufactured_solution_convergence_{refinement}'
         basedir = 'planar/manufactured_solution'
         subdir = f'{basedir}/convergence_{refinement}'
+        name = f'manufactured_solution_convergence_{refinement}'
+        if del2:
+            name = f'{name}_del2'
+            subdir = f'{subdir}/del2'
+            if del4:
+                del4 = False
+                print('Manufactured solution test does not currently support'
+                      'both del2 and del4 convergence; testing del2 alone.')
+        elif del4:
+            name = f'{name}_del4'
+            subdir = f'{subdir}/del4'
+        else:
+            name = f'{name}_default'
+            subdir = f'{subdir}/default'
+
         config_filename = 'manufactured_solution.cfg'
+
         super().__init__(component=component, name=name, subdir=subdir)
         self.set_shared_config(config, link=config_filename)
 
@@ -108,7 +138,8 @@ class ManufacturedSolution(Task):
                     refinement_factor=refinement_factor,
                     name=f'forward_{mesh_name}_{timestep}s',
                     subdir=subdir,
-                    init=init_step)
+                    init=init_step,
+                    del2=del2, del4=del4)
                 forward_step.set_shared_config(
                     config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
