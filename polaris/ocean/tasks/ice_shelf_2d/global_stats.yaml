@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   AM_globalStats:
     config_AM_globalStats_enable: true
     config_AM_globalStats_compute_on_startup: true

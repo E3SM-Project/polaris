@@ -7,10 +7,14 @@ propagation with the rotating, nonlinear shallow water equations on a doubly
 periodic domain. These tasks are intended to utilize tendency terms embedded
 in the forward ocean model in order to produce the manufactured solution. This
 solution can be then used to assess the numerical accuracy and convergence of
-the discretized nonlinear momentum equation. 
+the discretized nonlinear momentum equation.
 
 Currently, the there is only one task, the convergence test from
 [Bishnu et al.(2023)](https://doi.org/10.22541/essoar.167100170.03833124/v1)
+
+## suppported models
+
+These tasks support both MPAS-Ocean and Omega.
 
 (ocean-manufactured-solution-convergence)=
 
@@ -20,7 +24,7 @@ Currently, the there is only one task, the convergence test from
 
 The `convergence` test case runs the manufactured solution simulation for 4
 different resolutions: 200, 100, 50, and 25 km.
- 
+
 The forward step for each resolution runs the simulation for 10 hours. The
 model is configured without vertical advection and mixing. No tracers are enabled
 and the pressure gradient used is the gradient of the sea surface height.
@@ -51,7 +55,7 @@ single layer configuration.
 grid_type = uniform
 
 # Number of vertical levels
-vert_levels = 1 
+vert_levels = 1
 
 # Depth of the bottom of the ocean
 bottom_depth = 1000.0

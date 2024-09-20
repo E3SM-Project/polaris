@@ -4,8 +4,12 @@
 
 ## description
 
-The `single_column` tasks include any ocean tests of the vertical ocean 
+The `single_column` tasks include any ocean tests of the vertical ocean
 dynamics.
+
+## suppported models
+
+These tasks support only MPAS-Ocean.
 
 ## mesh
 
@@ -129,7 +133,7 @@ See mesh section for a description of `lx` and `ly` and initial conditions secti
 ### description
 
 The `cvmix` test exercises the [CVMix](https://github.com/CVMix/CVMix-src)
-schemes for vertical mixing. 
+schemes for vertical mixing.
 
 The temperature and salinity profiles only evolve a small amount over the 1-
 day duration of the test, so the 10-day profiles are shown here:
@@ -234,8 +238,8 @@ The `ideal age` test exercises the ideal age tracers.
 
 ### description
 
-Temperature and salinity profiles evolve in the same way as in the 
-{ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age 
+Temperature and salinity profiles evolve in the same way as in the
+{ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age
 tracer are as follows:
 
 ```{image} images/single_column_ideal_age_tracer_10day.png

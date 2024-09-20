@@ -18,6 +18,10 @@ of horizontal resolution:
 :width: 500 px
 ```
 
+## suppported models
+
+These tasks support only MPAS-Ocean.
+
 ## mesh
 
 Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
@@ -51,14 +55,14 @@ qu_resolutions = 60, 90, 120, 150, 180, 210, 240
 ```
 
 To alter the resolutions used in this task, you will need to create your own
-config file (or add a `spherical_convergence` section to a config file if 
+config file (or add a `spherical_convergence` section to a config file if
 you're already using one).  The resolutions are a comma-separated list of the
 resolution of the mesh in km.  If you specify a different list
 before setting up `rotation_2d`, steps will be generated with the requested
-resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the 
-task's config file in the work directory, nothing will happen.)  For `icos` 
-meshes, make sure you use a resolution close to those listed in 
-{ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest 
+resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the
+task's config file in the work directory, nothing will happen.)  For `icos`
+meshes, make sure you use a resolution close to those listed in
+{ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest
 allowed icosahedral resolution.
 
 The `base_mesh` steps are shared with other tasks so they are not housed in
@@ -148,11 +152,11 @@ in the config options.
 
 ## time step and run duration
 
-This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step 
+This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, `rk4_dt_per_km`, so that coarser meshes have longer time steps. You can
-alter this before setup (in a user config file) or before running the task (in 
-the config file in the work directory). 
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).
 
 ```cfg
 # config options for spherical convergence tests
@@ -179,7 +183,7 @@ run_duration = ${sphere_transport:vel_pd}
 output_interval = ${sphere_transport:vel_pd}
 ```
 
-Here, `${sphere_transport:vel_pd}` means that the same value is used as in the 
+Here, `${sphere_transport:vel_pd}` means that the same value is used as in the
 option `vel_pd` in section `[sphere_transport]`, see below.
 
 ## config options
@@ -291,7 +295,7 @@ on Lauritzen et al. (2012) and control the initial condition. The options in
 section `rotation_2d` control the convergence rate threshold.
 
 The options in sections `sphere_transport_viz*` control properties of the `viz`
-step of the test case. 
+step of the test case.
 
 The default options for the convergence analysis step can be changed here:
 

@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   cvmix:
     config_use_cvmix: false
   ALE_vertical_grid:

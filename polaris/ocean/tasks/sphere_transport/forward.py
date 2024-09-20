@@ -40,8 +40,11 @@ class Forward(SphericalConvergenceForward):
                    'nondivergent_2d': 2,
                    'divergent_2d': 3,
                    'correlated_tracers_2d': 4}
-        namelist_options = dict(
-            config_transport_tests_flow_id=flow_id[case_name])
+        namelist_options = {
+            'mpas-ocean': {
+                'config_transport_tests_flow_id': flow_id[case_name]
+            }
+        }
         validate_vars = ['normalVelocity', 'tracer1', 'tracer2', 'tracer3']
         super().__init__(component=component, name=name, subdir=subdir,
                          resolution=resolution, mesh=base_mesh,

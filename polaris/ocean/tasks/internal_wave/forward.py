@@ -76,12 +76,14 @@ class Forward(OceanModelStep):
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml
-            self.add_model_config_options(options=dict(config_mom_del2=nu))
+            self.add_model_config_options(options=dict(config_mom_del2=nu),
+                                          config_model='mpas-ocean')
 
         vadv_dict = {'standard': 'flux-form',
                      'vlr': 'remap'}
         self.add_model_config_options({
-            'config_vert_advection_method': f"{vadv_dict[vadv_method]}"})
+            'config_vert_advection_method': f"{vadv_dict[vadv_method]}"},
+            config_model='mpas-ocean')
 
         self.add_output_file(
             filename='output.nc',
@@ -136,4 +138,6 @@ class Forward(OceanModelStep):
             run_seconds = self.run_time_steps * dt
             options['config_run_duration'] = \
                 time.strftime('%H:%M:%S', time.gmtime(run_seconds))
-        self.add_model_config_options(options=options)
+            options['config_stop_time'] = 'none'
+        self.add_model_config_options(options=options,
+                                      config_model='mpas-ocean')

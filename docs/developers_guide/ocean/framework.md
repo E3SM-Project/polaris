@@ -27,19 +27,66 @@ get set up.
 As a result, the `add_namelist_file()` and `add_streams_file()` methods should
 not be used for ocean model steps (they will raise errors).
 
-#### Mapping from Omega to MPAS-Ocean config options
+#### Mapping from MPAS-Ocean to Omega config options
 
-As the Omega component is in very early stages of development, we don't yet
-know whether Omega's config options will always have the same names as the
-corresponding namelist options in MPAS-Ocean.  To support the possibility
-that they are different, the 
-{py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_to_namelist()` method
-can be used to translate names of Omega config options to their MPAS-Ocean
-counterparts.
+As the Omega component is in very early stages of development, it has far
+fewer config options than MPAS-Ocean at present.  To complicate things further,
+it is already clear that there will be config options in Omega without a
+corresponding option in MPAS-Ocean (just as there are clearly many MPAS-Ocean
+config options that don't exist in Omega).  As a result, we need a way to
+support three categories of config options:
+
+1. `ocean` config options available in both models (we use the MPAS-Ocean names
+   for these and map to the Omega names),
+2. `mpas-ocean` config options that only exist in MPAS-Ocean,
+3. `omega` config options that only exist in Omega.
+
+YAML files can have root-level sections with 1, 2 or all 3 of these
+so-called `config_models`, as in the following example:
+
+```
+ocean:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+
+mpas-ocean:
+  bottom_drag:
+    config_bottom_drag_mode: implicit
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 0.0
+  manufactured_solution:
+     config_use_manufactured_solution: true
+  debug:
+    config_disable_vel_hmix: true
+
+Omega:
+  Tendencies:
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+```
+
+When model config options are set in code, it is also important to specify
+which `config_model` they apply to (`ocean`, `mpas-ocean` or `Omega`):
+```python
+self.add_model_config_options(options=dict(config_mom_del2=nu),
+                              config_model='ocean')
+```
+
+We implement a mapping from the MPAS-Ocean names to the corresponding Omega
+names for the `ocean` config options in the methods
+{py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_options()` and
+{py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_configs()`.
+As new config options are added to Omega, they should be added to the
+map in the [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
+file. Note that `config_model='Omega'` must be capitalized since this is the
+convention on the model name in Omega's own YAML files.
 
 #### Setting MPI resources
 
-The target and minimum number of MPI tasks (`ntasks` and `min_tasks`, 
+The target and minimum number of MPI tasks (`ntasks` and `min_tasks`,
 respectively) are set automatically if `ntasks` and `min_tasks` have not
 already been set explicitly.  In such cases, a subclass of `OceanModelStep`
 must override the
@@ -56,9 +103,9 @@ self.min_tasks = max(1, round(cell_count / max_cells_per_core + 0.5))
 ```
 
 The config options `goal_cells_per_core` and `max_cells_per_core` in the
-`[ocean]` seciton can be used to control how resources scale with the size of 
-the planar mesh.  By default,  the number of MPI tasks tries to apportion 200 
-cells to each core, but it will allow as many as 2000. 
+`[ocean]` seciton can be used to control how resources scale with the size of
+the planar mesh.  By default,  the number of MPI tasks tries to apportion 200
+cells to each core, but it will allow as many as 2000.
 
 ### Setting time intervals in model config options
 
@@ -93,7 +140,7 @@ self.add_yaml_file(package, yaml_filename,
 ```
 where the YAML file might include:
 ```
-omega:
+ocean:
   time_management:
     config_run_duration: {{ run_duration }}
   time_integration:
@@ -117,7 +164,7 @@ omega:
 
 The module `polaris.ocean.config` contains yaml files for setting model
 config options and configuring streams.  These include things like setting
-output to double precision, adjusting sea surface height in ice-shelf cavities, 
+output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.
 
 
@@ -125,15 +172,15 @@ and outputting variables related to frazil ice and land-ice fluxes.
 
 ## Quasi-uniform and Icosahedral Spherical Meshes
 
-Many ocean tasks support two types of meshes: `qu` meshes created with the 
-{py:class}`polaris.mesh.QuasiUniformSphericalMeshStep` step and `icos` meshes 
-created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the 
-`icos` meshes are more uniform but the `qu` meshes are more flexible.  The 
+Many ocean tasks support two types of meshes: `qu` meshes created with the
+{py:class}`polaris.mesh.QuasiUniformSphericalMeshStep` step and `icos` meshes
+created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the
+`icos` meshes are more uniform but the `qu` meshes are more flexible.  The
 `icos` meshes only support a fixed set of resolutions described in
 {ref}`dev-spherical-meshes`.
 
 The function {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()`
-returns a step for for a spherical `qu` or `icos` mesh of a given resolution 
+returns a step for for a spherical `qu` or `icos` mesh of a given resolution
 (in km).  The step can be shared between tasks.
 
 (dev-ocean-convergence)=
@@ -206,10 +253,10 @@ mesh resolution (proportional to the cell size). For split time integrators,
 way.  The `run_duration` and `output_interval` are typically the same, and
 they are given in hours.
 
-Each convergence test can override these defaults with its own defaults by 
+Each convergence test can override these defaults with its own defaults by
 defining them in its own config file.  Convergence tests should bring in this
 config file in their constructor or by adding them to a shared `config`.  The
-options from the shared infrastructure should be added first, then those from 
+options from the shared infrastructure should be added first, then those from
 its own config file to make sure they take precedence, e.g.:
 
 ```python
@@ -288,7 +335,7 @@ Each convergence test must define a YAML file with model config options, called
 `forward.yaml` by default.  The `package` parameter is the location of this
 file within the Polaris code (using python package syntax).  Although it is
 not used here, the `options` parameter can be used to pass model config options
-as a python dictionary so that they are added to with 
+as a python dictionary so that they are added to with
 {py:meth}`polaris.ModelStep.add_model_config_options()`. The
 `output_filename` is an output file that will have fields to validate and
 analyze.  The `validate_vars` are a list of variables to compare against a
@@ -299,10 +346,10 @@ The `mesh` step should be created with the function described in
 {ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a file
 `init.nc` that will be the initial condition for the forward run.
 
-The `forward.yaml` file should be a YAML file with Jinja templating for the 
+The `forward.yaml` file should be a YAML file with Jinja templating for the
 time integrator, time step, run duration and output interval, e.g.:
 ```
-omega:
+ocean:
   time_management:
     config_run_duration: {{ run_duration }}
   time_integration:
@@ -310,6 +357,7 @@ omega:
     config_time_integrator: {{ time_integrator }}
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
+mpas-ocean:
   streams:
     mesh:
       filename_template: init.nc
@@ -371,12 +419,12 @@ class Analysis(ConvergenceAnalysis):
                          convergence_vars=convergence_vars)
 ```
 
-Many tasks will also need to override the 
-{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()` 
-method. If not overridden, the analysis step will compute the difference of the 
+Many tasks will also need to override the
+{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()`
+method. If not overridden, the analysis step will compute the difference of the
 output from the initial state.
 
-In some cases, the child class will also need to override the 
+In some cases, the child class will also need to override the
 {py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()`
 method if the requested field is not available directly from the output put
 rather needs to be computed.  The default behavior is to read the requested
@@ -430,7 +478,7 @@ changed.
 
 ## reference (resting) potential energy (RPE)
 
-The module `polaris.ocean.rpe` is used to compute the reference (or 
+The module `polaris.ocean.rpe` is used to compute the reference (or
 resting) potential energy for an entire model domain.  The RPE as given in
 [Petersen et al. 2015](https://doi.org/10.1016/j.ocemod.2014.12.004) is:
 

@@ -1,0 +1,41 @@
+map:
+- section:
+    time_management: TimeManagement
+  options:
+    config_start_time: StartTime
+    config_stop_time: StopTime
+    config_run_duration: RunDuration
+    config_calendar_type: CalendarType
+
+- section:
+    time_integration: TimeIntegration
+  options:
+    config_time_integrator: TimeStepper
+    config_dt: TimeStep
+
+- section:
+    time_integration: State
+  options:
+    config_number_of_time_levels: NTimeLevels
+
+- section:
+    decomposition: Decomp
+  options:
+    config_num_halos: HaloWidth
+
+- section:
+    advection: Advection
+  options:
+    config_thickness_flux_type: FluxThicknessType
+
+- section:
+    hmix_del2: Tendencies
+  options:
+    config_use_mom_del2: VelDiffTendencyEnable
+    config_mom_del2: ViscDel2
+
+- section:
+    hmix_del4: Tendencies
+  options:
+    config_use_mom_del4: VelHyperDiffTendencyEnable
+    config_mom_del4: ViscDel4

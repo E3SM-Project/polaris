@@ -1,5 +1,6 @@
-omega:
+mpas-ocean:
   time_management:
+    config_stop_time: none
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}

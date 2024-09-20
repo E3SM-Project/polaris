@@ -1,4 +1,4 @@
-omega:
+mpas-ocean:
   io:
     config_write_output_on_startup: false
   hmix_del2:
@@ -13,6 +13,7 @@ omega:
     config_do_restart: {{ do_restart }}
     config_run_duration: {{ run_duration }}
     config_start_time: {{ start_time }}
+    config_stop_time: none
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}

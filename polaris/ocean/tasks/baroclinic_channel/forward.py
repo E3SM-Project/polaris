@@ -86,7 +86,8 @@ class Forward(OceanModelStep):
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml
-            self.add_model_config_options(options=dict(config_mom_del2=nu))
+            self.add_model_config_options(options=dict(config_mom_del2=nu),
+                                          config_model='mpas-ocean')
 
         self.add_output_file(
             filename='output.nc',
@@ -143,6 +144,7 @@ class Forward(OceanModelStep):
             run_seconds = self.run_time_steps * dt
             options['config_run_duration'] = \
                 time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+            options['config_stop_time'] = 'none'
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
@@ -153,4 +155,5 @@ class Forward(OceanModelStep):
         self.dt = dt
         self.btr_dt = btr_dt
 
-        self.add_model_config_options(options=options)
+        self.add_model_config_options(options=options,
+                                      config_model='mpas-ocean')

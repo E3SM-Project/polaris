@@ -60,6 +60,10 @@ freshwater and heat fluxes under ice shelves.
 Frazil-ice formation is not included in the `ssh_adjustment` steps but is
 included in the `forward` step of this test case.
 
+## suppported models
+
+These tasks support only MPAS-Ocean.
+
 ## mesh
 
 The test case currently supports only 5-km horizontal resolution. The x
@@ -130,7 +134,7 @@ The initial temperature for the whole domain is constant (1 degree Celsius),
 while salinity varies linearly with depth from 34.5 PSU at the sea surface
 to 34.7 PSU at the sea floor, which is at a constant at 2000 m depth. These
 initial conditions can be modified with config options `temperature`,
-`surface_salinity`, and `bottom_salinity` 
+`surface_salinity`, and `bottom_salinity`
 
 ## forcing
 
@@ -197,7 +201,7 @@ temperature and salinity of the test case by altering these options.
 
 `ocean/planar/ice_shelf_2d/${RES}/default` is the default version of the
 ice shelf 2-d test case for a short (10 min) test run and validation of
-prognostic variables for regression testing.  
+prognostic variables for regression testing.
 
 ### mesh
 
@@ -301,7 +305,7 @@ See {ref}`ocean-ice-shelf-2d-default`.
 
 `ocean/planar/ice_shelf_2d/5km/default` is the default version of the
 ice shelf 2-d test case for a short (10 min) test run and validation of
-prognostic variables for regression testing.  
+prognostic variables for regression testing.
 
 ### mesh
 
