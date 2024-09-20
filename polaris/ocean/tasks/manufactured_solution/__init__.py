@@ -136,7 +136,7 @@ class ManufacturedSolution(Task):
                     component=component,
                     refinement=refinement,
                     refinement_factor=refinement_factor,
-                    name=f'forward_{mesh_name}_{timestep}s',
+                    name=f'{forward_name}_{timestep}s',
                     subdir=subdir,
                     init=init_step,
                     del2=del2, del4=del4)
