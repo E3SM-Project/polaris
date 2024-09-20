@@ -147,7 +147,7 @@
 <h1>polaris.yaml.PolarisYaml.read<a class="headerlink" href="#polaris-yaml-polarisyaml-read" title="Permalink to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.yaml.PolarisYaml.read">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PolarisYaml.</span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/yaml.html#PolarisYaml.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.yaml.PolarisYaml.read" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PolarisYaml.</span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/yaml.html#PolarisYaml.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.yaml.PolarisYaml.read" title="Permalink to this definition"></a></dt>
 <dd><p>Add config options from a yaml file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -157,6 +157,8 @@
 <li><p><strong>replacements</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a><em>, </em><em>optional</em>) – A dictionary of replacements, which, if provided, is used to
 replace Jinja variables and the yaml file is assumed do be a Jinja
 template</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the model to parse if the yaml file might have multiple
+models</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

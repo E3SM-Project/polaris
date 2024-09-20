@@ -1325,7 +1325,7 @@ $ cp ${POLARIS_HEAD}/polaris/ocean/tasks/baroclinic_channel/forward.yaml \
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/forward.yaml
 ```
 ```yaml
-omega:
+mpas-ocean:
   time_management:
     config_run_duration: 00:15:00
   time_integration:
@@ -1414,7 +1414,7 @@ we get double-precision output (the default is single precision, which saves a
 lot of space but isn't great for regression testing):
 
 ```yaml
-omega:
+mpas-ocean:
   streams:
     output:
       type: output
@@ -1463,7 +1463,7 @@ files added to it.  If you want the default definition of a stream, referring
 to it is enough:
 
 ```yaml
-omega:
+mpas-ocean:
   streams:
     restart: {}
 ```
@@ -1471,7 +1471,7 @@ omega:
 If you want to change one of its attributes but not its contents, you can do
 that:
 ```yaml
-omega:
+mpas-ocean:
   streams:
     input:
       filename_template: initial_state.nc
@@ -1485,7 +1485,7 @@ contents:
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/forward.yaml
 ```
 ```yaml
-omega:
+mpas-ocean:
   ...
   streams:
     output:
@@ -2530,9 +2530,10 @@ The names of the steps and the number of steps are determined by `nus`.
 We also add another file with model config options and streams specific to
 this task, `rpe/forward.yaml`:
 ```yaml
-omega:
+ocean:
   time_management:
     config_run_duration: 20_00:00:00
+mpas-ocean:
   streams:
     output:
       type: output

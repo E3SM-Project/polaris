@@ -24,6 +24,8 @@
       ~RestartStep.compute_cell_count
       ~RestartStep.constrain_resources
       ~RestartStep.dynamic_model_config
+      ~RestartStep.map_yaml_configs
+      ~RestartStep.map_yaml_options
       ~RestartStep.map_yaml_to_namelist
       ~RestartStep.partition
       ~RestartStep.process_inputs_and_outputs

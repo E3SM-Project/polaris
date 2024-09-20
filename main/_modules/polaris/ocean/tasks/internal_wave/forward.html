@@ -188,12 +188,14 @@
         <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value *after* loading</span>
             <span class="c1"># forward.yaml</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">),</span>
+                                          <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span>
 
         <span class="n">vadv_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;standard&#39;</span><span class="p">:</span> <span class="s1">&#39;flux-form&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;vlr&#39;</span><span class="p">:</span> <span class="s1">&#39;remap&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">({</span>
-            <span class="s1">&#39;config_vert_advection_method&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">vadv_dict</span><span class="p">[</span><span class="n">vadv_method</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+            <span class="s1">&#39;config_vert_advection_method&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">vadv_dict</span><span class="p">[</span><span class="n">vadv_method</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
@@ -248,7 +250,9 @@
             <span class="n">run_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span>
             <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_seconds</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span></div></div>
+            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_stop_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                                      <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

@@ -4,8 +4,8 @@
 
 ## description
 
-The `cosine_bell` and `cosine_bell/with_viz` tasks implement the Cosine 
-Bell test case as first described in 
+The `cosine_bell` and `cosine_bell/with_viz` tasks implement the Cosine
+Bell test case as first described in
 [Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
 but using the variant from Sec. 3a of
 [Skamarock and Gassmann](https://doi.org/10.1175/MWR-D-10-05056.1).  A flow
@@ -25,6 +25,10 @@ The `cosine_bell/with_viz` variant also includes visualization of the initial
 and final state on a lat-lon grid for each resolution.  The visualization is
 not included in the `cosine_bell` version of the task in order to not slow down
 regression testing.
+
+## suppported models
+
+These tasks support only MPAS-Ocean.
 
 (ocean-cosine-bell-mesh)=
 ## mesh
@@ -60,14 +64,14 @@ qu_resolutions = 60, 90, 120, 150, 180, 210, 240
 ```
 
 To alter the resolutions used in this task, you will need to create your own
-config file (or add a `spherical_convergence` section to a config file if 
+config file (or add a `spherical_convergence` section to a config file if
 you're already using one).  The resolutions are a comma-separated list of the
 resolution of the mesh in km.  If you specify a different list
 before setting up `cosine_bell`, steps will be generated with the requested
-resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the 
-task's config file in the work directory, nothing will happen.)  For `icos` 
-meshes, make sure you use a resolution close to those listed in 
-{ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest 
+resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the
+task's config file in the work directory, nothing will happen.)  For `icos`
+meshes, make sure you use a resolution close to those listed in
+{ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest
 allowed icosahedral resolution.
 
 The `base_mesh` steps are shared with other tasks so they are not housed in
@@ -163,11 +167,11 @@ field remains at the initial velocity $u_0$.
 (ocean-cosine-bell-time-step)=
 ## time step and run duration
 
-This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step 
+This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, `rk4_dt_per_km`, so that coarser meshes have longer time steps. You can
-alter this before setup (in a user config file) or before running the task (in 
-the config file in the work directory). 
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).
 
 ```cfg
 # config options for convergence tests
@@ -194,7 +198,7 @@ run_duration = ${cosine_bell:vel_pd}
 output_interval = ${cosine_bell:vel_pd}
 ```
 
-Here, `${cosine_bell:vel_pd}` means that the same value is used as in the 
+Here, `${cosine_bell:vel_pd}` means that the same value is used as in the
 option `vel_pd` in section `[cosine_bell]`, see below.
 
 ## config options

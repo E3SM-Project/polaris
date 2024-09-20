@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.model.OceanModelStep.map_yaml_to_namelist</title>
+  <title>polaris.ocean.model.OceanModelStep.map_yaml_options</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
@@ -22,7 +22,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.model.get_time_interval_string" href="polaris.ocean.model.get_time_interval_string.html" />
+    <link rel="next" title="polaris.ocean.model.OceanModelStep.map_yaml_configs" href="polaris.ocean.model.OceanModelStep.map_yaml_configs.html" />
     <link rel="prev" title="polaris.ocean.model.OceanModelStep.compute_cell_count" href="polaris.ocean.model.OceanModelStep.compute_cell_count.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -115,9 +115,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.model.OceanModelStep.map_yaml_to_namelist</li>
+      <li class="breadcrumb-item active">polaris.ocean.model.OceanModelStep.map_yaml_options</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_options.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -125,24 +125,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-model-oceanmodelstep-map-yaml-to-namelist">
-<h1>polaris.ocean.model.OceanModelStep.map_yaml_to_namelist<a class="headerlink" href="#polaris-ocean-model-oceanmodelstep-map-yaml-to-namelist" title="Permalink to this heading"></a></h1>
+  <section id="polaris-ocean-model-oceanmodelstep-map-yaml-options">
+<h1>polaris.ocean.model.OceanModelStep.map_yaml_options<a class="headerlink" href="#polaris-ocean-model-oceanmodelstep-map-yaml-options" title="Permalink to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist">
-<span class="sig-prename descclassname"><span class="pre">OceanModelStep.</span></span><span class="sig-name descname"><span class="pre">map_yaml_to_namelist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/ocean_model_step.html#OceanModelStep.map_yaml_to_namelist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="Permalink to this definition"></a></dt>
-<dd><p>A mapping from yaml model config options to namelist options.  This
-method should be overridden for situations in which yaml config
-options have diverged in name or structure from their namelist
-counterparts (e.g. when translating from Omega yaml to MPAS-Ocean
-namelists)</p>
+<dt class="sig sig-object py" id="polaris.ocean.model.OceanModelStep.map_yaml_options">
+<span class="sig-prename descclassname"><span class="pre">OceanModelStep.</span></span><span class="sig-name descname"><span class="pre">map_yaml_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/ocean_model_step.html#OceanModelStep.map_yaml_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.OceanModelStep.map_yaml_options" title="Permalink to this definition"></a></dt>
+<dd><p>A mapping between model config options from MPAS-Ocean to Omega</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A nested dictionary of yaml sections, options and value to use as
-replacements for existing values</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A dictionary of yaml options and value to use as replacements for
+existing values</p></li>
+<li><p><strong>config_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em> or </em><em>None</em>) – If config options are available for multiple models, the model that
+the config options are from</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>options</strong> (<em>dict</em>) – A nested dictionary of namelist sections, options and value to use
-as replacements for existing values</p>
+<dd class="field-even"><p><strong>options</strong> (<em>dict</em>) – A revised dictionary of yaml options and value to use as
+replacements for existing values</p>
 </dd>
 </dl>
 </dd></dl>
@@ -154,7 +154,7 @@ as replacements for existing values</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.ocean.model.OceanModelStep.compute_cell_count.html" class="btn btn-neutral float-left" title="polaris.ocean.model.OceanModelStep.compute_cell_count" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.model.get_time_interval_string.html" class="btn btn-neutral float-right" title="polaris.ocean.model.get_time_interval_string" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.model.OceanModelStep.map_yaml_configs.html" class="btn btn-neutral float-right" title="polaris.ocean.model.OceanModelStep.map_yaml_configs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -183,7 +183,7 @@ as replacements for existing values</p>
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html">main</a></dd>
+      <dd><a href="polaris.ocean.model.OceanModelStep.map_yaml_options.html">main</a></dd>
     </dl>
   </div>
 </div><script>

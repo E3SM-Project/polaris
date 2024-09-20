@@ -152,8 +152,11 @@
                    <span class="s1">&#39;nondivergent_2d&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
                    <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
                    <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
-        <span class="n">namelist_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">config_transport_tests_flow_id</span><span class="o">=</span><span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">])</span>
+        <span class="n">namelist_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;config_transport_tests_flow_id&#39;</span><span class="p">:</span> <span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">base_mesh</span><span class="p">,</span>

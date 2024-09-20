@@ -62,6 +62,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">baroclinic channel</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
@@ -159,6 +160,10 @@ model, and some variation on <code class="docutils literal notranslate"><span cl
 to distinguish multiple forward runs), which performs time integration of the
 model.</p>
 </section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
 <p>The domain is zonally periodic with solid northern and southern boundaries.
@@ -233,7 +238,7 @@ hard-coded as 0.3, applied over a more limited x-extent.
 T_0(y) = \begin{cases}
     T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
     (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &amp;
-    \text{ if } y_{min}(x) \le y \le y_{max}(x); 
+    \text{ if } y_{min}(x) \le y \le y_{max}(x);
     \frac{4}{6} l_x \le x \le \frac{5}{6} l_x \\
     T_0(z) - \Delta T \: f(y) &amp; \text{otherwise}
 \end{cases}

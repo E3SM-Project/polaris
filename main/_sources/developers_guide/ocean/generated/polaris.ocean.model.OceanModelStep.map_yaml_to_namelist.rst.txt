@@ -1,6 +1,0 @@
-﻿polaris.ocean.model.OceanModelStep.map\_yaml\_to\_namelist
-==========================================================
-
-.. currentmodule:: polaris.ocean.model
-
-.. automethod:: OceanModelStep.map_yaml_to_namelist

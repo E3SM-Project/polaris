@@ -31,7 +31,7 @@
 
    validate.Validate
    validate.Validate.run
-   
+
    viz.Viz
    viz.Viz.run
 
@@ -128,12 +128,12 @@
 
    validate.Validate
    validate.Validate.run
-   
+
    viz.Viz
    viz.Viz.run
 ```
 
-### inertial_gravity_wave 
+### inertial_gravity_wave
 
 ```{eval-rst}
 .. currentmodule:: polaris.ocean.tasks.inertial_gravity_wave
@@ -142,7 +142,7 @@
    :toctree: generated/
 
    add_inertial_gravity_wave_tasks
-   
+
    InertialGravityWave
 
    analysis.Analysis
@@ -200,7 +200,7 @@
    :toctree: generated/
 
    add_manufactured_solution_tasks
-   
+
    ManufacturedSolution
 
    analysis.Analysis
@@ -340,8 +340,9 @@
    OceanModelStep.setup
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
-   OceanModelStep.map_yaml_to_namelist
-   
+   OceanModelStep.map_yaml_options
+   OceanModelStep.map_yaml_configs
+
    get_time_interval_string
 ```
 

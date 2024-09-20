@@ -127,7 +127,7 @@
 <div class="viewcode-block" id="setup_tasks"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks">[docs]</a><span class="k">def</span> <span class="nf">setup_tasks</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">task_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -175,6 +175,9 @@
 <span class="sd">        Whether to delete the contents of the base work directory before</span>
 <span class="sd">        setting up tasks</span>
 
+<span class="sd">    model : str, optional</span>
+<span class="sd">        The model to run</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tasks : dict of polaris.Task</span>
@@ -208,7 +211,7 @@
     <span class="n">component</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">first_path</span><span class="p">]</span><span class="o">.</span><span class="n">component</span>
 
     <span class="n">basic_config</span> <span class="o">=</span> <span class="n">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span>
-                                     <span class="n">component</span><span class="p">)</span>
+                                     <span class="n">component</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 
     <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">)</span>
 
@@ -221,12 +224,12 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
     <span class="n">_setup_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span>
-                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">)</span>
+                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up tasks:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span>
-                   <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">])</span>
+                   <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
     <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
@@ -254,7 +257,8 @@
     <span class="k">return</span> <span class="n">tasks</span></div>
 
 
-<div class="viewcode-block" id="setup_task"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a><span class="k">def</span> <span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
+<div class="viewcode-block" id="setup_task"><a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a><span class="k">def</span> <span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">,</span>
+               <span class="n">model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -279,6 +283,9 @@
 <span class="sd">    cached_steps : list of str</span>
 <span class="sd">        Which steps (if any) should be cached, identified by a list of</span>
 <span class="sd">        subdirectories in the component</span>
+
+<span class="sd">    model : str, optional</span>
+<span class="sd">        The model to run</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -387,6 +394,9 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--clean&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;clean&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the base work directory should be deleted &quot;</span>
                              <span class="s2">&quot;before setting up the tasks.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The model to run (one of &#39;mpas-ocean&#39;, &#39;omega&#39;, &quot;</span>
+                             <span class="s2">&quot;or &#39;mpas-seaice&#39;)&quot;</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
@@ -405,7 +415,7 @@
                 <span class="n">work_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span>
                 <span class="n">component_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">component_path</span><span class="p">,</span> <span class="n">suite_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span>
                 <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span> <span class="n">copy_executable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">copy_executable</span><span class="p">,</span>
-                <span class="n">clean</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">)</span>
+                <span class="n">clean</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
@@ -423,11 +433,11 @@
 
 
 <span class="k">def</span> <span class="nf">_setup_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span>
-                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">):</span>
+                   <span class="n">component_path</span><span class="p">,</span> <span class="n">copy_executable</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Set up config parsers for this component &quot;&quot;&quot;</span>
 
     <span class="n">common_config</span> <span class="o">=</span> <span class="n">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span>
-                                      <span class="n">component</span><span class="p">)</span>
+                                      <span class="n">component</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
         <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
 
@@ -642,7 +652,7 @@
     <span class="k">return</span> <span class="n">machine</span>
 
 
-<span class="k">def</span> <span class="nf">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a base config parser for the machine and component but not a specific</span>
 <span class="sd">    task</span>
@@ -651,6 +661,10 @@
 
     <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_user_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="c1"># set the model from the command line if provided</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># start with default polaris config options</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;default.cfg&#39;</span><span class="p">)</span>

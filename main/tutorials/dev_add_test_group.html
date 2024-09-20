@@ -1343,7 +1343,7 @@ different for namelist and streams files.</p>
 $<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/forward.yaml
 </pre></div>
 </div>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:15:00</span>
 <span class="w">  </span><span class="nt">time_integration</span><span class="p">:</span>
@@ -1429,7 +1429,7 @@ config_block_decomp_file_prefix = &#39;graph.info.part.&#39;
 <p>There is also a shared <code class="docutils literal notranslate"><span class="pre">output.yaml</span></code> file for ocean tasks that makes sure
 we get double-precision output (the default is single precision, which saves a
 lot of space but isn’t great for regression testing):</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
@@ -1469,14 +1469,14 @@ of defaults from the E3SM components, such as
 only included in the step if they are referenced in one of the yaml or streams
 files added to it.  If you want the default definition of a stream, referring
 to it is enough:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 </pre></div>
 </div>
 <p>If you want to change one of its attributes but not its contents, you can do
 that:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">input</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">initial_state.nc</span>
@@ -1489,7 +1489,7 @@ contents:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/forward.yaml
 </pre></div>
 </div>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">streams</span><span class="p p-Indicator">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
@@ -2459,9 +2459,10 @@ dictionary, you use <a class="reference external" href="https://docs.python.org/
 <p>The names of the steps and the number of steps are determined by <code class="docutils literal notranslate"><span class="pre">nus</span></code>.</p>
 <p>We also add another file with model config options and streams specific to
 this task, <code class="docutils literal notranslate"><span class="pre">rpe/forward.yaml</span></code>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">omega</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20_00:00:00</span>
+<span class="nt">mpas-ocean</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">output</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>

@@ -24,6 +24,8 @@
       ~SshForward.compute_cell_count
       ~SshForward.constrain_resources
       ~SshForward.dynamic_model_config
+      ~SshForward.map_yaml_configs
+      ~SshForward.map_yaml_options
       ~SshForward.map_yaml_to_namelist
       ~SshForward.partition
       ~SshForward.process_inputs_and_outputs

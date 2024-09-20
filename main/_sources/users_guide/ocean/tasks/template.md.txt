@@ -6,12 +6,24 @@ Description of common characteristics of the tasks.
 
 (ocean-category-of-task-task-name)=
 
+## suppported models
+
+This section should have one of the following lines, as appropriate, or if
+individual tasks support different models, each task should have a similar
+section:
+
+These tasks support both MPAS-Ocean and Omega.
+
+These tasks support only MPAS-Ocean.
+
+These tasks support only Omega.
+
 ## task_name
 
 In cases where the test cases within a category share many characteristics,
 it may be more appropriate to move the certain sections up one level to the
-common subdirectory. In that case, the respective section should still be 
-included for each test case, specifying any or no differences from the section 
+common subdirectory. In that case, the respective section should still be
+included for each test case, specifying any or no differences from the section
 in the shared framework level.
 
 ### description

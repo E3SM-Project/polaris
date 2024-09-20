@@ -151,6 +151,12 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>namelist</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the namelist file</p></li>
 <li><p><strong>streams</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the streams file</p></li>
+<li><p><strong>yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the yaml file</p></li>
+<li><p><strong>config_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – If config options are available for multiple models, a list of valid
+models from which config options should be taken.  For example, for
+MPAS-Ocean this would be <code class="docutils literal notranslate"><span class="pre">['ocean',</span> <span class="pre">'mpas-ocean']</span></code> and for Omega it
+is <code class="docutils literal notranslate"><span class="pre">['ocean',</span> <span class="pre">'omega']</span></code>, since both models share the generic
+<code class="docutils literal notranslate"><span class="pre">ocean</span></code> config options.</p></li>
 <li><p><strong>update_pio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether to modify the namelist so the number of PIO tasks and the
 stride between them is consistent with the number of nodes and
 cores (one PIO task per node).</p></li>
@@ -236,7 +242,7 @@ instead of MPAS namelist and streams files</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options[, config_model])</p></td>
 <td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code></a>(package, namelist)</p></td>
@@ -256,6 +262,12 @@ instead of MPAS namelist and streams files</p></li>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config" title="polaris.ModelStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.map_yaml_configs.html#polaris.ModelStep.map_yaml_configs" title="polaris.ModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code></a>(configs, config_model)</p></td>
+<td><p>A mapping between model config options between different models.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.map_yaml_options.html#polaris.ModelStep.map_yaml_options" title="polaris.ModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code></a>(options, config_model)</p></td>
+<td><p>A mapping between model config options between different models.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist" title="polaris.ModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code></a>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>

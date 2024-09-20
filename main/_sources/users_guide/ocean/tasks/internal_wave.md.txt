@@ -5,6 +5,10 @@
 The ``ocean/internal_wave`` test group induces internal wave propagation and is documented in
 `Ilicak et al. (2012) <https://doi.org/10.1016/j.ocemod.2011.10.003>`_.
 
+## suppported models
+
+These tasks support only MPAS-Ocean.
+
 (ocean-internal-wave-default)=
 
 ## default task

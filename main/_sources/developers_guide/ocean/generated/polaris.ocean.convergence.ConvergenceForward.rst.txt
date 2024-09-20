@@ -24,6 +24,8 @@
       ~ConvergenceForward.compute_cell_count
       ~ConvergenceForward.constrain_resources
       ~ConvergenceForward.dynamic_model_config
+      ~ConvergenceForward.map_yaml_configs
+      ~ConvergenceForward.map_yaml_options
       ~ConvergenceForward.map_yaml_to_namelist
       ~ConvergenceForward.partition
       ~ConvergenceForward.process_inputs_and_outputs

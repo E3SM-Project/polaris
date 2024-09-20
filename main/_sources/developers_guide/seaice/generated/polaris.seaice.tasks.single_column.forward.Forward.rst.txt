@@ -23,6 +23,8 @@
       ~Forward.add_yaml_file
       ~Forward.constrain_resources
       ~Forward.dynamic_model_config
+      ~Forward.map_yaml_configs
+      ~Forward.map_yaml_options
       ~Forward.map_yaml_to_namelist
       ~Forward.partition
       ~Forward.process_inputs_and_outputs

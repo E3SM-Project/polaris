@@ -154,15 +154,59 @@ get set up.</p>
 <p>As a result, the <code class="docutils literal notranslate"><span class="pre">add_namelist_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_streams_file()</span></code> methods should
 not be used for ocean model steps (they will raise errors).</p>
 </section>
-<section id="mapping-from-omega-to-mpas-ocean-config-options">
-<h4>Mapping from Omega to MPAS-Ocean config options<a class="headerlink" href="#mapping-from-omega-to-mpas-ocean-config-options" title="Permalink to this heading"></a></h4>
-<p>As the Omega component is in very early stages of development, we don’t yet
-know whether Omega’s config options will always have the same names as the
-corresponding namelist options in MPAS-Ocean.  To support the possibility
-that they are different, the
-<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_to_namelist()</span></code></a> method
-can be used to translate names of Omega config options to their MPAS-Ocean
-counterparts.</p>
+<section id="mapping-from-mpas-ocean-to-omega-config-options">
+<h4>Mapping from MPAS-Ocean to Omega config options<a class="headerlink" href="#mapping-from-mpas-ocean-to-omega-config-options" title="Permalink to this heading"></a></h4>
+<p>As the Omega component is in very early stages of development, it has far
+fewer config options than MPAS-Ocean at present.  To complicate things further,
+it is already clear that there will be config options in Omega without a
+corresponding option in MPAS-Ocean (just as there are clearly many MPAS-Ocean
+config options that don’t exist in Omega).  As a result, we need a way to
+support three categories of config options:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean</span></code> config options available in both models (we use the MPAS-Ocean names
+for these and map to the Omega names),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> config options that only exist in MPAS-Ocean,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">omega</span></code> config options that only exist in Omega.</p></li>
+</ol>
+<p>YAML files can have root-level sections with 1, 2 or all 3 of these
+so-called <code class="docutils literal notranslate"><span class="pre">config_models</span></code>, as in the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">time_management</span><span class="p">:</span>
+    <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
+  <span class="n">time_integration</span><span class="p">:</span>
+    <span class="n">config_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">dt</span> <span class="p">}}</span>
+    <span class="n">config_time_integrator</span><span class="p">:</span> <span class="p">{{</span> <span class="n">time_integrator</span> <span class="p">}}</span>
+
+<span class="n">mpas</span><span class="o">-</span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">bottom_drag</span><span class="p">:</span>
+    <span class="n">config_bottom_drag_mode</span><span class="p">:</span> <span class="n">implicit</span>
+    <span class="n">config_implicit_bottom_drag_type</span><span class="p">:</span> <span class="n">constant</span>
+    <span class="n">config_implicit_constant_bottom_drag_coeff</span><span class="p">:</span> <span class="mf">0.0</span>
+  <span class="n">manufactured_solution</span><span class="p">:</span>
+     <span class="n">config_use_manufactured_solution</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">debug</span><span class="p">:</span>
+    <span class="n">config_disable_vel_hmix</span><span class="p">:</span> <span class="n">true</span>
+
+<span class="n">Omega</span><span class="p">:</span>
+  <span class="n">Tendencies</span><span class="p">:</span>
+    <span class="n">VelDiffTendencyEnable</span><span class="p">:</span> <span class="n">false</span>
+    <span class="n">VelHyperDiffTendencyEnable</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>When model config options are set in code, it is also important to specify
+which <code class="docutils literal notranslate"><span class="pre">config_model</span></code> they apply to (<code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> or <code class="docutils literal notranslate"><span class="pre">Omega</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">),</span>
+                              <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We implement a mapping from the MPAS-Ocean names to the corresponding Omega
+names for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> config options in the methods
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_options()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_configs()</span></code></a>.
+As new config options are added to Omega, they should be added to the
+map in the <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
+file. Note that <code class="docutils literal notranslate"><span class="pre">config_model='Omega'</span></code> must be capitalized since this is the
+convention on the model name in Omega’s own YAML files.</p>
 </section>
 <section id="setting-mpi-resources">
 <h4>Setting MPI resources<a class="headerlink" href="#setting-mpi-resources" title="Permalink to this heading"></a></h4>
@@ -217,7 +261,7 @@ file:</p>
 </pre></div>
 </div>
 <p>where the YAML file might include:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
   <span class="n">time_management</span><span class="p">:</span>
     <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
   <span class="n">time_integration</span><span class="p">:</span>
@@ -410,7 +454,7 @@ not be performed.</p>
 <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> that will be the initial condition for the forward run.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file should be a YAML file with Jinja templating for the
 time integrator, time step, run duration and output interval, e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
   <span class="n">time_management</span><span class="p">:</span>
     <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
   <span class="n">time_integration</span><span class="p">:</span>
@@ -418,6 +462,7 @@ time integrator, time step, run duration and output interval, e.g.:</p>
     <span class="n">config_time_integrator</span><span class="p">:</span> <span class="p">{{</span> <span class="n">time_integrator</span> <span class="p">}}</span>
   <span class="n">split_explicit_ts</span><span class="p">:</span>
     <span class="n">config_btr_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">btr_dt</span> <span class="p">}}</span>
+<span class="n">mpas</span><span class="o">-</span><span class="n">ocean</span><span class="p">:</span>
   <span class="n">streams</span><span class="p">:</span>
     <span class="n">mesh</span><span class="p">:</span>
       <span class="n">filename_template</span><span class="p">:</span> <span class="n">init</span><span class="o">.</span><span class="n">nc</span>

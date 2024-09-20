@@ -133,9 +133,13 @@
 <dd><p>An Omega or MPAS-Ocean step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
-<dd class="field-odd"><p><strong>dynamic_ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the target and minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dynamic_ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the target and minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and
 <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>) are computed dynamically from the number of cells
-in the mesh</p>
+in the mesh</p></li>
+<li><p><strong>map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A nested dictionary that maps from MPAS-Ocean to Omega model config
+options</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -197,7 +201,7 @@ option of the <code class="docutils literal notranslate"><span class="pre">[exec
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options[, config_model])</p></td>
 <td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
@@ -221,7 +225,13 @@ option of the <code class="docutils literal notranslate"><span class="pre">[exec
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist.html#polaris.ocean.model.OceanModelStep.map_yaml_to_namelist" title="polaris.ocean.model.OceanModelStep.map_yaml_to_namelist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code></a>(options)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code></a>(configs, config_model)</p></td>
+<td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code></a>(options, config_model)</p></td>
+<td><p>A mapping between model config options from MPAS-Ocean to Omega</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>

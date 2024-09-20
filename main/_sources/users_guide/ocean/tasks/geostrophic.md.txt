@@ -10,7 +10,7 @@ State Nonlinear Zonal Geostrophic Flow" test case described in
 
 The task is a convergence test with time step varying proportionately to grid
 size. The result of the `analysis` step of the task are plots like the
-following showing convergence of water-column thickness and normal velocity as 
+following showing convergence of water-column thickness and normal velocity as
 functions of the mesh resolution:
 
 ```{image} images/geostrophic_convergence.png
@@ -18,11 +18,15 @@ functions of the mesh resolution:
 :width: 500 px
 ```
 
+## suppported models
+
+These tasks support only MPAS-Ocean.
+
 ## mesh
 
 The mesh is global and can be constructed either as quasi-uniform or
 icosahedral. At least three resolutions must be chosen for the mesh
-convergence study. The base meshes are the same as used in 
+convergence study. The base meshes are the same as used in
 {ref}`ocean-cosine-bell`.  See cosine bell's {ref}`ocean-cosine-bell-mesh`
 section for more details.
 
@@ -30,7 +34,7 @@ section for more details.
 
 This test case only exercises the shallow water dynamics. As such, the minimum
 number of vertical levels may be used. The bottom depth is constant and the
-results should be insensitive to the choice of `bottom_depth`.  See cosine 
+results should be insensitive to the choice of `bottom_depth`.  See cosine
 bell's {ref}`ocean-cosine-bell-vertical` section for the config options.
 
 (ocean-geostrophic-init)=
@@ -82,16 +86,16 @@ $$
 
 ## forcing
 
-Probably N/A but see Williamson's text about the possibility of prescribing a 
+Probably N/A but see Williamson's text about the possibility of prescribing a
 wind field.
 
 ## time step and run duration
 
-This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step 
+This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, `rk4_dt_per_km`, so that coarser meshes have longer time steps. You can
-alter this before setup (in a user config file) or before running the task (in 
-the config file in the work directory). 
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).
 
 ```cfg
 # config options for convergence tests
@@ -125,7 +129,7 @@ run_duration = ${convergence:convergence_eval_time}
 output_interval = ${run_duration}
 ```
 
-Here, `${convergence:convergence_eval_time}` means that the same value is used 
+Here, `${convergence:convergence_eval_time}` means that the same value is used
 as in the option `convergence_eval_time` in section `[convergence]`.
 
 ## analysis
@@ -167,7 +171,7 @@ the Williams et al. (1992) paper.  The temperature and salinity are arbitrary,
 since they do not vary in space and should not affect the evolution.
 
 Three additional config options relate to detecting when the convergence rate
-for the water-column thickness (h) and normal velocity (using the L2 norm to 
+for the water-column thickness (h) and normal velocity (using the L2 norm to
 compute the error).  If either convergence rate is unexpectedly low an error is
 raised:
 ```cfg
@@ -186,7 +190,7 @@ convergence_thresh_normalVelocity = 1.3
 ```
 
 The convergence rate of the water-column thickness for this test case is very
-low for the QU meshes in MPAS-Ocean, about 0.5, which necessitates the very 
+low for the QU meshes in MPAS-Ocean, about 0.5, which necessitates the very
 generous  convergence threshold used here.
 
 Config options related to visualization are as follows.  The options in

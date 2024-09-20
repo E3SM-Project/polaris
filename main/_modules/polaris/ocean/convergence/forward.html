@@ -158,8 +158,8 @@
 <span class="sd">            A YAML file that is a Jinja2 template with model config options</span>
 
 <span class="sd">        options : dict, optional</span>
-<span class="sd">            A dictionary of options and value to replace model config options</span>
-<span class="sd">            with new values</span>
+<span class="sd">            A nested dictionary of options and value for each ``config_model``</span>
+<span class="sd">            to replace model config options with new values</span>
 
 <span class="sd">        output_filename : str, optional</span>
 <span class="sd">            The output file that will be written out at the end of the forward</span>
@@ -179,7 +179,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">config_model</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">[</span><span class="n">config_model</span><span class="p">],</span>
+                                              <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>

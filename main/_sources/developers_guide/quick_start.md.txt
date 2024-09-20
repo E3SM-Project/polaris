@@ -458,13 +458,23 @@ be safe.
 ## Building E3SM components
 
 There are 3 E3SM repositories that are submodules within the polaris
-repository.  To build MPAS-Ocean, you would typically run:
+repository.
+
+For MPAS-Ocean and MALI both, see the last column of the table in
+{ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
+each machine and compiler.
+
+### MPAS-Ocean
+
+To build MPAS-Ocean, you would typically run:
 
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make <mpas_make_target>
 ```
+
+### MALI
 
 MALI should typically be compiled with the Albany library that contains the
 first-order velocity solver.  The Albany first-order velocity solver is the
@@ -483,13 +493,47 @@ cd e3sm_submodules/MALI-Dev/components/mpas-albany-landice
 make ALBANY=true <mpas_make_target>
 ```
 
-For MPAS-Ocean and MALI both, see the last column of the table in
-{ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
-each machine and compiler.
+### Omega
 
-Instructions for building Omega will be added as development proceeds. For now,
-you can run 
-[Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md). 
+If you simply wish to run the CTests from Omega, you likely want to use the
+[Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md).
+
+Otherwise, to build Omega,
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+git submodule update --init e3sm_submodules/Omega
+cd e3sm_submodules/Omega
+git submodule update --init --recursive externals/YAKL externals/ekat \
+    externals/scorpio cime
+cd components/omega
+mkdir build
+cd build
+cmake \
+   -DOMEGA_BUILD_TYPE=Release \
+   -DOMEGA_CIME_COMPILER=${POLARIS_COMPILER} \
+   -DOMEGA_CIME_MACHINE=${POLARIS_MACHINE} \
+   -DOMEGA_METIS_ROOT=${METIS_ROOT} \
+   -DOMEGA_PARMETIS_ROOT=${PARMETIS_ROOT} \
+   -DOMEGA_BUILD_TEST=ON \
+   -Wno-dev \
+   -S .. \
+   -B .
+
+./omega_build.sh
+```
+You can remove `-DOMEGA_BUILD_TEST=ON` to skip building CTests.  You can change
+`-DOMEGA_BUILD_TYPE=Release` to `-DOMEGA_BUILD_TYPE=Debug` to build in debug
+mode.
+
+You can alter the example above to build whichever Omega branch and in whatever
+location you like.  If you build in a location other than
+`e3sm_submodules/Omega/components/omega/build`, you will need to point to the
+relative or absolute path using the `-p` flag when you call `polaris setup` or
+`polaris suite`.
+
+To set up tasks and suites to use Omega, you need to supply `--model=omega`
+to `polaris setup` or `polaris suite`.  Otherwise, it will default to
+MPAS-Ocean.
 
 (dev-working-with-polaris)=
 
