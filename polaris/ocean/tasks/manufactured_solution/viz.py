@@ -109,7 +109,7 @@ class Viz(OceanIOStep):
             forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/culled_mesh.nc')
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
