@@ -93,8 +93,9 @@ class OceanModelStep(ModelStep):
             max_memory=max_memory, cached=cached, yaml=yaml,
             update_pio=update_pio, make_graph=make_graph,
             mesh_filename=mesh_filename, partition_graph=partition_graph,
-            graph_filename=graph_filename)
+            graph_filename='graph.info')
 
+        self.graph_target = graph_filename
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
         self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
@@ -115,6 +116,10 @@ class OceanModelStep(ModelStep):
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
+            self.add_input_file(
+                filename='graph.info',
+                work_dir_target=self.graph_target)
+
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 
