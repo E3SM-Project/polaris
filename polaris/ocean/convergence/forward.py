@@ -58,7 +58,7 @@ class ConvergenceForward(OceanModelStep):
             A list of variables to validate against a baseline if requested
         """
         super().__init__(component=component, name=name, subdir=subdir,
-                         openmp_threads=1)
+                         openmp_threads=1, graph_filename=graph_filename)
 
         self.resolution = resolution
         self.package = package
@@ -75,9 +75,6 @@ class ConvergenceForward(OceanModelStep):
         self.add_input_file(
             filename='init.nc',
             work_dir_target=f'{init.path}/initial_state.nc')
-        self.add_input_file(
-            filename='graph.info',
-            work_dir_target=f'{mesh.path}/{graph_filename}')
 
         self.add_output_file(filename=output_filename,
                              validate_vars=validate_vars)
