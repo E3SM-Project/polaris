@@ -113,6 +113,7 @@ class OceanModelStep(ModelStep):
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
             self._read_map()
+            self.partition_graph = False
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
