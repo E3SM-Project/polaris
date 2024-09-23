@@ -25,7 +25,7 @@ class OceanModelStep(ModelStep):
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, yaml=None, update_pio=True, make_graph=False,
                  mesh_filename=None, partition_graph=True,
-                 graph_filename='graph.info'):
+                 graph_target='graph.info'):
         """
         Make a step for running the model
 
@@ -95,10 +95,10 @@ class OceanModelStep(ModelStep):
             mesh_filename=mesh_filename, partition_graph=partition_graph,
             graph_filename='graph.info')
 
-        self.graph_target = graph_filename
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
         self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.graph_target = graph_target
 
     def setup(self):
         """

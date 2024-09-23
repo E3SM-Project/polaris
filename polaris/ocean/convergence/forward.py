@@ -21,7 +21,7 @@ class ConvergenceForward(OceanModelStep):
 
     def __init__(self, component, name, subdir, resolution, mesh, init,
                  package, yaml_filename='forward.yaml', options=None,
-                 graph_filename='graph.info', output_filename='output.nc',
+                 graph_target='graph.info', output_filename='output.nc',
                  validate_vars=None):
         """
         Create a new step
@@ -58,7 +58,7 @@ class ConvergenceForward(OceanModelStep):
             A list of variables to validate against a baseline if requested
         """
         super().__init__(component=component, name=name, subdir=subdir,
-                         openmp_threads=1, graph_filename=graph_filename)
+                         openmp_threads=1, graph_target=graph_target)
 
         self.resolution = resolution
         self.package = package
