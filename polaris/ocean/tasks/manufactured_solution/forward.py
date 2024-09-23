@@ -40,7 +40,7 @@ class Forward(ConvergenceForward):
                          resolution=resolution, mesh=init, init=init,
                          package='polaris.ocean.tasks.manufactured_solution',
                          yaml_filename='forward.yaml',
-                         graph_filename='culled_graph.info',
+                         graph_filename=f'{init.path}/culled_graph.info',
                          output_filename='output.nc',
                          validate_vars=['layerThickness', 'normalVelocity'])
 
