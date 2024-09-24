@@ -143,12 +143,13 @@ def main():  # noqa: C901
 
             if options['local_mache']:
                 print('Install local mache\n')
-                commands = f'source {conda_base}/etc/profile.d/conda.sh && ' \
-                           f'conda activate {conda_env_name} && ' \
-                           f'conda install -y importlib_resources jinja2' \
-                           f'  lxml pyyaml progressbar2 && ' \
-                           f'cd ../build_mache/mache && ' \
-                           f'python -m pip install --no-deps .'
+                commands = \
+                    f'source {conda_base}/etc/profile.d/conda.sh && ' \
+                    f'conda activate {conda_env_name} && ' \
+                    f'conda install -y importlib_resources jinja2' \
+                    f'  lxml pyyaml progressbar2 && ' \
+                    f'cd ../build_mache/mache && ' \
+                    f'python -m pip install --no-deps --no-build-isolation .'
                 check_call(commands, logger=options['logger'])
 
             previous_conda_env = conda_env_name
@@ -618,7 +619,7 @@ def _build_conda_env(options, activate_base):
             f'{activate_env} && ' \
             f'cd {source_path} && ' \
             f'rm -rf polaris.egg-info && ' \
-            f'python -m pip install --no-deps -e .'
+            f'python -m pip install --no-deps --no-build-isolation -e .'
         check_call(commands, logger=logger)
 
         print('Installing pre-commit\n')
@@ -682,7 +683,7 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
     commands = \
         f'{activate_env} && ' \
         f'cd {source_path}/jigsaw-python && ' \
-        f'python -m pip install --no-deps -e . && ' \
+        f'python -m pip install --no-deps --no-build-isolation -e . && ' \
         f'cp jigsawpy/_bin/* ${{CONDA_PREFIX}}/bin'
     check_call(commands, logger=logger)
 
@@ -1061,7 +1062,8 @@ def _write_load_polaris(options, prefix, spack_script, env_vars):
                # update the polaris installation to point here
                mkdir -p deploy_tmp/logs
                echo Reinstalling polaris package in edit mode...
-               python -m pip install --no-deps -e . &> deploy_tmp/logs/install_polaris.log
+               python -m pip install --no-deps --no-build-isolation -e . \\
+                   &> deploy_tmp/logs/install_polaris.log
                echo Done.
                echo
             fi

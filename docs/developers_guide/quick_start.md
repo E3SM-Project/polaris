@@ -379,7 +379,7 @@ With the conda environment activated, you can switch branches and update
 just the `polaris` package with:
 
 ```bash
-python -m pip install -e .
+python -m pip install --no-deps --no-build-isolation -e .
 ```
 
 The activation script will do this automatically when you source it in
@@ -444,7 +444,7 @@ With the conda environment activated, you can switch branches and update
 just the `polaris` package with:
 
 ```bash
-python -m pip install -e .
+python -m pip install --no-deps --no-build-isolation -e .
 ```
 
 This will be substantially faster than rerunning
