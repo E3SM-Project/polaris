@@ -37,7 +37,7 @@ class Forward(ConvergenceForward):
                          resolution=resolution, mesh=init, init=init,
                          package='polaris.ocean.tasks.inertial_gravity_wave',
                          yaml_filename='forward.yaml',
-                         graph_target='culled_graph.info',
+                         graph_target=f'{init.path}/culled_graph.info',
                          output_filename='output.nc',
                          validate_vars=['layerThickness', 'normalVelocity'])
 

@@ -39,7 +39,8 @@ class Decomp(Task):
             self.add_step(Forward(
                 component=component, name=name, indir=self.subdir,
                 ntasks=procs, min_tasks=procs, openmp_threads=1,
-                resolution=resolution, run_time_steps=3))
+                resolution=resolution, run_time_steps=3,
+                graph_target=f'{init.path}/culled_graph.info'))
             subdirs.append(name)
         self.add_step(Validate(component=component, step_subdirs=subdirs,
                                indir=self.subdir))

@@ -114,7 +114,7 @@ class IceShelfTask(Task):
             else:
                 ssh_forward = ForwardStep(
                     component=component, min_resolution=min_resolution,
-                    indir=indir, graph_filename=graph_filename,
+                    indir=indir, graph_target=graph_filename,
                     init_filename=current_init_filename, name=name,
                     package=package, yaml_filename=yaml_filename,
                     yaml_replacements=yaml_replacements)

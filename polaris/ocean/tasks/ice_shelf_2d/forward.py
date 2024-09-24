@@ -69,7 +69,8 @@ class Forward(OceanModelStep):
             name = 'restart'
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads)
+                         openmp_threads=openmp_threads,
+                         graph_target=f'{mesh.path}/culled_graph.info')
 
         self.resolution = resolution
         self.do_restart = do_restart
@@ -80,8 +81,6 @@ class Forward(OceanModelStep):
 
         self.add_input_file(filename='init.nc',
                             work_dir_target=f'{init.path}/output.nc')
-        self.add_input_file(filename='graph.info',
-                            work_dir_target=f'{mesh.path}/culled_graph.info')
 
         self.add_output_file(
             filename='output.nc',

@@ -22,7 +22,7 @@ class SshForward(OceanModelStep):
         file
     """
     def __init__(self, component, min_resolution, init_filename,
-                 graph_filename, name='ssh_forward', subdir=None,
+                 graph_target, name='ssh_forward', subdir=None,
                  package=None, yaml_filename='ssh_forward.yaml',
                  yaml_replacements=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=1):
@@ -41,7 +41,7 @@ class SshForward(OceanModelStep):
             the initial condition filename (relative to the base work
             directory)
 
-        graph_filename : str
+        graph_target: str
             the graph filename (relative to the base work directory)
 
         name : str, optional
@@ -91,7 +91,7 @@ class SshForward(OceanModelStep):
         self.add_input_file(filename='init.nc',
                             work_dir_target=init_filename)
         self.add_input_file(filename='graph.info',
-                            work_dir_target=graph_filename)
+                            work_dir_target=graph_target)
 
         self.add_output_file(
             filename='output.nc',
