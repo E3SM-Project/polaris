@@ -78,7 +78,8 @@ class SshForward(OceanModelStep):
         """
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
-                         min_tasks=min_tasks, openmp_threads=openmp_threads)
+                         min_tasks=min_tasks, openmp_threads=openmp_threads,
+                         graph_target=graph_target)
 
         self.min_resolution = min_resolution
         self.package = package
