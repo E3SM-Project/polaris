@@ -81,7 +81,7 @@ class PolarisYaml:
             keys = list(configs)
             if len(keys) > 1:
                 raise ValueError(
-                    f'Config yaml file contains unexpected sections:\n '
+                    f'Config yaml file contains unexpected sections: \n '
                     f'{keys[1:]}')
             model = keys[0]
 
@@ -204,7 +204,7 @@ def main_mpas_to_yaml():
     parser.add_argument("-y", "--yaml", dest="yaml",
                         required=True,
                         help="Output yaml file")
-    parser.add_argument("-m", "--model", dest="model", default='omega',
+    parser.add_argument("-m", "--model", dest="model", default='mpas-ocean',
                         help="Model name for the yaml")
 
     args = parser.parse_args()
@@ -286,7 +286,7 @@ def _update_section(src, dst, quiet, print_section=None):
             if name not in dst:
                 raise ValueError(
                     f'Attempting to modify a nonexistent config '
-                    f'options:{print_section}: {name}')
+                    f'options: {print_section}: {name}')
             if not quiet:
                 print(f'  {print_section}: {name} = {src[name]}')
             dst[name] = src[name]
