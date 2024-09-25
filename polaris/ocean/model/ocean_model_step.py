@@ -24,8 +24,7 @@ class OceanModelStep(ModelStep):
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, yaml=None, update_pio=True, make_graph=False,
-                 mesh_filename=None, partition_graph=True,
-                 graph_target='graph.info'):
+                 mesh_filename=None, partition_graph=True, graph_target=None):
         """
         Make a step for running the model
 
@@ -84,9 +83,12 @@ class OceanModelStep(ModelStep):
             If so, the partitioning executable is taken from the ``partition``
             option of the ``[executables]`` config section.
 
-        graph_filename : str, optional
+        graph_target : str, optional
             The name of the graph file to partition
         """
+        if graph_target is None:
+            self.make_graph = True
+
         super().__init__(
             component=component, name=name, subdir=subdir, indir=indir,
             ntasks=ntasks, min_tasks=min_tasks, openmp_threads=openmp_threads,

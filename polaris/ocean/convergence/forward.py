@@ -21,7 +21,7 @@ class ConvergenceForward(OceanModelStep):
 
     def __init__(self, component, name, subdir, resolution, mesh, init,
                  package, yaml_filename='forward.yaml', options=None,
-                 graph_target='graph.info', output_filename='output.nc',
+                 graph_target=None, output_filename='output.nc',
                  validate_vars=None):
         """
         Create a new step

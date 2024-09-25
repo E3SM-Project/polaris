@@ -44,6 +44,7 @@ class Rpe(Task):
         # brings in to set up the steps
         self.set_shared_config(config, link='internal_wave.cfg')
         self.add_step(init, symlink='init')
+        self.init = init
         self._add_rpe_and_analysis_steps()
 
     def configure(self):
@@ -70,9 +71,9 @@ class Rpe(Task):
         for nu in nus:
             name = f'nu_{nu:g}'
             step = Forward(
-                component=component, name=name, indir=self.subdir,
-                ntasks=None, min_tasks=None, openmp_threads=1,
-                nu=nu, vadv_method=self.vadv_method)
+                component=component, name=name, init=self.init,
+                indir=self.subdir, ntasks=None, min_tasks=None,
+                openmp_threads=1, nu=nu, vadv_method=self.vadv_method)
 
             step.add_yaml_file(
                 'polaris.ocean.tasks.internal_wave.rpe',
