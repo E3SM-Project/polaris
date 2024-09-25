@@ -200,7 +200,7 @@ def main_mpas_to_yaml():
                         help="MPAS namelist template file (with all namelist "
                              "options). For MPAS-Ocean, this will typically be"
                              " ${PATH_TO_MPASO}/default_inputs/"
-                             "namelist.forward.ocean")
+                             "namelist.ocean.forward")
     parser.add_argument("-y", "--yaml", dest="yaml",
                         required=True,
                         help="Output yaml file")
