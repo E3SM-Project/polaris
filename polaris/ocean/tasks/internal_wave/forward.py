@@ -69,7 +69,7 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='initial_state.nc',
-                            target=f'{init.path}/initial_state.nc')
+                            work_dir_target=f'{init.path}/initial_state.nc')
 
         self.add_yaml_file('polaris.ocean.tasks.internal_wave',
                            'forward.yaml')

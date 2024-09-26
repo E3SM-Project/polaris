@@ -41,4 +41,5 @@ class Forward(SphericalConvergenceForward):
                          init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',
-                         validate_vars=validate_vars)
+                         validate_vars=validate_vars,
+                         graph_target=f'{init.path}/graph.info')
