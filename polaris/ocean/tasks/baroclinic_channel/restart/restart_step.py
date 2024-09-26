@@ -24,6 +24,9 @@ class RestartStep(Forward):
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
+
+        init: polaris.ocean.tasks.baroclinic_channel.init.Init
+            the initial state step
         """
         self.resolution = resolution
         super().__init__(component=component, name=name, indir=indir, ntasks=4,

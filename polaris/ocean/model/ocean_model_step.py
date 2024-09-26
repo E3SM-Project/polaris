@@ -20,6 +20,10 @@ class OceanModelStep(ModelStep):
     map : dict
         A nested dictionary that maps from MPAS-Ocean to Omega model config
         options
+
+    graph_target : str
+        The name of the graph partition file to link to (relative to the base
+        working directory)
     """
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
@@ -84,7 +88,8 @@ class OceanModelStep(ModelStep):
             option of the ``[executables]`` config section.
 
         graph_target : str, optional
-            The name of the graph file to partition
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
         """
         if graph_target is None:
             self.make_graph = True

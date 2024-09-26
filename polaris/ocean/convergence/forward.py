@@ -50,6 +50,10 @@ class ConvergenceForward(OceanModelStep):
             A nested dictionary of options and value for each ``config_model``
             to replace model config options with new values
 
+        graph_target : str, optional
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
+
         output_filename : str, optional
             The output file that will be written out at the end of the forward
             run

@@ -13,6 +13,9 @@ class Rpe(Task):
     ----------
     resolution : float
         The resolution of the test case in km
+
+    init : polaris.ocean.tasks.baroclinic_channel.init.Init
+        A shared step for creating the initial state
     """
 
     def __init__(self, component, indir, init, config, vadv_method='standard'):

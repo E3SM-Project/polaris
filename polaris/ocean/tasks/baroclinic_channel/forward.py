@@ -65,6 +65,10 @@ class Forward(OceanModelStep):
 
         run_time_steps : int, optional
             Number of time steps to run for
+
+        graph_target : str, optional
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
         """
         self.resolution = resolution
         self.run_time_steps = run_time_steps

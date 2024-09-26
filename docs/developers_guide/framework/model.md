@@ -20,7 +20,9 @@ method,  you can set number of tasks, threads, etc. determined from the
 `openmp_threads` attributes.  These resources need to be set at construction or
 in the  {ref}`dev-step-setup` method (i.e. before calling {ref}`dev-step-run`) 
 so that  the polaris framework  can ensure that the required resources are 
-available.
+available. If the graph partition file has been constructed prior to the ocean
+model step, the path to the graph file should be provided in the
+`graph_target` argument to {py:meth}`polaris.ocean.OceanModelStep.__init__()`.
 
 (dev-model-yaml-namelists-and-streams)=
 

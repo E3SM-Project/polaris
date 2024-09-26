@@ -28,7 +28,7 @@ class Forward(OceanModelStep):
         name : str
             the name of the task
 
-        init : polaris.Step
+        init : polaris.ocean.tasks.internal_wave.init.Init
             the initial state step
 
         subdir : str, optional
