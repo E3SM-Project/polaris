@@ -21,6 +21,9 @@ class PolarisYaml:
     streams : dict
         Nested dictionaries containing data about streams
 
+    streams_section : str
+        The name of the streams section
+
     model : str
         The name of the E3SM component
     """
@@ -30,11 +33,13 @@ class PolarisYaml:
         Create a yaml config object
         """
         self.configs = dict()
+        self.streams_section = 'streams'
         self.streams = dict()
         self.model = None
 
     @classmethod
-    def read(cls, filename, package=None, replacements=None, model=None):
+    def read(cls, filename, package=None, replacements=None, model=None,
+             streams_section='streams'):
         """
         Add config options from a yaml file
 
@@ -55,6 +60,9 @@ class PolarisYaml:
             The name of the model to parse if the yaml file might have multiple
             models
 
+        streams_section : str, optional
+            The name of the streams section
+
         Returns
         -------
         yaml : polaris.yaml.PolarisYaml
@@ -74,6 +82,7 @@ class PolarisYaml:
             text = template.render(**replacements)
 
         yaml = cls()
+        yaml.streams_section = streams_section
         yaml_data = YAML(typ='rt')
         configs = yaml_data.load(text)
 
@@ -89,10 +98,10 @@ class PolarisYaml:
         yaml.streams = {}
         if model in configs:
             configs = configs[model]
-            if 'streams' in configs:
-                yaml.streams = configs['streams']
+            if streams_section in configs:
+                yaml.streams = configs[streams_section]
                 configs = dict(configs)
-                configs.pop('streams')
+                configs.pop(streams_section)
         else:
             configs = {}
 
@@ -136,7 +145,7 @@ class PolarisYaml:
         yaml = YAML(typ='rt')
         configs = dict(self.configs)
         if self.streams:
-            configs['streams'] = self.streams
+            configs[self.streams_section] = self.streams
 
         model_configs = dict()
         model_configs[self.model] = configs

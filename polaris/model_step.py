@@ -69,6 +69,8 @@ class ModelStep(Step):
         Whether to create a yaml file with model config options and streams
         instead of MPAS namelist and streams files
 
+    streams_section : str
+        The name of the streams section in yaml files
     """
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
@@ -173,6 +175,7 @@ class ModelStep(Step):
         self.graph_filename = graph_filename
 
         self.make_yaml = make_yaml
+        self.streams_section = 'streams'
 
         self.add_input_file(filename='<<<model>>>')
 
@@ -563,7 +566,8 @@ class ModelStep(Step):
         config = self.config
         if self.make_yaml:
             defaults_filename = config.get('model_config', 'defaults')
-            self._yaml = PolarisYaml.read(defaults_filename)
+            self._yaml = PolarisYaml.read(defaults_filename,
+                                          streams_section=self.streams_section)
         else:
             defaults_filename = config.get('namelists', 'forward')
             self._namelist = polaris.namelist.ingest(defaults_filename)
@@ -578,7 +582,8 @@ class ModelStep(Step):
         """
         if self.make_yaml:
             filename = os.path.join(self.work_dir, self.yaml)
-            self._yaml = PolarisYaml.read(filename)
+            self._yaml = PolarisYaml.read(filename,
+                                          streams_section=self.streams_section)
         else:
             filename = os.path.join(self.work_dir, self.namelist)
             self._namelist = polaris.namelist.ingest(filename)
@@ -641,10 +646,10 @@ class ModelStep(Step):
                     options = self.map_yaml_to_namelist(options)
                     replacements.update(options)
                 if 'yaml' in entry:
-                    yaml = PolarisYaml.read(filename=entry['yaml'],
-                                            package=entry['package'],
-                                            replacements=entry['replacements'],
-                                            model=config_model)
+                    yaml = PolarisYaml.read(
+                        filename=entry['yaml'], package=entry['package'],
+                        replacements=entry['replacements'], model=config_model,
+                        streams_section=self.streams_section)
 
                     configs = self.map_yaml_configs(configs=yaml.configs,
                                                     config_model=config_model)
@@ -727,8 +732,7 @@ class ModelStep(Step):
                 if not found:
                     defaults.remove(default)
 
-    @staticmethod
-    def _process_yaml_streams(yaml_filename, package, replacements,
+    def _process_yaml_streams(self, yaml_filename, package, replacements,
                               config_model, processed_registry_filename,
                               tree, quiet):
         if not quiet:
@@ -737,7 +741,8 @@ class ModelStep(Step):
         yaml = PolarisYaml.read(filename=yaml_filename,
                                 package=package,
                                 replacements=replacements,
-                                model=config_model)
+                                model=config_model,
+                                streams_section=self.streams_section)
         assert processed_registry_filename is not None
         new_tree = yaml_to_mpas_streams(
             processed_registry_filename, yaml)
@@ -773,10 +778,10 @@ class ModelStep(Step):
                                                     config_model=config_model)
                     self._yaml.update(options=options, quiet=quiet)
                 if 'yaml' in entry:
-                    yaml = PolarisYaml.read(filename=entry['yaml'],
-                                            package=entry['package'],
-                                            replacements=entry['replacements'],
-                                            model=config_model)
+                    yaml = PolarisYaml.read(
+                        filename=entry['yaml'], package=entry['package'],
+                        replacements=entry['replacements'], model=config_model,
+                        streams_section=self.streams_section)
 
                     configs = self.map_yaml_configs(configs=yaml.configs,
                                                     config_model=config_model)
