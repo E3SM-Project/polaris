@@ -1024,8 +1024,7 @@ class Init(Step):
 
         self.resolution = resolution
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
-                     'initial_state.nc']:
+        for file in ['base_mesh.nc', 'culled_mesh.nc', 'initial_state.nc']:
             self.add_output_file(file)
 ```
 
@@ -1286,8 +1285,6 @@ class Forward(OceanModelStep):
 
         self.add_input_file(filename='initial_state.nc',
                             target='../init/initial_state.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
 
         self.add_output_file(filename='output.nc')
 ```

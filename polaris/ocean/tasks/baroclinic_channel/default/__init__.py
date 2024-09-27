@@ -34,7 +34,8 @@ class Default(Task):
         self.add_step(
             Forward(component=component, indir=self.subdir, ntasks=None,
                     min_tasks=None, openmp_threads=1, resolution=resolution,
-                    run_time_steps=3))
+                    run_time_steps=3,
+                    graph_target=f'{init.path}/culled_graph.info'))
 
         self.add_step(
             Viz(component=component, indir=self.subdir))

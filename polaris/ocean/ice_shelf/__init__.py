@@ -50,7 +50,7 @@ class IceShelfTask(Task):
         self.component = component
         self.min_resolution = min_resolution
 
-    def setup_ssh_adjustment_steps(self, mesh_filename, graph_filename,
+    def setup_ssh_adjustment_steps(self, mesh_filename, graph_target,
                                    init_filename, config, config_filename,
                                    ForwardStep, package=None,
                                    yaml_filename='ssh_forward.yaml',
@@ -67,7 +67,7 @@ class IceShelfTask(Task):
         mesh_filename : str
             the mesh filename (relative to the base work directory)
 
-        graph_filename : str
+        graph_target: str
             the graph filename (relative to the base work directory)
 
         init_filename : str
@@ -114,7 +114,7 @@ class IceShelfTask(Task):
             else:
                 ssh_forward = ForwardStep(
                     component=component, min_resolution=min_resolution,
-                    indir=indir, graph_filename=graph_filename,
+                    indir=indir, graph_target=graph_target,
                     init_filename=current_init_filename, name=name,
                     package=package, yaml_filename=yaml_filename,
                     yaml_replacements=yaml_replacements)

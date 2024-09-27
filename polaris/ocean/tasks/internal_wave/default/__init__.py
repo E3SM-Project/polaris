@@ -32,8 +32,8 @@ class Default(Task):
         self.add_step(init, symlink='init')
 
         self.add_step(
-            Forward(component=component, indir=self.subdir, ntasks=None,
-                    min_tasks=None, openmp_threads=1,
+            Forward(component=component, init=init, indir=self.subdir,
+                    ntasks=None, min_tasks=None, openmp_threads=1,
                     run_time_steps=3, vadv_method=vadv_method))
 
         self.add_step(

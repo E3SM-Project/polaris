@@ -52,4 +52,5 @@ class Forward(SphericalConvergenceForward):
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',
                          validate_vars=validate_vars,
-                         options=namelist_options)
+                         options=namelist_options,
+                         graph_target=f'{init.path}/graph.info')

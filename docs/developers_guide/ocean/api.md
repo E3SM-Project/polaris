@@ -215,6 +215,7 @@
 
    init.Init
    init.Init.run
+   init.Init.setup
 
    viz.Viz
    viz.Viz.run

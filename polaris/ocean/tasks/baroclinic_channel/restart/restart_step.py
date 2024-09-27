@@ -7,7 +7,7 @@ class RestartStep(Forward):
     """
     A forward model step in the restart test case
     """
-    def __init__(self, component, resolution, name, indir):
+    def __init__(self, component, resolution, name, indir, init):
         """
         Create a new test case
 
@@ -24,11 +24,15 @@ class RestartStep(Forward):
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
+
+        init: polaris.ocean.tasks.baroclinic_channel.init.Init
+            the initial state step
         """
         self.resolution = resolution
         super().__init__(component=component, name=name, indir=indir, ntasks=4,
                          min_tasks=4, openmp_threads=1,
-                         resolution=resolution)
+                         resolution=resolution,
+                         graph_target=f'{init.path}/culled_graph.info')
 
     def dynamic_model_config(self, at_setup):
         """

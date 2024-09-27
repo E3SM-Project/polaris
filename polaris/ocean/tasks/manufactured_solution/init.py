@@ -43,8 +43,14 @@ class Init(Step):
                          name=f'init_{mesh_name}',
                          subdir=f'{taskdir}/init/{mesh_name}')
         self.resolution = resolution
-        for filename in ['culled_mesh.nc', 'initial_state.nc',
-                         'culled_graph.info']:
+
+    def setup(self):
+        super().setup()
+        output_filenames = ['culled_mesh.nc', 'initial_state.nc']
+        model = self.config.get('ocean', 'model')
+        if model == 'mpas-ocean':
+            output_filenames.append('culled_graph.info')
+        for filename in output_filenames:
             self.add_output_file(filename=filename)
 
     def run(self):

@@ -20,12 +20,15 @@ class OceanModelStep(ModelStep):
     map : dict
         A nested dictionary that maps from MPAS-Ocean to Omega model config
         options
+
+    graph_target : str
+        The name of the graph partition file to link to (relative to the base
+        working directory)
     """
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
                  cached=False, yaml=None, update_pio=True, make_graph=False,
-                 mesh_filename=None, partition_graph=True,
-                 graph_filename='graph.info'):
+                 mesh_filename=None, partition_graph=True, graph_target=None):
         """
         Make a step for running the model
 
@@ -84,20 +87,25 @@ class OceanModelStep(ModelStep):
             If so, the partitioning executable is taken from the ``partition``
             option of the ``[executables]`` config section.
 
-        graph_filename : str, optional
-            The name of the graph file to partition
+        graph_target : str, optional
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
         """
+        if graph_target is None:
+            self.make_graph = True
+
         super().__init__(
             component=component, name=name, subdir=subdir, indir=indir,
             ntasks=ntasks, min_tasks=min_tasks, openmp_threads=openmp_threads,
             max_memory=max_memory, cached=cached, yaml=yaml,
             update_pio=update_pio, make_graph=make_graph,
             mesh_filename=mesh_filename, partition_graph=partition_graph,
-            graph_filename=graph_filename)
+            graph_filename='graph.info')
 
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
         self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.graph_target = graph_target
 
     def setup(self):
         """
@@ -112,9 +120,14 @@ class OceanModelStep(ModelStep):
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
             self._read_map()
+            self.partition_graph = False
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
+            self.add_input_file(
+                filename='graph.info',
+                work_dir_target=self.graph_target)
+
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 

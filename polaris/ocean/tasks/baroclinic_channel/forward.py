@@ -25,7 +25,7 @@ class Forward(OceanModelStep):
     """
     def __init__(self, component, resolution, name='forward', subdir=None,
                  indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
-                 nu=None, run_time_steps=None):
+                 nu=None, run_time_steps=None, graph_target='graph.info'):
         """
         Create a new task
 
@@ -65,20 +65,23 @@ class Forward(OceanModelStep):
 
         run_time_steps : int, optional
             Number of time steps to run for
+
+        graph_target : str, optional
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
         """
         self.resolution = resolution
         self.run_time_steps = run_time_steps
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads)
+                         openmp_threads=openmp_threads,
+                         graph_target=graph_target)
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='initial_state.nc',
                             target='../../init/initial_state.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../../init/culled_graph.info')
 
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')

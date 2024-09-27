@@ -35,11 +35,12 @@ class Restart(Task):
         self.add_step(init, symlink='init')
 
         full = RestartStep(component=component, resolution=resolution,
-                           name='full_run', indir=self.subdir)
+                           name='full_run', indir=self.subdir, init=init)
         self.add_step(full)
 
         restart = RestartStep(component=component, resolution=resolution,
-                              name='restart_run', indir=self.subdir)
+                              name='restart_run', indir=self.subdir,
+                              init=init)
         restart.add_dependency(full, full.name)
         self.add_step(restart)
 

@@ -21,7 +21,7 @@ class ConvergenceForward(OceanModelStep):
 
     def __init__(self, component, name, subdir, resolution, mesh, init,
                  package, yaml_filename='forward.yaml', options=None,
-                 graph_filename='graph.info', output_filename='output.nc',
+                 graph_target=None, output_filename='output.nc',
                  validate_vars=None):
         """
         Create a new step
@@ -50,6 +50,10 @@ class ConvergenceForward(OceanModelStep):
             A nested dictionary of options and value for each ``config_model``
             to replace model config options with new values
 
+        graph_target : str, optional
+            The graph file name (relative to the base work directory).
+            If none, it will be created.
+
         output_filename : str, optional
             The output file that will be written out at the end of the forward
             run
@@ -58,7 +62,7 @@ class ConvergenceForward(OceanModelStep):
             A list of variables to validate against a baseline if requested
         """
         super().__init__(component=component, name=name, subdir=subdir,
-                         openmp_threads=1)
+                         openmp_threads=1, graph_target=graph_target)
 
         self.resolution = resolution
         self.package = package
@@ -75,9 +79,6 @@ class ConvergenceForward(OceanModelStep):
         self.add_input_file(
             filename='init.nc',
             work_dir_target=f'{init.path}/initial_state.nc')
-        self.add_input_file(
-            filename='graph.info',
-            work_dir_target=f'{mesh.path}/{graph_filename}')
 
         self.add_output_file(filename=output_filename,
                              validate_vars=validate_vars)
