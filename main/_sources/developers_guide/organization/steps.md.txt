@@ -244,7 +244,6 @@ class SetupMesh(Step):
             self.add_input_file(filename='mpas_grid.nc',
                                 target='dome_varres_grid.nc', database='')
 
-        self.add_output_file(filename='graph.info')
         self.add_output_file(filename='landice_grid.nc')
 ```
 
@@ -366,8 +365,6 @@ class Forward(OceanModelStep):
 
         self.add_input_file(filename='initial_state.nc',
                             target='../../init/initial_state.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../../init/culled_graph.info')
 
         self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
                            'forward.yaml')
@@ -803,9 +800,6 @@ def __init__(self, component, mesh, init):
     self.add_input_file(
         filename='forcing_data.nc',
         work_dir_target=f'{init.path}/init/init_mode_forcing_data.nc')
-    self.add_input_file(
-        filename='graph.info',
-        work_dir_target=f'{mesh_path}/culled_graph.info')
 ```
 
 (dev-step-input-polaris)=

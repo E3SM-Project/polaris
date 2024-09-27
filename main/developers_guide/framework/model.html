@@ -152,7 +152,9 @@ method,  you can set number of tasks, threads, etc. determined from the
 <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.  These resources need to be set at construction or
 in the  <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method (i.e. before calling <a class="reference internal" href="../organization/steps.html#dev-step-run"><span class="std std-ref">run()</span></a>)
 so that  the polaris framework  can ensure that the required resources are
-available.</p>
+available. If the graph partition file has been constructed prior to the ocean
+model step, the path to the graph file should be provided in the
+<code class="docutils literal notranslate"><span class="pre">graph_target</span></code> argument to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.OceanModelStep.__init__()</span></code>.</p>
 <section id="adding-yaml-namelist-and-streams-files">
 <span id="dev-model-yaml-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Permalink to this heading"></a></h3>
 <p>Components and tasks can provide yaml config options,
