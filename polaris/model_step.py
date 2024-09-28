@@ -1,7 +1,7 @@
 import os
 import shutil
 from collections import OrderedDict
-from typing import List, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import xarray as xr
@@ -278,7 +278,7 @@ class ModelStep(Step):
 
     def map_yaml_options(self, options, config_model):
         """
-        A mapping between model config options between different models.  This
+        A mapping between model config options from different models.  This
         method should be overridden for situations in which yaml config
         options have diverged in name or structure from their counterparts in
         another model (e.g. when translating from MPAS-Ocean namelist options
@@ -304,7 +304,7 @@ class ModelStep(Step):
 
     def map_yaml_configs(self, configs, config_model):
         """
-        A mapping between model config options between different models.  This
+        A mapping between model config options from different models.  This
         method should be overridden for situations in which yaml config
         options have diverged in name or structure from their counterparts in
         another model (e.g. when translating from MPAS-Ocean namelist options
@@ -327,6 +327,29 @@ class ModelStep(Step):
             use as replacements for existing values
         """
         return configs
+
+    def map_yaml_streams(self, streams, config_model):
+        """
+        A mapping between model streams from different models.  This method
+        should be overridden for situations in which yaml streams have diverged
+        in name or structure from their counterparts in another model (e.g.
+        when translating from MPAS-Ocean streams to Omega IOStreams)
+
+        Parameters
+        ----------
+        streams : dict
+            A nested dictionary of streams data
+
+        config_model : str or None
+            If streams are available for multiple models, the model that the
+            streams are from
+
+        Returns
+        -------
+        configs : dict
+            A revised nested dictionary of streams data
+        """
+        return streams
 
     def map_yaml_to_namelist(self, options):
         """
@@ -443,7 +466,7 @@ class ModelStep(Step):
         self.dynamic_model_config(at_setup=False)
 
         if self.make_yaml:
-            self._process_yaml(quiet=quiet)
+            self._process_yaml(quiet=quiet, remove_unrequested_streams=False)
         else:
             self._process_namelists(quiet=quiet)
             self._process_streams(quiet=quiet, remove_unrequested=False)
@@ -484,7 +507,7 @@ class ModelStep(Step):
         self._create_model_config()
 
         if self.make_yaml:
-            self._process_yaml(quiet=quiet)
+            self._process_yaml(quiet=quiet, remove_unrequested_streams=True)
         else:
             self._process_namelists(quiet=quiet)
             self._process_streams(quiet=quiet, remove_unrequested=True)
@@ -749,7 +772,7 @@ class ModelStep(Step):
         tree = polaris.streams.update_tree(tree, new_tree)
         return tree
 
-    def _process_yaml(self, quiet):
+    def _process_yaml(self, quiet, remove_unrequested_streams):
         """
         Processes changes to a yaml file from the files and dictionaries
         in the step's ``model_config_data``.
@@ -763,6 +786,8 @@ class ModelStep(Step):
 
         if not quiet:
             print(f'Warning: replacing yaml options in {self.yaml}')
+
+        streams: Dict[str, Dict[str, Union[str, float, int, List[str]]]] = {}
 
         for entry in self.model_config_data:
             if 'namelist' in entry:
@@ -785,7 +810,42 @@ class ModelStep(Step):
 
                     configs = self.map_yaml_configs(configs=yaml.configs,
                                                     config_model=config_model)
+                    new_streams = self.map_yaml_streams(
+                        streams=yaml.streams, config_model=config_model)
+                    self._update_yaml_streams(streams, new_streams,
+                                              quiet=quiet,
+                                              remove_unrequested=False)
                     self._yaml.update(configs=configs, quiet=quiet)
+        self._update_yaml_streams(
+            self._yaml.streams, streams, quiet=quiet,
+            remove_unrequested=remove_unrequested_streams)
+
+    @staticmethod
+    def _update_yaml_streams(streams, new_streams, quiet, remove_unrequested):
+        """
+        Update yaml streams, optionally removing any streams that aren't in
+        new_streams
+        """
+
+        for stream_name, new_stream in new_streams.items():
+            if stream_name in streams:
+                streams[stream_name].update(new_stream)
+                if not quiet:
+                    print(f'  updating: {stream_name}')
+            else:
+                if not quiet:
+                    print(f'  adding:   {stream_name}')
+                streams[stream_name] = new_stream
+
+        if remove_unrequested:
+            # during setup, we remove any default streams that aren't requested
+            # but at runtime we don't want to do this because we would lose any
+            # streams added only during setup.
+            for stream_name in list(streams.keys()):
+                if stream_name not in new_streams:
+                    if not quiet:
+                        print(f'  dropping: {stream_name}')
+                    streams.pop(stream_name)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',

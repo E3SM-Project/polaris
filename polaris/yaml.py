@@ -153,12 +153,6 @@ class PolarisYaml:
         with open(filename, 'w') as outfile:
             yaml.dump(model_configs, outfile)
 
-    def _add_stream(self, stream_name, stream):
-        """
-        Add stream from a dictionary
-        """
-        self.streams[stream_name] = stream
-
 
 def mpas_namelist_and_streams_to_yaml(model, namelist_template=None,
                                       namelist=None,
