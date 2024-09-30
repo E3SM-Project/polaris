@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
 import uxarray as ux
+from matplotlib import cm
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
@@ -81,6 +82,13 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
     projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
 
     colormap = config.get(colormap_section, 'colormap_name')
+    cmap = cm.get_cmap(colormap)
+    if config.has_option(colormap_section, 'under_color'):
+        under_color = config.get(colormap_section, 'under_color')
+        cmap.set_under(under_color)
+    if config.has_option(colormap_section, 'over_color'):
+        over_color = config.get(colormap_section, 'over_color')
+        cmap.set_over(over_color)
 
     norm_type = config.get(colormap_section, 'norm_type')
     if norm_type == 'linear':
@@ -94,7 +102,7 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
                                      dtype=float)
 
     plot = gdf_data.hvplot.polygons(
-        c=da.name, cmap=colormap, logz=logz,
+        c=da.name, cmap=cmap, logz=logz,
         clim=tuple(colorbar_limits),
         clabel=colorbar_label,
         width=1600, height=800, title=title,
