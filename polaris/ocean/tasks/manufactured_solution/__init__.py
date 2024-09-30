@@ -71,3 +71,13 @@ class ManufacturedSolution(Task):
         self.config.add_from_package(
             'polaris.ocean.tasks.manufactured_solution',
             'manufactured_solution.cfg')
+
+    def configure(self):
+        """
+        Set omega default config options
+        """
+        super().configure()
+        config = self.config
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            config.set('convergence_forward', 'time_integrator', 'RungeKutta4')
