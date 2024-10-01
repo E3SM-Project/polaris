@@ -1,5 +1,7 @@
 ocean/planar/inertial_gravity_wave/convergence_both
-ocean/planar/manufactured_solution/convergence_both
+ocean/planar/manufactured_solution/convergence_both/default
+ocean/planar/manufactured_solution/convergence_both/del2
+ocean/planar/manufactured_solution/convergence_both/del4
 ocean/spherical/icos/correlated_tracers_2d
   cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
 ocean/spherical/qu/correlated_tracers_2d
