@@ -16,9 +16,9 @@ Currently, the there is only one task, the convergence test from
 
 These tasks support both MPAS-Ocean and Omega.
 
-(ocean-manufactured-solution-convergence)=
+(ocean-manufactured-solution-default)=
 
-## convergence
+## default
 
 ### description
 
@@ -127,3 +127,22 @@ conv_thresh = 1.8
 
 The number of cores is determined according to the config options
 ``max_cells_per_core`` and ``goal_cells_per_core``.
+
+(ocean-manufactured-solution-del2)=
+
+## del2
+
+### description
+
+All settings are the same as the {ref}`ocean-manufactured-solution-default` case
+except laplacian viscosity is turned on.
+
+(ocean-manufactured-solution-del4)=
+
+## del4
+
+### description
+
+All settings are the same as the {ref}`ocean-manufactured-solution-default` case
+except hyperviscosity is turned on. The expected convergence should not be
+significantly different from the {ref}`ocean-manufactured-solution-default` case.
