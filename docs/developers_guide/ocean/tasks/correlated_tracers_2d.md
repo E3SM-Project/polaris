@@ -77,6 +77,10 @@ each resolution.  The colormap is controlled by these options:
 # colormap
 colormap_name = viridis
 
+# [optional] colormap set_under and set_over options
+under_color = k
+over_color = orange
+
 # the type of norm used in the colormap
 norm_type = linear
 

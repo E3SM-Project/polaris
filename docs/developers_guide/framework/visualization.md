@@ -154,7 +154,13 @@ colormap).
 
 The `colorbar_limits` are the lower and upper bound of the colorbar range.
 
+There are also two optional config options used to set the colors on either end of the colormap:
 
+```cfg
+# [optional] colormap set_under and set_over options
+under_color = k
+over_color = orange
+```
 ### plotting from lat/lon grids
 
 You can use {py:func}`polaris.viz.plot_global_lat_lon_field()` to plot a field 
