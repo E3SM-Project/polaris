@@ -72,6 +72,8 @@ class Forward(ConvergenceForward):
                          graph_target=f'{init.path}/culled_graph.info',
                          output_filename='output.nc',
                          validate_vars=['layerThickness', 'normalVelocity'])
+        self.del2 = del2
+        self.del4 = del4
 
     def setup(self):
         """
@@ -83,8 +85,6 @@ class Forward(ConvergenceForward):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
-        self.del2 = del2
-        self.del4 = del4
 
     def compute_cell_count(self):
         """
@@ -119,20 +119,25 @@ class Forward(ConvergenceForward):
         super().dynamic_model_config(at_setup=at_setup)
 
         exact_solution = ExactSolution(self.config)
-        options = {'config_manufactured_solution_amplitude':
-                   float(exact_solution.eta0),
-                   'config_manufactured_solution_wavelength_x':
-                   float(exact_solution.lambda_x),
-                   'config_manufactured_solution_wavelength_y':
-                   float(exact_solution.lambda_y),
-                   'config_disable_vel_hmix':
-                   True}
-
+        mpas_options = {'config_manufactured_solution_amplitude':
+                        float(exact_solution.eta0),
+                        'config_manufactured_solution_wavelength_x':
+                        float(exact_solution.lambda_x),
+                        'config_manufactured_solution_wavelength_y':
+                        float(exact_solution.lambda_y)}
+        shared_options = {}
         if self.del2:
-            options['config_disable_vel_hmix'] = False
-            options['config_use_mom_del2'] = True
-        if self.del4:
-            options['config_disable_vel_hmix'] = False
-            options['config_use_mom_del4'] = True
+            mpas_options['config_disable_vel_hmix'] = False
+            shared_options['config_use_mom_del2'] = True
+            shared_options['config_use_mom_del4'] = False
+        elif self.del4:
+            mpas_options['config_disable_vel_hmix'] = False
+            shared_options['config_use_mom_del2'] = False
+            shared_options['config_use_mom_del4'] = True
+        else:
+            mpas_options['config_disable_vel_hmix'] = True
+            shared_options['config_use_mom_del2'] = False
+            shared_options['config_use_mom_del4'] = False
 
-        self.add_model_config_options(options, config_model='mpas-ocean')
+        self.add_model_config_options(mpas_options, config_model='mpas-ocean')
+        self.add_model_config_options(shared_options, config_model='ocean')
