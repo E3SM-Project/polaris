@@ -119,6 +119,7 @@
 <span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">cols</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">uxarray</span> <span class="k">as</span> <span class="nn">ux</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="kn">import</span> <span class="n">inset_axes</span>
 <span class="kn">from</span> <span class="nn">pyremap.descriptor.utility</span> <span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 
@@ -191,6 +192,13 @@
     <span class="n">projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">)</span>
 
     <span class="n">colormap</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">):</span>
+        <span class="n">under_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">)</span>
+        <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">under_color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">):</span>
+        <span class="n">over_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">)</span>
+        <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">over_color</span><span class="p">)</span>
 
     <span class="n">norm_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_type&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
@@ -204,7 +212,7 @@
                                      <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
     <span class="n">plot</span> <span class="o">=</span> <span class="n">gdf_data</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">polygons</span><span class="p">(</span>
-        <span class="n">c</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">logz</span><span class="o">=</span><span class="n">logz</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">logz</span><span class="o">=</span><span class="n">logz</span><span class="p">,</span>
         <span class="n">clim</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">colorbar_limits</span><span class="p">),</span>
         <span class="n">clabel</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
         <span class="n">width</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
