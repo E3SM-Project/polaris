@@ -6,7 +6,10 @@ import pandas as pd
 
 from polaris.mpas import area_for_field, time_index_from_xtime
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.ocean.convergence import (
+    get_resolution_for_task,
+    get_timestep_for_task,
+)
 from polaris.viz import use_mplstyle
 
 
@@ -53,8 +56,8 @@ class ConvergenceAnalysis(OceanIOStep):
                 The z-index to use for variables that have an nVertLevels
                 dimension, which should be None for variables that don't
     """
-    def __init__(self, component, resolutions, subdir, dependencies,
-                 convergence_vars):
+    def __init__(self, component, subdir, dependencies, convergence_vars,
+                 refinement='both'):
         """
         Create the step
 
@@ -62,9 +65,6 @@ class ConvergenceAnalysis(OceanIOStep):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolutions : list of float
-            The resolutions of the meshes that have been run
 
         subdir : str
             The subdirectory that the step resides in
@@ -102,11 +102,15 @@ class ConvergenceAnalysis(OceanIOStep):
                 zidx : int
                     The z-index to use for variables that have an nVertLevels
                     dimension, which should be None for variables that don't
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
-        self.resolutions = resolutions
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
+        self.refinement = refinement
 
         for var in convergence_vars:
             self.add_output_file(f'convergence_{var["name"]}.png')
@@ -116,21 +120,23 @@ class ConvergenceAnalysis(OceanIOStep):
         Add input files based on resolutions, which may have been changed by
         user config options
         """
+        config = self.config
         dependencies = self.dependencies_dict
-
-        for resolution in self.resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            base_mesh = dependencies['mesh'][resolution]
-            init = dependencies['init'][resolution]
-            forward = dependencies['forward'][resolution]
+        refinement_factors = config.getlist('convergence',
+                                            'refinement_factors',
+                                            dtype=float)
+        for refinement_factor in refinement_factors:
+            base_mesh = dependencies['mesh'][refinement_factor]
+            init = dependencies['init'][refinement_factor]
+            forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
-                filename=f'{mesh_name}_mesh.nc',
+                filename=f'mesh_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_init.nc',
+                filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_output.nc',
+                filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
@@ -162,37 +168,54 @@ class ConvergenceAnalysis(OceanIOStep):
             The z-index to use for variables that have an nVertLevels
             dimension, which should be None for variables that don't
         """
-        resolutions = self.resolutions
+        config = self.config
         logger = self.logger
         conv_thresh, error_type = self.convergence_parameters(
             field_name=variable_name)
 
         error = []
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
+        refinement_factors = config.getlist('convergence',
+                                            'refinement_factors',
+                                            dtype=float)
+        resolutions = list()
+        timesteps = list()
+        for refinement_factor in refinement_factors:
+            timestep, _ = get_timestep_for_task(
+                config, refinement_factor, refinement=self.refinement)
+            timesteps.append(timestep)
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement=self.refinement)
+            resolutions.append(resolution)
             error_res = self.compute_error(
-                mesh_name=mesh_name,
+                refinement_factor=refinement_factor,
                 variable_name=variable_name,
                 zidx=zidx,
                 error_type=error_type)
             error.append(error_res)
 
-        res_array = np.array(resolutions)
+        if self.refinement == 'time':
+            refinement_array = np.array(timesteps)
+            x_label = 'Time (s)'
+        else:
+            refinement_array = np.array(resolutions)
+            x_label = 'Horizontal resolution (km)'
         error_array = np.array(error)
         filename = f'convergence_{variable_name}.csv'
-        data = np.stack((res_array, error_array), axis=1)
+        data = np.stack((refinement_array, error_array), axis=1)
         df = pd.DataFrame(data, columns=['resolution', error_type])
         df.to_csv(f'convergence_{variable_name}.csv', index=False)
 
         convergence_failed = False
-        poly = np.polyfit(np.log10(res_array), np.log10(error_array), 1)
+        poly = np.polyfit(np.log10(refinement_array), np.log10(error_array), 1)
         convergence = poly[0]
         conv_round = np.round(convergence, 3)
 
-        fit = res_array ** poly[0] * 10 ** poly[1]
+        fit = refinement_array ** poly[0] * 10 ** poly[1]
 
-        order1 = 0.5 * error_array[-1] * (res_array / res_array[-1])
-        order2 = 0.5 * error_array[-1] * (res_array / res_array[-1])**2
+        order1 = 0.5 * error_array[-1] * \
+            (refinement_array / refinement_array[-1])
+        order2 = 0.5 * error_array[-1] * \
+            (refinement_array / refinement_array[-1])**2
 
         use_mplstyle()
         fig = plt.figure()
@@ -205,9 +228,9 @@ class ConvergenceAnalysis(OceanIOStep):
                   alpha=0.3)
         ax.loglog(resolutions, order2, 'k', label='second order',
                   alpha=0.3)
-        ax.loglog(res_array, fit, 'k',
+        ax.loglog(refinement_array, fit, 'k',
                   label=f'linear fit (order={conv_round})')
-        ax.loglog(res_array, error_array, 'o', label='numerical')
+        ax.loglog(refinement_array, error_array, 'o', label='numerical')
 
         if self.baseline_dir is not None:
             baseline_filename = os.path.join(self.baseline_dir, filename)
@@ -217,20 +240,20 @@ class ConvergenceAnalysis(OceanIOStep):
                     raise ValueError(
                         f'{error_type} not available for baseline')
                 else:
-                    res_array = data.resolution.to_numpy()
+                    refinement_array = data.resolution.to_numpy()
                     error_array = data[error_type].to_numpy()
                     poly = np.polyfit(
-                        np.log10(res_array), np.log10(error_array), 1)
+                        np.log10(refinement_array), np.log10(error_array), 1)
                     base_convergence = poly[0]
                     conv_round = np.round(base_convergence, 3)
 
-                    fit = res_array ** poly[0] * 10 ** poly[1]
-                    ax.loglog(res_array, error_array, 'o', color='#ff7f0e',
-                              label='baseline')
-                    ax.loglog(res_array, fit, color='#ff7f0e',
+                    fit = refinement_array ** poly[0] * 10 ** poly[1]
+                    ax.loglog(refinement_array, error_array, 'o',
+                              color='#ff7f0e', label='baseline')
+                    ax.loglog(refinement_array, fit, color='#ff7f0e',
                               label=f'linear fit, baseline '
                                     f'(order={conv_round})')
-        ax.set_xlabel('resolution (km)')
+        ax.set_xlabel(x_label)
         ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
@@ -251,15 +274,15 @@ class ConvergenceAnalysis(OceanIOStep):
         if convergence_failed:
             raise ValueError('Convergence rate below minimum tolerance.')
 
-    def compute_error(self, mesh_name, variable_name, zidx=None,
+    def compute_error(self, refinement_factor, variable_name, zidx=None,
                       error_type='l2'):
         """
         Compute the error for a given resolution
 
         Parameters
         ----------
-        mesh_name : str
-            The name of the mesh
+        refinement_factor : float
+            The factor by which step is refined in space, time or both
 
         variable_name : str
             The variable name of which to evaluate error with respect to the
@@ -277,16 +300,16 @@ class ConvergenceAnalysis(OceanIOStep):
             The error of the variable given by variable_name
         """
         norm_type = {'l2': None, 'inf': np.inf}
-        ds_mesh = self.open_model_dataset(f'{mesh_name}_mesh.nc')
+        ds_mesh = self.open_model_dataset(f'mesh_r{refinement_factor:02g}.nc')
         config = self.config
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
         s_per_hour = 3600.0
 
-        field_exact = self.exact_solution(mesh_name, variable_name,
+        field_exact = self.exact_solution(refinement_factor, variable_name,
                                           time=eval_time * s_per_hour,
                                           zidx=zidx)
-        field_mpas = self.get_output_field(mesh_name, variable_name,
+        field_mpas = self.get_output_field(refinement_factor, variable_name,
                                            time=eval_time * s_per_hour,
                                            zidx=zidx)
         diff = field_exact - field_mpas
@@ -304,14 +327,14 @@ class ConvergenceAnalysis(OceanIOStep):
 
         return error
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the exact solution
 
         Parameters
         ----------
-        mesh_name : str
-            The mesh name which is the prefix for the initial condition file
+        refinement_factor : float
+            The factor by which step is refined in space, time or both
 
         field_name : str
             The name of the variable of which we evaluate convergence
@@ -332,20 +355,20 @@ class ConvergenceAnalysis(OceanIOStep):
             The exact solution as derived from the initial condition
         """
 
-        ds_init = self.open_model_dataset(f'{mesh_name}_init.nc')
+        ds_init = self.open_model_dataset(f'init_r{refinement_factor:02g}.nc')
         ds_init = ds_init.isel(Time=0)
         if zidx is not None:
             ds_init = ds_init.isel(nVertLevels=zidx)
 
         return ds_init[field_name]
 
-    def get_output_field(self, mesh_name, field_name, time, zidx=None):
+    def get_output_field(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the model output field at the given time and z index
 
         Parameters
         ----------
-        mesh_name : str
+        e str
             The mesh name which is the prefix for the output file
 
         field_name : str
@@ -362,7 +385,7 @@ class ConvergenceAnalysis(OceanIOStep):
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = self.open_model_dataset(f'{mesh_name}_output.nc')
+        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
 
         tidx = time_index_from_xtime(ds_out.xtime.values, time)
         ds_out = ds_out.isel(Time=tidx)

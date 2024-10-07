@@ -1,7 +1,8 @@
 import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.convergence import ConvergenceForward
+from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.convergence.forward import ConvergenceForward
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -17,7 +18,8 @@ class Forward(ConvergenceForward):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, component, name, resolution, subdir, init):
+    def __init__(self, component, name, refinement_factor, subdir,
+                 init, refinement='both'):
         """
         Create a new test case
 
@@ -37,7 +39,8 @@ class Forward(ConvergenceForward):
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,
-                         resolution=resolution, mesh=init, init=init,
+                         refinement_factor=refinement_factor,
+                         mesh=init, init=init, refinement=refinement,
                          package='polaris.ocean.tasks.manufactured_solution',
                          yaml_filename='forward.yaml',
                          graph_target=f'{init.path}/culled_graph.info',
@@ -66,10 +69,12 @@ class Forward(ConvergenceForward):
             The approximate number of cells in the mesh
         """
         # no file to read from, so we'll compute it based on config options
+        resolution = get_resolution_for_task(
+            self.config, self.refinement_factor, refinement=self.refinement)
         section = self.config['manufactured_solution']
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         cell_count = nx * ny
         return cell_count
 

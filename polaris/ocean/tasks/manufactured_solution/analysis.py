@@ -1,4 +1,4 @@
-from polaris.ocean.convergence import ConvergenceAnalysis
+from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -14,7 +14,7 @@ class Analysis(ConvergenceAnalysis):
     resolutions : list of float
         The resolutions of the meshes that have been run
     """
-    def __init__(self, component, resolutions, subdir, dependencies):
+    def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -36,11 +36,11 @@ class Analysis(ConvergenceAnalysis):
                              'title': 'SSH',
                              'zidx': None}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars,
+                         refinement=refinement)
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the exact solution
 
@@ -67,7 +67,7 @@ class Analysis(ConvergenceAnalysis):
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
-        init = self.open_model_dataset(f'{mesh_name}_init.nc')
+        init = self.open_model_dataset(f'init_r{refinement_factor:02g}.nc')
         exact = ExactSolution(self.config, init)
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')

@@ -1,6 +1,6 @@
 import xarray as xr
 
-from polaris.ocean.convergence import ConvergenceAnalysis
+from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.ocean.tasks.geostrophic.exact_solution import (
     compute_exact_solution,
 )
@@ -10,7 +10,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the geostrophic test case
     """
-    def __init__(self, component, resolutions, subdir, dependencies):
+    def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -18,9 +18,6 @@ class Analysis(ConvergenceAnalysis):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolutions : list of float
-            The resolutions of the meshes that have been run
 
         subdir : str
             The subdirectory that the step resides in
@@ -35,9 +32,9 @@ class Analysis(ConvergenceAnalysis):
                              'title': 'normal velocity',
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars,
+                         refinement=refinement)
 
     def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
@@ -88,7 +85,7 @@ class Analysis(ConvergenceAnalysis):
         else:
             return normalVelocity
 
-    def get_output_field(self, mesh_name, field_name, time, zidx=None):
+    def get_output_field(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the model output field at the given time and z index
 
@@ -117,15 +114,15 @@ class Analysis(ConvergenceAnalysis):
                   f'geostrophic test case')
 
         if field_name == 'normalVelocity':
-            return super().get_output_field(mesh_name=mesh_name,
-                                            field_name=field_name,
-                                            time=time, zidx=zidx)
+            return super().get_output_field(
+                refinement_factor=refinement_factor,
+                field_name=field_name, time=time, zidx=zidx)
         else:
-            ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+            ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
             bottom_depth = ds_init.bottomDepth
-            ssh = super().get_output_field(mesh_name=mesh_name,
-                                           field_name='ssh',
-                                           time=time, zidx=None)
+            ssh = super().get_output_field(
+                refinement_factor=refinement_factor,
+                field_name='ssh', time=time, zidx=None)
             h = ssh + bottom_depth
             return h
 

@@ -1,8 +1,14 @@
+from math import ceil
 from typing import Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.ocean.convergence import (
+    get_resolution_for_task,
+    get_timestep_for_task,
+)
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
+from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
 from polaris.ocean.tasks.cosine_bell.init import Init
@@ -29,10 +35,12 @@ def add_cosine_bell_tasks(component):
                                 'cosine_bell.cfg')
 
         for include_viz in [False, True]:
-            component.add_task(CosineBell(component=component,
-                                          config=config,
-                                          icosahedral=icosahedral,
-                                          include_viz=include_viz))
+            for refinement in ['space', 'time', 'both']:
+                component.add_task(CosineBell(component=component,
+                                              config=config,
+                                              icosahedral=icosahedral,
+                                              include_viz=include_viz,
+                                              refinement=refinement))
 
 
 class CosineBell(Task):
@@ -50,7 +58,8 @@ class CosineBell(Task):
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, component, config, icosahedral, include_viz):
+    def __init__(self, component, config, icosahedral, include_viz,
+                 refinement='both'):
         """
         Create the convergence test
 
@@ -68,29 +77,29 @@ class CosineBell(Task):
 
         include_viz : bool
             Include VizMap and Viz steps for each resolution
+
+        refinement : str, optional
         """
         if icosahedral:
             prefix = 'icos'
         else:
             prefix = 'qu'
 
-        subdir = f'spherical/{prefix}/cosine_bell'
-        name = f'{prefix}_cosine_bell'
+        subdir = f'spherical/{prefix}/cosine_bell/convergence_{refinement}'
+        name = f'{prefix}_cosine_bell_convergence_{refinement}'
         if include_viz:
             subdir = f'{subdir}/with_viz'
             name = f'{name}_with_viz'
-            link = 'cosine_bell.cfg'
-        else:
-            # config options live in the task already so no need for a symlink
-            link = None
+        link = 'cosine_bell.cfg'
         super().__init__(component=component, name=name, subdir=subdir)
         self.resolutions = list()
+        self.refinement = refinement
         self.icosahedral = icosahedral
         self.include_viz = include_viz
 
         self.set_shared_config(config, link=link)
 
-        self._setup_steps()
+        self._setup_steps(refinement=refinement)
 
     def configure(self):
         """
@@ -99,10 +108,17 @@ class CosineBell(Task):
         super().configure()
 
         # set up the steps again in case a user has provided new resolutions
-        self._setup_steps()
+        self._setup_steps(self.refinement)
 
-    def _setup_steps(self):
-        """ setup steps given resolutions """
+    def _setup_steps(self, refinement):
+        """
+        setup steps given resolutions
+
+        Parameters
+        ----------
+        refinement : str
+           refinement type. One of 'space', 'time' or 'both'
+        """
         icosahedral = self.icosahedral
         config = self.config
         config_filename = self.config_filename
@@ -112,85 +128,106 @@ class CosineBell(Task):
         else:
             prefix = 'qu'
 
-        resolutions = config.getlist('spherical_convergence',
-                                     f'{prefix}_resolutions', dtype=float)
+        refinement_factors = config.getlist('spherical_convergence',
+                                            f'{prefix}_refinement_factors',
+                                            dtype=str)
+        refinement_factors = ', '.join(refinement_factors)
+        config.set('convergence', 'refinement_factors',
+                   value=refinement_factors)
+        refinement_factors = config.getlist('convergence',
+                                            'refinement_factors',
+                                            dtype=float)
 
-        if self.resolutions == resolutions:
-            return
+        base_resolution = config.getfloat('spherical_convergence',
+                                          f'{prefix}_base_resolution')
+        config.set('convergence', 'base_resolution',
+                   value=f'{base_resolution:03g}')
 
         # start fresh with no steps
         for step in list(self.steps.values()):
             self.remove_step(step)
 
-        self.resolutions = resolutions
-
         component = self.component
 
         analysis_dependencies: Dict[str, Dict[str, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
-        for resolution in resolutions:
+
+        resolutions = list()
+        timesteps = list()
+
+        case_dir = f'spherical/{prefix}/cosine_bell'
+
+        for refinement_factor in refinement_factors:
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement=refinement)
+
             base_mesh_step, mesh_name = add_spherical_base_mesh_step(
                 component, resolution, icosahedral)
-            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
-            analysis_dependencies['mesh'][resolution] = base_mesh_step
-
-            cos_bell_dir = f'spherical/{prefix}/cosine_bell'
+            analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
             name = f'{prefix}_init_{mesh_name}'
-            subdir = f'{cos_bell_dir}/init/{mesh_name}'
-            if self.include_viz:
-                symlink = f'init/{mesh_name}'
-            else:
-                symlink = None
+            subdir = f'{case_dir}/init/{mesh_name}'
             if subdir in component.steps:
                 init_step = component.steps[subdir]
             else:
-                init_step = Init(component=component, name=name, subdir=subdir,
-                                 base_mesh=base_mesh_step)
+                init_step = Init(component=component, name=name,
+                                 subdir=subdir, base_mesh=base_mesh_step)
                 init_step.set_shared_config(config, link=config_filename)
-            self.add_step(init_step, symlink=symlink)
-            analysis_dependencies['init'][resolution] = init_step
+            analysis_dependencies['init'][refinement_factor] = init_step
 
-            name = f'{prefix}_forward_{mesh_name}'
-            subdir = f'{cos_bell_dir}/forward/{mesh_name}'
-            if self.include_viz:
-                symlink = f'forward/{mesh_name}'
-            else:
-                symlink = None
+            if resolution not in resolutions:
+                self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+                self.add_step(init_step, symlink=f'init/{mesh_name}')
+                resolutions.append(resolution)
+
+            timestep, _ = get_timestep_for_task(
+                config, refinement_factor, refinement=refinement)
+            timestep = ceil(timestep)
+            timesteps.append(timestep)
+
+            subdir = f'{case_dir}/forward/{mesh_name}_{timestep}s'
+            symlink = f'forward/{mesh_name}_{timestep}s'
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
             else:
-                forward_step = Forward(component=component, name=name,
-                                       subdir=subdir, resolution=resolution,
-                                       mesh=base_mesh_step,
-                                       init=init_step)
-                forward_step.set_shared_config(config, link=config_filename)
+                name = f'{prefix}_forward_{mesh_name}_{timestep}s'
+                forward_step = Forward(
+                    component=component, name=name,
+                    subdir=subdir,
+                    refinement_factor=refinement_factor,
+                    mesh=base_mesh_step,
+                    init=init_step, refinement=refinement)
+                forward_step.set_shared_config(
+                    config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
-            analysis_dependencies['forward'][resolution] = forward_step
+            analysis_dependencies['forward'][refinement_factor] = forward_step
 
             if self.include_viz:
-                with_viz_dir = f'spherical/{prefix}/cosine_bell/with_viz'
-                name = f'{prefix}_viz_{mesh_name}'
-                subdir = f'{with_viz_dir}/viz/{mesh_name}'
-                step = Viz(component=component, name=name,
-                           subdir=subdir, base_mesh=base_mesh_step,
-                           init=init_step, forward=forward_step,
-                           mesh_name=mesh_name)
-                step.set_shared_config(config, link=config_filename)
-                self.add_step(step)
+                name = f'{prefix}_viz_{mesh_name}_{timestep}s'
+                subdir = f'{case_dir}/viz/{mesh_name}_{timestep}s'
+                if subdir in component.steps:
+                    viz_step = component.steps[subdir]
+                else:
+                    viz_step = Viz(component=component, name=name,
+                                   subdir=subdir, base_mesh=base_mesh_step,
+                                   init=init_step, forward=forward_step,
+                                   mesh_name=mesh_name)
+                    viz_step.set_shared_config(config, link=config_filename)
+                self.add_step(viz_step)
 
-        subdir = f'spherical/{prefix}/cosine_bell/analysis'
-        if self.include_viz:
-            symlink = 'analysis'
-        else:
-            symlink = None
+        subdir = f'{case_dir}/convergence_{refinement}/analysis'
         if subdir in component.steps:
             step = component.steps[subdir]
             step.resolutions = resolutions
             step.dependencies_dict = analysis_dependencies
         else:
-            step = Analysis(component=component, resolutions=resolutions,
+            step = Analysis(component=component,
                             subdir=subdir,
-                            dependencies=analysis_dependencies)
+                            dependencies=analysis_dependencies,
+                            refinement=refinement)
             step.set_shared_config(config, link=config_filename)
-        self.add_step(step, symlink=symlink)
+        if self.include_viz:
+            symlink = f'analysis_{refinement}'
+            self.add_step(step, symlink=symlink)
+        else:
+            self.add_step(step)
