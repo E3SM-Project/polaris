@@ -33,6 +33,9 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Whether to refine in space, time or both space and time
         """
         convergence_vars = [{'name': 'ssh',
                              'title': 'SSH',
@@ -48,8 +51,8 @@ class Analysis(ConvergenceAnalysis):
 
         Parameters
         ----------
-        mesh_name : str
-            The mesh name which is the prefix for the initial condition file
+        refinement_factor : float
+            The factor by which to scale space, time or both
 
         field_name : str
             The name of the variable of which we evaluate convergence

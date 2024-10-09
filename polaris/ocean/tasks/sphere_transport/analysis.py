@@ -31,6 +31,10 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         self.case_name = case_name
         convergence_vars = [{'name': 'tracer1',

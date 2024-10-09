@@ -12,8 +12,12 @@ class Forward(ConvergenceForward):
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the test case in km
+    refinement_factor : float
+        The factor by which to scale space, time or both
+
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
     """
     def __init__(self, component, name, refinement_factor, subdir,
                  init, refinement='both'):
@@ -25,14 +29,20 @@ class Forward(ConvergenceForward):
         component : polaris.Component
             The component the step belongs to
 
-        resolution : km
-            The resolution of the test case in km
+        name : str
+            The name of the step
 
+        refinement_factor : float
+            The factor by which to scale space, time or both
         subdir : str
-            The subdirectory that the step belongs to
+            The subdirectory that the task belongs to
 
         init : polaris.Step
             The step which generates the mesh and initial condition
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,

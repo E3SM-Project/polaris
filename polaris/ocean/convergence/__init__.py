@@ -3,7 +3,26 @@ import numpy as np
 
 def get_resolution_for_task(config, refinement_factor,
                             refinement='both'):
+    """
+    Get the resolution for a step in a convergence task
 
+    Parameters
+    ----------
+    config : polaris.Config
+        The config options for this task
+
+    refinement_factor : float
+        The factor by which either resolution or time is refined for this step
+
+    refinement : str, optional
+        Whether to refine in space, time or both
+
+    Returns
+    -------
+    resolution : float
+        The resolution corresponding to the refinement_factor and convergence
+        test type
+    """
     base_resolution = config.getfloat('convergence', 'base_resolution')
     refinement_factors = config.getlist('convergence',
                                         'refinement_factors',
@@ -23,6 +42,26 @@ def get_resolution_for_task(config, refinement_factor,
 
 def get_timestep_for_task(config, refinement_factor,
                           refinement='both'):
+    """
+    Get the time step for a forward step in a convergence task
+
+    Parameters
+    ----------
+    config : polaris.Config
+        The config options for this task
+
+    refinement_factor : float
+        The factor by which either resolution or time is refined for this step
+
+    refinement : str, optional
+        Whether to refine in space, time or both
+
+    Returns
+    -------
+    resolution : float
+        The resolution corresponding to the refinement_factor and convergence
+        test type
+    """
 
     base_resolution = config.getfloat('convergence', 'base_resolution')
     refinement_factors = config.getlist('convergence',

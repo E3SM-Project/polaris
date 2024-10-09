@@ -55,6 +55,10 @@ class SphereTransport(Task):
     resolutions : list of float
         A list of mesh resolutions
 
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
+
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
 
@@ -84,6 +88,10 @@ class SphereTransport(Task):
 
         include_viz : bool
             Include VizMap and Viz steps for each resolution
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         if icosahedral:
             prefix = 'icos'

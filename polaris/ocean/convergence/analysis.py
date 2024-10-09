@@ -19,9 +19,6 @@ class ConvergenceAnalysis(OceanIOStep):
 
     Attributes
     ----------
-    resolutions : list of float
-        The resolutions of the meshes that have been run
-
     dependencies_dict : dict of dict of polaris.Steps
         The dependencies of this step must be given as separate keys in the
         dict:
@@ -55,6 +52,10 @@ class ConvergenceAnalysis(OceanIOStep):
             zidx : int
                 The z-index to use for variables that have an nVertLevels
                 dimension, which should be None for variables that don't
+
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
     """
     def __init__(self, component, subdir, dependencies, convergence_vars,
                  refinement='both'):
@@ -74,17 +75,17 @@ class ConvergenceAnalysis(OceanIOStep):
             dict:
 
                 mesh : dict of polaris.Steps
-                    Keys of the dict correspond to `resolutions`
+                    Keys of the dict correspond to `refinement_factors`
                     Values of the dict are polaris.Steps, which must have the
                     attribute `path`, the path to `base_mesh.nc` of that
                     resolution
                 init : dict of polaris.Steps
-                    Keys of the dict correspond to `resolutions`
+                    Keys of the dict correspond to `refinement_factors`
                     Values of the dict are polaris.Steps, which must have the
                     attribute `path`, the path to `initial_state.nc` of that
                     resolution
                 forward : dict of polaris.Steps
-                    Keys of the dict correspond to `resolutions`
+                    Keys of the dict correspond to `refinement_factors`
                     Values of the dict are polaris.Steps, which must have the
                     attribute `path`, the path to `forward.nc` of that
                     resolution

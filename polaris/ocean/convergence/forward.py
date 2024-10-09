@@ -15,6 +15,13 @@ class ConvergenceForward(OceanModelStep):
     yaml_filename : str
         A YAML file that is a Jinja2 template with model config options
 
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
+
+    refinement_factor : float
+        Refinement factor use to scale space, time or both depending on
+        refinement option
     """
 
     def __init__(self, component, name, subdir, refinement_factor, mesh, init,
@@ -34,6 +41,10 @@ class ConvergenceForward(OceanModelStep):
 
         subdir : str
             The subdirectory for the step
+
+        refinement_factor : float
+            Refinement factor use to scale space, time or both depending on
+            refinement option
 
         package : Package
             The package name or module object that contains the YAML file
@@ -55,6 +66,10 @@ class ConvergenceForward(OceanModelStep):
 
         validate_vars : list of str, optional
             A list of variables to validate against a baseline if requested
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component, name=name, subdir=subdir,
                          openmp_threads=1, graph_target=graph_target)

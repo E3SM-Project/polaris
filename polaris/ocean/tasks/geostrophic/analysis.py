@@ -24,6 +24,9 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Whether to refine in space, time or both space and time
         """
         convergence_vars = [{'name': 'h',
                              'title': 'water-column thickness',
@@ -36,14 +39,14 @@ class Analysis(ConvergenceAnalysis):
                          convergence_vars=convergence_vars,
                          refinement=refinement)
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the exact solution
 
         Parameters
         ----------
-        mesh_name : str
-            The mesh name which is the prefix for the initial condition file
+        refinement_factor : float
+            The factor by which to scale space, time or both
 
         field_name : str
             The name of the variable of which we evaluate convergence
@@ -75,7 +78,7 @@ class Analysis(ConvergenceAnalysis):
         vel_period = section.getfloat('vel_period')
         gh_0 = section.getfloat('gh_0')
 
-        mesh_filename = f'{mesh_name}_mesh.nc'
+        mesh_filename = f'mesh_r{refinement_factor:02g}.nc'
 
         h, _, _, normalVelocity = compute_exact_solution(
             alpha, vel_period, gh_0, mesh_filename)

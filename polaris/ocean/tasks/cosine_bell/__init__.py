@@ -49,8 +49,9 @@ class CosineBell(Task):
 
     Attributes
     ----------
-    resolutions : list of float
-        A list of mesh resolutions
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
 
     icosahedral : bool
         Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
@@ -79,6 +80,8 @@ class CosineBell(Task):
             Include VizMap and Viz steps for each resolution
 
         refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         if icosahedral:
             prefix = 'icos'
@@ -92,7 +95,6 @@ class CosineBell(Task):
             name = f'{name}_with_viz'
         link = 'cosine_bell.cfg'
         super().__init__(component=component, name=name, subdir=subdir)
-        self.resolutions = list()
         self.refinement = refinement
         self.icosahedral = icosahedral
         self.include_viz = include_viz

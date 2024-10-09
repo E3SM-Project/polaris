@@ -23,17 +23,18 @@ class Forward(SphericalConvergenceForward):
         subdir : str
             The subdirectory for the step
 
-        resolution : float
-            The resolution of the (uniform) mesh in km
-
         mesh : polaris.Step
             The base mesh step
 
         init : polaris.Step
             The init step
 
-        time_refinement_factor : float
-            The amount by which to scale dt_per_km and btr_dt_per_km
+        refinement_factor : float
+            The factor by which to scale space, time or both
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']

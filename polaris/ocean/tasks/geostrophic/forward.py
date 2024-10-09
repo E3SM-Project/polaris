@@ -28,6 +28,13 @@ class Forward(SphericalConvergenceForward):
 
         init : polaris.Step
             The init step
+
+        refinement_factor : float
+            The factor by which to scale space, time or both
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         package = 'polaris.ocean.tasks.geostrophic'
         validate_vars = ['temperature',
