@@ -33,34 +33,56 @@ These tasks support only MPAS-Ocean.
 (ocean-cosine-bell-mesh)=
 ## mesh
 
-Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
-there are 4 variants of the task:
+Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
+are also variants to test convergence in space, time, or both space and time.
+In addition, the tests can be set up with or without the viz step. Thus, there
+are 12 variants of the task:
 ```
-ocean/spherical/icos/cosine_bell
-ocean/spherical/icos/cosine_bell/with_viz
-ocean/spherical/qu/cosine_bell
-ocean/spherical/qu/cosine_bell/with_viz
+ocean/spherical/icos/cosine_bell/convergence_both/
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/cosine_bell/convergence_both/
+ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/convergence_space/
+ocean/spherical/icos/cosine_bell/convergence_space/with_viz
+ocean/spherical/qu/cosine_bell/convergence_space/
+ocean/spherical/qu/cosine_bell/convergence_space/with_viz
+ocean/spherical/icos/cosine_bell/convergence_time/
+ocean/spherical/icos/cosine_bell/convergence_time/with_viz
+ocean/spherical/qu/cosine_bell/convergence_time/
+ocean/spherical/qu/cosine_bell/convergence_time/with_viz
 ```
 The default resolutions used in the task depends on the mesh type.
 
-For the `icos` mesh type, the defaults are:
+For the `icos` mesh type, the defaults are 60, 120, 240, 480 km, as determined
+by the following config options. See {ref}`dev-ocean-convergence` for more
+details.
 
 ```cfg
 # config options for spherical convergence tests
 [spherical_convergence]
+
+# The base resolution for the icosahedral mesh to which the refinement
+# factors are applied
+icos_base_resolution = 60.
 
 # a list of icosahedral mesh resolutions (km) to test
-icos_resolutions = 60, 120, 240, 480
+icos_refinement_factors = 8., 4., 2., 1.
+# a list of icosahedral mesh resolutions (km) to test
 ```
 
-for the `qu` mesh type, they are:
+For the `qu` mesh type, they are 60, 90, 120, 150, 180, 210, 240 km as
+determined by the following config options:
 
 ```cfg
 # config options for spherical convergence tests
 [spherical_convergence]
 
+# The base resolution for the quasi-uniform mesh to which the refinement
+# factors are applied
+qu_base_resolution = 120.
+
 # a list of quasi-uniform mesh resolutions (km) to test
-qu_resolutions = 60, 90, 120, 150, 180, 210, 240
+qu_refinement_factors = 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.
 ```
 
 To alter the resolutions used in this task, you will need to create your own
