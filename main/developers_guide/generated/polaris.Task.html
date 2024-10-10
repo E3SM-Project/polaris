@@ -151,31 +151,31 @@ restart test—that are made up of one or more steps</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the name of the task</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – the name of the task</p></li>
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the task belongs to</p></li>
-<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A dictionary of steps in the task with step names as keys</p></li>
-<li><p><strong>step_symlinks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A dictionary of symlink paths within the test case’s work directory
+<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary of steps in the task with step names as keys</p></li>
+<li><p><strong>step_symlinks</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary of symlink paths within the test case’s work directory
 to shared steps outside the test case</p></li>
-<li><p><strong>steps_to_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – A list of the steps to run when <code class="docutils literal notranslate"><span class="pre">run()</span></code> gets called.  This list
+<li><p><strong>steps_to_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – A list of the steps to run when <code class="docutils literal notranslate"><span class="pre">run()</span></code> gets called.  This list
 includes all steps by default but can be replaced with a list of only
 those tasks that should run by default if some steps are optional and
 should be run manually by the user.</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the subdirectory for the task</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the path within the base work directory of the task, made up of
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – the subdirectory for the task</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – the path within the base work directory of the task, made up of
 <code class="docutils literal notranslate"><span class="pre">component</span></code> and the task’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code></p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this task, possibly shared with other tasks
 and steps</p></li>
-<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The filename or symlink within the task where <code class="docutils literal notranslate"><span class="pre">config</span></code> is written to
+<li><p><strong>config_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename or symlink within the task where <code class="docutils literal notranslate"><span class="pre">config</span></code> is written to
 during setup and read from during run</p></li>
-<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The task’s work directory, defined during setup as the combination
+<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The task’s work directory, defined during setup as the combination
 of <code class="docutils literal notranslate"><span class="pre">base_work_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code></p></li>
-<li><p><strong>base_work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The base work directory</p></li>
-<li><p><strong>stdout_logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.12)"><em>logging.Logger</em></a>) – A logger for output from the task that goes to stdout regardless
+<li><p><strong>base_work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The base work directory</p></li>
+<li><p><strong>stdout_logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.13)"><em>logging.Logger</em></a>) – A logger for output from the task that goes to stdout regardless
 of whether <code class="docutils literal notranslate"><span class="pre">logger</span></code> is a log file or stdout</p></li>
-<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.12)"><em>logging.Logger</em></a>) – A logger for output from the task</p></li>
-<li><p><strong>log_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – At run time, the name of a log file where output/errors from the task
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.13)"><em>logging.Logger</em></a>) – A logger for output from the task</p></li>
+<li><p><strong>log_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – At run time, the name of a log file where output/errors from the task
 are being logged, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if output is to stdout/stderr</p></li>
-<li><p><strong>new_step_log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether to create a new log file for each step or to log output to a
+<li><p><strong>new_step_log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to create a new log file for each step or to log output to a
 common log file for the whole task.  The latter is used when
 running the task as part of a suite</p></li>
 </ul>
@@ -189,13 +189,13 @@ running the task as part of a suite</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – the component that this task belongs to</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the name of the task</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – the name of the task</p></li>
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>the subdirectory for the task.  If neither this nor <code class="docutils literal notranslate"><span class="pre">indir</span></code></dt><dd><p>are provided, the directory is the <code class="docutils literal notranslate"><span class="pre">name</span></code></p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the task is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
+<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the task is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
 </ul>
 </dd>
 </dl>
