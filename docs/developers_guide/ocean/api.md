@@ -313,18 +313,21 @@
 .. autosummary::
    :toctree: generated/
 
-   ConvergenceForward
-   ConvergenceForward.compute_cell_count
-   ConvergenceForward.dynamic_model_config
+   get_resolution_for_tasks
+   get_timestep_for_tasks
 
-   ConvergenceAnalysis
-   ConvergenceAnalysis.compute_error
-   ConvergenceAnalysis.convergence_parameters
-   ConvergenceAnalysis.exact_solution
-   ConvergenceAnalysis.get_output_field
-   ConvergenceAnalysis.plot_convergence
-   ConvergenceAnalysis.run
-   ConvergenceAnalysis.setup
+   forward.ConvergenceForward
+   forward.ConvergenceForward.compute_cell_count
+   forward.ConvergenceForward.dynamic_model_config
+
+   analysis.ConvergenceAnalysis
+   analysis.ConvergenceAnalysis.compute_error
+   analysis.ConvergenceAnalysis.convergence_parameters
+   analysis.ConvergenceAnalysis.exact_solution
+   analysis.ConvergenceAnalysis.get_output_field
+   analysis.ConvergenceAnalysis.plot_convergence
+   analysis.ConvergenceAnalysis.run
+   analysis.ConvergenceAnalysis.setup
 ```
 ### Spherical Convergence Tests
 
