@@ -171,28 +171,28 @@ class SphereTransport(Task):
         for idx, refinement_factor in enumerate(refinement_factors):
             resolution = get_resolution_for_task(
                 config, refinement_factor, refinement=refinement)
-            if resolution not in self.resolutions:
-                resolutions.append(resolution)
-                base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                    component, resolution, icosahedral)
-                self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
-                analysis_dependencies['mesh'][resolution] = base_mesh_step
+            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
+                component, resolution, icosahedral)
+            analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
-                name = f'{prefix}_init_{mesh_name}'
-                subdir = f'{sph_trans_dir}/init/{mesh_name}'
-                if self.include_viz:
-                    symlink = f'init/{mesh_name}'
-                else:
-                    symlink = None
-                if subdir in component.steps:
-                    init_step = component.steps[subdir]
-                else:
-                    init_step = Init(component=component, name=name,
-                                     subdir=subdir, base_mesh=base_mesh_step,
-                                     case_name=case_name)
-                    init_step.set_shared_config(config, link=config_filename)
-                self.add_step(init_step, symlink=symlink)
-                analysis_dependencies['init'][resolution] = init_step
+            name = f'{prefix}_init_{mesh_name}'
+            subdir = f'{sph_trans_dir}/init/{mesh_name}'
+            if self.include_viz:
+                symlink = f'init/{mesh_name}'
+            else:
+                symlink = None
+            if subdir in component.steps:
+                init_step = component.steps[subdir]
+            else:
+                init_step = Init(component=component, name=name,
+                                 subdir=subdir, base_mesh=base_mesh_step,
+                                 case_name=case_name)
+                init_step.set_shared_config(config, link=config_filename)
+            analysis_dependencies['init'][refinement_factor] = init_step
+            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+            self.add_step(init_step, symlink=symlink)
+            if resolution not in resolutions:
+                resolutions.append(resolution)
 
             timestep, _ = get_timestep_for_task(
                 config, refinement_factor, refinement=refinement)
@@ -217,7 +217,7 @@ class SphereTransport(Task):
                     refinement=refinement)
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
-            analysis_dependencies['forward'][resolution] = forward_step
+            analysis_dependencies['forward'][refinement_factor] = forward_step
 
             if self.include_viz:
                 with_viz_dir = f'{sph_trans_dir}/with_viz'
@@ -257,10 +257,11 @@ class SphereTransport(Task):
                 step = component.steps[subdir]
             else:
                 step = MixingAnalysis(component=component,
-                                      resolutions=resolutions,
                                       icosahedral=icosahedral, subdir=subdir,
+                                      refinement_factors=refinement_factors,
                                       case_name=case_name,
-                                      dependencies=analysis_dependencies)
+                                      dependencies=analysis_dependencies,
+                                      refinement=refinement)
             step.set_shared_config(config, link=config_filename)
             self.add_step(step, symlink=symlink)
 
@@ -274,9 +275,10 @@ class SphereTransport(Task):
                 step = component.steps[subdir]
             else:
                 step = FilamentAnalysis(component=component,
-                                        resolutions=resolutions,
+                                        refinement_factors=refinement_factors,
                                         icosahedral=icosahedral, subdir=subdir,
                                         case_name=case_name,
-                                        dependencies=analysis_dependencies)
+                                        dependencies=analysis_dependencies,
+                                        refinement=refinement)
             step.set_shared_config(config, link=config_filename)
             self.add_step(step, symlink=symlink)
