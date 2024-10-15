@@ -40,15 +40,15 @@ class Viz(Step):
         """
         super().__init__(component=component, name='viz', indir=taskdir)
         self.resolutions = resolutions
-
         for resolution in resolutions:
             mesh_name = resolution_to_subdir(resolution)
+            init_path = f'../../init/{mesh_name}'
             self.add_input_file(
                 filename=f'mesh_{mesh_name}.nc',
-                target=f'../init/{mesh_name}/culled_mesh.nc')
+                target=f'{init_path}/culled_mesh.nc')
             self.add_input_file(
                 filename=f'init_{mesh_name}.nc',
-                target=f'../init/{mesh_name}/initial_state.nc')
+                target=f'{init_path}/initial_state.nc')
             self.add_input_file(
                 filename=f'output_{mesh_name}.nc',
                 target=f'../forward/{mesh_name}/output.nc')

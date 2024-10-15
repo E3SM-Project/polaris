@@ -17,6 +17,8 @@ def add_manufactured_solution_tasks(component):
         the ocean component that the task will be added to
     """
     component.add_task(ManufacturedSolution(component=component))
+    component.add_task(ManufacturedSolution(component=component, del2=True))
+    component.add_task(ManufacturedSolution(component=component, del4=True))
 
 
 class ManufacturedSolution(Task):
@@ -28,7 +30,7 @@ class ManufacturedSolution(Task):
     resolutions : list of floats
         The resolutions of the test case in km
     """
-    def __init__(self, component):
+    def __init__(self, component, del2=False, del4=False):
         """
         Create the test case
 
@@ -36,24 +38,56 @@ class ManufacturedSolution(Task):
         ----------
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
+
+        del2 : bool
+            Whether to evaluate the momentum del2 operator
+
+        del4 : bool
+            Whether to evaluate the momentum del4 operator
         """
         name = 'manufactured_solution'
-        subdir = f'planar/{name}'
+        taskdir = f'planar/{name}'
+        if del2:
+            name = f'{name}_del2'
+            subdir = f'{taskdir}/del2'
+        elif del4:
+            name = f'{name}_del4'
+            subdir = f'{taskdir}/del4'
+        else:
+            subdir = f'{taskdir}/default'
+
         super().__init__(component=component, name=name, subdir=subdir)
 
-        self.resolutions = [200., 100., 50., 25.]
+        max_resolution = 200.
+        self.resolutions = [max_resolution,
+                            max_resolution / 2,
+                            max_resolution / 4,
+                            max_resolution / 8]
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
         for resolution in self.resolutions:
             mesh_name = resolution_to_subdir(resolution)
-            init_step = Init(component=component, resolution=resolution,
-                             taskdir=self.subdir)
-            self.add_step(init_step)
+
+            init_name = f'init_{mesh_name}'
+            init_subdir = f'{taskdir}/init/{mesh_name}'
+            if init_subdir in component.steps:
+                init_step = component.steps[init_subdir]
+            else:
+                init_step = Init(component=component, resolution=resolution,
+                                 subdir=init_subdir, name=init_name)
+            self.add_step(init_step, symlink='init/{mesh_name}')
+
+            forward_name = f'forward_{mesh_name}'
+            if del2:
+                forward_name = f'{forward_name}_del2'
+            if del4:
+                forward_name = f'{forward_name}_del4'
             forward_step = Forward(component=component, resolution=resolution,
-                                   name=f'forward_{mesh_name}',
+                                   name=forward_name,
                                    subdir=f'{self.subdir}/forward/{mesh_name}',
-                                   init=init_step)
+                                   init=init_step, del2=del2, del4=del4)
             self.add_step(forward_step)
+
             analysis_dependencies['mesh'][resolution] = init_step
             analysis_dependencies['init'][resolution] = init_step
             analysis_dependencies['forward'][resolution] = forward_step
