@@ -8,7 +8,6 @@ from polaris.ocean.convergence import (
     get_timestep_for_task,
 )
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
-from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
 from polaris.ocean.tasks.cosine_bell.init import Init
