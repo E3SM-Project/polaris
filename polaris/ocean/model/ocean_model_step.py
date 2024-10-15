@@ -119,6 +119,7 @@ class OceanModelStep(ModelStep):
             self.make_yaml = True
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
+            self.streams_section = 'IOStreams'
             self._read_map()
             self.partition_graph = False
         elif model == 'mpas-ocean':
@@ -127,7 +128,7 @@ class OceanModelStep(ModelStep):
             self.add_input_file(
                 filename='graph.info',
                 work_dir_target=self.graph_target)
-
+            self.streams_section = 'streams'
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 

@@ -139,12 +139,16 @@ class ConvergenceForward(OceanModelStep):
         output_interval_str = get_time_interval_string(
             seconds=output_interval * s_per_hour)
 
+        # For Omega, we want the output interval as a number of seconds
+        output_freq = int(output_interval * s_per_hour)
+
         replacements = dict(
             time_integrator=time_integrator,
             dt=dt_str,
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
+            output_freq=f'{output_freq}'
         )
 
         self.add_yaml_file(self.package, self.yaml_filename,
