@@ -1,7 +1,8 @@
 import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.convergence import ConvergenceForward
+from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.convergence.forward import ConvergenceForward
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
 )
@@ -14,10 +15,15 @@ class Forward(ConvergenceForward):
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the test case in km
+    refinement_factor : float
+        The factor by which to scale space, time or both
+
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
     """
-    def __init__(self, component, name, resolution, subdir, init):
+    def __init__(self, component, name, refinement_factor, subdir,
+                 init, refinement='both'):
         """
         Create a new test case
 
@@ -26,18 +32,26 @@ class Forward(ConvergenceForward):
         component : polaris.Component
             The component the step belongs to
 
-        resolution : km
-            The resolution of the test case in km
+        name : str
+            The name of the step
+
+        refinement_factor : float
+            The factor by which to scale space, time or both
 
         subdir : str
             The subdirectory that the task belongs to
 
         init : polaris.Step
             The step which generates the mesh and initial condition
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component,
                          name=name, subdir=subdir,
-                         resolution=resolution, mesh=init, init=init,
+                         refinement_factor=refinement_factor,
+                         mesh=init, init=init, refinement=refinement,
                          package='polaris.ocean.tasks.manufactured_solution',
                          yaml_filename='forward.yaml',
                          graph_target=f'{init.path}/culled_graph.info',
@@ -66,10 +80,12 @@ class Forward(ConvergenceForward):
             The approximate number of cells in the mesh
         """
         # no file to read from, so we'll compute it based on config options
+        resolution = get_resolution_for_task(
+            self.config, self.refinement_factor, refinement=self.refinement)
         section = self.config['manufactured_solution']
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
+        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         cell_count = nx * ny
         return cell_count
 

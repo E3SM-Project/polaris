@@ -23,7 +23,7 @@ class Init(Step):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, component, resolution, taskdir):
+    def __init__(self, component, resolution, subdir):
         """
         Create the step
 
@@ -41,7 +41,7 @@ class Init(Step):
         mesh_name = resolution_to_subdir(resolution)
         super().__init__(component=component,
                          name=f'init_{mesh_name}',
-                         subdir=f'{taskdir}/init/{mesh_name}')
+                         subdir=subdir)
         self.resolution = resolution
 
     def setup(self):

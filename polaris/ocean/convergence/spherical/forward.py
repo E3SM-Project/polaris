@@ -1,4 +1,5 @@
-from polaris.ocean.convergence import ConvergenceForward
+from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.convergence.forward import ConvergenceForward
 
 
 class SphericalConvergenceForward(ConvergenceForward):
@@ -30,5 +31,8 @@ class SphericalConvergenceForward(ConvergenceForward):
             The approximate number of cells in the mesh
         """
         # use a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
-        cell_count = 6e8 / self.resolution**2
+        resolution = get_resolution_for_task(
+            self.config, self.refinement_factor,
+            refinement=self.refinement)
+        cell_count = 6e8 / resolution**2
         return cell_count

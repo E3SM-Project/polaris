@@ -3,7 +3,7 @@ import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
-from polaris.ocean.convergence import ConvergenceAnalysis
+from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.ocean.tasks.cosine_bell.init import cosine_bell
 
 
@@ -11,7 +11,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, subdir, dependencies):
+    def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -20,31 +20,31 @@ class Analysis(ConvergenceAnalysis):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of float
-            The resolutions of the meshes that have been run
-
         subdir : str
             The subdirectory that the step resides in
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Whether to refine in space, time or both space and time
         """
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
                              'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars,
+                         refinement=refinement)
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None):
+    def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
         Get the exact solution
 
         Parameters
         ----------
-        mesh_name : str
-            The mesh name which is the prefix for the initial condition file
+        refinement_factor : float
+            The factor by which to scale space, time or both
 
         field_name : str
             The name of the variable of which we evaluate convergence
@@ -61,7 +61,7 @@ class Analysis(ConvergenceAnalysis):
 
         Returns
         -------
-        solution: xarray.DataArray
+        solution : xarray.DataArray
             The exact solution with dimension nCells
         """
 
@@ -76,10 +76,10 @@ class Analysis(ConvergenceAnalysis):
         psi0 = config.getfloat('cosine_bell', 'psi0')
         vel_pd = config.getfloat('cosine_bell', 'vel_pd')
 
-        ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
+        ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
         sphere_radius = ds_mesh.sphere_radius
 
-        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+        ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
         latCell = ds_init.latCell.values
         lonCell = ds_init.lonCell.values
 
