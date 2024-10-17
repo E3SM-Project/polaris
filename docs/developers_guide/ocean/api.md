@@ -341,6 +341,8 @@
    OceanModelStep.setup
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
+   OceanModelStep.map_input_dataset
+   OceanModelStep.map_output_dataset
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
 

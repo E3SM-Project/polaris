@@ -84,6 +84,22 @@ map in the [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/ma
 file. Note that `config_model='Omega'` must be capitalized since this is the
 convention on the model name in Omega's own YAML files.
 
+#### Mapping between MPAS-Ocean to Omega variable names
+
+Similarly to config options, it is necessary to be able to map between
+MPAS-Ocean and Omega variable names in both input (e.g. initial condition)
+and output datasets.
+
+We implement a mapping between the MPAS-Ocean and Omega variable names in the
+methods
+{py:meth}`polaris.ocean.model.OceanModelStep.map_input_dataset()` and
+{py:meth}`polaris.ocean.model.OceanModelStep.map_output_dataset()`. These
+methods should be called in Polaris immediatly before writing out input files
+and immediately after reading in output files, respectively.
+As new variables are added to Omega, they should be added to the map in the
+[mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
+file.
+
 #### Setting MPI resources
 
 The target and minimum number of MPI tasks (`ntasks` and `min_tasks`,
