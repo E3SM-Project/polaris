@@ -104,7 +104,8 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
-        self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.var_map: Union[None, Dict[str, str]] = None
+        self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
         self.graph_target = graph_target
 
     def setup(self):
@@ -115,11 +116,12 @@ class OceanModelStep(ModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
+        self._read_var_map()
         if model == 'omega':
             self.make_yaml = True
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
-            self._read_map()
+            self._read_config_map()
             self.partition_graph = False
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
@@ -157,6 +159,46 @@ class OceanModelStep(ModelStep):
             The approximate number of cells in the mesh
         """
         return None
+
+    def rename_vars_mpaso_to_omega(self, ds):
+        """
+        Rename variables in a dataset from their MPAS-Ocean names to the Omega
+        equivalent
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The same dataset with variables renamed to their Omega equivalents
+        """
+        assert self.var_map is not None
+        ds = ds.rename(self.var_map)
+        return ds
+
+    def rename_vars_omega_to_mpaso(self, ds):
+        """
+        Rename variables in a dataset from their Omega names to the MPAS-Ocean
+        equivalent
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing Omega variable names
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The same dataset with variables renamed to their MPAS-Ocean
+            equivalents
+        """
+        assert self.var_map is not None
+        inv_map = {v: k for k, v in self.var_map.items()}
+        ds = ds.rename(inv_map)
+        return ds
 
     def map_yaml_options(self, options, config_model):
         """
@@ -272,7 +314,7 @@ class OceanModelStep(ModelStep):
         self.min_tasks = max(1,
                              4 * round(cell_count / (4 * max_cells_per_core)))
 
-    def _read_map(self):
+    def _read_var_map(self):
         """
         Read the map from MPAS-Ocean to Omega config options
         """
@@ -282,7 +324,19 @@ class OceanModelStep(ModelStep):
 
         yaml_data = YAML(typ='rt')
         nested_dict = yaml_data.load(text)
-        self.map = nested_dict['map']
+        self.var_map = nested_dict['variables']
+
+    def _read_config_map(self):
+        """
+        Read the map from MPAS-Ocean to Omega config options
+        """
+        package = 'polaris.ocean.model'
+        filename = 'mpaso_to_omega.yaml'
+        text = imp_res.files(package).joinpath(filename).read_text()
+
+        yaml_data = YAML(typ='rt')
+        nested_dict = yaml_data.load(text)
+        self.config_map = nested_dict['config']
 
     def _map_mpaso_to_omega_options(self, options):
         """
@@ -310,9 +364,9 @@ class OceanModelStep(ModelStep):
         out_option = option
         found = False
 
-        assert self.map is not None
+        assert self.config_map is not None
         # traverse the map
-        for entry in self.map:
+        for entry in self.config_map:
             options_dict = entry['options']
             for mpaso_option, omega_option in options_dict.items():
                 if option == mpaso_option:
@@ -359,11 +413,11 @@ class OceanModelStep(ModelStep):
         out_section = section
         out_option = option
 
-        assert self.map is not None
+        assert self.config_map is not None
 
         option_found = False
         # traverse the map
-        for entry in self.map:
+        for entry in self.config_map:
             section_dict = entry['section']
             try:
                 omega_section = section_dict[section]
