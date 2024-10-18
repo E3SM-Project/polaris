@@ -337,12 +337,17 @@
 .. autosummary::
    :toctree: generated/
 
+   OceanIOStep
+   OceanIOStep.setup
+   OceanIOStep.map_to_model_dataset
+   OceanIOStep.write_model_dataset
+   OceanIOStep.map_from_model_dataset
+   OceanIOStep.open_model_dataset
+
    OceanModelStep
    OceanModelStep.setup
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
-   OceanModelStep.map_input_dataset
-   OceanModelStep.map_output_dataset
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
 

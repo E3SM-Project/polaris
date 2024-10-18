@@ -8,6 +8,28 @@ The `ocean` component contains an ever expanding set of shared framework code.
 
 ## Model
 
+### Input and output from an E3SM component
+
+Steps that write input files for or read output files from either Omega or
+MPAS-Ocean should descend from the {py:class}`polaris.ocean.model.OceanIOStep`
+class.  Methods in this class facilitate mapping between MPAS-Ocean variable
+names (used in Polaris) and Omega variable names for tasks that will run Omega.
+
+To map a dataset between MPAS-Ocean variable names and those appropriate for
+the model being run, use the methods
+{py:meth}`polaris.ocean.model.OceanIOStep.map_to_model_dataset()` and
+{py:meth}`polaris.ocean.model.OceanIOStep.map_from_model_dataset()`. These
+methods should be called in Polaris immediatly before writing out input files
+and immediately after opening in output files, respectively. To make opening
+and writing easier, we also provide
+{py:meth}`polaris.ocean.model.OceanIOStep.write_model_dataset()` and
+{py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()`, which take
+care of of the mapping in addition to writing and opening a dataset,
+respectively. As new variables are added to Omega, they should be added to the
+`variables` section in the
+[mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
+file.
+
 ### Running an E3SM component
 
 Steps that run either Omega or MPAS-Ocean should descend from the
@@ -80,25 +102,10 @@ names for the `ocean` config options in the methods
 {py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_options()` and
 {py:meth}`polaris.ocean.model.OceanModelStep.map_yaml_configs()`.
 As new config options are added to Omega, they should be added to the
-map in the [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
+`config` section in the
+[mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file. Note that `config_model='Omega'` must be capitalized since this is the
 convention on the model name in Omega's own YAML files.
-
-#### Mapping between MPAS-Ocean to Omega variable names
-
-Similarly to config options, it is necessary to be able to map between
-MPAS-Ocean and Omega variable names in both input (e.g. initial condition)
-and output datasets.
-
-We implement a mapping between the MPAS-Ocean and Omega variable names in the
-methods
-{py:meth}`polaris.ocean.model.OceanModelStep.map_input_dataset()` and
-{py:meth}`polaris.ocean.model.OceanModelStep.map_output_dataset()`. These
-methods should be called in Polaris immediatly before writing out input files
-and immediately after reading in output files, respectively.
-As new variables are added to Omega, they should be added to the map in the
-[mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
-file.
 
 #### Setting MPI resources
 
