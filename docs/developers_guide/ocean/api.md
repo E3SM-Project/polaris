@@ -337,6 +337,13 @@
 .. autosummary::
    :toctree: generated/
 
+   OceanIOStep
+   OceanIOStep.setup
+   OceanIOStep.map_to_model_dataset
+   OceanIOStep.write_model_dataset
+   OceanIOStep.map_from_model_dataset
+   OceanIOStep.open_model_dataset
+
    OceanModelStep
    OceanModelStep.setup
    OceanModelStep.constrain_resources

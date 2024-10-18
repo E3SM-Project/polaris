@@ -1,5 +1,3 @@
-import xarray as xr
-
 from polaris.ocean.convergence import ConvergenceAnalysis
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
@@ -69,7 +67,7 @@ class Analysis(ConvergenceAnalysis):
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
-        init = xr.open_dataset(f'{mesh_name}_init.nc')
+        init = self.open_model_dataset(f'{mesh_name}_init.nc')
         exact = ExactSolution(self.config, init)
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')
