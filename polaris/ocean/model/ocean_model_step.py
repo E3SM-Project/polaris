@@ -17,13 +17,6 @@ class OceanModelStep(ModelStep):
         ``min_tasks``) are computed dynamically from the number of cells
         in the mesh
 
-    mpaso_to_omega_var_map : dict
-        A map from MPAS-Ocean variable names to their Omega equivalents
-
-    omega_to_mpaso_var_map : dict
-        A map from Omega variable names to their MPAS-Ocean equivalents, the
-        inverse of ``mpaso_to_omega_var_map``
-
     config_map : dict
         A nested dictionary that maps from MPAS-Ocean to Omega model config
         options
@@ -111,8 +104,6 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
-        self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
-        self.omega_to_mpaso_var_map: Union[None, Dict[str, str]] = None
         self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
         self.graph_target = graph_target
 
@@ -128,7 +119,6 @@ class OceanModelStep(ModelStep):
             self.make_yaml = True
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
-            self._read_var_map()
             self._read_config_map()
             self.partition_graph = False
         elif model == 'mpas-ocean':
@@ -167,53 +157,6 @@ class OceanModelStep(ModelStep):
             The approximate number of cells in the mesh
         """
         return None
-
-    def map_input_dataset(self, ds):
-        """
-        If the model is Omega, rename variables in a dataset from their
-        MPAS-Ocean names to the Omega equivalent (appropriate for input
-        datasets like an initial condition)
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset with variables renamed as appropriate for the
-            ocean model being run
-        """
-        config = self.config
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            assert self.mpaso_to_omega_var_map is not None
-            ds = ds.rename(self.mpaso_to_omega_var_map)
-        return ds
-
-    def map_output_dataset(self, ds):
-        """
-        If the model is Omega, rename variables in a dataset from their
-        Omega names to the MPAS-Ocean equivalent (appropriate for datasets
-        that are output from the model)
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing variable names native to either ocean model
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset with variables named as expected in MPAS-Ocean
-        """
-        config = self.config
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            assert self.omega_to_mpaso_var_map is not None
-            ds = ds.rename(self.omega_to_mpaso_var_map)
-        return ds
 
     def map_yaml_options(self, options, config_model):
         """
@@ -328,21 +271,6 @@ class OceanModelStep(ModelStep):
         # In a pinch, about 2000 cells per core
         self.min_tasks = max(1,
                              4 * round(cell_count / (4 * max_cells_per_core)))
-
-    def _read_var_map(self):
-        """
-        Read the map from MPAS-Ocean to Omega config options
-        """
-        package = 'polaris.ocean.model'
-        filename = 'mpaso_to_omega.yaml'
-        text = imp_res.files(package).joinpath(filename).read_text()
-
-        yaml_data = YAML(typ='rt')
-        nested_dict = yaml_data.load(text)
-        self.mpaso_to_omega_var_map = nested_dict['variables']
-        assert self.mpaso_to_omega_var_map is not None
-        self.omega_to_mpaso_var_map = {
-            v: k for k, v in self.mpaso_to_omega_var_map.items()}
 
     def _read_config_map(self):
         """
