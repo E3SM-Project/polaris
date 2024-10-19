@@ -44,9 +44,8 @@ class OceanIOStep(Step):
 
     def setup(self):
         """
-        Determine if we will make yaml files or namelists and streams files,
-        then, determine the number of MPI tasks to use based on the estimated
-        mesh size
+        If the ocean model is Omega, set up maps between Omega and MPAS-Ocean
+        variable names
         """
         config = self.config
         model = config.get('ocean', 'model')
@@ -56,7 +55,7 @@ class OceanIOStep(Step):
             raise ValueError(f'Unexpected ocean model: {model}')
         super().setup()
 
-    def map_to_model_dataset(self, ds):
+    def map_to_native_model_vars(self, ds):
         """
         If the model is Omega, rename variables in a dataset from their
         MPAS-Ocean names to the Omega equivalent (appropriate for input
@@ -93,10 +92,10 @@ class OceanIOStep(Step):
         filename : str
             The path for the NetCDF file to write
         """
-        ds = self.map_to_model_dataset(ds)
+        ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
-    def map_from_model_dataset(self, ds):
+    def map_from_native_model_vars(self, ds):
         """
         If the model is Omega, rename variables in a dataset from their
         Omega names to the MPAS-Ocean equivalent (appropriate for datasets
@@ -135,7 +134,7 @@ class OceanIOStep(Step):
             The dataset with variables named as expected in MPAS-Ocean
         """
         ds = xr.open_dataset(filename)
-        ds = self.map_from_model_dataset(ds)
+        ds = self.map_from_native_model_vars(ds)
         return ds
 
     def _read_var_map(self):
