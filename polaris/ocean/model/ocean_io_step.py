@@ -118,7 +118,7 @@ class OceanIOStep(Step):
             ds = ds.rename(self.omega_to_mpaso_var_map)
         return ds
 
-    def open_model_dataset(self, filename):
+    def open_model_dataset(self, filename, **kwargs):
         """
         Open the given dataset, mapping variable names from Omega to MPAS-Ocean
         names if appropriate
@@ -128,12 +128,15 @@ class OceanIOStep(Step):
         filename : str
             The path for the NetCDF file to open
 
+        kwargs
+            keyword arguments passed to `xarray.open_dataset()`
+
         Returns
         -------
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
-        ds = xr.open_dataset(filename)
+        ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
         return ds
 
