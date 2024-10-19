@@ -37,6 +37,10 @@ Steps that run either Omega or MPAS-Ocean should descend from the
 from {py:class}`polaris.ModelStep`, so there is a lot of relevant
 discussion in {ref}`dev-model`.
 
+If the graph partition file has been constructed prior to the ocean model step,
+the path to the graph file should be provided in the `graph_target` argument
+to the constructor {py:class}`polaris.ocean.model.OceanModelStep()`.
+
 #### YAML files vs. namelists and streams
 
 In order to have the same tasks support Omega or MPAS-Ocean, we want
