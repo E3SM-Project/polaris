@@ -76,7 +76,9 @@ class OceanIOStep(Step):
         model = config.get('ocean', 'model')
         if model == 'omega':
             assert self.mpaso_to_omega_var_map is not None
-            ds = ds.rename(self.mpaso_to_omega_var_map)
+            rename = {k: v for k, v in self.mpaso_to_omega_var_map.items()
+                      if k in ds}
+            ds = ds.rename(rename)
         return ds
 
     def write_model_dataset(self, ds, filename):
@@ -115,7 +117,9 @@ class OceanIOStep(Step):
         model = config.get('ocean', 'model')
         if model == 'omega':
             assert self.omega_to_mpaso_var_map is not None
-            ds = ds.rename(self.omega_to_mpaso_var_map)
+            rename = {k: v for k, v in self.omega_to_mpaso_var_map.items()
+                      if k in ds}
+            ds = ds.rename(rename)
         return ds
 
     def open_model_dataset(self, filename, **kwargs):
