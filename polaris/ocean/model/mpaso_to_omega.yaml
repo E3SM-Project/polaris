@@ -4,6 +4,7 @@ variables:
   tracer1: Debug1
   tracer2: Debug2
   tracer3: Debug3
+  ssh: SshCell
 
 config:
 - section:
