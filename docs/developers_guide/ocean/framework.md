@@ -17,8 +17,8 @@ names (used in Polaris) and Omega variable names for tasks that will run Omega.
 
 To map a dataset between MPAS-Ocean variable names and those appropriate for
 the model being run, use the methods
-{py:meth}`polaris.ocean.model.OceanIOStep.map_to_model_dataset()` and
-{py:meth}`polaris.ocean.model.OceanIOStep.map_from_model_dataset()`. These
+{py:meth}`polaris.ocean.model.OceanIOStep.map_to_native_model_vars()` and
+{py:meth}`polaris.ocean.model.OceanIOStep.map_from_native_model_vars()`. These
 methods should be called in Polaris immediatly before writing out input files
 and immediately after opening in output files, respectively. To make opening
 and writing easier, we also provide
