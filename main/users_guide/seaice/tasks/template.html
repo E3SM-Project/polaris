@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title></title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -37,9 +34,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -109,46 +103,47 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="seaice-category-of-task">
-<span id="id1"></span><h1><Category of task><a class="headerlink" href="#seaice-category-of-task" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1><Category of task><a class="headerlink" href="#seaice-category-of-task" title="Link to this heading"></a></h1>
 <p>Description of common characteristics of the tasks.</p>
 <section id="task-name">
-<span id="seaice-category-of-task-task-name"></span><h2>task_name<a class="headerlink" href="#task-name" title="Permalink to this heading"></a></h2>
+<span id="seaice-category-of-task-task-name"></span><h2>task_name<a class="headerlink" href="#task-name" title="Link to this heading"></a></h2>
 <p>In cases where the test cases within a category share many characteristics,
 it may be more appropriate to move the certain sections up one level to the
 common subdirectory. In that case, the respective section should still be
 included for each test case, specifying any or no differences from the section
 in the shared framework level.</p>
 <section id="description">
-<h3>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>Description of the test case. Images that show the test case configuration or
 results are particularly welcome here.</p>
-<a class="reference internal image-reference" href="../../../_images/single_cell.png"><img alt="../../../_images/single_cell.png" class="align-center" src="../../../_images/single_cell.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/single_cell.png"><img alt="../../../_images/single_cell.png" class="align-center" src="../../../_images/single_cell.png" style="width: 500px;" />
+</a>
 </section>
 <section id="mesh">
-<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
 <p>Specify whether the mesh is global or planar and the resolution(s) tested. If
 planar, specify the mesh size. If global, specify whether the mesh is
 icosohedral or quasi-uniform. Specify any relevant options in the config file
 pertaining to setting up the mesh.</p>
 </section>
 <section id="initial-conditions">
-<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
 <p>The initial conditions should be specified for all variables requiring
 initial conditions.</p>
 </section>
 <section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>If applicable, specify the forcing applied at each time step of the simulation
 (in MPAS-Seaice, these are the variables contained in the <code class="docutils literal notranslate"><span class="pre">forcing</span></code> stream).
 If not applicable, keep this section with the notation N/A.</p>
 </section>
 <section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step for forward integration should be specified here for the test
 case’s resolution. The run duration should also be specified.</p>
 </section>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
 <p>Here, include the config section(s) that is specific to this test case. E.g.,</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for cosine bell convergence test case</span>
 <span class="k">[cosine_bell]</span>
@@ -178,7 +173,7 @@ case’s resolution. The run duration should also be specified.</p>
 <p>Include here any further description of each of the config options.</p>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>Specify whether the number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">seaice</span></code> section of the config file or whether the
 default and minimum number of cores is given in arguments to the forward step,

@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>single column</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -146,18 +140,18 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
-<span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
+<span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
 <section id="description">
-<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tasks include any ocean tests of the vertical ocean
 dynamics.</p>
 </section>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>The mesh is planar and spans the minimum number of cells (16 for MPAS-Ocean).
 The config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> are given arbitrarily small values of 1 m in
 order to ensure that the minimum number of cells is chosen.</p>
@@ -166,13 +160,13 @@ to the horizontal resolution. As such, only 10 km horizontal resolution is
 currently supported.</p>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>Currently, these tests feature a very fine vertical resolution of 4 m
 with 100 vertical levels. Future work may want to examine vertical mixing or
 advection at typical vertical resolutions.</p>
 </section>
 <section id="config-options">
-<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
 
@@ -197,7 +191,7 @@ advection at typical vertical resolutions.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The temperature and salinity profiles are defined using the following equations:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -219,7 +213,7 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 <code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
 </section>
 <section id="id1">
-<h2>config options<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<h2>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
 <span class="k">[single_column]</span>
 
@@ -267,31 +261,33 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 <p>See mesh section for a description of <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> and initial conditions section for a description of the remaining config options.</p>
 </section>
 <section id="cvmix">
-<span id="ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Permalink to this heading"></a></h2>
+<span id="ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
 <section id="id2">
-<h3>description<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">cvmix</span></code> test exercises the <a class="reference external" href="https://github.com/CVMix/CVMix-src">CVMix</a>
 schemes for vertical mixing.</p>
 <p>The temperature and salinity profiles only evolve a small amount over the 1-
 day duration of the test, so the 10-day profiles are shown here:</p>
-<a class="reference internal image-reference" href="../../../_images/single_column_temperature_10day.png"><img alt="../../../_images/single_column_temperature_10day.png" class="align-center" src="../../../_images/single_column_temperature_10day.png" style="width: 200px;" /></a>
-<a class="reference internal image-reference" href="../../../_images/single_column_salinity_10day.png"><img alt="../../../_images/single_column_salinity_10day.png" class="align-center" src="../../../_images/single_column_salinity_10day.png" style="width: 200px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/single_column_temperature_10day.png"><img alt="../../../_images/single_column_temperature_10day.png" class="align-center" src="../../../_images/single_column_temperature_10day.png" style="width: 200px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/single_column_salinity_10day.png"><img alt="../../../_images/single_column_salinity_10day.png" class="align-center" src="../../../_images/single_column_salinity_10day.png" style="width: 200px;" />
+</a>
 <p>The namelist options for this test case dictate that the KPP scheme is tested.</p>
 </section>
 <section id="id3">
-<h3>mesh<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
 <section id="id4">
-<h2>vertical grid<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 <section id="id5">
-<h3>initial conditions<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>The cvmix case has both surface forcing and restoring, which are controlled by
 the following config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
@@ -344,59 +340,60 @@ the following config options:</p>
 </div>
 </section>
 <section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step is given as 10 min and the barotropic time step is 30s. The run
 duration is 1 day.</p>
 </section>
 <section id="id6">
-<h3>config options<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.</p>
 </section>
 </section>
 <section id="ocean-single-column-ideal-age">
-<span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Permalink to this heading"></a></h2>
+<span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ideal</span> <span class="pre">age</span></code> test exercises the ideal age tracers.</p>
 <section id="id7">
-<h3>description<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>Temperature and salinity profiles evolve in the same way as in the
 <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a> test case. 10-day profiles for the ideal age
 tracer are as follows:</p>
-<a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" />
+</a>
 </section>
 <section id="id8">
-<h3>mesh<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id9">
-<h3>vertical grid<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id10">
-<h3>initial conditions<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.</p>
 </section>
 <section id="id11">
-<h3>forcing<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is set to zero seconds within the first surface grid layer at
 every time step.</p>
 </section>
 <section id="id12">
-<h3>time step and run duration<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
 </section>
 <section id="id13">
-<h3>config options<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
 <section id="id14">
-<h3>cores<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
 </section>
 </section>

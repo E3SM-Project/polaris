@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shared steps</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -149,11 +143,11 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="shared-steps">
-<h1>Shared steps<a class="headerlink" href="#shared-steps" title="Permalink to this heading"></a></h1>
+<h1>Shared steps<a class="headerlink" href="#shared-steps" title="Link to this heading"></a></h1>
 <p>date: 2023/08/18</p>
 <p>Contributors: Carolyn Begeman, Xylar Asay-Davis</p>
 <section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
 <p>The capability designed here is the ability to share steps across tasks.
 In this design document, “shared steps” refers to any step which may be used by
 multiple tasks that are available in polaris.</p>
@@ -165,47 +159,47 @@ guarantees that shared steps are run once per slurm job and that the role of
 shared steps is clear to users.</p>
 </section>
 <section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <section id="requirement-shared-steps-are-run-once">
-<h3>Requirement: Shared steps are run once.<a class="headerlink" href="#requirement-shared-steps-are-run-once" title="Permalink to this heading"></a></h3>
+<h3>Requirement: Shared steps are run once.<a class="headerlink" href="#requirement-shared-steps-are-run-once" title="Link to this heading"></a></h3>
 <p>Shared steps should be run once per invocation of <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> or
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.</p>
 </section>
 <section id="requirement-shared-steps-are-run-before-steps-that-depend-on-their-output">
-<h3>Requirement: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#requirement-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Permalink to this heading"></a></h3>
+<h3>Requirement: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#requirement-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
 </section>
 <section id="requirement-shared-steps-are-not-daughters-of-a-task">
-<h3>Requirement: Shared steps are not daughters of a task<a class="headerlink" href="#requirement-shared-steps-are-not-daughters-of-a-task" title="Permalink to this heading"></a></h3>
+<h3>Requirement: Shared steps are not daughters of a task<a class="headerlink" href="#requirement-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
 <p>A shared step’s class attributes do not include any task-related information
 such as a task it belongs to.</p>
 </section>
 <section id="requirement-working-directory-structure-is-intuitive">
-<h3>Requirement: Working directory structure is intuitive.<a class="headerlink" href="#requirement-working-directory-structure-is-intuitive" title="Permalink to this heading"></a></h3>
+<h3>Requirement: Working directory structure is intuitive.<a class="headerlink" href="#requirement-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
 <p>Shared step directories should be located at the highest level in the working
 directory structure where all tasks that use that step are run at or below that
 level.</p>
 </section>
 <section id="requirement-working-directory-step-paths-are-easily-discoverable-by-users">
-<h3>Requirement: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#requirement-working-directory-step-paths-are-easily-discoverable-by-users" title="Permalink to this heading"></a></h3>
+<h3>Requirement: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#requirement-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
 <p>There should be a way to list the paths within the work directory of all steps
 in each task.  There should also be a way for a user to find the steps
 in a task from the task’s work directory.</p>
 </section>
 <section id="requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
-<h3>Requirement: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Permalink to this heading"></a></h3>
+<h3>Requirement: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
 <p>A step may only be shared across multiple tasks if its output would be
 identical for each task.</p>
 </section>
 <section id="requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
-<h3>Requirement: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Permalink to this heading"></a></h3>
+<h3>Requirement: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
 <p>All tasks are self-contained and rely only on either shared steps or steps they
 contain.</p>
 </section>
 </section>
 <section id="implementation">
-<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading"></a></h2>
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
 <section id="implementation-shared-steps-are-set-up-once">
-<h3>Implementation: Shared steps are set up once.<a class="headerlink" href="#implementation-shared-steps-are-set-up-once" title="Permalink to this heading"></a></h3>
+<h3>Implementation: Shared steps are set up once.<a class="headerlink" href="#implementation-shared-steps-are-set-up-once" title="Link to this heading"></a></h3>
 <p>As before, setup of either a list of tasks or a suite proceeds by iterating
 through the tasks and then through the steps in each task. An attribute
 <code class="docutils literal notranslate"><span class="pre">setup_complete</span></code> has been added to <code class="docutils literal notranslate"><span class="pre">Step</span></code> and is initialized to <code class="docutils literal notranslate"><span class="pre">False</span></code>.
@@ -214,21 +208,21 @@ In the <code class="docutils literal notranslate"><span class="pre">setup_task()
 has been completed.</p>
 </section>
 <section id="implementation-shared-steps-are-run-before-steps-that-depend-on-their-output">
-<h3>Implementation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#implementation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Permalink to this heading"></a></h3>
+<h3>Implementation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#implementation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
 <p>Requirement is already satisfied as part of task parallelism design, which
 makes use of file dependencies.  When running in task-serial mode, the
 implementation will be to make sure shared steps are added to the dictionary of
 steps before other steps that rely on them.</p>
 </section>
 <section id="implementation-shared-steps-are-not-daughters-of-a-task">
-<h3>Implementation: Shared steps are not daughters of a task<a class="headerlink" href="#implementation-shared-steps-are-not-daughters-of-a-task" title="Permalink to this heading"></a></h3>
+<h3>Implementation: Shared steps are not daughters of a task<a class="headerlink" href="#implementation-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">task</span></code> attribute and constructor argument of the <code class="docutils literal notranslate"><span class="pre">Step</span></code> class has been
 replaced by the <code class="docutils literal notranslate"><span class="pre">component</span></code> attribute.  The step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> attribute is now
 relative to the component’s work directory, rather than a parent task’s work
 directory.</p>
 </section>
 <section id="implementation-working-directory-structure-is-intuitive">
-<h3>Implementation: Working directory structure is intuitive.<a class="headerlink" href="#implementation-working-directory-structure-is-intuitive" title="Permalink to this heading"></a></h3>
+<h3>Implementation: Working directory structure is intuitive.<a class="headerlink" href="#implementation-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
 <p>The only shared steps that reside inside of a task’s work directory are in
 situations where another task also lies within the task’s work directory.
 The only such tasks at the moment are the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks, which
@@ -370,7 +364,7 @@ visualization steps that are not shared with any other tasks:</p>
 </ul>
 </section>
 <section id="implementation-working-directory-step-paths-are-easily-discoverable-by-users">
-<h3>Implementation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#implementation-working-directory-step-paths-are-easily-discoverable-by-users" title="Permalink to this heading"></a></h3>
+<h3>Implementation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#implementation-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
 <p>This is implemented in two ways.</p>
 <p>First, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--verbose</span></code> now lists the work-directory relative path of
 steps, rather than their path relative to the task’s work directory:</p>
@@ -508,12 +502,12 @@ also <code class="docutils literal notranslate"><span class="pre">analysis</span
 locally, which should make debugging easier.</p>
 </section>
 <section id="implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
-<h3>Implementation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Permalink to this heading"></a></h3>
+<h3>Implementation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
 <p>Task steps that use the output of shared steps will make use of symbolic
 links as before.</p>
 </section>
 <section id="implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
-<h3>Implementation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Permalink to this heading"></a></h3>
+<h3>Implementation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
 <p>There were not any polaris tasks that relied on outputs from other tasks even
 before the implementation of shared steps.  There are tasks in Compass, though,
 such as global ocean <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code>, that do allow
@@ -522,9 +516,9 @@ we will make sure they use shared steps instead.</p>
 </section>
 </section>
 <section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
 <section id="testing-and-validation-shared-steps-are-run-once">
-<h3>Testing And Validation: Shared steps are run once.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-once" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: Shared steps are run once.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-once" title="Link to this heading"></a></h3>
 <p>Output from running a series of tasks or a suite indicates when shared steps
 are skipped because they already ran (<code class="docutils literal notranslate"><span class="pre">already</span> <span class="pre">completed</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span>
@@ -566,7 +560,7 @@ are skipped because they already ran (<code class="docutils literal notranslate"
 </div>
 </section>
 <section id="testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output">
-<h3>Testing And Validation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
 <p>As before, steps are added to tasks in the order they are to be run, ensuring
 that shared steps run before steps that require their output when running in
 task serial (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>).  Task parallelism already has mechanisms to
@@ -575,13 +569,13 @@ is not expected to be affected by shared steps.  However, no testing with
 task parallelism will be performed at this time.</p>
 </section>
 <section id="testing-and-validation-shared-steps-are-not-daughters-of-a-task">
-<h3>Testing And Validation: Shared steps are not daughters of a task<a class="headerlink" href="#testing-and-validation-shared-steps-are-not-daughters-of-a-task" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: Shared steps are not daughters of a task<a class="headerlink" href="#testing-and-validation-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
 <p>Steps run successfully even after we have removed the <code class="docutils literal notranslate"><span class="pre">task</span></code> attribute from
 them, indicating that they no longer rely on information about a task they
 formerly belonged to.</p>
 </section>
 <section id="testing-and-validation-working-directory-structure-is-intuitive">
-<h3>Testing And Validation: Working directory structure is intuitive.<a class="headerlink" href="#testing-and-validation-working-directory-structure-is-intuitive" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: Working directory structure is intuitive.<a class="headerlink" href="#testing-and-validation-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
 <p>The intuitive work structure will need to be maintained by developers as new
 tasks and steps are added, as this is not enforced by the framework.  The
 proposed implementation ensures that shared steps either reside close to the
@@ -589,18 +583,18 @@ root of the directory structure from the tasks that use them or that they
 live inside of the tasks, which we have deemed an intuitive structure.</p>
 </section>
 <section id="testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users">
-<h3>Testing And Validation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
 <p>Between <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--verbose</span></code> and the local symlinks to shared steps within
 each task, we think the shared steps will be discoverable by users and
 developers.</p>
 </section>
 <section id="testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
-<h3>Testing And Validation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
 <p>We have implemented shared steps for base meshes, initial conditions and
 forward runs, and shown that multiple tasks can make use of their output.</p>
 </section>
 <section id="testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
-<h3>Testing And Validation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Permalink to this heading"></a></h3>
+<h3>Testing And Validation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
 <p>This is not enforced, it will simply need to be maintained as the preferred
 convention for future development.  Currently, all tasks can be run
 independently and do not rely on any other tasks.</p>

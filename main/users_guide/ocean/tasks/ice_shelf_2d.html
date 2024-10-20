@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ice shelf 2d</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -145,9 +139,9 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="ice-shelf-2d">
-<span id="ocean-ice-shelf-2d"></span><h1>ice shelf 2d<a class="headerlink" href="#ice-shelf-2d" title="Permalink to this heading"></a></h1>
+<span id="ocean-ice-shelf-2d"></span><h1>ice shelf 2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h1>
 <section id="description">
-<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code> tasks describe a series of very simplified ice-shelf test
 cases where topography and initial conditions only vary in the y direction.
 The Coriolis parameter <code class="docutils literal notranslate"><span class="pre">f</span></code> is zero.  This makes the test case quasi-two-
@@ -200,18 +194,18 @@ freshwater and heat fluxes under ice shelves.</p>
 included in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step of this test case.</p>
 </section>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>The test case currently supports only 5-km horizontal resolution. The x
 direction is periodic and only 10 cells wide, whereas the y direction has
 solid boundaries and is 44 cells long.  These dimensions are set in the config
 file by <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>The conceptual overlying ice shelf is described by a piecewise linear function.
 The config options <code class="docutils literal notranslate"><span class="pre">y1</span></code>, <code class="docutils literal notranslate"><span class="pre">y2</span></code>, and <code class="docutils literal notranslate"><span class="pre">y3</span></code> dictate the inflection points in the
 piecewise function and <code class="docutils literal notranslate"><span class="pre">y1_water_column_thickness</span></code> and
@@ -224,7 +218,8 @@ depresses the sea surface height by as much as
 where it remains for the second half of the domain.  The ice shelf occupies
 these first 75 km of the domain: fluxes from ice-shelf melting are only applied
 in this region.</p>
-<a class="reference internal image-reference" href="../../../_images/ice_shelf_2d.png"><img alt="../../../_images/ice_shelf_2d.png" class="align-center" src="../../../_images/ice_shelf_2d.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/ice_shelf_2d.png"><img alt="../../../_images/ice_shelf_2d.png" class="align-center" src="../../../_images/ice_shelf_2d.png" style="width: 500px;" />
+</a>
 <p>The geometry does not represent a particularly realistic ice-shelf cavity but
 it is a quick and useful test of the parameterization of land-ice melt fluxes
 and of frazil formation below ice shelves.</p>
@@ -261,7 +256,7 @@ open ocean, each level is 40 m thick.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The initial temperature for the whole domain is constant (1 degree Celsius),
 while salinity varies linearly with depth from 34.5 PSU at the sea surface
 to 34.7 PSU at the sea floor, which is at a constant at 2000 m depth. These
@@ -269,18 +264,18 @@ initial conditions can be modified with config options <code class="docutils lit
 <code class="docutils literal notranslate"><span class="pre">surface_salinity</span></code>, and <code class="docutils literal notranslate"><span class="pre">bottom_salinity</span></code></p>
 </section>
 <section id="forcing">
-<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
 <p>The time step is determined by the config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> so that the time
 step is proportional to the resolution. By default, a 10 km-resolution test
 has a time step of 5 min. Run duration will be specified for each test case.
 Run duration will be discussed for individual test cases.</p>
 </section>
 <section id="config-options">
-<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for 2D ice-shelf testcases</span>
 <span class="k">[ice_shelf_2d]</span>
 
@@ -325,31 +320,31 @@ Run duration will be discussed for individual test cases.</p>
 temperature and salinity of the test case by altering these options.</p>
 </section>
 <section id="default">
-<span id="ocean-ice-shelf-2d-default"></span><h2>default<a class="headerlink" href="#default" title="Permalink to this heading"></a></h2>
+<span id="ocean-ice-shelf-2d-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
 <section id="id1">
-<h3>description<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/${RES}/default</span></code> is the default version of the
 ice shelf 2-d test case for a short (10 min) test run and validation of
 prognostic variables for regression testing.</p>
 </section>
 <section id="id2">
-<h3>mesh<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id3">
-<h3>vertical grid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id4">
-<h3>initial conditions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id5">
-<h3>forcing<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id6">
-<h3>time step and run duration<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>The time step is configured by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:rk4_dt_per_km</span></code> or
 <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:split_dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:btr_dt_per_km</span></code>
 depending on the time integration scheme given by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d:time_integrator</span></code>.
@@ -357,7 +352,7 @@ The run duration is determined by the config option <code class="docutils litera
 is 10 minutes by default.</p>
 </section>
 <section id="id7">
-<h3>config options<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> for config options used by all <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code>
 test cases.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options specific to the ice_shelf_2d/default case</span>
@@ -381,14 +376,14 @@ test cases.</p>
 </div>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of processors is hard-coded to be 4 for this case.</p>
 </section>
 </section>
 <section id="default-with-restart">
-<h2>default_with_restart<a class="headerlink" href="#default-with-restart" title="Permalink to this heading"></a></h2>
+<h2>default_with_restart<a class="headerlink" href="#default-with-restart" title="Link to this heading"></a></h2>
 <section id="id8">
-<h3>description<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/$RES/default/with_restart</span></code> runs a short (10 min)
 integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">forward</span></code> step), saving a restart
 file every time step.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart</span></code> step) is performed
@@ -399,70 +394,70 @@ between the “full” and “restart” runs at minute 10 of the simulation to
 make sure they are bit-for-bit identical.</p>
 </section>
 <section id="id9">
-<h3>mesh<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id10">
-<h3>vertical grid<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id11">
-<h3>initial conditions<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id12">
-<h3>forcing<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id13">
-<h3>time step and run duration<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <p>The time step is the same as <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>. The full run is
 ten minutes as given by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:forward_run_duration</span></code>
 and the restart run is half the duration of the full run.</p>
 </section>
 <section id="id14">
-<h3>config options<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> and .</p>
 </section>
 <section id="id15">
-<h3>cores<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
 </section>
 </section>
 <section id="default-tidal-forcing">
-<h2>default_tidal_forcing<a class="headerlink" href="#default-tidal-forcing" title="Permalink to this heading"></a></h2>
+<h2>default_tidal_forcing<a class="headerlink" href="#default-tidal-forcing" title="Link to this heading"></a></h2>
 <section id="id16">
-<h3>description<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/5km/default</span></code> is the default version of the
 ice shelf 2-d test case for a short (10 min) test run and validation of
 prognostic variables for regression testing.</p>
 </section>
 <section id="id17">
-<h3>mesh<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id18">
-<h3>vertical grid<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id19">
-<h3>initial conditions<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
 </section>
 <section id="id20">
-<h3>forcing<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <p>This test has tidal forcing at the open ocean boundary in the y-dimension. The
 amplitude and period of the tidal forcing are set at test case set-up to be 1 m
 and 10 days, respectively, but may be changed by the user in the namelist at
 runtime.</p>
 </section>
 <section id="id21">
-<h3>time step and run duration<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <p>Determined by config options in the <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default_tidal_forcing</span></code>
 section described below.</p>
 </section>
 <section id="id22">
-<h3>config options<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> for config options used by all <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code>
 test cases.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options specific to the ice_shelf_2d/default_tidal_forcing case</span>
@@ -486,7 +481,7 @@ test cases.</p>
 </div>
 </section>
 <section id="id23">
-<h3>cores<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
 </section>
 </section>

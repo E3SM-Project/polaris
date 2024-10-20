@@ -1,23 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.run.serial</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,9 +33,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -145,7 +139,9 @@
 <span class="n">error_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">start_fail</span><span class="si">}</span><span class="s1">ERROR</span><span class="si">{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">&#39;</span>
 
 
-<div class="viewcode-block" id="run_tasks"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks">[docs]</a><span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_task</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">steps_to_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="run_tasks">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks">[docs]</a>
+<span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_task</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">steps_to_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">steps_to_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the given suite or task</span>
@@ -227,7 +223,10 @@
                            <span class="n">failures</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="run_single_step"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step">[docs]</a><span class="k">def</span> <span class="nf">run_single_step</span><span class="p">(</span><span class="n">step_is_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="run_single_step">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step">[docs]</a>
+<span class="k">def</span> <span class="nf">run_single_step</span><span class="p">(</span><span class="n">step_is_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used by the framework to run a step when ``polaris serial`` gets called in</span>
 <span class="sd">    the step&#39;s work directory</span>
@@ -273,6 +272,7 @@
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running step: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">_run_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>

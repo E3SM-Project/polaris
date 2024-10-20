@@ -1,23 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.mesh.spherical</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,9 +33,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -127,7 +121,9 @@
 <span class="kn">from</span> <span class="nn">polaris.model_step</span> <span class="kn">import</span> <span class="n">make_graph_file</span>
 
 
-<div class="viewcode-block" id="SphericalBaseStep"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep">[docs]</a><span class="k">class</span> <span class="nc">SphericalBaseStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalBaseStep">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep">[docs]</a>
+<span class="k">class</span> <span class="nc">SphericalBaseStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A base class for steps that create a JIGSAW spherical mesh</span>
 
@@ -136,7 +132,9 @@
 <span class="sd">    opts : jigsawpy.jigsaw_jig_t</span>
 <span class="sd">        JIGSAW options for creating the mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SphericalBaseStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalBaseStep.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -156,7 +154,10 @@
         <span class="c1"># setup files for JIGSAW</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_jig_t</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SphericalBaseStep.save_and_plot_cell_width"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.SphericalBaseStep.save_and_plot_cell_width">[docs]</a>    <span class="k">def</span> <span class="nf">save_and_plot_cell_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalBaseStep.save_and_plot_cell_width">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.SphericalBaseStep.save_and_plot_cell_width">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_and_plot_cell_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the cell width field on a lon/lat grid to</span>
 <span class="sd">        ``self.cell_width_filename`` and plot</span>
@@ -182,7 +183,10 @@
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;plot_cell_width&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plot_cell_width</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SphericalBaseStep.setup"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.SphericalBaseStep.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalBaseStep.setup">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.SphericalBaseStep.setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add output files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -193,7 +197,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SphericalBaseStep.run"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.run.html#polaris.mesh.SphericalBaseStep.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalBaseStep.run">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.run.html#polaris.mesh.SphericalBaseStep.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finish up the step. Run this after the subclass&#39;s run() method</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -240,6 +247,7 @@
         <span class="n">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
                         <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_plot_cell_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a lat/lon map of cell widths (mesh resolution)</span>
@@ -281,7 +289,10 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep">[docs]</a><span class="k">class</span> <span class="nc">QuasiUniformSphericalMeshStep</span><span class="p">(</span><span class="n">SphericalBaseStep</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep">[docs]</a>
+<span class="k">class</span> <span class="nc">QuasiUniformSphericalMeshStep</span><span class="p">(</span><span class="n">SphericalBaseStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for creating a quasi-uniform JIGSAW mesh with a constant approximate</span>
 <span class="sd">    cell width.  Subclasses can override the ``build_cell_width_lat_lon()``</span>
@@ -294,7 +305,9 @@
 <span class="sd">        The approximate cell width in km of the mesh if constant resolution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
@@ -325,7 +338,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qlim</span> <span class="o">=</span> <span class="mf">0.9375</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.setup"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.setup">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add JIGSAW options based on config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -336,7 +352,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;jigsaw_hfun_filename&#39;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.run"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.run">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -348,7 +367,10 @@
         <span class="c1"># do the rest of the step (converting to the MPAS base mesh)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon">[docs]</a>    <span class="k">def</span> <span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.build_cell_width_lat_lon">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function for creating cell width array for this mesh on a regular</span>
 <span class="sd">        latitude-longitude grid.  The default method use constant resolution</span>
@@ -385,7 +407,10 @@
         <span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
 
-<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">make_jigsaw_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiUniformSphericalMeshStep.make_jigsaw_mesh">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_jigsaw_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the JIGSAW mesh.  A subclass can override this method to build</span>
 <span class="sd">        the mesh in a different way.</span>
@@ -418,10 +443,14 @@
         <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">geom</span><span class="p">)</span>
 
         <span class="n">savejig</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
-        <span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;jigsaw&#39;</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">],</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span></div></div>
+        <span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;jigsaw&#39;</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">],</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="IcosahedralMeshStep"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep">[docs]</a><span class="k">class</span> <span class="nc">IcosahedralMeshStep</span><span class="p">(</span><span class="n">SphericalBaseStep</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep">[docs]</a>
+<span class="k">class</span> <span class="nc">IcosahedralMeshStep</span><span class="p">(</span><span class="n">SphericalBaseStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for creating an icosahedral JIGSAW mesh</span>
 
@@ -434,7 +463,9 @@
 <span class="sd">        The number of subdivisions of the icosahedral mesh to perform</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.__init__"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="IcosahedralMeshStep.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdivisions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
@@ -471,7 +502,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_iter</span> <span class="o">=</span> <span class="mi">512</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qtol</span> <span class="o">=</span> <span class="mf">1e-6</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.setup"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.setup">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add JIGSAW options based on config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -481,7 +515,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;jigsaw_jcfg_filename&#39;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.run"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.run">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -496,7 +533,10 @@
         <span class="c1"># do the rest of the step (converting to the MPAS base mesh)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.make_jigsaw_mesh"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">make_jigsaw_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subdivisions</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.make_jigsaw_mesh">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_jigsaw_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subdivisions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make the JIGSAW mesh.  A subclass can override this method to build</span>
 <span class="sd">        the mesh in a different way.</span>
@@ -517,7 +557,10 @@
         <span class="n">icos</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
         <span class="n">jigsawpy</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">icosahedron</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">subdivisions</span><span class="p">,</span> <span class="n">icos</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon">[docs]</a>    <span class="k">def</span> <span class="nf">build_subdivisions_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_subdivisions_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function for creating cell width array for this mesh on a regular</span>
 <span class="sd">        latitude-longitude grid.</span>
@@ -567,7 +610,10 @@
         <span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">subdivisions</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.get_subdivisions"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.get_subdivisions">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_subdivisions</span><span class="p">(</span><span class="n">cell_width</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the number of subdivisions of an icosahedron to achieve a</span>
@@ -595,7 +641,10 @@
 
         <span class="k">return</span> <span class="n">subdivisions</span></div>
 
-<div class="viewcode-block" id="IcosahedralMeshStep.get_cell_width"><a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="IcosahedralMeshStep.get_cell_width">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_cell_width</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the approximate cell width for an icosahedral mesh given either a</span>
@@ -633,7 +682,9 @@
         <span class="n">triangle_count</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">subdivisions</span><span class="p">)</span>
         <span class="n">triangle_area</span> <span class="o">=</span> <span class="n">earth_area</span> <span class="o">/</span> <span class="n">triangle_count</span>
         <span class="n">cell_width</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">triangle_area</span> <span class="o">*</span> <span class="mf">4.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">cell_width</span></div></div>
+        <span class="k">return</span> <span class="n">cell_width</span></div>
+</div>
+
 </pre></div>
 
            </div>

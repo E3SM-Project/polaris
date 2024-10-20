@@ -1,23 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.yaml</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -36,9 +33,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -118,7 +112,9 @@
 <span class="kn">from</span> <span class="nn">ruamel.yaml</span> <span class="kn">import</span> <span class="n">YAML</span>
 
 
-<div class="viewcode-block" id="PolarisYaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml">[docs]</a><span class="k">class</span> <span class="nc">PolarisYaml</span><span class="p">:</span>
+<div class="viewcode-block" id="PolarisYaml">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml">[docs]</a>
+<span class="k">class</span> <span class="nc">PolarisYaml</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class for reading writing and combining config files in yaml format</span>
 <span class="sd">    (e.g. as used in Omega).</span>
@@ -135,7 +131,9 @@
 <span class="sd">        The name of the E3SM component</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PolarisYaml.__init__"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PolarisYaml.__init__">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a yaml config object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -143,7 +141,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="PolarisYaml.read"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="PolarisYaml.read">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add config options from a yaml file</span>
@@ -209,7 +210,10 @@
         <span class="n">yaml</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="n">configs</span>
         <span class="k">return</span> <span class="n">yaml</span></div>
 
-<div class="viewcode-block" id="PolarisYaml.update"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PolarisYaml.update">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add config options from a dictionary</span>
 
@@ -234,7 +238,10 @@
         <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_update_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PolarisYaml.write"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PolarisYaml.write">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write">[docs]</a>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write config options to a yaml file</span>
 
@@ -254,6 +261,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
             <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model_configs</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_add_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add stream from a dictionary</span>
@@ -261,7 +269,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span></div>
 
 
-<div class="viewcode-block" id="mpas_namelist_and_streams_to_yaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">namelist_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="mpas_namelist_and_streams_to_yaml">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">namelist_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                       <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                       <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -296,7 +307,10 @@
     <span class="k">return</span> <span class="n">yaml</span></div>
 
 
-<div class="viewcode-block" id="main_mpas_to_yaml"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">main_mpas_to_yaml</span><span class="p">():</span>
+
+<div class="viewcode-block" id="main_mpas_to_yaml">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">main_mpas_to_yaml</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Convert a namelist and/or streams file to yaml&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--namelist&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;namelist&quot;</span><span class="p">,</span>
@@ -328,7 +342,10 @@
     <span class="n">yaml</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">yaml</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="yaml_to_mpas_streams"><a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">):</span>
+
+<div class="viewcode-block" id="yaml_to_mpas_streams">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams">[docs]</a>
+<span class="k">def</span> <span class="nf">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add config options from a yaml file</span>
 
@@ -370,6 +387,7 @@
 
     <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tree</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_update_section</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

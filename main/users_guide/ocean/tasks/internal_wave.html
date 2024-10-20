@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>internal wave</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -137,32 +131,33 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="internal-wave">
-<span id="ocean-internal-wave"></span><h1>internal wave<a class="headerlink" href="#internal-wave" title="Permalink to this heading"></a></h1>
+<span id="ocean-internal-wave"></span><h1>internal wave<a class="headerlink" href="#internal-wave" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/internal_wave</span></code> test group induces internal wave propagation and is documented in
 <code class="docutils literal notranslate"><span class="pre">Ilicak</span> <span class="pre">et</span> <span class="pre">al.</span> <span class="pre">(2012)</span> <span class="pre">&lt;https://doi.org/10.1016/j.ocemod.2011.10.003&gt;</span></code>_.</p>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="default-task">
-<span id="ocean-internal-wave-default"></span><h2>default task<a class="headerlink" href="#default-task" title="Permalink to this heading"></a></h2>
+<span id="ocean-internal-wave-default"></span><h2>default task<a class="headerlink" href="#default-task" title="Link to this heading"></a></h2>
 <section id="description">
-<h3>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The test case is characterized by stable stratification with a horizontal
 perturbation to the stratification that induces internal waves.</p>
-<a class="reference internal image-reference" href="../../../_images/internal_wave_initial_temperature.png"><img alt="../../../_images/internal_wave_initial_temperature.png" class="align-center" src="../../../_images/internal_wave_initial_temperature.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/internal_wave_initial_temperature.png"><img alt="../../../_images/internal_wave_initial_temperature.png" class="align-center" src="../../../_images/internal_wave_initial_temperature.png" style="width: 500px;" />
+</a>
 <p>Two variants are given for different vertical advection schemes, <code class="docutils literal notranslate"><span class="pre">standard</span></code>
 for flux-form advection and <code class="docutils literal notranslate"><span class="pre">vlr</span></code> for vertical Lagrangian-remapping.</p>
 </section>
 <section id="mesh">
-<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
 <p>The domain is planar and periodic on the zonal boundaries and solid on the
 meridional boundaries. Only 5km resolution is tested by default, but the
 resolution may be changed with the <code class="docutils literal notranslate"><span class="pre">resolution</span></code> config option. The domain is
 20km by 250km, as given by the config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
 </section>
 <section id="vertical-grid">
-<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h3>
 <p>There are no restrictions on the vertical grid inherent to the test case except
 that there should be sufficient vertical levels to capture the stratification
 structure.</p>
@@ -190,7 +185,7 @@ structure.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
 <p>Salinity is constant throughout the domain at the value given by the config
 option <code class="docutils literal notranslate"><span class="pre">background_salinity</span></code> (35 PSU by default).  The initial temperature
 has a linear background stratification from 20.1 degrees C (config option
@@ -202,15 +197,15 @@ perturbation is given by 2 times the config option <code class="docutils literal
 2 times the <code class="docutils literal notranslate"><span class="pre">amplitude_width_frac</span></code> times <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
 </section>
 <section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step for forward integration is 5 minutes. The run duration is 3 time steps.</p>
 </section>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
 <p>The following config section is specific to this test case:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for internal wave test cases</span>
 <span class="k">[internal_wave]</span>
@@ -254,15 +249,15 @@ perturbation is given by 2 times the config option <code class="docutils literal
 </div>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
 </section>
 <section id="rpe-task">
-<h2>RPE task<a class="headerlink" href="#rpe-task" title="Permalink to this heading"></a></h2>
+<h2>RPE task<a class="headerlink" href="#rpe-task" title="Link to this heading"></a></h2>
 <section id="id1">
-<h3>description<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>The Reference Potential Energy (RPE) task consists of several forward steps at
 different values of the del2 horizontal viscosity. Two variants are given for
 different vertical advection schemes, <code class="docutils literal notranslate"><span class="pre">standard</span></code> for flux-form advection and
@@ -270,27 +265,27 @@ different vertical advection schemes, <code class="docutils literal notranslate"
 evolution through time for each of the forward runs with different viscosities.</p>
 </section>
 <section id="id2">
-<h3>mesh<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>See default task.</p>
 </section>
 <section id="id3">
-<h3>vertical grid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>See default task.</p>
 </section>
 <section id="id4">
-<h3>initial conditions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>See default task.</p>
 </section>
 <section id="id5">
-<h3>forcing<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>N/A</p>
 </section>
 <section id="id6">
-<h3>time step and run duration<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>The time step for forward integration is 5 minutes. The run duration is 20 days.</p>
 </section>
 <section id="id7">
-<h3>config options<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>In addition to the config options in section <code class="docutils literal notranslate"><span class="pre">internal_wave</span></code>, the following
 config options are also used:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for the internal wave RPE tasks</span>

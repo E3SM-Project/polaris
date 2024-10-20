@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.horiz.make_triangle_tree</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -126,18 +120,18 @@
            <div itemprop="articleBody">
              
   <section id="polaris-ocean-viz-transect-horiz-make-triangle-tree">
-<h1>polaris.ocean.viz.transect.horiz.make_triangle_tree<a class="headerlink" href="#polaris-ocean-viz-transect-horiz-make-triangle-tree" title="Permalink to this heading"></a></h1>
+<h1>polaris.ocean.viz.transect.horiz.make_triangle_tree<a class="headerlink" href="#polaris-ocean-viz-transect-horiz-make-triangle-tree" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.viz.transect.horiz.make_triangle_tree">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.transect.horiz.</span></span><span class="sig-name descname"><span class="pre">make_triangle_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_tris</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/horiz.html#make_triangle_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.transect.horiz.make_triangle_tree" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.transect.horiz.</span></span><span class="sig-name descname"><span class="pre">make_triangle_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_tris</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/horiz.html#make_triangle_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.transect.horiz.make_triangle_tree" title="Link to this definition"></a></dt>
 <dd><p>Make a KD-Tree for finding triangle edges that are near enough to transect
 segments that they might intersect</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ds_tris</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.9.1.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines triangles, the results of calling
 <a class="reference internal" href="polaris.ocean.viz.transect.horiz.mesh_to_triangles.html#polaris.ocean.viz.transect.horiz.mesh_to_triangles" title="polaris.ocean.viz.transect.horiz.mesh_to_triangles"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.mesh_to_triangles()</span></code></a></p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>tree</strong> (<em>scipy.spatial.cKDTree</em>) – A tree of edge centers from triangles making up an MPAS mesh</p>
 </dd>
 </dl>

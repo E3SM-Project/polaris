@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>geostrophic</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -146,9 +140,9 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="geostrophic">
-<span id="ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Permalink to this heading"></a></h1>
+<span id="ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h1>
 <section id="description">
-<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> and <code class="docutils literal notranslate"><span class="pre">geostrophic/with_viz</span></code> tasks implement the “Global Steady
 State Nonlinear Zonal Geostrophic Flow” test case described in
 <a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a></p>
@@ -156,14 +150,15 @@ State Nonlinear Zonal Geostrophic Flow” test case described in
 size. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the task are plots like the
 following showing convergence of water-column thickness and normal velocity as
 functions of the mesh resolution:</p>
-<a class="reference internal image-reference" href="../../../_images/geostrophic_convergence.png"><img alt="../../../_images/geostrophic_convergence.png" class="align-center" src="../../../_images/geostrophic_convergence.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_convergence.png"><img alt="../../../_images/geostrophic_convergence.png" class="align-center" src="../../../_images/geostrophic_convergence.png" style="width: 500px;" />
+</a>
 </section>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>The mesh is global and can be constructed either as quasi-uniform or
 icosahedral. At least three resolutions must be chosen for the mesh
 convergence study. The base meshes are the same as used in
@@ -171,14 +166,14 @@ convergence study. The base meshes are the same as used in
 section for more details.</p>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>This test case only exercises the shallow water dynamics. As such, the minimum
 number of vertical levels may be used. The bottom depth is constant and the
 results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.  See cosine
 bell’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-vertical"><span class="std std-ref">vertical grid</span></a> section for the config options.</p>
 </section>
 <section id="initial-conditions">
-<span id="ocean-geostrophic-init"></span><h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<span id="ocean-geostrophic-init"></span><h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The steady-state fields are given by the following equations:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -193,8 +188,10 @@ u_0 &amp; = 2 \pi a/(12 \textrm{ days})\\
 h_0 &amp; = (1/g) \, 2.94 \times 10^{4} \textrm{m}^2/\textrm{s}^2 \\
 \alpha &amp; = 0
 \end{split}\]</div>
-<a class="reference internal image-reference" href="../../../_images/geostrophic_h.png"><img alt="../../../_images/geostrophic_h.png" class="align-center" src="../../../_images/geostrophic_h.png" style="width: 500px;" /></a>
-<a class="reference internal image-reference" href="../../../_images/geostrophic_u.png"><img alt="../../../_images/geostrophic_u.png" class="align-center" src="../../../_images/geostrophic_u.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_h.png"><img alt="../../../_images/geostrophic_h.png" class="align-center" src="../../../_images/geostrophic_h.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_u.png"><img alt="../../../_images/geostrophic_u.png" class="align-center" src="../../../_images/geostrophic_u.png" style="width: 500px;" />
+</a>
 <p>In this test case, the initial fields are given their steady-state values
 and the simulation should not diverge significantly from those values.</p>
 <p>In this test case, the bottom topography is flat so initial conditions are
@@ -211,12 +208,12 @@ f = 2 \Omega (-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)
 \]</div>
 </section>
 <section id="forcing">
-<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>Probably N/A but see Williamson’s text about the possibility of prescribing a
 wind field.</p>
 </section>
 <section id="time-step-and-run-duration">
-<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
 <p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
@@ -254,7 +251,7 @@ days (120 hours):</p>
 as in the option <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> in section <code class="docutils literal notranslate"><span class="pre">[convergence]</span></code>.</p>
 </section>
 <section id="analysis">
-<h2>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h2>
+<h2>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
 <p>For analysis we compute the <span class="math notranslate nohighlight">\(l_1\)</span>, <span class="math notranslate nohighlight">\(l_2\)</span> and <span class="math notranslate nohighlight">\(l_{\inf}\)</span> error norms of h and
 velocity relative to the steady-state solutions given above.</p>
 <p>First, each of these errors norms are plotted vs time for a given resolution.</p>
@@ -262,7 +259,7 @@ velocity relative to the steady-state solutions given above.</p>
 at day 5 vs resolution.</p>
 </section>
 <section id="config-options">
-<span id="ocean-geostrophic-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<span id="ocean-geostrophic-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> config options include:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for geostrophic convergence test case</span>
 <span class="k">[geostrophic]</span>
@@ -379,7 +376,7 @@ these fields at initialization and after the 5-day run.</p>
 </div>
 </section>
 <section id="cores">
-<h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
 <p>The number of cores for each step is handled in the same way as the cosine
 bell test.  See that test’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-cores"><span class="std std-ref">cores</span></a> section for details.</p>
 </section>

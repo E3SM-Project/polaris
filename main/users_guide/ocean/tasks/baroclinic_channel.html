@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>baroclinic channel</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -149,9 +143,9 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="baroclinic-channel">
-<span id="ocean-baroclinic-channel"></span><h1>baroclinic channel<a class="headerlink" href="#baroclinic-channel" title="Permalink to this heading"></a></h1>
+<span id="ocean-baroclinic-channel"></span><h1>baroclinic channel<a class="headerlink" href="#baroclinic-channel" title="Link to this heading"></a></h1>
 <section id="description">
-<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>Baroclinic channel tasks implements variants of the Baroclinic Eddies test case
 from <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2011.10.003">Ilicak et al. (2012)</a>.</p>
 <p>Polaris includes includes 5 baroclinic channel test cases.  All test cases have
@@ -161,11 +155,11 @@ to distinguish multiple forward runs), which performs time integration of the
 model.</p>
 </section>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>The domain is zonally periodic with solid northern and southern boundaries.
 The domain size is 160 km in the zonal dimension by 500 km in the meridional
 dimension. These dimensions are set in the config file by <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.
@@ -173,7 +167,7 @@ Variants of the test case are available at 1-km, 4-km and 10-km horizontal
 resolution.</p>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>By default, all tests have 20 vertical layers of 50-m uniform thickness. The
 domain bottom is flat.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
@@ -200,7 +194,7 @@ domain bottom is flat.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>Salinity is constant throughout the domain (at 35 PSU).  The initial
 temperature is cooler in the southern half of the domain than in the north,
 with a gradient between the two halves that is sinusoidally perturbed in the
@@ -253,23 +247,24 @@ y_{min}(x) = ~ &amp; y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}, \\
 y_{max}(x) = ~ &amp; y_{mid} - y_{crest}(x) + \frac{1}{2}\Delta y_{perturb}.
 \end{split}\]</div>
 </p>
-<a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" />
+</a>
 <p>The flow is initially stationary and the Coriolis parameter is uniform across
 the domain and defined in the config file by <code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
 </section>
 <section id="forcing">
-<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
 <p>The time step is determined by the config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> so that the time
 step is proportional to the resolution. By default, a 10 km-resolution test
 has a time step of 5 min. Run duration will be specified for each test case.
 Run duration will be discussed for individual test cases.</p>
 </section>
 <section id="config-options">
-<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <p>All 5 test cases share the same set of config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for baroclinic channel testcases</span>
 <span class="k">[baroclinic_channel]</span>
@@ -328,130 +323,130 @@ other baroclinic channel tests.</p>
 <p>All units are mks, with temperature in degrees Celsius and salinity in PSU.</p>
 </section>
 <section id="default">
-<h2>default<a class="headerlink" href="#default" title="Permalink to this heading"></a></h2>
+<h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
 <section id="id1">
-<h3>description<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/default</span></code> is the default version of the
 baroclinic eddies test case for a short (15 min) test run and validation of
 prognostic variables for regression testing.</p>
 </section>
 <section id="id2">
-<h3>mesh<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id3">
-<h3>vertical grid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id4">
-<h3>initial conditions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id5">
-<h3>forcing<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id6">
-<h3>time step and run duration<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id7">
-<h3>config options<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of processors is hard-coded to be 4 for this case.</p>
 </section>
 </section>
 <section id="decomp">
-<h2>decomp<a class="headerlink" href="#decomp" title="Permalink to this heading"></a></h2>
+<h2>decomp<a class="headerlink" href="#decomp" title="Link to this heading"></a></h2>
 <section id="id8">
-<h3>description<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/decomp</span></code> runs a short (15 min) integration
 of the model forward in time on 4 (<code class="docutils literal notranslate"><span class="pre">4proc</span></code> step) and then on 8 processors
 (<code class="docutils literal notranslate"><span class="pre">8proc</span></code> step) to make sure the resulting prognostic variables are
 bit-for-bit identical between the two runs.</p>
 </section>
 <section id="id9">
-<h3>mesh<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id10">
-<h3>vertical grid<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id11">
-<h3>initial conditions<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id12">
-<h3>forcing<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id13">
-<h3>time step and run duration<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id14">
-<h3>config options<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id15">
-<h3>cores<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <p>This test is run on 4 cores for the <code class="docutils literal notranslate"><span class="pre">4proc</span></code> step and 8 cores for the <code class="docutils literal notranslate"><span class="pre">8proc</span></code>
 step.</p>
 </section>
 </section>
 <section id="thread">
-<h2>thread<a class="headerlink" href="#thread" title="Permalink to this heading"></a></h2>
+<h2>thread<a class="headerlink" href="#thread" title="Link to this heading"></a></h2>
 <section id="id16">
-<h3>description<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/thread</span></code> runs a short (15 min) integration
 of the model forward in time on 1 threads per processor (<code class="docutils literal notranslate"><span class="pre">1thread</span></code> step) and
 then on 2 threads (<code class="docutils literal notranslate"><span class="pre">2thread</span></code> step) to make sure the resulting prognostic
 variables are bit-for-bit identical between the two runs.</p>
 </section>
 <section id="id17">
-<h3>mesh<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id18">
-<h3>vertical grid<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id19">
-<h3>initial conditions<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id20">
-<h3>forcing<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id21">
-<h3>time step and run duration<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The run duration is 3 time
 steps.</p>
 </section>
 <section id="id22">
-<h3>config options<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id23">
-<h3>cores<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <p>The model steps are run on 4 cores. The <code class="docutils literal notranslate"><span class="pre">1thread</span></code> step is run on 1 thread
 per processor and the <code class="docutils literal notranslate"><span class="pre">2thread</span></code> step is run on 2 threads per processor.</p>
 </section>
 </section>
 <section id="restart">
-<h2>restart<a class="headerlink" href="#restart" title="Permalink to this heading"></a></h2>
+<h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
 <section id="id24">
-<h3>description<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/restart</span></code> runs a short (10 min)
 integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">full_run</span></code> step), saving a restart
 file every 5 minutes.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart_run</span></code> step) is performed
@@ -460,38 +455,38 @@ are compared between the “full” and “restart” runs at minute 10 to make 
 they are bit-for-bit identical.</p>
 </section>
 <section id="id25">
-<h3>mesh<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. Currently, only 10-km horizontal
 resolution is supported.</p>
 </section>
 <section id="id26">
-<h3>vertical grid<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id27">
-<h3>initial conditions<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id28">
-<h3>forcing<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id29">
-<h3>time step and run duration<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. The full run is two time
 steps and the restart run is one time step long.</p>
 </section>
 <section id="id30">
-<h3>config options<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id31">
-<h3>cores<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <p>The number of processors is hard-coded to be 4 for this case.</p>
 </section>
 </section>
 <section id="rpe">
-<h2>rpe<a class="headerlink" href="#rpe" title="Permalink to this heading"></a></h2>
+<h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/1km/rpe</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/4km/rpe</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/rpe</span></code> perform longer (20 day) integration
@@ -502,27 +497,27 @@ to show that MPAS-Ocean has lower spurious dissipation of reference potential
 energy (RPE) than POP, MOM and MITgcm models
 (<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a>).</p>
 <section id="id32">
-<h3>mesh<a class="headerlink" href="#id32" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id33">
-<h3>vertical grid<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id34">
-<h3>initial conditions<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id35">
-<h3>forcing<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>.</p>
 </section>
 <section id="id36">
-<h3>time step and run duration<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> for time step. Each run lasts 20 days.</p>
 </section>
 <section id="id37">
-<h3>config options<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a>. The config option that is specific to
 this case is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Viscosity values to test for rpe test case</span>
@@ -531,7 +526,7 @@ this case is:</p>
 </div>
 </section>
 <section id="id38">
-<h3>cores<a class="headerlink" href="#id38" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
 <p>The number of cores is dynamically computed based on the number of cells. See
 <a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>.</p>
 </section>

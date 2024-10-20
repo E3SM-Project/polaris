@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Suites</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -124,7 +118,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="suites">
-<span id="dev-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Permalink to this heading"></a></h1>
+<span id="dev-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
 <p>As described in the <a class="reference internal" href="../../users_guide/suites.html#suites"><span class="std std-ref">Suites</span></a> section of the User’s Guide, polaris
 tasks can be organized into suites.  Each core has separate
 regression suites, and a core can have multiple independent regression suites.<br />
@@ -134,7 +128,7 @@ list of the work directories to  the tasks desired to be part of the suite.  A
 line starting with <code class="docutils literal notranslate"><span class="pre">#</span></code> will be  treated as a comment line.</p>
 <p>The philosophy and requirements for the suites are as follows:</p>
 <section id="pull-request-pr-suite">
-<h2>Pull-Request (PR) suite<a class="headerlink" href="#pull-request-pr-suite" title="Permalink to this heading"></a></h2>
+<h2>Pull-Request (PR) suite<a class="headerlink" href="#pull-request-pr-suite" title="Link to this heading"></a></h2>
 <p>The PR suite is intended to be run in the context of its namesake, a pull
 request to the model component. The PR suite should be able to be run in under
 an hour on 256 cores (two 128-core nodes), and the core count could be doubled
@@ -160,7 +154,7 @@ duration with a model restart</p></li>
 </ul>
 </section>
 <section id="nightly-suite">
-<h2>Nightly suite<a class="headerlink" href="#nightly-suite" title="Permalink to this heading"></a></h2>
+<h2>Nightly suite<a class="headerlink" href="#nightly-suite" title="Link to this heading"></a></h2>
 <p>The nightly suite is intended to be run nightly as a more exhaustive test
 that no recent merges have resulted in a change in solution for any possible
 combination of config options. It should require no more than 256 cores and

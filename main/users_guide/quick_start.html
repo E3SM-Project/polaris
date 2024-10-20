@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quick Start for Users</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -123,7 +117,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="quick-start-for-users">
-<span id="quick-start"></span><h1>Quick Start for Users<a class="headerlink" href="#quick-start-for-users" title="Permalink to this heading"></a></h1>
+<span id="quick-start"></span><h1>Quick Start for Users<a class="headerlink" href="#quick-start-for-users" title="Link to this heading"></a></h1>
 <div class="admonition-quick-start-for-users-is-not-yet-valid admonition">
 <p class="admonition-title">Quick Start for Users is not yet valid</p>
 <p>There has not yet been a release of polaris.  We will update this
@@ -131,9 +125,9 @@ documentation as soon as there is one.  Until then please refer to the
 <a class="reference internal" href="../developers_guide/quick_start.html#dev-quick-start"><span class="std std-ref">Quick Start for Developers</span></a>.</p>
 </div>
 <section id="loading-polaris-conda-and-spack-environments">
-<span id="conda-env"></span><h2>Loading polaris conda and spack environments<a class="headerlink" href="#loading-polaris-conda-and-spack-environments" title="Permalink to this heading"></a></h2>
+<span id="conda-env"></span><h2>Loading polaris conda and spack environments<a class="headerlink" href="#loading-polaris-conda-and-spack-environments" title="Link to this heading"></a></h2>
 <section id="e3sm-supported-machines">
-<h3>E3SM supported machines<a class="headerlink" href="#e3sm-supported-machines" title="Permalink to this heading"></a></h3>
+<h3>E3SM supported machines<a class="headerlink" href="#e3sm-supported-machines" title="Link to this heading"></a></h3>
 <p>For each polaris release, we maintain a
 <a class="reference external" href="https://docs.conda.io/en/latest/">conda environment</a>. that includes the
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package as well as all of its dependencies and some libraries
@@ -183,7 +177,7 @@ appropriate for building E3SM components with Gnu compilers and OpenMPI using:</
 </div>
 </section>
 <section id="other-machines">
-<h3>Other machines<a class="headerlink" href="#other-machines" title="Permalink to this heading"></a></h3>
+<h3>Other machines<a class="headerlink" href="#other-machines" title="Link to this heading"></a></h3>
 <p>Once it is released, you will be able to install polaris from a conda package.
 To install your own polaris conda environment on non-E3SM-supported machines,
 first, install <a class="reference external" href="https://github.com/conda-forge/miniforge#miniforge3">Miniforge3</a>
@@ -223,7 +217,7 @@ load script.</p>
 </section>
 </section>
 <section id="building-supported-e3sm-components-as-standalone-models">
-<span id="build-components"></span><h2>Building supported E3SM components as standalone models<a class="headerlink" href="#building-supported-e3sm-components-as-standalone-models" title="Permalink to this heading"></a></h2>
+<span id="build-components"></span><h2>Building supported E3SM components as standalone models<a class="headerlink" href="#building-supported-e3sm-components-as-standalone-models" title="Link to this heading"></a></h2>
 <p>You will need to check out a branch of E3SM to build one of the supported
 components.</p>
 <p>Typically, for MPAS-Ocean, you will clone
@@ -259,7 +253,7 @@ MALI is available at
 <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for each machine and compiler.</p>
 </section>
 <section id="setting-up-tasks">
-<span id="setup-overview"></span><h2>Setting up tasks<a class="headerlink" href="#setting-up-tasks" title="Permalink to this heading"></a></h2>
+<span id="setup-overview"></span><h2>Setting up tasks<a class="headerlink" href="#setting-up-tasks" title="Link to this heading"></a></h2>
 <p>Before you set up a task with polaris, you will need to build the
 MPAS component you wish to test with, see <a class="reference internal" href="#build-components"><span class="std std-ref">Building supported E3SM components as standalone models</span></a> above.</p>
 <p>If you have not already done so, you will need to source the appropriate load
@@ -386,7 +380,7 @@ Again, it is safer to have the executable used to produce the baseline
 preserved.</p>
 </section>
 <section id="running-a-task">
-<h2>Running a task<a class="headerlink" href="#running-a-task" title="Permalink to this heading"></a></h2>
+<h2>Running a task<a class="headerlink" href="#running-a-task" title="Link to this heading"></a></h2>
 <p>After compiling the code and setting up a task, you can log into an
 interactive node (see <a class="reference internal" href="machines/index.html#supported-machines"><span class="std std-ref">Supported Machines</span></a>), load the required conda
 environment and modules, and then</p>
@@ -404,7 +398,7 @@ polaris needs to run the task.  The load script
 setting up the task (see <a class="reference internal" href="#conda-env"><span class="std std-ref">Loading polaris conda and spack environments</span></a>).</p>
 </section>
 <section id="running-with-a-job-script">
-<h2>Running with a job script<a class="headerlink" href="#running-with-a-job-script" title="Permalink to this heading"></a></h2>
+<h2>Running with a job script<a class="headerlink" href="#running-with-a-job-script" title="Link to this heading"></a></h2>
 <p>Alternatively, on supported machines, you can run the task or suite with
 a job script generated automatically during setup, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;workdir&gt;/&lt;test_subdir&gt;
@@ -462,7 +456,7 @@ The following are the config options that are relevant to job scripts:</p>
 </div>
 </section>
 <section id="suites">
-<span id="suite-overview"></span><h2>Suites<a class="headerlink" href="#suites" title="Permalink to this heading"></a></h2>
+<span id="suite-overview"></span><h2>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h2>
 <p>Polaris includes several suites of tasks for code regressions and
 bit-for-bit testing, as well as simply to make it easier to run several test
 cases in one call. They can be listed with:</p>

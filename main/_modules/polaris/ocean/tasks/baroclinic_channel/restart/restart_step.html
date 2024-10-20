@@ -1,23 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.tasks.baroclinic_channel.restart.restart_step</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
-        <script src="../../../../../../_static/jquery.js"></script>
-        <script src="../../../../../../_static/underscore.js"></script>
-        <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../../../../_static/doctools.js"></script>
-        <script src="../../../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
@@ -36,9 +33,6 @@
           <a href="../../../../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -116,11 +110,15 @@
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
 
 
-<div class="viewcode-block" id="RestartStep"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep">[docs]</a><span class="k">class</span> <span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
+<div class="viewcode-block" id="RestartStep">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep">[docs]</a>
+<span class="k">class</span> <span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A forward model step in the restart test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="RestartStep.__init__"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+<div class="viewcode-block" id="RestartStep.__init__">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -147,7 +145,10 @@
                          <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                          <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RestartStep.dynamic_model_config"><a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config">[docs]</a>    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RestartStep.dynamic_model_config">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
@@ -201,7 +202,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
                            <span class="n">yaml</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-                           <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span></div></div>
+                           <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

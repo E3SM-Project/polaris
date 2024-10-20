@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Config files</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -129,7 +123,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="config-files">
-<span id="dev-config"></span><h1>Config files<a class="headerlink" href="#config-files" title="Permalink to this heading"></a></h1>
+<span id="dev-config"></span><h1>Config files<a class="headerlink" href="#config-files" title="Link to this heading"></a></h1>
 <p>The primary documentation for the config parser is in
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html">MPAS-Tools config parser</a>.
 Here, we include some specific details relevant to using the
@@ -200,7 +194,7 @@ be used to get python dictionaries, lists and tuples as well as a small set
 of functions (<code class="docutils literal notranslate"><span class="pre">range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.linspace()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.arange()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.array()</span></code>)</p>
 <section id="shared-config-files">
-<h2>Shared config files<a class="headerlink" href="#shared-config-files" title="Permalink to this heading"></a></h2>
+<h2>Shared config files<a class="headerlink" href="#shared-config-files" title="Link to this heading"></a></h2>
 <p>Often, it makes sense for many tasks and steps to share the same config
 options.  The default behavior is for a task and its “owned” steps to share
 a config file in the task’s work directory called <code class="docutils literal notranslate"><span class="pre">{task.name}.cfg</span></code> and
@@ -296,7 +290,7 @@ added as follows:</p>
 </div>
 </section>
 <section id="comments-in-config-files">
-<h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Permalink to this heading"></a></h2>
+<h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Link to this heading"></a></h2>
 <p>One of the main advantages of <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vstable)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a>
 over <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a> is that it keeps track of comments
 that are associated with config sections and options.</p>

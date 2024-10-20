@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Developer Tutorial: Adding a new test group</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -157,14 +151,14 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="developer-tutorial-adding-a-new-test-group">
-<span id="dev-tutorial-add-test-group"></span><h1>Developer Tutorial: Adding a new test group<a class="headerlink" href="#developer-tutorial-adding-a-new-test-group" title="Permalink to this heading"></a></h1>
+<span id="dev-tutorial-add-test-group"></span><h1>Developer Tutorial: Adding a new test group<a class="headerlink" href="#developer-tutorial-adding-a-new-test-group" title="Link to this heading"></a></h1>
 <p>This tutorial presents a step-by-step guide to adding a new test group to the
 polaris python package (see the <a class="reference internal" href="../glossary.html#glossary"><span class="std std-ref">Glossary</span></a> for definitions of these
 terms).  In this tutorial, I will use the <a class="reference internal" href="../developers_guide/ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a>
 as an example.  This test group was actually ported from <a class="reference internal" href="../index.html#compass"><span class="std std-ref">Compass</span></a> but we
 will use it to describe the process for creating a test group from scratch.</p>
 <section id="getting-started">
-<span id="dev-tutorial-add-test-group-getting-started"></span><h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-getting-started"></span><h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>To begin with, you will need to check out the polaris repo and create a new
 branch from <code class="docutils literal notranslate"><span class="pre">main</span></code> for developing the new test group.  For this purpose, we
 will stick with the simpler approach in <a class="reference internal" href="../developers_guide/quick_start.html#dev-polaris-repo"><span class="std std-ref">Set up a polaris repository: for beginners</span></a> here, but feel
@@ -239,7 +233,7 @@ for your machine.</p>
 <p>Now, we’re ready to start developing!</p>
 </section>
 <section id="making-a-new-test-group">
-<span id="dev-tutorial-add-test-group-make-test-group"></span><h2>Making a new test group<a class="headerlink" href="#making-a-new-test-group" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-make-test-group"></span><h2>Making a new test group<a class="headerlink" href="#making-a-new-test-group" title="Link to this heading"></a></h2>
 <p>Use any method you like for editing code.  If you haven’t settled on a method
 and are working on your own laptop or desktop, you may want to try an
 integrated development environment (<a class="reference external" href="https://www.jetbrains.com/pycharm/">PyCharm</a>
@@ -333,7 +327,7 @@ it to the <code class="docutils literal notranslate"><span class="pre">Ocean</sp
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> knows about the test group.</p>
 </section>
 <section id="adding-a-default-task">
-<span id="dev-tutorial-add-test-group-add-default"></span><h2>Adding a “default” task<a class="headerlink" href="#adding-a-default-task" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-add-default"></span><h2>Adding a “default” task<a class="headerlink" href="#adding-a-default-task" title="Link to this heading"></a></h2>
 <p>We’ll add a task called <code class="docutils literal notranslate"><span class="pre">default</span></code> to <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> by making a
 <code class="docutils literal notranslate"><span class="pre">default</span></code> package within <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel</span></code>.  First,
 we make the directory <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel/default</span></code>, then
@@ -408,7 +402,7 @@ component or the task to the test group).  If you get import errors or
 syntax errors, you’ll need to fix those first.</p>
 </section>
 <section id="varying-resolution-and-other-parameters">
-<span id="dev-tutorial-add-test-group-vary-res"></span><h2>Varying resolution and other parameters<a class="headerlink" href="#varying-resolution-and-other-parameters" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-vary-res"></span><h2>Varying resolution and other parameters<a class="headerlink" href="#varying-resolution-and-other-parameters" title="Link to this heading"></a></h2>
 <p>For “yet another channel” tasks, we know that we want each test to be at a
 single resolution but let’s suppose that we want multiple versions of the
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test for different resolutions.</p>
@@ -533,7 +527,7 @@ are supported.  If we have done our job especially well, we should be able to
 add new, non-standard resolutions and the tasks should still work.</p>
 </section>
 <section id="adding-the-init-step">
-<span id="dev-tutorial-add-test-group-add-init"></span><h2>Adding the init step<a class="headerlink" href="#adding-the-init-step" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-add-init"></span><h2>Adding the init step<a class="headerlink" href="#adding-the-init-step" title="Link to this heading"></a></h2>
 <p>In polaris, steps are defined in python modules by classes that descend
 from the <a class="reference internal" href="../developers_guide/generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> base class.  The modules can be defined
 within the task package (if they are unique to the task) or in the
@@ -586,7 +580,7 @@ subdirectory name, possibly with multiple levels of directories.  This is
 particularly important for parameter studies, an example of which can be seen
 in the <span class="xref std std-ref">dev-ocean-global-convergence-cosine-bell</span> task.</p>
 <section id="creating-a-horizontal-mesh">
-<h3>Creating a horizontal mesh<a class="headerlink" href="#creating-a-horizontal-mesh" title="Permalink to this heading"></a></h3>
+<h3>Creating a horizontal mesh<a class="headerlink" href="#creating-a-horizontal-mesh" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step does the actual work of
 creating a mesh and initial condition. Below, We will present the method in 3
 pieces.  Please browse the code yourself to see the complete method.</p>
@@ -648,7 +642,7 @@ number of grid cells in x and y from the physical sizes and the resolution.</p>
 discussing how to set the config options used to generate the horizontal mesh.</p>
 </section>
 <section id="adding-a-config-file">
-<h3>Adding a config file<a class="headerlink" href="#adding-a-config-file" title="Permalink to this heading"></a></h3>
+<h3>Adding a config file<a class="headerlink" href="#adding-a-config-file" title="Link to this heading"></a></h3>
 <p>We need a way to get the physical extent of the mesh <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> in km.
 We could hard-code these in the task directly but this has several
 disadvantages.  First and foremost, it hides these physical values in a way
@@ -692,7 +686,7 @@ potentially unexpected ways.  You can see an example of this in the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/tasks/global_convergence/cosine_bell/__init__.py#L55-L62">cosine_bell task</a>.</p>
 </section>
 <section id="adding-the-step-to-the-task">
-<span id="dev-tutorial-add-test-group-adding-a-step"></span><h3>Adding the step to the task<a class="headerlink" href="#adding-the-step-to-the-task" title="Permalink to this heading"></a></h3>
+<span id="dev-tutorial-add-test-group-adding-a-step"></span><h3>Adding the step to the task<a class="headerlink" href="#adding-the-step-to-the-task" title="Link to this heading"></a></h3>
 <p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task, we are now ready to add
 <code class="docutils literal notranslate"><span class="pre">init</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
@@ -769,7 +763,7 @@ $<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${
 </div>
 </section>
 <section id="creating-a-vertical-coordinate">
-<h3>Creating a vertical coordinate<a class="headerlink" href="#creating-a-vertical-coordinate" title="Permalink to this heading"></a></h3>
+<h3>Creating a vertical coordinate<a class="headerlink" href="#creating-a-vertical-coordinate" title="Link to this heading"></a></h3>
 <p>Ocean tasks typically need to define a vertical coordinate as we will
 discuss here.  Land ice tasks use a different approach to creating
 vertical coordinates, so this section will not apply to those tasks.
@@ -863,7 +857,7 @@ levels (with <code class="docutils literal notranslate"><span class="pre">nVertL
 </ul>
 </section>
 <section id="creating-an-initial-condition">
-<h3>Creating an initial condition<a class="headerlink" href="#creating-an-initial-condition" title="Permalink to this heading"></a></h3>
+<h3>Creating an initial condition<a class="headerlink" href="#creating-an-initial-condition" title="Link to this heading"></a></h3>
 <p>The next part of the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step is to
 define the initial condition:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
@@ -1003,14 +997,15 @@ group that we therefore call <code class="docutils literal notranslate"><span cl
 them in the task so that users can more easily alter the task and
 also to provide a relatively obvious place to document these parameters.</p>
 <figure class="align-right" id="id2">
-<a class="reference internal image-reference" href="../_images/baroclinic_channel_cell_patches.png"><img alt="../_images/baroclinic_channel_cell_patches.png" src="../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" /></a>
+<a class="reference internal image-reference" href="../_images/baroclinic_channel_cell_patches.png"><img alt="../_images/baroclinic_channel_cell_patches.png" src="../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Temperature</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Temperature</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="adding-plots">
-<h3>Adding plots<a class="headerlink" href="#adding-plots" title="Permalink to this heading"></a></h3>
+<h3>Adding plots<a class="headerlink" href="#adding-plots" title="Link to this heading"></a></h3>
 <p>It is helpful to make some plots of a few variables from the initial condition
 as a sanity check.  We do this using the visualization for
 <a class="reference internal" href="../developers_guide/framework/visualization.html#dev-visualization-planar"><span class="std std-ref">horizontal fields from planar meshes</span></a>.</p>
@@ -1050,7 +1045,7 @@ can specify the colormap (the default is the matplotlib default <code class="doc
 optionally you can plot the edges of the patches (cells or edges).</p>
 </section>
 <section id="adding-step-outputs">
-<h3>Adding step outputs<a class="headerlink" href="#adding-step-outputs" title="Permalink to this heading"></a></h3>
+<h3>Adding step outputs<a class="headerlink" href="#adding-step-outputs" title="Link to this heading"></a></h3>
 <p>Now that we’ve written the full <code class="docutils literal notranslate"><span class="pre">run()</span></code> method for the step, we know what
 the output files will be.  It is a very good idea to define the outputs
 explicitly.  For one, polaris will check to make sure they are created as
@@ -1082,7 +1077,7 @@ these are used as inputs to the <code class="docutils literal notranslate"><span
 define below, but explicitly including other outputs is not a problem.</p>
 </section>
 <section id="adding-validation">
-<span id="dev-tutorial-add-test-group-adding-validation"></span><h3>Adding validation<a class="headerlink" href="#adding-validation" title="Permalink to this heading"></a></h3>
+<span id="dev-tutorial-add-test-group-adding-validation"></span><h3>Adding validation<a class="headerlink" href="#adding-validation" title="Link to this heading"></a></h3>
 <p>One of the main purposes of having tasks is to validate changes to the
 code.  You can use polaris’ validation code to compare the output of different
 steps to one another (or files within a single step), but a very common type
@@ -1123,7 +1118,7 @@ validation if a user has set up the task with a baseline, see
 <a class="reference internal" href="../developers_guide/framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a>.</p>
 </section>
 <section id="test-things-out">
-<span id="dev-tutorial-add-test-group-testing-a-step"></span><h3>Test things out!<a class="headerlink" href="#test-things-out" title="Permalink to this heading"></a></h3>
+<span id="dev-tutorial-add-test-group-testing-a-step"></span><h3>Test things out!<a class="headerlink" href="#test-things-out" title="Link to this heading"></a></h3>
 <p>It’s a good idea to test things out after adding each step to a task.
 Before we add any more steps or tasks, we’ll run <code class="docutils literal notranslate"><span class="pre">default</span></code> and make sure
 we can create the initial condition.  It would be good to make sure what we’ve
@@ -1209,7 +1204,7 @@ you might try to stress-test your own task.</p>
 </section>
 </section>
 <section id="adding-the-forward-step">
-<h2>Adding the forward step<a class="headerlink" href="#adding-the-forward-step" title="Permalink to this heading"></a></h2>
+<h2>Adding the forward step<a class="headerlink" href="#adding-the-forward-step" title="Link to this heading"></a></h2>
 <p>Now that we know that the first step seems to be working, we’re ready to add
 another. We will add a <code class="docutils literal notranslate"><span class="pre">forward</span></code> step for running the MPAS-Ocean model forward
 in time from the initial condition created in <code class="docutils literal notranslate"><span class="pre">init</span></code>.  <code class="docutils literal notranslate"><span class="pre">forward</span></code>
@@ -1315,7 +1310,7 @@ to the functionality we anticipate adding to this step:</p>
 </span></pre></div>
 </div>
 <section id="defining-model-config-options-and-streams">
-<span id="dev-tutorial-add-test-group-model-config-and-streams"></span><h3>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Permalink to this heading"></a></h3>
+<span id="dev-tutorial-add-test-group-model-config-and-streams"></span><h3>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Link to this heading"></a></h3>
 <p>The E3SM components supported by polaris require both model config options
 and streams definitions (namelist and streams files for MPAS components,
 see <span class="xref std std-ref">dev-step-namelists-and-streams</span>, and yaml files for Omega, see
@@ -1506,7 +1501,7 @@ model config files to a step by defining all of the relevant streams attributes
 and contents.  We don’t demonstrate that in this tutorial.</p>
 </section>
 <section id="adding-the-forward-step-to-the-task">
-<h3>Adding the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step to the task<a class="headerlink" href="#adding-the-forward-step-to-the-task" title="Permalink to this heading"></a></h3>
+<h3>Adding the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step to the task<a class="headerlink" href="#adding-the-forward-step-to-the-task" title="Link to this heading"></a></h3>
 <p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task, we are now ready to add
 <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps to the task.  In
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel/default/__init__.py</span></code>, we add:</p>
@@ -1532,7 +1527,7 @@ not pass a viscosity (meaning it will use the default value from
 <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>).</p>
 </section>
 <section id="adding-more-validation">
-<h3>Adding more validation<a class="headerlink" href="#adding-more-validation" title="Permalink to this heading"></a></h3>
+<h3>Adding more validation<a class="headerlink" href="#adding-more-validation" title="Link to this heading"></a></h3>
 <p>Just as we did with the initial state in {ref}``,
 we want to add validation of the result of the forward run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
@@ -1567,7 +1562,7 @@ forward step.  Again, we only provide <code class="docutils literal notranslate"
 performed if a user has set up the task with a baseline.</p>
 </section>
 <section id="test-the-task-again">
-<h3>Test the task again!<a class="headerlink" href="#test-the-task-again" title="Permalink to this heading"></a></h3>
+<h3>Test the task again!<a class="headerlink" href="#test-the-task-again" title="Link to this heading"></a></h3>
 <p>We’re ready to run some more tests just like we did in
 <a class="reference internal" href="#dev-tutorial-add-test-group-testing-a-step"><span class="std std-ref">Test things out!</span></a>.  Again, we’ll start with
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> to make sure that works fine and the tasks still show
@@ -1578,7 +1573,7 @@ we’ve added so far.</p>
 </section>
 </section>
 <section id="adding-a-visualization-step">
-<h2>Adding a visualization step<a class="headerlink" href="#adding-a-visualization-step" title="Permalink to this heading"></a></h2>
+<h2>Adding a visualization step<a class="headerlink" href="#adding-a-visualization-step" title="Link to this heading"></a></h2>
 <p>We’ll add one more step to make some plots after the forward run has finished.
 Here is the contents of <code class="docutils literal notranslate"><span class="pre">viz.py</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/viz.py
@@ -1635,7 +1630,7 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
 step.  Since all the pieces of this step have been covered in the other 2
 steps, we won’t describe this step in any more detail.</p>
 <section id="adding-the-viz-step-to-the-task">
-<h3>Adding the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step to the task<a class="headerlink" href="#adding-the-viz-step-to-the-task" title="Permalink to this heading"></a></h3>
+<h3>Adding the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step to the task<a class="headerlink" href="#adding-the-viz-step-to-the-task" title="Link to this heading"></a></h3>
 <p>We’re now ready to add the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
@@ -1663,7 +1658,7 @@ steps, we won’t describe this step in any more detail.</p>
 </div>
 </section>
 <section id="test-the-task-one-more-time">
-<h3>Test the task one more time!<a class="headerlink" href="#test-the-task-one-more-time" title="Permalink to this heading"></a></h3>
+<h3>Test the task one more time!<a class="headerlink" href="#test-the-task-one-more-time" title="Link to this heading"></a></h3>
 <p>And it’s time to test things out one more time, now with all 3 steps. Again,
 follow the procedure as in
 <a class="reference internal" href="#dev-tutorial-add-test-group-testing-a-step"><span class="std std-ref">Test things out!</span></a>:</p>
@@ -1676,7 +1671,7 @@ follow the procedure as in
 </section>
 </section>
 <section id="adding-a-second-task">
-<span id="dev-tutorial-add-test-group-adding-second-test"></span><h2>Adding a second task<a class="headerlink" href="#adding-a-second-task" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-adding-second-test"></span><h2>Adding a second task<a class="headerlink" href="#adding-a-second-task" title="Link to this heading"></a></h2>
 <p>Let’s add one more task to see how that goes.  This will be a quick one.</p>
 <p>The decomposition test we present here is pretty similar to the default test.
 It starts with the same initial condition and does a forward run exactly like
@@ -1809,7 +1804,7 @@ validated against their equivalents in the baseline as well.)</p>
 <p>And we’re ready to test once again!</p>
 </section>
 <section id="documentation">
-<span id="dev-tutorial-add-test-group-docs"></span><h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
+<span id="dev-tutorial-add-test-group-docs"></span><h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
 <p>Make sure to add some documentation of your new test group.  The documentation
 is written in the <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/typography.html">MyST</a>
 flavor of Markdown, similar to what GitHub uses. See <a class="reference internal" href="../developers_guide/docs.html#dev-docs"><span class="std std-ref">Documentation</span></a> for
@@ -1842,14 +1837,14 @@ the appropriate place (in alphabetical order) to the list of test groups in
 <p>At this point, you are ready to make a pull request with the new test group!</p>
 </section>
 <section id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this heading"></a></h2>
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading"></a></h2>
 <p>This is the “bonus” section of the tutorial with some more advanced
 capabilities.  These are still important for you to know about, since they
 will give you added flexibility, improve code reuse, and introduce you to
 more complex capabilities of polaris.  But they aren’t strictly necessary for
 you to get started.</p>
 <section id="adding-model-config-options-in-code">
-<h3>Adding model config options in code<a class="headerlink" href="#adding-model-config-options-in-code" title="Permalink to this heading"></a></h3>
+<h3>Adding model config options in code<a class="headerlink" href="#adding-model-config-options-in-code" title="Link to this heading"></a></h3>
 <p>In <a class="reference internal" href="#dev-tutorial-add-test-group-model-config-and-streams"><span class="std std-ref">Defining model config options and streams</span></a>, we added
 model config options using yaml and namelist files. Another way to set model
 config options is to use a python dictionary and to call
@@ -1883,7 +1878,7 @@ not set):</p>
 </div>
 </section>
 <section id="adding-dynamic-model-config-options">
-<h3>Adding dynamic model config options<a class="headerlink" href="#adding-dynamic-model-config-options" title="Permalink to this heading"></a></h3>
+<h3>Adding dynamic model config options<a class="headerlink" href="#adding-dynamic-model-config-options" title="Link to this heading"></a></h3>
 <p>Sometimes, you want to define model config options that should get set during
 setup but then get updated at runtime in case config options that affect them
 have been updated.  Here, we show example of 2 such “dynamic” model config
@@ -1998,7 +1993,7 @@ config options in case the user modified <code class="docutils literal notransla
 config file in the work directory before running the step.</p>
 </section>
 <section id="computing-the-cell-count">
-<h3>Computing the cell count<a class="headerlink" href="#computing-the-cell-count" title="Permalink to this heading"></a></h3>
+<h3>Computing the cell count<a class="headerlink" href="#computing-the-cell-count" title="Link to this heading"></a></h3>
 <p>In the ocean component, we have infrastructure for determining good values
 for <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> (the reasonable range of MPI tasks that a forward
 model step should use).  Using this infrastructure requires overriding the
@@ -2070,7 +2065,7 @@ the <a class="reference internal" href="../developers_guide/generated/polaris.St
 <a class="reference internal" href="../developers_guide/generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.constrain_resources()</span></code></a> methods.</p>
 </section>
 <section id="adding-a-shared-superclass-for-tasks">
-<span id="dev-tutorial-add-test-group-add-shared-superclass"></span><h3>Adding a shared “superclass” for tasks<a class="headerlink" href="#adding-a-shared-superclass-for-tasks" title="Permalink to this heading"></a></h3>
+<span id="dev-tutorial-add-test-group-add-shared-superclass"></span><h3>Adding a shared “superclass” for tasks<a class="headerlink" href="#adding-a-shared-superclass-for-tasks" title="Link to this heading"></a></h3>
 <p>As I started to add other tasks to <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code>, it became clear
 that there was going to be some redundant code that I copied from one to the
 next.  This isn’t great for future maintenance and it’s kind of counter to
@@ -2199,7 +2194,7 @@ the redundant pieces.  Here’s what’s left:</p>
 </div>
 </section>
 <section id="adding-a-parameter-study">
-<h3>Adding a parameter study<a class="headerlink" href="#adding-a-parameter-study" title="Permalink to this heading"></a></h3>
+<h3>Adding a parameter study<a class="headerlink" href="#adding-a-parameter-study" title="Link to this heading"></a></h3>
 <p>The typical structure for a parameter study is to explore each parameter choice
 in a separate step (or steps) within a single task. In addition to running
 the model for each of these parameter choices, there is typically a separate
@@ -2297,7 +2292,7 @@ tet case. We add the following to the file <code class="docutils literal notrans
 <p>We switch the <code class="docutils literal notranslate"><span class="pre">default</span></code> task to only support 10 km resolution but now have
 the <code class="docutils literal notranslate"><span class="pre">rpe</span></code> task available at 3 resolutions.</p>
 <section id="adding-the-steps-to-the-task">
-<h4>Adding the steps to the task<a class="headerlink" href="#adding-the-steps-to-the-task" title="Permalink to this heading"></a></h4>
+<h4>Adding the steps to the task<a class="headerlink" href="#adding-the-steps-to-the-task" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step has already been added to <code class="docutils literal notranslate"><span class="pre">rpe</span></code> because that
 happens in the <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> superclass.  Now, we will add the
 variants of the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step and the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step to the task.
@@ -2479,7 +2474,7 @@ this task, <code class="docutils literal notranslate"><span class="pre">rpe/forw
 every day.</p>
 </section>
 <section id="adding-the-analysis-step">
-<h4>Adding the analysis step<a class="headerlink" href="#adding-the-analysis-step" title="Permalink to this heading"></a></h4>
+<h4>Adding the analysis step<a class="headerlink" href="#adding-the-analysis-step" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> includes another step, <code class="docutils literal notranslate"><span class="pre">analysis</span></code> that plots results from
 each simulation.  The full analysis step looks like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
@@ -2610,7 +2605,7 @@ along with the forward tests before adding new versions if <code class="docutils
 getting called for the second time from <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.</p>
 </section>
 <section id="id1">
-<h4>Adding validation<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h4>
+<h4>Adding validation<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
 <p>Adding validation to the <code class="docutils literal notranslate"><span class="pre">rpe</span></code> is very similar to <code class="docutils literal notranslate"><span class="pre">default</span></code>.  The only
 difference is that we need to do it once for each forward test:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
@@ -2640,7 +2635,7 @@ difference is that we need to do it once for each forward test:</p>
 </section>
 </section>
 <section id="how-to-and-how-not-to-pass-data-between-steps">
-<h3>How to (and how not to) pass data between steps<a class="headerlink" href="#how-to-and-how-not-to-pass-data-between-steps" title="Permalink to this heading"></a></h3>
+<h3>How to (and how not to) pass data between steps<a class="headerlink" href="#how-to-and-how-not-to-pass-data-between-steps" title="Link to this heading"></a></h3>
 <p>In developing <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code>, we initially used config options to pass
 parameters <code class="docutils literal notranslate"><span class="pre">nx</span></code>, <code class="docutils literal notranslate"><span class="pre">ny</span></code>, and <code class="docutils literal notranslate"><span class="pre">dc</span></code> between steps.  They were computed and set in
 the shared <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> in its <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method.  This

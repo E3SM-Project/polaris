@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tasks</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -125,7 +119,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="tasks">
-<span id="dev-tasks"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Permalink to this heading"></a></h1>
+<span id="dev-tasks"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
 <p>In many ways, tasks are polaris’s fundamental building blocks, since a
 user can’t set up an individual step of task (though they can run the
 steps one at a time).</p>
@@ -136,7 +130,7 @@ YAML files.  The task must include a class that descends from
 the class will sometimes override the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method of the base class,
 as described below.</p>
 <section id="task-attributes">
-<span id="dev-task-class"></span><h2>Task attributes<a class="headerlink" href="#task-attributes" title="Permalink to this heading"></a></h2>
+<span id="dev-task-class"></span><h2>Task attributes<a class="headerlink" href="#task-attributes" title="Link to this heading"></a></h2>
 <p>The base class <a class="reference internal" href="../generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a> has a large number of attributes
 that are useful at different stages (init, configuration and run) of the task.</p>
 <p>Some attributes are available after calling the base class’ constructor
@@ -260,7 +254,7 @@ mesh type and the velocity solver an attributes:</p>
 </div>
 </section>
 <section id="constructor">
-<span id="dev-task-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
+<span id="dev-task-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method must first call the base constructor
 <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the task, the component it
 will belong to, and the subdirectory within the component.  (The default is
@@ -611,7 +605,7 @@ component directory) are again in bold:</p>
 </ul>
 </section>
 <section id="configure">
-<span id="dev-task-configure"></span><h2>configure()<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h2>
+<span id="dev-task-configure"></span><h2>configure()<a class="headerlink" href="#configure" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.Task.configure.html#polaris.Task.configure" title="polaris.Task.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.configure()</span></code></a> method is called before a task gets
 set up in its work directory.  As part of setup, a user can pass their own
 config options to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> that override those from polaris packages.</p>

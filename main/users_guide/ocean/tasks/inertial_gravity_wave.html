@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>inertial gravity wave</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -145,7 +139,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="inertial-gravity-wave">
-<span id="ocean-inertial-gravity-wave"></span><h1>inertial gravity wave<a class="headerlink" href="#inertial-gravity-wave" title="Permalink to this heading"></a></h1>
+<span id="ocean-inertial-gravity-wave"></span><h1>inertial gravity wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h1>
 <p>The inertial gravity wave task implements a test of surface wave
 propagation with the rotating, linear shallow water equations on a doubly
 periodic domain. This test has an exact solution which is used to
@@ -153,7 +147,7 @@ assess the numerical accuracy and convergence of the MPAS-Ocean discretization.
 The implementation is from
 <a class="reference external" href="https://doi.org/10.22541/essoar.167100170.03833124/v1">Bishnu et al.(2023)</a></p>
 <section id="description">
-<h2>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">inertial_gravity_wave</span></code> task runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.</p>
 <p>The forward step for each resolution runs the simulation for 10 hours. The
@@ -167,20 +161,22 @@ also computes the convergence rate with resolution.</p>
 <p>The visualization step produces two plots: the convergence of the L2-norm with
 resolution and a plan-view of the simulated, exact, and (simulated-analytical)
 SSH fields.</p>
-<a class="reference internal image-reference" href="../../../_images/inertial_gravity_wave_comparison.png"><img alt="../../../_images/inertial_gravity_wave_comparison.png" class="align-center" src="../../../_images/inertial_gravity_wave_comparison.png" style="width: 500px;" /></a>
-<a class="reference internal image-reference" href="../../../_images/inertial_gravity_wave_convergence.png"><img alt="../../../_images/inertial_gravity_wave_convergence.png" class="align-center" src="../../../_images/inertial_gravity_wave_convergence.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../../_images/inertial_gravity_wave_comparison.png"><img alt="../../../_images/inertial_gravity_wave_comparison.png" class="align-center" src="../../../_images/inertial_gravity_wave_comparison.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/inertial_gravity_wave_convergence.png"><img alt="../../../_images/inertial_gravity_wave_convergence.png" class="align-center" src="../../../_images/inertial_gravity_wave_convergence.png" style="width: 500px;" />
+</a>
 </section>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support only MPAS-Ocean.</p>
 </section>
 <section id="mesh">
-<h2>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h2>
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>For each resolution, the <code class="docutils literal notranslate"><span class="pre">init</span></code> step generates and planar hexagonal
 mesh that is periodic in both the x and y directions.</p>
 </section>
 <section id="vertical-grid">
-<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h2>
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>Since this task is a shallow water case, the vertical grid is set to a
 single layer configuration.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
@@ -206,7 +202,7 @@ single layer configuration.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h2>
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The initial conditions are set to the exact solution at time <span class="math notranslate nohighlight">\(t=0\)</span>:
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -217,16 +213,16 @@ v &amp;= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f
 </p>
 </section>
 <section id="forcing">
-<h2>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h2>
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h2>
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
 <p>The time step is determined by the config option <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> according to the
 mesh resolution. The run duration is 10 hours.</p>
 </section>
 <section id="config-options">
-<h2>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h2>
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <p>The following config options are availiable for this case:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[inertial_gravity_wave]</span>
 
@@ -255,7 +251,7 @@ mesh resolution. The run duration is 10 hours.</p>
 </div>
 </section>
 <section id="cores">
-<h2>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h2>
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
 <p>The number of cores is determined according to the config options
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
 </section>

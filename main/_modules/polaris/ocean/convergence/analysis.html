@@ -1,23 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.convergence.analysis</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,9 +33,6 @@
           <a href="../../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -122,7 +116,9 @@
 <span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
-<div class="viewcode-block" id="ConvergenceAnalysis"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis">[docs]</a><span class="k">class</span> <span class="nc">ConvergenceAnalysis</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<div class="viewcode-block" id="ConvergenceAnalysis">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis">[docs]</a>
+<span class="k">class</span> <span class="nc">ConvergenceAnalysis</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for analyzing the output from convergence tests</span>
 
@@ -165,7 +161,9 @@
 <span class="sd">                The z-index to use for variables that have an nVertLevels</span>
 <span class="sd">                dimension, which should be None for variables that don&#39;t</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ConvergenceAnalysis.__init__"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span>
+<div class="viewcode-block" id="ConvergenceAnalysis.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span>
                  <span class="n">convergence_vars</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
@@ -223,7 +221,10 @@
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convergence_vars</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;convergence_</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.setup"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.setup.html#polaris.ocean.convergence.ConvergenceAnalysis.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.setup">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.setup.html#polaris.ocean.convergence.ConvergenceAnalysis.setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add input files based on resolutions, which may have been changed by</span>
 <span class="sd">        user config options</span>
@@ -245,7 +246,10 @@
                 <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_output.nc&#39;</span><span class="p">,</span>
                 <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.run"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.run.html#polaris.ocean.convergence.ConvergenceAnalysis.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.run">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.run.html#polaris.ocean.convergence.ConvergenceAnalysis.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -257,7 +261,10 @@
                 <span class="n">title</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
                 <span class="n">zidx</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;zidx&quot;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.plot_convergence"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.ConvergenceAnalysis.plot_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">plot_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">zidx</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.plot_convergence">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.ConvergenceAnalysis.plot_convergence">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">zidx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the error norm for each resolution and produce a convergence</span>
 <span class="sd">        plot</span>
@@ -363,7 +370,10 @@
         <span class="k">if</span> <span class="n">convergence_failed</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Convergence rate below minimum tolerance.&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.compute_error"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.compute_error.html#polaris.ocean.convergence.ConvergenceAnalysis.compute_error">[docs]</a>    <span class="k">def</span> <span class="nf">compute_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.compute_error">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.compute_error.html#polaris.ocean.convergence.ConvergenceAnalysis.compute_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the error for a given resolution</span>
@@ -416,7 +426,10 @@
 
         <span class="k">return</span> <span class="n">error</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.exact_solution"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.ConvergenceAnalysis.exact_solution">[docs]</a>    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.exact_solution">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.ConvergenceAnalysis.exact_solution">[docs]</a>
+    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the exact solution</span>
 
@@ -451,7 +464,10 @@
 
         <span class="k">return</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.get_output_field"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.ConvergenceAnalysis.get_output_field">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.get_output_field">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.ConvergenceAnalysis.get_output_field">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the model output field at the given time and z index</span>
 
@@ -484,7 +500,10 @@
             <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">field_mpas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">field_mpas</span></div>
 
-<div class="viewcode-block" id="ConvergenceAnalysis.convergence_parameters"><a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.ConvergenceAnalysis.convergence_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.convergence_parameters">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.ConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.ConvergenceAnalysis.convergence_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get convergence parameters</span>
 
@@ -507,7 +526,9 @@
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence&#39;</span><span class="p">]</span>
         <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_thresh&#39;</span><span class="p">)</span>
         <span class="n">error_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div></div>
+        <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
+</div>
+
 </pre></div>
 
            </div>

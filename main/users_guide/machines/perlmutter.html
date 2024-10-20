@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Perlmutter</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -134,7 +128,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="perlmutter">
-<h1>Perlmutter<a class="headerlink" href="#perlmutter" title="Permalink to this heading"></a></h1>
+<h1>Perlmutter<a class="headerlink" href="#perlmutter" title="Link to this heading"></a></h1>
 <p>login: <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">$my_username&#64;perlmutter-p1.nersc.gov</span></code></p>
 <p>interactive login:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for CPU:</span>
@@ -164,11 +158,11 @@ salloc<span class="w"> </span>--qos<span class="o">=</span>debug<span class="w">
 <li><p>E3SM uses <a class="reference external" href="https://e3sm-project.github.io/zstash/">zstash</a></p></li>
 </ul>
 <section id="perlmutter-cpu">
-<h2>Perlmutter-CPU<a class="headerlink" href="#perlmutter-cpu" title="Permalink to this heading"></a></h2>
+<h2>Perlmutter-CPU<a class="headerlink" href="#perlmutter-cpu" title="Link to this heading"></a></h2>
 <p>Perlmutter’s CPU and GPU nodes have different configuration options and
 compilers.  We only support Perlmutter-CPU at this time.</p>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
 <p>Here are the default
 config options added when you choose <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">pm-cpu</span></code> when setting up test
 cases or a suite:</p>
@@ -253,13 +247,13 @@ cases or a suite:</p>
 </section>
 </section>
 <section id="loading-and-running-polaris-on-perlmutter">
-<h2>Loading and running Polaris on Perlmutter<a class="headerlink" href="#loading-and-running-polaris-on-perlmutter" title="Permalink to this heading"></a></h2>
+<h2>Loading and running Polaris on Perlmutter<a class="headerlink" href="#loading-and-running-polaris-on-perlmutter" title="Link to this heading"></a></h2>
 <p>Follow the developer’s guide at <a class="reference internal" href="../../developers_guide/machines/index.html#dev-machines"><span class="std std-ref">Machines</span></a> to get set up.  There are
 currently no plans to support a different deployment strategy (e.g. a shared
 environoment) for users.</p>
 </section>
 <section id="jupyter-notebook-on-remote-data">
-<h2>Jupyter notebook on remote data<a class="headerlink" href="#jupyter-notebook-on-remote-data" title="Permalink to this heading"></a></h2>
+<h2>Jupyter notebook on remote data<a class="headerlink" href="#jupyter-notebook-on-remote-data" title="Link to this heading"></a></h2>
 <p>You can run Jupyter notebooks on NERSC with direct access to scratch data as
 follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-Y<span class="w"> </span>-L<span class="w"> </span><span class="m">8844</span>:localhost:8844<span class="w"> </span>MONIKER@perlmutter-p1.nersc.gov

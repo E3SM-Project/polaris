@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Overview</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -127,7 +121,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="overview">
-<span id="dev-overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h1>
+<span id="dev-overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
 <p>Polaris is a <a class="reference external" href="https://docs.python.org/3/tutorial/modules.html#packages">python package</a>.
 All of the code in the package can be accessed in one of two ways.  The first
 is the command-line interface with commands like <a class="reference internal" href="command_line.html#dev-polaris-list"><span class="std std-ref">polaris list</span></a> and
@@ -142,7 +136,7 @@ is the command-line interface with commands like <a class="reference internal" h
 infrastructure for polaris, we first give a little bit of background on
 the design philosophy behind the package.</p>
 <section id="code-style">
-<span id="dev-style"></span><h2>Code Style<a class="headerlink" href="#code-style" title="Permalink to this heading"></a></h2>
+<span id="dev-style"></span><h2>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h2>
 <p>All code is required to adhere fairly strictly to the
 <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8 style guide</a>.  A bot will
 flag any PEP8 violations as part of each pull request to
@@ -165,7 +159,7 @@ recommended you run flake8 from the command line or the vim plugin before
 committing your code changes.</p>
 </section>
 <section id="packages-and-modules">
-<span id="dev-packages"></span><h2>Packages and Modules<a class="headerlink" href="#packages-and-modules" title="Permalink to this heading"></a></h2>
+<span id="dev-packages"></span><h2>Packages and Modules<a class="headerlink" href="#packages-and-modules" title="Link to this heading"></a></h2>
 <p>Why a python package?  That sounds complicated.</p>
 <p>Some of the main advantages of polaris being a package instead of a group
 of scripts are that:</p>
@@ -185,7 +179,7 @@ any “downstream” packages that use polaris).</p></li>
 modules and classes but we know most developers won’t be too clued in on these
 concepts so here’s a short intro.</p>
 <section id="packages">
-<h3>Packages<a class="headerlink" href="#packages" title="Permalink to this heading"></a></h3>
+<h3>Packages<a class="headerlink" href="#packages" title="Link to this heading"></a></h3>
 <p>A python package is a directory that has a file called <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>.  That
 file can be empty or it can have code in it.  If it has functions or classes
 inside of it, they act like they’re directly in the package.  As an example,
@@ -231,7 +225,7 @@ way from the root (<code class="docutils literal notranslate"><span class="pre">
 It’s similar to the <code class="docutils literal notranslate"><span class="pre">/</span></code> characters in a unix directory.</p>
 </section>
 <section id="modules">
-<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h3>
+<h3>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h3>
 <p>Modules are just python files that aren’t scripts.  Since you can often treat
 scripts like modules, even that distinction isn’t that exact.  But for the
 purposes of the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package, every single file ending in <code class="docutils literal notranslate"><span class="pre">.py</span></code> in the
@@ -267,7 +261,7 @@ or visa versa (by renaming <code class="docutils literal notranslate"><span clas
 a directory, and deleting the subdirectory).</p>
 </section>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
 <p>In the process of developing
 <a class="reference external" href="https://github.com/MPAS-Dev/MPAS-Analysis/">MPAS-Analysis</a>, we found that
 many of our developers were not very comfortable with
@@ -301,14 +295,14 @@ currently in the package can provide a starting point for new development.</p>
 </section>
 </section>
 <section id="code-sharing">
-<span id="dev-code-sharing"></span><h2>Code sharing<a class="headerlink" href="#code-sharing" title="Permalink to this heading"></a></h2>
+<span id="dev-code-sharing"></span><h2>Code sharing<a class="headerlink" href="#code-sharing" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is dense and will have a learning curve.  We hope
 the python package approach is worth it because the skills learned to work with
 it will be broadly applicable to understanding and developing other python
 packages. In developing polaris we endeavor to increase  code  readability and
 code sharing in a number of ways.</p>
 <section id="in-the-polaris-framework">
-<h3>…in the polaris framework<a class="headerlink" href="#in-the-polaris-framework" title="Permalink to this heading"></a></h3>
+<h3>…in the polaris framework<a class="headerlink" href="#in-the-polaris-framework" title="Link to this heading"></a></h3>
 <p>The polaris framework (modules and packages not in the component packages)
 has a lot of code that is shared across existing tasks and could be very
 useful for future ones.</p>
@@ -326,7 +320,7 @@ baseline, and to compare timers with a baseline; and the
 the number of total cores and nodes available for running steps.</p>
 </section>
 <section id="within-a-component">
-<h3>…within a component<a class="headerlink" href="#within-a-component" title="Permalink to this heading"></a></h3>
+<h3>…within a component<a class="headerlink" href="#within-a-component" title="Link to this heading"></a></h3>
 <p>A component in polaris could, theoretically, build out functionality as
 complex as in the E3SM components themselves.  This has already been
 accomplished for several of the idealized tasks included in polaris. As an
@@ -334,7 +328,7 @@ example, the shared functionality in the <a class="reference internal" href="oce
 <a class="reference internal" href="ocean/framework.html#dev-ocean-framework"><span class="std std-ref">Ocean framework</span></a>.</p>
 </section>
 <section id="within-a-group-of-related-tasks">
-<h3>…within a group of related tasks<a class="headerlink" href="#within-a-group-of-related-tasks" title="Permalink to this heading"></a></h3>
+<h3>…within a group of related tasks<a class="headerlink" href="#within-a-group-of-related-tasks" title="Link to this heading"></a></h3>
 <p>So far, the most common type of shared code between related tasks are modules
 defining steps that are used in multiple tasks.  For example, the
 <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> configuration uses shared modules to define
@@ -358,7 +352,7 @@ different  initial conditions and other capabilities such as support for
 biogeochemistry.</p>
 </section>
 <section id="within-a-task">
-<h3>…within a task<a class="headerlink" href="#within-a-task" title="Permalink to this heading"></a></h3>
+<h3>…within a task<a class="headerlink" href="#within-a-task" title="Link to this heading"></a></h3>
 <p>The main way code is currently reused with a task is when the same module
 for a step gets used multiple times within a task.  For example,
 the <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> task uses the same

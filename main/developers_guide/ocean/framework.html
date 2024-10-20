@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ocean framework</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -133,18 +127,18 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="ocean-framework">
-<span id="dev-ocean-framework"></span><h1>Ocean framework<a class="headerlink" href="#ocean-framework" title="Permalink to this heading"></a></h1>
+<span id="dev-ocean-framework"></span><h1>Ocean framework<a class="headerlink" href="#ocean-framework" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component contains an ever expanding set of shared framework code.</p>
 <section id="model">
-<span id="dev-ocean-model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-model"></span><h2>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h2>
 <section id="running-an-e3sm-component">
-<h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Permalink to this heading"></a></h3>
+<h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h3>
 <p>Steps that run either Omega or MPAS-Ocean should descend from the
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> class.  This class descends
 from <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>, so there is a lot of relevant
 discussion in <a class="reference internal" href="../framework/model.html#dev-model"><span class="std std-ref">Model</span></a>.</p>
 <section id="yaml-files-vs-namelists-and-streams">
-<h4>YAML files vs. namelists and streams<a class="headerlink" href="#yaml-files-vs-namelists-and-streams" title="Permalink to this heading"></a></h4>
+<h4>YAML files vs. namelists and streams<a class="headerlink" href="#yaml-files-vs-namelists-and-streams" title="Link to this heading"></a></h4>
 <p>In order to have the same tasks support Omega or MPAS-Ocean, we want
 to be able to produce either the YAML config files used by Omega or the
 namelists and streams files used by MPAS-Ocean.  To support both, we decided
@@ -155,7 +149,7 @@ get set up.</p>
 not be used for ocean model steps (they will raise errors).</p>
 </section>
 <section id="mapping-from-mpas-ocean-to-omega-config-options">
-<h4>Mapping from MPAS-Ocean to Omega config options<a class="headerlink" href="#mapping-from-mpas-ocean-to-omega-config-options" title="Permalink to this heading"></a></h4>
+<h4>Mapping from MPAS-Ocean to Omega config options<a class="headerlink" href="#mapping-from-mpas-ocean-to-omega-config-options" title="Link to this heading"></a></h4>
 <p>As the Omega component is in very early stages of development, it has far
 fewer config options than MPAS-Ocean at present.  To complicate things further,
 it is already clear that there will be config options in Omega without a
@@ -209,7 +203,7 @@ file. Note that <code class="docutils literal notranslate"><span class="pre">con
 convention on the model name in Omega’s own YAML files.</p>
 </section>
 <section id="setting-mpi-resources">
-<h4>Setting MPI resources<a class="headerlink" href="#setting-mpi-resources" title="Permalink to this heading"></a></h4>
+<h4>Setting MPI resources<a class="headerlink" href="#setting-mpi-resources" title="Link to this heading"></a></h4>
 <p>The target and minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
 respectively) are set automatically if <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> have not
 already been set explicitly.  In such cases, a subclass of <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>
@@ -230,7 +224,7 @@ cells to each core, but it will allow as many as 2000.</p>
 </section>
 </section>
 <section id="setting-time-intervals-in-model-config-options">
-<h3>Setting time intervals in model config options<a class="headerlink" href="#setting-time-intervals-in-model-config-options" title="Permalink to this heading"></a></h3>
+<h3>Setting time intervals in model config options<a class="headerlink" href="#setting-time-intervals-in-model-config-options" title="Link to this heading"></a></h3>
 <p>It is often useful to be able to convert a <code class="docutils literal notranslate"><span class="pre">float</span></code> time interval in days or
 seconds to a model config option in the form <code class="docutils literal notranslate"><span class="pre">DDDD_HH:MM:SS.S</span></code>.  The
 <a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.model.get_time_interval_string()</span></code></a> function will do this
@@ -282,14 +276,14 @@ file:</p>
 </section>
 </section>
 <section id="model-config-options-and-streams">
-<span id="dev-ocean-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Link to this heading"></a></h2>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.config</span></code> contains yaml files for setting model
 config options and configuring streams.  These include things like setting
 output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.</p>
 </section>
 <section id="quasi-uniform-and-icosahedral-spherical-meshes">
-<span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
 <p>Many ocean tasks support two types of meshes: <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes created with the
 <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> step and <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes
 created with <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a>.  In general, the
@@ -301,7 +295,7 @@ returns a step for for a spherical <code class="docutils literal notranslate"><s
 (in km).  The step can be shared between tasks.</p>
 </section>
 <section id="convergence-tests">
-<span id="dev-ocean-convergence"></span><h2>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-convergence"></span><h2>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Link to this heading"></a></h2>
 <p>Several tests that are in Polaris or which we plan to add are convergence
 tests on <a class="reference internal" href="#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> and planar meshes.
 The ocean framework includes shared config options and base classes for
@@ -533,7 +527,7 @@ variable (the value associate the <code class="docutils literal notranslate"><sp
 the evaluation time specified by the <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> config option.</p>
 </section>
 <section id="ice-shelf-tasks">
-<span id="dev-ocean-framework-ice-shelf"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#ice-shelf-tasks" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-framework-ice-shelf"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#ice-shelf-tasks" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf</span></code> module provides support for ice shelf tasks.</p>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf</span></code> class can serve as a parent
 class for ice shelf tests, such as
@@ -548,7 +542,7 @@ steps, as described in <a class="reference internal" href="../../users_guide/oce
 initial state for subsequent forward steps.</p>
 </section>
 <section id="vertical-coordinate">
-<span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
 vertical coordinates for MPAS-Ocean tasks.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d</span></code> module provides 1D vertical
@@ -568,7 +562,7 @@ as config options from <code class="docutils literal notranslate"><span class="p
 changed.</p>
 </section>
 <section id="reference-resting-potential-energy-rpe">
-<span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
 resting) potential energy for an entire model domain.  The RPE as given in
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a> is:</p>
@@ -583,7 +577,7 @@ a function of time in a series of one or more output files.  The RPE is stored
 in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
 </section>
 <section id="visualization">
-<h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading"></a></h2>
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.viz</span></code> module provides functions for making plots that are
 specific to the ocean component.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect</span></code> modules includes functions for computing

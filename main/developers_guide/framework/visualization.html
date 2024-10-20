@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Visualization</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -134,7 +128,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="visualization">
-<span id="dev-visualization"></span><h1>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading"></a></h1>
+<span id="dev-visualization"></span><h1>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h1>
 <p>Visualization is an optional, but desirable aspect of tasks. Often,
 visualization is an optional step of a task but can also be included
 as part of other steps such as <code class="docutils literal notranslate"><span class="pre">init</span></code> or <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
@@ -142,7 +136,7 @@ as part of other steps such as <code class="docutils literal notranslate"><span 
 individual tasks, the following shared visualization routines are
 provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
 <section id="common-matplotlib-style">
-<span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Permalink to this heading"></a></h2>
+<span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Link to this heading"></a></h2>
 <p>The function <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a> loads a common
 <a class="reference external" href="https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets">matplotlib style sheet</a>
 that can be used to make font sizes and other plotting options more consistent
@@ -151,7 +145,7 @@ style.  Custom plotting should call <a class="reference internal" href="../gener
 before creating a <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> figure.</p>
 </section>
 <section id="horizontal-fields-from-planar-meshes">
-<span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Permalink to this heading"></a></h2>
+<span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a patches-style
 visualization of x-y fields across a single vertical level at a single time
 step. The image file (png) is saved to the directory from which
@@ -159,8 +153,10 @@ step. The image file (png) is saved to the directory from which
 automatically detects whether the field specified by its variable name is
 a cell-centered variable or an edge-variable and generates the patches, the
 polygons characterized by the field values, accordingly.</p>
-<a class="reference internal image-reference" href="../../_images/baroclinic_channel_cell_patches.png"><img alt="../../_images/baroclinic_channel_cell_patches.png" class="align-center" src="../../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" /></a>
-<a class="reference internal image-reference" href="../../_images/baroclinic_channel_edge_patches.png"><img alt="../../_images/baroclinic_channel_edge_patches.png" class="align-center" src="../../_images/baroclinic_channel_edge_patches.png" style="width: 250px;" /></a>
+<a class="reference internal image-reference" href="../../_images/baroclinic_channel_cell_patches.png"><img alt="../../_images/baroclinic_channel_cell_patches.png" class="align-center" src="../../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" />
+</a>
+<a class="reference internal image-reference" href="../../_images/baroclinic_channel_edge_patches.png"><img alt="../../_images/baroclinic_channel_edge_patches.png" class="align-center" src="../../_images/baroclinic_channel_edge_patches.png" style="width: 250px;" />
+</a>
 <p>An example function call that uses the default vertical level (top) is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
 <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
@@ -199,12 +195,13 @@ of the field to plot and the <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 <section id="global-lat-lon-plots">
-<span id="dev-visualization-global"></span><h2>global lat/lon plots<a class="headerlink" href="#global-lat-lon-plots" title="Permalink to this heading"></a></h2>
+<span id="dev-visualization-global"></span><h2>global lat/lon plots<a class="headerlink" href="#global-lat-lon-plots" title="Link to this heading"></a></h2>
 <section id="plotting-from-spherical-mpas-meshes">
-<h3>plotting from spherical MPAS meshes<a class="headerlink" href="#plotting-from-spherical-mpas-meshes" title="Permalink to this heading"></a></h3>
+<h3>plotting from spherical MPAS meshes<a class="headerlink" href="#plotting-from-spherical-mpas-meshes" title="Link to this heading"></a></h3>
 <p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> to plot a field on
 a spherical MPAS mesh.</p>
-<a class="reference internal image-reference" href="../../_images/cosine_bell_final_mpas.png"><img alt="../../_images/cosine_bell_final_mpas.png" class="align-center" src="../../_images/cosine_bell_final_mpas.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final_mpas.png"><img alt="../../_images/cosine_bell_final_mpas.png" class="align-center" src="../../_images/cosine_bell_final_mpas.png" style="width: 500px;" />
+</a>
 <p>Typical usage might be:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
@@ -261,14 +258,16 @@ colormap).</p>
 </div>
 </section>
 <section id="plotting-from-lat-lon-grids">
-<h3>plotting from lat/lon grids<a class="headerlink" href="#plotting-from-lat-lon-grids" title="Permalink to this heading"></a></h3>
+<h3>plotting from lat/lon grids<a class="headerlink" href="#plotting-from-lat-lon-grids" title="Link to this heading"></a></h3>
 <p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_lat_lon_field()</span></code></a> to plot a field
 on a regular lon-lat grid, perhaps after remapping from an MPAS mesh using
 <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a>.</p>
-<a class="reference internal image-reference" href="../../_images/cosine_bell_final.png"><img alt="../../_images/cosine_bell_final.png" class="align-center" src="../../_images/cosine_bell_final.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final.png"><img alt="../../_images/cosine_bell_final.png" class="align-center" src="../../_images/cosine_bell_final.png" style="width: 500px;" />
+</a>
 <p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_lat_lon_field()</span></code></a>
 is used  to enable or disable continents overlain on top of the data:</p>
-<a class="reference internal image-reference" href="../../_images/cosine_bell_final_land.png"><img alt="../../_images/cosine_bell_final_land.png" class="align-center" src="../../_images/cosine_bell_final_land.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/cosine_bell_final_land.png"><img alt="../../_images/cosine_bell_final_land.png" class="align-center" src="../../_images/cosine_bell_final_land.png" style="width: 500px;" />
+</a>
 <p>Typical usage might be:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>

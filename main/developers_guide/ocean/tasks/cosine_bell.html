@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cosine_bell</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -135,14 +129,14 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
-<span id="dev-ocean-cosine-bell"></span><h1>cosine_bell<a class="headerlink" href="#cosine-bell" title="Permalink to this heading"></a></h1>
+<span id="dev-ocean-cosine-bell"></span><h1>cosine_bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
 <p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
 determine the rate of convergence.</p>
 <section id="framework">
-<h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The config options for the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> tests are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/cosine_bell.html#ocean-cosine-bell"><span class="std std-ref">cosine bell</span></a> in the User’s Guide.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common
@@ -152,18 +146,18 @@ vertical momentum and tracer diffusion, as well as defining <code class="docutil
 used to update model config options based on Polaris config options, see
 <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a>.</p>
 <section id="base-mesh">
-<h3>base_mesh<a class="headerlink" href="#base-mesh" title="Permalink to this heading"></a></h3>
+<h3>base_mesh<a class="headerlink" href="#base-mesh" title="Link to this heading"></a></h3>
 <p>Cosine bell tasks use shared <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps for creating
 <a class="reference internal" href="../framework.html#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> at a sequence of resolutions.</p>
 </section>
 <section id="init">
-<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.init.Init</span></code></a>
 defines a step for setting up the initial state at each resolution with a
 tracer distributed in a cosine-bell shape.</p>
 </section>
 <section id="forward">
-<h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward" title="polaris.ocean.tasks.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.forward.Forward</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
 and defines a step for running MPAS-Ocean from an initial condition produced in
@@ -173,7 +167,7 @@ based on the <code class="docutils literal notranslate"><span class="pre">dt_per
 section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
 </section>
 <section id="analysis">
-<h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.analysis.Analysis</span></code></a>
 descends from
 <a class="reference internal" href="../generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis" title="polaris.ocean.convergence.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code></a>,
@@ -182,7 +176,7 @@ at each resolution, saving them in <code class="docutils literal notranslate"><s
 in <code class="docutils literal notranslate"><span class="pre">convergence_tracer1.png</span></code>.</p>
 </section>
 <section id="viz">
-<h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
 <p>The visualization step is available only in the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>
 tasks.  It is not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> in order to keep regression
 as fast as possible when visualization isn’t needed.</p>

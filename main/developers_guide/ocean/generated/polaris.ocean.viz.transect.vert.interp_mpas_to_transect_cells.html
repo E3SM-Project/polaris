@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -126,14 +120,14 @@
            <div itemprop="articleBody">
              
   <section id="polaris-ocean-viz-transect-vert-interp-mpas-to-transect-cells">
-<h1>polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells<a class="headerlink" href="#polaris-ocean-viz-transect-vert-interp-mpas-to-transect-cells" title="Permalink to this heading"></a></h1>
+<h1>polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells<a class="headerlink" href="#polaris-ocean-viz-transect-vert-interp-mpas-to-transect-cells" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.transect.vert.</span></span><span class="sig-name descname"><span class="pre">interp_mpas_to_transect_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">da</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/vert.html#interp_mpas_to_transect_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.transect.vert.</span></span><span class="sig-name descname"><span class="pre">interp_mpas_to_transect_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">da</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/vert.html#interp_mpas_to_transect_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells" title="Link to this definition"></a></dt>
 <dd><p>Interpolate an MPAS-Ocean DataArray with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by
 <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> to transect cells</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.9.1.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines an MPAS-Ocean transect, the results of calling
 <code class="docutils literal notranslate"><span class="pre">find_transect_levels_and_weights()</span></code></p></li>
@@ -141,7 +135,7 @@
 (possibly among others)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>da_cells</strong> (<em>xarray.DataArray</em>) – The data array interpolated to transect cells with dimensions
 <code class="docutils literal notranslate"><span class="pre">nSegments</span></code> and <code class="docutils literal notranslate"><span class="pre">nHalfLevels</span></code> (in addition to whatever
 dimensions were in <code class="docutils literal notranslate"><span class="pre">da</span></code> besides <code class="docutils literal notranslate"><span class="pre">nCells</span></code> and <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>)</p>

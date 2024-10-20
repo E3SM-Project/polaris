@@ -1,26 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>manufactured solution</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -41,9 +38,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -138,7 +132,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="manufactured-solution">
-<span id="ocean-manufactured-solution"></span><h1>manufactured solution<a class="headerlink" href="#manufactured-solution" title="Permalink to this heading"></a></h1>
+<span id="ocean-manufactured-solution"></span><h1>manufactured solution<a class="headerlink" href="#manufactured-solution" title="Link to this heading"></a></h1>
 <p>The manufactured solution tasks implement configurations for surface wave
 propagation with the rotating, nonlinear shallow water equations on a doubly
 periodic domain. These tasks are intended to utilize tendency terms embedded
@@ -148,13 +142,13 @@ the discretized nonlinear momentum equation.</p>
 <p>Currently, the there is only one task, the convergence test from
 <a class="reference external" href="https://doi.org/10.22541/essoar.167100170.03833124/v1">Bishnu et al.(2023)</a></p>
 <section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Permalink to this heading"></a></h2>
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
 </section>
 <section id="convergence">
-<span id="ocean-manufactured-solution-convergence"></span><h2>convergence<a class="headerlink" href="#convergence" title="Permalink to this heading"></a></h2>
+<span id="ocean-manufactured-solution-convergence"></span><h2>convergence<a class="headerlink" href="#convergence" title="Link to this heading"></a></h2>
 <section id="description">
-<h3>description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
+<h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence</span></code> test case runs the manufactured solution simulation for 4
 different resolutions: 200, 100, 50, and 25 km.</p>
 <p>The forward step for each resolution runs the simulation for 10 hours. The
@@ -169,12 +163,12 @@ resolution and a plan-view of the simulated, exact, and (simulated-exact)
 SSH fields.</p>
 </section>
 <section id="mesh">
-<h3>mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h3>
+<h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
 <p>For each resolution, the <code class="docutils literal notranslate"><span class="pre">init</span></code> step generates and planar hexagonal
 mesh that is periodic in both the x and y directions.</p>
 </section>
 <section id="vertical-grid">
-<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Permalink to this heading"></a></h3>
+<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h3>
 <p>Since this test case is a shallow water case, the vertical grid is set to a
 single layer configuration.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
@@ -200,7 +194,7 @@ single layer configuration.</p>
 </div>
 </section>
 <section id="initial-conditions">
-<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Permalink to this heading"></a></h3>
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
 <p>The initial conditions are set to the following:
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -211,16 +205,16 @@ v = u
 </p>
 </section>
 <section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Permalink to this heading"></a></h3>
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>N/A</p>
 </section>
 <section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Permalink to this heading"></a></h3>
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step is determined by the config option <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> according to the
 mesh resolution. The run duration is 10 hours.</p>
 </section>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Permalink to this heading"></a></h3>
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
 <p>The following config options are availiable for this case:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[manufactured_solution]</span>
 
@@ -248,7 +242,7 @@ mesh resolution. The run duration is 10 hours.</p>
 </div>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Permalink to this heading"></a></h3>
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of cores is determined according to the config options
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
 </section>

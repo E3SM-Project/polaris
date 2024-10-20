@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MPAS</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -129,11 +123,11 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="mpas">
-<span id="dev-mpas"></span><h1>MPAS<a class="headerlink" href="#mpas" title="Permalink to this heading"></a></h1>
+<span id="dev-mpas"></span><h1>MPAS<a class="headerlink" href="#mpas" title="Link to this heading"></a></h1>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.mpas</span></code> has some helper functions that are handy for
 working with output from MPAS components.</p>
 <section id="area">
-<h2>Area<a class="headerlink" href="#area" title="Permalink to this heading"></a></h2>
+<h2>Area<a class="headerlink" href="#area" title="Link to this heading"></a></h2>
 <p>The function <a class="reference internal" href="../generated/polaris.mpas.area_for_field.html#polaris.mpas.area_for_field" title="polaris.mpas.area_for_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mpas.area_for_field()</span></code></a> is handy for getting
 the right area (on cells, edges or vertices) associated with a given field in
 an MPAS output file.  This function determines from the dimensions of the
@@ -159,7 +153,7 @@ integrals or other area-weighted statistics.</p>
 </div>
 </section>
 <section id="time">
-<h2>Time<a class="headerlink" href="#time" title="Permalink to this heading"></a></h2>
+<h2>Time<a class="headerlink" href="#time" title="Link to this heading"></a></h2>
 <p>The function <a class="reference internal" href="../generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime" title="polaris.mpas.time_index_from_xtime"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mpas.time_index_from_xtime()</span></code></a> can be used to
 find the time index closest to a requested time interval in seconds from a
 given start time.  The default start time is the first time in the array of

@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>inertial_gravity_wave</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -135,7 +129,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="inertial-gravity-wave">
-<span id="dev-ocean-inertial-gravity-wave"></span><h1>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Permalink to this heading"></a></h1>
+<span id="dev-ocean-inertial-gravity-wave"></span><h1>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h1>
 <p>The inertial gravity wave test in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave</span></code>
 is a linear shallow water test case at 4 resolutions (200, 100, 50, and
 25 km).</p>
@@ -143,7 +137,7 @@ is a linear shallow water test case at 4 resolutions (200, 100, 50, and
 test performs a 10-hour run with a series of resolutions.  The convergence rate
 is calculated and visualizations are generated.</p>
 <section id="framework">
-<h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The config options for the <code class="docutils literal notranslate"><span class="pre">inertial_gravity_wave</span></code> test are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/inertial_gravity_wave.html#ocean-inertial-gravity-wave"><span class="std std-ref">inertial gravity wave</span></a> in the User’s Guide.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common
@@ -151,7 +145,7 @@ model config options related to run duration and default horizontal and
 vertical momentum and tracer diffusion, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>,
 <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.</p>
 <section id="exact-solution">
-<h3>exact_solution<a class="headerlink" href="#exact-solution" title="Permalink to this heading"></a></h3>
+<h3>exact_solution<a class="headerlink" href="#exact-solution" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution</span></code></a>
 defines a class for storing attributes and methods relevant to computing the
@@ -163,7 +157,7 @@ method computes the SSH field.  The
 method computes the <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field.</p>
 </section>
 <section id="init">
-<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
@@ -175,7 +169,7 @@ exact solution for the SSH field and the initial velocity is also assigned to
 the exact solution. The tracer and coriolis fields are uniform in space.</p>
 </section>
 <section id="forward">
-<h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward</span></code></a>
 descends from
 <a class="reference internal" href="../generated/polaris.ocean.convergence.ConvergenceForward.html#polaris.ocean.convergence.ConvergenceForward" title="polaris.ocean.convergence.ConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceForward</span></code></a>
@@ -193,7 +187,7 @@ performed against a baseline if one is provided when calling
 <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="analysis">
-<h3>analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h3>
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis" title="polaris.ocean.convergence.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code></a>
@@ -202,7 +196,7 @@ and the exact solution. It uses the config options to determine whether the
 convergence rate falls within acceptable bounds.</p>
 </section>
 <section id="viz">
-<h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.viz.Viz</span></code></a> defines
 a step for visualization. It produces a plan-view figure of the simulated,
 exact, and (simulated - exact) SSH fields.</p>

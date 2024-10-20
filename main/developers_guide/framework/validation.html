@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Validation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -130,12 +124,12 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="validation">
-<span id="dev-validation"></span><h1>Validation<a class="headerlink" href="#validation" title="Permalink to this heading"></a></h1>
+<span id="dev-validation"></span><h1>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h1>
 <p>Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.</p>
 <section id="validating-variables-against-a-baseline">
-<h2>Validating variables against a baseline<a class="headerlink" href="#validating-variables-against-a-baseline" title="Permalink to this heading"></a></h2>
+<h2>Validating variables against a baseline<a class="headerlink" href="#validating-variables-against-a-baseline" title="Link to this heading"></a></h2>
 <p>The easiest type of validation you can add is against a baseline if one is
 provided during setup (see <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or
 <a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>).  To do this, simply add a list of variables in
@@ -158,7 +152,7 @@ that the variables <code class="docutils literal notranslate"><span class="pre">
 be compared against a baseline, if one is provided, after the step as run.</p>
 </section>
 <section id="validating-variables">
-<h2>Validating variables<a class="headerlink" href="#validating-variables" title="Permalink to this heading"></a></h2>
+<h2>Validating variables<a class="headerlink" href="#validating-variables" title="Link to this heading"></a></h2>
 <p>In addition to baseline validation, it is often useful to compare files between
 steps of a run.  This is done by adding later step to perform the validation.
 This validation step will use the function
@@ -304,7 +298,7 @@ normalVelocity       Time index: 0, 1, 2
 </div>
 </section>
 <section id="norms">
-<h2>Norms<a class="headerlink" href="#norms" title="Permalink to this heading"></a></h2>
+<h2>Norms<a class="headerlink" href="#norms" title="Link to this heading"></a></h2>
 <p>In circumstance where you would like to allow comparison to pass with non-zero
 differences between variables, you can supply keyword arguments
 <code class="docutils literal notranslate"><span class="pre">l1_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">l2_norm</span></code> and/or <code class="docutils literal notranslate"><span class="pre">linf_norm</span></code> to give the desired maximum

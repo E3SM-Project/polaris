@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Components</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -124,7 +118,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="components">
-<span id="dev-components"></span><h1>Components<a class="headerlink" href="#components" title="Permalink to this heading"></a></h1>
+<span id="dev-components"></span><h1>Components<a class="headerlink" href="#components" title="Link to this heading"></a></h1>
 <p>Currently, there are two components, <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, which encompasses all the tasks
 for MPAS-Ocean and Omega, and <code class="docutils literal notranslate"><span class="pre">seaice</span></code>, which implements tasks for MPAS-Seaice.</p>
 <p>From a developer’s perspective, a component is a package within polaris
@@ -146,7 +140,7 @@ files, YAML files for model config options, etc.) that is expected to be used
 only by modules and packages within the component, not by other components or
 the main polaris <a class="reference internal" href="../framework/index.html#dev-framework"><span class="std std-ref">Framework</span></a>.</p>
 <section id="constructor">
-<h2>Constructor<a class="headerlink" href="#constructor" title="Permalink to this heading"></a></h2>
+<h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading"></a></h2>
 <p>The constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) for a child class of
 <a class="reference internal" href="../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> simply calls the parent class’ version
 of the constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the
@@ -234,7 +228,7 @@ cases is:</p>
 </div>
 </section>
 <section id="config-file">
-<h2>Config file<a class="headerlink" href="#config-file" title="Permalink to this heading"></a></h2>
+<h2>Config file<a class="headerlink" href="#config-file" title="Link to this heading"></a></h2>
 <p>The config file for the component should, at the very least, define the
 default value for the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> path in the <code class="docutils literal notranslate"><span class="pre">[paths]</span></code> section.  This
 path should point to the path within the appropriate E3SM submodule where the

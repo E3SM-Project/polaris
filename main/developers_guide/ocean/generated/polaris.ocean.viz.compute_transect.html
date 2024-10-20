@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.compute_transect</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -126,15 +120,15 @@
            <div itemprop="articleBody">
              
   <section id="polaris-ocean-viz-compute-transect">
-<h1>polaris.ocean.viz.compute_transect<a class="headerlink" href="#polaris-ocean-viz-compute-transect" title="Permalink to this heading"></a></h1>
+<h1>polaris.ocean.viz.compute_transect<a class="headerlink" href="#polaris-ocean-viz-compute-transect" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.viz.compute_transect">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.</span></span><span class="sig-name descname"><span class="pre">compute_transect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_horiz_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_level_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spherical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/vert.html#compute_transect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.compute_transect" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.viz.</span></span><span class="sig-name descname"><span class="pre">compute_transect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_horiz_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_level_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spherical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/viz/transect/vert.html#compute_transect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.viz.compute_transect" title="Link to this definition"></a></dt>
 <dd><p>build a sequence of quads showing the transect intersecting mpas cells.
 This can be used to plot transects of fields with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> and
 <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> using <a class="reference internal" href="polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.plot_transect()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.9.1.dev0)"><em>xarray.DataArray</em></a>) – The x or longitude coordinate of the transect</p></li>
 <li><p><strong>y</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.9.1.dev0)"><em>xarray.DataArray</em></a>) – The y or latitude coordinate of the transect</p></li>
@@ -148,7 +142,7 @@ This can be used to plot transects of fields with dimensions <code class="docuti
 <li><p><strong>spherical</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the x and y coordinates are latitude and longitude in degrees</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ds_transect</strong> (<em>xarray.Dataset</em>) – The transect dataset, see
 <a class="reference internal" href="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights.html#polaris.ocean.viz.transect.vert.find_transect_levels_and_weights" title="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.vert.find_transect_levels_and_weights()</span></code></a>
 for details</p>

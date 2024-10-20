@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>single_column</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -137,13 +131,13 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
-<span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Permalink to this heading"></a></h1>
+<span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
 <p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column</span></code> exercise
 the vertical dynamics of the ocean model only. There are currently
 two test cases: one that exercises CVMix, the other that exercises ideal age
 tracers with CVMix. Here, we describe the tests and their shared framework.</p>
 <section id="framework">
-<span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests
 are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single column</span></a> in the User’s Guide.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
@@ -154,7 +148,7 @@ diffusion and cvmix, as well as defining <code class="docutils literal notransla
 for enabling on the ideal age tracers and ideal age surface forcing, as well as
 for defining <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams</p>
 <section id="init">
-<h3>init<a class="headerlink" href="#init" title="Permalink to this heading"></a></h3>
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init" title="polaris.ocean.tasks.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
@@ -168,27 +162,27 @@ vertical dimension only.</p>
 also constructed and is equal to zero seconds throughout the column.</p>
 </section>
 <section id="forward">
-<h3>forward<a class="headerlink" href="#forward" title="Permalink to this heading"></a></h3>
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.forward.Forward.html#polaris.ocean.tasks.single_column.forward.Forward" title="polaris.ocean.tasks.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The ocean model is run.</p>
 </section>
 <section id="viz">
-<h3>viz<a class="headerlink" href="#viz" title="Permalink to this heading"></a></h3>
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.viz.Viz.html#polaris.ocean.tasks.single_column.viz.Viz" title="polaris.ocean.tasks.single_column.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.viz.Viz</span></code></a>
 produces figures comparing the initial and final profiles of temperature and
 salinity.</p>
 </section>
 </section>
 <section id="cvmix">
-<span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Permalink to this heading"></a></h2>
+<span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a>
 test performs a 1-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
 <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
 baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="ideal-age">
-<h2>ideal age<a class="headerlink" href="#ideal-age" title="Permalink to this heading"></a></h2>
+<h2>ideal age<a class="headerlink" href="#ideal-age" title="Link to this heading"></a></h2>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.IdealAge</span></code> test
 performs the same 1-day run on 1 cores as the
 <a class="reference internal" href="../generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.single_column.cvmix.CVMix</span></code></a> test, but with a

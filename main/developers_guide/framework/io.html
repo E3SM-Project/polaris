@@ -1,24 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IO</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=7ab3649f" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=3a23cc98"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +36,6 @@
           <a href="../../index.html" class="icon icon-home">
             Polaris
           </a>
-              <div class="version">
-                0.4.0-alpha.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -130,12 +124,12 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="io">
-<span id="dev-io"></span><h1>IO<a class="headerlink" href="#io" title="Permalink to this heading"></a></h1>
+<span id="dev-io"></span><h1>IO<a class="headerlink" href="#io" title="Link to this heading"></a></h1>
 <p>A lot of I/O related tasks are handled internally in the step class
 <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  Some of the lower level functions can be called
 directly if need be.</p>
 <section id="symlinks">
-<span id="dev-io-symlink"></span><h2>Symlinks<a class="headerlink" href="#symlinks" title="Permalink to this heading"></a></h2>
+<span id="dev-io-symlink"></span><h2>Symlinks<a class="headerlink" href="#symlinks" title="Link to this heading"></a></h2>
 <p>You can create your own symlinks that aren’t input files (e.g. for a
 README file that the user might want to have available) using
 <a class="reference internal" href="../generated/polaris.io.symlink.html#polaris.io.symlink" title="polaris.io.symlink"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.symlink()</span></code></a>:</p>
@@ -160,7 +154,7 @@ know if the task will be set up at all (or in what work directory) during
 <code class="docutils literal notranslate"><span class="pre">collect()</span></code>.</p>
 </section>
 <section id="download">
-<span id="dev-io-download"></span><h2>Download<a class="headerlink" href="#download" title="Permalink to this heading"></a></h2>
+<span id="dev-io-download"></span><h2>Download<a class="headerlink" href="#download" title="Link to this heading"></a></h2>
 <p>You can download files more directly if you need to using
 <a class="reference internal" href="../generated/polaris.io.download.html#polaris.io.download" title="polaris.io.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.download()</span></code></a>, though we recommend using
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> whenever possible because it is more
@@ -197,7 +191,7 @@ Then, we create a local symlink called <code class="docutils literal notranslate
 bathymetry database.</p>
 </section>
 <section id="permissions">
-<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading"></a></h2>
+<h2>Permissions<a class="headerlink" href="#permissions" title="Link to this heading"></a></h2>
 <p>After downloading a file to a shared location, it is typically a good idea to
 change permissions so others can access the file and write to the directory it
 is stored in.</p>
