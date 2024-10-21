@@ -1,4 +1,12 @@
-map:
+variables:
+  temperature: Temp
+  salinity: Salt
+  tracer1: Debug1
+  tracer2: Debug2
+  tracer3: Debug3
+  ssh: SshCell
+
+config:
 - section:
     time_management: TimeManagement
   options:

@@ -3,9 +3,8 @@ import datetime
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.manufactured_solution.exact_solution import (
     ExactSolution,
@@ -13,7 +12,7 @@ from polaris.ocean.tasks.manufactured_solution.exact_solution import (
 from polaris.viz import plot_horiz_field, use_mplstyle
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for visualizing the output from the manufactured solution
     test case
@@ -73,9 +72,9 @@ class Viz(Step):
         error_range = None
         for i, res in enumerate(resolutions):
             mesh_name = resolution_to_subdir(res)
-            ds_mesh = xr.open_dataset(f'mesh_{mesh_name}.nc')
-            ds_init = xr.open_dataset(f'init_{mesh_name}.nc')
-            ds = xr.open_dataset(f'output_{mesh_name}.nc')
+            ds_mesh = self.open_model_dataset(f'mesh_{mesh_name}.nc')
+            ds_init = self.open_model_dataset(f'init_{mesh_name}.nc')
+            ds = self.open_model_dataset(f'output_{mesh_name}.nc')
             exact = ExactSolution(config, ds_init)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),

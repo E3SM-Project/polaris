@@ -17,7 +17,7 @@ class OceanModelStep(ModelStep):
         ``min_tasks``) are computed dynamically from the number of cells
         in the mesh
 
-    map : dict
+    config_map : dict
         A nested dictionary that maps from MPAS-Ocean to Omega model config
         options
 
@@ -104,7 +104,7 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = (ntasks is None and min_tasks is None)
 
-        self.map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
         self.graph_target = graph_target
 
     def setup(self):
@@ -119,7 +119,7 @@ class OceanModelStep(ModelStep):
             self.make_yaml = True
             self.config_models = ['ocean', 'Omega']
             self.yaml = 'omega.yml'
-            self._read_map()
+            self._read_config_map()
             self.partition_graph = False
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
@@ -272,7 +272,7 @@ class OceanModelStep(ModelStep):
         self.min_tasks = max(1,
                              4 * round(cell_count / (4 * max_cells_per_core)))
 
-    def _read_map(self):
+    def _read_config_map(self):
         """
         Read the map from MPAS-Ocean to Omega config options
         """
@@ -282,7 +282,7 @@ class OceanModelStep(ModelStep):
 
         yaml_data = YAML(typ='rt')
         nested_dict = yaml_data.load(text)
-        self.map = nested_dict['map']
+        self.config_map = nested_dict['config']
 
     def _map_mpaso_to_omega_options(self, options):
         """
@@ -310,9 +310,9 @@ class OceanModelStep(ModelStep):
         out_option = option
         found = False
 
-        assert self.map is not None
+        assert self.config_map is not None
         # traverse the map
-        for entry in self.map:
+        for entry in self.config_map:
             options_dict = entry['options']
             for mpaso_option, omega_option in options_dict.items():
                 if option == mpaso_option:
@@ -359,11 +359,11 @@ class OceanModelStep(ModelStep):
         out_section = section
         out_option = option
 
-        assert self.map is not None
+        assert self.config_map is not None
 
         option_found = False
         # traverse the map
-        for entry in self.map:
+        for entry in self.config_map:
             section_dict = entry['section']
             try:
                 omega_section = section_dict[section]

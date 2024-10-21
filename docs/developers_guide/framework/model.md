@@ -7,41 +7,39 @@
 Steps that run a standalone build of an E3SM component should descend from the
 {py:class}`polaris.ModelStep` class.
 
-By default (if the attribute `update_pio = True`), at runtime, the namelist 
-options associated with the [PIO library](https://ncar.github.io/ParallelIO/) 
-will automatically be set.  If the `make_graph = True`, the mesh will be 
+By default (if the attribute `update_pio = True`), at runtime, the namelist
+options associated with the [PIO library](https://ncar.github.io/ParallelIO/)
+will automatically be set.  If the `make_graph = True`, the mesh will be
 partitioned across MPI tasks at runtime.
 
-During construction or by setting attributes directly, you can can provide 
+During construction or by setting attributes directly, you can can provide
 non-default names for the graph, namelist and streams files.  At construction
-or with the {py:meth}`polaris.ModelStep.set_model_resources()` 
-method,  you can set number of tasks, threads, etc. determined from the 
-`ntasks`, `min_tasks`, `cpus_per_task`, `` min_cpus_per_task` `` and 
+or with the {py:meth}`polaris.ModelStep.set_model_resources()`
+method,  you can set number of tasks, threads, etc. determined from the
+`ntasks`, `min_tasks`, `cpus_per_task`, `` min_cpus_per_task` `` and
 `openmp_threads` attributes.  These resources need to be set at construction or
-in the  {ref}`dev-step-setup` method (i.e. before calling {ref}`dev-step-run`) 
-so that  the polaris framework  can ensure that the required resources are 
-available. If the graph partition file has been constructed prior to the ocean
-model step, the path to the graph file should be provided in the
-`graph_target` argument to {py:meth}`polaris.ocean.OceanModelStep.__init__()`.
+in the  {ref}`dev-step-setup` method (i.e. before calling {ref}`dev-step-run`)
+so that  the polaris framework  can ensure that the required resources are
+available.
 
 (dev-model-yaml-namelists-and-streams)=
 
 ### Adding yaml, namelist and streams files
 
-Components and tasks can provide yaml config options, 
-namelist and streams files that are used to replace default model config 
-options  and streams definitions before the E3SM component gets run.  Namelist 
-and streams files within the `polaris` package must start with the prefix 
-`namelist.` and `streams.`,  respectively, to ensure that they are included 
+Components and tasks can provide yaml config options,
+namelist and streams files that are used to replace default model config
+options  and streams definitions before the E3SM component gets run.  Namelist
+and streams files within the `polaris` package must start with the prefix
+`namelist.` and `streams.`,  respectively, to ensure that they are included
 when we build the package.  Yaml files must end with `.yaml` or `.yml` for the
 same reason.
 
 You can make calls to {py:meth}`polaris.ModelStep.add_namelist_file()`,
 {py:meth}`polaris.ModelStep.add_yaml_file()`,
 {py:meth}`polaris.ModelStep.add_model_config_options()`  and
-{py:meth}`polaris.ModelStep.add_streams_file()` as described below to indicate 
-how yaml, namelist and streams file should be built up by modifying the 
-defaults for the  E3SM component.  The yaml, namelists and streams files 
+{py:meth}`polaris.ModelStep.add_streams_file()` as described below to indicate
+how yaml, namelist and streams file should be built up by modifying the
+defaults for the  E3SM component.  The yaml, namelists and streams files
 themselves  are generated  automatically (which of these depends on the E3SM
 component in question) as part of setting up the task.
 
@@ -49,11 +47,11 @@ component in question) as part of setting up the task.
 
 #### Adding a yaml file
 
-Typically, a step that runs an E3SM component will include one or more calls 
+Typically, a step that runs an E3SM component will include one or more calls
 to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
 {py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
 or {ref}`dev-step-setup` method.  Calling one of these methods simply adds the
-file to  a list that will be parsed if and when the step gets set up.  (This 
+file to  a list that will be parsed if and when the step gets set up.  (This
 way, it is  safe to add namelist files to a step in init even if that task
 will never  get set up or run.)
 
@@ -72,7 +70,7 @@ ocean:
     config_block_decomp_file_prefix: graph.info.part.
   time_integration:
     config_time_integrator: RK4
-  
+
   streams:
     mesh:
       filename_template: init.nc
@@ -113,14 +111,14 @@ self.add_yaml_file('polaris.ocean.tasks.global_convergence.cosine_bell',
 
 Model config values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the model config substitutions
-common to related tasks first, and then override those with the replacements 
+common to related tasks first, and then override those with the replacements
 specific to the task or step.
 
 (dev-model-add-namelists-file)=
 
 #### Adding a namelist file
 
-Typically, a step that runs the E3SM component will include one or more calls 
+Typically, a step that runs the E3SM component will include one or more calls
 to  {py:meth}`polaris.ModelStep.add_namelist_file()` or
 {py:meth}`polaris.ModelStep.add_yaml_file()` within the {ref}`dev-step-init`
 or {ref}`dev-step-setup` method.  Calling this method simply adds the file to
@@ -155,7 +153,7 @@ self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
 
 Namelist values are replaced by the files (or options, see below) in the
 sequence they are given.  This way, you can add the namelist substitutions for
-that are common to related tasks first, and then override those with the 
+that are common to related tasks first, and then override those with the
 replacements that are specific to the task or step.
 
 (dev-model-add-model-config-options)=
@@ -163,17 +161,17 @@ replacements that are specific to the task or step.
 #### Adding model config options
 
 Sometimes, it is easier to replace yaml or namelist options (together referred
-to as model config options)  using a dictionary within  the code, rather than 
-a yaml or namelist file.  This is appropriate when there are only 1 or 2 
+to as model config options)  using a dictionary within  the code, rather than
+a yaml or namelist file.  This is appropriate when there are only 1 or 2
 options to  replace (so creating a file seems like overkill) or when the
-model config options rely on values that are determined by the code (e.g. 
+model config options rely on values that are determined by the code (e.g.
 different  values for different resolutions).  Simply create a dictionary
-replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()` 
+replacements and call {py:meth}`polaris.ModelStep.add_model_config_options()`
 either  at init or in the `setup()` method of the step.  These replacements are
-parsed, along  with replacements from files, in the order they are added.  
+parsed, along  with replacements from files, in the order they are added.
 Thus, you could add replacements from a model config file common to multiple
-tasks, specific to a task, and/or specific to step.  Then, you could override 
-them with namelist options in a dictionary for the task or step, as in this 
+tasks, specific to a task, and/or specific to step.  Then, you could override
+them with namelist options in a dictionary for the task or step, as in this
 example:
 
 ```python
@@ -189,7 +187,7 @@ self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
 
 ```
 
-Here, we set the viscosity `nu`, which is an option passed in when creating 
+Here, we set the viscosity `nu`, which is an option passed in when creating
 this step.  Then, we get default model config options for ocean model output
 (`output.yaml`) and for baroclinic channel forward steps (`forward.yaml`).
 
@@ -206,7 +204,7 @@ file.
 It is sometimes useful to have model config options that are based on Polaris
 config options and/or algorithms.  In such cases, the model config options
 need to be computed once at setup and again (possibly based on updated
-config options) at runtime.  A step needs to override the 
+config options) at runtime.  A step needs to override the
 {py:meth}`polaris.ModelStep.dynamic_model_config()` method, e.g.:
 
 ```python
@@ -262,8 +260,8 @@ streams files are XML documents, requiring some slightly more sophisticated
 parsing.
 
 Typically, a step that runs the E3SM component will include one or more calls
-to {py:meth}`polaris.ModelStep.add_streams_file()` within the  
-{ref}`dev-step-init` or {ref}`dev-step-setup` method.  Calling this function 
+to {py:meth}`polaris.ModelStep.add_streams_file()` within the
+{ref}`dev-step-init` or {ref}`dev-step-setup` method.  Calling this function
 simply adds the file to a list within the `step` dictionary that will be parsed
 if an when the step gets set up.  (This way, it is safe to add streams files to
 a step at init even if that task will never get set up or run.)
@@ -378,20 +376,20 @@ Thus, calls to {py:meth}`polaris.ModelStep.add_streams_file()` with
 
 ### Adding E3SM component as an input
 
-If a step involves running the E3SM component, it should descend from 
-:py:class`polaris.ModelStep`.  The model executable will  automatically be 
+If a step involves running the E3SM component, it should descend from
+:py:class`polaris.ModelStep`.  The model executable will  automatically be
 linked and added as an input to the step.  This way, if the user has forgotten
-to compile the model, this will be obvious by the broken symlink and the step 
+to compile the model, this will be obvious by the broken symlink and the step
 will immediately fail because of the missing input.  The path to the executable
-is automatically detected based on the work directory for the step and the 
+is automatically detected based on the work directory for the step and the
 config options.
 
 ## Partitioning the mesh
 
-The method {py:meth}`polaris.ModelStep.partition()` calls the graph 
-partitioning  executable ([gpmetis](https://arc.vt.edu/userguide/metis/) by 
+The method {py:meth}`polaris.ModelStep.partition()` calls the graph
+partitioning  executable ([gpmetis](https://arc.vt.edu/userguide/metis/) by
 default) to  divide up the MPAS mesh across MPI tasks.  If you create a
-`ModelStep` with `partition_graph=True` (the default), this method is called 
+`ModelStep` with `partition_graph=True` (the default), this method is called
 automatically.
 
 In some circumstances, a step may need to partition the mesh separately from
@@ -403,18 +401,18 @@ provide `partition_graph=False` and then call
 
 ## Updating PIO namelist options
 
-You can use {py:meth}`polaris.ModelStep.update_namelist_pio()` to 
-automatically set  the MPAS namelist options `config_pio_num_iotasks` and 
-`config_pio_stride` such that there is 1 PIO task per node of the MPAS run.  
-This is particularly useful for PIO v1, which we have found performs much 
-better in this  configuration than when there is 1 PIO task per core, the MPAS 
+You can use {py:meth}`polaris.ModelStep.update_namelist_pio()` to
+automatically set  the MPAS namelist options `config_pio_num_iotasks` and
+`config_pio_stride` such that there is 1 PIO task per node of the MPAS run.
+This is particularly useful for PIO v1, which we have found performs much
+better in this  configuration than when there is 1 PIO task per core, the MPAS
 default.  When running with PIO v2, we have found little performance difference
-between the MPAS default and the polaris default of one task per node, so we 
+between the MPAS default and the polaris default of one task per node, so we
 feel this is a safe default.
 
-By default, this function is called in 
-{py:meth}`polaris.ModelStep.runtime_setup()`.  If the same namelist 
-file is used for multiple model runs, it may be useful to update the number of 
+By default, this function is called in
+{py:meth}`polaris.ModelStep.runtime_setup()`.  If the same namelist
+file is used for multiple model runs, it may be useful to update the number of
 PIO tasks only once.  In this case, set the attribute `update_pio = False` and
 {py:meth}`polaris.ModelStep.update_namelist_pio()` yourself.
 
@@ -429,6 +427,6 @@ Some polaris tasks take advantage of the fact that the
 can produce a graph file as part of the process of culling cells from an
 MPAS mesh.  In tasks that do not require cells to be culled, you can
 call {py:func}`polaris.model_step.make_graph_file()` to produce a graph file
-from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field 
+from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
 on cells in the mesh file that gives different weight to different cells
 (`weight_field`) in the partitioning process.

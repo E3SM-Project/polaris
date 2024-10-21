@@ -3,15 +3,14 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import xarray as xr
 
-from polaris import Step
 from polaris.mpas import area_for_field, time_index_from_xtime
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
 
-class ConvergenceAnalysis(Step):
+class ConvergenceAnalysis(OceanIOStep):
     """
     A step for analyzing the output from convergence tests
 
@@ -278,7 +277,7 @@ class ConvergenceAnalysis(Step):
             The error of the variable given by variable_name
         """
         norm_type = {'l2': None, 'inf': np.inf}
-        ds_mesh = xr.open_dataset(f'{mesh_name}_mesh.nc')
+        ds_mesh = self.open_model_dataset(f'{mesh_name}_mesh.nc')
         config = self.config
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
@@ -333,7 +332,7 @@ class ConvergenceAnalysis(Step):
             The exact solution as derived from the initial condition
         """
 
-        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+        ds_init = self.open_model_dataset(f'{mesh_name}_init.nc')
         ds_init = ds_init.isel(Time=0)
         if zidx is not None:
             ds_init = ds_init.isel(nVertLevels=zidx)
@@ -363,7 +362,7 @@ class ConvergenceAnalysis(Step):
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
+        ds_out = self.open_model_dataset(f'{mesh_name}_output.nc')
 
         tidx = time_index_from_xtime(ds_out.xtime.values, time)
         ds_out = ds_out.isel(Time=tidx)
