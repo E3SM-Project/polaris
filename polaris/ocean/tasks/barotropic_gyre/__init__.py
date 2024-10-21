@@ -33,3 +33,7 @@ class BarotropicGyre(Task):
         init_step = Init(component=component,
                          subdir=self.subdir)
         self.add_step(init_step)
+
+        config_filename = 'barotropic_gyre.cfg'
+        self.config.add_from_package('polaris.ocean.tasks.barotropic_gyre',
+                                     config_filename)
