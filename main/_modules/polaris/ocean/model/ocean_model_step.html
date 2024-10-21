@@ -124,7 +124,7 @@
 <span class="sd">        ``min_tasks``) are computed dynamically from the number of cells</span>
 <span class="sd">        in the mesh</span>
 
-<span class="sd">    map : dict</span>
+<span class="sd">    config_map : dict</span>
 <span class="sd">        A nested dictionary that maps from MPAS-Ocean to Omega model config</span>
 <span class="sd">        options</span>
 
@@ -213,7 +213,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="p">(</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">graph_target</span></div>
 
 
@@ -231,7 +231,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;Omega&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span> <span class="o">=</span> <span class="s1">&#39;omega.yml&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_read_map</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_config_map</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partition_graph</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">]</span>
@@ -397,7 +397,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
                              <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_core</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">_read_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_read_config_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the map from MPAS-Ocean to Omega config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -407,7 +407,7 @@
 
         <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_map_mpaso_to_omega_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -435,9 +435,9 @@
         <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="c1"># traverse the map</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
             <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">mpaso_option</span><span class="p">,</span> <span class="n">omega_option</span> <span class="ow">in</span> <span class="n">options_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="n">mpaso_option</span><span class="p">:</span>
@@ -484,11 +484,11 @@
         <span class="n">out_section</span> <span class="o">=</span> <span class="n">section</span>
         <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">option_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># traverse the map</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
             <span class="n">section_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">omega_section</span> <span class="o">=</span> <span class="n">section_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>

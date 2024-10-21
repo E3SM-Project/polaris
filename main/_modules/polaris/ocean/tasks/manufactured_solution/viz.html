@@ -109,9 +109,8 @@
 <span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.exact_solution</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExactSolution</span><span class="p">,</span>
@@ -121,7 +120,7 @@
 
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.viz.Viz.html#polaris.ocean.tasks.manufactured_solution.viz.Viz">[docs]</a>
-<span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for visualizing the output from the manufactured solution</span>
 <span class="sd">    test case</span>
@@ -186,9 +185,9 @@
         <span class="n">error_range</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">resolutions</span><span class="p">):</span>
             <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mesh_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
-            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mesh_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
             <span class="n">exact</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">)</span>
 
             <span class="n">t0</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>

@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ocean framework</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#model">Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#input-and-output-from-an-e3sm-component">Input and output from an E3SM component</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#setting-time-intervals-in-model-config-options">Setting time intervals in model config options</a></li>
 </ul>
@@ -131,12 +132,36 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component contains an ever expanding set of shared framework code.</p>
 <section id="model">
 <span id="dev-ocean-model"></span><h2>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h2>
+<section id="input-and-output-from-an-e3sm-component">
+<h3>Input and output from an E3SM component<a class="headerlink" href="#input-and-output-from-an-e3sm-component" title="Link to this heading"></a></h3>
+<p>Steps that write input files for or read output files from either Omega or
+MPAS-Ocean should descend from the <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a>
+class.  Methods in this class facilitate mapping between MPAS-Ocean variable
+names (used in Polaris) and Omega variable names for tasks that will run Omega.</p>
+<p>To map a dataset between MPAS-Ocean variable names and those appropriate for
+the model being run, use the methods
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_to_native_model_vars"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.map_to_native_model_vars()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.map_from_native_model_vars()</span></code></a>. These
+methods should be called in Polaris immediatly before writing out input files
+and immediately after opening in output files, respectively. To make opening
+and writing easier, we also provide
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_model_dataset()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a>, which take
+care of of the mapping in addition to writing and opening a dataset,
+respectively. As new variables are added to Omega, they should be added to the
+<code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
+file.</p>
+</section>
 <section id="running-an-e3sm-component">
 <h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h3>
 <p>Steps that run either Omega or MPAS-Ocean should descend from the
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> class.  This class descends
 from <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>, so there is a lot of relevant
 discussion in <a class="reference internal" href="../framework/model.html#dev-model"><span class="std std-ref">Model</span></a>.</p>
+<p>If the graph partition file has been constructed prior to the ocean model step,
+the path to the graph file should be provided in the <code class="docutils literal notranslate"><span class="pre">graph_target</span></code> argument
+to the constructor <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep()</span></code></a>.</p>
 <section id="yaml-files-vs-namelists-and-streams">
 <h4>YAML files vs. namelists and streams<a class="headerlink" href="#yaml-files-vs-namelists-and-streams" title="Link to this heading"></a></h4>
 <p>In order to have the same tasks support Omega or MPAS-Ocean, we want
@@ -198,7 +223,8 @@ names for the <code class="docutils literal notranslate"><span class="pre">ocean
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_options()</span></code></a> and
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_configs()</span></code></a>.
 As new config options are added to Omega, they should be added to the
-map in the <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
+<code class="docutils literal notranslate"><span class="pre">config</span></code> section in the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
 file. Note that <code class="docutils literal notranslate"><span class="pre">config_model='Omega'</span></code> must be capitalized since this is the
 convention on the model name in Omega’s own YAML files.</p>
 </section>

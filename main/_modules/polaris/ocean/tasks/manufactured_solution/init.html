@@ -106,12 +106,11 @@
   <h1>Source code for polaris.ocean.tasks.manufactured_solution.init</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
 <span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.exact_solution</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExactSolution</span><span class="p">,</span>
@@ -121,7 +120,7 @@
 
 <div class="viewcode-block" id="Init">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.init.Init.html#polaris.ocean.tasks.manufactured_solution.init.Init">[docs]</a>
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for creating a mesh and initial condition for the</span>
 <span class="sd">    manufactured solution test cases</span>
@@ -189,12 +188,12 @@
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
                                        <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                        <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
                           <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
 
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
 
@@ -228,7 +227,7 @@
                                                     <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thickness</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

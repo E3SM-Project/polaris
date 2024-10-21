@@ -146,9 +146,7 @@ method,  you can set number of tasks, threads, etc. determined from the
 <code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.  These resources need to be set at construction or
 in the  <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method (i.e. before calling <a class="reference internal" href="../organization/steps.html#dev-step-run"><span class="std std-ref">run()</span></a>)
 so that  the polaris framework  can ensure that the required resources are
-available. If the graph partition file has been constructed prior to the ocean
-model step, the path to the graph file should be provided in the
-<code class="docutils literal notranslate"><span class="pre">graph_target</span></code> argument to <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.OceanModelStep.__init__()</span></code>.</p>
+available.</p>
 <section id="adding-yaml-namelist-and-streams-files">
 <span id="dev-model-yaml-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Link to this heading"></a></h3>
 <p>Components and tasks can provide yaml config options,
@@ -188,7 +186,7 @@ options and values, followed by streams:</p>
 <span class="w">    </span><span class="nt">config_block_decomp_file_prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph.info.part.</span>
 <span class="w">  </span><span class="nt">time_integration</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">config_time_integrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RK4</span>
-<span class="w">  </span>
+
 <span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">mesh</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">init.nc</span>
@@ -273,7 +271,7 @@ model config options rely on values that are determined by the code (e.g.
 different  values for different resolutions).  Simply create a dictionary
 replacements and call <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>
 either  at init or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are
-parsed, along  with replacements from files, in the order they are added.<br />
+parsed, along  with replacements from files, in the order they are added.
 Thus, you could add replacements from a model config file common to multiple
 tasks, specific to a task, and/or specific to step.  Then, you could override
 them with namelist options in a dictionary for the task or step, as in this
@@ -357,7 +355,7 @@ config options) at runtime.  A step needs to override the
 streams files are XML documents, requiring some slightly more sophisticated
 parsing.</p>
 <p>Typically, a step that runs the E3SM component will include one or more calls
-to <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> within the<br />
+to <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> within the
 <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a> or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function
 simply adds the file to a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed
 if an when the step gets set up.  (This way, it is safe to add streams files to
@@ -488,7 +486,7 @@ provide <code class="docutils literal notranslate"><span class="pre">partition_g
 <h2>Updating PIO namelist options<a class="headerlink" href="#updating-pio-namelist-options" title="Link to this heading"></a></h2>
 <p>You can use <a class="reference internal" href="../generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_pio()</span></code></a> to
 automatically set  the MPAS namelist options <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and
-<code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> such that there is 1 PIO task per node of the MPAS run.<br />
+<code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> such that there is 1 PIO task per node of the MPAS run.
 This is particularly useful for PIO v1, which we have found performs much
 better in this  configuration than when there is 1 PIO task per core, the MPAS
 default.  When running with PIO v2, we have found little performance difference

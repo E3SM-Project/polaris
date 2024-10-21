@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.write\_model\_dataset
+=====================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.write_model_dataset
