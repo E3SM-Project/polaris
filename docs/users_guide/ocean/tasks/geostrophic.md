@@ -4,19 +4,24 @@
 
 ## description
 
-The `geostrophic` and `geostrophic/with_viz` tasks implement the "Global Steady
+The `geostrophic` tasks implement the "Global Steady
 State Nonlinear Zonal Geostrophic Flow" test case described in
 [Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
 
-The task is a convergence test with time step varying proportionately to grid
-size. The result of the `analysis` step of the task are plots like the
-following showing convergence of water-column thickness and normal velocity as
-functions of the mesh resolution:
+The task `geostrophic/convergence_both` is a space-and-time convergence test
+with time step varying proportionately to grid size. Convergence tests in
+either space or time are also available as `convergence_space` or 
+`convergence_time`. The result of the `analysis` step of the task are plots
+like the following showing convergence of water-column thickness and normal
+velocity as functions of the mesh resolution:
 
 ```{image} images/geostrophic_convergence.png
 :align: center
 :width: 500 px
 ```
+
+Visualizations of the fields themselves can be added in viz steps by appending
+`with_viz` to the task name at setup.
 
 ## suppported models
 

@@ -1,4 +1,4 @@
-from polaris.ocean.convergence import ConvergenceAnalysis
+from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 
 
 class Analysis(ConvergenceAnalysis):
@@ -13,8 +13,8 @@ class Analysis(ConvergenceAnalysis):
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, resolutions, subdir, case_name,
-                 dependencies):
+    def __init__(self, component, subdir, case_name,
+                 dependencies, refinement='both'):
         """
         Create the step
 
@@ -22,9 +22,6 @@ class Analysis(ConvergenceAnalysis):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolutions : list of float
-            The resolutions of the meshes that have been run
 
         subdir : str
             The subdirectory that the step resides in
@@ -34,6 +31,10 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         self.case_name = case_name
         convergence_vars = [{'name': 'tracer1',
@@ -46,9 +47,9 @@ class Analysis(ConvergenceAnalysis):
                              'title': 'tracer3',
                              'zidx': 1}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars,
+                         refinement=refinement)
         # Note: there is no need to overwrite the default method exact_solution
         # which uses the initial condition
 

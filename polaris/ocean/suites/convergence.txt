@@ -1,22 +1,22 @@
-ocean/planar/inertial_gravity_wave
-ocean/planar/manufactured_solution
+ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/manufactured_solution/convergence_both
 ocean/spherical/icos/correlated_tracers_2d
   cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
 ocean/spherical/qu/correlated_tracers_2d
   cached: qu_base_mesh_60km qu_base_mesh_90km qu_base_mesh_120km qu_base_mesh_150km
   cached: qu_base_mesh_180km qu_base_mesh_210km qu_base_mesh_240km
-ocean/spherical/icos/cosine_bell
+ocean/spherical/icos/cosine_bell/convergence_both
   cached: icos_base_mesh_60km icos_init_60km icos_base_mesh_120km icos_init_120km
   cached: icos_base_mesh_240km icos_init_240km icos_base_mesh_480km icos_init_480km
-ocean/spherical/qu/cosine_bell
+ocean/spherical/qu/cosine_bell/convergence_both
   cached: qu_base_mesh_60km qu_init_60km qu_base_mesh_90km qu_init_90km
   cached: qu_base_mesh_120km qu_init_120km qu_base_mesh_150km qu_init_150km
   cached: qu_base_mesh_180km qu_init_180km qu_base_mesh_210km qu_init_210km
   cached: qu_base_mesh_240km qu_init_240km
-ocean/spherical/icos/geostrophic
+ocean/spherical/icos/geostrophic/convergence_both
   cached: icos_base_mesh_60km icos_init_60km icos_base_mesh_120km icos_init_120km
   cached: icos_base_mesh_240km icos_init_240km icos_base_mesh_480km icos_init_480km
-ocean/spherical/qu/geostrophic
+ocean/spherical/qu/geostrophic/convergence_both
   cached: qu_base_mesh_60km qu_init_60km qu_base_mesh_90km qu_init_90km
   cached: qu_base_mesh_120km qu_init_120km qu_base_mesh_150km qu_init_150km
   cached: qu_base_mesh_180km qu_init_180km qu_base_mesh_210km qu_init_210km
