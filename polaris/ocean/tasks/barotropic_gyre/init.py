@@ -6,6 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.tasks.barotropic_gyre.resources import compute_max_time_step
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
@@ -34,8 +35,37 @@ class Init(Step):
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info',
                      'forcing.nc']:
             self.add_output_file(file)
-        self.add_output_file('initial_state.nc',
-                             validate_vars=['layerThickness'])
+        self.add_output_file('init.nc', validate_vars=['layerThickness'])
+
+    def setup(self):
+
+        super().setup()
+
+        config = self.config
+
+        resolution = config.getfloat("barotropic_gyre", "resolution")
+        # coriolis parameter
+        beta = config.getfloat("barotropic_gyre", "beta")
+        # laplacian horizontal viscosity
+        nu_2 = config.getfloat("barotropic_gyre", "nu_2")
+
+        # calculate the boundary layer thickness for specified parameters
+        M = (np.pi * 2) / np.sqrt(3) * (nu_2 / beta)**(1. / 3.)
+
+        # ensure the boundary layer is at least 3 gridcells wide
+        if M <= 3. * resolution:  # TODO should resolution be * 1.e3?
+            raise ValueError("resolution is too coarse to properly resolve the"
+                             "the boundary (i.e. Munk) layer")
+
+        # check whether viscosity suitable for stability
+        stability_parameter_max = 0.6
+        dt_max = compute_max_time_step(config)
+        dt = dt_max / 3.
+        nu_2_max = stability_parameter_max * (resolution * 1.e3)**2. / \
+            (8 * dt)
+        if nu_2 > nu_2_max:
+            raise ValueError(f'Laplacian viscosity cannot be set to {nu_2}; '
+                             f'maximum value is {nu_2_max}')
 
     def run(self):
         """Create the at rest inital condition for the barotropic gyre testcase
@@ -67,16 +97,6 @@ class Init(Step):
         beta = config.getfloat("barotropic_gyre", "beta")
         # surface (wind) forcing parameters
         tau_0 = config.getfloat("barotropic_gyre", "tau_0")
-        # horizontal momentum diffusion parameters
-        nu_2 = config.getfloat("barotropic_gyre", "nu_2")
-
-        # calculate the boundary layer thickness for specified parameters
-        M = (np.pi * 2) / np.sqrt(3) * (nu_2 / beta)**(1. / 3.)
-
-        # ensure the boundary layer is at least 3 gridcells wide
-        if M <= 3. * resolution:
-            raise ValueError("resolution is too coarse to properly resolve the"
-                             "the boundary (i.e. Munk) layer")
 
         # create a copy of the culled mesh to place the IC's into
         ds = ds_mesh.copy()
