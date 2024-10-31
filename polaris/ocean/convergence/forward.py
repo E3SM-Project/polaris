@@ -117,7 +117,6 @@ class ConvergenceForward(OceanModelStep):
         section = config['convergence_forward']
 
         time_integrator = section.get('time_integrator')
-
         # dt is proportional to resolution: default 30 seconds per km
         if time_integrator == 'RK4':
             dt_per_km = section.getfloat('rk4_dt_per_km')
@@ -138,6 +137,16 @@ class ConvergenceForward(OceanModelStep):
         output_interval = section.getfloat('output_interval')
         output_interval_str = get_time_interval_string(
             seconds=output_interval * s_per_hour)
+
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print('Warning: mapping from time integrator '
+                      f'{time_integrator} to omega not found, '
+                      'retaining name given in config')
 
         replacements = dict(
             time_integrator=time_integrator,
