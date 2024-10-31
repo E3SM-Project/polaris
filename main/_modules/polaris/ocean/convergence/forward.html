@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.convergence.forward</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=7ab3649f" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
@@ -232,7 +232,6 @@
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">]</span>
 
         <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
-
         <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
         <span class="k">if</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">&#39;RK4&#39;</span><span class="p">:</span>
             <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;rk4_dt_per_km&#39;</span><span class="p">)</span>
@@ -253,6 +252,16 @@
         <span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
         <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
             <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
+
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;RK4&#39;</span><span class="p">,</span> <span class="s1">&#39;RungeKutta4&#39;</span><span class="p">)])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: mapping from time integrator &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> to omega not found, &#39;</span>
+                      <span class="s1">&#39;retaining name given in config&#39;</span><span class="p">)</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
