@@ -11,7 +11,6 @@ esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
 geoviews
-git
 holoviews
 hvplot
 importlib_resources
