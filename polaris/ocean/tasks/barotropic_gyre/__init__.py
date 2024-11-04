@@ -1,5 +1,6 @@
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.ocean.tasks.barotropic_gyre.analysis import Analysis
 from polaris.ocean.tasks.barotropic_gyre.forward import Forward
 from polaris.ocean.tasks.barotropic_gyre.init import Init
 
@@ -60,3 +61,7 @@ class BarotropicGyre(Task):
                           graph_target=f'{init.path}/culled_graph.info')
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward, run_by_default=False)
+
+        analysis = Analysis(component=component, indir=self.subdir)
+        analysis.set_shared_config(config, link=config_filename)
+        self.add_step(analysis, run_by_default=False)
