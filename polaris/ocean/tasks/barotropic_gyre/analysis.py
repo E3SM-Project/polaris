@@ -4,11 +4,11 @@ import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
+from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris.mpas import area_for_field
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import plot_horiz_field, use_mplstyle
+from polaris.viz import use_mplstyle
 
 
 class Analysis(OceanIOStep):
@@ -17,7 +17,7 @@ class Analysis(OceanIOStep):
     test case
     """
 
-    def __init__(self, component, indir):
+    def __init__(self, component, indir, boundary_condition='free slip'):
         """
         Create the step
 
@@ -39,6 +39,7 @@ class Analysis(OceanIOStep):
         self.add_input_file(
             filename='output.nc',
             target='../long_forward/output.nc')
+        self.boundary_condition = boundary_condition
 
     def run(self):
 
@@ -46,38 +47,55 @@ class Analysis(OceanIOStep):
         ds_init = xr.open_dataset('init.nc')
         ds = xr.open_dataset('output.nc')
 
-        error = self.compute_error(ds_mesh, ds, variable_name='ssh')
-        print(f'L2 error norm for SSH field: {error:1.2e}')
+        field_mpas = compute_barotropic_streamfunction(
+            ds_init.isel(Time=0), ds, prefix='', time_index=-1)
+        field_exact = self.exact_solution(
+            ds_mesh, self.config, loc='Vertex',
+            boundary_condition=self.boundary_condition)
 
-        field_mpas = ds.ssh.isel(Time=-1)
-        field_exact = self.exact_solution(ds_mesh, self.config)
-        ds['ssh_exact'] = field_exact
-        ds['ssh_error'] = field_mpas - field_exact
-        eta0 = np.max(np.abs(ds.ssh.values))
-        error_range = np.max(np.abs(ds.ssh_error.values))
+        ds['psi'] = field_mpas
+        ds['psi_exact'] = field_exact
+        ds['psi_error'] = field_mpas - field_exact
+
+        error = self.compute_error(ds_mesh, ds, variable_name='psi',
+                                   boundary_condition=self.boundary_condition)
+        print(f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}')
 
         use_mplstyle()
-        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(10, 2))
-        cell_mask = ds_init.maxLevelCell >= 1
-        patches, patch_mask = plot_horiz_field(
-            ds, ds_mesh, 'ssh', ax=axes[0], cmap='cmo.balance',
-            t_index=ds.sizes["Time"] - 1, vmin=-eta0, vmax=eta0,
-            cmap_title="SSH", cell_mask=cell_mask)
-        plot_horiz_field(ds, ds_mesh, 'ssh_exact', ax=axes[1],
-                         cmap='cmo.balance',
-                         vmin=-eta0, vmax=eta0, cmap_title="SSH",
-                         patches=patches, patch_mask=patch_mask)
-        plot_horiz_field(ds, ds_mesh, 'ssh_error', ax=axes[2],
-                         cmap='cmo.balance', cmap_title="dSSH",
-                         vmin=-error_range, vmax=error_range,
-                         patches=patches, patch_mask=patch_mask)
-
-        axes[0].set_title('Numerical solution')
-        axes[1].set_title('Analytical solution')
-        axes[2].set_title('Error (Numerical - Analytical)')
+        pad = 20
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
+        x0 = ds_mesh.xEdge.min()
+        y0 = ds_mesh.yEdge.min()
+        x_vertex = (ds_mesh['xVertex'] - x0) * 1.e-3
+        y_vertex = (ds_mesh['yVertex'] - y0) * 1.e-3
+        eta0 = max(np.max(np.abs(field_exact.values)),
+                   np.max(np.abs(field_mpas.values)))
+        s = axes[0].tricontourf(x_vertex, y_vertex, field_mpas, 10,
+                                vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+        cbar = fig.colorbar(s, ax=axes[0])
+        cbar.ax.set_title(r'$\psi$')
+        s = axes[1].tricontourf(x_vertex, y_vertex, field_exact, 10,
+                                vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+        cbar = fig.colorbar(s, ax=axes[1])
+        cbar.ax.set_title(r'$\psi$')
+        eta0 = np.max(np.abs(field_mpas.values - field_exact.values))
+        s = axes[2].tricontourf(x_vertex, y_vertex, field_mpas - field_exact,
+                                10, vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+        cbar = fig.colorbar(s, ax=axes[2])
+        cbar.ax.set_title(r'$d\psi$')
+        axes[0].set_title('Numerical solution', pad=pad)
+        axes[0].set_ylabel('y (km)')
+        axes[0].set_xlabel('x (km)')
+        axes[1].set_title('Analytical solution', pad=pad)
+        axes[1].set_xlabel('x (km)')
+        axes[2].set_title('Error (Numerical - Analytical)', pad=pad)
+        axes[2].set_xlabel('x (km)')
+        for ax in axes:
+            ax.set_aspect('equal')
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
 
-    def compute_error(self, ds_mesh, ds_out, variable_name, error_type='l2'):
+    def compute_error(self, ds_mesh, ds_out, variable_name, error_type='l2',
+                      loc='Vertex', boundary_condition='free slip'):
         """
         Compute the error for a given resolution
 
@@ -106,7 +124,9 @@ class Analysis(OceanIOStep):
         """
         norm_type = {'l2': None, 'inf': np.inf}
 
-        field_exact = self.exact_solution(ds_mesh, self.config)
+        field_exact = self.exact_solution(
+            ds_mesh, self.config, loc=loc,
+            boundary_condition=self.boundary_condition)
         ds_out = ds_out.isel(Time=-1)
         field_mpas = ds_out[variable_name]
         diff = field_exact - field_mpas
@@ -124,7 +144,8 @@ class Analysis(OceanIOStep):
 
         return error
 
-    def exact_solution(self, ds_mesh, config):
+    def exact_solution(self, ds_mesh, config, loc='Cell',
+                       boundary_condition='free slip'):
         """
         Exact solution to the sea surface height for the linearized Munk layer
         experiments.
@@ -132,35 +153,36 @@ class Analysis(OceanIOStep):
         Parameters
         ----------
         ds_mesh : xarray.Dataset
-            Must contain the fields: `xCell`, `yCell`, ....
+            Must contain the fields: f'x{loc}', f'y{loc}'
         """
 
-        x = ds_mesh.xCell
-        x = x - x.min()
-        y = ds_mesh.yCell
-        y = y - y.min()
+        x = ds_mesh[f'x{loc}']
+        x = x - ds_mesh.xEdge.min()
+        y = ds_mesh[f'y{loc}']
+        y = y - ds_mesh.yEdge.min()
         L_x = float(x.max() - x.min())
         L_y = float(y.max() - y.min())
-        # vertical coordinate parameters
-        H = config.getfloat('vertical_grid', 'bottom_depth')
-        # coriolis parameters
-        f_0 = config.getfloat("barotropic_gyre", "f_0")
+
+        # df/dy where f is coriolis parameter
         beta = config.getfloat("barotropic_gyre", "beta")
-        # surface (wind) forcing parameters
-        tau_0 = config.getfloat("barotropic_gyre", "tau_0")
         # Laplacian viscosity
         nu = config.getfloat("barotropic_gyre", "nu_2")
 
-        # TODO get gravity and rho_sw
-        rho_0 = config.getfloat("barotropic_gyre", "rho_0")
-        g = constants['SHR_CONST_G']
-        f = f_0 + beta * y
-        delta_m = (nu / beta)**(1. / 3.)
-        gamma = (np.sqrt(3.) * x) / (2. * delta_m)
+        # Compute some non-dimensional numbers
+        delta_m = (nu / (beta * L_y**3.))**(1. / 3.)
+        gamma = (np.sqrt(3.) * x) / (2. * delta_m * L_x)
 
-        ssh = ((tau_0 / (rho_0 * g * H)) * f / beta *
-               (1. - x / L_x) * pi * np.sin(pi * y / L_y) *
-               (1. - np.exp(-1. * x / (2. * delta_m)) *
-                (np.cos(gamma) + (1. / np.sqrt(3.)) * np.sin(gamma))))
+        if boundary_condition == 'no slip':
+            psi = (pi * np.sin(pi * y / L_y) *
+                   (1. - (x / L_x) -
+                    np.exp(-x / (2. * delta_m * L_x)) *
+                    (np.cos(gamma) +
+                     ((1. - 2 * delta_m) / np.sqrt(3.)) * np.sin(gamma)) +
+                    delta_m * np.exp(((x / L_x) - 1) / delta_m)))
 
-        return ssh
+        elif boundary_condition == 'free slip':
+            psi = (pi * (1. - x / L_x) * np.sin(pi * y / L_y) *
+                   (1. -
+                    np.exp(-x / (2. * delta_m * L_x)) *
+                    (np.cos(gamma) + (1. / np.sqrt(3.)) * np.sin(gamma))))
+        return psi
