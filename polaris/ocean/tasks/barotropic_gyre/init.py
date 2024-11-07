@@ -6,7 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.tasks.barotropic_gyre.resources import compute_max_time_step
+from polaris.ocean.tasks.barotropic_gyre.forward import compute_max_time_step
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
