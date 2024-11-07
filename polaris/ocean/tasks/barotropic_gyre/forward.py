@@ -70,8 +70,6 @@ class Forward(OceanModelStep):
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-        # TODO if model == 'mpas-ocean':
-        self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         self.add_input_file(filename='init.nc',
                             target='../init/init.nc')
@@ -119,6 +117,10 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         config = self.config
+
+        model = config.get('ocean', 'model')
+        if model == 'mpas-ocean':
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         nu = config.getfloat("barotropic_gyre", "nu_2")
         rho_0 = config.getfloat("barotropic_gyre", "rho_0")
