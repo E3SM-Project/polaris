@@ -13,14 +13,8 @@ def add_barotropic_gyre_tasks(component):
         the ocean component that the task will be added to
     """
     test_name = 'default'
-    subdir = f'planar/barotropic_gyre/{test_name}'
-    config_filename = 'barotropic_gyre.cfg'
-    config = PolarisConfigParser(filepath=f'{subdir}/{config_filename}')
-    config.add_from_package('polaris.ocean.tasks.barotropic_gyre',
-                            config_filename)
     component.add_task(BarotropicGyre(component=component,
-                                      test_name=test_name,
-                                      config=config))
+                                      test_name=test_name))
 
 
 class BarotropicGyre(Task):
@@ -28,7 +22,7 @@ class BarotropicGyre(Task):
     The convergence test case for inertial gravity waves
     """
 
-    def __init__(self, component, test_name, config, smoke_test=False):
+    def __init__(self, component, test_name):
         """
         Create the test case
 
@@ -42,7 +36,12 @@ class BarotropicGyre(Task):
         subdir = f'planar/{group_name}/{test_name}'
         super().__init__(component=component, name=name, subdir=subdir)
 
-        config_filename = 'barotropic_gyre.cfg'
+        config = self.config
+        config_filename = f'{group_name}.cfg'
+        config.filepath = f'{subdir}/{config_filename}'
+        config.add_from_package(f'polaris.ocean.tasks.{group_name}',
+                                config_filename)
+        self.set_shared_config(config, link=config_filename)
 
         init = Init(component=component, subdir=subdir)
         init.set_shared_config(config, link=config_filename)
