@@ -563,10 +563,12 @@ def _build_conda_env(options, activate_base):
                             mpi_prefix=mpi_prefix,
                             include_mache=not local_mache)
 
-        for package in ['esmf', 'geometric_features', 'mache', 'metis', 'moab',
+        for package in ['esmf', 'geometric_features', 'mache', 'metis',
                         'mpas_tools', 'netcdf_c', 'netcdf_fortran', 'otps',
                         'parallelio', 'pnetcdf']:
             replacements[package] = config.get('deploy', package)
+
+        replacements['moab'] = config.get('deploy', 'conda_moab')
 
         spec_file = template.render(**replacements)
 
@@ -868,7 +870,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
     metis = config.get('deploy', 'metis')
-    moab = config.get('deploy', 'moab')
+    moab = config.get('deploy', 'spack_moab')
     parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
