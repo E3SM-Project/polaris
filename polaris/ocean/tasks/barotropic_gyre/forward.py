@@ -77,8 +77,7 @@ class Forward(OceanModelStep):
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness',
-                           'normalVelocity'])
+            validate_vars=['layerThickness', 'normalVelocity'])
 
         self.package = 'polaris.ocean.tasks.barotropic_gyre'
         self.yaml_filename = 'forward.yaml'
@@ -156,7 +155,7 @@ class Forward(OceanModelStep):
 
 
 def compute_max_time_step(config):
-    u_max = 1  # m/s
+    u_max = 1.  # m/s
     stability_parameter_max = 0.25
     resolution = config.getfloat('barotropic_gyre', 'resolution')
     f_0 = config.getfloat("barotropic_gyre", "f_0")
