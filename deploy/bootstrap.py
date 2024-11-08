@@ -1181,6 +1181,8 @@ def _update_permissions(options, directories):  # noqa: C901
     # os.walk()
     for directory in directories:
         dir_stat = _safe_stat(directory)
+        if dir_stat is None:
+            continue
 
         perm = dir_stat.st_mode & mask
 
@@ -1220,6 +1222,8 @@ def _update_permissions(options, directories):  # noqa: C901
                 directory = os.path.join(root, directory)
 
                 dir_stat = _safe_stat(directory)
+                if dir_stat is None:
+                    continue
 
                 if dir_stat.st_uid != new_uid:
                     # current user doesn't own this dir so let's move on
@@ -1244,6 +1248,8 @@ def _update_permissions(options, directories):  # noqa: C901
                     pass
                 file_name = os.path.join(root, file_name)
                 file_stat = _safe_stat(file_name)
+                if file_stat is None:
+                    continue
 
                 if file_stat.st_uid != new_uid:
                     # current user doesn't own this file so let's move on
@@ -1341,7 +1347,7 @@ def _safe_rmtree(path):
 
 @_ignore_file_errors
 def _safe_stat(path):
-    os.stat(path)
+    return os.stat(path)
 
 
 def _discover_machine(quiet=False):
