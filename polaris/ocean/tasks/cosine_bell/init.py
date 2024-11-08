@@ -1,14 +1,13 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for an initial condition for for the cosine bell test case
     """
@@ -35,10 +34,6 @@ class Init(Step):
         self.add_input_file(
             filename='mesh.nc',
             work_dir_target=f'{base_mesh.path}/base_mesh.nc')
-
-        self.add_input_file(
-            filename='graph.info',
-            work_dir_target=f'{base_mesh.path}/graph.info')
 
         self.add_output_file(filename='initial_state.nc')
 
@@ -107,7 +102,7 @@ class Init(Step):
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc')
 
 
 def cosine_bell(max_value, ri, r):
