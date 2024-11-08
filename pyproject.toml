@@ -1,0 +1,77 @@
+[project]
+name = "polaris"
+dynamic = ["version"]
+authors = [
+    { name="Xylar Asay-Davis", email="xylar@lanl.gov" },
+    { name="Althea Denlinger", email="althea@lanl.gov" }
+]
+description = "Testing and analysis for Omega, MPAS-Ocean, MALI and MPAS-Seaice"
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    # these are only for searching/browsing projects on PyPI
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "cartopy",
+    "cmocean",
+    "importlib_resources",
+    "ipython",
+    "jigsawpy",
+    "jupyter",
+    "lxml",
+    "matplotlib>=3.9.0",
+    "netcdf4",
+    "numpy>=2.0,<3.0",
+    "progressbar2",
+    "pyamg>=4.2.2",
+    "pyproj",
+    "ruamel.yaml",
+    "requests",
+    "scipy>=1.8.0",
+    "shapely>=2.0,<3.0",
+    "xarray",
+]
+
+[tool.isort]
+multi_line_output = "3"
+include_trailing_comma = true
+force_grid_wrap = "0"
+use_parentheses = true
+line_length = "79"
+skip = ["e3sm_diags/e3sm_diags_driver.py"]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[build-system]
+requires = ["setuptools>=60"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["docs*", "conda*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "polaris.version.__version__" }
+
+# evolution of options.entry-points
+[project.scripts]
+polaris = "polaris.__main__:main"
+mpas_to_yaml = "polaris.yaml:main_mpas_to_yaml"
+
+[project.urls]
+Documentation = "https://docs.e3sm.org/polaris"
+"Bug Tracker" = "https://github.com/E3SM-Project/polaris/issues"
