@@ -51,11 +51,11 @@ class Init(Step):
 
         # calculate the boundary layer thickness for specified parameters
         M = (np.pi * 2) / np.sqrt(3) * (nu_2 / beta)**(1. / 3.)
-
         # ensure the boundary layer is at least 3 gridcells wide
-        if M <= 3. * resolution:  # TODO should resolution be * 1.e3?
-            raise ValueError("resolution is too coarse to properly resolve the"
-                             "the boundary (i.e. Munk) layer")
+        if M >= 3. * resolution * 1.e3:
+            raise ValueError(f"Resolution {resolution} km is too coarse to "
+                             "properly resolve the lateral boundary layer "
+                             f"with anticipated width of {(M * 1e-3):03g} km")
 
         # check whether viscosity suitable for stability
         stability_parameter_max = 0.6
