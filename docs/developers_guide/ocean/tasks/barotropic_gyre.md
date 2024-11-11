@@ -7,7 +7,7 @@ The barotropic_gyre task group is currently comprised of one `default` task.
 ## framework
 
 The shared config options for `barotropic_gyre` tests  are described in
-{ref}`ocean-barotropic-` in the User's Guide.
+{ref}`ocean-barotropic-gyre` in the User's Guide.
 
 Additionally, the tests share a `forward.yaml` file with a few common model
 config options related to time management, time integration, and Laplacian

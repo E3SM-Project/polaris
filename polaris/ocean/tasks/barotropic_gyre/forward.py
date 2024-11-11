@@ -155,6 +155,19 @@ class Forward(OceanModelStep):
 
 
 def compute_max_time_step(config):
+    """
+    Compute the approximate maximum time step for stability
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Config options for test case
+
+    Returns
+    -------
+    dt_max : float
+        The approximate maximum time step for stability
+    """
     u_max = 1.  # m/s
     stability_parameter_max = 0.25
     resolution = config.getfloat('barotropic_gyre', 'resolution')

@@ -1,10 +1,10 @@
 (ocean-barotropic-gyre)=
 
-# barotropic_gyre
+# barotropic gyre
 
 The barotropic gyre test case implements the Munk model for a simplified,
 wind-driven gyre
-[Munk 1950](https://doi.org/10.1175/1520-0469%281950%29007%3C0080:OTWDOC%3E2.0.CO;2).
+([Munk 1950](https://doi.org/10.1175/1520-0469%281950%29007%3C0080:OTWDOC%3E2.0.CO;2)).
 It is a variant of the Stommel model except it uses Laplacian horizontal
 viscosity rather than drag to balance the wind stress. As such, this test case
 may be used to verify the Laplacian viscosity term and the wind stress forcing
@@ -25,7 +25,7 @@ produced:
 
 ```{image} images/barotropic_gyre_solution.png
 :align: center
-:width: 500 px
+:width: 800 px
 ```
 
 ## mesh
@@ -86,6 +86,11 @@ $$
 $$
 
 where `tau_0` is given by a config option.
+
+```{image} images/barotropic_gyre_forcing.png
+:align: center
+:width: 500 px
+```
 
 ### config options
 
