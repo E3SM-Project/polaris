@@ -28,7 +28,7 @@ CTests and can optionally submit the job script.
 
 3. Run the utility:
    ```
-   ./util/omega/ctest/omega_ctest.py
+   ./utils/omega/ctest/omega_ctest.py
    ```
    The utility will check out submodules and build Omega with the compilers
    associated with the Polaris load script (e.g. `intel` in the example above).
