@@ -231,7 +231,7 @@ package.</p>
 <section id="uniform-planar-meshes">
 <h3>Uniform planar meshes<a class="headerlink" href="#uniform-planar-meshes" title="Link to this heading"></a></h3>
 <p>You can build a uniform planar mesh in a step by calling
-<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  The mesh is defined
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code>.  The mesh is defined
 by the number of cells in the x and y directions (<code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>), the
 resolution <code class="docutils literal notranslate"><span class="pre">dc</span></code> in km (<code class="docutils literal notranslate"><span class="pre">dc</span></code> is the distance between adjacent cell centers),
 and some (admittedly oddly named) parameters for determining which directions
@@ -276,7 +276,7 @@ factor of <code class="docutils literal notranslate"><span class="pre">2.</span>
 <section id="general-planar-meshes">
 <h3>General planar meshes<a class="headerlink" href="#general-planar-meshes" title="Link to this heading"></a></h3>
 <p>One way to create a more general planar mesh is by calling
-<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.mesh.creation.build_mesh.build_planar_mesh.html#mpas_tools.mesh.creation.build_mesh.build_planar_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.mesh.creation.build_mesh.build_planar_mesh()</span></code></a>, which uses
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.mesh.creation.build_mesh.build_planar_mesh()</span></code>, which uses
 JIGSAW to build a mesh with variable resolution.  See
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_creation.html#planar-meshes">Planar Meshes</a>
 for more details.  We plan to create framework-level steps for planar meshes

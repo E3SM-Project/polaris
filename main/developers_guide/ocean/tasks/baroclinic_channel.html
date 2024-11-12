@@ -152,7 +152,7 @@ and <code class="docutils literal notranslate"><span class="pre">output</span></
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.baroclinic_channel.init.Init.html#polaris.ocean.tasks.baroclinic_channel.init.Init" title="polaris.ocean.tasks.baroclinic_channel.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.baroclinic_channel.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
-<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/stable/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vstable)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code>.  Then, the mesh is
 culled to remove periodicity in the y direction.  A vertical grid is generated,
 with 20 layers of 50-m thickness each by default.  Next, the initial
 temperature field is computed along with uniform salinity and zero initial
