@@ -1,5 +1,5 @@
 import time
-from math import ceil
+from math import ceil, floor
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
@@ -124,7 +124,7 @@ class Forward(OceanModelStep):
         rho_0 = config.getfloat("barotropic_gyre", "rho_0")
 
         dt_max = compute_max_time_step(config)
-        dt = dt_max / 3.
+        dt = floor(dt_max / 3.)
         dt_str = get_time_interval_string(seconds=dt)
 
         options = {'config_dt': dt_str,
