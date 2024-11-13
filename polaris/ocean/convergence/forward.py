@@ -132,6 +132,7 @@ class ConvergenceForward(OceanModelStep):
         btr_dt_str = get_time_interval_string(seconds=btr_timestep)
 
         s_per_hour = 3600.
+        section = config['convergence_forward']
         run_duration = section.getfloat('run_duration')
         run_duration_str = get_time_interval_string(
             seconds=run_duration * s_per_hour)
@@ -140,6 +141,7 @@ class ConvergenceForward(OceanModelStep):
         output_interval_str = get_time_interval_string(
             seconds=output_interval * s_per_hour)
 
+        time_integrator = section.get('time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
         model = config.get('ocean', 'model')
         if model == 'omega':

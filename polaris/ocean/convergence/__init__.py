@@ -23,10 +23,12 @@ def get_resolution_for_task(config, refinement_factor,
         The resolution corresponding to the refinement_factor and convergence
         test type
     """
+    if refinement == 'both':
+        option = 'refinement_factors_space'
+    else:
+        option = f'refinement_factors_{refinement}'
     base_resolution = config.getfloat('convergence', 'base_resolution')
-    refinement_factors = config.getlist('convergence',
-                                        'refinement_factors',
-                                        dtype=float)
+    refinement_factors = config.getlist('convergence', option, dtype=float)
 
     if refinement_factor not in refinement_factors:
         raise ValueError(
@@ -63,10 +65,12 @@ def get_timestep_for_task(config, refinement_factor,
         test type
     """
 
+    if refinement == 'both':
+        option = 'refinement_factors_space'
+    else:
+        option = f'refinement_factors_{refinement}'
     base_resolution = config.getfloat('convergence', 'base_resolution')
-    refinement_factors = config.getlist('convergence',
-                                        'refinement_factors',
-                                        dtype=float)
+    refinement_factors = config.getlist('convergence', option, dtype=float)
 
     if refinement_factor not in refinement_factors:
         raise ValueError(
@@ -93,7 +97,7 @@ def get_timestep_for_task(config, refinement_factor,
             else:
                 btr_timestep = btr_dt_per_km * resolution
     if refinement == 'time':
-        timestep = dt_per_km * refinement_factor * base_resolution
+        timestep = dt_per_km * refinement_factor * resolution
     elif refinement == 'space':
         timestep = dt_per_km * base_resolution
     else:

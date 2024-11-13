@@ -5,11 +5,11 @@ import numpy as np
 import pandas as pd
 
 from polaris.mpas import area_for_field, time_index_from_xtime
-from polaris.ocean.model import OceanIOStep
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
 )
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import use_mplstyle
 
 
@@ -123,8 +123,11 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         config = self.config
         dependencies = self.dependencies_dict
-        refinement_factors = config.getlist('convergence',
-                                            'refinement_factors',
+        if self.refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
+        refinement_factors = config.getlist('convergence', option,
                                             dtype=float)
         for refinement_factor in refinement_factors:
             base_mesh = dependencies['mesh'][refinement_factor]
@@ -175,8 +178,13 @@ class ConvergenceAnalysis(OceanIOStep):
             field_name=variable_name)
 
         error = []
-        refinement_factors = config.getlist('convergence',
-                                            'refinement_factors',
+        if self.refinement == 'time':
+            option = 'refinement_factors_time'
+            header = 'time step'
+        else:
+            option = 'refinement_factors_space'
+            header = 'resolution'
+        refinement_factors = config.getlist('convergence', option,
                                             dtype=float)
         resolutions = list()
         timesteps = list()
@@ -203,7 +211,7 @@ class ConvergenceAnalysis(OceanIOStep):
         error_array = np.array(error)
         filename = f'convergence_{variable_name}.csv'
         data = np.stack((refinement_array, error_array), axis=1)
-        df = pd.DataFrame(data, columns=['resolution', error_type])
+        df = pd.DataFrame(data, columns=[header, error_type])
         df.to_csv(f'convergence_{variable_name}.csv', index=False)
 
         convergence_failed = False

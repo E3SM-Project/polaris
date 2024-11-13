@@ -26,6 +26,11 @@ def add_manufactured_solution_tasks(component):
     config_filename = 'manufactured_solution.cfg'
     filepath = f'{basedir}/{config_filename}'
     config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.convergence',
+                            'convergence.cfg')
+    config.add_from_package(
+        'polaris.ocean.tasks.manufactured_solution',
+        config_filename)
     for refinement in ['space', 'time', 'both']:
         component.add_task(ManufacturedSolution(component=component,
                                                 config=config,
@@ -62,8 +67,12 @@ class ManufacturedSolution(Task):
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
 
+        if refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
         refinement_factors = self.config.getlist(
-            'convergence', 'refinement_factors', dtype=float)
+            'convergence', option, dtype=float)
         timesteps = list()
         resolutions = list()
         for refinement_factor in refinement_factors:

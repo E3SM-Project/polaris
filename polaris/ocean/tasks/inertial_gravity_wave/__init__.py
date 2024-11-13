@@ -66,8 +66,12 @@ class InertialGravityWave(Task):
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
 
+        if refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
         refinement_factors = self.config.getlist(
-            'convergence', 'refinement_factors', dtype=float)
+            'convergence', option, dtype=float)
         timesteps = list()
         resolutions = list()
         for refinement_factor in refinement_factors:
@@ -119,3 +123,8 @@ class InertialGravityWave(Task):
         self.add_step(Viz(component=component, resolutions=resolutions,
                           taskdir=self.subdir),
                       run_by_default=False)
+        config.add_from_package('polaris.ocean.convergence',
+                                'convergence.cfg')
+        config.add_from_package(
+            'polaris.ocean.tasks.inertial_gravity_wave',
+            config_filename)
