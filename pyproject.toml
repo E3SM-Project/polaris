@@ -3,7 +3,14 @@ name = "polaris"
 dynamic = ["version"]
 authors = [
     { name="Xylar Asay-Davis", email="xylar@lanl.gov" },
-    { name="Althea Denlinger", email="althea@lanl.gov" }
+    { name="Carolyn Begeman" },
+    { name="Althea Denlinger" },
+    { name="Steven Brus" },
+    { name="Kat Smith" },
+    { name="Darin Comeau" },
+    { name="Alice Barthel" },
+    { name="LeAnn Conlon" },
+    { name="Joseph H Kennedy" },
 ]
 description = "Testing and analysis for Omega, MPAS-Ocean, MALI and MPAS-Seaice"
 license = {file = "LICENSE"}
