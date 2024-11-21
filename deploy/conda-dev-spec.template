@@ -1,8 +1,5 @@
-# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-
 # Base
-python>=3.9,<=3.12
+python>=3.9,<3.13
 antimeridian
 cartopy
 cartopy_offlinedata
