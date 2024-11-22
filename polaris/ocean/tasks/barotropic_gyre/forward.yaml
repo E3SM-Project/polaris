@@ -1,0 +1,52 @@
+ocean:
+  time_management:
+    config_stop_time: {{ stop_time }}
+    config_run_duration: none
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: RK4
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: {{ nu }}
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    forcing:
+      filename_template: forcing.nc
+      input_interval: initial_only
+      type: input
+      contents:
+      - windStressZonal
+      - windStressMeridional
+    restart: {}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - ssh
+
+mpas-ocean:
+  advection:
+    config_thickness_flux_type: constant
+  bottom_drag:
+    config_implicit_constant_bottom_drag_coeff: 0.
+  forcing:
+    config_use_bulk_wind_stress: true
+  debug:
+    config_disable_vel_hadv: true
+    config_disable_vel_hmix: false
+    config_disable_tr_all_tend: true
+
+Omega:
+  Tendencies:
+    VelDiffTendencyEnable: true
+    VelHyperDiffTendencyEnable: false
+  Dimension:
+    NVertLevels: 1

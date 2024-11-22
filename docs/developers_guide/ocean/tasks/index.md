@@ -6,6 +6,7 @@
 :titlesonly: true
 
 baroclinic_channel
+barotropic_gyre
 correlated_tracers_2d
 cosine_bell
 geostrophic

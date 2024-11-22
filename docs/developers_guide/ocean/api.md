@@ -53,6 +53,34 @@
    rpe.analysis.Analysis.run
 ```
 
+### barotropic_gyre
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.barotropic_gyre
+
+.. autosummary::
+   :toctree: generated/
+
+   add_barotropic_gyre_tasks
+
+   BarotropicGyre
+
+   analysis.Analysis
+   analysis.Analysis.compute_error
+   analysis.Analysis.exact_solution
+   analysis.Analysis.run
+
+   forward.compute_max_time_step
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+```
+
 ### cosine_bell
 
 ```{eval-rst}
