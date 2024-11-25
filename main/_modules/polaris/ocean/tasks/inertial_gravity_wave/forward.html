@@ -107,7 +107,8 @@
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="n">ConvergenceForward</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="n">get_resolution_for_task</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.convergence.forward</span> <span class="kn">import</span> <span class="n">ConvergenceForward</span>
 
 
 <div class="viewcode-block" id="Forward">
@@ -119,12 +120,17 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    resolution : float</span>
-<span class="sd">        The resolution of the test case in km</span>
+<span class="sd">    refinement_factor : float</span>
+<span class="sd">        The factor by which to scale space, time or both</span>
+
+<span class="sd">    refinement : str</span>
+<span class="sd">        Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">        space and time</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
+                 <span class="n">init</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -133,18 +139,26 @@
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
 
-<span class="sd">        resolution : km</span>
-<span class="sd">            The resolution of the test case in km</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the step</span>
 
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which to scale space, time or both</span>
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory that the step belongs to</span>
+<span class="sd">            The subdirectory that the task belongs to</span>
 
 <span class="sd">        init : polaris.Step</span>
 <span class="sd">            The step which generates the mesh and initial condition</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+                         <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                         <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
                          <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.ocean.tasks.inertial_gravity_wave&#39;</span><span class="p">,</span>
                          <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
                          <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
@@ -165,9 +179,11 @@
 <span class="sd">            The approximate number of cells in the mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;inertial_gravity_wave&#39;</span><span class="p">]</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span><span class="p">)</span>
         <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
         <span class="n">ly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">lx</span>
-        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
         <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
         <span class="k">return</span> <span class="n">cell_count</span></div>
 </div>

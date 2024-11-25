@@ -144,15 +144,19 @@
 <span id="ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> and <code class="docutils literal notranslate"><span class="pre">geostrophic/with_viz</span></code> tasks implement the “Global Steady
+<p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> tasks implement the “Global Steady
 State Nonlinear Zonal Geostrophic Flow” test case described in
 <a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a></p>
-<p>The task is a convergence test with time step varying proportionately to grid
-size. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the task are plots like the
-following showing convergence of water-column thickness and normal velocity as
-functions of the mesh resolution:</p>
+<p>The task <code class="docutils literal notranslate"><span class="pre">geostrophic/convergence_both</span></code> is a space-and-time convergence test
+with time step varying proportionately to grid size. Convergence tests in
+either space or time are also available as <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code> or
+<code class="docutils literal notranslate"><span class="pre">convergence_time</span></code>. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the task are plots
+like the following showing convergence of water-column thickness and normal
+velocity as functions of the mesh resolution:</p>
 <a class="reference internal image-reference" href="../../../_images/geostrophic_convergence.png"><img alt="../../../_images/geostrophic_convergence.png" class="align-center" src="../../../_images/geostrophic_convergence.png" style="width: 500px;" />
 </a>
+<p>Visualizations of the fields themselves can be added in viz steps by appending
+<code class="docutils literal notranslate"><span class="pre">with_viz</span></code> to the task name at setup.</p>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>

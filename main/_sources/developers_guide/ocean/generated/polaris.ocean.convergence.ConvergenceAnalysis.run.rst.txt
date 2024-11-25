@@ -1,6 +1,0 @@
-﻿polaris.ocean.convergence.ConvergenceAnalysis.run
-=================================================
-
-.. currentmodule:: polaris.ocean.convergence
-
-.. automethod:: ConvergenceAnalysis.run

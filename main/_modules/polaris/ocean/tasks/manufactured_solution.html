@@ -103,9 +103,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.manufactured_solution</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_resolution_for_task</span><span class="p">,</span>
+    <span class="n">get_timestep_for_task</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
@@ -123,7 +129,19 @@
 <span class="sd">    component : polaris.ocean.Ocean</span>
 <span class="sd">        the ocean component that the task will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">ManufacturedSolution</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
+    <span class="n">basedir</span> <span class="o">=</span> <span class="s1">&#39;planar/manufactured_solution&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;manufactured_solution.cfg&#39;</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">refinement</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;space&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">ManufacturedSolution</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                                                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                                                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">))</span></div>
 
 
 
@@ -132,15 +150,11 @@
 <span class="k">class</span> <span class="nc">ManufacturedSolution</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The convergence test case using the method of manufactured solutions</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    resolutions : list of floats</span>
-<span class="sd">        The resolutions of the test case in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ManufacturedSolution.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 
@@ -148,41 +162,85 @@
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;manufactured_solution&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">200.</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">,</span> <span class="mf">25.</span><span class="p">]</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            A shared config parser</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Whether to refine in space, time or both space and time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;manufactured_solution_convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">basedir</span> <span class="o">=</span> <span class="s1">&#39;planar/manufactured_solution&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;manufactured_solution.cfg&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+
         <span class="n">analysis_dependencies</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Step</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">dict</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">init</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">forward</span><span class="o">=</span><span class="nb">dict</span><span class="p">()))</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+            <span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
+            <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
             <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
-            <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                             <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">)</span>
-            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                                   <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                                   <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                                   <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
+
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+                <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+                <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+                <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+
+            <span class="n">timestep</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_timestep_for_task</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+            <span class="n">timestep</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
+            <span class="n">timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
+
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
+            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
+            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+                    <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">,</span>
+                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
+                <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Analysis</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                               <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">,</span>
                                <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/analysis&#39;</span><span class="p">,</span>
+                               <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
                                <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolutions</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                           <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span>
                       <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span>
-                                     <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;manufactured_solution.cfg&#39;</span><span class="p">)</span></div>
+            <span class="n">config_filename</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

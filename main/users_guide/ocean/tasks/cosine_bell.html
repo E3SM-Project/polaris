@@ -166,29 +166,51 @@ regression testing.</p>
 </section>
 <section id="mesh">
 <span id="ocean-cosine-bell-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
-<p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
-there are 4 variants of the task:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">with_viz</span>
+<p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
+are also variants to test convergence in space, time, or both space and time.
+In addition, the tests can be set up with or without the viz step. Thus, there
+are 12 variants of the task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
 </pre></div>
 </div>
 <p>The default resolutions used in the task depends on the mesh type.</p>
-<p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are:</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are 60, 120, 240, 480 km, as determined
+by the following config options. See <a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for more
+details.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
 <span class="k">[spherical_convergence]</span>
+
+<span class="c1"># The base resolution for the icosahedral mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">icos_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60.</span>
 
 <span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
-<span class="na">icos_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
+<span class="na">icos_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8., 4., 2., 1.</span>
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
 </pre></div>
 </div>
-<p>for the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are:</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are 60, 90, 120, 150, 180, 210, 240 km as
+determined by the following config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
 <span class="k">[spherical_convergence]</span>
 
+<span class="c1"># The base resolution for the quasi-uniform mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">qu_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.</span>
+
 <span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
-<span class="na">qu_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
+<span class="na">qu_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.</span>
 </pre></div>
 </div>
 <p>To alter the resolutions used in this task, you will need to create your own

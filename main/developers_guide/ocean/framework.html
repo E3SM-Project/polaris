@@ -326,15 +326,33 @@ returns a step for for a spherical <code class="docutils literal notranslate"><s
 tests on <a class="reference internal" href="#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> and planar meshes.
 The ocean framework includes shared config options and base classes for
 forward and analysis steps that are expected to be useful across these tests.</p>
+<p>The key config options that control the convergence test are <code class="docutils literal notranslate"><span class="pre">base_resolution</span></code>
+and <code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code>. The <code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> is multipled by the
+<code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code> to determine which resolutions to test when the
+convergence is being tested in space (or space and time together). The
+<code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> is applied to all steps when convergence in time is tested.
+<code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> times <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> determines the base timestep in that case
+and is then multiplied by the <code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code> to determine which time steps
+to test. When spherical meshes are being tested, the values in the
+<code class="docutils literal notranslate"><span class="pre">convergence</span></code> section are overridden by their values in the
+<code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section with a prefix indicating the mesh type.</p>
 <p>The shared config options are:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
 <span class="k">[spherical_convergence]</span>
 
+<span class="c1"># The base resolution for the icosahedral mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">icos_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60.</span>
+
 <span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
-<span class="na">icos_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
+<span class="na">icos_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8., 4., 2., 1.</span>
+
+<span class="c1"># The base resolution for the quasi-uniform mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">qu_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.</span>
 
 <span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
-<span class="na">qu_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
+<span class="na">qu_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.</span>
 
 <span class="k">[convergence]</span>
 
@@ -346,6 +364,15 @@ forward and analysis steps that are expected to be useful across these tests.</p
 
 <span class="c1"># Type of error to compute</span>
 <span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+
+<span class="c1"># the base mesh resolution (km) to which refinement_factors</span>
+<span class="c1"># are applied if refinement is &#39;space&#39; or &#39;both&#39; on a planar mesh</span>
+<span class="c1"># base resolutions for spherical meshes are given in section spherical_convergence</span>
+<span class="na">base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span>
+
+<span class="c1"># refinement factors for a planar mesh applied to either space or time</span>
+<span class="c1"># refinement factors for a spherical mesh given in section spherical_convergence</span>
+<span class="na">refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4., 2., 1., 0.5</span>
 
 <span class="c1"># config options for convergence forward steps</span>
 <span class="k">[convergence_forward]</span>
@@ -425,7 +452,8 @@ example:</p>
 <span class="sd">    bell test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span>
+                 <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -448,6 +476,9 @@ example:</p>
 
 <span class="sd">        init : polaris.Step</span>
 <span class="sd">            The init step</span>
+
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which to scale space, time or both</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">]</span>
@@ -456,7 +487,10 @@ example:</p>
                          <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
                          <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
                          <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-                         <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">)</span>
+                         <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
+                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
+                         <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Each convergence test must define a YAML file with model config options, called
@@ -504,7 +538,7 @@ time integrator, time step, run duration and output interval, e.g.:</p>
 <p><code class="docutils literal notranslate"><span class="pre">ConvergenceForward</span></code> takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).</p>
-<p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.ConvergenceAnalysis.html#polaris.ocean.convergence.ConvergenceAnalysis" title="polaris.ocean.convergence.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code></a>
+<p>In addition, the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code>
 step can serve as a parent class for analysis steps in convergence tests.  This
 parent class computes the error norm for the output from each resolution’s
 forward step. It also produces the convergence plot.</p>
@@ -514,7 +548,7 @@ class:</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for analyzing the output from the cosine bell test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -531,6 +565,9 @@ class:</p>
 
 <span class="sd">        dependencies : dict of dict of polaris.Steps</span>
 <span class="sd">            The dependencies of this step</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Whether to refine in space, time or both space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
@@ -538,15 +575,16 @@ class:</p>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                          <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
-                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Many tasks will also need to override the
-<a class="reference internal" href="generated/polaris.ocean.convergence.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.ConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.ConvergenceAnalysis.exact_solution"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()</span></code></a>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()</span></code>
 method. If not overridden, the analysis step will compute the difference of the
 output from the initial state.</p>
 <p>In some cases, the child class will also need to override the
-<a class="reference internal" href="generated/polaris.ocean.convergence.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.ConvergenceAnalysis.get_output_field" title="polaris.ocean.convergence.ConvergenceAnalysis.get_output_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()</span></code></a>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()</span></code>
 method if the requested field is not available directly from the output put
 rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to

@@ -104,7 +104,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.manufactured_solution.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
+<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.convergence.analysis</span> <span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.manufactured_solution.exact_solution</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExactSolution</span><span class="p">,</span>
 <span class="p">)</span>
@@ -124,7 +124,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.analysis.Analysis.html#polaris.ocean.tasks.manufactured_solution.analysis.Analysis.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -141,26 +141,29 @@
 
 <span class="sd">        dependencies : dict of dict of polaris.Steps</span>
 <span class="sd">            The dependencies of this step</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Whether to refine in space, time or both space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;ssh&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;SSH&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                          <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
-                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span></div>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Analysis.exact_solution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.manufactured_solution.analysis.Analysis.exact_solution">[docs]</a>
-    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the exact solution</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        mesh_name : str</span>
-<span class="sd">            The mesh name which is the prefix for the initial condition file</span>
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which to scale space, time or both</span>
 
 <span class="sd">        field_name : str</span>
 <span class="sd">            The name of the variable of which we evaluate convergence</span>
@@ -180,7 +183,7 @@
 <span class="sd">        solution : xarray.DataArray</span>
 <span class="sd">            The exact solution as derived from the initial condition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">)</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
         <span class="n">exact</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">init</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="s1">&#39;ssh&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> is not currently supported&#39;</span><span class="p">)</span>

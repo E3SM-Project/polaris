@@ -149,7 +149,15 @@ The implementation is from
 <a class="reference external" href="https://doi.org/10.22541/essoar.167100170.03833124/v1">Bishnu et al.(2023)</a></p>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">inertial_gravity_wave</span></code> task runs the inertial gravity wave simulation for 4
+<p>There are 3 versions of the convergence test case, <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code>,
+<code class="docutils literal notranslate"><span class="pre">convergence_time</span></code>, and <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> corresponding to space, time, and
+space and time convergence tests. Tests involving spatial convergence run the
+inertial gravity wave simulation for 4 different resolutions: 200, 100, 50,
+and 25 km. Tests involving temporal convergence use the parameter <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>
+at the <code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> multiplied by <code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code> (see
+<a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for more details on how to change resolutions or
+time steps tested).
+The <code class="docutils literal notranslate"><span class="pre">inertial_gravity_wave</span></code> task runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.</p>
 <p>The forward step for each resolution runs the simulation for 10 hours. The
 model is configured without vertical advection and mixing. No tracers are enabled

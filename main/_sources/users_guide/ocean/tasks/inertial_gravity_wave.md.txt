@@ -11,6 +11,14 @@ The implementation is from
 
 ## description
 
+There are 3 versions of the convergence test case, `convergence_space`,
+`convergence_time`, and `convergence_both` corresponding to space, time, and
+space and time convergence tests. Tests involving spatial convergence run the
+inertial gravity wave simulation for 4 different resolutions: 200, 100, 50,
+and 25 km. Tests involving temporal convergence use the parameter `dt_per_km`
+at the `base_resolution` multiplied by `refinement_factors` (see
+{ref}`dev-ocean-convergence` for more details on how to change resolutions or
+time steps tested).
 The `inertial_gravity_wave` task runs the inertial gravity wave simulation for 4
 different resolutions: 200, 100, 50, and 25 km.
 

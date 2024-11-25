@@ -106,7 +106,7 @@
   <h1>Source code for polaris.ocean.tasks.geostrophic.analysis</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
+<span class="kn">from</span> <span class="nn">polaris.ocean.convergence.analysis</span> <span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.tasks.geostrophic.exact_solution</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_exact_solution</span><span class="p">,</span>
 <span class="p">)</span>
@@ -120,7 +120,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -129,14 +129,14 @@
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
 
-<span class="sd">        resolutions : list of float</span>
-<span class="sd">            The resolutions of the meshes that have been run</span>
-
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory that the step resides in</span>
 
 <span class="sd">        dependencies : dict of dict of polaris.Steps</span>
 <span class="sd">            The dependencies of this step</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Whether to refine in space, time or both space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;water-column thickness&#39;</span><span class="p">,</span>
@@ -145,21 +145,21 @@
                              <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;normal velocity&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                          <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
-                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">)</span></div>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Analysis.exact_solution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution">[docs]</a>
-    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the exact solution</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        mesh_name : str</span>
-<span class="sd">            The mesh name which is the prefix for the initial condition file</span>
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which to scale space, time or both</span>
 
 <span class="sd">        field_name : str</span>
 <span class="sd">            The name of the variable of which we evaluate convergence</span>
@@ -191,7 +191,7 @@
         <span class="n">vel_period</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vel_period&#39;</span><span class="p">)</span>
         <span class="n">gh_0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gh_0&#39;</span><span class="p">)</span>
 
-        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span>
+        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span>
 
         <span class="n">h</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">compute_exact_solution</span><span class="p">(</span>
             <span class="n">alpha</span><span class="p">,</span> <span class="n">vel_period</span><span class="p">,</span> <span class="n">gh_0</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">)</span>
@@ -204,7 +204,7 @@
 
 <div class="viewcode-block" id="Analysis.get_output_field">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the model output field at the given time and z index</span>
 
@@ -233,15 +233,15 @@
                   <span class="sa">f</span><span class="s1">&#39;geostrophic test case&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-                                            <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span>
-                                            <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
+                <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_init.nc&#39;</span><span class="p">)</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
             <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
-            <span class="n">ssh</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-                                           <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span>
-                                           <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">ssh</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
+                <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">h</span> <span class="o">=</span> <span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
             <span class="k">return</span> <span class="n">h</span></div>
 
