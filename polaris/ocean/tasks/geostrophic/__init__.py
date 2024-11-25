@@ -33,8 +33,8 @@ def add_geostrophic_tasks(component):
         config.add_from_package('polaris.ocean.tasks.geostrophic',
                                 'geostrophic.cfg')
 
-        for include_viz in [False, True]:
-            for refinement in ['space', 'time', 'both']:
+        for refinement in ['space', 'time', 'both']:
+            for include_viz in [False, True]:
                 component.add_task(Geostrophic(component=component,
                                                config=config,
                                                icosahedral=icosahedral,

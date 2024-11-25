@@ -33,8 +33,8 @@ def add_cosine_bell_tasks(component):
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
                                 'cosine_bell.cfg')
 
-        for include_viz in [False, True]:
-            for refinement in ['space', 'time', 'both']:
+        for refinement in ['space', 'time', 'both']:
+            for include_viz in [False, True]:
                 component.add_task(CosineBell(component=component,
                                               config=config,
                                               icosahedral=icosahedral,
