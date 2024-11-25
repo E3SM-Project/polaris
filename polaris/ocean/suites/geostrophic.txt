@@ -1,2 +1,2 @@
-ocean/spherical/icos/geostrophic
-ocean/spherical/qu/geostrophic
+ocean/spherical/icos/geostrophic/convergence_both
+ocean/spherical/qu/geostrophic/convergence_both

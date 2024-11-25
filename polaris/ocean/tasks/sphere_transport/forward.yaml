@@ -49,6 +49,8 @@ mpas-ocean:
       - tracers
       - mesh
       - xtime
+      - velocityZonal
+      - velocityMeridional
       - normalVelocity
       - layerThickness
       - refZMid

@@ -43,7 +43,7 @@ def flow_nondivergent(t, lon, lat, u_0, tau):
 
 def flow_divergent(t, lon, lat, u_0, tau):
     """
-    Compute a nondivergent velocity field
+    Compute a divergent velocity field
 
     Parameters
     ----------
@@ -81,7 +81,7 @@ def flow_divergent(t, lon, lat, u_0, tau):
 
 def flow_rotation(lon, lat, omega, tau, sphere_radius):
     """
-    Compute a nondivergent velocity field
+    Compute a rotational velocity field
 
     Parameters
     ----------

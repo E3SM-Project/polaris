@@ -22,8 +22,14 @@ These tasks support both MPAS-Ocean and Omega.
 
 ### description
 
-The `convergence` test case runs the manufactured solution simulation for 4
-different resolutions: 200, 100, 50, and 25 km.
+There are 3 versions of the convergence test case, `convergence_space`,
+`convergence_time`, and `convergence_both` corresponding to space, time, and
+space and time convergence tests. Tests involving spatial convergence run the
+manufactured solution simulation for 4 different resolutions: 200, 100, 50,
+and 25 km. Tests involving temporal convergence use the parameter `dt_per_km`
+at the `base_resolution` multiplied by `refinement_factors` (see
+{ref}`dev-ocean-convergence` for more details on how to change resolutions or
+time steps tested).
 
 The forward step for each resolution runs the simulation for 10 hours. The
 model is configured without vertical advection and mixing. No tracers are enabled

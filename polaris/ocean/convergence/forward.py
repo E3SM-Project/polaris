@@ -1,3 +1,4 @@
+from polaris.ocean.convergence import get_timestep_for_task
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
@@ -8,21 +9,25 @@ class ConvergenceForward(OceanModelStep):
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the (uniform) mesh in km
-
     package : Package
         The package name or module object that contains the YAML file
 
     yaml_filename : str
         A YAML file that is a Jinja2 template with model config options
 
+    refinement : str
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
+
+    refinement_factor : float
+        Refinement factor use to scale space, time or both depending on
+        refinement option
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init,
-                 package, yaml_filename='forward.yaml', options=None,
-                 graph_target=None, output_filename='output.nc',
-                 validate_vars=None):
+    def __init__(self, component, name, subdir, refinement_factor, mesh, init,
+                 package, yaml_filename='forward.yaml',
+                 options=None, graph_target=None, output_filename='output.nc',
+                 validate_vars=None, refinement='both'):
         """
         Create a new step
 
@@ -37,8 +42,9 @@ class ConvergenceForward(OceanModelStep):
         subdir : str
             The subdirectory for the step
 
-        resolution : float
-            The resolution of the (uniform) mesh in km
+        refinement_factor : float
+            Refinement factor use to scale space, time or both depending on
+            refinement option
 
         package : Package
             The package name or module object that contains the YAML file
@@ -60,11 +66,16 @@ class ConvergenceForward(OceanModelStep):
 
         validate_vars : list of str, optional
             A list of variables to validate against a baseline if requested
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component, name=name, subdir=subdir,
                          openmp_threads=1, graph_target=graph_target)
 
-        self.resolution = resolution
+        self.refinement = refinement
+        self.refinement_factor = refinement_factor
         self.package = package
         self.yaml_filename = yaml_filename
 
@@ -109,27 +120,19 @@ class ConvergenceForward(OceanModelStep):
         super().dynamic_model_config(at_setup=at_setup)
 
         config = self.config
+        refinement_factor = self.refinement_factor
 
         vert_levels = config.getfloat('vertical_grid', 'vert_levels')
         if not at_setup and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
-        section = config['convergence_forward']
-
-        time_integrator = section.get('time_integrator')
-        # dt is proportional to resolution: default 30 seconds per km
-        if time_integrator == 'RK4':
-            dt_per_km = section.getfloat('rk4_dt_per_km')
-        else:
-            dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * self.resolution)
-
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
-        btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * self.resolution)
+        timestep, btr_timestep = get_timestep_for_task(
+            config, refinement_factor, refinement=self.refinement)
+        dt_str = get_time_interval_string(seconds=timestep)
+        btr_dt_str = get_time_interval_string(seconds=btr_timestep)
 
         s_per_hour = 3600.
+        section = config['convergence_forward']
         run_duration = section.getfloat('run_duration')
         run_duration_str = get_time_interval_string(
             seconds=run_duration * s_per_hour)
@@ -138,6 +141,7 @@ class ConvergenceForward(OceanModelStep):
         output_interval_str = get_time_interval_string(
             seconds=output_interval * s_per_hour)
 
+        time_integrator = section.get('time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
         model = config.get('ocean', 'model')
         if model == 'omega':

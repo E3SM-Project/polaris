@@ -219,16 +219,35 @@ tests on {ref}`dev-ocean-spherical-meshes` and planar meshes.
 The ocean framework includes shared config options and base classes for
 forward and analysis steps that are expected to be useful across these tests.
 
+The key config options that control the convergence test are `base_resolution`
+and `refinement_factors`. The `base_resolution` is multipled by the
+`refinement_factors` to determine which resolutions to test when the
+convergence is being tested in space (or space and time together). The
+`base_resolution` is applied to all steps when convergence in time is tested.
+`base_resolution` times `dt_per_km` determines the base timestep in that case
+and is then multiplied by the `refinement_factors` to determine which time steps
+to test. When spherical meshes are being tested, the values in the 
+`convergence` section are overridden by their values in the
+`spherical_convergence` section with a prefix indicating the mesh type.
+
 The shared config options are:
 ```cfg
 # config options for spherical convergence tests
 [spherical_convergence]
 
+# The base resolution for the icosahedral mesh to which the refinement
+# factors are applied
+icos_base_resolution = 60.
+
 # a list of icosahedral mesh resolutions (km) to test
-icos_resolutions = 60, 120, 240, 480
+icos_refinement_factors = 8., 4., 2., 1.
+
+# The base resolution for the quasi-uniform mesh to which the refinement
+# factors are applied
+qu_base_resolution = 120.
 
 # a list of quasi-uniform mesh resolutions (km) to test
-qu_resolutions = 60, 90, 120, 150, 180, 210, 240
+qu_refinement_factors = 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.
 
 [convergence]
 
@@ -240,6 +259,15 @@ convergence_thresh = 1.0
 
 # Type of error to compute
 error_type = l2
+
+# the base mesh resolution (km) to which refinement_factors
+# are applied if refinement is 'space' or 'both' on a planar mesh
+# base resolutions for spherical meshes are given in section spherical_convergence
+base_resolution = 120
+
+# refinement factors for a planar mesh applied to either space or time
+# refinement factors for a spherical mesh given in section spherical_convergence
+refinement_factors = 4., 2., 1., 0.5
 
 # config options for convergence forward steps
 [convergence_forward]
@@ -325,7 +353,8 @@ class Forward(SphericalConvergenceForward):
     bell test case
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init):
+    def __init__(self, component, name, subdir, mesh, init,
+                 refinement_factor, refinement='both'):
         """
         Create a new step
 
@@ -348,6 +377,9 @@ class Forward(SphericalConvergenceForward):
 
         init : polaris.Step
             The init step
+
+        refinement_factor : float
+            The factor by which to scale space, time or both
         """
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
@@ -356,7 +388,10 @@ class Forward(SphericalConvergenceForward):
                          init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',
-                         validate_vars=validate_vars)
+                         validate_vars=validate_vars,
+                         graph_target=f'{init.path}/graph.info',
+                         refinement_factor=refinement_factor,
+                         refinement=refinement)
 ```
 Each convergence test must define a YAML file with model config options, called
 `forward.yaml` by default.  The `package` parameter is the location of this
@@ -419,7 +454,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
-    def __init__(self, component, resolutions, subdir, dependencies):
+    def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -436,6 +471,9 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        refinement : str, optional
+            Whether to refine in space, time or both space and time
         """
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
@@ -443,7 +481,8 @@ class Analysis(ConvergenceAnalysis):
         super().__init__(component=component, subdir=subdir,
                          resolutions=resolutions,
                          dependencies=dependencies,
-                         convergence_vars=convergence_vars)
+                         convergence_vars=convergence_vars,
+                         refinement=refinement)
 ```
 
 Many tasks will also need to override the

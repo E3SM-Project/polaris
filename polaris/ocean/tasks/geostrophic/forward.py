@@ -7,7 +7,8 @@ class Forward(SphericalConvergenceForward):
     bell test case
     """
 
-    def __init__(self, component, name, subdir, resolution, mesh, init):
+    def __init__(self, component, name, subdir, mesh, init,
+                 refinement_factor, refinement='both'):
         """
         Create a new step
 
@@ -22,14 +23,18 @@ class Forward(SphericalConvergenceForward):
         subdir : str
             The subdirectory for the step
 
-        resolution : float
-            The resolution of the (uniform) mesh in km
-
         mesh : polaris.Step
             The base mesh step
 
         init : polaris.Step
             The init step
+
+        refinement_factor : float
+            The factor by which to scale space, time or both
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         package = 'polaris.ocean.tasks.geostrophic'
         validate_vars = ['temperature',
@@ -37,9 +42,10 @@ class Forward(SphericalConvergenceForward):
                          'layerThickness',
                          'normalVelocity']
         super().__init__(component=component, name=name, subdir=subdir,
-                         resolution=resolution, mesh=mesh,
-                         init=init, package=package,
+                         mesh=mesh, init=init, package=package,
                          yaml_filename='forward.yaml',
                          output_filename='output.nc',
                          validate_vars=validate_vars,
-                         graph_target=f'{mesh.path}/graph.info')
+                         graph_target=f'{mesh.path}/graph.info',
+                         refinement_factor=refinement_factor,
+                         refinement=refinement)

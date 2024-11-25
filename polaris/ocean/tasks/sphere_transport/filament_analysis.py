@@ -5,6 +5,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.mpas import time_index_from_xtime
+from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -25,8 +26,8 @@ class FilamentAnalysis(Step):
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 case_name, dependencies):
+    def __init__(self, component, refinement_factors, icosahedral, subdir,
+                 case_name, dependencies, refinement='both'):
         """
         Create the step
 
@@ -53,22 +54,22 @@ class FilamentAnalysis(Step):
         """
         super().__init__(component=component, name='filament_analysis',
                          subdir=subdir)
-        self.resolutions = resolutions
+        self.refinement_factors = refinement_factors
+        self.refinement = refinement
         self.case_name = case_name
 
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            base_mesh = dependencies['mesh'][resolution]
-            init = dependencies['init'][resolution]
-            forward = dependencies['forward'][resolution]
+        for refinement_factor in refinement_factors:
+            base_mesh = dependencies['mesh'][refinement_factor]
+            init = dependencies['init'][refinement_factor]
+            forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
-                filename=f'{mesh_name}_mesh.nc',
+                filename=f'mesh_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_init.nc',
+                filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_output.nc',
+                filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc')
         self.add_output_file('filament.png')
 
@@ -77,7 +78,11 @@ class FilamentAnalysis(Step):
         Run this step of the test case
         """
         plt.switch_backend('Agg')
-        resolutions = self.resolutions
+        resolutions = list()
+        for refinement_factor in self.refinement_factors:
+            resolution = get_resolution_for_task(
+                self.config, refinement_factor, self.refinement)
+            resolutions.append(resolution)
         config = self.config
         section = config[self.case_name]
         eval_time = section.getfloat('filament_evaluation_time')
@@ -89,9 +94,9 @@ class FilamentAnalysis(Step):
         filament_norm = np.zeros((len(resolutions), num_tau))
         use_mplstyle()
         fig, ax = plt.subplots()
-        for i, resolution in enumerate(resolutions):
-            mesh_name = resolution_to_subdir(resolution)
-            ds = xr.open_dataset(f'{mesh_name}_output.nc')
+        for i, refinement_factor in enumerate(self.refinement_factors):
+            mesh_name = resolution_to_subdir(resolutions[i])
+            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
             tidx = time_index_from_xtime(ds.xtime.values,
                                          eval_time * s_per_day)
             tracer = ds[variable_name]

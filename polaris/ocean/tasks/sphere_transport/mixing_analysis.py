@@ -7,6 +7,7 @@ from matplotlib.lines import Line2D
 
 from polaris import Step
 from polaris.mpas import time_index_from_xtime
+from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -27,8 +28,8 @@ class MixingAnalysis(Step):
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, resolutions, icosahedral, subdir,
-                 case_name, dependencies):
+    def __init__(self, component, refinement_factors, icosahedral, subdir,
+                 case_name, dependencies, refinement='both'):
         """
         Create the step
 
@@ -55,22 +56,22 @@ class MixingAnalysis(Step):
         """
         super().__init__(component=component, name='mixing_analysis',
                          subdir=subdir)
-        self.resolutions = resolutions
+        self.refinement_factors = refinement_factors
+        self.refinement = refinement
         self.case_name = case_name
 
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            base_mesh = dependencies['mesh'][resolution]
-            init = dependencies['init'][resolution]
-            forward = dependencies['forward'][resolution]
+        for refinement_factor in refinement_factors:
+            base_mesh = dependencies['mesh'][refinement_factor]
+            init = dependencies['init'][refinement_factor]
+            forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
-                filename=f'{mesh_name}_mesh.nc',
+                filename=f'mesh_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_init.nc',
+                filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/initial_state.nc')
             self.add_input_file(
-                filename=f'{mesh_name}_output.nc',
+                filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc')
         self.add_output_file('triplots.png')
 
@@ -79,7 +80,11 @@ class MixingAnalysis(Step):
         Run this step of the test case
         """
         plt.switch_backend('Agg')
-        resolutions = self.resolutions
+        resolutions = list()
+        for refinement_factor in self.refinement_factors:
+            resolution = get_resolution_for_task(
+                self.config, refinement_factor, self.refinement)
+            resolutions.append(resolution)
         config = self.config
         section = config[self.case_name]
         eval_time = section.getfloat('mixing_evaluation_time')
@@ -89,12 +94,12 @@ class MixingAnalysis(Step):
         use_mplstyle()
         fig, axes = plt.subplots(nrows=nrows, ncols=2, sharex=True,
                                  sharey=True, figsize=(5.5, 7))
-        for i, resolution in enumerate(resolutions):
+        for i, refinement_factor in enumerate(self.refinement_factors):
             ax = axes[int(i / 2), i % 2]
             _init_triplot_axes(ax)
-            mesh_name = resolution_to_subdir(resolution)
+            mesh_name = resolution_to_subdir(resolutions[i])
             ax.set(title=mesh_name)
-            ds = xr.open_dataset(f'{mesh_name}_output.nc')
+            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
             if i % 2 == 0:
                 ax.set_ylabel("tracer3")
             if int(i / 2) == nrows - 1:
