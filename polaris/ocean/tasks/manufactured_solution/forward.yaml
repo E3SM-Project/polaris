@@ -42,21 +42,15 @@ Omega:
     InitialState:
       UsePointerFile: false
       Filename: init.nc
-      Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: false
       Contents:
-        - Restart
+      - NormalVelocity
+      - LayerThickness
     History:
-      UsePointerFile: false
       Filename: output.nc
-      Mode: write
-      IfExists: replace
-      Precision: double
       Freq: {{ output_freq }}
       FreqUnits: Seconds
-      UseStartEnd: false
       Contents:
-        - Tracers
+      - NormalVelocity
+      - LayerThickness
+      - SshCellDefault
+    RestartRead: {}

@@ -23,7 +23,7 @@ variables:
   normalVelocity: NormalVelocity
 
   # auxiliary state
-  ssh: SshCell
+  ssh: SshCellDefault
 
 config:
 - section:
