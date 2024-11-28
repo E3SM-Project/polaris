@@ -135,6 +135,8 @@ class Viz(OceanIOStep):
         section = config['manufactured_solution']
         eta0 = section.getfloat('ssh_amplitude')
 
+        model = config.get('ocean', 'model')
+
         use_mplstyle()
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
@@ -146,16 +148,26 @@ class Viz(OceanIOStep):
             ds_init = self.open_model_dataset(
                 f'init_r{refinement_factor:02g}.nc')
             ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc')
+                f'output_r{refinement_factor:02g}.nc', decode_times=False)
             exact = ExactSolution(config, ds_init)
 
-            t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
-                                            '%Y-%m-%d_%H:%M:%S')
-            tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
-                                            '%Y-%m-%d_%H:%M:%S')
-            t = (tf - t0).total_seconds()
-            ssh_model = ds.ssh.values[-1, :]
-            rmse.append(np.sqrt(np.mean((ssh_model - exact.ssh(t).values)**2)))
+            if model == 'mpas-o':
+                t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
+                                                '%Y-%m-%d_%H:%M:%S')
+                tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
+                                                '%Y-%m-%d_%H:%M:%S')
+                t = (tf - t0).total_seconds()
+
+            else:
+                # time is seconds since the start of the simulation in Omega
+                t = ds.Time[-1].values
+
+            ssh_model = ds.ssh.isel(Time=-1)
+            if 'nVertLevels' in ssh_model.dims:
+                # Omega v0 uses stacked shallow water where ssh has nVertLevels
+                ssh_model = ssh_model.isel(nVertLevels=0)
+            rmse.append(np.sqrt(np.mean(
+                (ssh_model.values - exact.ssh(t).values)**2)))
 
             # Comparison plots
             ds['ssh_exact'] = exact.ssh(t)
