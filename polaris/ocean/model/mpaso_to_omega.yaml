@@ -1,14 +1,33 @@
+dimensions:
+  Time: time
+  nCells: NCells
+  nEdges: NEdges
+  nVertices: NVertices
+  maxEdges: MaxEdges
+  maxEdges2: MaxEdges2
+  TWO: MaxCellsOnEdge
+  vertexDegree: VertexDegree
+  nVertLevels: NVertLevels
+  nVertLevelsP1: NVertLevelsP1
+
 variables:
-  temperature: Temp
-  salinity: Salt
+  # tracers
+  temperature: Temperature
+  salinity: Salinity
   tracer1: Debug1
   tracer2: Debug2
   tracer3: Debug3
+
+  # state
+  layerThickness: LayerThickness
+  normalVelocity: NormalVelocity
+
+  # auxiliary state
   ssh: SshCell
 
 config:
 - section:
-    time_management: TimeManagement
+    time_management: TimeIntegration
   options:
     config_start_time: StartTime
     config_stop_time: StopTime
