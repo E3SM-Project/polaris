@@ -119,10 +119,12 @@ class ManufacturedSolution(Task):
 
         self.add_step(Analysis(component=component,
                                subdir=f'{self.subdir}/analysis',
-                               refinement=refinement,
-                               dependencies=analysis_dependencies))
-        self.add_step(Viz(component=component, resolutions=resolutions,
-                          taskdir=self.subdir),
+                               dependencies=analysis_dependencies,
+                               refinement=refinement))
+        self.add_step(Viz(component=component,
+                          dependencies=analysis_dependencies,
+                          taskdir=self.subdir,
+                          refinement=refinement),
                       run_by_default=False)
         config.add_from_package('polaris.ocean.convergence',
                                 'convergence.cfg')
