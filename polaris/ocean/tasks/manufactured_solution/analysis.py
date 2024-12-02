@@ -8,11 +8,6 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analysing the output from the manufactured solution
     test case
-
-    Attributes
-    ----------
-    resolutions : list of float
-        The resolutions of the meshes that have been run
     """
     def __init__(self, component, subdir, dependencies, refinement='both'):
         """

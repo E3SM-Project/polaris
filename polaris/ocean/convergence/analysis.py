@@ -121,6 +121,7 @@ class ConvergenceAnalysis(OceanIOStep):
         Add input files based on resolutions, which may have been changed by
         user config options
         """
+        super().setup()
         config = self.config
         dependencies = self.dependencies_dict
         if self.refinement == 'time':
