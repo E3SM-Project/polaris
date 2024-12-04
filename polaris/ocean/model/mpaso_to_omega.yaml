@@ -66,3 +66,10 @@ config:
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+
+- section:
+    manufactured_solution: ManufacturedSolution
+  options:
+    config_manufactured_solution_wavelength_x: WavelengthX
+    config_manufactured_solution_wavelength_y: WavelengthY
+    config_manufactured_solution_amplitude: Amplitude
