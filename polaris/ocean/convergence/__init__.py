@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def get_resolution_for_task(config, refinement_factor,
                             refinement='both'):
     """
@@ -32,7 +29,8 @@ def get_resolution_for_task(config, refinement_factor,
 
     if refinement_factor not in refinement_factors:
         raise ValueError(
-            'refinement_factor not found in config option refinement_factors')
+            f'refinement_factor {refinement_factor} not found in config '
+            f'option {option}:\n {refinement_factors}')
 
     if refinement == 'time':
         resolution = base_resolution
@@ -74,7 +72,8 @@ def get_timestep_for_task(config, refinement_factor,
 
     if refinement_factor not in refinement_factors:
         raise ValueError(
-            'refinement_factor not found in config option refinement_factors')
+            f'refinement_factor {refinement_factor} not found in config '
+            f'option {option}:\n {refinement_factors}')
 
     resolution = get_resolution_for_task(
         config, refinement_factor, refinement=refinement)
