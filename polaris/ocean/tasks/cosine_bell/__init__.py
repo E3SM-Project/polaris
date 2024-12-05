@@ -32,6 +32,7 @@ def add_cosine_bell_tasks(component):
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
                                 'cosine_bell.cfg')
+        _set_convergence_configs(config, prefix)
 
         for refinement in ['space', 'time', 'both']:
             for include_viz in [False, True]:
@@ -133,17 +134,8 @@ class CosineBell(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('spherical_convergence',
-                                            f'{prefix}_{option}', dtype=str)
-        refinement_factors = ', '.join(refinement_factors)
-        config.set('convergence', option, value=refinement_factors)
-        refinement_factors = config.getlist('convergence',
-                                            option, dtype=float)
 
-        base_resolution = config.getfloat('spherical_convergence',
-                                          f'{prefix}_base_resolution')
-        config.set('convergence', 'base_resolution',
-                   value=f'{base_resolution:03g}')
+        refinement_factors = config.getlist('convergence', option, dtype=float)
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -233,3 +225,19 @@ class CosineBell(Task):
             self.add_step(step, symlink=symlink)
         else:
             self.add_step(step)
+
+
+def _set_convergence_configs(config, prefix):
+    for refinement in ['space', 'time']:
+        option = f'refinement_factors_{refinement}'
+        refinement_factors = config.getlist('spherical_convergence',
+                                            f'{prefix}_{option}', dtype=str)
+        refinement_factors = ', '.join(refinement_factors)
+        config.set('convergence', option, value=refinement_factors)
+        refinement_factors = config.getlist('convergence',
+                                            option, dtype=float)
+
+        base_resolution = config.getfloat('spherical_convergence',
+                                          f'{prefix}_base_resolution')
+        config.set('convergence', 'base_resolution',
+                   value=f'{base_resolution:03g}')
