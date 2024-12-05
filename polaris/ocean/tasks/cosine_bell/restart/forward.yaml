@@ -1,0 +1,35 @@
+ocean:
+  time_management:
+    config_start_time: {{ start_time }}
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+
+mpas-ocean:
+  time_management:
+    config_do_restart: {{ do_restart }}
+  io:
+    config_write_output_on_startup: false
+  streams:
+    restart:
+      filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+      filename_interval: output_interval
+      output_interval: 0000-00-00_00:00:01
+    output:
+      output_interval: {{ output_interval }}
+
+Omega:
+  IOStreams:
+    InitialState:
+      FreqUnits: {{ init_freq_units }}
+    RestartRead:
+      UsePointerFile: false
+      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+      StartTime: {{ restart_time }}
+    RestartWrite:
+      UsePointerFile: false
+      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+      Freq: 1
+      FreqUnits: seconds
+    History:
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
