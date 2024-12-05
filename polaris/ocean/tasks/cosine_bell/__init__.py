@@ -11,6 +11,7 @@ from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
 from polaris.ocean.tasks.cosine_bell.init import Init
+from polaris.ocean.tasks.cosine_bell.restart import Restart
 from polaris.ocean.tasks.cosine_bell.viz import Viz
 
 
@@ -22,7 +23,8 @@ def add_cosine_bell_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
+    for icosahedral, prefix, restart_refinement in [(True, 'icos', 8.0),
+                                                    (False, 'qu', 2.0)]:
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
@@ -41,6 +43,12 @@ def add_cosine_bell_tasks(component):
                                               icosahedral=icosahedral,
                                               include_viz=include_viz,
                                               refinement=refinement))
+
+        component.add_task(Restart(component=component,
+                                   config=config,
+                                   icosahedral=icosahedral,
+                                   refinement_factor=restart_refinement,
+                                   refinement='both'))
 
 
 class CosineBell(Task):
