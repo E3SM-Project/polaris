@@ -1,11 +1,10 @@
 import cmocean  # noqa: F401
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_global_mpas_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting fields from the cosine bell output
 
@@ -64,7 +63,7 @@ class Viz(Step):
         mesh_name = self.mesh_name
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
-        ds_init = xr.open_dataset('initial_state.nc')
+        ds_init = self.open_model_dataset('initial_state.nc')
         da = ds_init['tracer1'].isel(Time=0, nVertLevels=0)
 
         plot_global_mpas_field(
@@ -73,11 +72,11 @@ class Viz(Step):
             title=f'{mesh_name} tracer at init', plot_land=False,
             central_longitude=180.)
 
-        ds_out = xr.open_dataset('output.nc')
+        ds_out = self.open_model_dataset('output.nc')
         da = ds_out['tracer1'].isel(Time=-1, nVertLevels=0)
 
         plot_global_mpas_field(
             mesh_filename='mesh.nc', da=da, out_filename='final.png',
             config=config, colormap_section='cosine_bell_viz',
-            title=f'{mesh_name} tracer after {run_duration/24.:g} days',
+            title=f'{mesh_name} tracer after {run_duration / 24.:g} days',
             plot_land=False, central_longitude=180.)
