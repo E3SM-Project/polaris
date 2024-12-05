@@ -8,7 +8,7 @@ class Forward(SphericalConvergenceForward):
     """
 
     def __init__(self, component, name, subdir, mesh, init,
-                 refinement_factor, refinement='both'):
+                 refinement_factor, refinement):
         """
         Create a new step
 
@@ -32,7 +32,7 @@ class Forward(SphericalConvergenceForward):
         refinement_factor : float
             The factor by which to scale space, time or both
 
-        refinement : str, optional
+        refinement : str
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
