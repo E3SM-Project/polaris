@@ -37,11 +37,11 @@ def add_manufactured_solution_tasks(component):
                                                 refinement=refinement))
     component.add_task(ManufacturedSolution(component=component,
                                             config=config,
-                                            refinement='space',
+                                            refinement='both',
                                             del2=True))
     component.add_task(ManufacturedSolution(component=component,
                                             config=config,
-                                            refinement='space',
+                                            refinement='both',
                                             del4=True))
 
 
@@ -116,7 +116,7 @@ class ManufacturedSolution(Task):
                 init_step = component.steps[subdir]
             else:
                 init_step = Init(component=component, resolution=resolution,
-                                 subdir=subdir)
+                                 name=f'init_{mesh_name}', subdir=subdir)
                 init_step.set_shared_config(self.config, link=config_filename)
             if resolution not in resolutions:
                 self.add_step(init_step, symlink=symlink)
@@ -136,7 +136,7 @@ class ManufacturedSolution(Task):
                     component=component,
                     refinement=refinement,
                     refinement_factor=refinement_factor,
-                    name=f'{forward_name}_{timestep}s',
+                    name=f'forward_{mesh_name}_{timestep}s',
                     subdir=subdir,
                     init=init_step,
                     del2=del2, del4=del4)
