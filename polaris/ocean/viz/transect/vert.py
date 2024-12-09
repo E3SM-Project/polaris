@@ -220,7 +220,7 @@ def interp_mpas_to_transect_cells(ds_transect, da):
         ``find_transect_levels_and_weights()``
 
     da : xarray.DataArray
-        An MPAS-Ocean field with dimensions `nCells`` and ``nVertLevels``
+        An MPAS-Ocean field with dimensions ``nCells`` and ``nVertLevels``
         (possibly among others)
 
     Returns
@@ -235,6 +235,38 @@ def interp_mpas_to_transect_cells(ds_transect, da):
     level_indices = ds_transect.levelIndices
 
     da_cells = da.isel(nCells=cell_indices, nVertLevels=level_indices)
+    da_cells = da_cells.where(ds_transect.validCells)
+
+    return da_cells
+
+
+def interp_mpas_edges_to_transect_cells(ds_transect, da):
+    """
+    Interpolate an MPAS-Ocean DataArray with dimensions ``nEdges`` by
+    ``nVertLevels`` to transect cells
+
+    Parameters
+    ----------
+    ds_transect : xarray.Dataset
+        A dataset that defines an MPAS-Ocean transect, the results of calling
+        ``find_transect_levels_and_weights()``
+
+    da : xarray.DataArray
+        An MPAS-Ocean field with dimensions ``nEdges`` and ``nVertLevels``
+        (possibly among others)
+
+    Returns
+    -------
+    da_cells : xarray.DataArray
+        The data array interpolated to transect cells with dimensions
+        ``nSegments`` and ``nHalfLevels`` (in addition to whatever
+        dimensions were in ``da`` besides ``nEdges`` and ``nVertLevels``)
+    """
+
+    edge_indices = ds_transect.edgeIndices
+    level_indices = ds_transect.levelIndices
+
+    da_cells = da.isel(nEdges=edge_indices, nVertLevels=level_indices)
     da_cells = da_cells.where(ds_transect.validCells)
 
     return da_cells
