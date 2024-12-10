@@ -23,6 +23,7 @@ Omega:
       FreqUnits: {{ init_freq_units }}
     RestartRead:
       UsePointerFile: false
+      UseStartEnd: {{ not_restart }}
       Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
       StartTime: {{ restart_time }}
     RestartWrite:
