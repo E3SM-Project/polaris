@@ -395,11 +395,18 @@ class ConvergenceAnalysis(OceanIOStep):
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
+        config = self.config
+        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc',
+                                         decode_times=False)
 
-        tidx = time_index_from_xtime(ds_out.xtime.values, time)
+        model = config.get('ocean', 'model')
+        if model == 'mpas-o':
+            tidx = time_index_from_xtime(ds_out.xtime.values, time)
+        else:
+            # time is seconds since the start of the simulation in Omega
+            tidx = np.argmin(np.abs(ds_out.Time.values - time))
+
         ds_out = ds_out.isel(Time=tidx)
-
         field_mpas = ds_out[field_name]
         if zidx is not None:
             field_mpas = field_mpas.isel(nVertLevels=zidx)
