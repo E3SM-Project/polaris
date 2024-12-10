@@ -68,6 +68,7 @@ class RestartStep(Forward):
         package = 'polaris.ocean.tasks.cosine_bell.restart'
         replacements = dict(
             do_restart=do_restart,
+            not_restart=not do_restart,
             start_time=start_time_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
