@@ -79,7 +79,7 @@ class Analysis(ConvergenceAnalysis):
         ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
         sphere_radius = ds_mesh.sphere_radius
 
-        ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
+        ds_init = self.open_model_dataset(f'init_r{refinement_factor:02g}.nc')
         latCell = ds_init.latCell.values
         lonCell = ds_init.lonCell.values
 

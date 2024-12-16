@@ -8,7 +8,7 @@ class Forward(SphericalConvergenceForward):
     """
 
     def __init__(self, component, name, subdir, mesh, init,
-                 refinement_factor, refinement='both'):
+                 refinement_factor, refinement):
         """
         Create a new step
 
@@ -32,7 +32,7 @@ class Forward(SphericalConvergenceForward):
         refinement_factor : float
             The factor by which to scale space, time or both
 
-        refinement : str, optional
+        refinement : str
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
@@ -46,3 +46,13 @@ class Forward(SphericalConvergenceForward):
                          graph_target=f'{mesh.path}/graph.info',
                          refinement_factor=refinement_factor,
                          refinement=refinement)
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
