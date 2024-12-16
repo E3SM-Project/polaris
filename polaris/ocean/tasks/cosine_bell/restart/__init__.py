@@ -3,7 +3,7 @@ from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.init import Init
 from polaris.ocean.tasks.cosine_bell.restart.restart_step import RestartStep
-from polaris.ocean.tasks.cosine_bell.restart.validate import Validate
+from polaris.ocean.tasks.cosine_bell.validate import Validate
 
 
 class Restart(Task):

@@ -23,7 +23,7 @@ class Validate(OceanIOStep):
             The component the step belongs to
 
         step_subdirs : list of str
-            The number of processors used in each run
+            Subdirectories for the steps with outputs to compare
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
