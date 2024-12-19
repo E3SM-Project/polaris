@@ -2,6 +2,7 @@ import os.path
 
 import pyproj
 import xarray as xr
+from mpas_tools.logging import check_call
 from pyremap import (
     LatLon2DGridDescriptor,
     LatLonGridDescriptor,
@@ -411,11 +412,46 @@ class MappingFileStep(Step):
                                              dst_descriptor,
                                              self.dst_mesh_filename)
         elif map_tool == 'moab':
+            src_mesh_filename = self._moab_partition_scrip_file(
+                self.src_mesh_filename)
+            dst_mesh_filename = self._moab_partition_scrip_file(
+                self.dst_mesh_filename)
             self.args = _moab_build_map_args(remapper, self.method,
-                                             src_descriptor,
-                                             self.src_mesh_filename,
-                                             dst_descriptor,
-                                             self.dst_mesh_filename)
+                                             src_mesh_filename,
+                                             dst_mesh_filename)
+
+    def _moab_partition_scrip_file(self, in_filename):
+        """
+        Partition SCRIP file for parallel mbtempest use
+        """
+        logger = self.logger
+        ntasks = self.ntasks
+
+        logger.info(f'Partition SCRIP file {in_filename}')
+
+        h5m_filename = in_filename.replace('.nc', '.h5m')
+        h5m_part_filename = in_filename.replace('.nc', f'.p{ntasks}.h5m')
+
+        # Convert source SCRIP to mbtempest
+        args = [
+            'mbconvert', '-B',
+            in_filename,
+            h5m_filename,
+        ]
+        check_call(args, logger)
+
+        # Partition source SCRIP
+        args = [
+            'mbpart', f'{ntasks}',
+            '-z', 'RCB',
+            h5m_filename,
+            h5m_part_filename,
+        ]
+        check_call(args, logger)
+
+        logger.info('  Done.')
+
+        return h5m_part_filename
 
 
 def _check_remapper(remapper, method, map_tool):
@@ -462,8 +498,8 @@ def _esmf_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
     return [args]
 
 
-def _moab_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
-                         dst_descriptor, dst_mesh_filename):
+def _moab_build_map_args(remapper, method, src_mesh_filename,
+                         dst_mesh_filename):
     """
     Get command-line arguments for making a mapping file with mbtempest
     """
@@ -472,40 +508,22 @@ def _moab_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
         'bilinear': 'bilin'}
 
     map_filename = remapper.mappingFileName
-    intx_filename = \
-        f'moab_intx_{src_descriptor.meshName}_to_{dst_descriptor.meshName}.h5m'
 
-    intx_args = [
-        'mbtempest',
-        '--type', '5',
+    args = [
+        'mbtempest', '--type', '5',
         '--load', src_mesh_filename,
         '--load', dst_mesh_filename,
-        '--intx', intx_filename
-    ]
-
-    if src_descriptor.regional or dst_descriptor.regional:
-        intx_args.append('--rrmgrids')
-
-    map_args = [
-        'mbtempest',
-        '--type', '5',
-        '--load', src_mesh_filename,
-        '--load', dst_mesh_filename,
-        '--intx', intx_filename,
-        '--weights',
-        '--method', 'fv',
-        '--method', 'fv',
         '--file', map_filename,
+        '--weights', '--gnomonic',
+        '--boxeps', '1e-9',
+        '--method', 'fv',
+        '--method', 'fv',
         '--order', '1',
         '--order', '1',
         '--fvmethod', fvmethod[method]
     ]
 
-    if method == 'conserve' and (src_descriptor.regional or
-                                 dst_descriptor.regional):
-        map_args.append('--rrmgrids')
-
-    return [intx_args, map_args]
+    return [args]
 
 
 def _get_descriptor(info):
