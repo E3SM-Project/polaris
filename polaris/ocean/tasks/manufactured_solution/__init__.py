@@ -75,19 +75,20 @@ class ManufacturedSolution(Task):
         basedir = 'planar/manufactured_solution'
         subdir = f'{basedir}/convergence_{refinement}'
         name = f'manufactured_solution_convergence_{refinement}'
+
         if del2:
-            name = f'{name}_del2'
-            subdir = f'{subdir}/del2'
+            test_name = 'del2'
             if del4:
                 del4 = False
                 print('Manufactured solution test does not currently support'
                       'both del2 and del4 convergence; testing del2 alone.')
         elif del4:
-            name = f'{name}_del4'
-            subdir = f'{subdir}/del4'
+            test_name = 'del4'
         else:
-            name = f'{name}_default'
-            subdir = f'{subdir}/default'
+            test_name = 'default'
+
+        name = f'{name}_{test_name}'
+        subdir = f'{subdir}/{test_name}'
 
         config_filename = 'manufactured_solution.cfg'
 
@@ -127,7 +128,7 @@ class ManufacturedSolution(Task):
             timestep = ceil(timestep)
             timesteps.append(timestep)
 
-            subdir = f'{basedir}/forward/{mesh_name}_{timestep}s'
+            subdir = f'{basedir}/{test_name}/forward/{mesh_name}_{timestep}s'
             symlink = f'forward/{mesh_name}_{timestep}s'
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
