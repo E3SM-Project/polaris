@@ -26,6 +26,7 @@
       ~SphericalConvergenceForward.dynamic_model_config
       ~SphericalConvergenceForward.map_yaml_configs
       ~SphericalConvergenceForward.map_yaml_options
+      ~SphericalConvergenceForward.map_yaml_streams
       ~SphericalConvergenceForward.map_yaml_to_namelist
       ~SphericalConvergenceForward.partition
       ~SphericalConvergenceForward.process_inputs_and_outputs

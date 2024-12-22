@@ -105,7 +105,7 @@
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
@@ -175,6 +175,8 @@
 <span class="sd">        Whether to create a yaml file with model config options and streams</span>
 <span class="sd">        instead of MPAS namelist and streams files</span>
 
+<span class="sd">    streams_section : str</span>
+<span class="sd">        The name of the streams section in yaml files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ModelStep.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep.__init__">[docs]</a>
@@ -281,6 +283,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_filename</span> <span class="o">=</span> <span class="n">graph_filename</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="n">make_yaml</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">&#39;streams&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&lt;&lt;&lt;model&gt;&gt;&gt;&#39;</span><span class="p">)</span>
 
@@ -398,7 +401,7 @@
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_options.html#polaris.ModelStep.map_yaml_options">[docs]</a>
     <span class="k">def</span> <span class="nf">map_yaml_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A mapping between model config options between different models.  This</span>
+<span class="sd">        A mapping between model config options from different models.  This</span>
 <span class="sd">        method should be overridden for situations in which yaml config</span>
 <span class="sd">        options have diverged in name or structure from their counterparts in</span>
 <span class="sd">        another model (e.g. when translating from MPAS-Ocean namelist options</span>
@@ -427,7 +430,7 @@
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_configs.html#polaris.ModelStep.map_yaml_configs">[docs]</a>
     <span class="k">def</span> <span class="nf">map_yaml_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A mapping between model config options between different models.  This</span>
+<span class="sd">        A mapping between model config options from different models.  This</span>
 <span class="sd">        method should be overridden for situations in which yaml config</span>
 <span class="sd">        options have diverged in name or structure from their counterparts in</span>
 <span class="sd">        another model (e.g. when translating from MPAS-Ocean namelist options</span>
@@ -451,6 +454,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">configs</span></div>
 
+
+    <span class="k">def</span> <span class="nf">map_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A mapping between model streams from different models.  This method</span>
+<span class="sd">        should be overridden for situations in which yaml streams have diverged</span>
+<span class="sd">        in name or structure from their counterparts in another model (e.g.</span>
+<span class="sd">        when translating from MPAS-Ocean streams to Omega IOStreams)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        streams : dict</span>
+<span class="sd">            A nested dictionary of streams data</span>
+
+<span class="sd">        config_model : str or None</span>
+<span class="sd">            If streams are available for multiple models, the model that the</span>
+<span class="sd">            streams are from</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        configs : dict</span>
+<span class="sd">            A revised nested dictionary of streams data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">streams</span>
 
 <div class="viewcode-block" id="ModelStep.map_yaml_to_namelist">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist">[docs]</a>
@@ -581,7 +607,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_process_yaml</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_yaml</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested_streams</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_namelists</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_streams</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -625,7 +651,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_model_config</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_process_yaml</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_yaml</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested_streams</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_namelists</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_streams</span><span class="p">(</span><span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -714,7 +740,8 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_config&#39;</span><span class="p">,</span> <span class="s1">&#39;defaults&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">,</span>
+                                          <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;namelists&#39;</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
@@ -729,7 +756,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
+                                          <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -792,10 +820,10 @@
                     <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
                     <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
-                    <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
-                                            <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
-                                            <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span>
-                                            <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span> <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
+                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
 
                     <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span>
                                                     <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
@@ -878,8 +906,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
                     <span class="n">defaults</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_process_yaml_streams</span><span class="p">(</span><span class="n">yaml_filename</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">_process_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span>
                               <span class="n">config_model</span><span class="p">,</span> <span class="n">processed_registry_filename</span><span class="p">,</span>
                               <span class="n">tree</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
@@ -888,14 +915,15 @@
         <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">yaml_filename</span><span class="p">,</span>
                                 <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
                                 <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-                                <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                                <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+                                <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">processed_registry_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">new_tree</span> <span class="o">=</span> <span class="n">yaml_to_mpas_streams</span><span class="p">(</span>
             <span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">)</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tree</span>
 
-    <span class="k">def</span> <span class="nf">_process_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_process_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested_streams</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes changes to a yaml file from the files and dictionaries</span>
 <span class="sd">        in the step&#39;s ``model_config_data``.</span>
@@ -909,6 +937,8 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: replacing yaml options in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">streams</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;namelist&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
@@ -924,14 +954,49 @@
                                                     <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
-                    <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
-                                            <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
-                                            <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span>
-                                            <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span> <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
+                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
 
                     <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span>
                                                     <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span></div>
+                    <span class="n">new_streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_streams</span><span class="p">(</span>
+                        <span class="n">streams</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span>
+                                              <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+                                              <span class="n">remove_unrequested</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_yaml_streams</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+            <span class="n">remove_unrequested</span><span class="o">=</span><span class="n">remove_unrequested_streams</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update yaml streams, optionally removing any streams that aren&#39;t in</span>
+<span class="sd">        new_streams</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">new_stream</span> <span class="ow">in</span> <span class="n">new_streams</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+                <span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_stream</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  updating: </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  adding:   </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_stream</span>
+
+        <span class="k">if</span> <span class="n">remove_unrequested</span><span class="p">:</span>
+            <span class="c1"># during setup, we remove any default streams that aren&#39;t requested</span>
+            <span class="c1"># but at runtime we don&#39;t want to do this because we would lose any</span>
+            <span class="c1"># streams added only during setup.</span>
+            <span class="k">for</span> <span class="n">stream_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">streams</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_streams</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  dropping: </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">streams</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span></div>
 
 
 

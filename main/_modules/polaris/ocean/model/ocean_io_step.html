@@ -121,6 +121,13 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    mpaso_to_omega_dim_map : dict</span>
+<span class="sd">        A map from MPAS-Ocean dimension names to their Omega equivalents</span>
+
+<span class="sd">    omega_to_mpaso_dim_map : dict</span>
+<span class="sd">        A map from Omega dimension names to their MPAS-Ocean equivalents, the</span>
+<span class="sd">        inverse of ``mpaso_to_omega_dim_map``</span>
+
 <span class="sd">    mpaso_to_omega_var_map : dict</span>
 <span class="sd">        A map from MPAS-Ocean variable names to their Omega equivalents</span>
 
@@ -148,6 +155,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_dim_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
@@ -172,9 +181,9 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars">[docs]</a>
     <span class="k">def</span> <span class="nf">map_to_native_model_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If the model is Omega, rename variables in a dataset from their</span>
-<span class="sd">        MPAS-Ocean names to the Omega equivalent (appropriate for input</span>
-<span class="sd">        datasets like an initial condition)</span>
+<span class="sd">        If the model is Omega, rename dimensions and variables in a dataset</span>
+<span class="sd">        from their MPAS-Ocean names to the Omega equivalent (appropriate for</span>
+<span class="sd">        input datasets like an initial condition)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -190,9 +199,13 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                      <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">}</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                      <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">}</span>
+            <span class="n">rename_vars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                           <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">}</span>
+            <span class="n">rename</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rename_vars</span><span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
@@ -201,8 +214,8 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset">[docs]</a>
     <span class="k">def</span> <span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write out the given dataset, mapping variable names from MPAS-Ocean</span>
-<span class="sd">        to Omega names if appropriate</span>
+<span class="sd">        Write out the given dataset, mapping dimension and variable names from</span>
+<span class="sd">        MPAS-Ocean to Omega names if appropriate</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -220,9 +233,9 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars">[docs]</a>
     <span class="k">def</span> <span class="nf">map_from_native_model_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If the model is Omega, rename variables in a dataset from their</span>
-<span class="sd">        Omega names to the MPAS-Ocean equivalent (appropriate for datasets</span>
-<span class="sd">        that are output from the model)</span>
+<span class="sd">        If the model is Omega, rename dimensions and variables in a dataset</span>
+<span class="sd">        from their Omega names to the MPAS-Ocean equivalent (appropriate for</span>
+<span class="sd">        datasets that are output from the model)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -237,9 +250,13 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_dim_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_dim_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                      <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">}</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                      <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">}</span>
+            <span class="n">rename_vars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                           <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">}</span>
+            <span class="n">rename</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rename_vars</span><span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
@@ -248,8 +265,8 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset">[docs]</a>
     <span class="k">def</span> <span class="nf">open_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Open the given dataset, mapping variable names from Omega to MPAS-Ocean</span>
-<span class="sd">        names if appropriate</span>
+<span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
+<span class="sd">        to MPAS-Ocean names if appropriate</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -271,7 +288,7 @@
 
     <span class="k">def</span> <span class="nf">_read_var_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read the map from MPAS-Ocean to Omega config options</span>
+<span class="sd">        Read the map from MPAS-Ocean to Omega dimension and variable names</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.model&#39;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mpaso_to_omega.yaml&#39;</span>
@@ -279,7 +296,11 @@
 
         <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_dim_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omega_to_mpaso_var_map</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>

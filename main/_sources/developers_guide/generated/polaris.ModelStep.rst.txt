@@ -25,6 +25,7 @@
       ~ModelStep.dynamic_model_config
       ~ModelStep.map_yaml_configs
       ~ModelStep.map_yaml_options
+      ~ModelStep.map_yaml_streams
       ~ModelStep.map_yaml_to_namelist
       ~ModelStep.partition
       ~ModelStep.process_inputs_and_outputs

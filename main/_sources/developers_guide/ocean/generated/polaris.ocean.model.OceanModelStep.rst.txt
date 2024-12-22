@@ -26,6 +26,7 @@
       ~OceanModelStep.dynamic_model_config
       ~OceanModelStep.map_yaml_configs
       ~OceanModelStep.map_yaml_options
+      ~OceanModelStep.map_yaml_streams
       ~OceanModelStep.map_yaml_to_namelist
       ~OceanModelStep.partition
       ~OceanModelStep.process_inputs_and_outputs
