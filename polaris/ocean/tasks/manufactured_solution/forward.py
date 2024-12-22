@@ -65,7 +65,7 @@ class Forward(ConvergenceForward):
         super().setup()
         config = self.config
         model = config.get('ocean', 'model')
-        # TODO: remove as soon as Omega supports I/O streams
+        # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 

@@ -14,6 +14,13 @@ class OceanIOStep(Step):
 
     Attributes
     ----------
+    mpaso_to_omega_dim_map : dict
+        A map from MPAS-Ocean dimension names to their Omega equivalents
+
+    omega_to_mpaso_dim_map : dict
+        A map from Omega dimension names to their MPAS-Ocean equivalents, the
+        inverse of ``mpaso_to_omega_dim_map``
+
     mpaso_to_omega_var_map : dict
         A map from MPAS-Ocean variable names to their Omega equivalents
 
@@ -39,6 +46,8 @@ class OceanIOStep(Step):
         super().__init__(
             component=component, name=name, **kwargs)
 
+        self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
+        self.omega_to_mpaso_dim_map: Union[None, Dict[str, str]] = None
         self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
         self.omega_to_mpaso_var_map: Union[None, Dict[str, str]] = None
 
@@ -57,9 +66,9 @@ class OceanIOStep(Step):
 
     def map_to_native_model_vars(self, ds):
         """
-        If the model is Omega, rename variables in a dataset from their
-        MPAS-Ocean names to the Omega equivalent (appropriate for input
-        datasets like an initial condition)
+        If the model is Omega, rename dimensions and variables in a dataset
+        from their MPAS-Ocean names to the Omega equivalent (appropriate for
+        input datasets like an initial condition)
 
         Parameters
         ----------
@@ -75,16 +84,20 @@ class OceanIOStep(Step):
         config = self.config
         model = config.get('ocean', 'model')
         if model == 'omega':
+            assert self.mpaso_to_omega_dim_map is not None
+            rename = {k: v for k, v in self.mpaso_to_omega_dim_map.items()
+                      if k in ds.dims}
             assert self.mpaso_to_omega_var_map is not None
-            rename = {k: v for k, v in self.mpaso_to_omega_var_map.items()
-                      if k in ds}
+            rename_vars = {k: v for k, v in self.mpaso_to_omega_var_map.items()
+                           if k in ds}
+            rename.update(rename_vars)
             ds = ds.rename(rename)
         return ds
 
     def write_model_dataset(self, ds, filename):
         """
-        Write out the given dataset, mapping variable names from MPAS-Ocean
-        to Omega names if appropriate
+        Write out the given dataset, mapping dimension and variable names from
+        MPAS-Ocean to Omega names if appropriate
 
         Parameters
         ----------
@@ -99,9 +112,9 @@ class OceanIOStep(Step):
 
     def map_from_native_model_vars(self, ds):
         """
-        If the model is Omega, rename variables in a dataset from their
-        Omega names to the MPAS-Ocean equivalent (appropriate for datasets
-        that are output from the model)
+        If the model is Omega, rename dimensions and variables in a dataset
+        from their Omega names to the MPAS-Ocean equivalent (appropriate for
+        datasets that are output from the model)
 
         Parameters
         ----------
@@ -116,16 +129,20 @@ class OceanIOStep(Step):
         config = self.config
         model = config.get('ocean', 'model')
         if model == 'omega':
+            assert self.omega_to_mpaso_dim_map is not None
+            rename = {k: v for k, v in self.omega_to_mpaso_dim_map.items()
+                      if k in ds.dims}
             assert self.omega_to_mpaso_var_map is not None
-            rename = {k: v for k, v in self.omega_to_mpaso_var_map.items()
-                      if k in ds}
+            rename_vars = {k: v for k, v in self.omega_to_mpaso_var_map.items()
+                           if k in ds}
+            rename.update(rename_vars)
             ds = ds.rename(rename)
         return ds
 
     def open_model_dataset(self, filename, **kwargs):
         """
-        Open the given dataset, mapping variable names from Omega to MPAS-Ocean
-        names if appropriate
+        Open the given dataset, mapping variable and dimension names from Omega
+        to MPAS-Ocean names if appropriate
 
         Parameters
         ----------
@@ -146,7 +163,7 @@ class OceanIOStep(Step):
 
     def _read_var_map(self):
         """
-        Read the map from MPAS-Ocean to Omega config options
+        Read the map from MPAS-Ocean to Omega dimension and variable names
         """
         package = 'polaris.ocean.model'
         filename = 'mpaso_to_omega.yaml'
@@ -154,7 +171,11 @@ class OceanIOStep(Step):
 
         yaml_data = YAML(typ='rt')
         nested_dict = yaml_data.load(text)
+        self.mpaso_to_omega_dim_map = nested_dict['dimensions']
         self.mpaso_to_omega_var_map = nested_dict['variables']
+        assert self.mpaso_to_omega_dim_map is not None
+        self.omega_to_mpaso_dim_map = {
+            v: k for k, v in self.mpaso_to_omega_dim_map.items()}
         assert self.mpaso_to_omega_var_map is not None
         self.omega_to_mpaso_var_map = {
             v: k for k, v in self.mpaso_to_omega_var_map.items()}

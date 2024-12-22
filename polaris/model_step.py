@@ -1,7 +1,7 @@
 import os
 import shutil
 from collections import OrderedDict
-from typing import List, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import xarray as xr
@@ -69,6 +69,8 @@ class ModelStep(Step):
         Whether to create a yaml file with model config options and streams
         instead of MPAS namelist and streams files
 
+    streams_section : str
+        The name of the streams section in yaml files
     """
     def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
                  min_tasks=None, openmp_threads=None, max_memory=None,
@@ -173,6 +175,7 @@ class ModelStep(Step):
         self.graph_filename = graph_filename
 
         self.make_yaml = make_yaml
+        self.streams_section = 'streams'
 
         self.add_input_file(filename='<<<model>>>')
 
@@ -275,7 +278,7 @@ class ModelStep(Step):
 
     def map_yaml_options(self, options, config_model):
         """
-        A mapping between model config options between different models.  This
+        A mapping between model config options from different models.  This
         method should be overridden for situations in which yaml config
         options have diverged in name or structure from their counterparts in
         another model (e.g. when translating from MPAS-Ocean namelist options
@@ -301,7 +304,7 @@ class ModelStep(Step):
 
     def map_yaml_configs(self, configs, config_model):
         """
-        A mapping between model config options between different models.  This
+        A mapping between model config options from different models.  This
         method should be overridden for situations in which yaml config
         options have diverged in name or structure from their counterparts in
         another model (e.g. when translating from MPAS-Ocean namelist options
@@ -324,6 +327,29 @@ class ModelStep(Step):
             use as replacements for existing values
         """
         return configs
+
+    def map_yaml_streams(self, streams, config_model):
+        """
+        A mapping between model streams from different models.  This method
+        should be overridden for situations in which yaml streams have diverged
+        in name or structure from their counterparts in another model (e.g.
+        when translating from MPAS-Ocean streams to Omega IOStreams)
+
+        Parameters
+        ----------
+        streams : dict
+            A nested dictionary of streams data
+
+        config_model : str or None
+            If streams are available for multiple models, the model that the
+            streams are from
+
+        Returns
+        -------
+        configs : dict
+            A revised nested dictionary of streams data
+        """
+        return streams
 
     def map_yaml_to_namelist(self, options):
         """
@@ -440,7 +466,7 @@ class ModelStep(Step):
         self.dynamic_model_config(at_setup=False)
 
         if self.make_yaml:
-            self._process_yaml(quiet=quiet)
+            self._process_yaml(quiet=quiet, remove_unrequested_streams=False)
         else:
             self._process_namelists(quiet=quiet)
             self._process_streams(quiet=quiet, remove_unrequested=False)
@@ -481,7 +507,7 @@ class ModelStep(Step):
         self._create_model_config()
 
         if self.make_yaml:
-            self._process_yaml(quiet=quiet)
+            self._process_yaml(quiet=quiet, remove_unrequested_streams=True)
         else:
             self._process_namelists(quiet=quiet)
             self._process_streams(quiet=quiet, remove_unrequested=True)
@@ -563,7 +589,8 @@ class ModelStep(Step):
         config = self.config
         if self.make_yaml:
             defaults_filename = config.get('model_config', 'defaults')
-            self._yaml = PolarisYaml.read(defaults_filename)
+            self._yaml = PolarisYaml.read(defaults_filename,
+                                          streams_section=self.streams_section)
         else:
             defaults_filename = config.get('namelists', 'forward')
             self._namelist = polaris.namelist.ingest(defaults_filename)
@@ -578,7 +605,8 @@ class ModelStep(Step):
         """
         if self.make_yaml:
             filename = os.path.join(self.work_dir, self.yaml)
-            self._yaml = PolarisYaml.read(filename)
+            self._yaml = PolarisYaml.read(filename,
+                                          streams_section=self.streams_section)
         else:
             filename = os.path.join(self.work_dir, self.namelist)
             self._namelist = polaris.namelist.ingest(filename)
@@ -641,10 +669,10 @@ class ModelStep(Step):
                     options = self.map_yaml_to_namelist(options)
                     replacements.update(options)
                 if 'yaml' in entry:
-                    yaml = PolarisYaml.read(filename=entry['yaml'],
-                                            package=entry['package'],
-                                            replacements=entry['replacements'],
-                                            model=config_model)
+                    yaml = PolarisYaml.read(
+                        filename=entry['yaml'], package=entry['package'],
+                        replacements=entry['replacements'], model=config_model,
+                        streams_section=self.streams_section)
 
                     configs = self.map_yaml_configs(configs=yaml.configs,
                                                     config_model=config_model)
@@ -727,8 +755,7 @@ class ModelStep(Step):
                 if not found:
                     defaults.remove(default)
 
-    @staticmethod
-    def _process_yaml_streams(yaml_filename, package, replacements,
+    def _process_yaml_streams(self, yaml_filename, package, replacements,
                               config_model, processed_registry_filename,
                               tree, quiet):
         if not quiet:
@@ -737,14 +764,15 @@ class ModelStep(Step):
         yaml = PolarisYaml.read(filename=yaml_filename,
                                 package=package,
                                 replacements=replacements,
-                                model=config_model)
+                                model=config_model,
+                                streams_section=self.streams_section)
         assert processed_registry_filename is not None
         new_tree = yaml_to_mpas_streams(
             processed_registry_filename, yaml)
         tree = polaris.streams.update_tree(tree, new_tree)
         return tree
 
-    def _process_yaml(self, quiet):
+    def _process_yaml(self, quiet, remove_unrequested_streams):
         """
         Processes changes to a yaml file from the files and dictionaries
         in the step's ``model_config_data``.
@@ -758,6 +786,8 @@ class ModelStep(Step):
 
         if not quiet:
             print(f'Warning: replacing yaml options in {self.yaml}')
+
+        streams: Dict[str, Dict[str, Union[str, float, int, List[str]]]] = {}
 
         for entry in self.model_config_data:
             if 'namelist' in entry:
@@ -773,14 +803,49 @@ class ModelStep(Step):
                                                     config_model=config_model)
                     self._yaml.update(options=options, quiet=quiet)
                 if 'yaml' in entry:
-                    yaml = PolarisYaml.read(filename=entry['yaml'],
-                                            package=entry['package'],
-                                            replacements=entry['replacements'],
-                                            model=config_model)
+                    yaml = PolarisYaml.read(
+                        filename=entry['yaml'], package=entry['package'],
+                        replacements=entry['replacements'], model=config_model,
+                        streams_section=self.streams_section)
 
                     configs = self.map_yaml_configs(configs=yaml.configs,
                                                     config_model=config_model)
+                    new_streams = self.map_yaml_streams(
+                        streams=yaml.streams, config_model=config_model)
+                    self._update_yaml_streams(streams, new_streams,
+                                              quiet=quiet,
+                                              remove_unrequested=False)
                     self._yaml.update(configs=configs, quiet=quiet)
+        self._update_yaml_streams(
+            self._yaml.streams, streams, quiet=quiet,
+            remove_unrequested=remove_unrequested_streams)
+
+    @staticmethod
+    def _update_yaml_streams(streams, new_streams, quiet, remove_unrequested):
+        """
+        Update yaml streams, optionally removing any streams that aren't in
+        new_streams
+        """
+
+        for stream_name, new_stream in new_streams.items():
+            if stream_name in streams:
+                streams[stream_name].update(new_stream)
+                if not quiet:
+                    print(f'  updating: {stream_name}')
+            else:
+                if not quiet:
+                    print(f'  adding:   {stream_name}')
+                streams[stream_name] = new_stream
+
+        if remove_unrequested:
+            # during setup, we remove any default streams that aren't requested
+            # but at runtime we don't want to do this because we would lose any
+            # streams added only during setup.
+            for stream_name in list(streams.keys()):
+                if stream_name not in new_streams:
+                    if not quiet:
+                        print(f'  dropping: {stream_name}')
+                    streams.pop(stream_name)
 
 
 def make_graph_file(mesh_filename, graph_filename='graph.info',

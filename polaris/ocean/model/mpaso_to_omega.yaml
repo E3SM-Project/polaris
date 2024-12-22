@@ -1,14 +1,33 @@
+dimensions:
+  Time: time
+  nCells: NCells
+  nEdges: NEdges
+  nVertices: NVertices
+  maxEdges: MaxEdges
+  maxEdges2: MaxEdges2
+  TWO: MaxCellsOnEdge
+  vertexDegree: VertexDegree
+  nVertLevels: NVertLevels
+  nVertLevelsP1: NVertLevelsP1
+
 variables:
-  temperature: Temp
-  salinity: Salt
+  # tracers
+  temperature: Temperature
+  salinity: Salinity
   tracer1: Debug1
   tracer2: Debug2
   tracer3: Debug3
-  ssh: SshCell
+
+  # state
+  layerThickness: LayerThickness
+  normalVelocity: NormalVelocity
+
+  # auxiliary state
+  ssh: SshCellDefault
 
 config:
 - section:
-    time_management: TimeManagement
+    time_management: TimeIntegration
   options:
     config_start_time: StartTime
     config_stop_time: StopTime
@@ -47,3 +66,10 @@ config:
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+
+- section:
+    manufactured_solution: ManufacturedSolution
+  options:
+    config_manufactured_solution_wavelength_x: WavelengthX
+    config_manufactured_solution_wavelength_y: WavelengthY
+    config_manufactured_solution_amplitude: Amplitude
