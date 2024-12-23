@@ -3,6 +3,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.mpas import cell_mask_2_edge_mask
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
@@ -43,13 +44,14 @@ class Viz(Step):
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         cell_mask = ds_init.maxLevelCell >= 1
+        edge_mask = cell_mask_2_edge_mask(ds_init, cell_mask)
         max_velocity = np.max(np.abs(ds.normalVelocity.values))
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+        plot_horiz_field(ds_mesh, ds['normalVelocity'],
                          'final_normalVelocity.png',
                          t_index=t_index,
                          vmin=-max_velocity, vmax=max_velocity,
                          cmap='cmo.balance', show_patch_edges=True,
-                         cell_mask=cell_mask)
+                         field_mask=edge_mask)
 
         y_min = ds_mesh.yVertex.min().values
         y_max = ds_mesh.yVertex.max().values
@@ -76,7 +78,7 @@ class Viz(Step):
                       vmin=vmin, vmax=vmax, cmap='cmo.thermal',
                       colorbar_label=r'$^\circ$C', color_start_and_end=True)
 
-        plot_horiz_field(ds, ds_mesh, 'temperature', 'final_temperature.png',
+        plot_horiz_field(ds_mesh, ds['temperature'], 'final_temperature.png',
                          t_index=t_index, vmin=vmin, vmax=vmax,
-                         cmap='cmo.thermal', cell_mask=cell_mask, transect_x=x,
-                         transect_y=y)
+                         cmap='cmo.thermal', field_mask=cell_mask,
+                         transect_x=x, transect_y=y)

@@ -1,39 +1,35 @@
 import os
 
 import cmocean  # noqa: F401
+import matplotlib
 import matplotlib.pyplot as plt
+import mosaic
 import numpy as np
-from matplotlib.collections import PatchCollection
 from matplotlib.colors import LogNorm
-from matplotlib.patches import Polygon
 
 from polaris.viz.style import use_mplstyle
 
 
-def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
+def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
                      ax=None, title=None, t_index=None, z_index=None,
                      vmin=None, vmax=None, show_patch_edges=False,
                      cmap=None, cmap_set_under=None, cmap_set_over=None,
                      cmap_scale='linear', cmap_title=None, figsize=None,
-                     vert_dim='nVertLevels', cell_mask=None, patches=None,
-                     patch_mask=None, transect_x=None, transect_y=None,
-                     transect_color='black', transect_start='red',
-                     transect_end='green', transect_linewidth=2.,
-                     transect_markersize=12.):
+                     vert_dim='nVertLevels', field_mask=None, descriptor=None,
+                     transect_x=None, transect_y=None, transect_color='black',
+                     transect_start='red', transect_end='green',
+                     transect_linewidth=2., transect_markersize=12.):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
 
     Parameters
     ----------
-    ds : xarray.Dataset
-        A data set containing fieldName
-
     ds_mesh : xarray.Dataset
         A data set containing horizontal mesh variables
 
-    field_name : str
-        The name of the variable to plot, which must be present in ds
+    data_array : xarray.DataArray
+        The data array to plot
 
     out_file_name : str, optional
         The path to which the plot image should be written
@@ -83,17 +79,11 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     vert_dim : str, optional
         Name of the vertical dimension
 
-    cell_mask : numpy.ndarray, optional
-        A ``bool`` mask indicating where cells are valid, used to mask fields
-        on both cells and edges. Not used if ``patches`` and ``patch_mask``
-        are supplied
+    field_mask : xarray.DataArray, optional
+        A ``bool`` mask indicating where the `data_array` is valid.
 
-    patches : list of numpy.ndarray, optional
-        Patches from a previous call to ``plot_horiz_field()``
-
-    patch_mask : numpy.ndarray, optional
-        A mask of where the field has patches from a previous call to
-        ``plot_horiz_field()``
+    descriptor : mosaic.Descriptor, optional
+        Descriptor from a previous call to ``plot_horiz_field()``
 
     transect_x : numpy.ndarray or xarray.DataArray, optional
         The x coordinates of a transect to plot on the
@@ -118,22 +108,10 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     Returns
     -------
-    patches : list of numpy.ndarray
-        Patches to reuse for future plots.  Patches for cells can only be
-        reused for other plots on cells and similarly for edges.
-
-    patch_mask : numpy.ndarray
-        A mask used to select entries in the field that have patches
+    descriptor : mosaic.Descriptor
+        For reuse with future plots. Patches are cached, so the Descriptor only
+        needs to be created once per mesh file.
     """
-    if field_name not in ds:
-        raise ValueError(
-            f'{field_name} must be present in ds before plotting.')
-
-    if patches is not None:
-        if patch_mask is None:
-            raise ValueError('You must supply both patches and patch_mask '
-                             'from a previous call to plot_horiz_field()')
-
     if (transect_x is None) != (transect_y is None):
         raise ValueError('You must supply both transect_x and transect_y or '
                          'neither')
@@ -146,16 +124,14 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
 
     if create_fig:
         if out_file_name is None:
-            out_file_name = f'{field_name}.png'
+            out_file_name = f'{field.name}.png'
         try:
             os.makedirs(os.path.dirname(out_file_name))
         except OSError:
             pass
 
     if title is None:
-        title = field_name
-
-    field = ds[field_name]
+        title = field.name
 
     if 'Time' in field.dims and t_index is None:
         t_index = 0
@@ -166,38 +142,31 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if z_index is not None:
         field = field.isel({vert_dim: z_index})
 
-    if patches is None:
-        if cell_mask is None:
-            cell_mask = np.ones_like(field, dtype='bool')
-        if 'nCells' in field.dims:
-            patch_mask = cell_mask
-            patches, patch_mask = _compute_cell_patches(ds_mesh, patch_mask)
-        elif 'nEdges' in field.dims:
-            patch_mask = _edge_mask_from_cell_mask(ds_mesh, cell_mask)
-            patches, patch_mask = _compute_edge_patches(ds_mesh, patch_mask)
-        else:
-            raise ValueError('Cannot plot a field without dim nCells or '
-                             'nEdges')
-    local_patches = PatchCollection(patches, alpha=1.)
-    local_patches.set_array(field[patch_mask])
+    if descriptor is None:
+        descriptor = mosaic.Descriptor(ds_mesh)
+
+    pcolor_kwargs = dict(
+        cmap=None, edgecolor='face', norm=None, vmin=vmin, vmax=vmax
+    )
+
     if cmap is not None:
-        local_patches.set_cmap(cmap)
-    if cmap_set_under is not None:
-        current_cmap = local_patches.get_cmap()
-        current_cmap.set_under(cmap_set_under)
-    if cmap_set_over is not None:
-        current_cmap = local_patches.get_cmap()
-        current_cmap.set_over(cmap_set_over)
+        if isinstance(cmap, str):
+            cmap = matplotlib.colormaps[cmap]
+        if cmap_set_under is not None:
+            cmap.set_under(cmap_set_under)
+        if cmap_set_over is not None:
+            cmap.set_over(cmap_set_over)
+
+        pcolor_kwargs['cmap'] = cmap
 
     if show_patch_edges:
-        local_patches.set_edgecolor('black')
-    else:
-        local_patches.set_edgecolor('face')
-    local_patches.set_clim(vmin=vmin, vmax=vmax)
+        pcolor_kwargs['edgecolor'] = 'black'
+        pcolor_kwargs['linewidth'] = 0.25
 
     if cmap_scale == 'log':
-        local_patches.set_norm(LogNorm(vmin=max(1e-10, vmin),
-                                       vmax=vmax, clip=False))
+        pcolor_kwargs['norm'] = LogNorm(
+            vmin=max(1e-10, vmin), vmax=vmax, clip=False
+        )
 
     if figsize is None:
         width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
@@ -210,18 +179,35 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
     if create_fig:
         plt.figure(figsize=figsize)
         ax = plt.subplot(111)
-    ax.add_collection(local_patches)
+
+    if field_mask is not None:
+
+        if field_mask.shape != field.shape:
+            raise ValueError(f"The shape of `field_mask`: {field_mask.shape} "
+                             f"does match shape of `field array`: "
+                             f"{field.shape} make sure both arrays are defined"
+                             f" at the same location")
+
+        if np.any(~field_mask):
+            field = field.where(field_mask)
+
+    collection = mosaic.polypcolor(ax, descriptor, field, **pcolor_kwargs)
+
     ax.set_xlabel('x (km)')
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
     ax.autoscale(tight=True)
-    cbar = plt.colorbar(local_patches, extend='both', shrink=0.7, ax=ax)
+    # scale ticks to be in kilometers
+    ax.xaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
+    ax.yaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
+
+    cbar = plt.colorbar(collection, extend='both', shrink=0.7, ax=ax)
     if cmap_title is not None:
         cbar.set_label(cmap_title)
 
     if transect_x is not None:
-        transect_x = 1e-3 * transect_x
-        transect_y = 1e-3 * transect_y
+        transect_x = transect_x
+        transect_y = transect_y
         ax.plot(transect_x, transect_y, color=transect_color,
                 linewidth=transect_linewidth)
         if transect_start is not None:
@@ -235,152 +221,4 @@ def plot_horiz_field(ds, ds_mesh, field_name, out_file_name=None,  # noqa: C901
         plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
         plt.close()
 
-    return patches, patch_mask
-
-
-def _edge_mask_from_cell_mask(ds, cell_mask):
-    cells_on_edge = ds.cellsOnEdge - 1
-    valid = cells_on_edge >= 0
-    # the edge mask is True if either adjacent cell is valid and its mask is
-    # True
-    edge_mask = np.logical_or(
-        np.logical_and(valid[:, 0], cell_mask[cells_on_edge[:, 0]]),
-        np.logical_and(valid[:, 1], cell_mask[cells_on_edge[:, 1]]))
-    return edge_mask
-
-
-def _compute_cell_patches(ds, mask):
-    patches = []
-    num_vertices_on_cell = ds.nEdgesOnCell.values
-    vertices_on_cell = ds.verticesOnCell.values - 1
-    x_cell = ds.xCell.values
-    y_cell = ds.yCell.values
-    x_vertex = ds.xVertex.values
-    y_vertex = ds.yVertex.values
-
-    is_periodic = ds.attrs['is_periodic'].strip() == 'YES'
-    is_x_periodic = False
-    is_y_periodic = False
-    if is_periodic:
-        x_period = ds.attrs['x_period']
-        if x_period > 0.:
-            is_x_periodic = True
-        y_period = ds.attrs['y_period']
-        if y_period > 0.:
-            is_y_periodic = True
-
-    for cell_index in range(ds.sizes['nCells']):
-        if not mask[cell_index]:
-            continue
-        num_vertices = num_vertices_on_cell[cell_index]
-        vertex_indices = vertices_on_cell[cell_index, :num_vertices]
-        vertices = np.zeros((num_vertices, 2))
-        vertices[:, 0] = 1e-3 * x_vertex[vertex_indices]
-        vertices[:, 1] = 1e-3 * y_vertex[vertex_indices]
-
-        if is_x_periodic:
-            # Fix cells that span the periodic boundaries
-            for count, vertex_index in enumerate(vertex_indices):
-                vertices = _fix_vertices(vertices,
-                                         loc_center=x_cell[cell_index] * 1e-3,
-                                         index=count,
-                                         period=x_period * 1e-3,
-                                         period_index=0)
-        if is_y_periodic:
-            # Fix cells that span the periodic boundaries
-            for count, vertex_index in enumerate(vertex_indices):
-                vertices = _fix_vertices(vertices,
-                                         loc_center=y_cell[cell_index] * 1e-3,
-                                         index=count,
-                                         period=y_period * 1e-3,
-                                         period_index=1)
-        polygon = Polygon(vertices, closed=True)
-        patches.append(polygon)
-
-    return patches, mask
-
-
-def _compute_edge_patches(ds, mask):
-    patches = []
-    cells_on_edge = ds.cellsOnEdge.values - 1
-    vertices_on_edge = ds.verticesOnEdge.values - 1
-    x_cell = ds.xCell.values
-    y_cell = ds.yCell.values
-    x_edge = ds.xEdge.values
-    y_edge = ds.yEdge.values
-    x_vertex = ds.xVertex.values
-    y_vertex = ds.yVertex.values
-    boundary_vertex = ds.boundaryVertex.values
-
-    is_periodic = ds.attrs['is_periodic'].strip() == 'YES'
-    is_x_periodic = False
-    is_y_periodic = False
-    if is_periodic:
-        x_period = ds.attrs['x_period']
-        if x_period > 0.:
-            is_x_periodic = True
-        y_period = ds.attrs['y_period']
-        if y_period > 0.:
-            is_y_periodic = True
-
-    for edge_index in range(ds.sizes['nEdges']):
-        if not mask[edge_index]:
-            continue
-        cell_indices = cells_on_edge[edge_index]
-        vertex_indices = vertices_on_edge[edge_index, :]
-        # Remove edges on boundaries because they are always invalid
-        if any(boundary_vertex[vertex_indices]):
-            mask[edge_index] = 0
-            continue
-        vertices = np.zeros((4, 2))
-        vertices[0, 0] = 1e-3 * x_vertex[vertex_indices[0]]
-        vertices[0, 1] = 1e-3 * y_vertex[vertex_indices[0]]
-        vertices[1, 0] = 1e-3 * x_cell[cell_indices[0]]
-        vertices[1, 1] = 1e-3 * y_cell[cell_indices[0]]
-        vertices[2, 0] = 1e-3 * x_vertex[vertex_indices[1]]
-        vertices[2, 1] = 1e-3 * y_vertex[vertex_indices[1]]
-        vertices[3, 0] = 1e-3 * x_cell[cell_indices[1]]
-        vertices[3, 1] = 1e-3 * y_cell[cell_indices[1]]
-        if is_x_periodic:
-            # Fix cells that span the periodic boundaries
-            for count, vertex_index in enumerate(vertex_indices):
-                new_index = np.where(count == 0, 0, 2)
-                vertices = _fix_kite(vertices,
-                                     loc_center=x_edge[edge_index] * 1e-3,
-                                     index=new_index,
-                                     period=x_period * 1e-3,
-                                     period_index=0)
-        if is_y_periodic:
-            # Fix cells that span the periodic boundaries
-            for count, vertex_index in enumerate(vertex_indices):
-                new_index = np.where(count == 0, 0, 2)
-                vertices = _fix_kite(vertices,
-                                     loc_center=y_edge[edge_index] * 1e-3,
-                                     index=new_index,
-                                     period=y_period * 1e-3,
-                                     period_index=1)
-        polygon = Polygon(vertices, closed=True)
-        patches.append(polygon)
-
-    return patches, mask
-
-
-def _fix_vertices(vertices, loc_center, index, period, period_index):
-    if vertices[index, period_index] - loc_center > 0.5 * period:
-        vertices[index, period_index] += -period
-    elif vertices[index, period_index] - loc_center < -0.5 * period:
-        vertices[index, period_index] += period
-    return vertices
-
-
-def _fix_kite(vertices, loc_center, index, period, period_index):
-    if vertices[index, period_index] - loc_center > 0.5 * period:
-        vertices[index, period_index] += -period
-    elif vertices[index, period_index] - loc_center < -0.5 * period:
-        vertices[index, period_index] += period
-    # We need to check the cell node of the kite as well
-    if vertices[index + 1, period_index] - loc_center > 0.5 * period:
-        vertices[index + 1, period_index] += -period
-    elif vertices[index + 1, period_index] - loc_center < -0.5 * period:
-        vertices[index + 1, period_index] += period
-    return vertices
+    return descriptor

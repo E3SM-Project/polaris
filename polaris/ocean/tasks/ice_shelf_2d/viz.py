@@ -5,6 +5,7 @@ import pandas as pd
 import xarray as xr
 
 from polaris import Step
+from polaris.mpas import cell_mask_2_edge_mask
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
@@ -118,9 +119,10 @@ class Viz(Step):
 
         # Plot water column thickness horizontal ds_init
         cell_mask = ds_init.maxLevelCell >= 1
-        plot_horiz_field(ds_horiz, ds_mesh, 'columnThickness',
+        edge_mask = cell_mask_2_edge_mask(ds_init, cell_mask)
+        plot_horiz_field(ds_mesh, ds_horiz['columnThickness'],
                          'H_horiz_init.png', t_index=None,
-                         cell_mask=cell_mask)
+                         field_mask=cell_mask)
 
         time_index = -1  # Plot the final state
         ds_horiz = self._process_ds(ds, ds_ice, ds_init,
@@ -130,27 +132,27 @@ class Viz(Step):
         vmax_del_ssh = np.max(ds_horiz.delSsh.values)
         vmax_del_p = np.amax(ds_horiz.delLandIcePressure.values)
         # Plot water column thickness horizontal
-        plot_horiz_field(ds_horiz, ds_mesh, 'columnThickness',
+        plot_horiz_field(ds_mesh, ds_horiz['columnThickness'],
                          f'H_horiz_t{time_index}.png', t_index=None,
-                         cell_mask=cell_mask)
-        plot_horiz_field(ds_horiz, ds_mesh, 'landIceFreshwaterFlux',
+                         field_mask=cell_mask)
+        plot_horiz_field(ds_mesh, ds_horiz['landIceFreshwaterFlux'],
                          f'melt_horiz_t{time_index}.png', t_index=None,
-                         cell_mask=cell_mask)
+                         field_mask=cell_mask)
         if 'wettingVelocityFactor' in ds_horiz.keys():
-            plot_horiz_field(ds_horiz, ds_mesh, 'wettingVelocityFactor',
+            plot_horiz_field(ds_mesh, ds_horiz['wettingVelocityFactor'],
                              f'wet_horiz_t{time_index}.png', t_index=None,
-                             z_index=None, cell_mask=cell_mask,
+                             z_index=None, field_mask=edge_mask,
                              vmin=0, vmax=1, cmap='cmo.ice')
         # Plot difference in ssh
-        plot_horiz_field(ds_horiz, ds_mesh, 'delSsh',
+        plot_horiz_field(ds_mesh, ds_horiz['delSsh'],
                          f'del_ssh_horiz_t{time_index}.png', t_index=None,
-                         cell_mask=cell_mask,
+                         field_mask=cell_mask,
                          vmin=vmin_del_ssh, vmax=vmax_del_ssh)
 
         # Plot difference in land ice pressure
-        plot_horiz_field(ds_horiz, ds_mesh, 'delLandIcePressure',
+        plot_horiz_field(ds_mesh, ds_horiz['delLandIcePressure'],
                          f'del_land_ice_pressure_horiz_t{time_index}.png',
-                         t_index=None, cell_mask=cell_mask,
+                         t_index=None, field_mask=cell_mask,
                          vmin=-vmax_del_p, vmax=vmax_del_p,
                          cmap='cmo.balance')
 
@@ -163,24 +165,24 @@ class Viz(Step):
             max_level_cell=ds_init.maxLevelCell - 1,
             spherical=False)
 
-        plot_horiz_field(ds, ds_mesh, 'velocityX',
+        plot_horiz_field(ds_mesh, ds['velocityX'],
                          f'u_surf_horiz_t{time_index}.png', t_index=time_index,
-                         z_index=0, cell_mask=cell_mask,
+                         z_index=0, field_mask=cell_mask,
                          vmin=-vmax_uv, vmax=vmax_uv,
                          cmap_title=r'm/s', cmap='cmo.balance')
-        plot_horiz_field(ds, ds_mesh, 'velocityX',
+        plot_horiz_field(ds_mesh, ds['velocityX'],
                          f'u_bot_horiz_t{time_index}.png', t_index=time_index,
-                         z_index=-1, cell_mask=cell_mask,
+                         z_index=-1, field_mask=cell_mask,
                          vmin=-vmax_uv, vmax=vmax_uv,
                          cmap_title=r'm/s', cmap='cmo.balance')
-        plot_horiz_field(ds, ds_mesh, 'velocityY',
+        plot_horiz_field(ds_mesh, ds['velocityY'],
                          f'v_surf_horiz_t{time_index}.png', t_index=time_index,
-                         z_index=0, cell_mask=cell_mask,
+                         z_index=0, field_mask=cell_mask,
                          vmin=-vmax_uv, vmax=vmax_uv,
                          cmap_title=r'm/s', cmap='cmo.balance')
-        plot_horiz_field(ds, ds_mesh, 'velocityY',
+        plot_horiz_field(ds_mesh, ds['velocityY'],
                          f'v_bot_horiz_t{time_index}.png', t_index=time_index,
-                         z_index=-1, cell_mask=cell_mask,
+                         z_index=-1, field_mask=cell_mask,
                          vmin=-vmax_uv, vmax=vmax_uv,
                          cmap_title=r'm/s', cmap='cmo.balance')
         plot_transect(ds_transect,

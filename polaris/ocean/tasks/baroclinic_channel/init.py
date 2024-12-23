@@ -7,6 +7,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.mpas import cell_mask_2_edge_mask
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
@@ -163,10 +164,11 @@ class Init(Step):
         write_netcdf(ds, 'initial_state.nc')
 
         cell_mask = ds.maxLevelCell >= 1
+        edge_mask = cell_mask_2_edge_mask(ds, cell_mask)
 
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
+        plot_horiz_field(ds_mesh, ds['normalVelocity'],
                          'initial_normal_velocity.png', cmap='cmo.balance',
-                         show_patch_edges=True, cell_mask=cell_mask)
+                         show_patch_edges=True, field_mask=edge_mask)
 
         y_min = ds_mesh.yVertex.min().values
         y_max = ds_mesh.yVertex.max().values
@@ -191,6 +193,6 @@ class Init(Step):
                       vmin=vmin, vmax=vmax, cmap='cmo.thermal',
                       colorbar_label=r'$^\circ$C', color_start_and_end=True)
 
-        plot_horiz_field(ds, ds_mesh, 'temperature', 'initial_temperature.png',
+        plot_horiz_field(ds_mesh, ds['temperature'], 'initial_temperature.png',
                          vmin=vmin, vmax=vmax, cmap='cmo.thermal',
-                         cell_mask=cell_mask, transect_x=x, transect_y=y)
+                         field_mask=cell_mask, transect_x=x, transect_y=y)
