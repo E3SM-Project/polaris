@@ -99,14 +99,21 @@
    init.cosine_bell
 
    forward.Forward
-   forward.Forward.compute_cell_count
-   forward.Forward.dynamic_model_config
 
    analysis.Analysis
    analysis.Analysis.exact_solution
 
+   validate.Validate
+   validate.Validate.run
+
    viz.Viz
    viz.Viz.run
+
+   restart.Restart
+
+   restart.RestartStep
+   restart.RestartStep.dynamic_model_config
+
 ```
 
 ### geostrophic

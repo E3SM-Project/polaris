@@ -35,9 +35,9 @@ be compared against a baseline, if one is provided, after the step as run.
 
 In addition to baseline validation, it is often useful to compare files between
 steps of a run.  This is done by adding later step to perform the validation.
-This validation step will use the function 
-{py:func}`polaris.validate.compare_variables()` to compare variables in a file 
-with a given relative path (`filename1`) with the same variables in another 
+This validation step will use the function
+{py:func}`polaris.validate.compare_variables()` to compare variables in a file
+with a given relative path (`filename1`) with the same variables in another
 file (`filename2`).
 
 As a compact example of creating a validate step for a restart run:
@@ -58,7 +58,7 @@ class Validate(Step):
         super().run()
         variables = ['temperature', 'salinity', 'layerThickness',
                      'normalVelocity']
-        all_pass = compare_variables(variables, 
+        all_pass = compare_variables(variables,
                                      filename1='output_full_run.nc',
                                      filename2='output_restart_run.nc',
                                      logger=self.logger)
@@ -68,12 +68,12 @@ class Validate(Step):
 
 ```
 
-The 2 files `../full_run/output.nc` and `../restart_run/output.nc` are 
-symlinked locally and compared to make sure the variables `temperature`, 
+The 2 files `../full_run/output.nc` and `../restart_run/output.nc` are
+symlinked locally and compared to make sure the variables `temperature`,
 `salinity`, `layerThickness`, and `normalVelocity` are identical between the
 two.
 
-By default, the output is "quiet".  If you set `quiet=False`, typical output 
+By default, the output is "quiet".  If you set `quiet=False`, typical output
 will look like this:
 
 ```none
@@ -186,7 +186,7 @@ normalVelocity       Time index: 0, 1, 2
 
 ## Norms
 
-In circumstance where you would like to allow comparison to pass with non-zero 
+In circumstance where you would like to allow comparison to pass with non-zero
 differences between variables, you can supply keyword arguments
 `l1_norm`, `l2_norm` and/or `linf_norm` to give the desired maximum
 values for these norms, above which the comparison will fail, raising a
@@ -196,8 +196,18 @@ values for these norms, above which the comparison will fail, raising a
 If you want different nonzero norm values for different variables,
 the easiest solution is to call {py:func}`polaris.validate.compare_variables()`
 separately for each variable and with different norm values specified.
-You will need to "and" together the results from calling 
-{py:func}`polaris.validate.compare_variables()`.  When you specify a nonzero 
+You will need to "and" together the results from calling
+{py:func}`polaris.validate.compare_variables()`.  When you specify a nonzero
 norm, you may want polaris to print the norm values it is using for comparison
 when the results are printed.  To do so, use the optional `quiet=False`
 argument.
+
+## Datasets
+
+In some cases, a comparison cannot be made directly between the datasets loaded
+from the two files to be compared. Instead, the datasets require manipulation
+for some reason. Currently, this is the case for datasets from the Omega model,
+which need to have their variables renamed to the MPAS-Ocean names for use in
+Polaris.  The `ds1` and `ds2` keyword arguments are used to supply datasets
+corresponding to `filename1` and `filename2`, respectively, in such
+circumstances.

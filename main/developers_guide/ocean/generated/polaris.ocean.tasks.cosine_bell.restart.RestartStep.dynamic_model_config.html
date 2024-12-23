@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count</title>
+  <title>polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.tasks.cosine_bell.forward.Forward.dynamic_model_config" href="polaris.ocean.tasks.cosine_bell.forward.Forward.dynamic_model_config.html" />
-    <link rel="prev" title="polaris.ocean.tasks.cosine_bell.forward.Forward" href="polaris.ocean.tasks.cosine_bell.forward.Forward.html" />
+    <link rel="next" title="polaris.ocean.tasks.geostrophic.add_geostrophic_tasks" href="polaris.ocean.tasks.geostrophic.add_geostrophic_tasks.html" />
+    <link rel="prev" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep" href="polaris.ocean.tasks.cosine_bell.restart.RestartStep.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -109,9 +109,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count</li>
+      <li class="breadcrumb-item active">polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -119,16 +119,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-tasks-cosine-bell-forward-forward-compute-cell-count">
-<h1>polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count<a class="headerlink" href="#polaris-ocean-tasks-cosine-bell-forward-forward-compute-cell-count" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-tasks-cosine-bell-restart-restartstep-dynamic-model-config">
+<h1>polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config<a class="headerlink" href="#polaris-ocean-tasks-cosine-bell-restart-restartstep-dynamic-model-config" title="Link to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count">
-<span class="sig-prename descclassname"><span class="pre">Forward.</span></span><span class="sig-name descname"><span class="pre">compute_cell_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count" title="Link to this definition"></a></dt>
-<dd><p>Compute the approximate number of cells in the mesh, used to constrain
-resources</p>
+<dt class="sig sig-object py" id="polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config">
+<span class="sig-prename descclassname"><span class="pre">RestartStep.</span></span><span class="sig-name descname"><span class="pre">dynamic_model_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">at_setup</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/tasks/cosine_bell/restart/restart_step.html#RestartStep.dynamic_model_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config" title="Link to this definition"></a></dt>
+<dd><p>Add model config options, namelist, streams and yaml files using config
+options or template replacements that need to be set both during step
+setup and at runtime</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cell_count</strong> (<em>int or None</em>) – The approximate number of cells in the mesh</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>at_setup</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether this method is being run during setup of the step, as
+opposed to at runtime</p>
 </dd>
 </dl>
 </dd></dl>
@@ -139,8 +141,8 @@ resources</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.tasks.cosine_bell.forward.Forward.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.cosine_bell.forward.Forward" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.tasks.cosine_bell.forward.Forward.dynamic_model_config.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.cosine_bell.forward.Forward.dynamic_model_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.tasks.cosine_bell.restart.RestartStep.html" class="btn btn-neutral float-left" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.tasks.geostrophic.add_geostrophic_tasks.html" class="btn btn-neutral float-right" title="polaris.ocean.tasks.geostrophic.add_geostrophic_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -169,7 +171,7 @@ resources</p>
   <div class="rst-other-versions">
     <dl>
       <dt>Branches</dt>
-      <dd><a href="polaris.ocean.tasks.cosine_bell.forward.Forward.compute_cell_count.html">main</a></dd>
+      <dd><a href="polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config.html">main</a></dd>
     </dl>
   </div>
 </div><script>

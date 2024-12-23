@@ -143,45 +143,53 @@
 <span id="ocean-cosine-bell"></span><h1>cosine bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks implement the Cosine
-Bell test case as first described in
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*/with_viz</span></code> tasks
+implement the Cosine Bell test case as first described in
 <a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a>
 but using the variant from Sec. 3a of
 <a class="reference external" href="https://doi.org/10.1175/MWR-D-10-05056.1">Skamarock and Gassmann</a>.  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
 in a tracer <span class="math notranslate nohighlight">\(\psi\)</span> once around the sphere, returning to its initial location.</p>
-<p>The task is a convergence test with time step varying proportionately to grid
-size. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the task is a plot like the
-following showing convergence as a function of the number of cells:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> task is a convergence test with time step varying
+proportionately to cell size, while <code class="docutils literal notranslate"><span class="pre">convergence_time</span></code> and <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code>
+vary only the time step and the cell size, respectively. The result of the
+<code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of each task is a plot like the following showing convergence
+as a function of the cell size and/or the time step:</p>
 <a class="reference internal image-reference" href="../../../_images/cosine_bell_convergence.png"><img alt="../../../_images/cosine_bell_convergence.png" class="align-center" src="../../../_images/cosine_bell_convergence.png" style="width: 500px;" />
 </a>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> variant also includes visualization of the initial
+<p>The <code class="docutils literal notranslate"><span class="pre">with_viz</span></code> variant also includes visualization of the initial
 and final state on a lat-lon grid for each resolution.  The visualization is
-not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> version of the task in order to not slow down
+not included in the other versions of the task in order to not slow down
 regression testing.</p>
+<p>Another task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/restart</span></code>, performs two time steps of the Cosine Bell
+test at coarse resolution, then performs reruns the second time step,
+as a restart run to verify the bit-for-bit restart capability for tracer
+advection.</p>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
-<p>These tasks support only MPAS-Ocean.</p>
+<p>These tasks support both MPAS-Ocean and Omega.</p>
 </section>
 <section id="mesh">
 <span id="ocean-cosine-bell-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
-are also variants to test convergence in space, time, or both space and time.
-In addition, the tests can be set up with or without the viz step. Thus, there
-are 12 variants of the task:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span>
+are also variants to test convergence in space, time, or both space and time
+as well as the restart test. In addition, the tests can be set up with or
+without the viz step. Thus, there are 14 variants of the task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
-<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
 </pre></div>
 </div>
 <p>The default resolutions used in the task depends on the mesh type.</p>
@@ -213,10 +221,10 @@ determined by the following config options:</p>
 <span class="na">qu_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.</span>
 </pre></div>
 </div>
-<p>To alter the resolutions used in this task, you will need to create your own
-config file (or add a <code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section to a config file if
-you’re already using one).  The resolutions are a comma-separated list of the
-resolution of the mesh in km.  If you specify a different list
+<p>To alter the resolutions used in the convergence tasks, you will need to create
+your own config file (or add a <code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section to a config file
+if you’re already using one).  The resolutions are a comma-separated list of
+the resolution of the mesh in km.  If you specify a different list
 before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
 resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code>) in the
 task’s config file in the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code>

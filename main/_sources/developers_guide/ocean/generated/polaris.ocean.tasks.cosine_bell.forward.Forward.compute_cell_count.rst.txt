@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.cosine\_bell.forward.Forward.compute\_cell\_count
-=====================================================================
-
-.. currentmodule:: polaris.ocean.tasks.cosine_bell.forward
-
-.. automethod:: Forward.compute_cell_count

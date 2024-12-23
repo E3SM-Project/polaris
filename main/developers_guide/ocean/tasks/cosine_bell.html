@@ -67,6 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">cosine_bell</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
@@ -131,11 +132,13 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
 <span id="dev-ocean-cosine-bell"></span><h1>cosine_bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>
+<p>In most cases, the <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
 determine the rate of convergence.</p>
+<p>There is also a restart test, described below, that performs only two time
+steps of the test to verify the exact restart capability.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The config options for the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> tests are described in
@@ -171,10 +174,16 @@ section.  Other model config options are taken from <code class="docutils litera
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.analysis.Analysis</span></code></a>
 descends from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code>,
+<a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>,
 and defines a step for computing the error norm (L2) for the results
 at each resolution, saving them in <code class="docutils literal notranslate"><span class="pre">convergence_tracer1.csv</span></code> and plotting them
 in <code class="docutils literal notranslate"><span class="pre">convergence_tracer1.png</span></code>.</p>
+</section>
+<section id="validate">
+<h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.validate.Validate.html#polaris.ocean.tasks.cosine_bell.validate.Validate" title="polaris.ocean.tasks.cosine_bell.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.validate.Validate</span></code></a> is a
+step for validating the results between two cosine-bell runs.  It is currently
+used to verify bit-for-bit restart in the <code class="docutils literal notranslate"><span class="pre">restart</span></code> test described below.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
@@ -199,6 +208,19 @@ each resolution.  The colormap is controlled by these options:</p>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details.</p>
+</section>
+</section>
+<section id="restart">
+<h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.restart.Restart</span></code></a> class defines
+a restart check that performs two time steps of the Cosine Bell test at coarse
+resolution, then performs reruns the second time step, as a restart run to
+verify the bit-for-bit restart capability for tracer advection.</p>
+<section id="restart-step">
+<h3>restart_step<a class="headerlink" href="#restart-step" title="Link to this heading"></a></h3>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.restart.RestartStep</span></code></a> class
+defines both steps of the restart run, the “full” run (2 time steps) and the
+“restart” run (repeating the last time step after a restart).</p>
 </section>
 </section>
 </section>
