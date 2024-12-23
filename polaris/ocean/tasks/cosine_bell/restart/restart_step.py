@@ -26,24 +26,22 @@ class RestartStep(Forward):
         """
         super().dynamic_model_config(at_setup)
 
+        do_restart = self.do_restart
+
         dt, _ = get_timestep_for_task(
             self.config, self.refinement_factor, refinement=self.refinement)
         dt = np.ceil(dt)
 
-        if self.name == 'full_run':
+        if not do_restart:
             # 2 time steps without a restart
-            do_restart = False
             start_time = 0.
             run_duration = 2. * dt
             output_interval = 2. * dt
-        elif self.name == 'restart_run':
+        else:
             # 1 time step from the restart at 1 time step
-            do_restart = True
             start_time = dt
             run_duration = dt
             output_interval = dt
-        else:
-            raise ValueError(f'Unexpected step name {self.name}')
 
         # to keep the time formatting from getting too complicated, we'll
         # assume 2 time steps is never more than a day

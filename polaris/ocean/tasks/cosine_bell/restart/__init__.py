@@ -72,11 +72,12 @@ class Restart(Task):
         step_names = ['full_run', 'restart_run']
         for name in step_names:
             subdir = f'{task_subdir}/{name}'
+            do_restart = (name == 'restart_run')
             step = RestartStep(
                 component=component, name=name, subdir=subdir,
                 mesh=base_mesh_step, init=init_step,
                 refinement_factor=refinement_factor,
-                refinement=refinement)
+                refinement=refinement, do_restart=do_restart)
             step.set_shared_config(
                 config, link=config_filename)
             self.add_step(step)
