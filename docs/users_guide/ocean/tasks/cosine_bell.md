@@ -4,52 +4,61 @@
 
 ## description
 
-The `cosine_bell` and `cosine_bell/with_viz` tasks implement the Cosine
-Bell test case as first described in
+The `cosine_bell/convergence_*` and `cosine_bell/convergence_*/with_viz` tasks
+implement the Cosine Bell test case as first described in
 [Williamson et al. 1992](<https://doi.org/10.1016/S0021-9991(05)80016-6>)
 but using the variant from Sec. 3a of
 [Skamarock and Gassmann](https://doi.org/10.1175/MWR-D-10-05056.1).  A flow
 field representing solid-body rotation transports a bell-shaped perturbation
 in a tracer $\psi$ once around the sphere, returning to its initial location.
 
-The task is a convergence test with time step varying proportionately to grid
-size. The result of the `analysis` step of the task is a plot like the
-following showing convergence as a function of the number of cells:
+The `convergence_both` task is a convergence test with time step varying
+proportionately to cell size, while `convergence_time` and `convergence_space`
+vary only the time step and the cell size, respectively. The result of the
+`analysis` step of each task is a plot like the following showing convergence
+as a function of the cell size and/or the time step:
 
 ```{image} images/cosine_bell_convergence.png
 :align: center
 :width: 500 px
 ```
 
-The `cosine_bell/with_viz` variant also includes visualization of the initial
+The `with_viz` variant also includes visualization of the initial
 and final state on a lat-lon grid for each resolution.  The visualization is
-not included in the `cosine_bell` version of the task in order to not slow down
+not included in the other versions of the task in order to not slow down
 regression testing.
+
+Another task, `cosine_bell/restart`, performs two time steps of the Cosine Bell
+test at coarse resolution, then performs reruns the second time step,
+as a restart run to verify the bit-for-bit restart capability for tracer
+advection.
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support both MPAS-Ocean and Omega.
 
 (ocean-cosine-bell-mesh)=
 ## mesh
 
 Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
-are also variants to test convergence in space, time, or both space and time.
-In addition, the tests can be set up with or without the viz step. Thus, there
-are 12 variants of the task:
+are also variants to test convergence in space, time, or both space and time
+as well as the restart test. In addition, the tests can be set up with or
+without the viz step. Thus, there are 14 variants of the task:
 ```
-ocean/spherical/icos/cosine_bell/convergence_both/
-ocean/spherical/icos/cosine_bell/convergence_both/with_viz
-ocean/spherical/qu/cosine_bell/convergence_both/
-ocean/spherical/qu/cosine_bell/convergence_both/with_viz
-ocean/spherical/icos/cosine_bell/convergence_space/
+ocean/spherical/icos/cosine_bell/convergence_space
 ocean/spherical/icos/cosine_bell/convergence_space/with_viz
-ocean/spherical/qu/cosine_bell/convergence_space/
-ocean/spherical/qu/cosine_bell/convergence_space/with_viz
-ocean/spherical/icos/cosine_bell/convergence_time/
+ocean/spherical/icos/cosine_bell/convergence_time
 ocean/spherical/icos/cosine_bell/convergence_time/with_viz
-ocean/spherical/qu/cosine_bell/convergence_time/
+ocean/spherical/icos/cosine_bell/convergence_both
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/restart
+ocean/spherical/qu/cosine_bell/convergence_space
+ocean/spherical/qu/cosine_bell/convergence_space/with_viz
+ocean/spherical/qu/cosine_bell/convergence_time
 ocean/spherical/qu/cosine_bell/convergence_time/with_viz
+ocean/spherical/qu/cosine_bell/convergence_both
+ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/cosine_bell/restart
 ```
 The default resolutions used in the task depends on the mesh type.
 
@@ -85,10 +94,10 @@ qu_base_resolution = 120.
 qu_refinement_factors = 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.
 ```
 
-To alter the resolutions used in this task, you will need to create your own
-config file (or add a `spherical_convergence` section to a config file if
-you're already using one).  The resolutions are a comma-separated list of the
-resolution of the mesh in km.  If you specify a different list
+To alter the resolutions used in the convergence tasks, you will need to create
+your own config file (or add a `spherical_convergence` section to a config file
+if you're already using one).  The resolutions are a comma-separated list of
+the resolution of the mesh in km.  If you specify a different list
 before setting up `cosine_bell`, steps will be generated with the requested
 resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the
 task's config file in the work directory, nothing will happen.)  For `icos`
