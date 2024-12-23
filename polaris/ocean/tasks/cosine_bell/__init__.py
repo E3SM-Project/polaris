@@ -11,6 +11,7 @@ from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.ocean.tasks.cosine_bell.analysis import Analysis
 from polaris.ocean.tasks.cosine_bell.forward import Forward
 from polaris.ocean.tasks.cosine_bell.init import Init
+from polaris.ocean.tasks.cosine_bell.restart import Restart
 from polaris.ocean.tasks.cosine_bell.viz import Viz
 
 
@@ -22,7 +23,8 @@ def add_cosine_bell_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
+    for icosahedral, prefix, restart_refinement in [(True, 'icos', 8.0),
+                                                    (False, 'qu', 2.0)]:
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
@@ -32,6 +34,7 @@ def add_cosine_bell_tasks(component):
                                 'spherical.cfg')
         config.add_from_package('polaris.ocean.tasks.cosine_bell',
                                 'cosine_bell.cfg')
+        _set_convergence_configs(config, prefix)
 
         for refinement in ['space', 'time', 'both']:
             for include_viz in [False, True]:
@@ -40,6 +43,12 @@ def add_cosine_bell_tasks(component):
                                               icosahedral=icosahedral,
                                               include_viz=include_viz,
                                               refinement=refinement))
+
+        component.add_task(Restart(component=component,
+                                   config=config,
+                                   icosahedral=icosahedral,
+                                   refinement_factor=restart_refinement,
+                                   refinement='both'))
 
 
 class CosineBell(Task):
@@ -133,17 +142,8 @@ class CosineBell(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('spherical_convergence',
-                                            f'{prefix}_{option}', dtype=str)
-        refinement_factors = ', '.join(refinement_factors)
-        config.set('convergence', option, value=refinement_factors)
-        refinement_factors = config.getlist('convergence',
-                                            option, dtype=float)
 
-        base_resolution = config.getfloat('spherical_convergence',
-                                          f'{prefix}_base_resolution')
-        config.set('convergence', 'base_resolution',
-                   value=f'{base_resolution:03g}')
+        refinement_factors = config.getlist('convergence', option, dtype=float)
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -233,3 +233,19 @@ class CosineBell(Task):
             self.add_step(step, symlink=symlink)
         else:
             self.add_step(step)
+
+
+def _set_convergence_configs(config, prefix):
+    for refinement in ['space', 'time']:
+        option = f'refinement_factors_{refinement}'
+        refinement_factors = config.getlist('spherical_convergence',
+                                            f'{prefix}_{option}', dtype=str)
+        refinement_factors = ', '.join(refinement_factors)
+        config.set('convergence', option, value=refinement_factors)
+        refinement_factors = config.getlist('convergence',
+                                            option, dtype=float)
+
+        base_resolution = config.getfloat('spherical_convergence',
+                                          f'{prefix}_base_resolution')
+        config.set('convergence', 'base_resolution',
+                   value=f'{base_resolution:03g}')

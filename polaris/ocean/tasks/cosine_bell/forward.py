@@ -5,10 +5,15 @@ class Forward(SphericalConvergenceForward):
     """
     A step for performing forward ocean component runs as part of the cosine
     bell test case
+
+    Attributes
+    ----------
+    do_restart : bool
+        Whether this is a restart run
     """
 
     def __init__(self, component, name, subdir, mesh, init,
-                 refinement_factor, refinement='both'):
+                 refinement_factor, refinement, do_restart=False):
         """
         Create a new step
 
@@ -32,9 +37,12 @@ class Forward(SphericalConvergenceForward):
         refinement_factor : float
             The factor by which to scale space, time or both
 
-        refinement : str, optional
+        refinement : str
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
+
+        do_restart : bool, optional
+            Whether this is a restart run
         """
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
@@ -46,6 +54,7 @@ class Forward(SphericalConvergenceForward):
                          graph_target=f'{mesh.path}/graph.info',
                          refinement_factor=refinement_factor,
                          refinement=refinement)
+        self.do_restart = do_restart
 
     def setup(self):
         """

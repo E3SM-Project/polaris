@@ -9,3 +9,4 @@ ocean/planar/internal_wave/vlr/default
 # ocean/planar/manufactured_solution
 ocean/single_column/cvmix
 ocean/single_column/ideal_age
+ocean/spherical/icos/cosine_bell/restart

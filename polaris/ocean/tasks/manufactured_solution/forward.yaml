@@ -55,4 +55,3 @@ Omega:
       - NormalVelocity
       - LayerThickness
       - SshCellDefault
-    RestartRead: {}

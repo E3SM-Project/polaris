@@ -90,9 +90,8 @@ Omega:
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
-      FreqUnits: Seconds
+      FreqUnits: seconds
       Contents:
         - Tracers
         - LayerThickness
         - NormalVelocity
-    RestartRead: {}
