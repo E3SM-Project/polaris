@@ -1058,7 +1058,7 @@ def _write_load_polaris(options, prefix, spack_script, env_vars):
     if env_type == 'dev':
         update_polaris = \
             """
-            if [[ -z "${NO_POLARIS_REINSTALL}" && -f "./setup.py" && \\
+            if [[ -z "${NO_POLARIS_REINSTALL}" && -f "./pyproject.toml" && \\
                   -d "polaris" ]]; then
                # safe to assume we're in the polaris repo
                # update the polaris installation to point here
