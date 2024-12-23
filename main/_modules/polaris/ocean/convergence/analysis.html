@@ -109,7 +109,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">area_for_field</span><span class="p">,</span> <span class="n">time_index_from_xtime</span>
+<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">area_for_field</span><span class="p">,</span> <span class="n">time_since_start</span>
 <span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_resolution_for_task</span><span class="p">,</span>
     <span class="n">get_timestep_for_task</span><span class="p">,</span>
@@ -522,11 +522,20 @@
 <span class="sd">        field_mpas : xarray.DataArray</span>
 <span class="sd">            model output field</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                                         <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-o&#39;</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># time is seconds since the start of the simulation in Omega</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dt</span> <span class="o">-</span> <span class="n">time</span><span class="p">))</span>
+
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
-
         <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">field_mpas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
