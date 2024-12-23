@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from polaris.mpas import area_for_field, time_index_from_xtime
+from polaris.mpas import area_for_field, time_since_start
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
@@ -395,11 +395,20 @@ class ConvergenceAnalysis(OceanIOStep):
         field_mpas : xarray.DataArray
             model output field
         """
-        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
+        config = self.config
+        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc',
+                                         decode_times=False)
 
-        tidx = time_index_from_xtime(ds_out.xtime.values, time)
+        model = config.get('ocean', 'model')
+        if model == 'mpas-o':
+            dt = time_since_start(ds_out.xtime.values)
+        else:
+            # time is seconds since the start of the simulation in Omega
+            dt = ds_out.Time.values
+
+        tidx = np.argmin(np.abs(dt - time))
+
         ds_out = ds_out.isel(Time=tidx)
-
         field_mpas = ds_out[field_name]
         if zidx is not None:
             field_mpas = field_mpas.isel(nVertLevels=zidx)
