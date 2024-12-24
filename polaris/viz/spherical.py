@@ -2,14 +2,10 @@ import configparser
 
 import cartopy
 import cmocean  # noqa: F401
-import geoviews.feature as gf
-import holoviews as hv
-import hvplot.pandas  # noqa: F401
-import matplotlib
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
-import uxarray as ux
-from matplotlib import cm
+import mosaic
+import xarray as xr
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
@@ -47,9 +43,6 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
         norm_type
             The norm: {'linear', 'log'}
 
-        colorbar_limits
-            The minimum and maximum value of the colorbar
-
     title : str, optional
         The subtitle of the plot
 
@@ -71,59 +64,49 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
     patch_edge_color : str, optional
         The color of patch edges (if not the same as the face)
     """
-    matplotlib.use('agg')
-    uxgrid = ux.open_grid(mesh_filename)
-    uxda = ux.UxDataArray(da, uxgrid=uxgrid)
 
-    gdf_data = uxda.to_geodataframe()
+    use_mplstyle()
 
-    hv.extension('matplotlib')
-
+    transform = cartopy.crs.Geodetic()
     projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
 
-    colormap = config.get(colormap_section, 'colormap_name')
-    cmap = cm.get_cmap(colormap)
-    if config.has_option(colormap_section, 'under_color'):
-        under_color = config.get(colormap_section, 'under_color')
-        cmap.set_under(under_color)
-    if config.has_option(colormap_section, 'over_color'):
-        over_color = config.get(colormap_section, 'over_color')
-        cmap.set_over(over_color)
+    mesh_ds = xr.open_dataset(mesh_filename)
+    descriptor = mosaic.Descriptor(
+        mesh_ds, projection=projection, transform=transform, use_latlon=True
+    )
 
-    norm_type = config.get(colormap_section, 'norm_type')
-    if norm_type == 'linear':
-        logz = False
-    elif norm_type == 'log':
-        logz = True
-    else:
-        raise ValueError(f'Unsupported norm_type: {norm_type}')
+    fig, ax = plt.subplots(figsize=figsize,
+                           constrained_layout=True,
+                           subplot_kw=dict(projection=projection))
 
-    colorbar_limits = config.getlist(colormap_section, 'colorbar_limits',
-                                     dtype=float)
+    colormap, norm, ticks = _setup_colormap(config, colormap_section)
 
-    plot = gdf_data.hvplot.polygons(
-        c=da.name, cmap=cmap, logz=logz,
-        clim=tuple(colorbar_limits),
-        clabel=colorbar_label,
-        width=1600, height=800, title=title,
-        xlabel="Longitude", ylabel="Latitude",
-        projection=projection,
-        rasterize=True)
-
-    if plot_land:
-        plot = plot * gf.land * gf.coastline
-
-    plot.opts(cbar_extend='both', cbar_width=0.03)
+    pcolor_kwargs = dict(
+        cmap=colormap, norm=norm, zorder=1, edgecolors='face', linewidths=0.2
+    )
 
     if patch_edge_color is not None:
-        gdf_grid = uxgrid.to_geodataframe()
-        # color parameter seems to be ignored -- always plots blue
-        edge_plot = gdf_grid.hvplot.paths(
-            linewidth=0.2, color=patch_edge_color, projection=projection)
-        plot = plot * edge_plot
+        pcolor_kwargs['edgecolors'] = patch_edge_color
 
-    fig = hv.render(plot)
-    fig.set_size_inches(figsize)
+    gl = ax.gridlines(
+        color='gray', linestyle=':', zorder=5, draw_labels=True, linewidth=0.5
+    )
+    gl.right_labels = False
+    gl.top_labels = False
+
+    pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
+
+    if plot_land:
+        ax._add_land_lakes_coastline(ax)
+
+    cbar = fig.colorbar(
+        pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
+    )
+
+    if ticks is not None:
+        cbar.set_ticks(ticks)
+        cbar.set_ticklabels([f'{tick}' for tick in ticks])
+
     fig.savefig(out_filename, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
 
 

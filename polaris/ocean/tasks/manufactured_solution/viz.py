@@ -176,18 +176,18 @@ class Viz(OceanIOStep):
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
             cell_mask = ds_init.maxLevelCell >= 1
-            patches, patch_mask = plot_horiz_field(
+            descriptor = plot_horiz_field(
                 ds, ds_mesh, 'ssh', ax=axes[i, 0], cmap='cmo.balance',
                 t_index=ds.sizes["Time"] - 1, vmin=-eta0, vmax=eta0,
-                cmap_title="SSH", cell_mask=cell_mask)
-            plot_horiz_field(ds, ds_mesh, 'ssh_exact', ax=axes[i, 1],
+                cmap_title="SSH", field_mask=cell_mask)
+            plot_horiz_field(ds_mesh, ds['ssh_exact'], ax=axes[i, 1],
                              cmap='cmo.balance',
                              vmin=-eta0, vmax=eta0, cmap_title="SSH",
-                             patches=patches, patch_mask=patch_mask)
-            plot_horiz_field(ds, ds_mesh, 'ssh_error', ax=axes[i, 2],
+                             descriptor=descriptor)
+            plot_horiz_field(ds_mesh, ds['ssh_error'], ax=axes[i, 2],
                              cmap='cmo.balance', cmap_title="dSSH",
                              vmin=-error_range, vmax=error_range,
-                             patches=patches, patch_mask=patch_mask)
+                             descriptor=descriptor)
 
         axes[0, 0].set_title('Numerical solution')
         axes[0, 1].set_title('Analytical solution')
