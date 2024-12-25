@@ -109,6 +109,8 @@
    viz.Viz
    viz.Viz.run
 
+   decomp.Decomp
+
    restart.Restart
 
    restart.RestartStep
