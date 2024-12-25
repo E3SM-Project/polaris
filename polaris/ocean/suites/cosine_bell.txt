@@ -4,6 +4,7 @@ ocean/spherical/icos/cosine_bell/convergence_time
 ocean/spherical/icos/cosine_bell/convergence_time/with_viz
 ocean/spherical/icos/cosine_bell/convergence_both
 ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/qu/cosine_bell/convergence_space
 ocean/spherical/qu/cosine_bell/convergence_space/with_viz
@@ -11,4 +12,5 @@ ocean/spherical/qu/cosine_bell/convergence_time
 ocean/spherical/qu/cosine_bell/convergence_time/with_viz
 ocean/spherical/qu/cosine_bell/convergence_both
 ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/cosine_bell/decomp
 ocean/spherical/qu/cosine_bell/restart

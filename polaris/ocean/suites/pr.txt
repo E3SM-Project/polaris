@@ -6,7 +6,8 @@ ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
-# ocean/planar/manufactured_solution
+# ocean/planar/manufactured_solution/convergence_both
 ocean/single_column/cvmix
 ocean/single_column/ideal_age
+ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart

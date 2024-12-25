@@ -5,4 +5,5 @@ ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 # ocean/planar/manufactured_solution
+ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
