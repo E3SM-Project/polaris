@@ -161,7 +161,11 @@ as a function of the cell size and/or the time step:</p>
 and final state on a lat-lon grid for each resolution.  The visualization is
 not included in the other versions of the task in order to not slow down
 regression testing.</p>
-<p>Another task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/restart</span></code>, performs two time steps of the Cosine Bell
+<p>Another task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/decomp</span></code>, performs two runs of the Cosine Bell
+test at coarse resolution, once with 12 and once with 24 cores, to verify the
+bit-for-bit identical results for tracer advection across different core
+counts.</p>
+<p>A final task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/restart</span></code>, performs two time steps of the Cosine Bell
 test at coarse resolution, then performs reruns the second time step,
 as a restart run to verify the bit-for-bit restart capability for tracer
 advection.</p>
@@ -182,6 +186,7 @@ without the viz step. Thus, there are 14 variants of the task:</p>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">decomp</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
@@ -189,6 +194,7 @@ without the viz step. Thus, there are 14 variants of the task:</p>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">decomp</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
 </pre></div>
 </div>
@@ -226,7 +232,7 @@ your own config file (or add a <code class="docutils literal notranslate"><span 
 if you’re already using one).  The resolutions are a comma-separated list of
 the resolution of the mesh in km.  If you specify a different list
 before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
-resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code>) in the
+resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code> in the
 task’s config file in the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code>
 meshes, make sure you use a resolution close to those listed in
 <a class="reference internal" href="../../../developers_guide/framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each resolution will be rounded to the nearest
@@ -439,7 +445,7 @@ constant across the different resolutions in the convergence study.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

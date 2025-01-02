@@ -86,6 +86,13 @@ colorbar_limits = 0.0, 1.0
 
 See {ref}`dev-visualization-global` for more details.
 
+## decomp
+
+The class {py:class}`polaris.ocean.tasks.cosine_bell.decomp.Decomp` defines
+a decomposition test across core counts.  It runs Cosine Bell test at coarse
+resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
+for tracer advection across different core counts.
+
 ## restart
 
 The {py:class}`polaris.ocean.tasks.cosine_bell.restart.Restart` class defines

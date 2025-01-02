@@ -291,13 +291,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.run.html#polaris.ocean.tasks.cosine_bell.viz.Viz.run" title="polaris.ocean.tasks.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, config, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp" title="polaris.ocean.tasks.cosine_bell.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, config, ...)</p></td>
+<td><p>A cosine bell decomposition task, which makes sure the model produces identical results on different numbers of cores.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, config, ...)</p></td>
 <td><p>A cosine bell restart test case, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A forward model step in the restart test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
 </tbody>
@@ -611,6 +614,12 @@
 <h3>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.get_resolution_for_task.html#polaris.ocean.convergence.get_resolution_for_task" title="polaris.ocean.convergence.get_resolution_for_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resolution_for_task</span></code></a>(config, ...[, ...])</p></td>
+<td><p>Get the resolution for a step in a convergence task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.get_timestep_for_task.html#polaris.ocean.convergence.get_timestep_for_task" title="polaris.ocean.convergence.get_timestep_for_task"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_timestep_for_task</span></code></a>(config, refinement_factor)</p></td>
+<td><p>Get the time step for a forward step in a convergence task</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.convergence.forward.ConvergenceForward.html#polaris.ocean.convergence.forward.ConvergenceForward" title="polaris.ocean.convergence.forward.ConvergenceForward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.ConvergenceForward</span></code></a>(component, name, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of a spherical convergence test</p></td>
 </tr>
@@ -854,7 +863,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -109,6 +109,8 @@
    viz.Viz
    viz.Viz.run
 
+   decomp.Decomp
+
    restart.Restart
 
    restart.RestartStep
@@ -320,8 +322,8 @@
 .. autosummary::
    :toctree: generated/
 
-   get_resolution_for_tasks
-   get_timestep_for_tasks
+   get_resolution_for_task
+   get_timestep_for_task
 
    forward.ConvergenceForward
    forward.ConvergenceForward.compute_cell_count

@@ -127,7 +127,7 @@
 <p>The primary documentation for the config parser is in
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html">MPAS-Tools config parser</a>.
 Here, we include some specific details relevant to using the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code> in polaris.</p>
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools v0.36.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a> in polaris.</p>
 <p>Here, we provide the <a class="reference internal" href="../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> that has
 almost the same functionality but also ensures that certain relative paths are
 converted automatically to absolute paths.  <code class="docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code> also has
@@ -138,7 +138,7 @@ overridden to add config options (e.g. algorithmically from other config
 options) as part of setting up polaris tasks and steps.  These features are
 included to accommodate sharing config options across shared steps and/or
 multiple tasks.</p>
-<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code> method can
+<p>The <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools v0.36.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as in the
 <code class="docutils literal notranslate"><span class="pre">polaris.setup</span></code> module. Here is a typical example from
@@ -186,10 +186,10 @@ for use by the framework rather than individual tasks.</p>
 <p>Other methods for the <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> are similar to those for
 <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a>.  In addition to <code class="docutils literal notranslate"><span class="pre">get()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">getinteger()</span></code>, <code class="docutils literal notranslate"><span class="pre">getfloat()</span></code> and <code class="docutils literal notranslate"><span class="pre">getboolean()</span></code> methods, this class
-implements <code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getlist()</span></code>, which
+implements <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.getlist.html#mpas_tools.config.MpasConfigParser.getlist" title="(in mpas_tools v0.36.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getlist()</span></code></a>, which
 can be used to parse a config value separated by spaces and/or commas into
 a list of strings, floats, integers, booleans, etc. Another useful method
-is <code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getexpression()</span></code>, which can
+is <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.getexpression.html#mpas_tools.config.MpasConfigParser.getexpression" title="(in mpas_tools v0.36.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getexpression()</span></code></a>, which can
 be used to get python dictionaries, lists and tuples as well as a small set
 of functions (<code class="docutils literal notranslate"><span class="pre">range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.linspace()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.arange()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.array()</span></code>)</p>
@@ -291,7 +291,7 @@ added as follows:</p>
 </section>
 <section id="comments-in-config-files">
 <h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Link to this heading"></a></h2>
-<p>One of the main advantages of <code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code>
+<p>One of the main advantages of <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools v0.36.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a>
 over <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a> is that it keeps track of comments
 that are associated with config sections and options.</p>
 <p>See <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html#config_comments">comments in config files</a>
@@ -310,7 +310,7 @@ in MPAS-Tools for more details.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

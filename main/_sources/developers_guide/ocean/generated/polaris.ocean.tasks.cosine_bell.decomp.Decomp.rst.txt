@@ -1,0 +1,26 @@
+﻿polaris.ocean.tasks.cosine\_bell.decomp.Decomp
+==============================================
+
+.. currentmodule:: polaris.ocean.tasks.cosine_bell.decomp
+
+.. autoclass:: Decomp
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Decomp.__init__
+      ~Decomp.add_step
+      ~Decomp.configure
+      ~Decomp.remove_step
+      ~Decomp.set_shared_config
+   
+   
+
+   
+   
+   

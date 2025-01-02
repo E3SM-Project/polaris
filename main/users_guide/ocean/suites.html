@@ -54,7 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cosine-bell-and-cosine-bell-cached-init-suite">cosine_bell and cosine_bell_cached_init suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cosine-bell-suite">cosine_bell suite</a></li>
 </ul>
 </li>
 </ul>
@@ -118,24 +118,30 @@
 <p>The ocean component includes a number of <a class="reference internal" href="../suites.html#suites"><span class="std std-ref">Suites</span></a> that can be used to
 run a series of ocean tasks and optionally compare them against a baseline
 run of the same tasks.</p>
-<section id="cosine-bell-and-cosine-bell-cached-init-suite">
-<span id="ocean-suite-cosine-bell"></span><h2>cosine_bell and cosine_bell_cached_init suite<a class="headerlink" href="#cosine-bell-and-cosine-bell-cached-init-suite" title="Link to this heading"></a></h2>
+<section id="cosine-bell-suite">
+<span id="ocean-suite-cosine-bell"></span><h2>cosine_bell suite<a class="headerlink" href="#cosine-bell-suite" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>cosine_bell<span class="w"> </span>...
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>cosine_bell_cached_init<span class="w"> </span>...
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suite includes the following tasks:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/spherical/icos/cosine_bell/convergence_space
+ocean/spherical/icos/cosine_bell/convergence_space/with_viz
+ocean/spherical/icos/cosine_bell/convergence_time
+ocean/spherical/icos/cosine_bell/convergence_time/with_viz
+ocean/spherical/icos/cosine_bell/convergence_both
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+ocean/spherical/qu/cosine_bell/convergence_space
+ocean/spherical/qu/cosine_bell/convergence_space/with_viz
+ocean/spherical/qu/cosine_bell/convergence_time
+ocean/spherical/qu/cosine_bell/convergence_time/with_viz
+ocean/spherical/qu/cosine_bell/convergence_both
+ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/cosine_bell/decomp
+ocean/spherical/qu/cosine_bell/restart
 </pre></div>
 </div>
-<p>Both <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suites include the following tasks:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_convergence/icos/cosine_bell
-ocean/global_convergence/qu/cosine_bell
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suite runs both tasks from
-<a class="reference internal" href="tasks/cosine_bell.html#ocean-cosine-bell"><span class="std std-ref">cosine bell</span></a> in full, whereas the
-<code class="docutils literal notranslate"><span class="pre">cosine_bell_cached_init</span></code> suite only runs the ocean simulations from as set
-of meshes and initial conditions that have been saved from a previous run
-(see <a class="reference internal" href="../../developers_guide/framework/commands.html#dev-cache"><span class="std std-ref">cache module</span></a>).</p>
 </section>
 </section>
 
@@ -150,7 +156,7 @@ of meshes and initial conditions that have been saved from a previous run
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -67,6 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">cosine_bell</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decomp">decomp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 </ul>
 </li>
@@ -210,6 +211,13 @@ each resolution.  The colormap is controlled by these options:</p>
 <p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details.</p>
 </section>
 </section>
+<section id="decomp">
+<h2>decomp<a class="headerlink" href="#decomp" title="Link to this heading"></a></h2>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp" title="polaris.ocean.tasks.cosine_bell.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.decomp.Decomp</span></code></a> defines
+a decomposition test across core counts.  It runs Cosine Bell test at coarse
+resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
+for tracer advection across different core counts.</p>
+</section>
 <section id="restart">
 <h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.restart.Restart</span></code></a> class defines
@@ -236,7 +244,7 @@ defines both steps of the restart run, the “full” run (2 time steps) and the
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Energy Exascale Earth System Model Project.</p>
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
