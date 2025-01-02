@@ -33,7 +33,3 @@ mpas-ocean:
     config_mom_del2: 1000.
   hmix_del4:
     config_mom_del4: 1.e10
-
-Omega:
-  Dimension:
-    NVertLevels: 1
