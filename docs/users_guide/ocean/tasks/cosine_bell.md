@@ -28,7 +28,12 @@ and final state on a lat-lon grid for each resolution.  The visualization is
 not included in the other versions of the task in order to not slow down
 regression testing.
 
-Another task, `cosine_bell/restart`, performs two time steps of the Cosine Bell
+Another task, `cosine_bell/decomp`, performs two runs of the Cosine Bell
+test at coarse resolution, once with 12 and once with 24 cores, to verify the
+bit-for-bit identical results for tracer advection across different core
+counts.
+
+A final task, `cosine_bell/restart`, performs two time steps of the Cosine Bell
 test at coarse resolution, then performs reruns the second time step,
 as a restart run to verify the bit-for-bit restart capability for tracer
 advection.
@@ -51,6 +56,7 @@ ocean/spherical/icos/cosine_bell/convergence_time
 ocean/spherical/icos/cosine_bell/convergence_time/with_viz
 ocean/spherical/icos/cosine_bell/convergence_both
 ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/qu/cosine_bell/convergence_space
 ocean/spherical/qu/cosine_bell/convergence_space/with_viz
@@ -58,6 +64,7 @@ ocean/spherical/qu/cosine_bell/convergence_time
 ocean/spherical/qu/cosine_bell/convergence_time/with_viz
 ocean/spherical/qu/cosine_bell/convergence_both
 ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/qu/cosine_bell/restart
 ```
 The default resolutions used in the task depends on the mesh type.
@@ -99,7 +106,7 @@ your own config file (or add a `spherical_convergence` section to a config file
 if you're already using one).  The resolutions are a comma-separated list of
 the resolution of the mesh in km.  If you specify a different list
 before setting up `cosine_bell`, steps will be generated with the requested
-resolutions.  (If you alter `icos_resolutions` or `qu_resolutions`) in the
+resolutions.  (If you alter `icos_resolutions` or `qu_resolutions` in the
 task's config file in the work directory, nothing will happen.)  For `icos`
 meshes, make sure you use a resolution close to those listed in
 {ref}`dev-spherical-meshes`.  Each resolution will be rounded to the nearest

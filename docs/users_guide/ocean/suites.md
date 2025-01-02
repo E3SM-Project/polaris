@@ -8,25 +8,30 @@ run of the same tasks.
 
 (ocean-suite-cosine-bell)=
 
-## cosine_bell and cosine_bell_cached_init suite
+## cosine_bell suite
 
 ```bash
 polaris suite -c ocean -t cosine_bell ...
 ```
 
-```bash
-polaris suite -c ocean -t cosine_bell_cached_init ...
-```
-
-Both `cosine_bell` suites include the following tasks:
+The `cosine_bell` suite includes the following tasks:
 
 ```none
-ocean/global_convergence/icos/cosine_bell
-ocean/global_convergence/qu/cosine_bell
+ocean/spherical/icos/cosine_bell/convergence_space
+ocean/spherical/icos/cosine_bell/convergence_space/with_viz
+ocean/spherical/icos/cosine_bell/convergence_time
+ocean/spherical/icos/cosine_bell/convergence_time/with_viz
+ocean/spherical/icos/cosine_bell/convergence_both
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+ocean/spherical/qu/cosine_bell/convergence_space
+ocean/spherical/qu/cosine_bell/convergence_space/with_viz
+ocean/spherical/qu/cosine_bell/convergence_time
+ocean/spherical/qu/cosine_bell/convergence_time/with_viz
+ocean/spherical/qu/cosine_bell/convergence_both
+ocean/spherical/qu/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/cosine_bell/decomp
+ocean/spherical/qu/cosine_bell/restart
 ```
 
-The `cosine_bell` suite runs both tasks from 
-{ref}`ocean-cosine-bell` in full, whereas the
-`cosine_bell_cached_init` suite only runs the ocean simulations from as set
-of meshes and initial conditions that have been saved from a previous run
-(see {ref}`dev-cache`).

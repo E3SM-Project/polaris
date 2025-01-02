@@ -1011,7 +1011,7 @@ constructor:
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/init.py
 ```
 ```{code-block} python
-:emphasize-lines: 12-14
+:emphasize-lines: 11-13
 
 ...
 
@@ -1270,7 +1270,7 @@ Next, we add inputs that are outputs from the `init` task:
 $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/forward.py
 ```
 ```{code-block} python
-:emphasize-lines: 12-17
+:emphasize-lines: 10-15
 
 ...
 

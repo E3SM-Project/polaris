@@ -68,9 +68,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     'geometric_features':
-        ('https://mpas-dev.github.io/geometric_features/stable', None),
+        ('https://mpas-dev.github.io/geometric_features/main', None),
     'matplotlib': ('https://matplotlib.org/stable', None),
-    'mpas_tools': ('https://mpas-dev.github.io/MPAS-Tools/stable', None),
+    'mpas_tools': ('https://mpas-dev.github.io/MPAS-Tools/master', None),
     'numpy': ('https://numpy.org/doc/stable', None),
     'python': ('https://docs.python.org', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
