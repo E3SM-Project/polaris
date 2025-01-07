@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.tasks.baroclinic_channel.restart.restart_step</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -105,20 +105,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.baroclinic_channel.restart.restart_step</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
 
 
 <div class="viewcode-block" id="RestartStep">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep">[docs]</a>
-<span class="k">class</span> <span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A forward model step in the restart test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="RestartStep.__init__">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -148,7 +148,7 @@
 
 <div class="viewcode-block" id="RestartStep.dynamic_model_config">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>

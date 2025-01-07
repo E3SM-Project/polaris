@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.rpe</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,16 +103,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.rpe</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.cime.constants</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 
 
 <div class="viewcode-block" id="compute_rpe">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_rpe</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">initial_state_filename</span><span class="p">,</span> <span class="n">output_filenames</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_rpe</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">initial_state_filename</span><span class="p">,</span> <span class="n">output_filenames</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the reference (resting) potential energy for the whole domain</span>
 

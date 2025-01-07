@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.validate</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,15 +102,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.validate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 
 <div class="viewcode-block" id="compare_variables">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables">[docs]</a>
-<span class="k">def</span> <span class="nf">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">l1_norm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">l1_norm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                       <span class="n">l2_norm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">linf_norm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ds1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">ds2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -250,7 +250,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_all_found</span><span class="p">(</span><span class="n">ds1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">ds2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_found</span><span class="p">(</span><span class="n">ds1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">ds2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Is the variable found in both datasets? &quot;&quot;&quot;</span>
     <span class="n">all_found</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">for</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">ds1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">),</span> <span class="p">(</span><span class="n">ds2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">)]:</span>
@@ -260,7 +260,7 @@
     <span class="k">return</span> <span class="n">all_found</span>
 
 
-<span class="k">def</span> <span class="nf">_all_sizes_match</span><span class="p">(</span><span class="n">da1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">da2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_sizes_match</span><span class="p">(</span><span class="n">da1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">da2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Do all dimension sizes match between the two variables? &quot;&quot;&quot;</span>
     <span class="n">all_match</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">da1</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
@@ -271,7 +271,7 @@
     <span class="k">return</span> <span class="n">all_match</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_norms</span><span class="p">(</span><span class="n">da1</span><span class="p">,</span> <span class="n">da2</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">max_l1_norm</span><span class="p">,</span> <span class="n">max_l2_norm</span><span class="p">,</span> <span class="n">max_linf_norm</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_norms</span><span class="p">(</span><span class="n">da1</span><span class="p">,</span> <span class="n">da2</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">max_l1_norm</span><span class="p">,</span> <span class="n">max_l2_norm</span><span class="p">,</span> <span class="n">max_linf_norm</span><span class="p">,</span>
                    <span class="n">time_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute norms between variables in two DataArrays &quot;&quot;&quot;</span>
 
@@ -313,7 +313,7 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="k">def</span> <span class="nf">_rename_duplicate_dims</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rename_duplicate_dims</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
     <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
     <span class="n">new_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
     <span class="n">duplicates</span> <span class="o">=</span> <span class="kc">False</span>

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tasks</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -198,10 +198,10 @@ or log output to a common log file for the whole task</p>
 that the task or its steps will need.  As an example,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.tasks.dome.smoke_test.SmokeTest</span></code> keeps track of the
 mesh type and the velocity solver an attributes:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
-<span class="k">class</span> <span class="nc">SmokeTest</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SmokeTest</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The default dome task creates the mesh and initial condition, then performs</span>
 <span class="sd">    a short forward run on 4 cores.</span>
@@ -215,7 +215,7 @@ mesh type and the velocity solver an attributes:</p>
 <span class="sd">        The velocity solver to use for the task</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -282,18 +282,18 @@ associated with these steps until the point where the step is being set up in</p
 <p>We will demonstrate with a fairly complex example,
 <a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>,
 to demonstrate how to make full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a task:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.mesh.spherical</span> <span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
 
 
-<span class="k">class</span> <span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -317,7 +317,7 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; setup steps given resolutions &quot;&quot;&quot;</span>
         <span class="n">icosahedral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
@@ -614,11 +614,11 @@ task that depend on config options that a user may have changed. In the cosine
 bell example above, the <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method simply calls the <code class="docutils literal notranslate"><span class="pre">_setup_steps()</span></code>
 method again so that steps are recreated if the requested resolutions have
 change:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
-<span class="k">class</span> <span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-  <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set config options for the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -637,10 +637,10 @@ option.  If possible, alter the steps only in their own
 <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> or <a class="reference internal" href="../generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.runtime_setup()</span></code></a>
 methods, not in <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.</p>
 <p>You can also add config options from package files in <code class="docutils literal notranslate"><span class="pre">configure()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
-<span class="k">class</span> <span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the config file common to inertial gravity wave tests</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -657,10 +657,10 @@ it to the task using <a class="reference internal" href="../generated/polaris.Ta
 <p>A <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method can also be used to perform other operations at the
 task level when a task is being set up. An example of this would be
 creating a symlink to a README file that is shared across the whole task:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">imp_res</span><span class="p">,</span> <span class="n">symlink</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">imp_res</span><span class="p">,</span> <span class="n">symlink</span>
 
 
-<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Modify the configuration options for this task</span>
 <span class="sd">    &quot;&quot;&quot;</span>

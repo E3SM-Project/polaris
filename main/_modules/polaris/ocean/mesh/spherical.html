@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.mesh.spherical</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,19 +103,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.mesh.spherical</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span> <span class="nn">polaris.mesh.spherical</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
     <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.resolution</span> <span class="kn">import</span> <span class="n">resolution_to_subdir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_subdir</span>
 
 
 <div class="viewcode-block" id="add_spherical_base_mesh_step">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.mesh.spherical.add_spherical_base_mesh_step.html#polaris.ocean.mesh.spherical.add_spherical_base_mesh_step">[docs]</a>
-<span class="k">def</span> <span class="nf">add_spherical_base_mesh_step</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_spherical_base_mesh_step</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a shared step for creating spherical base mesh with the given</span>
 <span class="sd">    resolution to the ocean component (if one has not already been added)</span>

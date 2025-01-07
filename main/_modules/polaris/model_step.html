@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.model_step</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,25 +102,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.model_step</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.logging</span> <span class="kn">import</span> <span class="n">check_call</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 
-<span class="kn">import</span> <span class="nn">polaris.namelist</span>
-<span class="kn">import</span> <span class="nn">polaris.streams</span>
-<span class="kn">from</span> <span class="nn">polaris.step</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.yaml</span> <span class="kn">import</span> <span class="n">PolarisYaml</span><span class="p">,</span> <span class="n">yaml_to_mpas_streams</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polaris.namelist</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polaris.streams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span><span class="p">,</span> <span class="n">yaml_to_mpas_streams</span>
 
 
 <div class="viewcode-block" id="ModelStep">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep">[docs]</a>
-<span class="k">class</span> <span class="nc">ModelStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -180,7 +180,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ModelStep.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -298,7 +298,7 @@
 
 <div class="viewcode-block" id="ModelStep.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.setup.html#polaris.ModelStep.setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Setup the command-line arguments &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
@@ -313,7 +313,7 @@
 
 <div class="viewcode-block" id="ModelStep.set_model_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_model_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_model_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the resources for the step.  This can be done within init,</span>
@@ -350,7 +350,7 @@
 
 <div class="viewcode-block" id="ModelStep.add_model_config_options">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_model_config_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_model_config_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the replacement model config options to be parsed when generating</span>
 <span class="sd">        a namelist or yaml file if and when the step gets set up.  The config</span>
@@ -373,7 +373,7 @@
 
 <div class="viewcode-block" id="ModelStep.add_yaml_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_yaml_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_yaml_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a file with updates to yaml config options to the step to be parsed</span>
 <span class="sd">        when generating a complete yaml file if and when the step gets set</span>
@@ -399,7 +399,7 @@
 
 <div class="viewcode-block" id="ModelStep.map_yaml_options">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_options.html#polaris.ModelStep.map_yaml_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">map_yaml_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model config options from different models.  This</span>
 <span class="sd">        method should be overridden for situations in which yaml config</span>
@@ -428,7 +428,7 @@
 
 <div class="viewcode-block" id="ModelStep.map_yaml_configs">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_configs.html#polaris.ModelStep.map_yaml_configs">[docs]</a>
-    <span class="k">def</span> <span class="nf">map_yaml_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model config options from different models.  This</span>
 <span class="sd">        method should be overridden for situations in which yaml config</span>
@@ -455,7 +455,7 @@
         <span class="k">return</span> <span class="n">configs</span></div>
 
 
-    <span class="k">def</span> <span class="nf">map_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model streams from different models.  This method</span>
 <span class="sd">        should be overridden for situations in which yaml streams have diverged</span>
@@ -480,7 +480,7 @@
 
 <div class="viewcode-block" id="ModelStep.map_yaml_to_namelist">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist">[docs]</a>
-    <span class="k">def</span> <span class="nf">map_yaml_to_namelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_to_namelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping from yaml model config options to namelist options.  This</span>
 <span class="sd">        method should be overridden for situations in which yaml config</span>
@@ -532,7 +532,7 @@
 
 <div class="viewcode-block" id="ModelStep.add_namelist_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_namelist_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">namelist</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_namelist_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">namelist</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a file with updates to namelist options to the step to be parsed</span>
 <span class="sd">        when generating a complete namelist file if and when the step gets set</span>
@@ -551,7 +551,7 @@
 
 <div class="viewcode-block" id="ModelStep.add_streams_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_streams_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_streams_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a streams file to the step to be parsed when generating a complete</span>
 <span class="sd">        streams file if and when the step gets set up.</span>
@@ -575,7 +575,7 @@
 
 <div class="viewcode-block" id="ModelStep.dynamic_model_config">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
@@ -593,7 +593,7 @@
 
 <div class="viewcode-block" id="ModelStep.runtime_setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update PIO namelist options, make graph file, and partition graph file</span>
 <span class="sd">        (if any of these are requested)</span>
@@ -624,7 +624,7 @@
 
 <div class="viewcode-block" id="ModelStep.process_inputs_and_outputs">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the model as an input, then call the parent class&#39; version</span>
 
@@ -661,7 +661,7 @@
 
 <div class="viewcode-block" id="ModelStep.update_namelist_pio">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_namelist_pio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_pio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify the namelist so the number of PIO tasks and the stride between</span>
 <span class="sd">        them consistent with the number of nodes and cores (one PIO task per</span>
@@ -690,7 +690,7 @@
 
 <div class="viewcode-block" id="ModelStep.partition">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition">[docs]</a>
-    <span class="k">def</span> <span class="nf">partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_file</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_file</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Partition the domain for the requested number of tasks</span>
 
@@ -708,7 +708,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_process_model</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_model</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Process the E3SM component model as an input to the step &quot;&quot;&quot;</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -732,7 +732,7 @@
             <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filename</span><span class="p">,</span> <span class="n">target</span>
 
-    <span class="k">def</span> <span class="nf">_create_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        At setup, create either the yaml or the namelist/streams file for the</span>
 <span class="sd">        step</span>
@@ -749,7 +749,7 @@
             <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_read_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        At runtime, read either the yaml or the namelist/streams file for the</span>
 <span class="sd">        step</span>
@@ -765,7 +765,7 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_write_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        At setup or runtime, write either the yaml or the namelist/streams</span>
 <span class="sd">        file for the step</span>
@@ -795,7 +795,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_process_namelists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_namelists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes changes to a namelist file from the files and dictionaries</span>
 <span class="sd">        in the step&#39;s ``model_config_data``.</span>
@@ -840,7 +840,7 @@
                              <span class="s1">&#39;never created.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_process_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes changes to a streams file from the files and dictionaries</span>
 <span class="sd">        in the step&#39;s ``streams_data``.</span>
@@ -906,7 +906,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
                     <span class="n">defaults</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_process_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span>
                               <span class="n">config_model</span><span class="p">,</span> <span class="n">processed_registry_filename</span><span class="p">,</span>
                               <span class="n">tree</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
@@ -923,7 +923,7 @@
         <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tree</span>
 
-    <span class="k">def</span> <span class="nf">_process_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested_streams</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested_streams</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes changes to a yaml file from the files and dictionaries</span>
 <span class="sd">        in the step&#39;s ``model_config_data``.</span>
@@ -972,7 +972,7 @@
             <span class="n">remove_unrequested</span><span class="o">=</span><span class="n">remove_unrequested_streams</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update yaml streams, optionally removing any streams that aren&#39;t in</span>
 <span class="sd">        new_streams</span>
@@ -1002,7 +1002,7 @@
 
 <div class="viewcode-block" id="make_graph_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.model_step.make_graph_file.html#polaris.make_graph_file">[docs]</a>
-<span class="k">def</span> <span class="nf">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
                     <span class="n">weight_field</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a graph file from the MPAS mesh for use in the Metis graph</span>

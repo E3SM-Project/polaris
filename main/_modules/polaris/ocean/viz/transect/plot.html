@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.plot</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,20 +103,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.viz.transect.plot</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.viz.transect.vert</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.viz.transect.vert</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">interp_mpas_to_transect_cells</span><span class="p">,</span>
     <span class="n">interp_mpas_to_transect_nodes</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">polaris.viz.style</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
 <div class="viewcode-block" id="plot_transect">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_transect</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_transect</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span>
                   <span class="n">outline_color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">ssh_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seafloor_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -258,7 +258,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_plot_interfaces</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">interface_color</span><span class="p">,</span> <span class="n">cell_boundary_color</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_interfaces</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">interface_color</span><span class="p">,</span> <span class="n">cell_boundary_color</span><span class="p">,</span>
                      <span class="n">ssh_color</span><span class="p">,</span> <span class="n">seafloor_color</span><span class="p">,</span> <span class="n">color_start_and_end</span><span class="p">,</span>
                      <span class="n">start_color</span><span class="p">,</span> <span class="n">end_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">cell_boundary_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -293,7 +293,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">linewidth</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_plot_outline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">valid_nodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_outline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">valid_nodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span>
                   <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">outline_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># add a buffer of invalid values around the edge of the domain</span>

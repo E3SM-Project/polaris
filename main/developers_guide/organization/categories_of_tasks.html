@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Categories of tasks</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -184,12 +184,12 @@ file.</p>
 to the component.  This helps to keep the constructor of the component itself
 from getting too cluttered. As an example, here is a function for adding <code class="docutils literal notranslate"><span class="pre">dome</span></code>
 tasks to the <code class="docutils literal notranslate"><span class="pre">landice</span></code> component:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.landice.tasks.dome.smoke_test</span> <span class="kn">import</span> <span class="n">SmokeTest</span>
-<span class="kn">from</span> <span class="nn">polaris.landice.tasks.dome.decomposition_test</span> <span class="kn">import</span> <span class="n">DecompositionTest</span>
-<span class="kn">from</span> <span class="nn">polaris.landice.tasks.dome.restart_test</span> <span class="kn">import</span> <span class="n">RestartTest</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.landice.tasks.dome.smoke_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">SmokeTest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.landice.tasks.dome.decomposition_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecompositionTest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.landice.tasks.dome.restart_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">RestartTest</span>
 
 
-<span class="k">def</span> <span class="nf">add_dome_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_dome_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add tasks that define Dome test cases</span>
 <span class="sd">    </span>

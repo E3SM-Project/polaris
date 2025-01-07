@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.streams</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,16 +102,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.streams</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 
-<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
 
 
 <div class="viewcode-block" id="read">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.read.html#polaris.streams.read">[docs]</a>
-<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">streams_filename</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">streams_filename</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse the given streams file</span>
 
@@ -151,7 +151,7 @@
 
 <div class="viewcode-block" id="write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.write.html#polaris.streams.write">[docs]</a>
-<span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; write the streams XML data to the file &quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream_file</span><span class="p">:</span>
@@ -209,7 +209,7 @@
 
 <div class="viewcode-block" id="update_defaults">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults">[docs]</a>
-<span class="k">def</span> <span class="nf">update_defaults</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_defaults</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update a stream or its children (sub-stream, var, etc.) starting from the</span>
 <span class="sd">    defaults or add it if it&#39;s new.</span>
@@ -248,7 +248,7 @@
 
 <div class="viewcode-block" id="update_tree">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.update_tree.html#polaris.streams.update_tree">[docs]</a>
-<span class="k">def</span> <span class="nf">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse the given streams file</span>
 
@@ -280,7 +280,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_update_element</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">elements</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_element</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">elements</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    add the new child/grandchildren or add/update attributes if they exist</span>
 <span class="sd">    &quot;&quot;&quot;</span>

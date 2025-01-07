@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.tasks.cosine_bell</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,27 +103,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.cosine_bell</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.convergence</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_resolution_for_task</span><span class="p">,</span>
     <span class="n">get_timestep_for_task</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.mesh.spherical</span> <span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.decomp</span> <span class="kn">import</span> <span class="n">Decomp</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.restart</span> <span class="kn">import</span> <span class="n">Restart</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.cosine_bell.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.decomp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decomp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.restart</span><span class="w"> </span><span class="kn">import</span> <span class="n">Restart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span>
 
 
 <div class="viewcode-block" id="add_cosine_bell_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks.html#polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks">[docs]</a>
-<span class="k">def</span> <span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add tasks that define variants of the cosine bell test case</span>
 
@@ -169,7 +169,7 @@
 
 <div class="viewcode-block" id="CosineBell">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell">[docs]</a>
-<span class="k">class</span> <span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A convergence test for the advection of a cosine-bell tracer</span>
 
@@ -187,7 +187,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="CosineBell.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span>
                  <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the convergence test</span>
@@ -234,7 +234,7 @@
 
 <div class="viewcode-block" id="CosineBell.configure">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.cosine_bell.CosineBell.configure">[docs]</a>
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set config options for the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -244,7 +244,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        setup steps given resolutions</span>
 
@@ -360,7 +360,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_set_convergence_configs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_convergence_configs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">refinement</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;space&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
         <span class="n">option</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;refinement_factors_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;spherical_convergence&#39;</span><span class="p">,</span>

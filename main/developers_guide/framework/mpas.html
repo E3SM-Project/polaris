@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MPAS</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -134,12 +134,12 @@ an MPAS output file.  This function determines from the dimensions of the
 given field which area is appropriate.  This is useful in computing
 integrals or other area-weighted statistics.</p>
 <p>Example usage in an error calculation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">area_for_field</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_for_field</span>
 
 
-<span class="k">def</span> <span class="nf">compute_error</span><span class="p">(</span><span class="n">field_exact</span><span class="p">,</span> <span class="n">field_mpas</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_error</span><span class="p">(</span><span class="n">field_exact</span><span class="p">,</span> <span class="n">field_mpas</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">):</span>
     <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
     
     <span class="n">diff</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">-</span> <span class="n">field_mpas</span>
@@ -160,11 +160,11 @@ given start time.  The default start time is the first time in the array of
 <code class="docutils literal notranslate"><span class="pre">xtime</span></code> values, but a different string can be supplied instead (e.g. if the
 start time isn’t included in the output file).</p>
 <p>Example usage for extracting a field at a given time from an MPAS output file:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">time_index_from_xtime</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_index_from_xtime</span>
 
 
-<span class="k">def</span> <span class="nf">get_output_field</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_output_field</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">):</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span>
 
     <span class="n">time_index</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>

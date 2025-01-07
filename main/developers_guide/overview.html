@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Overview</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
@@ -126,7 +126,7 @@
 All of the code in the package can be accessed in one of two ways.  The first
 is the command-line interface with commands like <a class="reference internal" href="command_line.html#dev-polaris-list"><span class="std std-ref">polaris list</span></a> and
 <a class="reference internal" href="command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.  The second way is through import commands like:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.io</span> <span class="kn">import</span> <span class="n">symlink</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
 
 
 <span class="n">symlink</span><span class="p">(</span><span class="s1">&#39;../initial_condition/initial_condition.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
@@ -187,17 +187,17 @@ the polaris file
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>
 has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code></a> that looks like this (with the
 <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">docstrings</a> stripped out):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel</span> <span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
 
 
-<span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
 
         <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span>
@@ -210,7 +210,7 @@ has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Oc
 </div>
 <p>This class contains all of the ocean tasks and steps.  The details aren’t
 important.  The point is that the class can be imported like so:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean</span> <span class="kn">import</span> <span class="n">Ocean</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ocean</span>
 
 
 <span class="n">ocean</span> <span class="o">=</span> <span class="n">Ocean</span><span class="p">()</span>
@@ -233,7 +233,7 @@ purposes of the <code class="docutils literal notranslate"><span class="pre">pol
 about those…).</p>
 <p>As an example, the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package contains a module <code class="docutils literal notranslate"><span class="pre">list.py</span></code>.
 There’s a function <a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a> in that module:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">list_machines</span><span class="p">():</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">list_machines</span><span class="p">():</span>
     <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">machine_configs</span><span class="p">:</span>
@@ -243,7 +243,7 @@ There’s a function <a class="reference internal" href="generated/polaris.list.
 </div>
 <p>It lists the supported machines.  You would import this function just like in
 the package example above:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.list</span> <span class="kn">import</span> <span class="n">list_machines</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_machines</span>
 
 
 <span class="n">list_machines</span><span class="p">()</span>

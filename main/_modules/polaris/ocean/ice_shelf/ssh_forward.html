@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.ice_shelf.ssh_forward</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -104,12 +104,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.ice_shelf.ssh_forward</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
 
 <div class="viewcode-block" id="SshForward">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward">[docs]</a>
-<span class="k">class</span> <span class="nc">SshForward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SshForward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for performing forward ocean component runs as part of ssh</span>
 <span class="sd">    adjustment.</span>
@@ -131,7 +131,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="SshForward.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="p">,</span> <span class="n">init_filename</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="p">,</span> <span class="n">init_filename</span><span class="p">,</span>
                  <span class="n">graph_target</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ssh_forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
                  <span class="n">yaml_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -212,7 +212,7 @@
 
 <div class="viewcode-block" id="SshForward.compute_cell_count">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.compute_cell_count.html#polaris.ocean.ice_shelf.SshForward.compute_cell_count">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
@@ -228,7 +228,7 @@
 
 <div class="viewcode-block" id="SshForward.dynamic_model_config">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.dynamic_model_config.html#polaris.ocean.ice_shelf.SshForward.dynamic_model_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.horiz</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,22 +103,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.viz.transect.horiz</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.transects</span> <span class="kn">import</span> <span class="p">(</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.transects</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">cartesian_to_lon_lat</span><span class="p">,</span>
     <span class="n">lon_lat_to_cartesian</span><span class="p">,</span>
     <span class="n">subdivide_great_circle</span><span class="p">,</span>
     <span class="n">subdivide_planar</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.vector</span> <span class="kn">import</span> <span class="n">Vector</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Point</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Point</span>
 
 
 <div class="viewcode-block" id="mesh_to_triangles">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.transect.horiz.mesh_to_triangles.html#polaris.ocean.viz.transect.horiz.mesh_to_triangles">[docs]</a>
-<span class="k">def</span> <span class="nf">mesh_to_triangles</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mesh_to_triangles</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Construct a dataset in which each MPAS cell is divided into the triangles</span>
 <span class="sd">    connecting pairs of adjacent vertices to cell centers.</span>
@@ -245,7 +245,7 @@
 
 <div class="viewcode-block" id="make_triangle_tree">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.transect.horiz.make_triangle_tree.html#polaris.ocean.viz.transect.horiz.make_triangle_tree">[docs]</a>
-<span class="k">def</span> <span class="nf">make_triangle_tree</span><span class="p">(</span><span class="n">ds_tris</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_triangle_tree</span><span class="p">(</span><span class="n">ds_tris</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a KD-Tree for finding triangle edges that are near enough to transect</span>
 <span class="sd">    segments that they might intersect</span>
@@ -285,7 +285,7 @@
 
 <div class="viewcode-block" id="find_spherical_transect_cells_and_weights">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights">[docs]</a>
-<span class="k">def</span> <span class="nf">find_spherical_transect_cells_and_weights</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_spherical_transect_cells_and_weights</span><span class="p">(</span>
         <span class="n">lon_transect</span><span class="p">,</span> <span class="n">lat_transect</span><span class="p">,</span> <span class="n">ds_tris</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">earth_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdivision_res</span><span class="o">=</span><span class="mf">10e3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -572,7 +572,7 @@
 
 <div class="viewcode-block" id="find_planar_transect_cells_and_weights">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights">[docs]</a>
-<span class="k">def</span> <span class="nf">find_planar_transect_cells_and_weights</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_planar_transect_cells_and_weights</span><span class="p">(</span>
         <span class="n">x_transect</span><span class="p">,</span> <span class="n">y_transect</span><span class="p">,</span> <span class="n">ds_tris</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">subdivision_res</span><span class="o">=</span><span class="mf">10e3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find &quot;nodes&quot; where the transect intersects the edges of the triangles</span>
@@ -851,7 +851,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">interp_mpas_horiz_to_transect_nodes</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">da</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">interp_mpas_horiz_to_transect_nodes</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">da</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interpolate a 2D (``nCells``) MPAS DataArray to transect nodes, linearly</span>
 <span class="sd">    interpolating fields between the closest neighboring cells</span>
@@ -883,7 +883,7 @@
     <span class="k">return</span> <span class="n">da_nodes</span>
 
 
-<span class="k">def</span> <span class="nf">_sort_intersections</span><span class="p">(</span><span class="n">d_node</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="n">z_out</span><span class="p">,</span> <span class="n">interp_cells</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_sort_intersections</span><span class="p">(</span><span class="n">d_node</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="n">z_out</span><span class="p">,</span> <span class="n">interp_cells</span><span class="p">,</span>
                         <span class="n">cell_weights</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; sort nodes by distance and define segment between them &quot;&quot;&quot;</span>
 
@@ -969,7 +969,7 @@
             <span class="n">cell_weights</span><span class="p">,</span> <span class="n">valid_nodes</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_fix_periodic_tris</span><span class="p">(</span><span class="n">ds_tris</span><span class="p">,</span> <span class="n">periodic_var</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fix_periodic_tris</span><span class="p">(</span><span class="n">ds_tris</span><span class="p">,</span> <span class="n">periodic_var</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    make sure the given node coordinate on tris is within one period of the</span>
 <span class="sd">    cell center</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.vertical.sigma</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -104,14 +104,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.vertical.sigma</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">xarray</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.vertical.grid_1d</span> <span class="kn">import</span> <span class="n">add_1d_grid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_1d_grid</span>
 
 
 <div class="viewcode-block" id="init_sigma_vertical_coord">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.sigma.init_sigma_vertical_coord.html#polaris.ocean.vertical.sigma.init_sigma_vertical_coord">[docs]</a>
-<span class="k">def</span> <span class="nf">init_sigma_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_sigma_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a sigma (terrain-following) vertical coordinate based on the config</span>
 <span class="sd">    options in the `vertical_grid`` section and the ``bottomDepth`` and</span>
@@ -185,7 +185,7 @@
 
 <div class="viewcode-block" id="update_sigma_layer_thickness">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.sigma.update_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.update_sigma_layer_thickness">[docs]</a>
-<span class="k">def</span> <span class="nf">update_sigma_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_sigma_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the sigma vertical coordinate layer thicknesses based on the</span>
 <span class="sd">    ``bottomDepth`` and ``ssh`` variables of the mesh data set.</span>
@@ -205,7 +205,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">compute_sigma_layer_thickness</span><span class="p">(</span><span class="n">ref_interfaces</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_sigma_layer_thickness</span><span class="p">(</span><span class="n">ref_interfaces</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span>
                                   <span class="n">max_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute sigma layer thickness by stretching restingThickness based on ssh</span>

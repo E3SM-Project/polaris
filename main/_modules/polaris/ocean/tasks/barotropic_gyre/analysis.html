@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.tasks.barotropic_gyre.analysis</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -104,22 +104,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.barotropic_gyre.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">pi</span>
 
-<span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.ocean</span> <span class="kn">import</span> <span class="n">compute_barotropic_streamfunction</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_barotropic_streamfunction</span>
 
-<span class="kn">from</span> <span class="nn">polaris.mpas</span> <span class="kn">import</span> <span class="n">area_for_field</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanIOStep</span>
-<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_for_field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
 <div class="viewcode-block" id="Analysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis">[docs]</a>
-<span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for analysing the output from the barotropic gyre</span>
 <span class="sd">    test case</span>
@@ -127,7 +127,7 @@
 
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -154,7 +154,7 @@
 
 <div class="viewcode-block" id="Analysis.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.run.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
@@ -210,7 +210,7 @@
 
 <div class="viewcode-block" id="Analysis.compute_error">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.compute_error.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.compute_error">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span>
                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Vertex&#39;</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the error for a given resolution</span>
@@ -263,7 +263,7 @@
 
 <div class="viewcode-block" id="Analysis.exact_solution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.exact_solution">[docs]</a>
-    <span class="k">def</span> <span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Cell&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Cell&#39;</span><span class="p">,</span>
                        <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exact solution to the sea surface height for the linearized Munk layer</span>

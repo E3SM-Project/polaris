@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.remap.mapping_file_step</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,11 +102,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.remap.mapping_file_step</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os.path</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
 
-<span class="kn">import</span> <span class="nn">pyproj</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">pyremap</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LatLon2DGridDescriptor</span><span class="p">,</span>
     <span class="n">LatLonGridDescriptor</span><span class="p">,</span>
     <span class="n">MpasCellMeshDescriptor</span><span class="p">,</span>
@@ -118,12 +118,12 @@
     <span class="n">get_lat_lon_descriptor</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
 
 <div class="viewcode-block" id="MappingFileStep">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep">[docs]</a>
-<span class="k">class</span> <span class="nc">MappingFileStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MappingFileStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for creating a mapping file between grids</span>
 
@@ -157,7 +157,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.__init__">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">map_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
@@ -204,7 +204,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.src_from_mpas">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas">[docs]</a>
-    <span class="k">def</span> <span class="nf">src_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the source grid from an MPAS mesh file</span>
 
@@ -229,7 +229,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.dst_from_mpas">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_mpas.html#polaris.remap.MappingFileStep.dst_from_mpas">[docs]</a>
-    <span class="k">def</span> <span class="nf">dst_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the destination grid from an MPAS mesh file</span>
 
@@ -254,7 +254,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.src_from_lon_lat">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_lon_lat.html#polaris.remap.MappingFileStep.src_from_lon_lat">[docs]</a>
-    <span class="k">def</span> <span class="nf">src_from_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
                          <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the source grid from a file with a longitude-latitude grid.  The</span>
@@ -287,7 +287,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.dst_from_lon_lat">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_lon_lat.html#polaris.remap.MappingFileStep.dst_from_lon_lat">[docs]</a>
-    <span class="k">def</span> <span class="nf">dst_from_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
                          <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the destination grid from a file with a longitude-latitude grid.</span>
@@ -320,7 +320,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.dst_global_lon_lat">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_global_lon_lat.html#polaris.remap.MappingFileStep.dst_global_lon_lat">[docs]</a>
-    <span class="k">def</span> <span class="nf">dst_global_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=-</span><span class="mf">180.</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_global_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=-</span><span class="mf">180.</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the destination grid from a file with a longitude-latitude grid.</span>
 <span class="sd">        The latitude and longitude variables can be 1D or 2D.</span>
@@ -353,7 +353,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.src_from_proj">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_proj.html#polaris.remap.MappingFileStep.src_from_proj">[docs]</a>
-    <span class="k">def</span> <span class="nf">src_from_proj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_proj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
                       <span class="n">proj_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the source grid from a file with a projection grid.</span>
@@ -397,7 +397,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.dst_from_proj">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_proj.html#polaris.remap.MappingFileStep.dst_from_proj">[docs]</a>
-    <span class="k">def</span> <span class="nf">dst_from_proj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_proj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
                       <span class="n">proj_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the destination grid from a file with a projection grid.</span>
@@ -441,7 +441,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.dst_from_points">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_points.html#polaris.remap.MappingFileStep.dst_from_points">[docs]</a>
-    <span class="k">def</span> <span class="nf">dst_from_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span>
                         <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the destination grid from a file with a collection of points.</span>
@@ -471,7 +471,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.get_remapper">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.get_remapper.html#polaris.remap.MappingFileStep.get_remapper">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_remapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_remapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the remapper for this step.  After the step has been run, it can</span>
 <span class="sd">        be used to remap data between the source and destination grids by</span>
@@ -526,7 +526,7 @@
 
 <div class="viewcode-block" id="MappingFileStep.runtime_setup">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a remapper and set the command-line arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -558,7 +558,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check for inconsistencies in the remapper</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -576,7 +576,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method neareststod not supported by mbtempest.&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_esmf_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_esmf_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
                          <span class="n">dst_descriptor</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get command-line arguments for making a mapping file with</span>
@@ -602,7 +602,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_moab_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_moab_build_map_args</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_descriptor</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span>
                          <span class="n">dst_descriptor</span><span class="p">,</span> <span class="n">dst_mesh_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get command-line arguments for making a mapping file with mbtempest</span>
@@ -648,7 +648,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">intx_args</span><span class="p">,</span> <span class="n">map_args</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a mesh descriptor from the mesh info</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -669,7 +669,7 @@
     <span class="k">return</span> <span class="n">descriptor</span>
 
 
-<span class="k">def</span> <span class="nf">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get an MPAS mesh descriptor from the given info</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -692,7 +692,7 @@
     <span class="k">return</span> <span class="n">descriptor</span>
 
 
-<span class="k">def</span> <span class="nf">_get_lon_lat_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_lon_lat_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a lon-lat descriptor from the given info</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -732,7 +732,7 @@
     <span class="k">return</span> <span class="n">descriptor</span>
 
 
-<span class="k">def</span> <span class="nf">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a ProjectionGridDescriptor from the given info</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -757,7 +757,7 @@
     <span class="k">return</span> <span class="n">descriptor</span>
 
 
-<span class="k">def</span> <span class="nf">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a PointCollectionDescriptor from the given info</span>
 <span class="sd">    &quot;&quot;&quot;</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.io</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,19 +102,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.io</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">grp</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">stat</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">stat</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
 
-<span class="kn">import</span> <span class="nn">progressbar</span>
-<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">progressbar</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
 
 <div class="viewcode-block" id="download">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.io.download.html#polaris.io.download">[docs]</a>
-<span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest_path</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest_path</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download a file from a URL to the given path or path name</span>
 
@@ -248,7 +248,7 @@
 
 <div class="viewcode-block" id="symlink">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.io.symlink.html#polaris.io.symlink">[docs]</a>
-<span class="k">def</span> <span class="nf">symlink</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">link_name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">symlink</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">link_name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    From https://stackoverflow.com/a/55742015/7728169</span>
 <span class="sd">    Create a symbolic link named link_name pointing to target.</span>
@@ -310,7 +310,7 @@
 
 <div class="viewcode-block" id="update_permissions">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.io.update_permissions.html#polaris.io.update_permissions">[docs]</a>
-<span class="k">def</span> <span class="nf">update_permissions</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">show_progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_permissions</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">show_progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fix permissions on the databases where files were downloaded so</span>
 <span class="sd">    everyone in the group can read/write to them</span>
@@ -380,7 +380,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_walk_dirs</span><span class="p">(</span><span class="n">directories</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_walk_dirs</span><span class="p">(</span><span class="n">directories</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Walk through directories to find files to change</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -392,7 +392,7 @@
     <span class="k">return</span> <span class="n">files_and_dirs</span>
 
 
-<span class="k">def</span> <span class="nf">_set_dir_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span> <span class="n">new_gid</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_dir_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span> <span class="n">new_gid</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set permissions for a directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -420,7 +420,7 @@
         <span class="k">return</span>
 
 
-<span class="k">def</span> <span class="nf">_set_file_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">write_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_file_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">write_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span>
                     <span class="n">new_gid</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set permissions for a directory</span>
@@ -454,7 +454,7 @@
 
 
 <span class="c1"># From https://stackoverflow.com/a/1094933/7728169</span>
-<span class="k">def</span> <span class="nf">_sizeof_fmt</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_sizeof_fmt</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Covert a number of bytes to a human-readable file size</span>
 <span class="sd">    &quot;&quot;&quot;</span>

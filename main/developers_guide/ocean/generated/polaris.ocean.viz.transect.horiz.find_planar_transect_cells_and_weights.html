@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -129,12 +129,12 @@ that make up MPAS cells.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><em>xarray.DataArray</em></a>) – The x points defining segments making up the transect</p></li>
-<li><p><strong>y_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><em>xarray.DataArray</em></a>) – The y points defining segments making up the transect</p></li>
-<li><p><strong>ds_tris</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.11.1.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines triangles, the results of calling
+<li><p><strong>x_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.1.dev0)"><em>xarray.DataArray</em></a>) – The x points defining segments making up the transect</p></li>
+<li><p><strong>y_transect</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.1.dev0)"><em>xarray.DataArray</em></a>) – The y points defining segments making up the transect</p></li>
+<li><p><strong>ds_tris</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.1.1.dev0)"><em>xarray.Dataset</em></a>) – A dataset that defines triangles, the results of calling
 <a class="reference internal" href="polaris.ocean.viz.transect.horiz.mesh_to_triangles.html#polaris.ocean.viz.transect.horiz.mesh_to_triangles" title="polaris.ocean.viz.transect.horiz.mesh_to_triangles"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.mesh_to_triangles()</span></code></a></p></li>
-<li><p><strong>ds_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.11.1.dev0)"><em>xarray.Dataset</em></a>) – A data set with the full MPAS mesh.</p></li>
-<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.cKDTree.html#scipy.spatial.cKDTree" title="(in SciPy v1.14.1)"><em>scipy.spatial.cKDTree</em></a>) – A tree of edge centers from triangles making up an MPAS mesh, the
+<li><p><strong>ds_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.1.1.dev0)"><em>xarray.Dataset</em></a>) – A data set with the full MPAS mesh.</p></li>
+<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.cKDTree.html#scipy.spatial.cKDTree" title="(in SciPy v1.15.0)"><em>scipy.spatial.cKDTree</em></a>) – A tree of edge centers from triangles making up an MPAS mesh, the
 return value from
 <a class="reference internal" href="polaris.ocean.viz.transect.horiz.make_triangle_tree.html#polaris.ocean.viz.transect.horiz.make_triangle_tree" title="polaris.ocean.viz.transect.horiz.make_triangle_tree"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.make_triangle_tree()</span></code></a></p></li>
 <li><p><strong>subdivision_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Resolution in m to use to subdivide the transect when looking for

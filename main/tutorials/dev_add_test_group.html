@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Developer Tutorial: Adding a new test group</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
@@ -252,14 +252,14 @@ That’s all it takes  to make <code class="docutils literal notranslate"><span 
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestGroup</span>
 
 
-<span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A test group for &quot;yet another channel&quot; tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            the ocean component that this test group belongs to</span>
@@ -299,18 +299,18 @@ groups in the ocean core:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Component</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.baroclinic_channel</span> <span class="kn">import</span> <span class="n">BaroclinicChannel</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.global_convergence</span> <span class="kn">import</span> <span class="n">GlobalConvergence</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannel</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaroclinicChannel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.global_convergence</span><span class="w"> </span><span class="kn">import</span> <span class="n">GlobalConvergence</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannel</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The collection of all task for the MPAS-Ocean core</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the collection of MPAS-Ocean tasks</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -339,17 +339,17 @@ you’re interested).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The default task for the &quot;yet another channel&quot; test group simply creates</span>
 <span class="sd">    the mesh and initial condition, then performs a short forward run on 4</span>
 <span class="sd">    cores.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -369,15 +369,15 @@ this task belongs to on to the base class’s constructor
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
-</span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestGroup</span>
 
 
-<span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A test group for &quot;yet another channel&quot; tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            the ocean component that this test group belongs to</span>
@@ -436,12 +436,12 @@ to the <code class="docutils literal notranslate"><span class="pre">default</spa
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span>
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The default task for the &quot;yet another channel&quot; test group simply creates</span>
 <span class="sd">    the mesh and initial condition, then performs a short forward run on 4</span>
@@ -453,7 +453,7 @@ to the <code class="docutils literal notranslate"><span class="pre">default</spa
 </span><span class="hll"><span class="sd">        The resolution of the task in km</span>
 </span><span class="sd">    &quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 </span><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -491,15 +491,15 @@ to add a loop over resolutions as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestGroup</span>
 
 
-<span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A test group for &quot;yet another channel&quot; tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            the ocean component that this test group belongs to</span>
@@ -542,10 +542,10 @@ that descends from <code class="docutils literal notranslate"><span class="pre">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for creating a mesh and initial condition for &quot;yet another channel&quot;</span>
 <span class="sd">    tasks</span>
@@ -555,7 +555,7 @@ that descends from <code class="docutils literal notranslate"><span class="pre">
 <span class="sd">    resolution : float</span>
 <span class="sd">        The resolution of the task in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -594,19 +594,19 @@ that direction (<code class="docutils literal notranslate"><span class="pre">non
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
-</span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.mesh.conversion</span> <span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
-</span><span class="hll"><span class="kn">from</span> <span class="nn">mpas_tools.planar_hex</span> <span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 </span><span class="hll">
-</span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-<span class="hll">    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span class="hll"><span class="sd">        Run this step of the task</span>
 </span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
@@ -692,14 +692,14 @@ potentially unexpected ways.  You can see an example of this in the
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
         <span class="o">...</span>
 
 <span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
@@ -773,17 +773,17 @@ snippet below is an example of how to make use of the
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 </span>
 <span class="o">...</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.mesh.planar</span> <span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.vertical</span> <span class="kn">import</span> <span class="n">init_vertical_coord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_vertical_coord</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="o">...</span>
 
@@ -863,15 +863,15 @@ define the initial condition:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">mpas_tools.io</span> <span class="kn">import</span> <span class="n">write_netcdf</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="o">...</span>
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
@@ -1012,19 +1012,19 @@ as a sanity check.  We do this using the visualization for
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/init.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 </span>
 <span class="o">...</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="o">...</span>
 
@@ -1059,10 +1059,10 @@ constructor:</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 
         <span class="o">...</span>
 
@@ -1090,16 +1090,16 @@ forward runs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-<span class="hll">    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span class="hll"><span class="sd">        Compare ``temperature``, ``salinity``, and ``layerThickness`` in the</span>
 </span><span class="hll"><span class="sd">        ``init`` step with a baseline if one was provided.</span>
@@ -1229,10 +1229,10 @@ task and 1 thread):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/forward.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for performing forward ocean component runs as part of &quot;yet another</span>
 <span class="sd">    channel&quot; tasks.</span>
@@ -1242,7 +1242,7 @@ task and 1 thread):</p>
 <span class="sd">    resolution : float</span>
 <span class="sd">        The resolution of the task in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
@@ -1294,11 +1294,11 @@ to the functionality we anticipate adding to this step:</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
 <span class="hll">        <span class="o">...</span>
@@ -1431,8 +1431,8 @@ lot of space but isn’t great for regression testing):</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, we add these namelists as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="o">...</span>
 
@@ -1505,13 +1505,13 @@ and contents.  We don’t demonstrate that in this tutorial.</p>
 <p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task, we are now ready to add
 <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps to the task.  In
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel/default/__init__.py</span></code>, we add:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-</span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
 
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
         <span class="o">...</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
@@ -1533,12 +1533,12 @@ we want to add validation of the result of the forward run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity`` and ``layerThickness`` in</span>
 <span class="sd">        both ``init`` and ``forward`` steps, and ``normalVelocity``</span>
@@ -1579,20 +1579,20 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/viz.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.viz</span> <span class="kn">import</span> <span class="n">plot_horiz_field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
-<span class="k">class</span> <span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for plotting the results of a series of RPE runs in the &quot;yet another</span>
 <span class="sd">    channel&quot; test group</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -1609,7 +1609,7 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1635,14 +1635,14 @@ steps, we won’t describe this step in any more detail.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span>
 </span>
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
         <span class="o">...</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
@@ -1679,13 +1679,13 @@ It starts with the same initial condition and does a forward run exactly like
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/decomp/__init__.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
 
 
-<span class="k">class</span> <span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A decomposition task for the baroclinic channel test group, which</span>
 <span class="sd">    makes sure the model produces identical results on 1 and 4 cores.</span>
@@ -1696,7 +1696,7 @@ It starts with the same initial condition and does a forward run exactly like
 <span class="sd">        The resolution of the task in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -1724,14 +1724,14 @@ It starts with the same initial condition and does a forward run exactly like
 <p>But then it does a second forward run on 8 cores instead of 4 and compares the
 results to make sure they are identical.  Each of these runs is performed in
 its own step.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
 
 <span class="o">...</span>
 
 
-<span class="k">class</span> <span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
         <span class="o">...</span>
 
         <span class="k">for</span> <span class="n">procs</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
@@ -1745,15 +1745,15 @@ its own step.</p>
 </div>
 <p>Then, we validate temperature, salinity, layer thickness and normal velocity
 to make sure they area all identical between the 4 and 8 core runs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 
 
-<span class="k">class</span> <span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Decomp</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
 <span class="sd">        ``normalVelocity`` in the ``4proc`` and ``8proc`` steps with each other</span>
@@ -1776,17 +1776,17 @@ validated against their equivalents in the baseline as well.)</p>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.decomp</span> <span class="kn">import</span> <span class="n">Decomp</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.decomp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decomp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestGroup</span>
 
 
-<span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A test group for &quot;yet another channel&quot; tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            the ocean component that this test group belongs to</span>
@@ -1858,11 +1858,11 @@ not set):</p>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ...</span>
@@ -1894,12 +1894,12 @@ as a number of times steps):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span><span class="si">${</span><span class="nv">POLARIS_HEAD</span><span class="si">}</span>/polaris/ocean/tasks/yet_another_channel/forward.py
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">polaris.ocean.model</span> <span class="kn">import</span> <span class="n">OceanModelStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
 
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for performing forward ocean component runs as part of &quot;yet another</span>
 <span class="sd">    channel&quot; tasks.</span>
@@ -1916,7 +1916,7 @@ as a number of times steps):</p>
 <span class="sd">    run_time_steps : int or None</span>
 <span class="sd">        Number of time steps to run for</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1928,7 +1928,7 @@ as a number of times steps):</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
@@ -2003,11 +2003,11 @@ model step should use).  Using this infrastructure requires overriding the
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
 
     <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
@@ -2084,14 +2084,14 @@ need these features so it’s a little simpler to add them here.</p>
 <p>In the file <code class="docutils literal notranslate"><span class="pre">yet_another_channel_test_case.py</span></code> in
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel</span></code>, we define the superclass
 <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> that descends from <a class="reference internal" href="../developers_guide/generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.init</span> <span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 
 
-<span class="k">class</span> <span class="nc">YetAnotherChannelTestCase</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannelTestCase</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The superclass for all &quot;yet another channel&quot; tasks with shared</span>
 <span class="sd">    functionality</span>
@@ -2102,7 +2102,7 @@ need these features so it’s a little simpler to add them here.</p>
 <span class="sd">        The resolution of the task in km</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task, including adding the ``init`` step</span>
 
@@ -2129,7 +2129,7 @@ need these features so it’s a little simpler to add them here.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Init</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity`` and ``layerThickness`` from the</span>
 <span class="sd">        initial condition with a baseline if one was provided</span>
@@ -2143,20 +2143,20 @@ need these features so it’s a little simpler to add them here.</p>
 </div>
 <p>Now, we’ll make <code class="docutils literal notranslate"><span class="pre">Default</span></code> descend from <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> and remove
 the redundant pieces.  Here’s what’s left:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.viz</span> <span class="kn">import</span> <span class="n">Viz</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 
 
-<span class="k">class</span> <span class="nc">Default</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The default task for the &quot;yet another channel&quot; test group simply creates</span>
 <span class="sd">    the mesh and initial condition, then performs a short forward run on 4</span>
 <span class="sd">    cores.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -2178,7 +2178,7 @@ the redundant pieces.  Here’s what’s left:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Viz</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
 <span class="sd">        ``normalVelocity`` in the ``forward`` step with a baseline if one was</span>
@@ -2228,17 +2228,17 @@ a specific context.</p>
 <code class="docutils literal notranslate"><span class="pre">rpe</span></code> within the <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> directory, adding a new file
 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, and adding a class <code class="docutils literal notranslate"><span class="pre">Rpe</span></code> that descends from the
 <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> base class:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reference potential energy (RPE) task for the &quot;yet another channel&quot;</span>
 <span class="sd">    test group performs a 20-day integration of the model forward in time at</span>
 <span class="sd">    5 different values of the viscosity at the given resolution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the task</span>
 
@@ -2260,19 +2260,19 @@ and docstring changes.</p>
 <code class="docutils literal notranslate"><span class="pre">yet_another_channel</span></code> test group so we can compare it with the <code class="docutils literal notranslate"><span class="pre">default</span></code>
 tet case. We add the following to the file <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> that defines the
 <code class="docutils literal notranslate"><span class="pre">YetAnotherChannel</span></code> test group:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">TestGroup</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.yet_another_channel_test_case</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E501</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestGroup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.yet_another_channel_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E501</span>
     <span class="n">YetAnotherChannelTestCase</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.default</span> <span class="kn">import</span> <span class="n">Default</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.rpe</span> <span class="kn">import</span> <span class="n">Rpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpe</span>
 </span>
 
-<span class="k">class</span> <span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YetAnotherChannel</span><span class="p">(</span><span class="n">TestGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A test group for &quot;yet another channel&quot; tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        component : polaris.ocean.Ocean</span>
 <span class="sd">            the ocean component that this test group belongs to</span>
@@ -2315,26 +2315,26 @@ task.  (It is too late to change these config options at runtime because
 we need to know the viscosities at setup in order to name the steps.)
 We will handle this with the following additions to
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/tasks/yet_another_channel/rpe/__init__.py</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test_group</span><span class="o">=</span><span class="n">test_group</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rpe&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_steps</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify the configuration options for this task.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_steps</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add the steps in the task either at init or set-up &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2371,12 +2371,12 @@ top pass along.  In the second case, we do.</p>
 <p>Breaking the <code class="docutils literal notranslate"><span class="pre">_add_steps()</span></code> method up, we start by reading in the default
 config options if this is getting called from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> so they’re not
 available yet from <code class="docutils literal notranslate"><span class="pre">self.config</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.config</span> <span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># get just the default config options for yet_another_channel so</span>
             <span class="c1"># we can get the default viscosities</span>
@@ -2413,11 +2413,11 @@ again in case the list of viscosities has changed.  We don’t want to remove
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step added by <code class="docutils literal notranslate"><span class="pre">YetAnotherChannelTestCase</span></code> so we will
 only remove steps that start with <code class="docutils literal notranslate"><span class="pre">rpe</span></code>.  To remove an item from a
 dictionary, you use <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict.pop" title="(in Python v3.13)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dict.pop()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;rpe&#39;</span><span class="p">):</span>
                 <span class="c1"># remove previous RPE forward steps</span>
@@ -2425,12 +2425,12 @@ dictionary, you use <a class="reference external" href="https://docs.python.org/
 </pre></div>
 </div>
 <p>Okay, now we’re ready to actually add the steps:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span> <span class="kn">import</span> <span class="n">Forward</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="o">...</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
 
@@ -2477,16 +2477,16 @@ every day.</p>
 <h4>Adding the analysis step<a class="headerlink" href="#adding-the-analysis-step" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> includes another step, <code class="docutils literal notranslate"><span class="pre">analysis</span></code> that plots results from
 each simulation.  The full analysis step looks like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">polaris</span> <span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.rpe</span> <span class="kn">import</span> <span class="n">compute_rpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_rpe</span>
 
 
-<span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for plotting the results of a series of RPE runs in the &quot;yet another</span>
 <span class="sd">    channel&quot; test group</span>
@@ -2496,7 +2496,7 @@ each simulation.  The full analysis step looks like this:</p>
 <span class="sd">    nus : list</span>
 <span class="sd">        A list of viscosities</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">nus</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">nus</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -2528,7 +2528,7 @@ each simulation.  The full analysis step looks like this:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;rpe_t.png&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;rpe.csv&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2544,7 +2544,7 @@ each simulation.  The full analysis step looks like this:</p>
         <span class="n">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nus</span><span class="p">,</span> <span class="n">rpe</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot section of the &quot;yet another channel&quot; at different viscosities</span>
 
@@ -2583,12 +2583,12 @@ as well as the size of the domain from the <code class="docutils literal notrans
 number of grid cells <code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code> from attributes of the initial condition.
 It plots the results together in a single image that it writes out.</p>
 <p>We add the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step to the task as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel.rpe.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel.rpe.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="o">...</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;rpe&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">step</span> <span class="o">==</span> <span class="s1">&#39;analysis&#39;</span><span class="p">:</span>
@@ -2608,12 +2608,12 @@ getting called for the second time from <code class="docutils literal notranslat
 <h4>Adding validation<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
 <p>Adding validation to the <code class="docutils literal notranslate"><span class="pre">rpe</span></code> is very similar to <code class="docutils literal notranslate"><span class="pre">default</span></code>.  The only
 difference is that we need to do it once for each forward test:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">polaris.ocean.tasks.yet_another_channel</span> <span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
-<span class="kn">from</span> <span class="nn">polaris.validate</span> <span class="kn">import</span> <span class="n">compare_variables</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.yet_another_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">YetAnotherChannelTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
 
 
-<span class="k">class</span> <span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">YetAnotherChannelTestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare ``temperature``, ``salinity``, ``layerThickness`` and</span>
 <span class="sd">        ``normalVelocity`` in the ``forward`` step with a baseline if one was</span>

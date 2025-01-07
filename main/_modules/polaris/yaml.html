@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>polaris.yaml</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,19 +102,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.yaml</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">importlib.resources</span> <span class="k">as</span> <span class="nn">imp_res</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
-<span class="kn">from</span> <span class="nn">ruamel.yaml</span> <span class="kn">import</span> <span class="n">YAML</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 
 <div class="viewcode-block" id="PolarisYaml">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml">[docs]</a>
-<span class="k">class</span> <span class="nc">PolarisYaml</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PolarisYaml</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class for reading writing and combining config files in yaml format</span>
 <span class="sd">    (e.g. as used in Omega).</span>
@@ -136,7 +136,7 @@
 
 <div class="viewcode-block" id="PolarisYaml.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a yaml config object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -149,7 +149,7 @@
 <div class="viewcode-block" id="PolarisYaml.read">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">streams_section</span><span class="o">=</span><span class="s1">&#39;streams&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add config options from a yaml file</span>
@@ -222,7 +222,7 @@
 
 <div class="viewcode-block" id="PolarisYaml.update">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update">[docs]</a>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add config options from a dictionary</span>
 
@@ -250,7 +250,7 @@
 
 <div class="viewcode-block" id="PolarisYaml.write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write">[docs]</a>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write config options to a yaml file</span>
 
@@ -275,7 +275,7 @@
 
 <div class="viewcode-block" id="mpas_namelist_and_streams_to_yaml">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml">[docs]</a>
-<span class="k">def</span> <span class="nf">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">namelist_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mpas_namelist_and_streams_to_yaml</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">namelist_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                       <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                       <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -313,7 +313,7 @@
 
 <div class="viewcode-block" id="main_mpas_to_yaml">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml">[docs]</a>
-<span class="k">def</span> <span class="nf">main_mpas_to_yaml</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main_mpas_to_yaml</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Convert a namelist and/or streams file to yaml&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--namelist&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;namelist&quot;</span><span class="p">,</span>
@@ -348,7 +348,7 @@
 
 <div class="viewcode-block" id="yaml_to_mpas_streams">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams">[docs]</a>
-<span class="k">def</span> <span class="nf">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add config options from a yaml file</span>
 
@@ -393,7 +393,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_update_section</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_section</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively update config options in a section of a config from a source</span>
 <span class="sd">    section to the associate destination dictionary</span>
@@ -423,7 +423,7 @@
             <span class="n">dst</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_update_options</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_options</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update config options by searching in the destination nested dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -435,7 +435,7 @@
                 <span class="sa">f</span><span class="s1">&#39;options: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_update_option</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_option</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">print_section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively attempt to find and replace the value of the</span>
 <span class="sd">    given option</span>
@@ -458,7 +458,7 @@
     <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="k">def</span> <span class="nf">_read_namelist</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="n">namelist_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_namelist</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="n">namelist_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the defaults file &quot;&quot;&quot;</span>
     <span class="n">record_map</span> <span class="o">=</span> <span class="n">_read_namelist_template</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">)</span>
 
@@ -477,7 +477,7 @@
     <span class="k">return</span> <span class="n">namelist</span>
 
 
-<span class="k">def</span> <span class="nf">_read_namelist_template</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_namelist_template</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the defaults file &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">namelist_template</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -494,7 +494,7 @@
     <span class="k">return</span> <span class="n">record_map</span>
 
 
-<span class="k">def</span> <span class="nf">_read_namelist_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_namelist_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
     <span class="n">record</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">opt</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -521,7 +521,7 @@
     <span class="k">return</span> <span class="n">record</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span>
 
 
-<span class="k">def</span> <span class="nf">_streams_xml_to_dict</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_streams_xml_to_dict</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a streams XML file to nested dictionaries &quot;&quot;&quot;</span>
     <span class="n">streams</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">)</span>
@@ -554,7 +554,7 @@
     <span class="k">return</span> <span class="n">streams</span>
 
 
-<span class="k">def</span> <span class="nf">_get_stream_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_stream_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get the xml tag, &#39;stream&#39; or &#39;immutable_stream&#39; for a given stream &quot;&quot;&quot;</span>
     <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
     <span class="c1"># if we don&#39;t find the stream, it can&#39;t be an immutable stream</span>
@@ -568,7 +568,7 @@
     <span class="k">return</span> <span class="n">tag</span>
 
 
-<span class="k">def</span> <span class="nf">_get_var_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_var_tag</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the xml tag -- &#39;stream&#39;, &#39;var_struct&#39;, &#39;var_array&#39; or &#39;var&#39; -- for a</span>
 <span class="sd">    variable</span>
