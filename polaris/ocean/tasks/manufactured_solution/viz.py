@@ -1,9 +1,8 @@
-import datetime
-
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 
+from polaris.mpas import time_since_start
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
@@ -139,8 +138,12 @@ class Viz(OceanIOStep):
 
         use_mplstyle()
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
-        rmse = []
         error_range = None
+
+        section = config['convergence']
+        eval_time = section.getfloat('convergence_eval_time')
+        s_per_hour = 3600.0
+        time = eval_time * s_per_hour
 
         for i, refinement_factor in enumerate(refinement_factors):
             ds_mesh = self.open_model_dataset(
@@ -149,29 +152,25 @@ class Viz(OceanIOStep):
                 f'init_r{refinement_factor:02g}.nc')
             ds = self.open_model_dataset(
                 f'output_r{refinement_factor:02g}.nc', decode_times=False)
+
             exact = ExactSolution(config, ds_init)
 
             if model == 'mpas-o':
-                t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
-                                                '%Y-%m-%d_%H:%M:%S')
-                tf = datetime.datetime.strptime(ds.xtime.values[-1].decode(),
-                                                '%Y-%m-%d_%H:%M:%S')
-                t = (tf - t0).total_seconds()
-
+                dt = time_since_start(ds.xtime.values)
             else:
                 # time is seconds since the start of the simulation in Omega
-                t = ds.Time[-1].values
+                dt = ds.Time.values
+            tidx = np.argmin(np.abs(dt - time))
 
-            ssh_model = ds.ssh.isel(Time=-1)
+            ssh_model = ds.ssh.isel(Time=tidx)
             if 'nVertLevels' in ssh_model.dims:
                 # Omega v0 uses stacked shallow water where ssh has nVertLevels
                 ssh_model = ssh_model.isel(nVertLevels=0)
-            rmse.append(np.sqrt(np.mean(
-                (ssh_model.values - exact.ssh(t).values)**2)))
 
             # Comparison plots
-            ds['ssh_exact'] = exact.ssh(t)
-            ds['ssh_error'] = ssh_model - exact.ssh(t)
+            ssh_exact = exact.ssh(time)
+            ds['ssh_exact'] = ssh_exact
+            ds['ssh_error'] = ssh_model - ssh_exact
             if error_range is None:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
