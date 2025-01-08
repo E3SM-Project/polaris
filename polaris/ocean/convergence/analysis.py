@@ -410,7 +410,7 @@ class ConvergenceAnalysis(OceanIOStep):
 
         ds_out = ds_out.isel(Time=tidx)
         field_mpas = ds_out[field_name]
-        if zidx is not None:
+        if zidx is not None and 'nVertLevels' in field_mpas.dims:
             field_mpas = field_mpas.isel(nVertLevels=zidx)
         return field_mpas
 
