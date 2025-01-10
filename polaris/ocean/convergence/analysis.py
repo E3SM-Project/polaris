@@ -218,7 +218,7 @@ class ConvergenceAnalysis(OceanIOStep):
         convergence_failed = False
         poly = np.polyfit(np.log10(refinement_array), np.log10(error_array), 1)
         convergence = poly[0]
-        conv_round = np.round(convergence, 3)
+        conv_round = convergence
 
         fit = refinement_array ** poly[0] * 10 ** poly[1]
 
@@ -239,7 +239,7 @@ class ConvergenceAnalysis(OceanIOStep):
         ax.loglog(resolutions, order2, 'k', label='second order',
                   alpha=0.3)
         ax.loglog(refinement_array, fit, 'k',
-                  label=f'linear fit (order={conv_round})')
+                  label=f'linear fit (order={convergence:1.3f})')
         ax.loglog(refinement_array, error_array, 'o', label='numerical')
 
         if self.baseline_dir is not None:
@@ -255,14 +255,14 @@ class ConvergenceAnalysis(OceanIOStep):
                     poly = np.polyfit(
                         np.log10(refinement_array), np.log10(error_array), 1)
                     base_convergence = poly[0]
-                    conv_round = np.round(base_convergence, 3)
+                    conv_round = base_convergence
 
                     fit = refinement_array ** poly[0] * 10 ** poly[1]
                     ax.loglog(refinement_array, error_array, 'o',
                               color='#ff7f0e', label='baseline')
                     ax.loglog(refinement_array, fit, color='#ff7f0e',
                               label=f'linear fit, baseline '
-                                    f'(order={conv_round})')
+                                    f'(order={base_convergence:1.3f})')
         ax.set_xlabel(x_label)
         ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
@@ -273,11 +273,11 @@ class ConvergenceAnalysis(OceanIOStep):
         plt.close()
 
         logger.info(f'Order of convergence for {title}: '
-                    f'{conv_round}')
+                    f'{conv_round:1.3f}')
 
         if conv_round < conv_thresh:
             logger.error(f'Error: order of convergence for {title}\n'
-                         f'  {conv_round} < min tolerance '
+                         f'  {conv_round:1.3f} < min tolerance '
                          f'{conv_thresh}')
             convergence_failed = True
 
@@ -410,7 +410,7 @@ class ConvergenceAnalysis(OceanIOStep):
 
         ds_out = ds_out.isel(Time=tidx)
         field_mpas = ds_out[field_name]
-        if zidx is not None:
+        if zidx is not None and 'nVertLevels' in field_mpas.dims:
             field_mpas = field_mpas.isel(nVertLevels=zidx)
         return field_mpas
 

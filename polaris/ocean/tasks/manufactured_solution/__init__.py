@@ -35,6 +35,14 @@ def add_manufactured_solution_tasks(component):
         component.add_task(ManufacturedSolution(component=component,
                                                 config=config,
                                                 refinement=refinement))
+    component.add_task(ManufacturedSolution(component=component,
+                                            config=config,
+                                            refinement='both',
+                                            del2=True))
+    component.add_task(ManufacturedSolution(component=component,
+                                            config=config,
+                                            refinement='both',
+                                            del4=True))
 
 
 class ManufacturedSolution(Task):
@@ -42,7 +50,8 @@ class ManufacturedSolution(Task):
     The convergence test case using the method of manufactured solutions
     """
 
-    def __init__(self, component, config, refinement='both'):
+    def __init__(self, component, config, refinement='both', del2=False,
+                 del4=False):
         """
         Create the test case
 
@@ -56,11 +65,33 @@ class ManufacturedSolution(Task):
 
         refinement : str, optional
             Whether to refine in space, time or both space and time
+
+        del2 : bool
+            Whether to evaluate the momentum del2 operator
+
+        del4 : bool
+            Whether to evaluate the momentum del4 operator
         """
-        name = f'manufactured_solution_convergence_{refinement}'
         basedir = 'planar/manufactured_solution'
         subdir = f'{basedir}/convergence_{refinement}'
+        name = f'manufactured_solution_convergence_{refinement}'
+
+        if del2:
+            test_name = 'del2'
+            if del4:
+                del4 = False
+                print('Manufactured solution test does not currently support'
+                      'both del2 and del4 convergence; testing del2 alone.')
+        elif del4:
+            test_name = 'del4'
+        else:
+            test_name = 'default'
+
+        name = f'{name}_{test_name}'
+        subdir = f'{subdir}/{test_name}'
+
         config_filename = 'manufactured_solution.cfg'
+
         super().__init__(component=component, name=name, subdir=subdir)
         self.set_shared_config(config, link=config_filename)
 
@@ -86,7 +117,7 @@ class ManufacturedSolution(Task):
                 init_step = component.steps[subdir]
             else:
                 init_step = Init(component=component, resolution=resolution,
-                                 subdir=subdir)
+                                 name=f'init_{mesh_name}', subdir=subdir)
                 init_step.set_shared_config(self.config, link=config_filename)
             if resolution not in resolutions:
                 self.add_step(init_step, symlink=symlink)
@@ -97,7 +128,7 @@ class ManufacturedSolution(Task):
             timestep = ceil(timestep)
             timesteps.append(timestep)
 
-            subdir = f'{basedir}/forward/{mesh_name}_{timestep}s'
+            subdir = f'{basedir}/{test_name}/forward/{mesh_name}_{timestep}s'
             symlink = f'forward/{mesh_name}_{timestep}s'
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
@@ -108,7 +139,8 @@ class ManufacturedSolution(Task):
                     refinement_factor=refinement_factor,
                     name=f'forward_{mesh_name}_{timestep}s',
                     subdir=subdir,
-                    init=init_step)
+                    init=init_step,
+                    del2=del2, del4=del4)
                 forward_step.set_shared_config(
                     config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
