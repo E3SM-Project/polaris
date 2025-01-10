@@ -129,11 +129,20 @@
 <span class="sd">    refinement : str</span>
 <span class="sd">        Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
 <span class="sd">        space and time</span>
+
+<span class="sd">    resolution : float</span>
+<span class="sd">        The resolution of the test case in km</span>
+
+<span class="sd">    del2 : bool</span>
+<span class="sd">        Whether to evaluate the momentum del2 operator</span>
+
+<span class="sd">    del4 : bool</span>
+<span class="sd">        Whether to evaluate the momentum del4 operator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.forward.Forward.html#polaris.ocean.tasks.manufactured_solution.forward.Forward.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
-                 <span class="n">init</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+                 <span class="n">init</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">del2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">del4</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -157,6 +166,12 @@
 <span class="sd">        refinement : str, optional</span>
 <span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
 <span class="sd">            space and time</span>
+
+<span class="sd">        del2 : bool</span>
+<span class="sd">            Whether to evaluate the momentum del2 operator</span>
+
+<span class="sd">        del4 : bool</span>
+<span class="sd">            Whether to evaluate the momentum del4 operator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -166,7 +181,9 @@
                          <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
                          <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
                          <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-                         <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span></div>
+                         <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">del2</span> <span class="o">=</span> <span class="n">del2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">del4</span> <span class="o">=</span> <span class="n">del4</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -216,13 +233,28 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="n">exact_solution</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span>
-                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span><span class="p">),</span>
-                   <span class="s1">&#39;config_manufactured_solution_wavelength_x&#39;</span><span class="p">:</span>
-                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span><span class="p">),</span>
-                   <span class="s1">&#39;config_manufactured_solution_wavelength_y&#39;</span><span class="p">:</span>
-                   <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span><span class="p">)}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span></div>
+        <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span><span class="p">),</span>
+                        <span class="s1">&#39;config_manufactured_solution_wavelength_x&#39;</span><span class="p">:</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span><span class="p">),</span>
+                        <span class="s1">&#39;config_manufactured_solution_wavelength_y&#39;</span><span class="p">:</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span><span class="p">)}</span>
+        <span class="n">shared_options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">del2</span><span class="p">:</span>
+            <span class="n">mpas_options</span><span class="p">[</span><span class="s1">&#39;config_disable_vel_hmix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">del4</span><span class="p">:</span>
+            <span class="n">mpas_options</span><span class="p">[</span><span class="s1">&#39;config_disable_vel_hmix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mpas_options</span><span class="p">[</span><span class="s1">&#39;config_disable_vel_hmix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">shared_options</span><span class="p">[</span><span class="s1">&#39;config_use_mom_del4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">mpas_options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">shared_options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span></div>
 
 </pre></div>
 

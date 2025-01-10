@@ -65,7 +65,9 @@
 <li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">manufactured solution</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#convergence">convergence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#del2">del2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#del4">del4</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
@@ -146,8 +148,8 @@ the discretized nonlinear momentum equation.</p>
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
 </section>
-<section id="convergence">
-<span id="ocean-manufactured-solution-convergence"></span><h2>convergence<a class="headerlink" href="#convergence" title="Link to this heading"></a></h2>
+<section id="default">
+<span id="ocean-manufactured-solution-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>There are 3 versions of the convergence test case, <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code>,
@@ -252,6 +254,23 @@ mesh resolution. The run duration is 10 hours.</p>
 <h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of cores is determined according to the config options
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
+</section>
+</section>
+<section id="del2">
+<span id="ocean-manufactured-solution-del2"></span><h2>del2<a class="headerlink" href="#del2" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>All settings are the same as the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case
+except laplacian viscosity is turned on.</p>
+</section>
+</section>
+<section id="del4">
+<span id="ocean-manufactured-solution-del4"></span><h2>del4<a class="headerlink" href="#del4" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>All settings are the same as the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case
+except hyperviscosity is turned on. The expected convergence should not be
+significantly different from the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case.</p>
 </section>
 </section>
 </section>
