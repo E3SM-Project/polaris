@@ -1334,7 +1334,7 @@ def _ignore_file_errors(f):
 
     def _wrapper(*args, **kwargs):
         try:
-            f(*args, **kwargs)
+            return f(*args, **kwargs)
         except (PermissionError, FileNotFoundError):
             pass
     return _wrapper
