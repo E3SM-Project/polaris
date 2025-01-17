@@ -39,13 +39,13 @@ class Analysis(ConvergenceAnalysis):
         self.case_name = case_name
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
-                             'zidx': 1},
+                             'zidx': 0},
                             {'name': 'tracer2',
                              'title': 'tracer2',
-                             'zidx': 1},
+                             'zidx': 0},
                             {'name': 'tracer3',
                              'title': 'tracer3',
-                             'zidx': 1}]
+                             'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars,
