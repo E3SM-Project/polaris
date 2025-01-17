@@ -59,3 +59,31 @@ mpas-ocean:
       - refLayerThickness
       - kineticEnergyCell
       - relativeVorticityCell
+
+Omega:
+  Tendencies:
+    ThicknessFluxTendencyEnable : false
+    PVTendencyEnable : false
+    KETendencyEnable : false
+    SSHTendencyEnable : false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    TracerHorzAdvTendencyEnable : true
+    TracerDiffTendencyEnable : false
+    TracerHyperDiffTendencyEnable : false
+  Dimension:
+    NVertLevels: 1
+  IOStreams:
+    InitialState:
+      Filename: init.nc
+      Contents:
+        - State
+        - Tracers
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
+      Contents:
+        - Tracers
+        - LayerThickness
+        - NormalVelocity
