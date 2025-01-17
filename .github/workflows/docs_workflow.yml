@@ -7,6 +7,9 @@ on:
   release:
     types: [published]
 
+env:
+  PYTHON_VERSION: "3.10"
+
 jobs:
   publish-docs:
     runs-on: ubuntu-latest
@@ -39,7 +42,7 @@ jobs:
           channels: conda-forge,e3sm/label/polaris
           channel-priority: strict
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Install polaris
@@ -49,7 +52,7 @@ jobs:
             --conda_env_only \
             --env_name polaris_test \
             --verbose \
-            --python=${{ matrix.python-version }}
+            --python=${{ env.PYTHON_VERSION }}
           source load_polaris_test.sh
 
       - name: Build Sphinx Docs
