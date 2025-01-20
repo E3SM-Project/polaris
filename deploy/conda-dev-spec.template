@@ -4,6 +4,8 @@ antimeridian
 cartopy
 cartopy_offlinedata
 cmocean
+# temporary constraint on dask due to hvplot and bokeh issue
+dask <2025.1.0
 esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
