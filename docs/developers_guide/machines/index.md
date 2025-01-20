@@ -16,8 +16,8 @@ test  cases are configured in a way that is appropriate for your machine.
 If you follow the procedure in {ref}`dev-conda-env`, you will have an
 activation script for activating the development conda environment, setting
 loading system modules and setting environment variables so you can build
-MPAS and work with polaris.  Just source the script that should appear in
-the base of your polaris branch, e.g.:
+Omega or an MPAS component and work with polaris.  Just source the script that
+should appear in the base of your polaris branch, e.g.:
 
 ```bash
 source load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
@@ -31,10 +31,25 @@ you were setting things up.  You can can source this file on a compute node
 MPI libraries and environment variables for running polaris tasks and
 the MPAS model.
 
-:::{note}
-Albany (and therefore most of the functionality in MALI) is currently only
-supported for those configurations with `gnu` compilers.
-:::
+Below are specifics for each supported machine
+
+```{toctree}
+:titlesonly: true
+
+anvil
+chicoma
+chrysalis
+compy
+frontier
+perlmutter
+```
+
+(dev-mpas-supported-machines)=
+
+### MPAS-Ocean and -Seaice Supported Machines
+
+These are the machines supported by MPAS-Ocean and -Seaice, including the
+"make target" used to build the MPAS component.
 
 ```{eval-rst}
 +--------------+------------+-----------+-------------------+
@@ -64,18 +79,50 @@ supported for those configurations with `gnu` compilers.
 +--------------+------------+-----------+-------------------+
 ```
 
-Below are specifics for each supported machine
+(dev-omega-supported-machines)=
 
-```{toctree}
-:titlesonly: true
+### Omega Supported Machines
 
-anvil
-chicoma
-chrysalis
-compy
-frontier
-perlmutter
+These are the machines supported by Omega.  The MPI library is always the
+E3SM default for the given machine an compiler.
+
+```{eval-rst}
++--------------+--------------+-----------+
+| Machine      | Compiler     | MPI lib.  |
++==============+==============+===========+
+| chicoma-cpu  | gnu          | mpich     |
++--------------+--------------+-----------+
+| chrysalis    | intel        | openmpi   |
+|              +--------------+-----------+
+|              | gnu          | openmpi   |
++--------------+--------------+-----------+
+| frontier     | gnu          | mpich     |
+|              +--------------+-----------+
+|              | gnugpu       | mpich     |
+|              +--------------+-----------+
+|              | amdclang     | mpich     |
+|              +--------------+-----------+
+|              | amdclanggpu  | mpich     |
+|              +--------------+-----------+
+|              | crayclang    | mpich     |
+|              +--------------+-----------+
+|              | crayclanggpu | mpich     |
++--------------+--------------+-----------+
+| pm-cpu       | gnu          | mpich     |
+|              +--------------+-----------+
+|              | intel        | mpich     |
+|              +--------------+-----------+
+|              | nvidia       | mpich     |
++--------------+--------------+-----------+
+| pm-gpu       | gnugpu       | mpich     |
+|              +--------------+-----------+
+|              | nvidiagpu    | mpich     |
++--------------+--------------+-----------+
 ```
+
+:::{note}
+Omega does not currently support Compy and Anvil.
+:::
 
 (dev-other-machines)=
 
