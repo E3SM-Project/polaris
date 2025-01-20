@@ -73,8 +73,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-updating-only-the-polaris-environment">Creating/updating only the polaris environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-e3sm-components">Building E3SM components</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean">MPAS-Ocean</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mali">MALI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-or-mpas-seaice">MPAS-Ocean or MPAS-Seaice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#omega">Omega</a></li>
 </ul>
 </li>
@@ -527,37 +526,24 @@ be safe.</p>
 <section id="building-e3sm-components">
 <span id="dev-build-components"></span><h2>Building E3SM components<a class="headerlink" href="#building-e3sm-components" title="Link to this heading"></a></h2>
 <p>There are 3 E3SM repositories that are submodules within the polaris
-repository.</p>
-<p>For MPAS-Ocean and MALI both, see the last column of the table in
-<a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> for the right <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for
+repository, but the MALI-Dev submodule is not yet used.</p>
+<section id="mpas-ocean-or-mpas-seaice">
+<span id="dev-mpas-build"></span><h3>MPAS-Ocean or MPAS-Seaice<a class="headerlink" href="#mpas-ocean-or-mpas-seaice" title="Link to this heading"></a></h3>
+<p>For MPAS-Ocean and -Seaice both, see the last column of the table in
+<a class="reference internal" href="machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a> for the right <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for
 each machine and compiler.</p>
-<section id="mpas-ocean">
-<h3>MPAS-Ocean<a class="headerlink" href="#mpas-ocean" title="Link to this heading"></a></h3>
 <p>To build MPAS-Ocean, you would typically run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make<span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
 </div>
-</section>
-<section id="mali">
-<h3>MALI<a class="headerlink" href="#mali" title="Link to this heading"></a></h3>
-<p>MALI should typically be compiled with the Albany library that contains the
-first-order velocity solver.  The Albany first-order velocity solver is the
-only velocity option that is scientifically validated.  On supported machines
-and with compilers that support albany, you can run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--with_albany<span class="w"> </span>...
-</pre></div>
-</div>
-<p>Then, you can build MALI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;_albany.sh
-<span class="nb">cd</span><span class="w"> </span>e3sm_submodules/MALI-Dev/components/mpas-albany-landice
-make<span class="w"> </span><span class="nv">ALBANY</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>&lt;mpas_make_target&gt;
-</pre></div>
-</div>
+<p>The same applies to MPAS-Seaice except with <code class="docutils literal notranslate"><span class="pre">mpas-seaice</span></code> in the path above.</p>
 </section>
 <section id="omega">
-<h3>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h3>
+<span id="dev-omega-build"></span><h3>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h3>
+<p>See the table in <a class="reference internal" href="machines/index.html#dev-omega-supported-machines"><span class="std std-ref">Omega Supported Machines</span></a> for a list of supported
+machines.</p>
 <p>If you simply wish to run the CTests from Omega, you likely want to use the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md">Omega CTest Utility</a>.</p>
 <p>Otherwise, to build Omega,</p>

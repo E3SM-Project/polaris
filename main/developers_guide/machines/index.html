@@ -71,6 +71,8 @@
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
 <li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-and-seaice-supported-machines">MPAS-Ocean and -Seaice Supported Machines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#omega-supported-machines">Omega Supported Machines</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#other-machines">Other Machines</a></li>
@@ -135,8 +137,8 @@ test  cases are configured in a way that is appropriate for your machine.</p>
 <p>If you follow the procedure in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>, you will have an
 activation script for activating the development conda environment, setting
 loading system modules and setting environment variables so you can build
-MPAS and work with polaris.  Just source the script that should appear in
-the base of your polaris branch, e.g.:</p>
+Omega or an MPAS component and work with polaris.  Just source the script that
+should appear in the base of your polaris branch, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
 </pre></div>
 </div>
@@ -147,11 +149,21 @@ you were setting things up.  You can can source this file on a compute node
 (e.g. in a job script) to get the right polaris conda environment, compilers,
 MPI libraries and environment variables for running polaris tasks and
 the MPAS model.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Albany (and therefore most of the functionality in MALI) is currently only
-supported for those configurations with <code class="docutils literal notranslate"><span class="pre">gnu</span></code> compilers.</p>
+<p>Below are specifics for each supported machine</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontier.html">Frontier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
+</ul>
 </div>
+<section id="mpas-ocean-and-seaice-supported-machines">
+<span id="dev-mpas-supported-machines"></span><h3>MPAS-Ocean and -Seaice Supported Machines<a class="headerlink" href="#mpas-ocean-and-seaice-supported-machines" title="Link to this heading"></a></h3>
+<p>These are the machines supported by MPAS-Ocean and -Seaice, including the
+“make target” used to build the MPAS component.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Machine</p></th>
@@ -212,17 +224,73 @@ supported for those configurations with <code class="docutils literal notranslat
 </tr>
 </tbody>
 </table>
-<p>Below are specifics for each supported machine</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="anvil.html">Anvil</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="frontier.html">Frontier</a></li>
-<li class="toctree-l1"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
-</ul>
+</section>
+<section id="omega-supported-machines">
+<span id="dev-omega-supported-machines"></span><h3>Omega Supported Machines<a class="headerlink" href="#omega-supported-machines" title="Link to this heading"></a></h3>
+<p>These are the machines supported by Omega.  The MPI library is always the
+E3SM default for the given machine an compiler.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Machine</p></th>
+<th class="head"><p>Compiler</p></th>
+<th class="head"><p>MPI lib.</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>chicoma-cpu</p></td>
+<td><p>gnu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><p>chrysalis</p></td>
+<td><p>intel</p></td>
+<td><p>openmpi</p></td>
+</tr>
+<tr class="row-even"><td><p>gnu</p></td>
+<td><p>openmpi</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="6"><p>frontier</p></td>
+<td><p>gnu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-even"><td><p>gnugpu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td><p>amdclang</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-even"><td><p>amdclanggpu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td><p>crayclang</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-even"><td><p>crayclanggpu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><p>pm-cpu</p></td>
+<td><p>gnu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-even"><td><p>intel</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvidia</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>pm-gpu</p></td>
+<td><p>gnugpu</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvidiagpu</p></td>
+<td><p>mpich</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Omega does not currently support Compy and Anvil.</p>
 </div>
+</section>
 </section>
 <section id="other-machines">
 <span id="dev-other-machines"></span><h2>Other Machines<a class="headerlink" href="#other-machines" title="Link to this heading"></a></h2>

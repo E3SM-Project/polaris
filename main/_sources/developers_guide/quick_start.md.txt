@@ -458,13 +458,15 @@ be safe.
 ## Building E3SM components
 
 There are 3 E3SM repositories that are submodules within the polaris
-repository.
+repository, but the MALI-Dev submodule is not yet used.
 
-For MPAS-Ocean and MALI both, see the last column of the table in
-{ref}`dev-supported-machines` for the right `<mpas_make_target>` command for
+(dev-mpas-build)=
+
+### MPAS-Ocean or MPAS-Seaice
+
+For MPAS-Ocean and -Seaice both, see the last column of the table in
+{ref}`dev-mpas-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
-
-### MPAS-Ocean
 
 To build MPAS-Ocean, you would typically run:
 
@@ -474,26 +476,14 @@ cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make <mpas_make_target>
 ```
 
-### MALI
+The same applies to MPAS-Seaice except with `mpas-seaice` in the path above.
 
-MALI should typically be compiled with the Albany library that contains the
-first-order velocity solver.  The Albany first-order velocity solver is the
-only velocity option that is scientifically validated.  On supported machines
-and with compilers that support albany, you can run:
-
-```bash
-./configure_polaris_envs.py --with_albany ...
-```
-
-Then, you can build MALI:
-
-```bash
-source ./load_<env_name>_<machine>_<compiler>_<mpi>_albany.sh
-cd e3sm_submodules/MALI-Dev/components/mpas-albany-landice
-make ALBANY=true <mpas_make_target>
-```
+(dev-omega-build)=
 
 ### Omega
+
+See the table in {ref}`dev-omega-supported-machines` for a list of supported
+machines.
 
 If you simply wish to run the CTests from Omega, you likely want to use the
 [Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md).
