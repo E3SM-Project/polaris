@@ -9,6 +9,5 @@ mpas-ocean:
     config_disable_thick_vadv: true
     config_disable_vel_vadv: true
     config_disable_vel_vmix: true
-    config_disable_tr_all_tend: true
   pressure_gradient:
     config_pressure_gradient_type: ssh_gradient
