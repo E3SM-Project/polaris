@@ -150,11 +150,17 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
+        variables_failed = []
         for var in convergence_vars:
-            self.plot_convergence(
+            convergence_failed = self.plot_convergence(
                 variable_name=var["name"],
                 title=var["title"],
                 zidx=var["zidx"])
+            if convergence_failed:
+                variables_failed.append(var["name"])
+        if len(variables_failed) >= 1:
+            raise ValueError('Convergence rate below minimum tolerance for '
+                             f'variables {", ".join(variables_failed)}.')
 
     def plot_convergence(self, variable_name, title, zidx):
         """
@@ -281,8 +287,7 @@ class ConvergenceAnalysis(OceanIOStep):
                          f'{conv_thresh}')
             convergence_failed = True
 
-        if convergence_failed:
-            raise ValueError('Convergence rate below minimum tolerance.')
+        return convergence_failed
 
     def compute_error(self, refinement_factor, variable_name, zidx=None,
                       error_type='l2'):
