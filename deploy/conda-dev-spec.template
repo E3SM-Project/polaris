@@ -1,6 +1,5 @@
 # Base
 python>=3.9,<3.13
-antimeridian
 cartopy
 cartopy_offlinedata
 cmocean
@@ -9,9 +8,6 @@ dask <2025.1.0
 esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
-geoviews
-holoviews
-hvplot
 importlib_resources
 ipython
 jupyter
@@ -22,6 +18,7 @@ mache={{ mache }}
 matplotlib-base>=3.9.0
 metis={{ metis }}
 moab={{ moab }}=*_tempest_*
+mosaic>=1.0.0,<2.0.0
 mpas_tools={{ mpas_tools }}
 nco
 netcdf4=*=nompi_*
@@ -37,8 +34,6 @@ ruamel.yaml
 requests
 scipy>=1.8.0
 shapely>=2.0,<3.0
-spatialpandas
-uxarray <2025.01.0
 xarray
 
 # Static typing
