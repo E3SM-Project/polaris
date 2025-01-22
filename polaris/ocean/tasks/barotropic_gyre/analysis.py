@@ -2,6 +2,7 @@ from math import pi
 
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
+import mosaic
 import numpy as np
 import xarray as xr
 from mpas_tools.ocean import compute_barotropic_streamfunction
@@ -61,26 +62,35 @@ class Analysis(OceanIOStep):
                                    boundary_condition=self.boundary_condition)
         print(f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}')
 
+        descriptor = mosaic.Descriptor(ds_mesh)
+
         use_mplstyle()
         pad = 20
         fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
-        x0 = ds_mesh.xEdge.min()
-        y0 = ds_mesh.yEdge.min()
-        x_vertex = (ds_mesh['xVertex'] - x0) * 1.e-3
-        y_vertex = (ds_mesh['yVertex'] - y0) * 1.e-3
+        x0 = float(ds_mesh.xEdge.min())
+        y0 = float(ds_mesh.yEdge.min())
+
+        # offset coordinates
+        descriptor.vertex_patches[..., 0] -= x0
+        descriptor.vertex_patches[..., 1] -= y0
+        # convert to km
+        descriptor.vertex_patches *= 1.e-3
+
         eta0 = max(np.max(np.abs(field_exact.values)),
                    np.max(np.abs(field_mpas.values)))
-        s = axes[0].tricontourf(x_vertex, y_vertex, field_mpas, 10,
-                                vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+
+        s = mosaic.polypcolor(axes[0], descriptor, field_mpas, vmin=-eta0,
+                              vmax=eta0, cmap='cmo.balance', antialiased=False)
         cbar = fig.colorbar(s, ax=axes[0])
         cbar.ax.set_title(r'$\psi$')
-        s = axes[1].tricontourf(x_vertex, y_vertex, field_exact, 10,
-                                vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+        s = mosaic.polypcolor(axes[1], descriptor, field_exact, vmin=-eta0,
+                              vmax=eta0, cmap='cmo.balance', antialiased=False)
         cbar = fig.colorbar(s, ax=axes[1])
         cbar.ax.set_title(r'$\psi$')
         eta0 = np.max(np.abs(field_mpas.values - field_exact.values))
-        s = axes[2].tricontourf(x_vertex, y_vertex, field_mpas - field_exact,
-                                10, vmin=-eta0, vmax=eta0, cmap='cmo.balance')
+        s = mosaic.polypcolor(axes[2], descriptor, field_mpas - field_exact,
+                              vmin=-eta0, vmax=eta0, cmap='cmo.balance',
+                              antialiased=False)
         cbar = fig.colorbar(s, ax=axes[2])
         cbar.ax.set_title(r'$d\psi$')
         axes[0].set_title('Numerical solution', pad=pad)
@@ -90,7 +100,14 @@ class Analysis(OceanIOStep):
         axes[1].set_xlabel('x (km)')
         axes[2].set_title('Error (Numerical - Analytical)', pad=pad)
         axes[2].set_xlabel('x (km)')
+
+        xmin = descriptor.vertex_patches[..., 0].min()
+        xmax = descriptor.vertex_patches[..., 0].max()
+        ymin = descriptor.vertex_patches[..., 1].min()
+        ymax = descriptor.vertex_patches[..., 1].max()
         for ax in axes:
+            ax.set_xlim(xmin, xmax)
+            ax.set_ylim(ymin, ymax)
             ax.set_aspect('equal')
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
 
