@@ -28,7 +28,7 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
     ds_mesh : xarray.Dataset
         A data set containing horizontal mesh variables
 
-    data_array : xarray.DataArray
+    field : xarray.DataArray
         The data array to plot
 
     out_file_name : str, optional
@@ -80,7 +80,7 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         Name of the vertical dimension
 
     field_mask : xarray.DataArray, optional
-        A ``bool`` mask indicating where the `data_array` is valid.
+        A ``bool`` mask indicating where the ``field`` is valid.
 
     descriptor : mosaic.Descriptor, optional
         Descriptor from a previous call to ``plot_horiz_field()``
@@ -206,8 +206,6 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         cbar.set_label(cmap_title)
 
     if transect_x is not None:
-        transect_x = transect_x
-        transect_y = transect_y
         ax.plot(transect_x, transect_y, color=transect_color,
                 linewidth=transect_linewidth)
         if transect_start is not None:

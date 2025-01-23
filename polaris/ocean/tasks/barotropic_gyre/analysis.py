@@ -67,8 +67,8 @@ class Analysis(OceanIOStep):
         use_mplstyle()
         pad = 20
         fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
-        x0 = float(ds_mesh.xEdge.min())
-        y0 = float(ds_mesh.yEdge.min())
+        x0 = ds_mesh.xEdge.min().values
+        y0 = ds_mesh.yEdge.min().values
 
         # offset coordinates
         descriptor.vertex_patches[..., 0] -= x0
