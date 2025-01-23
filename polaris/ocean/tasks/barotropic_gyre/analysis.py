@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
 import xarray as xr
+from matplotlib import colors as mcolors
 from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris.mpas import area_for_field
@@ -79,18 +80,22 @@ class Analysis(OceanIOStep):
         eta0 = max(np.max(np.abs(field_exact.values)),
                    np.max(np.abs(field_mpas.values)))
 
-        s = mosaic.polypcolor(axes[0], descriptor, field_mpas, vmin=-eta0,
-                              vmax=eta0, cmap='cmo.balance', antialiased=False)
+        bounds = np.linspace(-eta0, eta0, 21)
+        norm = mcolors.BoundaryNorm(bounds, cmocean.cm.amp.N)
+        s = mosaic.polypcolor(axes[0], descriptor, field_mpas,
+                              cmap='cmo.balance', norm=norm, antialiased=False)
         cbar = fig.colorbar(s, ax=axes[0])
         cbar.ax.set_title(r'$\psi$')
-        s = mosaic.polypcolor(axes[1], descriptor, field_exact, vmin=-eta0,
-                              vmax=eta0, cmap='cmo.balance', antialiased=False)
+        s = mosaic.polypcolor(axes[1], descriptor, field_exact,
+                              cmap='cmo.balance', norm=norm, antialiased=False)
         cbar = fig.colorbar(s, ax=axes[1])
         cbar.ax.set_title(r'$\psi$')
+
         eta0 = np.max(np.abs(field_mpas.values - field_exact.values))
+        bounds = np.linspace(-eta0, eta0, 11)
+        norm = mcolors.BoundaryNorm(bounds, cmocean.cm.balance.N)
         s = mosaic.polypcolor(axes[2], descriptor, field_mpas - field_exact,
-                              vmin=-eta0, vmax=eta0, cmap='cmo.balance',
-                              antialiased=False)
+                              cmap='cmo.balance', norm=norm, antialiased=False)
         cbar = fig.colorbar(s, ax=axes[2])
         cbar.ax.set_title(r'$d\psi$')
         axes[0].set_title('Numerical solution', pad=pad)
