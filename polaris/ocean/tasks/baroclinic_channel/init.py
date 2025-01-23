@@ -7,7 +7,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.mpas import cell_mask_2_edge_mask
+from polaris.mpas import cell_mask_to_edge_mask
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
@@ -164,7 +164,7 @@ class Init(Step):
         write_netcdf(ds, 'initial_state.nc')
 
         cell_mask = ds.maxLevelCell >= 1
-        edge_mask = cell_mask_2_edge_mask(ds, cell_mask)
+        edge_mask = cell_mask_to_edge_mask(ds, cell_mask)
 
         plot_horiz_field(ds_mesh, ds['normalVelocity'],
                          'initial_normal_velocity.png', cmap='cmo.balance',

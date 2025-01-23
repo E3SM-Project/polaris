@@ -100,7 +100,7 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
     pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
 
     if plot_land:
-        ax._add_land_lakes_coastline(ax)
+        _add_land_lakes_coastline(ax)
 
     cbar = fig.colorbar(
         pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6

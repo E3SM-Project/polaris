@@ -5,7 +5,7 @@ import pandas as pd
 import xarray as xr
 
 from polaris import Step
-from polaris.mpas import cell_mask_2_edge_mask
+from polaris.mpas import cell_mask_to_edge_mask
 from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
@@ -119,7 +119,7 @@ class Viz(Step):
 
         # Plot water column thickness horizontal ds_init
         cell_mask = ds_init.maxLevelCell >= 1
-        edge_mask = cell_mask_2_edge_mask(ds_init, cell_mask)
+        edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)
         plot_horiz_field(ds_mesh, ds_horiz['columnThickness'],
                          'H_horiz_init.png', t_index=None,
                          field_mask=cell_mask)

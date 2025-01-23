@@ -30,6 +30,6 @@ def cell_mask_to_edge_mask(ds_mesh, cell_mask):
     masked_cells = ds_mesh.nCells.where(~cell_mask, drop=True).astype(int)
 
     # use inverse so True/False convention matches input cell_mask
-    edge_mask = ~cellsOnEdge.isin(masked_cells).any("TWO")
+    edge_mask = ~cells_on_edge.isin(masked_cells).any("TWO")
 
     return edge_mask
