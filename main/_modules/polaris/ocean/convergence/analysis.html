@@ -266,11 +266,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_vars</span>
+        <span class="n">variables_failed</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convergence_vars</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">plot_convergence</span><span class="p">(</span>
+            <span class="n">convergence_failed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_convergence</span><span class="p">(</span>
                 <span class="n">variable_name</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
                 <span class="n">title</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
-                <span class="n">zidx</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;zidx&quot;</span><span class="p">])</span></div>
+                <span class="n">zidx</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;zidx&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">convergence_failed</span><span class="p">:</span>
+                <span class="n">variables_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables_failed</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Convergence rate below minimum tolerance for &#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;variables </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables_failed</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ConvergenceAnalysis.plot_convergence">
@@ -400,8 +406,7 @@
                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">conv_thresh</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">convergence_failed</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Convergence rate below minimum tolerance.&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">convergence_failed</span></div>
 
 
 <div class="viewcode-block" id="ConvergenceAnalysis.compute_error">

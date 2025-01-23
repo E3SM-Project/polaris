@@ -105,16 +105,16 @@
              
   <h1>Source code for polaris.ocean.tasks.sphere_transport.viz</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_index_from_xtime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_mpas_field</span>
 
 
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for plotting fields from the cosine bell output</span>
 
@@ -182,27 +182,32 @@
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="n">mesh_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span>
         <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
 
         <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.0</span>
 
         <span class="c1"># Visualization at halfway around the globe (provided run duration is</span>
         <span class="c1"># set to the time needed to circumnavigate the globe)</span>
-        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                                     <span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-o&#39;</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># time is seconds since the start of the simulation in Omega</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dt</span> <span class="o">-</span> <span class="n">time</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">))</span>
         <span class="n">ds_mid</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">,</span>
                                                        <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># Visualization at all the way around the globe</span>
-        <span class="n">tidx</span> <span class="o">=</span> <span class="n">time_index_from_xtime</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                                     <span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dt</span> <span class="o">-</span> <span class="n">time</span><span class="p">))</span>
         <span class="n">ds_final</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">variables_to_plot</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">,</span>
                                                          <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
