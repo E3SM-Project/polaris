@@ -1,16 +1,18 @@
-mpas-ocean:
-  run_modes:
-    config_ocean_run_mode: forward
+ocean:
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+
+mpas-ocean:
+  run_modes:
+    config_ocean_run_mode: forward
   decomposition:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_vert_coord_movement: impermeable_interfaces
-  time_integration:
-    config_dt: {{ dt }}
-    config_time_integrator: {{ time_integrator }}
   debug:
     config_disable_thick_sflux: true
     config_disable_vel_all_tend: true
@@ -57,3 +59,31 @@ mpas-ocean:
       - refLayerThickness
       - kineticEnergyCell
       - relativeVorticityCell
+
+Omega:
+  Tendencies:
+    ThicknessFluxTendencyEnable : false
+    PVTendencyEnable : false
+    KETendencyEnable : false
+    SSHTendencyEnable : false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    TracerHorzAdvTendencyEnable : true
+    TracerDiffTendencyEnable : false
+    TracerHyperDiffTendencyEnable : false
+  Dimension:
+    NVertLevels: 1
+  IOStreams:
+    InitialState:
+      Filename: init.nc
+      Contents:
+        - State
+        - Tracers
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
+      Contents:
+        - Tracers
+        - LayerThickness
+        - NormalVelocity

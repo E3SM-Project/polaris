@@ -1,8 +1,7 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.tasks.sphere_transport.resources.flow_types import (
     flow_divergent,
     flow_nondivergent,
@@ -17,7 +16,7 @@ from polaris.ocean.tasks.sphere_transport.resources.tracer_distributions import 
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for an initial condition for for the cosine bell test case
     """
@@ -156,4 +155,4 @@ class Init(Step):
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc')

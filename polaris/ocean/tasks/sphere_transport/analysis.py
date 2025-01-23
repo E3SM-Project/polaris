@@ -39,13 +39,13 @@ class Analysis(ConvergenceAnalysis):
         self.case_name = case_name
         convergence_vars = [{'name': 'tracer1',
                              'title': 'tracer1',
-                             'zidx': 1},
+                             'zidx': 0},
                             {'name': 'tracer2',
                              'title': 'tracer2',
-                             'zidx': 1},
+                             'zidx': 0},
                             {'name': 'tracer3',
                              'title': 'tracer3',
-                             'zidx': 1}]
+                             'zidx': 0}]
         super().__init__(component=component, subdir=subdir,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars,
@@ -71,8 +71,14 @@ class Analysis(ConvergenceAnalysis):
             The maximum convergence rate
         """
         config = self.config
+        model = config.get('ocean', 'model')
+        if model == 'omega' and self.case_name == 'rotation_2d':
+            order = 2
+        else:
+            order = 3
         section = config[self.case_name]
-        conv_thresh = section.getfloat(f'convergence_thresh_{field_name}')
+        conv_thresh = section.getfloat(
+            f'convergence_thresh_{field_name}_order{order}')
 
         section = config['convergence']
         error_type = section.get('error_type')

@@ -1,12 +1,12 @@
 import cmocean  # noqa: F401
-import xarray as xr
+import numpy as np
 
-from polaris import Step
-from polaris.mpas import time_index_from_xtime
+from polaris.mpas import time_since_start
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_global_mpas_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting fields from the cosine bell output
 
@@ -69,27 +69,32 @@ class Viz(Step):
         Run this step of the test case
         """
         config = self.config
+        model = config.get('ocean', 'model')
         mesh_name = self.mesh_name
         run_duration = config.getfloat('convergence_forward',
                                        'run_duration')
 
         variables_to_plot = self.variables_to_plot
-        ds_init = xr.open_dataset('initial_state.nc')
+        ds_init = self.open_model_dataset('initial_state.nc')
         ds_init = ds_init[variables_to_plot.keys()].isel(Time=0, nVertLevels=0)
 
-        ds_out = xr.open_dataset('output.nc')
+        ds_out = self.open_model_dataset('output.nc', decode_times=False)
         s_per_hour = 3600.0
 
         # Visualization at halfway around the globe (provided run duration is
         # set to the time needed to circumnavigate the globe)
-        tidx = time_index_from_xtime(ds_out.xtime.values,
-                                     run_duration * s_per_hour / 2.)
+        time = run_duration * s_per_hour
+        if model == 'mpas-o':
+            dt = time_since_start(ds_out.xtime.values)
+        else:
+            # time is seconds since the start of the simulation in Omega
+            dt = ds_out.Time.values
+        tidx = np.argmin(np.abs(dt - time / 2.))
         ds_mid = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                        nVertLevels=0)
 
         # Visualization at all the way around the globe
-        tidx = time_index_from_xtime(ds_out.xtime.values,
-                                     run_duration * s_per_hour)
+        tidx = np.argmin(np.abs(dt - time))
         ds_final = ds_out[variables_to_plot.keys()].isel(Time=tidx,
                                                          nVertLevels=0)
 
