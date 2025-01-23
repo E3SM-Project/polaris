@@ -79,6 +79,9 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
                            constrained_layout=True,
                            subplot_kw=dict(projection=projection))
 
+    if title is not None:
+        fig.suptitle(title, y=0.935)
+
     colormap, norm, ticks = _setup_colormap(config, colormap_section)
 
     pcolor_kwargs = dict(
