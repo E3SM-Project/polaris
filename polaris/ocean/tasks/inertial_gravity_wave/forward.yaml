@@ -14,6 +14,7 @@ mpas-ocean:
   debug:
     config_disable_vel_hadv: true
     config_disable_vel_hmix: true
+    config_disable_tr_all_tend: true
   streams:
     mesh:
       filename_template: init.nc
