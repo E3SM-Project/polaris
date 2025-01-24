@@ -6,7 +6,10 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.ocean.convergence import (
+    get_resolution_for_task,
+    get_timestep_for_task,
+)
 from polaris.ocean.tasks.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
@@ -20,10 +23,31 @@ class Viz(Step):
 
     Attributes
     ----------
-    resolutions : list of float
-        The resolutions of the meshes that have been run
+    dependencies_dict : dict of dict of polaris.Steps
+        The dependencies of this step must be given as separate keys in the
+        dict:
+
+            mesh : dict of polaris.Steps
+                Keys of the dict correspond to `refinement_factors`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `base_mesh.nc` of that
+                resolution
+            init : dict of polaris.Steps
+                Keys of the dict correspond to `refinement_factors`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `initial_state.nc` of that
+                resolution
+            forward : dict of polaris.Steps
+                Keys of the dict correspond to `refinement_factors`
+                Values of the dict are polaris.Steps, which must have the
+                attribute `path`, the path to `forward.nc` of that
+                resolution
+
+    refinement : str, optional
+        Refinement type. One of 'space', 'time' or 'both' indicating both
+        space and time
     """
-    def __init__(self, component, resolutions, taskdir):
+    def __init__(self, component, taskdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -32,28 +56,66 @@ class Viz(Step):
         component : polaris.Component
             The component the step belongs to
 
-        resolutions : list of float
-            The resolutions of the meshes that have been run
-
         taskdir : str
             The subdirectory that the task belongs to
+
+        dependencies : dict of dict of polaris.Steps
+            The dependencies of this step must be given as separate keys in the
+            dict:
+
+                mesh : dict of polaris.Steps
+                    Keys of the dict correspond to `refinement_factors`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `base_mesh.nc` of that
+                    resolution
+                init : dict of polaris.Steps
+                    Keys of the dict correspond to `refinement_factors`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `initial_state.nc` of that
+                    resolution
+                forward : dict of polaris.Steps
+                    Keys of the dict correspond to `refinement_factors`
+                    Values of the dict are polaris.Steps, which must have the
+                    attribute `path`, the path to `forward.nc` of that
+                    resolution
+
+        refinement : str, optional
+            Refinement type. One of 'space', 'time' or 'both' indicating both
+            space and time
         """
         super().__init__(component=component, name='viz', indir=taskdir)
-        self.resolutions = resolutions
-
-        for resolution in resolutions:
-            mesh_name = resolution_to_subdir(resolution)
-            self.add_input_file(
-                filename=f'mesh_{mesh_name}.nc',
-                target=f'../init/{mesh_name}/culled_mesh.nc')
-            self.add_input_file(
-                filename=f'init_{mesh_name}.nc',
-                target=f'../init/{mesh_name}/initial_state.nc')
-            self.add_input_file(
-                filename=f'output_{mesh_name}.nc',
-                target=f'../forward/{mesh_name}/output.nc')
+        self.dependencies_dict = dependencies
+        self.refinement = refinement
 
         self.add_output_file('comparison.png')
+
+    def setup(self):
+        """
+        Add input files based on resolutions, which may have been changed by
+        user config options
+        """
+        super().setup()
+        config = self.config
+        dependencies = self.dependencies_dict
+        if self.refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
+        refinement_factors = config.getlist('convergence', option,
+                                            dtype=float)
+        for refinement_factor in refinement_factors:
+            base_mesh = dependencies['mesh'][refinement_factor]
+            init = dependencies['init'][refinement_factor]
+            forward = dependencies['forward'][refinement_factor]
+            self.add_input_file(
+                filename=f'mesh_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+            self.add_input_file(
+                filename=f'init_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{init.path}/initial_state.nc')
+            self.add_input_file(
+                filename=f'output_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
         """
@@ -61,8 +123,14 @@ class Viz(Step):
         """
         plt.switch_backend('Agg')
         config = self.config
-        resolutions = self.resolutions
-        nres = len(resolutions)
+
+        if self.refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
+        refinement_factors = config.getlist('convergence', option,
+                                            dtype=float)
+        nres = len(refinement_factors)
 
         section = config['inertial_gravity_wave']
         eta0 = section.getfloat('ssh_amplitude')
@@ -71,11 +139,12 @@ class Viz(Step):
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
         error_range = None
-        for i, res in enumerate(resolutions):
-            mesh_name = resolution_to_subdir(res)
-            ds_mesh = xr.open_dataset(f'mesh_{mesh_name}.nc')
-            ds_init = xr.open_dataset(f'init_{mesh_name}.nc')
-            ds = xr.open_dataset(f'output_{mesh_name}.nc')
+        for i, refinement_factor in enumerate(refinement_factors):
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement=self.refinement)
+            ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
+            ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
+            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
             exact = ExactSolution(ds_init, config)
 
             t0 = datetime.datetime.strptime(ds.xtime.values[0].decode(),
@@ -112,8 +181,13 @@ class Viz(Step):
         axes[0, 2].set_title('Error (Numerical - Analytical)')
 
         pad = 5
-        for ax, res in zip(axes[:, 0], resolutions):
-            ax.annotate(f'{res}km', xy=(0, 0.5),
+        for ax, refinement_factor in zip(axes[:, 0], refinement_factors):
+            timestep, _ = get_timestep_for_task(
+                config, refinement_factor, refinement=self.refinement)
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement=self.refinement)
+
+            ax.annotate(f'{resolution}km\n{timestep}s', xy=(0, 0.5),
                         xytext=(-ax.yaxis.labelpad - pad, 0),
                         xycoords=ax.yaxis.label, textcoords='offset points',
                         size='large', ha='right', va='center')

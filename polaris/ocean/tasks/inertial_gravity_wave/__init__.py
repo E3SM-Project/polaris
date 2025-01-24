@@ -120,8 +120,10 @@ class InertialGravityWave(Task):
                                subdir=f'{self.subdir}/analysis',
                                refinement=refinement,
                                dependencies=analysis_dependencies))
-        self.add_step(Viz(component=component, resolutions=resolutions,
-                          taskdir=self.subdir),
+        self.add_step(Viz(component=component,
+                          taskdir=self.subdir,
+                          refinement=refinement,
+                          dependencies=analysis_dependencies),
                       run_by_default=False)
         config.add_from_package('polaris.ocean.convergence',
                                 'convergence.cfg')
