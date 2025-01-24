@@ -232,8 +232,10 @@
                                <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/analysis&#39;</span><span class="p">,</span>
                                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
                                <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
-                          <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                          <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                          <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+                          <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">),</span>
                       <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
