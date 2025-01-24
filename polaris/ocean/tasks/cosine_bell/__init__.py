@@ -151,7 +151,10 @@ class CosineBell(Task):
         else:
             option = 'refinement_factors_space'
 
-        refinement_factors = config.getlist('convergence', option, dtype=float)
+        _set_convergence_configs(config, prefix)
+
+        refinement_factors = config.getlist('convergence',
+                                            option, dtype=float)
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -250,8 +253,6 @@ def _set_convergence_configs(config, prefix):
                                             f'{prefix}_{option}', dtype=str)
         refinement_factors = ', '.join(refinement_factors)
         config.set('convergence', option, value=refinement_factors)
-        refinement_factors = config.getlist('convergence',
-                                            option, dtype=float)
 
         base_resolution = config.getfloat('spherical_convergence',
                                           f'{prefix}_base_resolution')
