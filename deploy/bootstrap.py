@@ -911,8 +911,8 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
 
     if scorpio != 'None':
         specs.append(
-            f'"scorpio'
-            f'@{scorpio}+pnetcdf~timing+internal-timing~tools+malloc"')
+            f'"e3sm-scorpio'
+            f'@{scorpio}+mpi~timing~internal-timing~tools+malloc"')
 
     if albany != 'None':
         specs.append(f'"albany@{albany}+mpas"')
