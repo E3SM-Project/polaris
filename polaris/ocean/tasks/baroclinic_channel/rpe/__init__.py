@@ -62,6 +62,8 @@ class Rpe(Task):
                 # remove previous RPE forward or analysis steps
                 self.remove_step(step)
 
+        init = self.steps['init']
+
         component = self.component
         resolution = self.resolution
 
@@ -72,7 +74,8 @@ class Rpe(Task):
             step = Forward(
                 component=component, name=name, indir=self.subdir,
                 ntasks=None, min_tasks=None, openmp_threads=1,
-                resolution=resolution, nu=nu)
+                resolution=resolution, nu=nu,
+                graph_target=f'{init.path}/culled_graph.info')
 
             step.add_yaml_file(
                 'polaris.ocean.tasks.baroclinic_channel.rpe',
