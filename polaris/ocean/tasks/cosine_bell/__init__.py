@@ -24,8 +24,7 @@ def add_cosine_bell_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for icosahedral, prefix, single_refinement in [(True, 'icos', 8.0),
-                                                   (False, 'qu', 2.0)]:
+    for prefix, single_refinement in [('icos', 8.0), ('qu', 2.0)]:
 
         filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         config = PolarisConfigParser(filepath=filepath)
@@ -37,23 +36,23 @@ def add_cosine_bell_tasks(component):
                                 'cosine_bell.cfg')
         _set_convergence_configs(config, prefix)
 
-        for refinement in ['space', 'time', 'both']:
+        for refinement in ['both', 'space', 'time']:
             for include_viz in [False, True]:
                 component.add_task(CosineBell(component=component,
                                               config=config,
-                                              icosahedral=icosahedral,
+                                              prefix=prefix,
                                               include_viz=include_viz,
                                               refinement=refinement))
 
         component.add_task(Restart(component=component,
                                    config=config,
-                                   icosahedral=icosahedral,
+                                   prefix=prefix,
                                    refinement_factor=single_refinement,
                                    refinement='both'))
 
         component.add_task(Decomp(component=component,
                                   config=config,
-                                  icosahedral=icosahedral,
+                                  prefix=prefix,
                                   refinement_factor=single_refinement,
                                   refinement='both',
                                   proc_counts=[12, 24]))
@@ -69,13 +68,15 @@ class CosineBell(Task):
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
 
-    icosahedral : bool
-        Whether to use icosahedral, as opposed to less regular, JIGSAW meshes
+    prefix : str
+        The prefix on the mesh name, step names and a subdirectory in the
+        work directory indicating the mesh type ('icos': uniform or
+        'qu': less regular JIGSAW meshes)
 
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, component, config, icosahedral, include_viz,
+    def __init__(self, component, config, prefix, include_viz,
                  refinement='both'):
         """
         Create the convergence test
@@ -88,9 +89,10 @@ class CosineBell(Task):
         config : polaris.config.PolarisConfigParser
             A shared config parser
 
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
+        prefix : str
+            The prefix on the mesh name, step names and a subdirectory in the
+            work directory indicating the mesh type ('icos': uniform or
+            'qu': less regular JIGSAW meshes)
 
         include_viz : bool
             Include VizMap and Viz steps for each resolution
@@ -99,11 +101,6 @@ class CosineBell(Task):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
-
         subdir = f'spherical/{prefix}/cosine_bell/convergence_{refinement}'
         name = f'{prefix}_cosine_bell_convergence_{refinement}'
         if include_viz:
@@ -112,7 +109,7 @@ class CosineBell(Task):
         link = 'cosine_bell.cfg'
         super().__init__(component=component, name=name, subdir=subdir)
         self.refinement = refinement
-        self.icosahedral = icosahedral
+        self.prefix = prefix
         self.include_viz = include_viz
 
         self.set_shared_config(config, link=link)
@@ -137,21 +134,19 @@ class CosineBell(Task):
         refinement : str
            refinement type. One of 'space', 'time' or 'both'
         """
-        icosahedral = self.icosahedral
+        prefix = self.prefix
         config = self.config
         config_filename = self.config_filename
-
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
 
         if refinement == 'time':
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
 
-        refinement_factors = config.getlist('convergence', option, dtype=float)
+        _set_convergence_configs(config, prefix)
+
+        refinement_factors = config.getlist('convergence',
+                                            option, dtype=float)
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -172,7 +167,7 @@ class CosineBell(Task):
                 config, refinement_factor, refinement=refinement)
 
             base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral)
+                component, resolution, icosahedral=(prefix == 'icos'))
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
             name = f'{prefix}_init_{mesh_name}'
@@ -250,8 +245,6 @@ def _set_convergence_configs(config, prefix):
                                             f'{prefix}_{option}', dtype=str)
         refinement_factors = ', '.join(refinement_factors)
         config.set('convergence', option, value=refinement_factors)
-        refinement_factors = config.getlist('convergence',
-                                            option, dtype=float)
 
         base_resolution = config.getfloat('spherical_convergence',
                                           f'{prefix}_base_resolution')

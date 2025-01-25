@@ -87,14 +87,13 @@ def get_timestep_for_task(config, refinement_factor,
     else:
         dt_per_km = section.getfloat('split_dt_per_km')
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        for idx, refinement_factor in enumerate(refinement_factors):
-            if refinement == 'time':
-                btr_timestep = btr_dt_per_km * base_resolution * \
-                    refinement_factor
-            elif refinement == 'space':
-                btr_timestep = btr_dt_per_km * base_resolution
-            else:
-                btr_timestep = btr_dt_per_km * resolution
+        if refinement == 'time':
+            btr_timestep = btr_dt_per_km * base_resolution * \
+                refinement_factor
+        elif refinement == 'space':
+            btr_timestep = btr_dt_per_km * base_resolution
+        else:
+            btr_timestep = btr_dt_per_km * resolution
     if refinement == 'time':
         timestep = dt_per_km * refinement_factor * resolution
     elif refinement == 'space':

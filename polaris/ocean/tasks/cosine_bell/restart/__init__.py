@@ -13,7 +13,7 @@ class Restart(Task):
     in between.
     """
 
-    def __init__(self, component, config, icosahedral, refinement_factor,
+    def __init__(self, component, config, prefix, refinement_factor,
                  refinement):
         """
         Create the convergence test
@@ -26,9 +26,10 @@ class Restart(Task):
         config : polaris.config.PolarisConfigParser
             A shared config parser
 
-        icosahedral : bool
-            Whether to use icosahedral, as opposed to less regular, JIGSAW
-            meshes
+        prefix : str
+            The prefix on the mesh name, step names and a subdirectory in the
+            work directory indicating the mesh type ('icos': uniform or
+            'qu': less regular JIGSAW meshes)
 
         refinement_factor : float
             The factor by which to scale space, time or both
@@ -37,11 +38,6 @@ class Restart(Task):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-
-        if icosahedral:
-            prefix = 'icos'
-        else:
-            prefix = 'qu'
 
         task_subdir = f'spherical/{prefix}/cosine_bell/restart'
         name = f'{prefix}_cosine_bell_restart'
@@ -54,6 +50,7 @@ class Restart(Task):
         resolution = get_resolution_for_task(
             config, refinement_factor, refinement=refinement)
 
+        icosahedral = (prefix == 'icos')
         base_mesh_step, mesh_name = add_spherical_base_mesh_step(
             component, resolution, icosahedral)
 
