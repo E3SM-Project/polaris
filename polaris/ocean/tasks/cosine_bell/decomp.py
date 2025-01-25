@@ -26,7 +26,9 @@ class Decomp(Task):
             A shared config parser
 
         prefix : str
-            The prefix indicating the mesh type ('icos' or 'qu')
+            The prefix on the mesh name, step names and a subdirectory in the
+            work directory indicating the mesh type ('icos': uniform or
+            'qu': less regular JIGSAW meshes)
 
         refinement_factor : float
             The factor by which to scale space, time or both
