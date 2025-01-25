@@ -131,8 +131,7 @@
 <span class="sd">        the ocean component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">for</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">single_refinement</span> <span class="ow">in</span> <span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;icos&#39;</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
-                                                   <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;qu&#39;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)]:</span>
+    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">single_refinement</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;icos&#39;</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;qu&#39;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)]:</span>
 
         <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/cosine_bell.cfg&#39;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
@@ -144,23 +143,23 @@
                                 <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
         <span class="n">_set_convergence_configs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">refinement</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;space&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">refinement</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="s1">&#39;space&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">include_viz</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
                 <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CosineBell</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                                               <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                                              <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                                              <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
                                               <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">,</span>
                                               <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">))</span>
 
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Restart</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                                   <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                                   <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
                                    <span class="n">refinement_factor</span><span class="o">=</span><span class="n">single_refinement</span><span class="p">,</span>
                                    <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">))</span>
 
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Decomp</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                                   <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                                  <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                                  <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
                                   <span class="n">refinement_factor</span><span class="o">=</span><span class="n">single_refinement</span><span class="p">,</span>
                                   <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
                                   <span class="n">proc_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">24</span><span class="p">]))</span></div>
@@ -179,15 +178,17 @@
 <span class="sd">        Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
 <span class="sd">        space and time</span>
 
-<span class="sd">    icosahedral : bool</span>
-<span class="sd">        Whether to use icosahedral, as opposed to less regular, JIGSAW meshes</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        The prefix on the mesh name, step names and a subdirectory in the</span>
+<span class="sd">        work directory indicating the mesh type (&#39;icos&#39;: uniform or</span>
+<span class="sd">        &#39;qu&#39;: less regular JIGSAW meshes)</span>
 
 <span class="sd">    include_viz : bool</span>
 <span class="sd">        Include VizMap and Viz steps for each resolution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="CosineBell.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span>
                  <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the convergence test</span>
@@ -200,9 +201,10 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            A shared config parser</span>
 
-<span class="sd">        icosahedral : bool</span>
-<span class="sd">            Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
-<span class="sd">            meshes</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix on the mesh name, step names and a subdirectory in the</span>
+<span class="sd">            work directory indicating the mesh type (&#39;icos&#39;: uniform or</span>
+<span class="sd">            &#39;qu&#39;: less regular JIGSAW meshes)</span>
 
 <span class="sd">        include_viz : bool</span>
 <span class="sd">            Include VizMap and Viz steps for each resolution</span>
@@ -211,11 +213,6 @@
 <span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
 <span class="sd">            space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
-
         <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_cosine_bell_convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
@@ -224,7 +221,7 @@
         <span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="n">refinement</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span> <span class="o">=</span> <span class="n">icosahedral</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span> <span class="o">=</span> <span class="n">include_viz</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
@@ -253,21 +250,19 @@
 <span class="sd">        refinement : str</span>
 <span class="sd">           refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">icosahedral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icosahedral</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span>
-
-        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
 
         <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
 
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">_set_convergence_configs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span>
+                                            <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="c1"># start fresh with no steps</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -288,7 +283,7 @@
                 <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
 
             <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
-                <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">)</span>
+                <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="o">=</span><span class="p">(</span><span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span><span class="p">))</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
 
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -367,8 +362,6 @@
                                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
         <span class="n">refinement_factors</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">refinement_factors</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">)</span>
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span>
-                                            <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="n">base_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;spherical_convergence&#39;</span><span class="p">,</span>
                                           <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_base_resolution&#39;</span><span class="p">)</span>

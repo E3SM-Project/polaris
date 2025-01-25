@@ -122,7 +122,7 @@
 
 <div class="viewcode-block" id="Decomp.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span>
                  <span class="n">refinement</span><span class="p">,</span> <span class="n">proc_counts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the convergence test</span>
@@ -135,9 +135,10 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            A shared config parser</span>
 
-<span class="sd">        icosahedral : bool</span>
-<span class="sd">            Whether to use icosahedral, as opposed to less regular, JIGSAW</span>
-<span class="sd">            meshes</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix on the mesh name, step names and a subdirectory in the</span>
+<span class="sd">            work directory indicating the mesh type (&#39;icos&#39;: uniform or</span>
+<span class="sd">            &#39;qu&#39;: less regular JIGSAW meshes)</span>
 
 <span class="sd">        refinement_factor : float</span>
 <span class="sd">            The factor by which to scale space, time or both</span>
@@ -149,12 +150,6 @@
 <span class="sd">        proc_counts : list of int</span>
 <span class="sd">            The number of processors to run each step on</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
-
         <span class="n">task_subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/decomp&#39;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_cosine_bell_decomp&#39;</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span>
@@ -166,6 +161,7 @@
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
 
+        <span class="n">icosahedral</span> <span class="o">=</span> <span class="p">(</span><span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span><span class="p">)</span>
         <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
             <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">)</span>
 
