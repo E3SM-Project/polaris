@@ -38,7 +38,7 @@ requests
 scipy>=1.8.0
 shapely>=2.0,<3.0
 spatialpandas
-uxarray
+uxarray <2025.01.0
 xarray
 
 # Static typing
