@@ -1,4 +1,4 @@
-(dev-ocean-inertial-gravity-wave)= 
+(dev-ocean-inertial-gravity-wave)=
 
 # inertial_gravity_wave
 
@@ -8,11 +8,11 @@ is a linear shallow water test case at 4 resolutions (200, 100, 50, and
 
 The {py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`
 test performs a 10-hour run with a series of resolutions.  The convergence rate
-is calculated and visualizations are generated.  
+is calculated and visualizations are generated.
 
 ## framework
 
-The config options for the `inertial_gravity_wave` test are described in 
+The config options for the `inertial_gravity_wave` test are described in
 {ref}`ocean-inertial-gravity-wave` in the User's Guide.
 
 Additionally, the test uses a `forward.yaml` file with a few common
@@ -55,19 +55,19 @@ Namelist and streams files are updated by the parent class with time steps
 determined algorithmically based on config options. The number
 of cells is approximated from config options in
 {py:meth}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()`
-so that this can be used to constrain the number of MPI tasks that Polaris 
-tasks have as  their target and minimum (if the resources are not explicitly 
-prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph 
-partition is generated as part of `runtime_setup()`.  Then, the ocean model 
-is run. Finally, validation of `layerThickness` and `normalVelocity` are 
-performed against a baseline if one is provided when calling 
+so that this can be used to constrain the number of MPI tasks that Polaris
+tasks have as  their target and minimum (if the resources are not explicitly
+prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph
+partition is generated as part of `runtime_setup()`.  Then, the ocean model
+is run. Finally, validation of `layerThickness` and `normalVelocity` are
+performed against a baseline if one is provided when calling
 {ref}`dev-polaris-setup`.
 
 ### analysis
 
 The class
 {py:class}`polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis`
-descends from {py:class}`polaris.ocean.convergence.ConvergenceAnalysis`
+descends from {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`
 a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
 convergence rate falls within acceptable bounds.

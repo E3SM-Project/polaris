@@ -538,7 +538,7 @@ time integrator, time step, run duration and output interval, e.g.:</p>
 <p><code class="docutils literal notranslate"><span class="pre">ConvergenceForward</span></code> takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).</p>
-<p>In addition, the <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis</span></code>
+<p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>
 step can serve as a parent class for analysis steps in convergence tests.  This
 parent class computes the error norm for the output from each resolution’s
 forward step. It also produces the convergence plot.</p>
@@ -580,11 +580,11 @@ class:</p>
 </pre></div>
 </div>
 <p>Many tasks will also need to override the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()</span></code>
+<a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution()</span></code></a>
 method. If not overridden, the analysis step will compute the difference of the
 output from the initial state.</p>
 <p>In some cases, the child class will also need to override the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()</span></code>
+<a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field()</span></code></a>
 method if the requested field is not available directly from the output put
 rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to
