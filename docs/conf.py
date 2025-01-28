@@ -107,7 +107,7 @@ html_sidebars = {
     ],
 }
 
-# Include tags like "tags/1.0.0" -- 0.1.0 doesn't build
-smv_tag_whitelist = r'^(?!(0.1.1))\d+\.\d+.\d+$'
+# Include tags like "tags/1.0.0" -- 0.1.0-0.4.0 don't build
+smv_tag_whitelist = r'^(?!(0.1.0|0.2.0|0.3.0|0.4.0))\d+\.\d+.\d+$'
 smv_branch_whitelist = "main"
 smv_remote_whitelist = "origin"
