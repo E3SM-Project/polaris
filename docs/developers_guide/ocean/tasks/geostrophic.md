@@ -10,7 +10,7 @@ used to produce the initial condition to determine the rate of convergence.
 
 ## framework
 
-The config options for the `geostrophic` tests are described in 
+The config options for the `geostrophic` tests are described in
 {ref}`ocean-geostrophic` in the User's Guide.
 
 Additionally, the test uses a `forward.yaml` file with a few common
@@ -37,14 +37,14 @@ descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenc
 and defines a step for running MPAS-Ocean from an initial condition produced in
 an `init` step. See {ref}`dev-ocean-convergence` for some relevant
 discussion of the parent class. The time step is determined from the resolution
-based on the `dt_per_km` config option in the `[spherical_convergences]` 
+based on the `dt_per_km` config option in the `[spherical_convergences]`
 section.  Other model config options are taken from `forward.yaml`.
 
 ### analysis
 
 The class {py:class}`polaris.ocean.tasks.geostrophic.analysis.Analysis`
 descends from
-{py:class}`polaris.ocean.convergence.ConvergenceAnalysis`,
+{py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`,
 and defines a step for computing the error norm (L2) for the water-column
 thickness and normal velocity at each resolution, saving them in
 `convergence_h.csv` and `convergence_normalVelocity.csv`, and plotting them
