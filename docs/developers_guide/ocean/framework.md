@@ -226,7 +226,7 @@ convergence is being tested in space (or space and time together). The
 `base_resolution` is applied to all steps when convergence in time is tested.
 `base_resolution` times `dt_per_km` determines the base timestep in that case
 and is then multiplied by the `refinement_factors` to determine which time steps
-to test. When spherical meshes are being tested, the values in the 
+to test. When spherical meshes are being tested, the values in the
 `convergence` section are overridden by their values in the
 `spherical_convergence` section with a prefix indicating the mesh type.
 
@@ -441,7 +441,7 @@ mpas-ocean:
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).
 
-In addition, the {py:class}`polaris.ocean.convergence.ConvergenceAnalysis`
+In addition, the {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`
 step can serve as a parent class for analysis steps in convergence tests.  This
 parent class computes the error norm for the output from each resolution's
 forward step. It also produces the convergence plot.
@@ -486,12 +486,12 @@ class Analysis(ConvergenceAnalysis):
 ```
 
 Many tasks will also need to override the
-{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.exact_solution()`
+{py:meth}`polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution()`
 method. If not overridden, the analysis step will compute the difference of the
 output from the initial state.
 
 In some cases, the child class will also need to override the
-{py:meth}`polaris.ocean.convergence.ConvergenceAnalysis.get_output_field()`
+{py:meth}`polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field()`
 method if the requested field is not available directly from the output put
 rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the `'name'` key) at the time index closest to
