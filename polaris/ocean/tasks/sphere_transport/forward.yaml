@@ -83,6 +83,10 @@ Omega:
       Filename: output.nc
       Freq: {{ output_freq }}
       FreqUnits: seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
       Contents:
         - Tracers
         - LayerThickness
