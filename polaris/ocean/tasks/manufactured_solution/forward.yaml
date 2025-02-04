@@ -57,6 +57,10 @@ Omega:
       Filename: output.nc
       Freq: {{ output_freq }}
       FreqUnits: Seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
       Contents:
       - NormalVelocity
       - LayerThickness
