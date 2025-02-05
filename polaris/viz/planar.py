@@ -196,7 +196,15 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
     ax.set_xlabel('x (km)')
     ax.set_ylabel('y (km)')
     ax.set_aspect('equal')
-    ax.autoscale(tight=True)
+
+    if descriptor.is_periodic:
+        if descriptor.x_period and not descriptor.y_period:
+            ax.autoscale(axis='y', tight=True)
+        elif not descriptor.x_period and descriptor.y_period:
+            ax.autoscale(axis='x', tight=True)
+    else:
+        ax.autoscale(axis='both', tight=True)
+
     # scale ticks to be in kilometers
     ax.xaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
     ax.yaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
