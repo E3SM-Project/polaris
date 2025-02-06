@@ -183,7 +183,7 @@ To install your own polaris conda environment on non-E3SM-supported machines,
 first, install <a class="reference external" href="https://github.com/conda-forge/miniforge#miniforge3">Miniforge3</a>
 if you don’t already have it.  Then, create a new conda environment (called
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> in this example) as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;polaris=*=mpi_mpich*&quot;</span>
 </pre></div>
 </div>
@@ -192,7 +192,7 @@ package.  If you want OpenMPI, use <code class="docutils literal notranslate"><s
 you do not want MPI from conda-forge (e.g. because you are working with a
 system with its own MPI), use <code class="docutils literal notranslate"><span class="pre">&quot;polaris=*=nompi*&quot;</span></code></p>
 <p>To get a specific version of polaris, you can instead run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;polaris=1.0.0=mpi_mpich*&quot;</span>
 </pre></div>
 </div>
