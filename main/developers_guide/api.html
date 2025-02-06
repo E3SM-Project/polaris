@@ -13,7 +13,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=16704aa1"></script>
+      <script src="../_static/documentation_options.js?v=b208ceb8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -143,6 +143,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#mpas">mpas</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.area_for_field.html">polaris.mpas.area_for_field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.cell_mask_to_edge_mask.html">polaris.mpas.cell_mask_to_edge_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html">polaris.mpas.time_index_from_xtime</a></li>
 </ul>
 </li>
@@ -633,7 +634,10 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mpas.area_for_field.html#polaris.mpas.area_for_field" title="polaris.mpas.area_for_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area_for_field</span></code></a>(ds_mesh, field)</p></td>
 <td><p>Get the appropriate area (on cells, vertices or edges) for the given field</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime" title="polaris.mpas.time_index_from_xtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index_from_xtime</span></code></a>(xtime, dt_target[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mpas.cell_mask_to_edge_mask.html#polaris.mpas.cell_mask_to_edge_mask" title="polaris.mpas.cell_mask_to_edge_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cell_mask_to_edge_mask</span></code></a>(ds_mesh, cell_mask)</p></td>
+<td><p>Convert a cell mask to edge mask using mesh connectivity information</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime" title="polaris.mpas.time_index_from_xtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index_from_xtime</span></code></a>(xtime, dt_target[, ...])</p></td>
 <td><p>Determine the time index closest to the target time</p></td>
 </tr>
 </tbody>
@@ -763,7 +767,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_mplstyle</span></code></a>()</p></td>
 <td><p>Use the Polaris matplotlib style file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_horiz_field</span></code></a>(ds, ds_mesh, field_name[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_horiz_field</span></code></a>(ds_mesh, field[, ...])</p></td>
 <td><p>Plot a horizontal field from a planar domain using x,y coordinates at a single time and depth slice.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_lat_lon_field</span></code></a>(lon, lat, ...[, ...])</p></td>

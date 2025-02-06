@@ -12,7 +12,7 @@
   
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=16704aa1"></script>
+      <script src="../../../../../_static/documentation_options.js?v=b208ceb8"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/js/theme.js"></script>
@@ -111,6 +111,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_mask_to_edge_mask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_transect</span><span class="p">,</span> <span class="n">plot_transect</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
@@ -231,9 +232,10 @@
 
         <span class="c1"># Plot water column thickness horizontal ds_init</span>
         <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;columnThickness&#39;</span><span class="p">,</span>
+        <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;columnThickness&#39;</span><span class="p">],</span>
                          <span class="s1">&#39;H_horiz_init.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
 
         <span class="n">time_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Plot the final state</span>
         <span class="n">ds_horiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_ice</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span>
@@ -243,27 +245,27 @@
         <span class="n">vmax_del_ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delSsh</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="n">vmax_del_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delLandIcePressure</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="c1"># Plot water column thickness horizontal</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;columnThickness&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;columnThickness&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;H_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;landIceFreshwaterFlux&#39;</span><span class="p">,</span>
+                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;landIceFreshwaterFlux&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;melt_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;wettingVelocityFactor&#39;</span> <span class="ow">in</span> <span class="n">ds_horiz</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;wettingVelocityFactor&#39;</span><span class="p">,</span>
+            <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;wettingVelocityFactor&#39;</span><span class="p">],</span>
                              <span class="sa">f</span><span class="s1">&#39;wet_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                             <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span>
                              <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.ice&#39;</span><span class="p">)</span>
         <span class="c1"># Plot difference in ssh</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;delSsh&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;delSsh&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;del_ssh_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_del_ssh</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_del_ssh</span><span class="p">)</span>
 
         <span class="c1"># Plot difference in land ice pressure</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_horiz</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;delLandIcePressure&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;delLandIcePressure&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;del_land_ice_pressure_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
-                         <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_del_p</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_del_p</span><span class="p">,</span>
                          <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">)</span>
 
@@ -276,24 +278,24 @@
             <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;velocityX&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityX&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;u_surf_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-                         <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
                          <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;velocityX&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityX&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;u_bot_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-                         <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
                          <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;velocityY&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityY&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;v_surf_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-                         <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
                          <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;velocityY&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityY&#39;</span><span class="p">],</span>
                          <span class="sa">f</span><span class="s1">&#39;v_bot_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-                         <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                         <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                          <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
                          <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">)</span>
         <span class="n">plot_transect</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span>

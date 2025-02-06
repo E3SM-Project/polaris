@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=16704aa1"></script>
+      <script src="../../_static/documentation_options.js?v=b208ceb8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -132,9 +132,10 @@
 <p>Visualization is an optional, but desirable aspect of tasks. Often,
 visualization is an optional step of a task but can also be included
 as part of other steps such as <code class="docutils literal notranslate"><span class="pre">init</span></code> or <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
-<p>While developers can write their own visualization scripts associated with
-individual tasks, the following shared visualization routines are
-provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
+<p>Horizontal visualization of MPAS fields is enabled through the use of
+<a class="reference external" href="https://docs.e3sm.org/mosaic/"><code class="docutils literal notranslate"><span class="pre">mosaic</span></code></a>. While developers can write their
+own visualization scripts associated with individual tasks, the following
+shared visualization routines are provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
 <section id="common-matplotlib-style">
 <span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Link to this heading"></a></h2>
 <p>The function <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a> loads a common
@@ -146,49 +147,51 @@ before creating a <code class="docutils literal notranslate"><span class="pre">m
 </section>
 <section id="horizontal-fields-from-planar-meshes">
 <span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a patches-style
-visualization of x-y fields across a single vertical level at a single time
-step. The image file (png) is saved to the directory from which
-<a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> is called. The function
-automatically detects whether the field specified by its variable name is
-a cell-centered variable or an edge-variable and generates the patches, the
-polygons characterized by the field values, accordingly.</p>
+<p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a visualization of
+horizontal fields at their native mesh location (i.e. cells, edges, or
+vertices) at a single vertical level and a single time step. The image file
+(png) is saved to the directory from which
+<a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> is called.
+<a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> is jut a wrapper for
+<a class="reference external" href="https://docs.e3sm.org/mosaic/developers_guide/generated/mosaic.polypcolor.html#mosaic.polypcolor" title="(in mosaic)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mosaic.polypcolor()</span></code></a>, which automatically detects whether the field
+to be plotted is defined at cells, edges, or vertices and generates the patches
+(i.e. the polygons characterized by the field values) accordingly.</p>
 <a class="reference internal image-reference" href="../../_images/baroclinic_channel_cell_patches.png"><img alt="../../_images/baroclinic_channel_cell_patches.png" class="align-center" src="../../_images/baroclinic_channel_cell_patches.png" style="width: 250px;" />
 </a>
 <a class="reference internal image-reference" href="../../_images/baroclinic_channel_edge_patches.png"><img alt="../../_images/baroclinic_channel_edge_patches.png" class="align-center" src="../../_images/baroclinic_channel_edge_patches.png" style="width: 250px;" />
 </a>
 <p>An example function call that uses the default vertical level (top) is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
-                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
-                 <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
-                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+<span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
+
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span> <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
+                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
+                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                 <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">cell_mask</span></code> argument can be any field indicating which horizontal cells
-are valid and which are not.  A typical value for ocean plots is as shown
-above: whether there are any active cells in the water column.</p>
-<p>For increased efficiency, you can store the <code class="docutils literal notranslate"><span class="pre">patches</span></code> and <code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> from
-one call to <code class="docutils literal notranslate"><span class="pre">plot_horiz_field()</span></code> and reuse them in subsequent calls.  The
-<code class="docutils literal notranslate"><span class="pre">patches</span></code> and <code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> are specific to the dimension (<code class="docutils literal notranslate"><span class="pre">nCell</span></code> or <code class="docutils literal notranslate"><span class="pre">nEdges</span></code>)
-of the field to plot and the <code class="docutils literal notranslate"><span class="pre">cell_mask</span></code>.  So separate <code class="docutils literal notranslate"><span class="pre">patches</span></code> and
-<code class="docutils literal notranslate"><span class="pre">patch_mask</span></code> variables should be stored for as needed:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">field_mask</span></code> argument can be any field indicating which horizontal mesh
+locations are valid and which are not, but it must be the same shape as data
+array being plotted.  A typical value for ocean plots is as shown
+above: whether there are any active cells in the water column and then the cell
+mask is converted to an edges mask using the
+<a class="reference internal" href="../generated/polaris.mpas.cell_mask_to_edge_mask.html#polaris.mpas.cell_mask_to_edge_mask" title="polaris.mpas.cell_mask_to_edge_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mpas.cell_mask_to_edge_mask()</span></code></a> function.</p>
+<p>For increased efficiency, you can store the instance of
+<a class="reference external" href="https://docs.e3sm.org/mosaic/developers_guide/generated/mosaic.Descriptor.html#mosaic.Descriptor" title="(in mosaic)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mosaic.Descriptor</span></code></a> returned by <code class="docutils literal notranslate"><span class="pre">plot_horiz_field()</span></code> and reuse it in
+subsequent calls; assuming you are plotting with the same mesh.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-<span class="n">cell_patches</span><span class="p">,</span> <span class="n">cell_patch_mask</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span>
-    <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/ssh.png&#39;</span><span class="p">,</span>
-    <span class="n">vmin</span><span class="o">=-</span><span class="mi">720</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+<span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/ssh.png&#39;</span><span class="p">,</span>
+                              <span class="n">vmin</span><span class="o">=-</span><span class="mi">720</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+                              <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
 
-<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">,</span> 
-                 <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/bottomDepth.png&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span>
-                 <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">patches</span><span class="o">=</span><span class="n">cell_patches</span><span class="p">,</span> 
-                 <span class="n">patch_mask</span><span class="o">=</span><span class="n">cell_patch_mask</span><span class="p">)</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/bottomDepth.png&#39;</span><span class="p">,</span>
+                 <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                 <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">)</span>
 
-<span class="n">edge_patches</span><span class="p">,</span> <span class="n">edge_patch_mask</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span>
-    <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> 
-    <span class="n">out_file_name</span><span class="o">=</span><span class="s1">&#39;plots/normalVelocity.png&#39;</span><span class="p">,</span> <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> 
-    <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">cell_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
+<span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/normalVelocity.png&#39;</span><span class="p">,</span>
+                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                 <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span> <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">)</span>
 
 <span class="o">...</span>
 </pre></div>
@@ -199,7 +202,14 @@ of the field to plot and the <code class="docutils literal notranslate"><span cl
 <section id="plotting-from-spherical-mpas-meshes">
 <h3>plotting from spherical MPAS meshes<a class="headerlink" href="#plotting-from-spherical-mpas-meshes" title="Link to this heading"></a></h3>
 <p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> to plot a field on
-a spherical MPAS mesh.</p>
+a spherical MPAS mesh. Like the planar visualization function, this is also
+just a wrapper to <a class="reference external" href="https://docs.e3sm.org/mosaic/developers_guide/generated/mosaic.polypcolor.html#mosaic.polypcolor" title="(in mosaic)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mosaic.polypcolor()</span></code></a>. Thanks to <code class="docutils literal notranslate"><span class="pre">mosaic</span></code> variables
+defined at cells, edges, and vertices are all support as well as meshes with
+culled land boundaries are also supported. While <code class="docutils literal notranslate"><span class="pre">mosaic</span></code>
+<a class="reference external" href="https://docs.e3sm.org/mosaic/user_guide/wrapping.html">supports</a> a variety
+of map projection for spherical meshes,
+<a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> currently only supports
+<a class="reference external" href="https://scitools.org.uk/cartopy/docs/latest/reference/projections.html#cartopy.crs.PlateCarree"><code class="docutils literal notranslate"><span class="pre">cartopy.crs.PlateCarree</span></code></a>.</p>
 <a class="reference internal image-reference" href="../../_images/cosine_bell_final_mpas.png"><img alt="../../_images/cosine_bell_final_mpas.png" class="align-center" src="../../_images/cosine_bell_final_mpas.png" style="width: 500px;" />
 </a>
 <p>Typical usage might be:</p>
@@ -228,7 +238,7 @@ used  to enable or disable continents overlain on top of the data.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">central_longitude</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0.0</span></code> and can be set to another value
 (typically 180 degrees) for visualizing quantities that would otherwise be
 divided across the antimeridian.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">colormap_section</span></code> of the config file must contain config options for
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;_viz</span></code> section of the config file must contain config options for
 specifying the colormap:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
 <span class="k">[cosine_bell_viz]</span>
@@ -240,22 +250,21 @@ specifying the colormap:</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># colorbar limits</span>
-<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 1.0</span>
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">colormap_name</span></code> can be any available matplotlib colormap.  For ocean test
 cases, we recommend importing <a class="reference external" href="https://matplotlib.org/cmocean/">cmocean</a> so
 the standard ocean colormaps are available.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> is one of <code class="docutils literal notranslate"><span class="pre">linear</span></code> (a linear colormap) or <code class="docutils literal notranslate"><span class="pre">log</span></code> (a logarithmic
-colormap).</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">colorbar_limits</span></code> are the lower and upper bound of the colorbar range.</p>
-<p>There are also two optional config options used to set the colors on either end of the colormap:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># [optional] colormap set_under and set_over options</span>
-<span class="na">under_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">k</span>
-<span class="na">over_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">orange</span>
-</pre></div>
-</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> is one of <code class="docutils literal notranslate"><span class="pre">linear</span></code> (a linear colormap), <code class="docutils literal notranslate"><span class="pre">symlog</span></code> (a
+<a class="reference external" href="https://matplotlib.org/stable/gallery/images_contours_and_fields/colormap_normalizations_symlognorm.html">symmetric log</a>
+colormap with a central linear region), or <code class="docutils literal notranslate"><span class="pre">log</span></code> (a logarithmic colormap).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">norm_args</span></code> depend on the <code class="docutils literal notranslate"><span class="pre">norm_typ</span></code> and are the arguments to
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.Normalize.html#matplotlib.colors.Normalize" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.Normalize</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.SymLogNorm.html#matplotlib.colors.SymLogNorm" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.SymLogNorm</span></code></a>,
+and <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.LogNorm</span></code></a>, respectively.</p>
+<p>The config option <code class="docutils literal notranslate"><span class="pre">colorbar_ticks</span></code> (if it is defined) specifies tick locations
+along the colorbar. If it is not specified, they are determined automatically.</p>
 </section>
 <section id="plotting-from-lat-lon-grids">
 <h3>plotting from lat/lon grids<a class="headerlink" href="#plotting-from-lat-lon-grids" title="Link to this heading"></a></h3>
@@ -287,36 +296,8 @@ is used  to enable or disable continents overlain on top of the data:</p>
             <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">colormap_section</span></code> of the config file must contain config options for
-specifying the colormap:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence task</span>
-<span class="k">[cosine_bell_viz]</span>
-
-<span class="c1"># colormap options</span>
-<span class="c1"># colormap</span>
-<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
-
-<span class="c1"># the type of norm used in the colormap</span>
-<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
-
-<span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
-
-<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
-<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">colormap_name</span></code> can be any available matplotlib colormap.  For ocean test
-cases, we recommend importing <a class="reference external" href="https://matplotlib.org/cmocean/">cmocean</a> so
-the standard ocean colormaps are available.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> is one of <code class="docutils literal notranslate"><span class="pre">linear</span></code> (a linear colormap), <code class="docutils literal notranslate"><span class="pre">symlog</span></code> (a
-<a class="reference external" href="https://matplotlib.org/stable/gallery/images_contours_and_fields/colormap_normalizations_symlognorm.html">symmetric log</a>
-colormap with a central linear region), or <code class="docutils literal notranslate"><span class="pre">log</span></code> (a logarithmic colormap).</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">norm_args</span></code> depend on the <code class="docutils literal notranslate"><span class="pre">norm_typ</span></code> and are the arguments to
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.Normalize.html#matplotlib.colors.Normalize" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.Normalize</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.SymLogNorm.html#matplotlib.colors.SymLogNorm" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.SymLogNorm</span></code></a>,
-and <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm" title="(in Matplotlib v3.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.colors.LogNorm</span></code></a>, respectively.</p>
-<p>The config option <code class="docutils literal notranslate"><span class="pre">colorbar_ticks</span></code> (if it is defined) specifies tick locations
-along the colorbar. If it is not specified, they are determined automatically.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;_viz</span></code> of the config file is the same as what’s used by
+<a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a>.</p>
 </section>
 </section>
 </section>
