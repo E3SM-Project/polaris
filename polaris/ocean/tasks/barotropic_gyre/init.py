@@ -140,7 +140,7 @@ class Init(Step):
 
         cell_mask = ds.maxLevelCell >= 1
 
-        plot_horiz_field(ds_forcing, ds_mesh, 'windStressZonal',
+        plot_horiz_field(ds_mesh, ds_forcing['windStressZonal'],
                          'forcing_wind_stress_zonal.png', cmap='cmo.balance',
-                         show_patch_edges=True, cell_mask=cell_mask,
+                         show_patch_edges=True, field_mask=cell_mask,
                          vmin=-0.1, vmax=0.1)

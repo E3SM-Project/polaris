@@ -104,10 +104,10 @@ class Analysis(Step):
             time_index = np.argmin(np.abs(times - time))
 
             cell_mask = ds_init.maxLevelCell >= 1
-            plot_horiz_field(ds, ds_mesh, 'temperature', ax=ax,
+            plot_horiz_field(ds_mesh, ds['temperature'], ax=ax,
                              cmap='cmo.thermal', t_index=time_index,
                              vmin=min_temp, vmax=max_temp,
-                             cmap_title='SST (C)', cell_mask=cell_mask)
+                             cmap_title='SST (C)', field_mask=cell_mask)
             ax.set_title(f'day {times[time_index]:g}, $\\nu_h=${nu:g}')
 
         plt.savefig(output_filename)

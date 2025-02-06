@@ -297,6 +297,7 @@ seaice/api
    :toctree: generated/
 
    area_for_field
+   cell_mask_to_edge_mask
    time_index_from_xtime
 ```
 

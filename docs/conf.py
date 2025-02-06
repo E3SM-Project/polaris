@@ -71,6 +71,7 @@ intersphinx_mapping = {
         ('https://mpas-dev.github.io/geometric_features/main', None),
     'matplotlib': ('https://matplotlib.org/stable', None),
     'mpas_tools': ('https://mpas-dev.github.io/MPAS-Tools/master', None),
+    'mosaic': ('https://docs.e3sm.org/mosaic', None),
     'numpy': ('https://numpy.org/doc/stable', None),
     'python': ('https://docs.python.org', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
