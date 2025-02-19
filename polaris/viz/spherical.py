@@ -290,6 +290,13 @@ def _setup_colormap(config, colormap_section):
     except configparser.NoOptionError:
         ticks = None
 
+    if config.has_option(colormap_section, 'under_color'):
+        under_color = config.get(colormap_section, 'under_color')
+        colormap.set_under(under_color)
+    if config.has_option(colormap_section, 'over_color'):
+        over_color = config.get(colormap_section, 'over_color')
+        colormap.set_over(over_color)
+
     return colormap, norm, ticks
 
 
