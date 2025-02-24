@@ -7,5 +7,5 @@ chicoma-cpu, gnu, mpich
 chrysalis, intel, openmpi
 chrysalis, gnu, openmpi
 compy, intel, impi
-frontier, gnu, mpich
+frontier, craygnu, mpich
 pm-cpu, gnu, mpich
