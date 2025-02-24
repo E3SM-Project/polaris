@@ -369,11 +369,12 @@ def _get_compilers_mpis(options):  # noqa: C901
     if mpis is None:
         mpis = list()
         for compiler in compilers:
-            if not config.has_option('deploy', f'mpi_{compiler}'):
+            option = f'mpi_{compiler.replace("-", "_")}'
+            if not config.has_option('deploy', option):
                 raise ValueError(f'Machine config file for {machine} is '
-                                 f'missing mpi_{compiler}, the default MPI '
+                                 f'missing [deploy]/{option}, the default MPI '
                                  f'library for the requested compiler.')
-            mpi = config.get('deploy', f'mpi_{compiler}')
+            mpi = config.get('deploy', option)
             mpis.append(mpi)
 
     supported_compilers = list()
