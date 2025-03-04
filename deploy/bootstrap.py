@@ -98,12 +98,12 @@ def main():  # noqa: C901
         # write out a log file for use by matrix builds
         with open('deploy_tmp/logs/matrix.log', 'w') as f:
             f.write(f'{machine}\n')
-            for compiler, mpi in zip(compilers, mpis):
+            for compiler, mpi in zip(compilers, mpis, strict=False):
                 f.write(f'{compiler}, {mpi}\n')
 
         print('Configuring environment(s) for the following compilers and MPI '
               'libraries:')
-        for compiler, mpi in zip(compilers, mpis):
+        for compiler, mpi in zip(compilers, mpis, strict=False):
             print(f'  {compiler}, {mpi}')
         print('')
 
@@ -114,7 +114,7 @@ def main():  # noqa: C901
 
     soft_spack_view = _build_spack_soft_env(options)
 
-    for compiler, mpi in zip(compilers, mpis):
+    for compiler, mpi in zip(compilers, mpis, strict=False):
 
         _get_env_setup(options, compiler, mpi)
 
@@ -379,7 +379,7 @@ def _get_compilers_mpis(options):  # noqa: C901
 
     supported_compilers = list()
     supported_mpis = list()
-    for compiler, mpi in zip(compilers, mpis):
+    for compiler, mpi in zip(compilers, mpis, strict=False):
         if (compiler, mpi) in unsupported:
             if error_on_unsupported:
                 raise ValueError(f'{compiler} with {mpi} is not supported on '

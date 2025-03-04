@@ -777,7 +777,7 @@ def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
     d = d_sorted[0]
     unique_d_indices = [sort_indices[0]]
     unique_d_all_indices = [[sort_indices[0]]]
-    for index, next_d, in zip(sort_indices[1:], d_sorted[1:]):
+    for index, next_d, in zip(sort_indices[1:], d_sorted[1:], strict=False):
         if next_d - d < epsilon:
             # this d value is effectively the same as the last, so we'll treat
             # it as the same

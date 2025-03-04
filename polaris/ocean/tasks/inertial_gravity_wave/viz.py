@@ -181,7 +181,7 @@ class Viz(Step):
         axes[0, 2].set_title('Error (Numerical - Analytical)')
 
         pad = 5
-        for ax, refinement_factor in zip(axes[:, 0], refinement_factors):
+        for ax, refinement_factor in zip(axes[:, 0], refinement_factors, strict=False):
             timestep, _ = get_timestep_for_task(
                 config, refinement_factor, refinement=self.refinement)
             resolution = get_resolution_for_task(

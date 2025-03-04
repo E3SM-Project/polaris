@@ -93,7 +93,7 @@ def setup_matrix(config_filename, submit):
     if baseline_base != '':
         baseline_base = os.path.abspath(baseline_base)
 
-    for compiler, mpi in zip(compilers, mpis):
+    for compiler, mpi in zip(compilers, mpis, strict=False):
         if (compiler, mpi) not in build_targets:
             raise ValueError(f'Unsupported compiler {compiler} and MPI {mpi}')
         target = build_targets[(compiler, mpi)]
