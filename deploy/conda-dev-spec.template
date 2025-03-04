@@ -42,11 +42,10 @@ types-requests
 # Linting and testing
 pip
 pytest
-isort
 flynt
-flake8
 mypy
 pre-commit
+ruff
 
 # Development
 {% if mpi != "nompi" %}

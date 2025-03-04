@@ -46,15 +46,11 @@ dependencies = [
     "scipy>=1.8.0",
     "shapely>=2.0,<3.0",
     "xarray",
+    "pre-commit",
+    "mypy",
+    "ruff",
+    "flynt",
 ]
-
-[tool.isort]
-multi_line_output = "3"
-include_trailing_comma = true
-force_grid_wrap = "0"
-use_parentheses = true
-line_length = "79"
-skip = ["e3sm_diags/e3sm_diags_driver.py"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -63,6 +59,34 @@ ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true
+
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = ["docs*", "conda*"]
+line-length = 79
+
+[tool.ruff.lint]
+# E501 - max line-length
+# E4 - whitespace
+# E7 - multiple-statements
+# E9 - trailing-whitespace
+# F - Enable Pyflakes
+# B - Enable flake8-bugbear
+# W - Enable pycodestyle
+# C901 - complex-structure
+# D - Enable flake8-docstrings
+select = ["E501", "E4", "E7", "E9", "F", "B", "W", "C901"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 18.
+max-complexity = 18
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [build-system]
 requires = ["setuptools>=60"]
