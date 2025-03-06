@@ -40,8 +40,6 @@ MPI libraries and the libraries with another.  This is sometimes necessary,
 since ESMF, MOAB and/or their dependencies can't always be built or don't
 run correctly with all compiler and MPI combinations.  For example, we have
 experienced problems running ESMF built with intel compilers on Perlmutter.
-We are also not able to build ESMF or the Eigen dependency of MOAB using
-`nvidiagpu` compilers.
 
 When we update the versions of any of these packages in Polaris, we also need
 to bump the Polaris version (typically either the major or the minor version)
@@ -60,7 +58,7 @@ environments on share machines because they remain unaffected.
 
 ## Mache
 
-A brief tour of mache. For additional information about mache, check out the 
+A brief tour of mache. For additional information about mache, check out the
 [mache documentation](https://docs.e3sm.org/mache/).
 
 ### Identifying E3SM machines
