@@ -23,8 +23,8 @@ all_build_targets = {
     'compy': {
         ('intel', 'impi'): 'intel-mpi'},
     'frontier': {
-        ('gnu', 'mpich'): 'gnu-cray',
-        ('crayclang', 'mpich'): 'cray-cray'},
+        ('craygnu', 'mpich'): 'gnu-cray',
+        ('craycray', 'mpich'): 'cray-cray'},
     'pm-cpu': {
         ('gnu', 'mpich'): 'gnu-cray',
         ('intel', 'mpich'): 'intel-cray'},

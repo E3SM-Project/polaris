@@ -69,9 +69,9 @@ These are the machines supported by MPAS-Ocean and -Seaice, including the
 +--------------+------------+-----------+-------------------+
 | compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
-| frontier     | gnu        | mpich     | gnu-cray          |
+| frontier     | craygun    | mpich     | gnu-cray          |
 |              +------------+-----------+-------------------+
-|              | crayclang  | mpich     | cray-cray         |
+|              | craycray   | mpich     | cray-cray         |
 +--------------+------------+-----------+-------------------+
 | pm-cpu       | gnu        | mpich     | gnu-cray          |
 |              +------------+-----------+-------------------+
@@ -87,37 +87,35 @@ These are the machines supported by Omega.  The MPI library is always the
 E3SM default for the given machine an compiler.
 
 ```{eval-rst}
-+--------------+--------------+-----------+
-| Machine      | Compiler     | MPI lib.  |
-+==============+==============+===========+
-| chicoma-cpu  | gnu          | mpich     |
-+--------------+--------------+-----------+
-| chrysalis    | intel        | openmpi   |
-|              +--------------+-----------+
-|              | gnu          | openmpi   |
-+--------------+--------------+-----------+
-| frontier     | gnu          | mpich     |
-|              +--------------+-----------+
-|              | gnugpu       | mpich     |
-|              +--------------+-----------+
-|              | amdclang     | mpich     |
-|              +--------------+-----------+
-|              | amdclanggpu  | mpich     |
-|              +--------------+-----------+
-|              | crayclang    | mpich     |
-|              +--------------+-----------+
-|              | crayclanggpu | mpich     |
-+--------------+--------------+-----------+
-| pm-cpu       | gnu          | mpich     |
-|              +--------------+-----------+
-|              | intel        | mpich     |
-|              +--------------+-----------+
-|              | nvidia       | mpich     |
-+--------------+--------------+-----------+
-| pm-gpu       | gnugpu       | mpich     |
-|              +--------------+-----------+
-|              | nvidiagpu    | mpich     |
-+--------------+--------------+-----------+
++--------------+------------------+-----------+
+| Machine      | Compiler         | MPI lib.  |
++==============+==================+===========+
+| chicoma-cpu  | gnu              | mpich     |
++--------------+------------------+-----------+
+| chrysalis    | intel            | openmpi   |
+|              +------------------+-----------+
+|              | gnu              | openmpi   |
++--------------+------------------+-----------+
+| frontier     | craygnu          | mpich     |
+|              +------------------+-----------+
+|              | craygnu-hipcc    | mpich     |
+|              +------------------+-----------+
+|              | craygnu-mphipcc  | mpich     |
+|              +------------------+-----------+
+|              | crayamd          | mpich     |
+|              +------------------+-----------+
+|              | crayamd-mphipcc  | mpich     |
+|              +------------------+-----------+
+|              | craycray         | mpich     |
+|              +------------------+-----------+
+|              | craycray-mphipcc | mpich     |
++--------------+------------------+-----------+
+| pm-cpu       | gnu              | mpich     |
+|              +------------------+-----------+
+|              | intel            | mpich     |
++--------------+------------------+-----------+
+| pm-gpu       | gnugpu           | mpich     |
++--------------+------------------+-----------+
 ```
 
 :::{note}
