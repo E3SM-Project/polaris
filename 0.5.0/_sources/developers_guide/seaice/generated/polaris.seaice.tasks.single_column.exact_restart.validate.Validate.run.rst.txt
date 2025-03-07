@@ -1,0 +1,6 @@
+﻿polaris.seaice.tasks.single\_column.exact\_restart.validate.Validate.run
+========================================================================
+
+.. currentmodule:: polaris.seaice.tasks.single_column.exact_restart.validate
+
+.. automethod:: Validate.run

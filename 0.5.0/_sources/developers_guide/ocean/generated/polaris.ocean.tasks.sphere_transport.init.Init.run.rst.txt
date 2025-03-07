@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.sphere\_transport.init.Init.run
+===================================================
+
+.. currentmodule:: polaris.ocean.tasks.sphere_transport.init
+
+.. automethod:: Init.run

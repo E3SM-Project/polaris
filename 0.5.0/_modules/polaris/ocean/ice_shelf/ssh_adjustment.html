@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.ice_shelf.ssh_adjustment</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../ice_shelf.html">polaris.ocean.ice_shelf</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.ice_shelf.ssh_adjustment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.ice_shelf.ssh_adjustment</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_layer_thickness</span>
+
+
+<div class="viewcode-block" id="SshAdjustment">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SshAdjustment</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for iteratively adjusting the pressure from the weight of the ice</span>
+<span class="sd">    shelf to match the sea-surface height as part of ice-shelf 2D test cases</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SshAdjustment.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ssh_adjust&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
+
+<span class="sd">        mesh_filename : str</span>
+<span class="sd">            the mesh filename (relative to the base work directory)</span>
+
+<span class="sd">        forward: polaris.Step</span>
+<span class="sd">            the step that produced the state which will be adjusted</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
+
+<span class="sd">        name : str, optional</span>
+<span class="sd">            the name of this step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                         <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/ssh_adjustment&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;final.nc&#39;</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># no setup() is needed</span>
+
+<div class="viewcode-block" id="SshAdjustment.run">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshAdjustment.run.html#polaris.ocean.ice_shelf.SshAdjustment.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjust the sea surface height or land-ice pressure to be dynamically</span>
+<span class="sd">        consistent with one another.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">adjust_variable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ssh_adjustment&#39;</span><span class="p">,</span> <span class="s1">&#39;adjust_variable&#39;</span><span class="p">)</span>
+        <span class="n">mask_variable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ssh_adjustment&#39;</span><span class="p">,</span> <span class="s1">&#39;mask_variable&#39;</span><span class="p">)</span>
+        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="s1">&#39;mesh.nc&#39;</span>
+        <span class="n">init_filename</span> <span class="o">=</span> <span class="s1">&#39;init.nc&#39;</span>
+        <span class="n">final_filename</span> <span class="o">=</span> <span class="s1">&#39;final.nc&#39;</span>
+        <span class="n">out_filename</span> <span class="o">=</span> <span class="s1">&#39;output.nc&#39;</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">init_filename</span><span class="p">)</span>
+        <span class="n">ds_final</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">final_filename</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">adjust_variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;landIcePressure&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown variable to modify: </span><span class="si">{</span><span class="n">adjust_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask_variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mask variable </span><span class="si">{</span><span class="n">mask_variable</span><span class="si">}</span><span class="s2"> is not contained &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;in </span><span class="si">{</span><span class="n">init_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;   * Updating SSH or land-ice pressure&quot;</span><span class="p">)</span>
+
+        <span class="c1"># keep the data set with Time for output</span>
+        <span class="c1"># and generate these time slices</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_final</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;on_a_sphere&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;minLevelCell&#39;</span> <span class="ow">in</span> <span class="n">ds_final</span><span class="p">:</span>
+            <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">init_ssh</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">ssh</span>
+        <span class="n">final_ssh</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">ssh</span>
+        <span class="n">top_density</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">mask_variable</span><span class="p">]</span>
+        <span class="n">delta_ssh</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">*</span> <span class="p">(</span><span class="n">final_ssh</span> <span class="o">-</span> <span class="n">init_ssh</span><span class="p">)</span>
+
+        <span class="c1"># then, modify the SSH or land-ice pressure</span>
+        <span class="k">if</span> <span class="n">adjust_variable</span> <span class="o">==</span> <span class="s1">&#39;ssh&#39;</span><span class="p">:</span>
+            <span class="n">final_ssh</span> <span class="o">=</span> <span class="n">final_ssh</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_ssh</span>
+            <span class="c1"># also update the landIceDraft variable, which will be used to</span>
+            <span class="c1"># compensate for the SSH due to land-ice pressure when</span>
+            <span class="c1"># computing sea-surface tilt</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;landIceDraft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_ssh</span>
+            <span class="c1"># we also need to stretch layerThickness to be compatible with</span>
+            <span class="c1"># the new SSH</span>
+            <span class="n">update_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">)</span>
+            <span class="n">land_ice_pressure</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">landIcePressure</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Moving the SSH up or down by deltaSSH would change the</span>
+            <span class="c1"># land-ice pressure by density(SSH)*g*deltaSSH. If deltaSSH is</span>
+            <span class="c1"># positive (moving up), it means the land-ice pressure is too</span>
+            <span class="c1"># small and if deltaSSH is negative (moving down), it means</span>
+            <span class="c1"># land-ice pressure is too large, the sign of the second term</span>
+            <span class="c1"># makes sense.</span>
+            <span class="n">gravity</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_G&#39;</span><span class="p">]</span>
+            <span class="n">delta_land_ice_pressure</span> <span class="o">=</span> <span class="n">top_density</span> <span class="o">*</span> <span class="n">gravity</span> <span class="o">*</span> <span class="n">delta_ssh</span>
+
+            <span class="n">land_ice_pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+                <span class="mf">0.0</span><span class="p">,</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">landIcePressure</span> <span class="o">+</span> <span class="n">delta_land_ice_pressure</span><span class="p">)</span>
+
+            <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;landIcePressure&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">land_ice_pressure</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">final_ssh</span> <span class="o">=</span> <span class="n">init_ssh</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
+
+        <span class="c1"># Write the largest change in SSH and its lon/lat to a file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;maxDeltaSSH.log&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_file</span><span class="p">:</span>
+
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">land_ice_pressure</span> <span class="o">&gt;</span> <span class="mf">0.</span>
+            <span class="n">i_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta_ssh</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="n">ds_cell</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">)</span>
+            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">)</span>
+            <span class="n">delta_ssh_max</span> <span class="o">=</span> <span class="n">delta_ssh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="k">if</span> <span class="n">on_a_sphere</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;lon/lat: &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_cell</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="si">:</span><span class="s1">f</span><span class="si">}</span><span class="s1"> &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_cell</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="si">:</span><span class="s1">f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;x/y: </span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span><span class="si">:</span><span class="s1">f</span><span class="si">}</span><span class="s1"> &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span><span class="si">:</span><span class="s1">f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;deltaSSHMax: &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta_ssh_max</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;     </span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ssh: </span><span class="si">{</span><span class="n">final_ssh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">, &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;land_ice_pressure: &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">land_ice_pressure</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;     </span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;   - Complete</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="ssh_adjustment.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

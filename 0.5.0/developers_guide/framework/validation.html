@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Visualization" href="visualization.html" />
+    <link rel="prev" title="Remapping" href="remapping.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#validating-variables-against-a-baseline">Validating variables against a baseline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validating-variables">Validating variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#norms">Norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#datasets">Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Validation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/validation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="validation">
+<span id="dev-validation"></span><h1>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h1>
+<p>Tasks should typically include validation of variables and/or timers.
+This validation is a critical part of running suites and comparing them
+to baselines.</p>
+<section id="validating-variables-against-a-baseline">
+<h2>Validating variables against a baseline<a class="headerlink" href="#validating-variables-against-a-baseline" title="Link to this heading"></a></h2>
+<p>The easiest type of validation you can add is against a baseline if one is
+provided during setup (see <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or
+<a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>).  To do this, simply add a list of variables in
+the keyword argument <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> to the
+:py:meth:<code class="docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code> method.  As an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+                             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;layerThickness&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Here, we add <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> as an output of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, and indicated
+that the variables <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> should
+be compared against a baseline, if one is provided, after the step as run.</p>
+</section>
+<section id="validating-variables">
+<h2>Validating variables<a class="headerlink" href="#validating-variables" title="Link to this heading"></a></h2>
+<p>In addition to baseline validation, it is often useful to compare files between
+steps of a run.  This is done by adding later step to perform the validation.
+This validation step will use the function
+<a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> to compare variables in a file
+with a given relative path (<code class="docutils literal notranslate"><span class="pre">filename1</span></code>) with the same variables in another
+file (<code class="docutils literal notranslate"><span class="pre">filename2</span></code>).</p>
+<p>As a compact example of creating a validate step for a restart run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Validate</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;validate&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_full_run.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../full_run/output.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_restart_run.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;../restart_run/output.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span>
+        <span class="n">all_pass</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span>
+                                     <span class="n">filename1</span><span class="o">=</span><span class="s1">&#39;output_full_run.nc&#39;</span><span class="p">,</span>
+                                     <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;output_restart_run.nc&#39;</span><span class="p">,</span>
+                                     <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_pass</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Validation failed comparing outputs between &#39;</span>
+                             <span class="s1">&#39;full_run and restart_run&#39;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>The 2 files <code class="docutils literal notranslate"><span class="pre">../full_run/output.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">../restart_run/output.nc</span></code> are
+symlinked locally and compared to make sure the variables <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical between the
+two.</p>
+<p>By default, the output is “quiet”.  If you set <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>, typical output
+will look like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Beginning variable comparisons for all time levels of field &#39;temperature&#39;. Note any time levels reported are 0-based.
+    Pass thresholds are:
+       L1: 0.00000000000000e+00
+       L2: 0.00000000000000e+00
+       L_Infinity: 0.00000000000000e+00
+0:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+1:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+2:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+ ** PASS Comparison of temperature between /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc and
+    /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+Beginning variable comparisons for all time levels of field &#39;salinity&#39;. Note any time levels reported are 0-based.
+    Pass thresholds are:
+       L1: 0.00000000000000e+00
+       L2: 0.00000000000000e+00
+       L_Infinity: 0.00000000000000e+00
+0:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+1:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+2:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+ ** PASS Comparison of salinity between /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc and
+    /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+Beginning variable comparisons for all time levels of field &#39;layerThickness&#39;. Note any time levels reported are 0-based.
+    Pass thresholds are:
+       L1: 0.00000000000000e+00
+       L2: 0.00000000000000e+00
+       L_Infinity: 0.00000000000000e+00
+0:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+1:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+2:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+ ** PASS Comparison of layerThickness between /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc and
+    /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+Beginning variable comparisons for all time levels of field &#39;normalVelocity&#39;. Note any time levels reported are 0-based.
+    Pass thresholds are:
+       L1: 0.00000000000000e+00
+       L2: 0.00000000000000e+00
+       L_Infinity: 0.00000000000000e+00
+0:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+1:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+2:  l1: 0.00000000000000e+00  l2: 0.00000000000000e+00  linf: 0.00000000000000e+00
+ ** PASS Comparison of normalVelocity between /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc and
+    /home/xylar/data/mpas/test_nightly_latest/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">quiet=True</span></code> (the default), there is only an indication that the
+comparison passed for each variable:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>temperature          Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+salinity             Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+layerThickness       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+normalVelocity       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+temperature          Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+salinity             Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+layerThickness       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+normalVelocity       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/1thread/output.nc
+
+temperature          Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+salinity             Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+layerThickness       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+normalVelocity       Time index: 0, 1, 2
+  PASS /home/xylar/data/mpas/test_20210616/further_validation/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+
+       /home/xylar/data/mpas/test_20210616/baseline/ocean/baroclinic_channel/10km/threads_test/2thread/output.nc
+</pre></div>
+</div>
+</section>
+<section id="norms">
+<h2>Norms<a class="headerlink" href="#norms" title="Link to this heading"></a></h2>
+<p>In circumstance where you would like to allow comparison to pass with non-zero
+differences between variables, you can supply keyword arguments
+<code class="docutils literal notranslate"><span class="pre">l1_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">l2_norm</span></code> and/or <code class="docutils literal notranslate"><span class="pre">linf_norm</span></code> to give the desired maximum
+values for these norms, above which the comparison will fail, raising a
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.  If you do want certain norms checked, you can pass their value as
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>If you want different nonzero norm values for different variables,
+the easiest solution is to call <a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a>
+separately for each variable and with different norm values specified.
+You will need to “and” together the results from calling
+<a class="reference internal" href="../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a>.  When you specify a nonzero
+norm, you may want polaris to print the norm values it is using for comparison
+when the results are printed.  To do so, use the optional <code class="docutils literal notranslate"><span class="pre">quiet=False</span></code>
+argument.</p>
+</section>
+<section id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Link to this heading"></a></h2>
+<p>In some cases, a comparison cannot be made directly between the datasets loaded
+from the two files to be compared. Instead, the datasets require manipulation
+for some reason. Currently, this is the case for datasets from the Omega model,
+which need to have their variables renamed to the MPAS-Ocean names for use in
+Polaris.  The <code class="docutils literal notranslate"><span class="pre">ds1</span></code> and <code class="docutils literal notranslate"><span class="pre">ds2</span></code> keyword arguments are used to supply datasets
+corresponding to <code class="docutils literal notranslate"><span class="pre">filename1</span></code> and <code class="docutils literal notranslate"><span class="pre">filename2</span></code>, respectively, in such
+circumstances.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="remapping.html" class="btn btn-neutral float-left" title="Remapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="visualization.html" class="btn btn-neutral float-right" title="Visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="validation.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

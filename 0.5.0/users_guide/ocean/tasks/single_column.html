@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>single column</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Framework" href="../framework/index.html" />
+    <link rel="prev" title="rotation 2-d" href="rotation_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">single column</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">single column</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/single_column.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="single-column">
+<span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tasks include any ocean tests of the vertical ocean
+dynamics.</p>
+</section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh is planar and spans the minimum number of cells (16 for MPAS-Ocean).
+The config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> are given arbitrarily small values of 1 m in
+order to ensure that the minimum number of cells is chosen.</p>
+<p>By virtue of testing the vertical dynamics, these tests should be insensitive
+to the horizontal resolution. As such, only 10 km horizontal resolution is
+currently supported.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>Currently, these tests feature a very fine vertical resolution of 4 m
+with 100 vertical levels. Future work may want to examine vertical mixing or
+advection at typical vertical resolutions.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">400.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-star</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The temperature and salinity profiles are defined using the following equations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\Phi(z) = \begin{cases}
+    \Phi_0 &amp;\text{ if } z = z[0]\\
+    \Phi_0 + {d\Phi/dz}_{ML} z &amp;
+    \text{ if } z &gt; z_{MLD}\\
+    (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &amp;
+    \text{ if } z \le z_{MLD}
+\end{cases}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Phi_0 = \)</span><code class="docutils literal notranslate"><span class="pre">surface_X</span></code>, <span class="math notranslate nohighlight">\({d\Phi/dz}_{ML} = \)</span><code class="docutils literal notranslate"><span class="pre">X_gradient_mixed_layer</span></code>,
+<span class="math notranslate nohighlight">\(z_{MLD} = -\)</span><code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_X</span></code>, <span class="math notranslate nohighlight">\({\Delta\Phi}_{ML} = \)</span>
+<code class="docutils literal notranslate"><span class="pre">X_difference_across_mixed_layer</span></code>, and <span class="math notranslate nohighlight">\({d\Phi/dz}_{int} = \)</span>
+<code class="docutils literal notranslate"><span class="pre">X_gradient_interior</span></code>. <code class="docutils literal notranslate"><span class="pre">X</span></code> in the config options above is either <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
+or <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
+<p>The water column is initially stationary (<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code><span class="math notranslate nohighlight">\(=0\)</span>).</p>
+<p>The Coriolis parameter is spatially constant and set equal to
+<code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
+</section>
+<section id="id1">
+<h2>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
+<span class="k">[single_column]</span>
+
+<span class="c1"># size of the domain (typically the minimum allowed size of 4x4 cells)</span>
+<span class="na">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+
+<span class="c1"># resolution in km</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">960.0</span>
+
+<span class="c1"># Surface temperature</span>
+<span class="na">surface_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># Temperature gradient in the mixed layer in degC/m</span>
+<span class="na">temperature_gradient_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># The temperature below the mixed layer</span>
+<span class="na">temperature_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Temperature gradient below the mixed layer</span>
+<span class="na">temperature_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># Depth of the temperature mixed layer</span>
+<span class="na">mixed_layer_depth_temperature</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s">25.0</span>
+
+<span class="c1"># Surface salinity</span>
+<span class="na">surface_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># Salinity gradient in the mixed layer in PSU/m</span>
+<span class="na">salinity_gradient_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># The salinity below the mixed layer</span>
+<span class="na">salinity_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Salinity gradient below the mixed layer</span>
+<span class="na">salinity_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Depth of the salinity mixed layer</span>
+<span class="na">mixed_layer_depth_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># coriolis parameter</span>
+<span class="na">coriolis_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-4</span>
+</pre></div>
+</div>
+<p>See mesh section for a description of <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> and initial conditions section for a description of the remaining config options.</p>
+</section>
+<section id="cvmix">
+<span id="ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">cvmix</span></code> test exercises the <a class="reference external" href="https://github.com/CVMix/CVMix-src">CVMix</a>
+schemes for vertical mixing.</p>
+<p>The temperature and salinity profiles only evolve a small amount over the 1-
+day duration of the test, so the 10-day profiles are shown here:</p>
+<a class="reference internal image-reference" href="../../../_images/single_column_temperature_10day.png"><img alt="../../../_images/single_column_temperature_10day.png" class="align-center" src="../../../_images/single_column_temperature_10day.png" style="width: 200px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/single_column_salinity_10day.png"><img alt="../../../_images/single_column_salinity_10day.png" class="align-center" src="../../../_images/single_column_salinity_10day.png" style="width: 200px;" />
+</a>
+<p>The namelist options for this test case dictate that the KPP scheme is tested.</p>
+</section>
+<section id="id3">
+<h3>mesh<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+</section>
+<section id="id4">
+<h2>vertical grid<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+<section id="id5">
+<h3>initial conditions<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="forcing">
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
+<p>The cvmix case has both surface forcing and restoring, which are controlled by
+the following config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
+<span class="k">[single_column_forcing]</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward temperature_surface_restoring_value</span>
+<span class="na">temperature_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward salinity_surface_restoring_value</span>
+<span class="na">salinity_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Temperature to restore towards when surface restoring is turned on</span>
+<span class="na">temperature_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># Salinity to restore towards when surface restoring is turned on</span>
+<span class="na">salinity_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">36.0</span>
+
+<span class="c1"># Rate at which temperature is restored toward the initial condition</span>
+<span class="na">temperature_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Rate at which salinity is restored toward the initial condition</span>
+<span class="na">salinity_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Net latent heat flux applied when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of heat to ocean</span>
+<span class="na">latent_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-50.0</span>
+
+<span class="c1"># Net sensible heat flux applied when bulk forcing is used. Positive values indicate a</span>
+<span class="c1"># net input of heat to ocean</span>
+<span class="na">sensible_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-25.0</span>
+
+<span class="c1"># Net solar shortwave heat flux applied when bulk forcing is used. Positive values</span>
+<span class="c1"># indicate a net input of heat to ocean</span>
+<span class="na">shortwave_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.0</span>
+
+<span class="c1"># Net surface evaporation when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of water to ocean</span>
+<span class="na">evaporation_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.5E-4</span>
+
+<span class="c1"># Net surface rain flux when bulk forcing is used. Positive values indicate a net input</span>
+<span class="c1"># of water to ocean</span>
+<span class="na">rain_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Zonal surface wind stress over the domain</span>
+<span class="na">wind_stress_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># Meridional surface wind stress over the domain</span>
+<span class="na">wind_stress_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
+</section>
+<section id="time-step-and-run-duration">
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
+<p>The time step is given as 10 min and the barotropic time step is 30s. The run
+duration is 1 day.</p>
+</section>
+<section id="id6">
+<h3>config options<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
+shared framework.</p>
+</section>
+<section id="cores">
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
+<p>Both default and minimum number of cores are hard-coded as 1 given that the
+domain is only 16 cells.</p>
+</section>
+</section>
+<section id="ocean-single-column-ideal-age">
+<span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ideal</span> <span class="pre">age</span></code> test exercises the ideal age tracers.</p>
+<section id="id7">
+<h3>description<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Temperature and salinity profiles evolve in the same way as in the
+<a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a> test case. 10-day profiles for the ideal age
+tracer are as follows:</p>
+<a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" />
+</a>
+</section>
+<section id="id8">
+<h3>mesh<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id9">
+<h3>vertical grid<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id10">
+<h3>initial conditions<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.</p>
+</section>
+<section id="id11">
+<h3>forcing<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is set to zero seconds within the first surface grid layer at
+every time step.</p>
+</section>
+<section id="id12">
+<h3>time step and run duration<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
+</section>
+<section id="id13">
+<h3>config options<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
+shared framework.</p>
+</section>
+<section id="id14">
+<h3>cores<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rotation_2d.html" class="btn btn-neutral float-left" title="rotation 2-d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../framework/index.html" class="btn btn-neutral float-right" title="Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="single_column.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

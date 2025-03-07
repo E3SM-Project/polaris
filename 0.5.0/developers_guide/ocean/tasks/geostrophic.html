@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>geostrophic</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="divergent_2d" href="divergent_2d.html" />
+    <link rel="prev" title="cosine_bell" href="cosine_bell.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">geostrophic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">geostrophic</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/geostrophic.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="geostrophic">
+<span id="dev-ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h1>
+<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.Geostrophic.html#polaris.ocean.tasks.geostrophic.Geostrophic" title="polaris.ocean.tasks.geostrophic.Geostrophic"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.Geostrophic</span></code></a>
+test performs a series of 5-day runs starting from an initial condition in
+geostrophic balance.  The resolution of the sphere varies (by default, between
+60 and 240 km).  The results after 5 days are compared with the exact solution
+used to produce the initial condition to determine the rate of convergence.</p>
+<section id="framework">
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The config options for the <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> tests are described in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic"><span class="std std-ref">geostrophic</span></a> in the User’s Guide.</p>
+<p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common
+model config options related to drag and default horizontal and
+vertical momentum and tracer diffusion, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>,
+<code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.</p>
+<section id="base-mesh">
+<h3>base_mesh<a class="headerlink" href="#base-mesh" title="Link to this heading"></a></h3>
+<p>Geostrophic tasks use shared <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps for creating
+<a class="reference internal" href="../framework.html#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> at a sequence of resolutions.</p>
+</section>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.init.Init.html#polaris.ocean.tasks.geostrophic.init.Init" title="polaris.ocean.tasks.geostrophic.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.init.Init</span></code></a>
+defines a step for setting up the initial state at each resolution with a
+velocity field and water-column thickness in geostrophic balance, as described
+in <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-init"><span class="std std-ref">initial conditions</span></a> in the User’s Guide.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.forward.Forward.html#polaris.ocean.tasks.geostrophic.forward.Forward" title="polaris.ocean.tasks.geostrophic.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.forward.Forward</span></code></a>
+descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
+and defines a step for running MPAS-Ocean from an initial condition produced in
+an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
+discussion of the parent class. The time step is determined from the resolution
+based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[spherical_convergences]</span></code>
+section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+</section>
+<section id="analysis">
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.html#polaris.ocean.tasks.geostrophic.analysis.Analysis" title="polaris.ocean.tasks.geostrophic.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.analysis.Analysis</span></code></a>
+descends from
+<a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>,
+and defines a step for computing the error norm (L2) for the water-column
+thickness and normal velocity at each resolution, saving them in
+<code class="docutils literal notranslate"><span class="pre">convergence_h.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">convergence_normalVelocity.csv</span></code>, and plotting them
+in <code class="docutils literal notranslate"><span class="pre">convergence_h.png</span></code> and <code class="docutils literal notranslate"><span class="pre">convergence_normalVelocity.png</span></code>.</p>
+</section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
+<p>The visualization step is available only in the <code class="docutils literal notranslate"><span class="pre">geostrophic/with_viz</span></code>
+tasks.  It is not included in the <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> in order to keep regression
+as fast as possible when visualization isn’t needed.</p>
+<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz" title="polaris.ocean.tasks.geostrophic.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.geostrophic.viz.Viz</span></code></a>
+is a step for plotting the initial and final states of the advection test for
+each resolution.  The colormap is controlled by the config options discussed in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
+<p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details on the global lat-lon
+plots.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cosine_bell.html" class="btn btn-neutral float-left" title="cosine_bell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="divergent_2d.html" class="btn btn-neutral float-right" title="divergent_2d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="geostrophic.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

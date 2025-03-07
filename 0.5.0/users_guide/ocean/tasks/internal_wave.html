@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>internal wave</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="manufactured solution" href="manufactured_solution.html" />
+    <link rel="prev" title="inertial gravity wave" href="inertial_gravity_wave.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">internal wave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-task">default task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rpe-task">RPE task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">internal wave</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/internal_wave.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="internal-wave">
+<span id="ocean-internal-wave"></span><h1>internal wave<a class="headerlink" href="#internal-wave" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/internal_wave</span></code> test group induces internal wave propagation and is documented in
+<code class="docutils literal notranslate"><span class="pre">Ilicak</span> <span class="pre">et</span> <span class="pre">al.</span> <span class="pre">(2012)</span> <span class="pre">&lt;https://doi.org/10.1016/j.ocemod.2011.10.003&gt;</span></code>_.</p>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="default-task">
+<span id="ocean-internal-wave-default"></span><h2>default task<a class="headerlink" href="#default-task" title="Link to this heading"></a></h2>
+<section id="description">
+<h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>The test case is characterized by stable stratification with a horizontal
+perturbation to the stratification that induces internal waves.</p>
+<a class="reference internal image-reference" href="../../../_images/internal_wave_initial_temperature.png"><img alt="../../../_images/internal_wave_initial_temperature.png" class="align-center" src="../../../_images/internal_wave_initial_temperature.png" style="width: 500px;" />
+</a>
+<p>Two variants are given for different vertical advection schemes, <code class="docutils literal notranslate"><span class="pre">standard</span></code>
+for flux-form advection and <code class="docutils literal notranslate"><span class="pre">vlr</span></code> for vertical Lagrangian-remapping.</p>
+</section>
+<section id="mesh">
+<h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
+<p>The domain is planar and periodic on the zonal boundaries and solid on the
+meridional boundaries. Only 5km resolution is tested by default, but the
+resolution may be changed with the <code class="docutils literal notranslate"><span class="pre">resolution</span></code> config option. The domain is
+20km by 250km, as given by the config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
+</section>
+<section id="vertical-grid">
+<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h3>
+<p>There are no restrictions on the vertical grid inherent to the test case except
+that there should be sufficient vertical levels to capture the stratification
+structure.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-level</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
+<p>Salinity is constant throughout the domain at the value given by the config
+option <code class="docutils literal notranslate"><span class="pre">background_salinity</span></code> (35 PSU by default).  The initial temperature
+has a linear background stratification from 20.1 degrees C (config option
+<code class="docutils literal notranslate"><span class="pre">surface_temperature</span></code>) to 10.1 degrees C (config option
+<code class="docutils literal notranslate"><span class="pre">bottom_temperature</span></code>). There is a sinusoidal perturbation in the center of
+the domain with amplitude given by the config option
+<code class="docutils literal notranslate"><span class="pre">temperature_difference</span></code>, 2 degrees C by default. The width of the
+perturbation is given by 2 times the config option <code class="docutils literal notranslate"><span class="pre">amplitude_width_dist</span></code> or
+2 times the <code class="docutils literal notranslate"><span class="pre">amplitude_width_frac</span></code> times <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
+</section>
+<section id="forcing">
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
+<p>N/A</p>
+</section>
+<section id="time-step-and-run-duration">
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
+<p>The time step for forward integration is 5 minutes. The run duration is 3 time steps.</p>
+</section>
+<section id="config-options">
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
+<p>The following config section is specific to this test case:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for internal wave test cases</span>
+<span class="k">[internal_wave]</span>
+
+<span class="c1"># the width of the domain (km)</span>
+<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># the length of the domain (km)</span>
+<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">250.0</span>
+
+<span class="c1"># the size of grid cells (km)</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0</span>
+
+<span class="c1"># Logical flag that determines if locations of features are defined by distance</span>
+<span class="c1"># or fractions. False means fractions.</span>
+<span class="na">use_distances</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># Temperature of the surface in the northern half of the domain.</span>
+<span class="na">surface_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.1</span>
+
+<span class="c1"># Temperature of the bottom in the northern half of the domain.</span>
+<span class="na">bottom_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.1</span>
+
+<span class="c1"># Difference in the temperature field between top and bottom</span>
+<span class="na">temperature_difference</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+
+<span class="c1"># Fraction of domain in Y direction the temperature gradient should be linear</span>
+<span class="c1"># over.</span>
+<span class="na">amplitude_width_frac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.33</span>
+
+<span class="c1"># Width of the temperature gradient around the center sin wave. Default value</span>
+<span class="c1"># is relative to a 500km domain in Y.</span>
+<span class="na">amplitude_width_dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">50e3</span>
+
+<span class="c1"># Salinity of the water in the entire domain.</span>
+<span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># Coriolis parameter for the entire domain</span>
+<span class="na">coriolis_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
+</section>
+<section id="cores">
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
+<p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
+</section>
+</section>
+<section id="rpe-task">
+<h2>RPE task<a class="headerlink" href="#rpe-task" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The Reference Potential Energy (RPE) task consists of several forward steps at
+different values of the del2 horizontal viscosity. Two variants are given for
+different vertical advection schemes, <code class="docutils literal notranslate"><span class="pre">standard</span></code> for flux-form advection and
+<code class="docutils literal notranslate"><span class="pre">vlr</span></code> for vertical Lagrangian-remapping. Analysis is run to compare the RPE
+evolution through time for each of the forward runs with different viscosities.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>See default task.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>See default task.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>See default task.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>N/A</p>
+</section>
+<section id="id6">
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>The time step for forward integration is 5 minutes. The run duration is 20 days.</p>
+</section>
+<section id="id7">
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>In addition to the config options in section <code class="docutils literal notranslate"><span class="pre">internal_wave</span></code>, the following
+config options are also used:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for the internal wave RPE tasks</span>
+<span class="k">[internal_wave_rpe]</span>
+
+<span class="c1"># Viscosity values to test for rpe test case</span>
+<span class="na">viscosities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01, 1, 15, 150</span>
+
+<span class="c1"># plot time (days)</span>
+<span class="na">plot_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># min and max temperature range</span>
+<span class="na">min_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+<span class="na">max_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="inertial_gravity_wave.html" class="btn btn-neutral float-left" title="inertial gravity wave" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manufactured_solution.html" class="btn btn-neutral float-right" title="manufactured solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="internal_wave.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

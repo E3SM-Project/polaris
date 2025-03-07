@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>geostrophic</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="divergent 2-d" href="divergent_2d.html" />
+    <link rel="prev" title="cosine bell" href="cosine_bell.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">geostrophic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">geostrophic</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/geostrophic.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="geostrophic">
+<span id="ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> tasks implement the “Global Steady
+State Nonlinear Zonal Geostrophic Flow” test case described in
+<a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a></p>
+<p>The task <code class="docutils literal notranslate"><span class="pre">geostrophic/convergence_both</span></code> is a space-and-time convergence test
+with time step varying proportionately to grid size. Convergence tests in
+either space or time are also available as <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code> or
+<code class="docutils literal notranslate"><span class="pre">convergence_time</span></code>. The result of the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of the task are plots
+like the following showing convergence of water-column thickness and normal
+velocity as functions of the mesh resolution:</p>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_convergence.png"><img alt="../../../_images/geostrophic_convergence.png" class="align-center" src="../../../_images/geostrophic_convergence.png" style="width: 500px;" />
+</a>
+<p>Visualizations of the fields themselves can be added in viz steps by appending
+<code class="docutils literal notranslate"><span class="pre">with_viz</span></code> to the task name at setup.</p>
+</section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh is global and can be constructed either as quasi-uniform or
+icosahedral. At least three resolutions must be chosen for the mesh
+convergence study. The base meshes are the same as used in
+<a class="reference internal" href="cosine_bell.html#ocean-cosine-bell"><span class="std std-ref">cosine bell</span></a>.  See cosine bell’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-mesh"><span class="std std-ref">mesh</span></a>
+section for more details.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>This test case only exercises the shallow water dynamics. As such, the minimum
+number of vertical levels may be used. The bottom depth is constant and the
+results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.  See cosine
+bell’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-vertical"><span class="std std-ref">vertical grid</span></a> section for the config options.</p>
+</section>
+<section id="initial-conditions">
+<span id="ocean-geostrophic-init"></span><h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The steady-state fields are given by the following equations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+u &amp; = u_0 (\cos\theta \cos\alpha + \cos\lambda \sin\theta \sin\alpha)\\
+v &amp; = -u_0 \sin\lambda \sin\alpha\\
+h &amp; = h_0 - 1/g (a \Omega u_0 + u_0^2/2)(-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)^2
+\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+u_0 &amp; = 2 \pi a/(12 \textrm{ days})\\
+h_0 &amp; = (1/g) \, 2.94 \times 10^{4} \textrm{m}^2/\textrm{s}^2 \\
+\alpha &amp; = 0
+\end{split}\]</div>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_h.png"><img alt="../../../_images/geostrophic_h.png" class="align-center" src="../../../_images/geostrophic_h.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/geostrophic_u.png"><img alt="../../../_images/geostrophic_u.png" class="align-center" src="../../../_images/geostrophic_u.png" style="width: 500px;" />
+</a>
+<p>In this test case, the initial fields are given their steady-state values
+and the simulation should not diverge significantly from those values.</p>
+<p>In this test case, the bottom topography is flat so initial conditions are
+given for <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> such that <code class="docutils literal notranslate"><span class="pre">h</span> <span class="pre">=</span> <span class="pre">bottomDepth</span> <span class="pre">+</span> <span class="pre">ssh</span></code>.</p>
+<p>The initial conditions also includes the coriolis parameter, given as:</p>
+<div class="math notranslate nohighlight">
+\[
+f = 2 \Omega (-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)
+\]</div>
+<p>In future work, alpha may be varied to test the sensitivity to orientation:</p>
+<div class="math notranslate nohighlight">
+\[
+\alpha = [0, 0.05, \pi/2 - 0.05, \pi/2]
+\]</div>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>Probably N/A but see Williamson’s text about the possibility of prescribing a
+wind field.</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
+for forward integration is determined by multiplying the resolution by a config
+option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are all 5
+days (120 hours):</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
+<span class="k">[convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in hours)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.0</span>
+
+<span class="c1"># config options for convergence forward steps</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># Run duration in hours</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${convergence:convergence_eval_time}</span>
+
+<span class="c1"># Output interval in hours</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${run_duration}</span>
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">${convergence:convergence_eval_time}</span></code> means that the same value is used
+as in the option <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> in section <code class="docutils literal notranslate"><span class="pre">[convergence]</span></code>.</p>
+</section>
+<section id="analysis">
+<h2>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
+<p>For analysis we compute the <span class="math notranslate nohighlight">\(l_1\)</span>, <span class="math notranslate nohighlight">\(l_2\)</span> and <span class="math notranslate nohighlight">\(l_{\inf}\)</span> error norms of h and
+velocity relative to the steady-state solutions given above.</p>
+<p>First, each of these errors norms are plotted vs time for a given resolution.</p>
+<p>Then, mesh convergence is examined by plotting the <span class="math notranslate nohighlight">\(l_2\)</span> and <span class="math notranslate nohighlight">\(l_{\inf}\)</span> norms
+at day 5 vs resolution.</p>
+</section>
+<section id="config-options">
+<span id="ocean-geostrophic-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> config options include:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for geostrophic convergence test case</span>
+<span class="k">[geostrophic]</span>
+
+<span class="c1"># period of the velocity in days</span>
+<span class="na">vel_period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">12.0</span>
+
+<span class="c1"># reference water column thickness (m^2/s^2)</span>
+<span class="na">gh_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.94e4</span>
+
+<span class="c1"># angle of velocity field variation</span>
+<span class="na">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># the constant temperature of the domain</span>
+<span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># the constant salinity of the domain</span>
+<span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+</pre></div>
+</div>
+<p>These are the basic constants used to initialize the test case according to
+the Williams et al. (1992) paper.  The temperature and salinity are arbitrary,
+since they do not vary in space and should not affect the evolution.</p>
+<p>Three additional config options relate to detecting when the convergence rate
+for the water-column thickness (h) and normal velocity (using the L2 norm to
+compute the error).  If either convergence rate is unexpectedly low an error is
+raised:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
+<span class="k">[convergence]</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+
+<span class="c1"># options for geostrophic convergence test case</span>
+<span class="k">[geostrophic]</span>
+
+<span class="c1"># convergence threshold below which the test fails</span>
+<span class="na">convergence_thresh_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.4</span>
+<span class="na">convergence_thresh_normalVelocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.3</span>
+</pre></div>
+</div>
+<p>The convergence rate of the water-column thickness for this test case is very
+low for the QU meshes in MPAS-Ocean, about 0.5, which necessitates the very
+generous  convergence threshold used here.</p>
+<p>Config options related to visualization are as follows.  The options in
+<code class="docutils literal notranslate"><span class="pre">geostropnic_viz</span></code> are related to remapping to a regular latitude-longitude
+grid.  The remaining options are related to plotting water-column thickness
+(<code class="docutils literal notranslate"><span class="pre">h</span></code>) and velocities (<code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>) and the difference between
+these fields at initialization and after the 5-day run.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for plotting water-column thickness from the geostrophic test</span>
+<span class="k">[geostrophic_viz_h]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.deep</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1000.0, 3000.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">water-column thickness (m)</span>
+
+<span class="c1"># options for plotting velocity from the geostrophic test</span>
+<span class="k">[geostrophic_viz_vel]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.delta</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-40.0, 40.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">velocity (m/s)</span>
+
+<span class="c1"># options for plotting water-column thickness from the geostrophic test</span>
+<span class="k">[geostrophic_viz_diff_h]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.balance</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-10.0, 10.0</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">water-column thickness (m)</span>
+
+<span class="c1"># options for plotting velocity from the geostrophic test</span>
+<span class="k">[geostrophic_viz_diff_vel]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.balance</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.3, 0.3</span>
+
+<span class="c1"># colorbar label</span>
+<span class="na">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">velocity (m/s)</span>
+</pre></div>
+</div>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>The number of cores for each step is handled in the same way as the cosine
+bell test.  See that test’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-cores"><span class="std std-ref">cores</span></a> section for details.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cosine_bell.html" class="btn btn-neutral float-left" title="cosine bell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="divergent_2d.html" class="btn btn-neutral float-right" title="divergent 2-d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="geostrophic.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

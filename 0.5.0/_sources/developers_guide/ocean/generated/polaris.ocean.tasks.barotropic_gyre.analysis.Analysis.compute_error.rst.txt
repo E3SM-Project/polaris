@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.barotropic\_gyre.analysis.Analysis.compute\_error
+=====================================================================
+
+.. currentmodule:: polaris.ocean.tasks.barotropic_gyre.analysis
+
+.. automethod:: Analysis.compute_error

@@ -1,0 +1,27 @@
+﻿polaris.ocean.tasks.ice\_shelf\_2d.default.Default
+==================================================
+
+.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d.default
+
+.. autoclass:: Default
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Default.__init__
+      ~Default.add_step
+      ~Default.configure
+      ~Default.remove_step
+      ~Default.set_shared_config
+      ~Default.setup_ssh_adjustment_steps
+   
+   
+
+   
+   
+   

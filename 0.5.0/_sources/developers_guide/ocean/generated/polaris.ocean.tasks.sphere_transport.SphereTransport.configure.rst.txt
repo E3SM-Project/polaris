@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.sphere\_transport.SphereTransport.configure
+===============================================================
+
+.. currentmodule:: polaris.ocean.tasks.sphere_transport
+
+.. automethod:: SphereTransport.configure

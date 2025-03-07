@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Command-line interface" href="command_line.html" />
+    <link rel="prev" title="Quick Start for Developers" href="quick_start.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#packages-and-modules">Packages and Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#packages">Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-sharing">Code sharing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#in-the-polaris-framework">…in the polaris framework</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#within-a-component">…within a component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#within-a-group-of-related-tasks">…within a group of related tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#within-a-task">…within a task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developers_guide/overview.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="overview">
+<span id="dev-overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
+<p>Polaris is a <a class="reference external" href="https://docs.python.org/3/tutorial/modules.html#packages">python package</a>.
+All of the code in the package can be accessed in one of two ways.  The first
+is the command-line interface with commands like <a class="reference internal" href="command_line.html#dev-polaris-list"><span class="std std-ref">polaris list</span></a> and
+<a class="reference internal" href="command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.  The second way is through import commands like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
+
+
+<span class="n">symlink</span><span class="p">(</span><span class="s1">&#39;../initial_condition/initial_condition.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Before we dig into the details of how to develop new tasks and other
+infrastructure for polaris, we first give a little bit of background on
+the design philosophy behind the package.</p>
+<section id="code-style">
+<span id="dev-style"></span><h2>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h2>
+<p>All code is required to adhere fairly strictly to the
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8 style guide</a>.  A bot will
+flag any PEP8 violations as part of each pull request to
+<a class="reference external" href="https://github.com/E3SM-Project/polaris">https://github.com/E3SM-Project/polaris</a>.  Please consider using an editor that
+automatically flags PEP8 violations during code development, such as
+<a class="reference external" href="https://www.jetbrains.com/pycharm/">pycharm</a> or
+<a class="reference external" href="https://www.spyder-ide.org/">spyder</a>, or a linter, such as
+<a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> or
+<a class="reference external" href="https://pep8.readthedocs.io/">pep8</a>.  We discourage you from automatically
+reformatting your code (e.g. with <a class="reference external" href="https://github.com/hhatto/autopep8">autopep8</a>)
+because this can often produce undesirable and confusing results.</p>
+<p>The <a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> utility for linting python
+files to the PEP8 standard is included in the POLARIS conda environment. To use
+flake8, just run <code class="docutils literal notranslate"><span class="pre">flake8</span></code> from any directory and it will return lint results
+for all files recursively through all subdirectories.  You can also run it for a
+single file or using wildcards (e.g., <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">*.py</span></code>).  There also is a
+<a class="reference external" href="https://github.com/nvie/vim-flake8">vim plugin</a> that runs the flake8 linter
+from within vim.  If you are not using an IDE that lints automatically, it is
+recommended you run flake8 from the command line or the vim plugin before
+committing your code changes.</p>
+</section>
+<section id="packages-and-modules">
+<span id="dev-packages"></span><h2>Packages and Modules<a class="headerlink" href="#packages-and-modules" title="Link to this heading"></a></h2>
+<p>Why a python package?  That sounds complicated.</p>
+<p>Some of the main advantages of polaris being a package instead of a group
+of scripts are that:</p>
+<ol class="arabic simple">
+<li><p>it is a lot easier to share code between tasks;</p></li>
+<li><p>there is no need to create symlinks to individual scripts or use
+<a class="reference external" href="https://docs.python.org/3/library/subprocess.html">subprocess</a> calls to
+run one python script from within another;</p></li>
+<li><p>functions within polaris modules and subpackages have relatively simple
+interfaces that are easier to document and understand than the arguments
+passed into a script; and</p></li>
+<li><p>releases of the polaris package would make it easy for developers of
+other python packages and scripts to use our code (though there are not yet
+any “downstream” packages that use polaris).</p></li>
+</ol>
+<p>This documentation won’t try to provide a whole tutorial on python packages,
+modules and classes but we know most developers won’t be too clued in on these
+concepts so here’s a short intro.</p>
+<section id="packages">
+<h3>Packages<a class="headerlink" href="#packages" title="Link to this heading"></a></h3>
+<p>A python package is a directory that has a file called <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>.  That
+file can be empty or it can have code in it.  If it has functions or classes
+inside of it, they act like they’re directly in the package.  As an example,
+the polaris file
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>
+has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code></a> that looks like this (with the
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">docstrings</a> stripped out):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+
+        <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> in config options&#39;</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This class contains all of the ocean tasks and steps.  The details aren’t
+important.  The point is that the class can be imported like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ocean</span>
+
+
+<span class="n">ocean</span> <span class="o">=</span> <span class="n">Ocean</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>So you don’t ever refer to <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, it’s like a hidden shortcut so the
+its contents can be referenced with just the subdirectory (package) name.</p>
+<p>A package can contain other packages and modules (we’ll discuss these in just
+a second).  For example, the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> package mentioned above is inside the
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code> package.  The sequence of dots in the import is how you find your
+way from the root (<code class="docutils literal notranslate"><span class="pre">polaris</span></code> for this package) into subpackages and modules.
+It’s similar to the <code class="docutils literal notranslate"><span class="pre">/</span></code> characters in a unix directory.</p>
+</section>
+<section id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h3>
+<p>Modules are just python files that aren’t scripts.  Since you can often treat
+scripts like modules, even that distinction isn’t that exact.  But for the
+purposes of the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package, every single file ending in <code class="docutils literal notranslate"><span class="pre">.py</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is a module (except maybe the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, not sure
+about those…).</p>
+<p>As an example, the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package contains a module <code class="docutils literal notranslate"><span class="pre">list.py</span></code>.
+There’s a function <a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a> in that module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">list_machines</span><span class="p">():</span>
+    <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">machine_configs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.cfg&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">config</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It lists the supported machines.  You would import this function just like in
+the package example above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_machines</span>
+
+
+<span class="n">list_machines</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>So a module named <code class="docutils literal notranslate"><span class="pre">foo.py</span></code> and a package in a directory named <code class="docutils literal notranslate"><span class="pre">foo</span></code> with
+an <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file look exactly the same when you import them.</p>
+<p>So why choose one over the other?</p>
+<p>The main reason to go with a package over a module is if you need to include
+other files (such as other modules and packages, but also other things like
+<a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a>, namelists and streams files).  It’s
+always pretty easy to make a module into a package (by making a directory with
+the name of the package, moving the module in, an renaming it <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>)
+or visa versa (by renaming <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> to the module name, moving it up
+a directory, and deleting the subdirectory).</p>
+</section>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<p>In the process of developing
+<a class="reference external" href="https://github.com/MPAS-Dev/MPAS-Analysis/">MPAS-Analysis</a>, we found that
+many of our developers were not very comfortable with
+<a class="reference external" href="https://docs.python.org/3/tutorial/classes.html">classes</a>, methods,
+<a class="reference external" href="https://docs.python.org/3/tutorial/classes.html#inheritance">inheritance</a>
+and other concepts related to
+<a class="reference external" href="https://en.wikipedia.org/wiki/Object-oriented_programming">object-oriented programming</a>.
+In MPAS-Analysis, tasks are implemented as classes to make it easier to use
+python’s <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html">multiprocessing</a>
+capability.  In practice, this led to code that was complex enough that only
+a handful of developers felt comfortable contributing directly to the code.</p>
+<p>Based on this experience, we were hesitant to use classes in compass, the
+predecessor to polaris and tried an implementation without them.  This led to a
+clumsy set of functions and
+<a class="reference external" href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">python dictionaries</a>
+that was equally complex but harder to understand and document than classes.</p>
+<p>The outcome of this experience is that we have used classes to define
+components, tasks and steps.  Each component will “descend”
+from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each task descends from
+<a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>; and each steps descends from
+<a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  These base classes contain functionality that can
+be shared with the “child” classes that descend from them and also define
+a few “methods” (functions that belong to a class) that the child class is
+meant to “override” (replace with their own version of the function, or augment
+by replacing the function and then calling the base class’s version of the
+same function).</p>
+<p>We have some tutorials on how to add new components, tasks and steps, and more
+will be developed in the near future.  These will explain the main features of
+classes that developers need to know about. We also hope that the tasks
+currently in the package can provide a starting point for new development.</p>
+</section>
+</section>
+<section id="code-sharing">
+<span id="dev-code-sharing"></span><h2>Code sharing<a class="headerlink" href="#code-sharing" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is dense and will have a learning curve.  We hope
+the python package approach is worth it because the skills learned to work with
+it will be broadly applicable to understanding and developing other python
+packages. In developing polaris we endeavor to increase  code  readability and
+code sharing in a number of ways.</p>
+<section id="in-the-polaris-framework">
+<h3>…in the polaris framework<a class="headerlink" href="#in-the-polaris-framework" title="Link to this heading"></a></h3>
+<p>The polaris framework (modules and packages not in the component packages)
+has a lot of code that is shared across existing tasks and could be very
+useful for future ones.</p>
+<p>The framework has been broken into modules that make it clear what
+functionality each contains, e.g. <code class="docutils literal notranslate"><span class="pre">polaris.namelists</span></code> and
+<code class="docutils literal notranslate"><span class="pre">polaris.streams</span></code> are for manipulating namelist and
+streams files, respectively; <code class="docutils literal notranslate"><span class="pre">polaris.io</span></code> has functionality for
+downloading files from the
+<a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/">LCRC server</a>
+and creating symlinks; <code class="docutils literal notranslate"><span class="pre">polaris.validation</span></code> can be used to ensure that
+variables are bit-for-bit identical between steps or when compared with a
+baseline, and to compare timers with a baseline; and the
+<code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module contains a function<br />
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_cores_and_nodes()</span></code> that can find out
+the number of total cores and nodes available for running steps.</p>
+</section>
+<section id="within-a-component">
+<h3>…within a component<a class="headerlink" href="#within-a-component" title="Link to this heading"></a></h3>
+<p>A component in polaris could, theoretically, build out functionality as
+complex as in the E3SM components themselves.  This has already been
+accomplished for several of the idealized tasks included in polaris. As an
+example, the shared functionality in the <a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> is described in
+<a class="reference internal" href="ocean/framework.html#dev-ocean-framework"><span class="std std-ref">Ocean framework</span></a>.</p>
+</section>
+<section id="within-a-group-of-related-tasks">
+<h3>…within a group of related tasks<a class="headerlink" href="#within-a-group-of-related-tasks" title="Link to this heading"></a></h3>
+<p>So far, the most common type of shared code between related tasks are modules
+defining steps that are used in multiple tasks.  For example, the
+<a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> configuration uses shared modules to define
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps of each task.  Configurations
+also often include namelist and streams files with replacements to use across
+tasks.</p>
+<p>In addition to shared steps, the <span class="xref std std-ref">dev-ocean-global-ocean</span> configuration
+includes some additional shared framework described in
+<span class="xref std std-ref">dev-ocean-global-ocean-framework</span>.</p>
+<p>The shared code in <code class="docutils literal notranslate"><span class="pre">global_ocean</span></code> has made it easy to define dozens different
+tasks using the QU240 or QUwISC240 meshes.  This is possible because
+the same conceptual test (e.g. restart) can be defined:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>with or without ice-shelf cavities</p></li>
+<li><p>with the RK4 or split-explicit time integrators</p></li>
+</ul>
+</div></blockquote>
+<p>In theory, we could provide additional variants of these tasks with
+different  initial conditions and other capabilities such as support for
+biogeochemistry.</p>
+</section>
+<section id="within-a-task">
+<h3>…within a task<a class="headerlink" href="#within-a-task" title="Link to this heading"></a></h3>
+<p>The main way code is currently reused with a task is when the same module
+for a step gets used multiple times within a task.  For example,
+the <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel-rpe-test"><span class="std std-ref">rpe</span></a> task uses the same
+forward run with 5 different values of the viscosity.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quick_start.html" class="btn btn-neutral float-left" title="Quick Start for Developers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="command_line.html" class="btn btn-neutral float-right" title="Command-line interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="overview.html">0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

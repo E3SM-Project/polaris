@@ -1,0 +1,6 @@
+﻿polaris.job.write\_job\_script
+==============================
+
+.. currentmodule:: polaris.job
+
+.. autofunction:: write_job_script

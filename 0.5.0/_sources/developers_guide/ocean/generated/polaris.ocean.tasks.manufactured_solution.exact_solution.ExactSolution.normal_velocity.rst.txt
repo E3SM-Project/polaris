@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.manufactured\_solution.exact\_solution.ExactSolution.normal\_velocity
+=========================================================================================
+
+.. currentmodule:: polaris.ocean.tasks.manufactured_solution.exact_solution
+
+.. automethod:: ExactSolution.normal_velocity

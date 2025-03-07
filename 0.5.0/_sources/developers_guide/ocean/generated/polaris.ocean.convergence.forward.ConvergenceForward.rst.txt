@@ -1,0 +1,46 @@
+﻿polaris.ocean.convergence.forward.ConvergenceForward
+====================================================
+
+.. currentmodule:: polaris.ocean.convergence.forward
+
+.. autoclass:: ConvergenceForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConvergenceForward.__init__
+      ~ConvergenceForward.add_dependency
+      ~ConvergenceForward.add_input_file
+      ~ConvergenceForward.add_model_config_options
+      ~ConvergenceForward.add_namelist_file
+      ~ConvergenceForward.add_output_file
+      ~ConvergenceForward.add_streams_file
+      ~ConvergenceForward.add_yaml_file
+      ~ConvergenceForward.compute_cell_count
+      ~ConvergenceForward.constrain_resources
+      ~ConvergenceForward.dynamic_model_config
+      ~ConvergenceForward.map_yaml_configs
+      ~ConvergenceForward.map_yaml_options
+      ~ConvergenceForward.map_yaml_streams
+      ~ConvergenceForward.map_yaml_to_namelist
+      ~ConvergenceForward.partition
+      ~ConvergenceForward.process_inputs_and_outputs
+      ~ConvergenceForward.run
+      ~ConvergenceForward.runtime_setup
+      ~ConvergenceForward.set_model_resources
+      ~ConvergenceForward.set_resources
+      ~ConvergenceForward.set_shared_config
+      ~ConvergenceForward.setup
+      ~ConvergenceForward.update_namelist_pio
+      ~ConvergenceForward.validate_baselines
+   
+   
+
+   
+   
+   

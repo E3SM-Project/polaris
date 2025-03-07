@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.setup
+=====================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.setup

@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.cosine\_bell.init.cosine\_bell
+==================================================
+
+.. currentmodule:: polaris.ocean.tasks.cosine_bell.init
+
+.. autofunction:: cosine_bell

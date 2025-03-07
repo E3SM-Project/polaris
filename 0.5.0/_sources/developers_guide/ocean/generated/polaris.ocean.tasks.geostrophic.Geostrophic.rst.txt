@@ -1,0 +1,26 @@
+﻿polaris.ocean.tasks.geostrophic.Geostrophic
+===========================================
+
+.. currentmodule:: polaris.ocean.tasks.geostrophic
+
+.. autoclass:: Geostrophic
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Geostrophic.__init__
+      ~Geostrophic.add_step
+      ~Geostrophic.configure
+      ~Geostrophic.remove_step
+      ~Geostrophic.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,26 @@
+﻿polaris.ocean.tasks.single\_column.cvmix.CVMix
+==============================================
+
+.. currentmodule:: polaris.ocean.tasks.single_column.cvmix
+
+.. autoclass:: CVMix
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CVMix.__init__
+      ~CVMix.add_step
+      ~CVMix.configure
+      ~CVMix.remove_step
+      ~CVMix.set_shared_config
+   
+   
+
+   
+   
+   
