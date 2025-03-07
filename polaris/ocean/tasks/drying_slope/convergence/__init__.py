@@ -4,6 +4,7 @@ from numpy import ceil
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.drying_slope.convergence.analysis import Analysis
 from polaris.ocean.tasks.drying_slope.convergence.forward import Forward
@@ -54,15 +55,18 @@ class Convergence(Task):
         """
         name = f'convergence_{method}'
         config_filename = 'drying_slope.cfg'
+        self.config = config
         super().__init__(component=component, name=name, subdir=subdir)
+        self.set_shared_config(config, link=config_filename)
 
         self.damping_coeffs = []
-        self.resolutions = config.getlist('drying_slope_convergence',
-                                          'resolutions', dtype=float)
-
         analysis_dependencies: Dict[str, Dict[float, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
-        for resolution in self.resolutions:
+        refinement_factors = config.getlist(
+            'convergence', 'refinement_factors_space', dtype=float)
+        for refinement_factor in refinement_factors:
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement='both')
             mesh_name = resolution_to_subdir(resolution)
             init_dir = f'{group_dir}/barotropic/{mesh_name}/init'
             if init_dir in component.steps:
@@ -85,7 +89,7 @@ class Convergence(Task):
             else:
                 forward_step = Forward(component=component,
                                        name=f'{step_name}_{mesh_name}',
-                                       resolution=resolution,
+                                       refinement_factor=refinement_factor,
                                        subdir=forward_dir,
                                        init=init_step,
                                        damping_coeff=damping_coeff,
@@ -98,7 +102,6 @@ class Convergence(Task):
 
         self.add_step(Analysis(
             component=component,
-            resolutions=self.resolutions,
             subdir=f'{subdir}/analysis',
             damping_coeff=damping_coeff,
             dependencies=analysis_dependencies))

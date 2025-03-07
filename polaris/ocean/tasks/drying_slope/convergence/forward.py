@@ -1,7 +1,8 @@
 import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.convergence import ConvergenceForward
+from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.convergence.forward import ConvergenceForward
 
 
 class Forward(ConvergenceForward):
@@ -14,8 +15,8 @@ class Forward(ConvergenceForward):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, component, name, resolution, subdir, init,
-                 damping_coeff, coord_type, method,
+    def __init__(self, component, name, refinement_factor, subdir, init,
+                 damping_coeff, coord_type, method, refinement='both',
                  drag_type='constant_and_rayleigh'):
         """
         Create a new test case
@@ -24,9 +25,6 @@ class Forward(ConvergenceForward):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolution : km
-            The resolution of the test case in km
 
         subdir : str
             The subdirectory that the step belongs to
@@ -67,14 +65,27 @@ class Forward(ConvergenceForward):
         options['config_tidal_forcing_model'] = 'monochromatic'
         super().__init__(component=component,
                          name=name, subdir=subdir,
-                         resolution=resolution, mesh=init, init=init,
+                         refinement_factor=refinement_factor,
+                         mesh=init, init=init,
                          package='polaris.ocean.tasks.drying_slope',
                          yaml_filename='forward.yaml',
-                         init_filename='initial_state.nc',
-                         graph_filename='culled_graph.info',
+                         graph_target=f'{init.path}/culled_graph.info',
                          output_filename='output.nc',
                          forcing=True, options=options,
                          validate_vars=['layerThickness', 'normalVelocity'])
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        config = self.config
+        self.resolution = get_resolution_for_task(
+            config, self.refinement_factor, refinement=self.refinement)
+        model = config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
     def compute_cell_count(self):
         """
