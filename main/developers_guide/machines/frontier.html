@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -70,8 +70,8 @@
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Frontier</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#frontier-gnu">frontier, gnu</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#frontier-crayclang">frontier, crayclang</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#frontier-craygnu">frontier, craygnu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#frontier-craycray">frontier, craycray</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
@@ -126,11 +126,11 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="frontier">
 <h1>Frontier<a class="headerlink" href="#frontier" title="Link to this heading"></a></h1>
-<section id="frontier-gnu">
-<h2>frontier, gnu<a class="headerlink" href="#frontier-gnu" title="Link to this heading"></a></h2>
+<section id="frontier-craygnu">
+<h2>frontier, craygnu<a class="headerlink" href="#frontier-craygnu" title="Link to this heading"></a></h2>
 <p>If you’ve set things up for this compiler, you should be able to source a load
 script similar to:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.3.0-alpha.1_frontier_gnu_mpich.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.6.0-alpha.1_frontier_craygnu_mpich.sh
 </pre></div>
 </div>
 <p>Then, you can build the MPAS model with</p>
@@ -138,11 +138,11 @@ script similar to:</p>
 </pre></div>
 </div>
 </section>
-<section id="frontier-crayclang">
-<h2>frontier, crayclang<a class="headerlink" href="#frontier-crayclang" title="Link to this heading"></a></h2>
-<p>Similarly to <code class="docutils literal notranslate"><span class="pre">gnu</span></code>, for <code class="docutils literal notranslate"><span class="pre">crayclang</span></code>, if you’ve set things up right, sourcing
+<section id="frontier-craycray">
+<h2>frontier, craycray<a class="headerlink" href="#frontier-craycray" title="Link to this heading"></a></h2>
+<p>Similarly to <code class="docutils literal notranslate"><span class="pre">craygnu</span></code>, for <code class="docutils literal notranslate"><span class="pre">craycray</span></code>, if you’ve set things up right, sourcing
 the load scrip will look something like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.3.0-alpha.1_frontier_crayclang_mpich.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.6.0-alpha.1_frontier_craycray_mpich.sh
 </pre></div>
 </div>
 <p>To build MPAS components, use:</p>

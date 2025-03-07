@@ -1,12 +1,12 @@
 # Frontier
 
-## frontier, gnu
+## frontier, craygnu
 
 If you've set things up for this compiler, you should be able to source a load
 script similar to:
 
 ```bash
-source load_dev_polaris_0.3.0-alpha.1_frontier_gnu_mpich.sh
+source load_dev_polaris_0.6.0-alpha.1_frontier_craygnu_mpich.sh
 ```
 
 Then, you can build the MPAS model with
@@ -15,13 +15,13 @@ Then, you can build the MPAS model with
 make [DEBUG=true] gnu-cray
 ```
 
-## frontier, crayclang
+## frontier, craycray
 
-Similarly to `gnu`, for `crayclang`, if you've set things up right, sourcing
+Similarly to `craygnu`, for `craycray`, if you've set things up right, sourcing
 the load scrip will look something like:
 
 ```bash
-source load_dev_polaris_0.3.0-alpha.1_frontier_crayclang_mpich.sh
+source load_dev_polaris_0.6.0-alpha.1_frontier_craycray_mpich.sh
 ```
 
 To build MPAS components, use:

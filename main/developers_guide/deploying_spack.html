@@ -13,7 +13,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=b208ceb8"></script>
+      <script src="../_static/documentation_options.js?v=557c4a80"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -176,9 +176,7 @@ libraries.  This allows us to build the tools with one set of compilers and
 MPI libraries and the libraries with another.  This is sometimes necessary,
 since ESMF, MOAB and/or their dependencies can’t always be built or don’t
 run correctly with all compiler and MPI combinations.  For example, we have
-experienced problems running ESMF built with intel compilers on Perlmutter.
-We are also not able to build ESMF or the Eigen dependency of MOAB using
-<code class="docutils literal notranslate"><span class="pre">nvidiagpu</span></code> compilers.</p>
+experienced problems running ESMF built with intel compilers on Perlmutter.</p>
 <p>When we update the versions of any of these packages in Polaris, we also need
 to bump the Polaris version (typically either the major or the minor version)
 and then re-deploy shared spack environments on each supported machine.</p>
