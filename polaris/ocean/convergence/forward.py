@@ -88,7 +88,7 @@ class ConvergenceForward(OceanModelStep):
                                               config_model=config_model)
 
         self.add_input_file(
-            filename=init_filename,
+            filename='init.nc',
             work_dir_target=f'{init.path}/initial_state.nc')
 
         if forcing:

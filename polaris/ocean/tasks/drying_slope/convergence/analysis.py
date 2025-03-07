@@ -3,7 +3,7 @@ import pandas as pd
 import xarray as xr
 from scipy.interpolate import interp1d
 
-from polaris.ocean.convergence import ConvergenceAnalysis
+from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 
 
 class Analysis(ConvergenceAnalysis):
@@ -16,7 +16,7 @@ class Analysis(ConvergenceAnalysis):
     damping_coeff : float
         The Rayleigh damping coefficient used for the forward runs
     """
-    def __init__(self, component, resolutions, subdir, dependencies,
+    def __init__(self, component, subdir, dependencies,
                  damping_coeff):
         """
         Create the step
@@ -25,9 +25,6 @@ class Analysis(ConvergenceAnalysis):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        resolutions : list of float
-            The resolutions of the meshes that have been run
 
         subdir : str
             The subdirectory that the step resides in
@@ -43,7 +40,6 @@ class Analysis(ConvergenceAnalysis):
                              'title': 'SSH',
                              'zidx': None}]
         super().__init__(component=component, subdir=subdir,
-                         resolutions=resolutions,
                          dependencies=dependencies,
                          convergence_vars=convergence_vars)
 
