@@ -2,6 +2,7 @@ from polaris import Component
 from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
 from polaris.ocean.tasks.barotropic_gyre import add_barotropic_gyre_tasks
 from polaris.ocean.tasks.cosine_bell import add_cosine_bell_tasks
+from polaris.ocean.tasks.drying_slope import add_drying_slope_tasks
 from polaris.ocean.tasks.geostrophic import add_geostrophic_tasks
 from polaris.ocean.tasks.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.ocean.tasks.inertial_gravity_wave import (
@@ -30,6 +31,7 @@ class Ocean(Component):
         # planar: please keep these in alphabetical order
         add_baroclinic_channel_tasks(component=self)
         add_barotropic_gyre_tasks(component=self)
+        add_drying_slope_tasks(component=self)
         add_ice_shelf_2d_tasks(component=self)
         add_inertial_gravity_wave_tasks(component=self)
         add_internal_wave_tasks(component=self)

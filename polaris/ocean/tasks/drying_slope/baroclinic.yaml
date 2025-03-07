@@ -1,0 +1,16 @@
+omega:
+  tracer_forcing_activeTracers:
+    config_use_activeTracers: true
+  tracer_forcing_debugTracers:
+    config_use_debugTracers: true
+  debug:
+    config_compute_active_tracer_budgets: true
+    config_disable_tr_all_tend: false
+  streams:
+    output:
+      contents:
+      - wettingVelocityBaroclinic
+      - wettingVelocityBarotropicSubcycle
+    forcing:
+      contents:
+      - bottomDrag
