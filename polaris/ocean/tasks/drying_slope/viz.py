@@ -117,6 +117,7 @@ class Viz(Step):
 
         ds_mesh = xr.load_dataset('init.nc')
         cell_mask = ds_mesh.maxLevelCell >= 1
+        edge_mask = ds_mesh.maxLevelEdgeBot >= 1
 
         out_filenames = []
         if not self.damping_coeffs:
@@ -142,19 +143,19 @@ class Viz(Step):
                     f'wetting_velocity_factor_horiz_t{tidx:03g}.png',
                     transect_x=x, transect_y=y,
                     show_patch_edges=True, t_index=tidx,
-                    cell_mask=cell_mask, vmin=0, vmax=1)
+                    field_mask=edge_mask, vmin=0, vmax=1)
 
                 if self.baroclinic:
                     plot_horiz_field(
                         ds, ds_mesh, 'wettingVelocityBarotropicSubcycle',
                         f'wettingVelocityBarotropic_horiz_t{tidx:03g}.png',
-                        t_index=tidx, cell_mask=cell_mask, vmin=0, vmax=1)
+                        t_index=tidx, field_mask=edge_mask, vmin=0, vmax=1)
                     self._plot_salinity(tidx=-1, y_distance=45.)
 
                 plot_horiz_field(
                     ds, ds_mesh, 'ssh',
                     f'ssh_horiz_t{tidx:03g}.png',
-                    t_index=tidx, cell_mask=cell_mask)
+                    t_index=tidx, field_mask=cell_mask)
 
     def _plot_transects(self, ds_mesh, ds):
 
