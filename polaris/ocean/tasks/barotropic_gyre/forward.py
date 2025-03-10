@@ -119,7 +119,6 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         if model == 'mpas-ocean':
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
-
         nu = config.getfloat("barotropic_gyre", "nu_2")
         rho_0 = config.getfloat("barotropic_gyre", "rho_0")
 
@@ -133,25 +132,53 @@ class Forward(OceanModelStep):
                                       config_model='mpas-ocean')
 
         if self.run_time_steps is not None:
+            output_frequency_units = 'seconds'
             run_duration = ceil(self.run_time_steps * dt)
+            output_frequency = f'{run_duration}'
             stop_time_str = time.strftime('0001-01-01_%H:%M:%S',
                                           time.gmtime(run_duration))
             output_interval_str = time.strftime('0000_%H:%M:%S',
                                                 time.gmtime(run_duration))
         else:
+            output_frequency_units = 'months'
+            output_frequency = '1'
             stop_time_str = time.strftime('0004-01-01_00:00:00')
             output_interval_str = time.strftime('0000-01-00_00:00:00')
+
+        time_integrator = config.get('barotropic_gyre', 'time_integrator')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print('Warning: mapping from time integrator '
+                      f'{time_integrator} to omega not found, '
+                      'retaining name given in config')
 
         replacements = dict(
             dt=dt_str,
             stop_time=stop_time_str,
             output_interval=output_interval_str,
+            output_frequency=output_frequency,
+            output_frequency_units=output_frequency_units,
+            time_integrator=time_integrator,
             nu=f'{nu:02g}',
         )
 
         # make sure output is double precision
         self.add_yaml_file(self.package, self.yaml_filename,
                            template_replacements=replacements)
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
 
 def compute_max_time_step(config):

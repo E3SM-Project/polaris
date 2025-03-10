@@ -4,10 +4,29 @@ ocean:
     config_run_duration: none
   time_integration:
     config_dt: {{ dt }}
-    config_time_integrator: RK4
+    config_time_integrator: {{ time_integrator }}
+  advection:
+    config_thickness_flux_type: constant
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
+  hmix_del4:
+    config_use_mom_del4: false
+
+mpas-ocean:
+  run_modes:
+    config_ocean_run_mode: forward
+  decomposition:
+    config_block_decomp_file_prefix: graph.info.part.
+  bottom_drag:
+    config_implicit_constant_bottom_drag_coeff: 0.
+  forcing:
+    config_use_bulk_wind_stress: true
+  debug:
+    config_disable_vel_hadv: true
+    config_disable_vel_hmix: false
+    config_disable_tr_all_tend: true
+
   streams:
     mesh:
       filename_template: init.nc
@@ -32,21 +51,30 @@ ocean:
       - layerThickness
       - ssh
 
-mpas-ocean:
-  advection:
-    config_thickness_flux_type: constant
-  bottom_drag:
-    config_implicit_constant_bottom_drag_coeff: 0.
-  forcing:
-    config_use_bulk_wind_stress: true
-  debug:
-    config_disable_vel_hadv: true
-    config_disable_vel_hmix: false
-    config_disable_tr_all_tend: true
-
 Omega:
   Tendencies:
-    VelDiffTendencyEnable: true
-    VelHyperDiffTendencyEnable: false
+    TracerHorzAdvTendencyEnable : false
+    TracerDiffTendencyEnable : false
+    TracerHyperDiffTendencyEnable : false
+  Advection:
+    FluxThicknessType: Center
   Dimension:
     NVertLevels: 1
+  IOStreams:
+    InitialState:
+      Filename: init.nc
+      Contents:
+        - LayerThickness
+        - NormalVelocity
+    History:
+      Filename: output.nc
+      Freq: {{ output_frequency }}
+      FreqUnits: {{ output_frequency_units }}
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+        - LayerThickness
+        - NormalVelocity
+        - SshCellDefault
