@@ -216,8 +216,9 @@ class Init(Step):
 
         cell_mask = ds.maxLevelCell >= 1
         plot_horiz_field(ds, ds_mesh, 'salinity',
-                         'initial_salinity.png', cell_mask=cell_mask,
+                         'initial_salinity.png', field_mask=cell_mask,
                          show_patch_edges=True, transect_x=x, transect_y=y)
+        edge_mask = ds.maxLevelEdgeBot >= 1
         plot_horiz_field(ds, ds_mesh, 'normalVelocity',
-                         'initial_velocity.png', cell_mask=cell_mask,
+                         'initial_velocity.png', field_mask=edge_mask,
                          show_patch_edges=True, transect_x=x, transect_y=y)
