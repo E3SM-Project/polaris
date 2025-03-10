@@ -50,7 +50,7 @@ class Analysis(OceanIOStep):
         ds = xr.open_dataset('output.nc')
 
         field_mpas = compute_barotropic_streamfunction(
-            ds_init.isel(Time=0), ds, prefix='', time_index=-1)
+            ds_mesh=ds_init.isel(Time=0), ds=ds, prefix='', time_index=-1)
         field_exact = self.exact_solution(
             ds_mesh, self.config, loc='Vertex',
             boundary_condition=self.boundary_condition)
