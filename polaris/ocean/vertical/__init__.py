@@ -2,16 +2,22 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.vertical.sigma import (
-    init_sigma_vertical_coord,
-    update_sigma_layer_thickness,
+    init_sigma_vertical_coord as init_sigma_vertical_coord,
+)
+from polaris.ocean.vertical.sigma import (
+    update_sigma_layer_thickness as update_sigma_layer_thickness,
 )
 from polaris.ocean.vertical.zlevel import (
-    init_z_level_vertical_coord,
-    update_z_level_layer_thickness,
+    init_z_level_vertical_coord as init_z_level_vertical_coord,
+)
+from polaris.ocean.vertical.zlevel import (
+    update_z_level_layer_thickness as update_z_level_layer_thickness,
 )
 from polaris.ocean.vertical.zstar import (
-    init_z_star_vertical_coord,
-    update_z_star_layer_thickness,
+    init_z_star_vertical_coord as init_z_star_vertical_coord,
+)
+from polaris.ocean.vertical.zstar import (
+    update_z_star_layer_thickness as update_z_star_layer_thickness,
 )
 
 

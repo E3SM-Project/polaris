@@ -1,5 +1,9 @@
-from polaris.seaice.tasks.single_column.exact_restart import ExactRestart
-from polaris.seaice.tasks.single_column.standard_physics import StandardPhysics
+from polaris.seaice.tasks.single_column.exact_restart import (
+    ExactRestart as ExactRestart,
+)
+from polaris.seaice.tasks.single_column.standard_physics import (
+    StandardPhysics as StandardPhysics,
+)
 
 
 def add_single_column_tasks(component):

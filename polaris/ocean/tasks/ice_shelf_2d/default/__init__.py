@@ -1,8 +1,10 @@
-from polaris.ocean.ice_shelf import IceShelfTask
-from polaris.ocean.tasks.ice_shelf_2d.forward import Forward
-from polaris.ocean.tasks.ice_shelf_2d.ssh_forward import SshForward
-from polaris.ocean.tasks.ice_shelf_2d.validate import Validate
-from polaris.ocean.tasks.ice_shelf_2d.viz import Viz
+from polaris.ocean.ice_shelf import IceShelfTask as IceShelfTask
+from polaris.ocean.tasks.ice_shelf_2d.forward import Forward as Forward
+from polaris.ocean.tasks.ice_shelf_2d.ssh_forward import (
+    SshForward as SshForward,
+)
+from polaris.ocean.tasks.ice_shelf_2d.validate import Validate as Validate
+from polaris.ocean.tasks.ice_shelf_2d.viz import Viz as Viz
 
 
 class Default(IceShelfTask):

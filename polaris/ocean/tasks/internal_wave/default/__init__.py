@@ -1,6 +1,6 @@
-from polaris import Task
-from polaris.ocean.tasks.internal_wave.forward import Forward
-from polaris.ocean.tasks.internal_wave.viz import Viz
+from polaris import Task as Task
+from polaris.ocean.tasks.internal_wave.forward import Forward as Forward
+from polaris.ocean.tasks.internal_wave.viz import Viz as Viz
 
 
 class Default(Task):

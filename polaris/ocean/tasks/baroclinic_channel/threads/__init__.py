@@ -1,6 +1,8 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.validate import Validate
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.validate import (
+    Validate as Validate,
+)
 
 
 class Threads(Task):

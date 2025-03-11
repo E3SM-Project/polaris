@@ -1,8 +1,10 @@
-import os
+import os as os
 
-from polaris import Task
-from polaris.seaice.tasks.single_column.exact_restart.validate import Validate
-from polaris.seaice.tasks.single_column.forward import Forward
+from polaris import Task as Task
+from polaris.seaice.tasks.single_column.exact_restart.validate import (
+    Validate as Validate,
+)
+from polaris.seaice.tasks.single_column.forward import Forward as Forward
 
 
 class ExactRestart(Task):

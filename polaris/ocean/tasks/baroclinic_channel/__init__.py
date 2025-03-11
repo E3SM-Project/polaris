@@ -1,11 +1,13 @@
-from polaris.config import PolarisConfigParser
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp
-from polaris.ocean.tasks.baroclinic_channel.default import Default
-from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.ocean.tasks.baroclinic_channel.restart import Restart
-from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
-from polaris.ocean.tasks.baroclinic_channel.threads import Threads
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.resolution import (
+    resolution_to_subdir as resolution_to_subdir,
+)
+from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp as Decomp
+from polaris.ocean.tasks.baroclinic_channel.default import Default as Default
+from polaris.ocean.tasks.baroclinic_channel.init import Init as Init
+from polaris.ocean.tasks.baroclinic_channel.restart import Restart as Restart
+from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe as Rpe
+from polaris.ocean.tasks.baroclinic_channel.threads import Threads as Threads
 
 
 def add_baroclinic_channel_tasks(component):

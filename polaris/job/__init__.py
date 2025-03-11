@@ -1,8 +1,8 @@
 import importlib.resources as imp_res
-import os
+import os as os
 
 import numpy as np
-from jinja2 import Template
+from jinja2 import Template as Template
 
 
 def write_job_script(config, machine, target_cores, min_cores, work_dir,

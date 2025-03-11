@@ -1,8 +1,10 @@
-from polaris import Task
+from polaris import Task as Task
 from polaris.ocean.tasks.baroclinic_channel.restart.restart_step import (
-    RestartStep,
+    RestartStep as RestartStep,
 )
-from polaris.ocean.tasks.baroclinic_channel.validate import Validate
+from polaris.ocean.tasks.baroclinic_channel.validate import (
+    Validate as Validate,
+)
 
 
 class Restart(Task):

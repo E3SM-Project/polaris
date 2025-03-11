@@ -1,8 +1,15 @@
-from typing import Dict
+from typing import Dict as Dict
 
-from polaris import Step, Task
-from polaris.ocean.ice_shelf.ssh_adjustment import SshAdjustment
-from polaris.ocean.ice_shelf.ssh_forward import SshForward
+from polaris import (
+    Step as Step,
+)
+from polaris import (
+    Task as Task,
+)
+from polaris.ocean.ice_shelf.ssh_adjustment import (
+    SshAdjustment as SshAdjustment,
+)
+from polaris.ocean.ice_shelf.ssh_forward import SshForward as SshForward
 
 
 class IceShelfTask(Task):

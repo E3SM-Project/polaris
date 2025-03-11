@@ -1,8 +1,8 @@
-import os
+import os as os
 
-from polaris import Task
-from polaris.seaice.tasks.single_column.forward import Forward
-from polaris.seaice.tasks.single_column.standard_physics.viz import Viz
+from polaris import Task as Task
+from polaris.seaice.tasks.single_column.forward import Forward as Forward
+from polaris.seaice.tasks.single_column.standard_physics.viz import Viz as Viz
 
 
 class StandardPhysics(Task):

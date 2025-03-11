@@ -1,7 +1,7 @@
-import os
-import pickle
+import os as os
+import pickle as pickle
 
-from polaris.config import PolarisConfigParser
+from polaris.config import PolarisConfigParser as PolarisConfigParser
 
 
 def unpickle_suite(suite_name):

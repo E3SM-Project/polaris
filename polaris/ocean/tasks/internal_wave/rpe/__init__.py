@@ -1,6 +1,6 @@
-from polaris import Task
-from polaris.ocean.tasks.internal_wave.forward import Forward
-from polaris.ocean.tasks.internal_wave.rpe.analysis import Analysis
+from polaris import Task as Task
+from polaris.ocean.tasks.internal_wave.forward import Forward as Forward
+from polaris.ocean.tasks.internal_wave.rpe.analysis import Analysis as Analysis
 
 
 class Rpe(Task):

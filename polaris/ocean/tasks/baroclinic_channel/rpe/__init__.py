@@ -1,6 +1,8 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import (
+    Analysis as Analysis,
+)
 
 
 class Rpe(Task):

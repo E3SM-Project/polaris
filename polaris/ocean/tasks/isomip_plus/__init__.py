@@ -1,15 +1,36 @@
-from typing import Dict, Union
-
-from polaris import Step
-from polaris.config import PolarisConfigParser
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.isomip_plus.isomip_plus_test import IsomipPlusTest
-from polaris.ocean.tasks.isomip_plus.mesh import (
-    CullMesh,
-    PlanarMesh,
-    SphericalMesh,
+from typing import (
+    Dict as Dict,
 )
-from polaris.ocean.tasks.isomip_plus.topo import TopoMap, TopoRemap, TopoScale
+from typing import (
+    Union as Union,
+)
+
+from polaris import Step as Step
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.resolution import (
+    resolution_to_subdir as resolution_to_subdir,
+)
+from polaris.ocean.tasks.isomip_plus.isomip_plus_test import (
+    IsomipPlusTest as IsomipPlusTest,
+)
+from polaris.ocean.tasks.isomip_plus.mesh import (
+    CullMesh as CullMesh,
+)
+from polaris.ocean.tasks.isomip_plus.mesh import (
+    PlanarMesh as PlanarMesh,
+)
+from polaris.ocean.tasks.isomip_plus.mesh import (
+    SphericalMesh as SphericalMesh,
+)
+from polaris.ocean.tasks.isomip_plus.topo import (
+    TopoMap as TopoMap,
+)
+from polaris.ocean.tasks.isomip_plus.topo import (
+    TopoRemap as TopoRemap,
+)
+from polaris.ocean.tasks.isomip_plus.topo import (
+    TopoScale as TopoScale,
+)
 
 
 def add_isomip_plus_tasks(component, mesh_type):

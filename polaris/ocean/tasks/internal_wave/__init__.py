@@ -1,7 +1,7 @@
-from polaris.config import PolarisConfigParser
-from polaris.ocean.tasks.internal_wave.default import Default
-from polaris.ocean.tasks.internal_wave.init import Init
-from polaris.ocean.tasks.internal_wave.rpe import Rpe
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.tasks.internal_wave.default import Default as Default
+from polaris.ocean.tasks.internal_wave.init import Init as Init
+from polaris.ocean.tasks.internal_wave.rpe import Rpe as Rpe
 
 
 def add_internal_wave_tasks(component):

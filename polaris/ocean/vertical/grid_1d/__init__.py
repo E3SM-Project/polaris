@@ -1,13 +1,15 @@
-import json
-from importlib import resources
+import json as json
+from importlib import resources as resources
 
 import numpy as np
-from netCDF4 import Dataset
+from netCDF4 import Dataset as Dataset
 
 from polaris.ocean.vertical.grid_1d.index_tanh_dz import (
-    create_index_tanh_dz_grid,
+    create_index_tanh_dz_grid as create_index_tanh_dz_grid,
 )
-from polaris.ocean.vertical.grid_1d.tanh_dz import create_tanh_dz_grid
+from polaris.ocean.vertical.grid_1d.tanh_dz import (
+    create_tanh_dz_grid as create_tanh_dz_grid,
+)
 
 
 def generate_1d_grid(config):

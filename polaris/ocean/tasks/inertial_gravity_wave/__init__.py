@@ -1,17 +1,30 @@
-from math import ceil
-from typing import Dict
+from math import ceil as ceil
+from typing import Dict as Dict
 
-from polaris import Step, Task
-from polaris.config import PolarisConfigParser
-from polaris.ocean.convergence import (
-    get_resolution_for_task,
-    get_timestep_for_task,
+from polaris import (
+    Step as Step,
 )
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.inertial_gravity_wave.analysis import Analysis
-from polaris.ocean.tasks.inertial_gravity_wave.forward import Forward
-from polaris.ocean.tasks.inertial_gravity_wave.init import Init
-from polaris.ocean.tasks.inertial_gravity_wave.viz import Viz
+from polaris import (
+    Task as Task,
+)
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.convergence import (
+    get_resolution_for_task as get_resolution_for_task,
+)
+from polaris.ocean.convergence import (
+    get_timestep_for_task as get_timestep_for_task,
+)
+from polaris.ocean.resolution import (
+    resolution_to_subdir as resolution_to_subdir,
+)
+from polaris.ocean.tasks.inertial_gravity_wave.analysis import (
+    Analysis as Analysis,
+)
+from polaris.ocean.tasks.inertial_gravity_wave.forward import (
+    Forward as Forward,
+)
+from polaris.ocean.tasks.inertial_gravity_wave.init import Init as Init
+from polaris.ocean.tasks.inertial_gravity_wave.viz import Viz as Viz
 
 
 def add_inertial_gravity_wave_tasks(component):

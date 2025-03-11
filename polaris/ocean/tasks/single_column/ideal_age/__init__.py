@@ -1,9 +1,9 @@
 import os
 
-from polaris import Task
-from polaris.ocean.tasks.single_column.forward import Forward
-from polaris.ocean.tasks.single_column.init import Init
-from polaris.ocean.tasks.single_column.viz import Viz
+from polaris import Task as Task
+from polaris.ocean.tasks.single_column.forward import Forward as Forward
+from polaris.ocean.tasks.single_column.init import Init as Init
+from polaris.ocean.tasks.single_column.viz import Viz as Viz
 
 
 class IdealAge(Task):

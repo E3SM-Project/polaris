@@ -1,9 +1,15 @@
-from polaris import Task
-from polaris.ocean.convergence import get_resolution_for_task
-from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
-from polaris.ocean.tasks.cosine_bell.init import Init
-from polaris.ocean.tasks.cosine_bell.restart.restart_step import RestartStep
-from polaris.ocean.tasks.cosine_bell.validate import Validate
+from polaris import Task as Task
+from polaris.ocean.convergence import (
+    get_resolution_for_task as get_resolution_for_task,
+)
+from polaris.ocean.mesh.spherical import (
+    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
+)
+from polaris.ocean.tasks.cosine_bell.init import Init as Init
+from polaris.ocean.tasks.cosine_bell.restart.restart_step import (
+    RestartStep as RestartStep,
+)
+from polaris.ocean.tasks.cosine_bell.validate import Validate as Validate
 
 
 class Restart(Task):

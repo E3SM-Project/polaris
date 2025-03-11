@@ -1,8 +1,13 @@
-from polaris import Step, Task
-from polaris.config import PolarisConfigParser
-from polaris.ocean.tasks.barotropic_gyre.analysis import Analysis
-from polaris.ocean.tasks.barotropic_gyre.forward import Forward
-from polaris.ocean.tasks.barotropic_gyre.init import Init
+from polaris import (
+    Step as Step,
+)
+from polaris import (
+    Task as Task,
+)
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.tasks.barotropic_gyre.analysis import Analysis as Analysis
+from polaris.ocean.tasks.barotropic_gyre.forward import Forward as Forward
+from polaris.ocean.tasks.barotropic_gyre.init import Init as Init
 
 
 def add_barotropic_gyre_tasks(component):

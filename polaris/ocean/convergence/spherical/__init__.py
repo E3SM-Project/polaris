@@ -1,3 +1,3 @@
 from polaris.ocean.convergence.spherical.forward import (
-    SphericalConvergenceForward,
+    SphericalConvergenceForward as SphericalConvergenceForward,
 )

@@ -1,7 +1,9 @@
-from polaris.config import PolarisConfigParser
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.ice_shelf_2d.default import Default
-from polaris.ocean.tasks.ice_shelf_2d.init import Init
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.resolution import (
+    resolution_to_subdir as resolution_to_subdir,
+)
+from polaris.ocean.tasks.ice_shelf_2d.default import Default as Default
+from polaris.ocean.tasks.ice_shelf_2d.init import Init as Init
 
 
 def add_ice_shelf_2d_tasks(component):

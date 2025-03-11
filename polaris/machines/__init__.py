@@ -1,11 +1,11 @@
 import importlib.resources as imp_res
-import os
-import socket
-import sys
+import os as os
+import socket as socket
+import sys as sys
 
 from mache import discover_machine as mache_discover_machine
 
-from polaris.config import PolarisConfigParser
+from polaris.config import PolarisConfigParser as PolarisConfigParser
 
 
 def discover_machine(quiet=False):

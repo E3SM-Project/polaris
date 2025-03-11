@@ -1,5 +1,7 @@
-from polaris import Component
-from polaris.seaice.tasks.single_column import add_single_column_tasks
+from polaris import Component as Component
+from polaris.seaice.tasks.single_column import (
+    add_single_column_tasks as add_single_column_tasks,
+)
 
 
 class SeaIce(Component):

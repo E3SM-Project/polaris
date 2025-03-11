@@ -1,6 +1,6 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.viz import Viz
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.viz import Viz as Viz
 
 
 class Default(Task):
