@@ -53,6 +53,9 @@ CTests and can optionally submit the job script.
    * `-s`: if running the utility on a login node, submit the job script that
      the utility generates (does nothing on a compute node)
 
+   * `--account`: specify the account to supply in the job script (necessary
+     on some machines, such as Chicoma)
+
    * `-d`: build Omega in debug mode
 
    * `--cmake_flags="<flags>"`: Extra flags to pass to the `cmake` command
