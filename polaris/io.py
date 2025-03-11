@@ -273,7 +273,7 @@ def _walk_dirs(directories):
     """
     files_and_dirs = []
     for base in directories:
-        for root, dirs, files in os.walk(base):
+        for _, dirs, files in os.walk(base):
             files_and_dirs.extend(dirs)
             files_and_dirs.extend(files)
     return files_and_dirs

@@ -1202,7 +1202,7 @@ def _update_permissions(options, directories):  # noqa: C901
 
     files_and_dirs = []
     for base in directories:
-        for root, dirs, files in os.walk(base):
+        for _, dirs, files in os.walk(base):
             files_and_dirs.extend(dirs)
             files_and_dirs.extend(files)
 

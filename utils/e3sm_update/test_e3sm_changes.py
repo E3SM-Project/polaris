@@ -112,7 +112,7 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
 
     print('Setting up worktrees of all commits of interest\n')
 
-    for index, data in enumerate(pull_requests):
+    for _, data in enumerate(pull_requests):
         hash = data['hash']
         worktree = data['worktree']
         setup_worktree(submodule, worktree=worktree, hash=hash)

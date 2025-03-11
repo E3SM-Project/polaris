@@ -169,7 +169,7 @@ class SphereTransport(Task):
         analysis_dependencies: Dict[str, Dict[str, Step]] = (
             dict(mesh=dict(), init=dict(), forward=dict()))
         timesteps = list()
-        for idx, refinement_factor in enumerate(refinement_factors):
+        for _, refinement_factor in enumerate(refinement_factors):
             resolution = get_resolution_for_task(
                 config, refinement_factor, refinement=refinement)
             base_mesh_step, mesh_name = add_spherical_base_mesh_step(

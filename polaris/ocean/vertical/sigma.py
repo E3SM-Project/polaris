@@ -137,7 +137,7 @@ def compute_sigma_layer_thickness(ref_interfaces, ssh, bottom_depth,
                      column_thickness)
         thickness = thickness.where(valid, 0.)
         layer_thickness.append(thickness)
-    for z_index in range(max_level, n_vert_levels):
+    for _ in range(max_level, n_vert_levels):
         layer_thickness.append(xarray.zeros_like(bottom_depth))
     layer_thickness_array = xarray.DataArray(layer_thickness,
                                              dims=['nVertLevels', 'nCells'])

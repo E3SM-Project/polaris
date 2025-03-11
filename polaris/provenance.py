@@ -67,7 +67,7 @@ def write(work_dir, tasks, config=None):
     provenance_file.write(f'command: {calling_command}\n\n')
     provenance_file.write('tasks:\n')
 
-    for path, task in tasks.items():
+    for _, task in tasks.items():
         prefix = '  '
         lines = list()
         to_print = {'path': task.path,
