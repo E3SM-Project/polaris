@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from polaris.ocean.viz.transect.vert import (
+    interp_mpas_edges_to_transect_cells,
     interp_mpas_to_transect_cells,
     interp_mpas_to_transect_nodes,
 )
@@ -26,7 +27,8 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
         :py:func:`polaris.ocean.viz.compute_transect()`
 
     mpas_field : xarray.DataArray
-        The MPAS-Ocean 3D field to plot
+        The MPAS-Ocean 3D field (``nCells`` or ``nEdges`` by ``nVertLevels``)
+        to plot
 
     out_filename : str, optional
         The png file to write out to
@@ -58,9 +60,9 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
 
     method : {'flat', 'bilinear'}, optional
         The type of interpolation to use in plots.  ``flat`` means constant
-        values over each MPAS cell.  ``bilinear`` means smooth interpolation
-        between horizontally between cell centers and vertical between the
-        middle of layers.
+        values over each MPAS cell or edge.  ``bilinear`` means smooth
+        interpolation horizontally between cell centers and vertical between
+        the middle of layers (available only for fields on MPAS cells).
 
     outline_color : str or None, optional
         The color to use to outline the transect or ``None`` for no outline
@@ -114,16 +116,29 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
     x = 1e-3 * ds_transect.dNode.broadcast_like(z)
 
     if mpas_field is not None:
-        if method == 'flat':
-            transect_field = interp_mpas_to_transect_cells(ds_transect,
-                                                           mpas_field)
+        if 'nCells' in mpas_field.dims:
+            if method == 'flat':
+                transect_field = interp_mpas_to_transect_cells(ds_transect,
+                                                               mpas_field)
+                shading = 'flat'
+            elif method == 'bilinear':
+                transect_field = interp_mpas_to_transect_nodes(ds_transect,
+                                                               mpas_field)
+                shading = 'gouraud'
+            else:
+                raise ValueError(f'Unsupported method for cell fields: '
+                                 f'{method}')
+        elif 'nEdges' in mpas_field.dims:
+            if method != 'flat':
+                raise ValueError(f'Unsupported method for edge fields: '
+                                 f'{method}')
+
+            transect_field = interp_mpas_edges_to_transect_cells(ds_transect,
+                                                                 mpas_field)
             shading = 'flat'
-        elif method == 'bilinear':
-            transect_field = interp_mpas_to_transect_nodes(ds_transect,
-                                                           mpas_field)
-            shading = 'gouraud'
         else:
-            raise ValueError(f'Unsupported method: {method}')
+            raise ValueError(f'Expected one of nCells or nEdges in '
+                             f'{mpas_field.dims}')
 
         pc = ax.pcolormesh(x.values, z.values, transect_field.values,
                            shading=shading, cmap=cmap, vmin=vmin, vmax=vmax,
