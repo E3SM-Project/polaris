@@ -41,10 +41,12 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         The title of the plot
 
     vmin : float, optional
-        The minimum values for the colorbar
+        The minimum values for the colorbar; if provided, must be positive if
+        ``cmap_scale == 'log'``
 
     vmax : float, optional
-        The maximum values for the colorbar
+        The maximum values for the colorbar; if provided, must be positive if
+        ``cmap_scale == 'log'``
 
     show_patch_edges : boolean, optional
         If true, patches will be plotted with visible edges
@@ -165,8 +167,10 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
 
     if cmap_scale == 'log':
         pcolor_kwargs['norm'] = LogNorm(
-            vmin=max(1e-10, vmin), vmax=vmax, clip=False
+            vmin=vmin, vmax=vmax, clip=False
         )
+        pcolor_kwargs.pop('vmin', None)
+        pcolor_kwargs.pop('vmax', None)
 
     if figsize is None:
         width = ds_mesh.xCell.max() - ds_mesh.xCell.min()
