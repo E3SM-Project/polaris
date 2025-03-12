@@ -45,6 +45,7 @@ class Viz(OceanIOStep):
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
     """
+
     def __init__(self, component, dependencies, taskdir, refinement='both'):
         """
         Create the step
@@ -99,8 +100,7 @@ class Viz(OceanIOStep):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('convergence', option,
-                                            dtype=float)
+        refinement_factors = config.getlist('convergence', option, dtype=float)
 
         for refinement_factor in refinement_factors:
             base_mesh = dependencies['mesh'][refinement_factor]
@@ -108,13 +108,16 @@ class Viz(OceanIOStep):
             forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{base_mesh.path}/culled_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/culled_mesh.nc',
+            )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc')
+                work_dir_target=f'{init.path}/initial_state.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{forward.path}/output.nc')
+                work_dir_target=f'{forward.path}/output.nc',
+            )
 
     def run(self):
         """
@@ -126,8 +129,7 @@ class Viz(OceanIOStep):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('convergence', option,
-                                            dtype=float)
+        refinement_factors = config.getlist('convergence', option, dtype=float)
 
         nres = len(refinement_factors)
 
@@ -147,11 +149,14 @@ class Viz(OceanIOStep):
 
         for i, refinement_factor in enumerate(refinement_factors):
             ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc')
+                f'mesh_r{refinement_factor:02g}.nc'
+            )
             ds_init = self.open_model_dataset(
-                f'init_r{refinement_factor:02g}.nc')
+                f'init_r{refinement_factor:02g}.nc'
+            )
             ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc', decode_times=False)
+                f'output_r{refinement_factor:02g}.nc', decode_times=False
+            )
 
             exact = ExactSolution(config, ds_init)
 
@@ -176,17 +181,37 @@ class Viz(OceanIOStep):
 
             cell_mask = ds_init.maxLevelCell >= 1
             descriptor = plot_horiz_field(
-                ds, ds_mesh, 'ssh', ax=axes[i, 0], cmap='cmo.balance',
-                t_index=ds.sizes["Time"] - 1, vmin=-eta0, vmax=eta0,
-                cmap_title="SSH", field_mask=cell_mask)
-            plot_horiz_field(ds_mesh, ds['ssh_exact'], ax=axes[i, 1],
-                             cmap='cmo.balance',
-                             vmin=-eta0, vmax=eta0, cmap_title="SSH",
-                             descriptor=descriptor)
-            plot_horiz_field(ds_mesh, ds['ssh_error'], ax=axes[i, 2],
-                             cmap='cmo.balance', cmap_title="dSSH",
-                             vmin=-error_range, vmax=error_range,
-                             descriptor=descriptor)
+                ds,
+                ds_mesh,
+                'ssh',
+                ax=axes[i, 0],
+                cmap='cmo.balance',
+                t_index=ds.sizes['Time'] - 1,
+                vmin=-eta0,
+                vmax=eta0,
+                cmap_title='SSH',
+                field_mask=cell_mask,
+            )
+            plot_horiz_field(
+                ds_mesh,
+                ds['ssh_exact'],
+                ax=axes[i, 1],
+                cmap='cmo.balance',
+                vmin=-eta0,
+                vmax=eta0,
+                cmap_title='SSH',
+                descriptor=descriptor,
+            )
+            plot_horiz_field(
+                ds_mesh,
+                ds['ssh_error'],
+                ax=axes[i, 2],
+                cmap='cmo.balance',
+                cmap_title='dSSH',
+                vmin=-error_range,
+                vmax=error_range,
+                descriptor=descriptor,
+            )
 
         axes[0, 0].set_title('Numerical solution')
         axes[0, 1].set_title('Analytical solution')
@@ -194,18 +219,24 @@ class Viz(OceanIOStep):
 
         pad = 5
         for ax, refinement_factor in zip(
-            axes[:, 0],
-            refinement_factors,
-            strict=False
+            axes[:, 0], refinement_factors, strict=False
         ):
             timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement)
+                config, refinement_factor, refinement=self.refinement
+            )
             resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement)
+                config, refinement_factor, refinement=self.refinement
+            )
 
-            ax.annotate(f'{resolution}km\n{timestep}s', xy=(0, 0.5),
-                        xytext=(-ax.yaxis.labelpad - pad, 0),
-                        xycoords=ax.yaxis.label, textcoords='offset points',
-                        size='large', ha='right', va='center')
+            ax.annotate(
+                f'{resolution}km\n{timestep}s',
+                xy=(0, 0.5),
+                xytext=(-ax.yaxis.labelpad - pad, 0),
+                xycoords=ax.yaxis.label,
+                textcoords='offset points',
+                size='large',
+                ha='right',
+                va='center',
+            )
 
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)

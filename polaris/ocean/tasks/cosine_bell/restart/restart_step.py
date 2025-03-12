@@ -12,6 +12,7 @@ class RestartStep(Forward):
     """
     A forward model step in the restart test case
     """
+
     def dynamic_model_config(self, at_setup):
         """
         Add model config options, namelist, streams and yaml files using config
@@ -29,14 +30,15 @@ class RestartStep(Forward):
         do_restart = self.do_restart
 
         dt, _ = get_timestep_for_task(
-            self.config, self.refinement_factor, refinement=self.refinement)
+            self.config, self.refinement_factor, refinement=self.refinement
+        )
         dt = np.ceil(dt)
 
         if not do_restart:
             # 2 time steps without a restart
-            start_time = 0.
-            run_duration = 2. * dt
-            output_interval = 2. * dt
+            start_time = 0.0
+            run_duration = 2.0 * dt
+            output_interval = 2.0 * dt
         else:
             # 1 time step from the restart at 1 time step
             start_time = dt
@@ -45,8 +47,9 @@ class RestartStep(Forward):
 
         # to keep the time formatting from getting too complicated, we'll
         # assume 2 time steps is never more than a day
-        start_time_str = time.strftime('0001-01-01_%H:%M:%S',
-                                       time.gmtime(start_time))
+        start_time_str = time.strftime(
+            '0001-01-01_%H:%M:%S', time.gmtime(start_time)
+        )
 
         run_duration_str = get_time_interval_string(seconds=run_duration)
 
@@ -72,13 +75,16 @@ class RestartStep(Forward):
             output_interval=output_interval_str,
             restart_time=restart_time_str,
             init_freq_units=init_freq_units,
-            output_freq=f'{output_freq}'
+            output_freq=f'{output_freq}',
         )
 
-        self.add_yaml_file(package=package,
-                           yaml='forward.yaml',
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            package=package,
+            yaml='forward.yaml',
+            template_replacements=replacements,
+        )
 
-        restart_dir = os.path.abspath(os.path.join(
-            self.work_dir, '..', 'restarts'))
+        restart_dir = os.path.abspath(
+            os.path.join(self.work_dir, '..', 'restarts')
+        )
         os.makedirs(restart_dir, exist_ok=True)

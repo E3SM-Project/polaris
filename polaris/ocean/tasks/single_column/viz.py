@@ -10,6 +10,7 @@ class Viz(Step):
     """
     A step for plotting the results of a single-column test
     """
+
     def __init__(self, component, indir, ideal_age=False):
         """
         Create the step
@@ -29,11 +30,11 @@ class Viz(Step):
         super().__init__(component=component, name='viz', indir=indir)
         self.ideal_age = ideal_age
         self.add_input_file(
-            filename='initial_state.nc',
-            target='../init/initial_state.nc')
+            filename='initial_state.nc', target='../init/initial_state.nc'
+        )
         self.add_input_file(
-            filename='output.nc',
-            target='../forward/output.nc')
+            filename='output.nc', target='../forward/output.nc'
+        )
 
     def run(self):
         """
@@ -46,8 +47,7 @@ class Viz(Step):
         t = ds.daysSinceStartOfSim[t_index]
         t_days = t.values.astype('timedelta64[D]')
         title = f'final time = {t_days / np.timedelta64(1, "D")} days'
-        fields = {'temperature': 'degC',
-                  'salinity': 'PSU'}
+        fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
             fields['iAge'] = 'seconds'
         z_mid = ds['zMid'].mean(dim='nCells')

@@ -5,8 +5,9 @@ import numpy as np
 from jinja2 import Template as Template
 
 
-def write_job_script(config, machine, target_cores, min_cores, work_dir,
-                     suite=''):
+def write_job_script(
+    config, machine, target_cores, min_cores, work_dir, suite=''
+):
     """
 
     Parameters
@@ -43,7 +44,8 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
     nodes = int(np.ceil(cores / cores_per_node))
 
     partition, qos, constraint, gpus_per_node, wall_time = get_slurm_options(
-        config, machine, nodes)
+        config, machine, nodes
+    )
 
     job_name = config.get('job', 'job_name')
     if job_name == '<<<default>>>':
@@ -52,13 +54,23 @@ def write_job_script(config, machine, target_cores, min_cores, work_dir,
         else:
             job_name = f'polaris_{suite}'
 
-    template = Template(imp_res.files('polaris.job').joinpath(
-        'job_script.template').read_text())
+    template = Template(
+        imp_res.files('polaris.job')
+        .joinpath('job_script.template')
+        .read_text()
+    )
 
-    text = template.render(job_name=job_name, account=account,
-                           nodes=f'{nodes}', wall_time=wall_time, qos=qos,
-                           partition=partition, constraint=constraint,
-                           gpus_per_node=gpus_per_node, suite=suite)
+    text = template.render(
+        job_name=job_name,
+        account=account,
+        nodes=f'{nodes}',
+        wall_time=wall_time,
+        qos=qos,
+        partition=partition,
+        constraint=constraint,
+        gpus_per_node=gpus_per_node,
+        suite=suite,
+    )
     text = clean_up_whitespace(text)
     if suite == '':
         script_filename = 'job_script.sh'

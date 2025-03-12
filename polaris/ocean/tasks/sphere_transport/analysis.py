@@ -13,8 +13,10 @@ class Analysis(ConvergenceAnalysis):
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, subdir, case_name,
-                 dependencies, refinement='both'):
+
+    def __init__(
+        self, component, subdir, case_name, dependencies, refinement='both'
+    ):
         """
         Create the step
 
@@ -37,19 +39,18 @@ class Analysis(ConvergenceAnalysis):
             space and time
         """
         self.case_name = case_name
-        convergence_vars = [{'name': 'tracer1',
-                             'title': 'tracer1',
-                             'zidx': 0},
-                            {'name': 'tracer2',
-                             'title': 'tracer2',
-                             'zidx': 0},
-                            {'name': 'tracer3',
-                             'title': 'tracer3',
-                             'zidx': 0}]
-        super().__init__(component=component, subdir=subdir,
-                         dependencies=dependencies,
-                         convergence_vars=convergence_vars,
-                         refinement=refinement)
+        convergence_vars = [
+            {'name': 'tracer1', 'title': 'tracer1', 'zidx': 0},
+            {'name': 'tracer2', 'title': 'tracer2', 'zidx': 0},
+            {'name': 'tracer3', 'title': 'tracer3', 'zidx': 0},
+        ]
+        super().__init__(
+            component=component,
+            subdir=subdir,
+            dependencies=dependencies,
+            convergence_vars=convergence_vars,
+            refinement=refinement,
+        )
         # Note: there is no need to overwrite the default method exact_solution
         # which uses the initial condition
 
@@ -78,7 +79,8 @@ class Analysis(ConvergenceAnalysis):
             order = 3
         section = config[self.case_name]
         conv_thresh = section.getfloat(
-            f'convergence_thresh_{field_name}_order{order}')
+            f'convergence_thresh_{field_name}_order{order}'
+        )
 
         section = config['convergence']
         error_type = section.get('error_type')

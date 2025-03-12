@@ -31,8 +31,18 @@ class Forward(ConvergenceForward):
     del4 : bool
         Whether to evaluate the momentum del4 operator
     """
-    def __init__(self, component, name, refinement_factor, subdir,
-                 init, refinement='both', del2=False, del4=False):
+
+    def __init__(
+        self,
+        component,
+        name,
+        refinement_factor,
+        subdir,
+        init,
+        refinement='both',
+        del2=False,
+        del4=False,
+    ):
         """
         Create a new test case
 
@@ -63,15 +73,20 @@ class Forward(ConvergenceForward):
         del4 : bool
             Whether to evaluate the momentum del4 operator
         """
-        super().__init__(component=component,
-                         name=name, subdir=subdir,
-                         refinement_factor=refinement_factor,
-                         mesh=init, init=init, refinement=refinement,
-                         package='polaris.ocean.tasks.manufactured_solution',
-                         yaml_filename='forward.yaml',
-                         graph_target=f'{init.path}/culled_graph.info',
-                         output_filename='output.nc',
-                         validate_vars=['layerThickness', 'normalVelocity'])
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            refinement_factor=refinement_factor,
+            mesh=init,
+            init=init,
+            refinement=refinement,
+            package='polaris.ocean.tasks.manufactured_solution',
+            yaml_filename='forward.yaml',
+            graph_target=f'{init.path}/culled_graph.info',
+            output_filename='output.nc',
+            validate_vars=['layerThickness', 'normalVelocity'],
+        )
         self.del2 = del2
         self.del4 = del4
 
@@ -98,7 +113,8 @@ class Forward(ConvergenceForward):
         """
         # no file to read from, so we'll compute it based on config options
         resolution = get_resolution_for_task(
-            self.config, self.refinement_factor, refinement=self.refinement)
+            self.config, self.refinement_factor, refinement=self.refinement
+        )
         section = self.config['manufactured_solution']
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
@@ -119,12 +135,17 @@ class Forward(ConvergenceForward):
         super().dynamic_model_config(at_setup=at_setup)
 
         exact_solution = ExactSolution(self.config)
-        mpas_options = {'config_manufactured_solution_amplitude':
-                        float(exact_solution.eta0),
-                        'config_manufactured_solution_wavelength_x':
-                        float(exact_solution.lambda_x),
-                        'config_manufactured_solution_wavelength_y':
-                        float(exact_solution.lambda_y)}
+        mpas_options = {
+            'config_manufactured_solution_amplitude': float(
+                exact_solution.eta0
+            ),
+            'config_manufactured_solution_wavelength_x': float(
+                exact_solution.lambda_x
+            ),
+            'config_manufactured_solution_wavelength_y': float(
+                exact_solution.lambda_y
+            ),
+        }
         shared_options = {}
         if self.del2:
             mpas_options['config_disable_vel_hmix'] = False

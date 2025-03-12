@@ -13,7 +13,6 @@ from polaris.ocean.ice_shelf.ssh_forward import SshForward as SshForward
 
 
 class IceShelfTask(Task):
-
     """
     A class for tasks with domains containing ice shelves
 
@@ -28,6 +27,7 @@ class IceShelfTask(Task):
     min_resolution : float
         The resolution of the test case in km
     """
+
     def __init__(self, component, min_resolution, name, subdir, sshdir=None):
         """
         Construct ice shelf task
@@ -57,12 +57,18 @@ class IceShelfTask(Task):
         self.component = component
         self.min_resolution = min_resolution
 
-    def setup_ssh_adjustment_steps(self, mesh_filename, graph_target,
-                                   init_filename, config, config_filename,
-                                   ForwardStep, package=None,
-                                   yaml_filename='ssh_forward.yaml',
-                                   yaml_replacements=None):
-
+    def setup_ssh_adjustment_steps(
+        self,
+        mesh_filename,
+        graph_target,
+        init_filename,
+        config,
+        config_filename,
+        ForwardStep,
+        package=None,
+        yaml_filename='ssh_forward.yaml',
+        yaml_replacements=None,
+    ):
         """
         Setup ssh_forward and ssh_adjustment steps for all iterations
 
@@ -120,11 +126,16 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_forward = ForwardStep(
-                    component=component, min_resolution=min_resolution,
-                    indir=indir, graph_target=graph_target,
-                    init_filename=current_init_filename, name=name,
-                    package=package, yaml_filename=yaml_filename,
-                    yaml_replacements=yaml_replacements)
+                    component=component,
+                    min_resolution=min_resolution,
+                    indir=indir,
+                    graph_target=graph_target,
+                    init_filename=current_init_filename,
+                    name=name,
+                    package=package,
+                    yaml_filename=yaml_filename,
+                    yaml_replacements=yaml_replacements,
+                )
                 ssh_forward.set_shared_config(config, link=config_filename)
                 shared_step = ssh_forward
             if indir == self.subdir:
@@ -139,8 +150,12 @@ class IceShelfTask(Task):
                 shared_step = component.steps[subdir]
             else:
                 ssh_adjust = SshAdjustment(
-                    component=component, indir=indir, name=name,
-                    mesh_filename=mesh_filename, forward=ssh_forward)
+                    component=component,
+                    indir=indir,
+                    name=name,
+                    mesh_filename=mesh_filename,
+                    forward=ssh_forward,
+                )
                 ssh_adjust.set_shared_config(config, link=config_filename)
                 shared_step = ssh_adjust
             if indir == self.subdir:

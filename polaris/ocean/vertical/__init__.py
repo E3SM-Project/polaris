@@ -95,8 +95,9 @@ def init_vertical_coord(config, ds):
         raise ValueError(f'Unknown coordinate type {coord_type}')
 
     # recompute the cell mask since min/max indices may have changed
-    ds['cellMask'] = _compute_cell_mask(ds.minLevelCell, ds.maxLevelCell,
-                                        ds.sizes['nVertLevels'])
+    ds['cellMask'] = _compute_cell_mask(
+        ds.minLevelCell, ds.maxLevelCell, ds.sizes['nVertLevels']
+    )
 
     # mask layerThickness and restingThickness
     ds['layerThickness'] = ds.layerThickness.where(ds.cellMask)
@@ -105,11 +106,13 @@ def init_vertical_coord(config, ds):
     # add (back) Time dimension
     ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
     ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
-    ds['restingThickness'] = \
-        ds.restingThickness.expand_dims(dim='Time', axis=0)
+    ds['restingThickness'] = ds.restingThickness.expand_dims(
+        dim='Time', axis=0
+    )
 
     ds['zMid'] = _compute_zmid_from_layer_thickness(
-        ds.layerThickness, ds.ssh, ds.cellMask)
+        ds.layerThickness, ds.ssh, ds.cellMask
+    )
 
     # fortran 1-based indexing
     ds['minLevelCell'] = ds.minLevelCell + 1
@@ -162,8 +165,7 @@ def update_layer_thickness(config, ds):
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
     cellMask = []
     for zIndex in range(nVertLevels):
-        mask = np.logical_and(zIndex >= minLevelCell,
-                              zIndex <= maxLevelCell)
+        mask = np.logical_and(zIndex >= minLevelCell, zIndex <= maxLevelCell)
         cellMask.append(mask)
     cellMaskArray = xr.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
     cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
@@ -196,10 +198,11 @@ def _compute_zmid_from_layer_thickness(layerThickness, ssh, cellMask):
     zMid = []
     for zIndex in range(nVertLevels):
         mask = cellMask.isel(nVertLevels=zIndex)
-        thickness = layerThickness.isel(nVertLevels=zIndex).where(mask, 0.)
+        thickness = layerThickness.isel(nVertLevels=zIndex).where(mask, 0.0)
         z = (zTop - 0.5 * thickness).where(mask)
         zMid.append(z)
         zTop -= thickness
-    zMid = xr.concat(zMid, dim='nVertLevels').transpose('Time', 'nCells',
-                                                        'nVertLevels')
+    zMid = xr.concat(zMid, dim='nVertLevels').transpose(
+        'Time', 'nCells', 'nVertLevels'
+    )
     return zMid

@@ -38,10 +38,9 @@ def generate_1d_grid(config):
         min_layer_thickness = section.getfloat('min_layer_thickness')
         max_layer_thickness = section.getfloat('max_layer_thickness')
         bottom_depth = section.getfloat('bottom_depth')
-        interfaces = create_tanh_dz_grid(vert_levels,
-                                         bottom_depth,
-                                         min_layer_thickness,
-                                         max_layer_thickness)
+        interfaces = create_tanh_dz_grid(
+            vert_levels, bottom_depth, min_layer_thickness, max_layer_thickness
+        )
 
     elif grid_type == 'index_tanh_dz':
         vert_levels = section.getint('vert_levels')
@@ -54,15 +53,18 @@ def generate_1d_grid(config):
             bottom_depth,
             min_layer_thickness,
             max_layer_thickness,
-            transition_levels)
+            transition_levels,
+        )
 
     elif grid_type in ['60layerPHC', '80layerE3SMv1', '100layerE3SMv1']:
         interfaces = _read_json(grid_type)
     else:
         raise ValueError(f'Unexpected grid type: {grid_type}')
 
-    if config.has_option('vertical_grid', 'bottom_depth') and \
-            grid_type != 'tanh_dz':
+    if (
+        config.has_option('vertical_grid', 'bottom_depth')
+        and grid_type != 'tanh_dz'
+    ):
         bottom_depth = section.getfloat('bottom_depth')
         # renormalize to the requested range
         interfaces = (bottom_depth / interfaces[-1]) * interfaces
@@ -91,11 +93,14 @@ def write_1d_grid(interfaces, out_filename):
     ncfile.createDimension('nVertLevels', nz)
 
     refBottomDepth = ncfile.createVariable(
-        'refBottomDepth', np.dtype('float64').char, ('nVertLevels',))
+        'refBottomDepth', np.dtype('float64').char, ('nVertLevels',)
+    )
     refMidDepth = ncfile.createVariable(
-        'refMidDepth', np.dtype('float64').char, ('nVertLevels',))
+        'refMidDepth', np.dtype('float64').char, ('nVertLevels',)
+    )
     refLayerThickness = ncfile.createVariable(
-        'refLayerThickness', np.dtype('float64').char, ('nVertLevels',))
+        'refLayerThickness', np.dtype('float64').char, ('nVertLevels',)
+    )
 
     botDepth = interfaces[1:]
     midDepth = 0.5 * (interfaces[0:-1] + interfaces[1:])
@@ -140,17 +145,18 @@ def add_1d_grid(config, ds):
 
 
 def _generate_uniform(vert_levels):
-    """ Generate uniform layer interfaces between 0 and 1 """
-    interfaces = np.linspace(0., 1., vert_levels + 1)
+    """Generate uniform layer interfaces between 0 and 1"""
+    interfaces = np.linspace(0.0, 1.0, vert_levels + 1)
     return interfaces
 
 
 def _read_json(grid_type):
-    """ Read the grid interfaces from a json file """
+    """Read the grid interfaces from a json file"""
 
     filename = f'{grid_type}.json'
-    with resources.open_text("polaris.ocean.vertical.grid_1d", filename) as \
-            data_file:
+    with resources.open_text(
+        'polaris.ocean.vertical.grid_1d', filename
+    ) as data_file:
         data = json.load(data_file)
         interfaces = np.array(data)
 

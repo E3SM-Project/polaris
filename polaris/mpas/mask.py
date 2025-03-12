@@ -1,4 +1,3 @@
-
 def cell_mask_to_edge_mask(ds_mesh, cell_mask):
     """Convert a cell mask to edge mask using mesh connectivity information
 
@@ -24,12 +23,12 @@ def cell_mask_to_edge_mask(ds_mesh, cell_mask):
         return ds_mesh.nEdges > -1
 
     # zero index the connectivity array
-    cells_on_edge = (ds_mesh.cellsOnEdge - 1)
+    cells_on_edge = ds_mesh.cellsOnEdge - 1
 
     # using nCells (dim) instead of indexToCellID since it's already 0 indexed
     masked_cells = ds_mesh.nCells.where(~cell_mask, drop=True).astype(int)
 
     # use inverse so True/False convention matches input cell_mask
-    edge_mask = ~cells_on_edge.isin(masked_cells).any("TWO")
+    edge_mask = ~cells_on_edge.isin(masked_cells).any('TWO')
 
     return edge_mask

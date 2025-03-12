@@ -21,6 +21,7 @@ class Init(OceanIOStep):
     resolution : float
         The resolution of the test case in km
     """
+
     def __init__(self, component, resolution, subdir, name):
         """
         Create the step
@@ -36,9 +37,7 @@ class Init(OceanIOStep):
         taskdir : str
             The subdirectory that the task belongs to
         """
-        super().__init__(component=component,
-                         name=name,
-                         subdir=subdir)
+        super().__init__(component=component, name=name, subdir=subdir)
         self.resolution = resolution
 
     def setup(self):
@@ -67,14 +66,15 @@ class Init(OceanIOStep):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-                                       nonperiodic_x=False,
-                                       nonperiodic_y=False)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
+        )
         self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
         self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -105,8 +105,9 @@ class Init(OceanIOStep):
 
         layer_thickness = ssh + bottom_depth
         layer_thickness, _ = xr.broadcast(layer_thickness, ds.refBottomDepth)
-        layer_thickness = layer_thickness.transpose('Time', 'nCells',
-                                                    'nVertLevels')
+        layer_thickness = layer_thickness.transpose(
+            'Time', 'nCells', 'nVertLevels'
+        )
         ds['layerThickness'] = layer_thickness
 
         self.write_model_dataset(ds, 'initial_state.nc')

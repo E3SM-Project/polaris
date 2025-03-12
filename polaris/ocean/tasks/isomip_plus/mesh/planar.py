@@ -21,6 +21,7 @@ class PlanarMesh(Step):
         The resolution in km of the mesh
 
     """
+
     def __init__(self, component, resolution, subdir, config):
         """
         Create the step
@@ -58,19 +59,22 @@ class PlanarMesh(Step):
 
         resolution = self.resolution
 
-        nx, ny = compute_planar_hex_nx_ny(lx + 2 * buffer, ly + 2 * buffer,
-                                          resolution)
+        nx, ny = compute_planar_hex_nx_ny(
+            lx + 2 * buffer, ly + 2 * buffer, resolution
+        )
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc, nonperiodic_x=True,
-                                       nonperiodic_y=True)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
+        )
 
         translate(mesh=ds_mesh, xOffset=-1e3 * buffer, yOffset=-1e3 * buffer)
 
         # add latitude and longitude using a stereographic projection
         projection, lat_lon_projection = get_projections()
-        transformer = pyproj.Transformer.from_proj(projection,
-                                                   lat_lon_projection)
+        transformer = pyproj.Transformer.from_proj(
+            projection, lat_lon_projection
+        )
 
         for suffix in ['Cell', 'Edge', 'Vertex']:
             x = ds_mesh[f'x{suffix}'].values

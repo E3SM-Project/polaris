@@ -12,8 +12,17 @@ class Forward(SphericalConvergenceForward):
         Whether this is a restart run
     """
 
-    def __init__(self, component, name, subdir, mesh, init,
-                 refinement_factor, refinement, do_restart=False):
+    def __init__(
+        self,
+        component,
+        name,
+        subdir,
+        mesh,
+        init,
+        refinement_factor,
+        refinement,
+        do_restart=False,
+    ):
         """
         Create a new step
 
@@ -46,14 +55,20 @@ class Forward(SphericalConvergenceForward):
         """
         package = 'polaris.ocean.tasks.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
-        super().__init__(component=component, name=name, subdir=subdir,
-                         mesh=mesh, init=init, package=package,
-                         yaml_filename='forward.yaml',
-                         output_filename='output.nc',
-                         validate_vars=validate_vars,
-                         graph_target=f'{mesh.path}/graph.info',
-                         refinement_factor=refinement_factor,
-                         refinement=refinement)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            mesh=mesh,
+            init=init,
+            package=package,
+            yaml_filename='forward.yaml',
+            output_filename='output.nc',
+            validate_vars=validate_vars,
+            graph_target=f'{mesh.path}/graph.info',
+            refinement_factor=refinement_factor,
+            refinement=refinement,
+        )
         self.do_restart = do_restart
 
     def setup(self):

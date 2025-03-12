@@ -28,6 +28,7 @@ class OceanIOStep(Step):
         A map from Omega variable names to their MPAS-Ocean equivalents, the
         inverse of ``mpaso_to_omega_var_map``
     """
+
     def __init__(self, component, name, **kwargs):
         """
         Create a new step
@@ -43,8 +44,7 @@ class OceanIOStep(Step):
         kwargs
             keyword arguments passed to `polaris.Step()`
         """
-        super().__init__(
-            component=component, name=name, **kwargs)
+        super().__init__(component=component, name=name, **kwargs)
 
         self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
         self.omega_to_mpaso_dim_map: Union[None, Dict[str, str]] = None
@@ -85,11 +85,15 @@ class OceanIOStep(Step):
         model = config.get('ocean', 'model')
         if model == 'omega':
             assert self.mpaso_to_omega_dim_map is not None
-            rename = {k: v for k, v in self.mpaso_to_omega_dim_map.items()
-                      if k in ds.dims}
+            rename = {
+                k: v
+                for k, v in self.mpaso_to_omega_dim_map.items()
+                if k in ds.dims
+            }
             assert self.mpaso_to_omega_var_map is not None
-            rename_vars = {k: v for k, v in self.mpaso_to_omega_var_map.items()
-                           if k in ds}
+            rename_vars = {
+                k: v for k, v in self.mpaso_to_omega_var_map.items() if k in ds
+            }
             rename.update(rename_vars)
             ds = ds.rename(rename)
         return ds
@@ -130,11 +134,15 @@ class OceanIOStep(Step):
         model = config.get('ocean', 'model')
         if model == 'omega':
             assert self.omega_to_mpaso_dim_map is not None
-            rename = {k: v for k, v in self.omega_to_mpaso_dim_map.items()
-                      if k in ds.dims}
+            rename = {
+                k: v
+                for k, v in self.omega_to_mpaso_dim_map.items()
+                if k in ds.dims
+            }
             assert self.omega_to_mpaso_var_map is not None
-            rename_vars = {k: v for k, v in self.omega_to_mpaso_var_map.items()
-                           if k in ds}
+            rename_vars = {
+                k: v for k, v in self.omega_to_mpaso_var_map.items() if k in ds
+            }
             rename.update(rename_vars)
             ds = ds.rename(rename)
         return ds
@@ -175,7 +183,9 @@ class OceanIOStep(Step):
         self.mpaso_to_omega_var_map = nested_dict['variables']
         assert self.mpaso_to_omega_dim_map is not None
         self.omega_to_mpaso_dim_map = {
-            v: k for k, v in self.mpaso_to_omega_dim_map.items()}
+            v: k for k, v in self.mpaso_to_omega_dim_map.items()
+        }
         assert self.mpaso_to_omega_var_map is not None
         self.omega_to_mpaso_var_map = {
-            v: k for k, v in self.mpaso_to_omega_var_map.items()}
+            v: k for k, v in self.mpaso_to_omega_var_map.items()
+        }

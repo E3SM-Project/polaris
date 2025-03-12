@@ -21,11 +21,13 @@ def unpickle_suite(suite_name):
     # Allow a suite name to either include or not the .pickle suffix
     if suite_name.endswith('.pickle'):
         # code below assumes no suffix, so remove it
-        suite_name = suite_name[:-len('.pickle')]
+        suite_name = suite_name[: -len('.pickle')]
     # Now open the the suite's pickle file
     if not os.path.exists(f'{suite_name}.pickle'):
-        raise ValueError(f'The suite "{suite_name}" does not appear to have '
-                         f'been set up here.')
+        raise ValueError(
+            f'The suite "{suite_name}" does not appear to have '
+            f'been set up here.'
+        )
     with open(f'{suite_name}.pickle', 'rb') as handle:
         test_suite = pickle.load(handle)
     return test_suite
@@ -52,8 +54,9 @@ def setup_config(base_work_dir, component_name, config_filepath):
     config : polaris.config.PolarisConfigParser
         The config object
     """
-    config_filename = os.path.join(base_work_dir, component_name,
-                                   config_filepath)
+    config_filename = os.path.join(
+        base_work_dir, component_name, config_filepath
+    )
     config = PolarisConfigParser()
     config.add_from_file(config_filename)
     config.filepath = config_filepath
@@ -74,11 +77,13 @@ def load_dependencies(step):
         if old_dependency.cached:
             continue
 
-        pickle_filename = os.path.join(old_dependency.work_dir,
-                                       'step_after_run.pickle')
+        pickle_filename = os.path.join(
+            old_dependency.work_dir, 'step_after_run.pickle'
+        )
         if not os.path.exists(pickle_filename):
-            raise ValueError(f'The dependency {name} of '
-                             f'step {step.path} was not run.')
+            raise ValueError(
+                f'The dependency {name} of step {step.path} was not run.'
+            )
 
         with open(pickle_filename, 'rb') as handle:
             dependency = pickle.load(handle)
@@ -102,5 +107,4 @@ def complete_step_run(step):
         # pickle the test case and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump(step, handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(step, handle, protocol=pickle.HIGHEST_PROTOCOL)

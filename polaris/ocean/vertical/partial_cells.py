@@ -32,18 +32,17 @@ def alter_bottom_depth(config, bottomDepth, refBottomDepth, maxLevelCell):
     """
     section = config['vertical_grid']
     partial_cell_type = 'none'
-    min_pc_fraction = 0.
+    min_pc_fraction = 0.0
     if config.has_option('vertical_grid', 'partial_cell_type'):
-
         partial_cell_type = section.get('partial_cell_type').lower()
         min_pc_fraction = section.getfloat('min_pc_fraction')
 
     if partial_cell_type == 'full':
-        bottomDepth = _compute_full_cells_depth(
-            refBottomDepth, maxLevelCell)
+        bottomDepth = _compute_full_cells_depth(refBottomDepth, maxLevelCell)
     elif partial_cell_type == 'partial':
         bottomDepth, maxLevelCell = _alter_bottom_depth_for_partial_cells(
-            bottomDepth, refBottomDepth, maxLevelCell, min_pc_fraction)
+            bottomDepth, refBottomDepth, maxLevelCell, min_pc_fraction
+        )
     elif partial_cell_type != 'none':
         raise ValueError(f'Unexpected partial cell type {partial_cell_type}')
 
@@ -80,17 +79,17 @@ def alter_ssh(config, ssh, refBottomDepth, minLevelCell):
     """
     section = config['vertical_grid']
     partial_cell_type = 'none'
-    min_pc_fraction = 0.
+    min_pc_fraction = 0.0
     if config.has_option('vertical_grid', 'partial_cell_type'):
         partial_cell_type = section.get('partial_cell_type').lower()
         min_pc_fraction = section.getfloat('min_pc_fraction')
 
     if partial_cell_type == 'full':
-        ssh = _compute_full_cells_depth(
-            refBottomDepth, minLevelCell - 1)
+        ssh = _compute_full_cells_depth(refBottomDepth, minLevelCell - 1)
     elif partial_cell_type == 'partial':
         ssh, minLevelCell = _alter_ssh_for_partial_cells(
-            ssh, refBottomDepth, minLevelCell, min_pc_fraction)
+            ssh, refBottomDepth, minLevelCell, min_pc_fraction
+        )
     elif partial_cell_type != 'none':
         raise ValueError(f'Unexpected partial cell type {partial_cell_type}')
 
@@ -103,12 +102,14 @@ def _compute_full_cells_depth(refBottomDepth, levelIndex):
     """
 
     depth = refBottomDepth.isel(nVertLevels=levelIndex).where(
-        levelIndex >= 0, other=0.)
+        levelIndex >= 0, other=0.0
+    )
     return depth
 
 
-def _alter_bottom_depth_for_partial_cells(bottomDepth, refBottomDepth,
-                                          maxLevelCell, min_pc_fraction):
+def _alter_bottom_depth_for_partial_cells(
+    bottomDepth, refBottomDepth, maxLevelCell, min_pc_fraction
+):
     """
     Alter bottomDepth and maxLevelCell for partial cells
     """
@@ -119,7 +120,7 @@ def _alter_bottom_depth_for_partial_cells(bottomDepth, refBottomDepth,
 
     fullThickness = fullBot - fullTop
 
-    minBottomDepth = fullBot - (1. - min_pc_fraction) * fullThickness
+    minBottomDepth = fullBot - (1.0 - min_pc_fraction) * fullThickness
 
     minBottomDepthMid = 0.5 * (minBottomDepth + fullTop)
 
@@ -130,15 +131,17 @@ def _alter_bottom_depth_for_partial_cells(bottomDepth, refBottomDepth,
     bottomDepth = xarray.where(mask, fullTop, bottomDepth)
 
     # where the bottom depth only a bit too shallows, we move it deeper
-    mask = numpy.logical_and(numpy.logical_not(mask),
-                             bottomDepth < minBottomDepth)
+    mask = numpy.logical_and(
+        numpy.logical_not(mask), bottomDepth < minBottomDepth
+    )
     bottomDepth = xarray.where(mask, minBottomDepth, bottomDepth)
 
     return bottomDepth, maxLevelCell
 
 
-def _alter_ssh_for_partial_cells(ssh, refBottomDepth, minLevelCell,
-                                 min_pc_fraction):
+def _alter_ssh_for_partial_cells(
+    ssh, refBottomDepth, minLevelCell, min_pc_fraction
+):
     """
     Alter ssh and minLevelCell for partial cells
     """

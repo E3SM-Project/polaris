@@ -14,8 +14,10 @@ class Validate(Step):
     variables : list of str
         The variables to validate
     """
-    def __init__(self, component, step_subdirs, indir, variables,
-                 restart_filename):
+
+    def __init__(
+        self, component, step_subdirs, indir, variables, restart_filename
+    ):
         """
         Create the step
 
@@ -44,7 +46,8 @@ class Validate(Step):
         for subdir in step_subdirs:
             self.add_input_file(
                 filename=f'{subdir}_restart.nc',
-                target=f'../{subdir}/{restart_filename}')
+                target=f'../{subdir}/{restart_filename}',
+            )
 
         self.variables = variables
 
@@ -55,10 +58,14 @@ class Validate(Step):
         """
         super().run()
         step_subdirs = self.step_subdirs
-        all_pass = compare_variables(variables=self.variables,
-                                     filename1=self.inputs[0],
-                                     filename2=self.inputs[1],
-                                     logger=self.logger)
+        all_pass = compare_variables(
+            variables=self.variables,
+            filename1=self.inputs[0],
+            filename2=self.inputs[1],
+            logger=self.logger,
+        )
         if not all_pass:
-            raise ValueError(f'Validation failed comparing restart between '
-                             f'{step_subdirs[0]} and {step_subdirs[1]}.')
+            raise ValueError(
+                f'Validation failed comparing restart between '
+                f'{step_subdirs[0]} and {step_subdirs[1]}.'
+            )

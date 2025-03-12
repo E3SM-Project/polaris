@@ -12,11 +12,20 @@ from pyremap.descriptor.utility import interp_extrap_corner
 from polaris.viz.style import use_mplstyle
 
 
-def plot_global_mpas_field(mesh_filename, da, out_filename, config,
-                           colormap_section, title=None,
-                           plot_land=True, colorbar_label='',
-                           central_longitude=0., figsize=(8, 4.5),
-                           dpi=200, patch_edge_color=None):
+def plot_global_mpas_field(
+    mesh_filename,
+    da,
+    out_filename,
+    config,
+    colormap_section,
+    title=None,
+    plot_land=True,
+    colorbar_label='',
+    central_longitude=0.0,
+    figsize=(8, 4.5),
+    dpi=200,
+    patch_edge_color=None,
+):
     """
     Plots a data set as a longitude-latitude map
 
@@ -75,9 +84,11 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
         mesh_ds, projection=projection, transform=transform, use_latlon=True
     )
 
-    fig, ax = plt.subplots(figsize=figsize,
-                           constrained_layout=True,
-                           subplot_kw=dict(projection=projection))
+    fig, ax = plt.subplots(
+        figsize=figsize,
+        constrained_layout=True,
+        subplot_kw=dict(projection=projection),
+    )
 
     if title is not None:
         fig.suptitle(title, y=0.935)
@@ -113,9 +124,17 @@ def plot_global_mpas_field(mesh_filename, da, out_filename, config,
     fig.savefig(out_filename, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
 
 
-def plot_global_lat_lon_field(lon, lat, data_array, out_filename, config,
-                              colormap_section, title=None, plot_land=True,
-                              colorbar_label=None):
+def plot_global_lat_lon_field(
+    lon,
+    lat,
+    data_array,
+    out_filename,
+    config,
+    colormap_section,
+    title=None,
+    plot_land=True,
+    colorbar_label=None,
+):
     """
     Plots a data set as a longitude-latitude map
 
@@ -171,16 +190,20 @@ def plot_global_lat_lon_field(lon, lat, data_array, out_filename, config,
     elif lon.shape[0] == nlon + 1:
         lon_corner = lon
     else:
-        raise ValueError(f'Unexpected length of lon {lon.shape[0]}. Should '
-                         f'be either {nlon} or {nlon + 1}')
+        raise ValueError(
+            f'Unexpected length of lon {lon.shape[0]}. Should '
+            f'be either {nlon} or {nlon + 1}'
+        )
 
     if lat.shape[0] == nlat:
         lat_corner = interp_extrap_corner(lat)
     elif lat.shape[0] == nlat + 1:
         lat_corner = lat
     else:
-        raise ValueError(f'Unexpected length of lat {lat.shape[0]}. Should '
-                         f'be either {nlat} or {nlat + 1}')
+        raise ValueError(
+            f'Unexpected length of lat {lat.shape[0]}. Should '
+            f'be either {nlat} or {nlat + 1}'
+        )
 
     figsize = (8, 4.5)
     dpi = 200
@@ -201,21 +224,39 @@ def plot_global_lat_lon_field(lon, lat, data_array, out_filename, config,
 
     ax.set_extent(extent, crs=ref_projection)
 
-    gl = ax.gridlines(crs=ref_projection, color='gray', linestyle=':',
-                      zorder=5, draw_labels=True, linewidth=0.5)
+    gl = ax.gridlines(
+        crs=ref_projection,
+        color='gray',
+        linestyle=':',
+        zorder=5,
+        draw_labels=True,
+        linewidth=0.5,
+    )
     gl.right_labels = False
     gl.top_labels = False
 
-    plotHandle = ax.pcolormesh(lon_corner, lat_corner, data_array,
-                               cmap=colormap, norm=norm,
-                               transform=ref_projection, zorder=1)
+    plotHandle = ax.pcolormesh(
+        lon_corner,
+        lat_corner,
+        data_array,
+        cmap=colormap,
+        norm=norm,
+        transform=ref_projection,
+        zorder=1,
+    )
 
     if plot_land:
         _add_land_lakes_coastline(ax)
 
-    cax = inset_axes(ax, width='3%', height='60%', loc='center right',
-                     bbox_to_anchor=(0.08, 0., 1, 1),
-                     bbox_transform=ax.transAxes, borderpad=0)
+    cax = inset_axes(
+        ax,
+        width='3%',
+        height='60%',
+        loc='center right',
+        bbox_to_anchor=(0.08, 0.0, 1, 1),
+        bbox_transform=ax.transAxes,
+        borderpad=0,
+    )
 
     cbar = plt.colorbar(plotHandle, cax=cax, extend='both')
     cbar.set_label(colorbar_label)
@@ -223,8 +264,9 @@ def plot_global_lat_lon_field(lon, lat, data_array, out_filename, config,
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    plt.savefig(out_filename, dpi='figure', bbox_inches='tight',
-                pad_inches=0.2)
+    plt.savefig(
+        out_filename, dpi='figure', bbox_inches='tight', pad_inches=0.2
+    )
 
     plt.close()
 
@@ -281,12 +323,14 @@ def _setup_colormap(config, colormap_section):
     elif norm_type == 'linear':
         norm = cols.Normalize(**kwargs)
     else:
-        raise ValueError(f'Unsupported norm type {norm_type} in section '
-                         f'{colormap_section}')
+        raise ValueError(
+            f'Unsupported norm type {norm_type} in section {colormap_section}'
+        )
 
     try:
-        ticks = config.getexpression(colormap_section, 'colorbar_ticks',
-                                     use_numpyfunc=True)
+        ticks = config.getexpression(
+            colormap_section, 'colorbar_ticks', use_numpyfunc=True
+        )
     except configparser.NoOptionError:
         ticks = None
 
@@ -305,15 +349,30 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
     water_color = cartopy.feature.COLORS['water']
 
     land_50m = cartopy.feature.NaturalEarthFeature(
-        'physical', 'land', '50m', edgecolor='k',
-        facecolor=land_color, linewidth=0.5)
+        'physical',
+        'land',
+        '50m',
+        edgecolor='k',
+        facecolor=land_color,
+        linewidth=0.5,
+    )
     lakes_50m = cartopy.feature.NaturalEarthFeature(
-        'physical', 'lakes', '50m', edgecolor='k',
-        facecolor=water_color, linewidth=0.5)
+        'physical',
+        'lakes',
+        '50m',
+        edgecolor='k',
+        facecolor=water_color,
+        linewidth=0.5,
+    )
     ax.add_feature(land_50m, zorder=2)
     if ice_shelves:
         ice_50m = cartopy.feature.NaturalEarthFeature(
-            'physical', 'antarctic_ice_shelves_polys', '50m',
-            edgecolor='k', facecolor=land_color, linewidth=0.5)
+            'physical',
+            'antarctic_ice_shelves_polys',
+            '50m',
+            edgecolor='k',
+            facecolor=land_color,
+            linewidth=0.5,
+        )
         ax.add_feature(ice_50m, zorder=3)
     ax.add_feature(lakes_50m, zorder=4)

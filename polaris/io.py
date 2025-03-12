@@ -44,8 +44,9 @@ def download(url, dest_path, config, exceptions=True):  # noqa: C901
 
     if not do_download:
         if not os.path.exists(dest_path):
-            raise OSError(f'File not found and downloading is disabled: '
-                          f'{dest_path}')
+            raise OSError(
+                f'File not found and downloading is disabled: {dest_path}'
+            )
         return dest_path
 
     if not check_size and os.path.exists(dest_path):
@@ -88,8 +89,7 @@ def download(url, dest_path, config, exceptions=True):  # noqa: C901
         if not os.path.exists(dest_path):
             dest_dir = os.path.dirname(dest_path)
             with open(dest_path, 'wb') as f:
-                print(f'Downloading {in_file_name}\n'
-                      f'  to {dest_dir}...')
+                print(f'Downloading {in_file_name}\n  to {dest_dir}...')
                 try:
                     f.write(response.content)
                 except requests.exceptions.RequestException:
@@ -104,8 +104,9 @@ def download(url, dest_path, config, exceptions=True):  # noqa: C901
         # we can do the download in chunks and use a progress bar, yay!
 
         total_size_int = int(total_size)
-        if os.path.exists(dest_path) and \
-                total_size_int == os.path.getsize(dest_path):
+        if os.path.exists(dest_path) and total_size_int == os.path.getsize(
+            dest_path
+        ):
             # we already have the file, so just return
             return dest_path
 
@@ -114,12 +115,20 @@ def download(url, dest_path, config, exceptions=True):  # noqa: C901
         else:
             file_names = f'{in_file_name} as {out_file_name}'
         dest_dir = os.path.dirname(dest_path)
-        print(f'Downloading {file_names} ({_sizeof_fmt(total_size_int)})\n'
-              f'  to {dest_dir}')
-        widgets = [progressbar.Percentage(), ' ', progressbar.Bar(),
-                   ' ', progressbar.ETA()]
-        bar = progressbar.ProgressBar(widgets=widgets,
-                                      max_value=total_size_int).start()
+        print(
+            f'Downloading {file_names} ({_sizeof_fmt(total_size_int)})\n'
+            f'  to {dest_dir}'
+        )
+        widgets = [
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar(),
+            ' ',
+            progressbar.ETA(),
+        ]
+        bar = progressbar.ProgressBar(
+            widgets=widgets, max_value=total_size_int
+        ).start()
         size = 0
         with open(dest_path, 'wb') as f:
             try:
@@ -190,7 +199,8 @@ def symlink(target, link_name, overwrite=True):
         # Preempt os.replace on a directory with a nicer message
         if not os.path.islink(link_name) and os.path.isdir(link_name):
             raise IsADirectoryError(
-                f"Cannot symlink over existing directory: '{link_name}'")
+                f"Cannot symlink over existing directory: '{link_name}'"
+            )
         os.replace(temp_link_name, link_name)
     except Exception:
         if os.path.islink(temp_link_name):
@@ -217,11 +227,23 @@ def update_permissions(directories, group, show_progressbar=True):
     new_uid = os.getuid()
     new_gid = grp.getgrnam(group).gr_gid
 
-    write_perm = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP |
-                  stat.S_IWGRP | stat.S_IROTH)
-    exec_perm = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-                 stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP |
-                 stat.S_IROTH | stat.S_IXOTH)
+    write_perm = (
+        stat.S_IRUSR
+        | stat.S_IWUSR
+        | stat.S_IRGRP
+        | stat.S_IWGRP
+        | stat.S_IROTH
+    )
+    exec_perm = (
+        stat.S_IRUSR
+        | stat.S_IWUSR
+        | stat.S_IXUSR
+        | stat.S_IRGRP
+        | stat.S_IWGRP
+        | stat.S_IXGRP
+        | stat.S_IROTH
+        | stat.S_IXOTH
+    )
 
     mask = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
 
@@ -237,10 +259,16 @@ def update_permissions(directories, group, show_progressbar=True):
     files_and_dirs = _walk_dirs(directories)
 
     if show_progressbar:
-        widgets = [progressbar.Percentage(), ' ', progressbar.Bar(),
-                   ' ', progressbar.ETA()]
-        bar = progressbar.ProgressBar(widgets=widgets,
-                                      maxval=len(files_and_dirs)).start()
+        widgets = [
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar(),
+            ' ',
+            progressbar.ETA(),
+        ]
+        bar = progressbar.ProgressBar(
+            widgets=widgets, maxval=len(files_and_dirs)
+        ).start()
     else:
         bar = None
     progress = 0
@@ -251,16 +279,24 @@ def update_permissions(directories, group, show_progressbar=True):
                 if show_progressbar:
                     bar.update(progress)
 
-                _set_dir_perms(root, directory, mask, exec_perm, new_uid,
-                               new_gid)
+                _set_dir_perms(
+                    root, directory, mask, exec_perm, new_uid, new_gid
+                )
 
             for file_name in files:
                 progress += 1
                 if show_progressbar:
                     bar.update(progress)
                 file_name = os.path.join(root, file_name)
-                _set_file_perms(root, file_name, mask, exec_perm, write_perm,
-                                new_uid, new_gid)
+                _set_file_perms(
+                    root,
+                    file_name,
+                    mask,
+                    exec_perm,
+                    write_perm,
+                    new_uid,
+                    new_gid,
+                )
 
     if show_progressbar:
         bar.finish()
@@ -307,8 +343,9 @@ def _set_dir_perms(root, directory, mask, exec_perm, new_uid, new_gid):
         return
 
 
-def _set_file_perms(root, file_name, mask, exec_perm, write_perm, new_uid,
-                    new_gid):
+def _set_file_perms(
+    root, file_name, mask, exec_perm, write_perm, new_uid, new_gid
+):
     """
     Set permissions for a directory
     """
@@ -347,6 +384,6 @@ def _sizeof_fmt(num, suffix='B'):
     """
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
         if abs(num) < 1024.0:
-            return f"{num:3.1f}{unit}{suffix}"
+            return f'{num:3.1f}{unit}{suffix}'
         num /= 1024.0
-    return f"{num:.1f}{'Yi'}{suffix}"
+    return f'{num:.1f}{"Yi"}{suffix}'

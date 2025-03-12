@@ -13,8 +13,10 @@ class Viz(OceanIOStep):
     mesh_name : str
         The name of the mesh
     """
-    def __init__(self, component, name, subdir, base_mesh, init, forward,
-                 mesh_name):
+
+    def __init__(
+        self, component, name, subdir, base_mesh, init, forward, mesh_name
+    ):
         """
         Create the step
 
@@ -44,13 +46,15 @@ class Viz(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+        )
         self.add_input_file(
             filename='initial_state.nc',
-            work_dir_target=f'{init.path}/initial_state.nc')
+            work_dir_target=f'{init.path}/initial_state.nc',
+        )
         self.add_input_file(
-            filename='output.nc',
-            work_dir_target=f'{forward.path}/output.nc')
+            filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
+        )
         self.mesh_name = mesh_name
         self.add_output_file('init.png')
         self.add_output_file('final.png')
@@ -67,16 +71,26 @@ class Viz(OceanIOStep):
         da = ds_init['tracer1'].isel(Time=0, nVertLevels=0)
 
         plot_global_mpas_field(
-            mesh_filename='mesh.nc', da=da, out_filename='init.png',
-            config=config, colormap_section='cosine_bell_viz',
-            title=f'{mesh_name} tracer at init', plot_land=False,
-            central_longitude=180.)
+            mesh_filename='mesh.nc',
+            da=da,
+            out_filename='init.png',
+            config=config,
+            colormap_section='cosine_bell_viz',
+            title=f'{mesh_name} tracer at init',
+            plot_land=False,
+            central_longitude=180.0,
+        )
 
         ds_out = self.open_model_dataset('output.nc')
         da = ds_out['tracer1'].isel(Time=-1, nVertLevels=0)
 
         plot_global_mpas_field(
-            mesh_filename='mesh.nc', da=da, out_filename='final.png',
-            config=config, colormap_section='cosine_bell_viz',
-            title=f'{mesh_name} tracer after {run_duration / 24.:g} days',
-            plot_land=False, central_longitude=180.)
+            mesh_filename='mesh.nc',
+            da=da,
+            out_filename='final.png',
+            config=config,
+            colormap_section='cosine_bell_viz',
+            title=f'{mesh_name} tracer after {run_duration / 24.0:g} days',
+            plot_land=False,
+            central_longitude=180.0,
+        )

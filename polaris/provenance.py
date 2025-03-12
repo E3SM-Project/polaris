@@ -56,24 +56,30 @@ def write(work_dir, tasks, config=None):
     else:
         provenance_file = open(provenance_path, 'w')
 
-    provenance_file.write('**************************************************'
-                          '*********************\n')
+    provenance_file.write(
+        '**************************************************'
+        '*********************\n'
+    )
     if polaris_git_version is not None:
         provenance_file.write(
-            f'polaris git version: {polaris_git_version}\n\n')
+            f'polaris git version: {polaris_git_version}\n\n'
+        )
     if component_git_version is not None:
         provenance_file.write(
-            f'component git version: {component_git_version}\n\n')
+            f'component git version: {component_git_version}\n\n'
+        )
     provenance_file.write(f'command: {calling_command}\n\n')
     provenance_file.write('tasks:\n')
 
     for _, task in tasks.items():
         prefix = '  '
         lines = list()
-        to_print = {'path': task.path,
-                    'name': task.name,
-                    'component': task.component.name,
-                    'subdir': task.subdir}
+        to_print = {
+            'path': task.path,
+            'name': task.name,
+            'component': task.component.name,
+            'subdir': task.subdir,
+        }
         for key in to_print:
             key_string = f'{key}: '.ljust(15)
             lines.append(f'{prefix}{key_string}{to_print[key]}')
@@ -92,13 +98,14 @@ def write(work_dir, tasks, config=None):
         provenance_file.write('conda list:\n')
         provenance_file.write(f'{conda_list}\n')
 
-    provenance_file.write('**************************************************'
-                          '*********************\n')
+    provenance_file.write(
+        '**************************************************'
+        '*********************\n'
+    )
     provenance_file.close()
 
 
 def _get_component_git_version(config):
-
     component_path = config.get('paths', 'component_path')
 
     if not os.path.exists(component_path):

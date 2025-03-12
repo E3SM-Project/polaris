@@ -13,27 +13,28 @@ all_build_targets = {
     'anvil': {
         ('intel', 'impi'): 'intel-mpi',
         ('intel', 'openmpi'): 'ifort',
-        ('gnu', 'openmpi'): 'gfortran'},
-    'chicoma-cpu': {
-        ('gnu', 'mpich'): 'gnu-cray'},
+        ('gnu', 'openmpi'): 'gfortran',
+    },
+    'chicoma-cpu': {('gnu', 'mpich'): 'gnu-cray'},
     'chrysalis': {
         ('intel', 'impi'): 'intel-mpi',
         ('intel', 'openmpi'): 'ifort',
-        ('gnu', 'openmpi'): 'gfortran'},
-    'compy': {
-        ('intel', 'impi'): 'intel-mpi'},
+        ('gnu', 'openmpi'): 'gfortran',
+    },
+    'compy': {('intel', 'impi'): 'intel-mpi'},
     'frontier': {
         ('craygnu', 'mpich'): 'gnu-cray',
-        ('craycray', 'mpich'): 'cray-cray'},
-    'pm-cpu': {
-        ('gnu', 'mpich'): 'gnu-cray',
-        ('intel', 'mpich'): 'intel-cray'},
+        ('craycray', 'mpich'): 'cray-cray',
+    },
+    'pm-cpu': {('gnu', 'mpich'): 'gnu-cray', ('intel', 'mpich'): 'intel-cray'},
     'conda-linux': {
         ('gfortran', 'mpich'): 'gfortran',
-        ('gfortran', 'openmpi'): 'gfortran'},
+        ('gfortran', 'openmpi'): 'gfortran',
+    },
     'conda-osx': {
         ('gfortran-clang', 'mpich'): 'gfortran-clang',
-        ('gfortran-clang', 'openmpi'): 'gfortran-clang'}
+        ('gfortran-clang', 'openmpi'): 'gfortran-clang',
+    },
 }
 
 
@@ -57,8 +58,10 @@ def setup_matrix(config_filename, submit):
 
     matrix_filename = 'conda/logs/matrix.log'
     if not os.path.exists(matrix_filename):
-        raise OSError(f'{matrix_filename} not found.\n Try running '
-                      f'./configure_polaris_env.py to generate it.')
+        raise OSError(
+            f'{matrix_filename} not found.\n Try running '
+            f'./configure_polaris_env.py to generate it.'
+        )
     with open(matrix_filename, 'r') as f:
         machine = f.readline().strip()
         lines = f.readlines()
@@ -76,11 +79,15 @@ def setup_matrix(config_filename, submit):
     env_name = config.get('matrix', 'env_name')
 
     openmp_str = config.get('matrix', 'openmp')
-    openmp = [value.strip().lower() == 'true' for value in
-              openmp_str.replace(',', '').split(' ')]
+    openmp = [
+        value.strip().lower() == 'true'
+        for value in openmp_str.replace(',', '').split(' ')
+    ]
     debug_str = config.get('matrix', 'debug')
-    debug = [value.strip().lower() == 'true' for value in
-             debug_str.replace(',', '').split(' ')]
+    debug = [
+        value.strip().lower() == 'true'
+        for value in debug_str.replace(',', '').split(' ')
+    ]
     other_build_flags = config.get('matrix', 'other_build_flags')
 
     mpas_path = config.get('matrix', 'mpas_path')
@@ -104,12 +111,13 @@ def setup_matrix(config_filename, submit):
         for use_openmp in openmp:
             for use_debug in debug:
                 suffix = f'{machine}_{compiler}_{mpi}'
-                make_command = \
+                make_command = (
                     f'make clean && make {target} {other_build_flags}'
+                )
                 if use_openmp:
                     make_command = f'{make_command} OPENMP=true'
                 else:
-                    suffix = f"{suffix}_noopenmp"
+                    suffix = f'{suffix}_noopenmp'
                     make_command = f'{make_command} OPENMP=false'
                 if use_debug:
                     suffix = f'{suffix}_debug'
@@ -117,11 +125,21 @@ def setup_matrix(config_filename, submit):
                 else:
                     make_command = f'{make_command} DEBUG=false'
                 mpas_model = build_mpas(
-                    script_name, mpas_path, make_command, suffix)
+                    script_name, mpas_path, make_command, suffix
+                )
 
-                polaris_setup(script_name, setup_command, mpas_path,
-                              mpas_model, work_base, baseline_base, config,
-                              env_name, suffix, submit)
+                polaris_setup(
+                    script_name,
+                    setup_command,
+                    mpas_path,
+                    mpas_model,
+                    work_base,
+                    baseline_base,
+                    config,
+                    env_name,
+                    suffix,
+                    submit,
+                )
 
 
 def get_load_script_name(machine, compiler, mpi, env_name):
@@ -212,8 +230,18 @@ def build_mpas(script_name, mpas_path, make_command, suffix):
     return new_mpas_model
 
 
-def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
-                  baseline_base, config, env_name, suffix, submit):
+def polaris_setup(
+    script_name,
+    setup_command,
+    mpas_path,
+    mpas_model,
+    work_base,
+    baseline_base,
+    config,
+    env_name,
+    suffix,
+    submit,
+):
     """
     Set up the polaris suite or test case(s)
 
@@ -260,8 +288,7 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
     config.set('paths', 'mpas_model', mpas_path)
     if not config.has_section('executables'):
         config.add_section('executables')
-    config.set('executables', 'model',
-               f'${{paths:mpas_model}}/{mpas_model}')
+    config.set('executables', 'model', f'${{paths:mpas_model}}/{mpas_model}')
 
     new_config_filename = f'{env_name}_{suffix}.cfg'
     with open(new_config_filename, 'w') as f:
@@ -269,12 +296,14 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
 
     work_dir = f'{work_base}/{suffix}'
 
-    args = f'export NO_POLARIS_REINSTALL=true;' \
-           f'source {script_name} && ' \
-           f'{setup_command} ' \
-           f'-p {mpas_path} ' \
-           f'-w {work_dir} ' \
-           f'-f {new_config_filename}'
+    args = (
+        f'export NO_POLARIS_REINSTALL=true;'
+        f'source {script_name} && '
+        f'{setup_command} '
+        f'-p {mpas_path} '
+        f'-w {work_dir} '
+        f'-f {new_config_filename}'
+    )
 
     if baseline_base != '':
         args = f'{args} -b {baseline_base}/{suffix}'
@@ -301,8 +330,9 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
         if suite is not None:
             job_script = f'job_script.{suite}.sh'
             if not os.path.exists(os.path.join(work_dir, job_script)):
-                raise OSError(f'Could not find job script {job_script} for '
-                              f'suite {suite}')
+                raise OSError(
+                    f'Could not find job script {job_script} for suite {suite}'
+                )
             args = f'cd {work_dir} && sbatch {job_script}'
             print_command = '\n'.join(args.split(' && '))
             print(f'\nRunning:\n{print_command}\n')
@@ -312,14 +342,23 @@ def polaris_setup(script_name, setup_command, mpas_path, mpas_model, work_base,
 def main():
     parser = argparse.ArgumentParser(
         description='Build MPAS and set up polaris with a matrix of build '
-                    'configs')
-    parser.add_argument("-f", "--config_file", dest="config_file",
-                        required=True,
-                        help="Configuration file with matrix build options.",
-                        metavar="FILE")
-    parser.add_argument("--submit", dest="submit", action='store_true',
-                        help="Whether to submit the job scripts for each test "
-                             "once setup is complete.")
+        'configs'
+    )
+    parser.add_argument(
+        '-f',
+        '--config_file',
+        dest='config_file',
+        required=True,
+        help='Configuration file with matrix build options.',
+        metavar='FILE',
+    )
+    parser.add_argument(
+        '--submit',
+        dest='submit',
+        action='store_true',
+        help='Whether to submit the job scripts for each test '
+        'once setup is complete.',
+    )
 
     args = parser.parse_args()
     setup_matrix(args.config_file, args.submit)

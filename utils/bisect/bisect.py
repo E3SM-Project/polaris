@@ -51,12 +51,14 @@ def bisect(good, bad, e3sm_path, load_script, config_file, first_parent):
     else:
         flags = ''
 
-    commands = f'cd {e3sm_path} && ' \
-               f'git bisect start {flags} && ' \
-               f'git bisect good {good} && ' \
-               f'git bisect bad {bad} && ' \
-               f'git bisect run {cwd}/utils/bisect/bisect_step.py' \
-               f'  -f {config_file}'
+    commands = (
+        f'cd {e3sm_path} && '
+        f'git bisect start {flags} && '
+        f'git bisect good {good} && '
+        f'git bisect bad {bad} && '
+        f'git bisect run {cwd}/utils/bisect/bisect_step.py'
+        f'  -f {config_file}'
+    )
     print('\n')
     print(72 * '-')
     print('Bisect Initialization')
@@ -70,25 +72,34 @@ def bisect(good, bad, e3sm_path, load_script, config_file, first_parent):
 def main():
     parser = argparse.ArgumentParser(
         description='Use "git bisect" to find the first E3SM commit for which '
-                    'a given test fails')
-    parser.add_argument("-f", "--config_file", dest="config_file",
-                        required=True,
-                        help="Configuration file with bisect options.",
-                        metavar="FILE")
+        'a given test fails'
+    )
+    parser.add_argument(
+        '-f',
+        '--config_file',
+        dest='config_file',
+        required=True,
+        help='Configuration file with bisect options.',
+        metavar='FILE',
+    )
 
     args = parser.parse_args()
 
     config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation())
+        interpolation=configparser.ExtendedInterpolation()
+    )
     config.read(args.config_file)
 
     section = config['bisect']
 
-    bisect(good=section['good'], bad=section['bad'],
-           e3sm_path=section['e3sm_path'],
-           load_script=section['load_script'],
-           config_file=args.config_file,
-           first_parent=section.getboolean('first_parent'))
+    bisect(
+        good=section['good'],
+        bad=section['bad'],
+        e3sm_path=section['e3sm_path'],
+        load_script=section['load_script'],
+        config_file=args.config_file,
+        first_parent=section.getboolean('first_parent'),
+    )
 
 
 if __name__ == '__main__':

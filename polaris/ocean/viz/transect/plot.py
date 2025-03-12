@@ -9,13 +9,29 @@ from polaris.ocean.viz.transect.vert import (
 from polaris.viz.style import use_mplstyle
 
 
-def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
-                  title=None, vmin=None, vmax=None, colorbar_label=None,
-                  cmap=None, figsize=(12, 6), dpi=200, method='flat',
-                  outline_color='black', ssh_color=None, seafloor_color=None,
-                  interface_color=None, cell_boundary_color=None,
-                  linewidth=1.0, color_start_and_end=False,
-                  start_color='red', end_color='green'):
+def plot_transect(
+    ds_transect,
+    mpas_field=None,
+    out_filename=None,
+    ax=None,
+    title=None,
+    vmin=None,
+    vmax=None,
+    colorbar_label=None,
+    cmap=None,
+    figsize=(12, 6),
+    dpi=200,
+    method='flat',
+    outline_color='black',
+    ssh_color=None,
+    seafloor_color=None,
+    interface_color=None,
+    cell_boundary_color=None,
+    linewidth=1.0,
+    color_start_and_end=False,
+    start_color='red',
+    end_color='green',
+):
     """
     plot a transect showing the field on the MPAS-Ocean mesh and save to a file
 
@@ -115,30 +131,48 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
 
     if mpas_field is not None:
         if method == 'flat':
-            transect_field = interp_mpas_to_transect_cells(ds_transect,
-                                                           mpas_field)
+            transect_field = interp_mpas_to_transect_cells(
+                ds_transect, mpas_field
+            )
             shading = 'flat'
         elif method == 'bilinear':
-            transect_field = interp_mpas_to_transect_nodes(ds_transect,
-                                                           mpas_field)
+            transect_field = interp_mpas_to_transect_nodes(
+                ds_transect, mpas_field
+            )
             shading = 'gouraud'
         else:
             raise ValueError(f'Unsupported method: {method}')
 
-        pc = ax.pcolormesh(x.values, z.values, transect_field.values,
-                           shading=shading, cmap=cmap, vmin=vmin, vmax=vmax,
-                           zorder=0)
+        pc = ax.pcolormesh(
+            x.values,
+            z.values,
+            transect_field.values,
+            shading=shading,
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+            zorder=0,
+        )
         ax.autoscale(tight=True)
         if colorbar_label is not None:
-            plt.colorbar(pc, extend='both', shrink=0.7, ax=ax,
-                         label=colorbar_label)
+            plt.colorbar(
+                pc, extend='both', shrink=0.7, ax=ax, label=colorbar_label
+            )
 
-    _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, color_start_and_end,
-                     start_color, end_color, linewidth)
+    _plot_interfaces(
+        ds_transect,
+        ax,
+        interface_color,
+        cell_boundary_color,
+        ssh_color,
+        seafloor_color,
+        color_start_and_end,
+        start_color,
+        end_color,
+        linewidth,
+    )
 
-    _plot_outline(x, z, ds_transect.validNodes, ax, outline_color,
-                  linewidth)
+    _plot_outline(x, z, ds_transect.validNodes, ax, outline_color, linewidth)
 
     ax.set_xlabel('transect distance (km)')
     ax.set_ylabel('z (m)')
@@ -150,20 +184,35 @@ def plot_transect(ds_transect, mpas_field=None, out_filename=None, ax=None,
         plt.close()
 
 
-def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
-                     ssh_color, seafloor_color, color_start_and_end,
-                     start_color, end_color, linewidth):
+def _plot_interfaces(
+    ds_transect,
+    ax,
+    interface_color,
+    cell_boundary_color,
+    ssh_color,
+    seafloor_color,
+    color_start_and_end,
+    start_color,
+    end_color,
+    linewidth,
+):
     if cell_boundary_color is not None:
         x_bnd = 1e-3 * ds_transect.dCellBoundary.values.T
         z_bnd = ds_transect.zCellBoundary.values.T
-        ax.plot(x_bnd, z_bnd, color=cell_boundary_color, linewidth=linewidth,
-                zorder=1)
+        ax.plot(
+            x_bnd,
+            z_bnd,
+            color=cell_boundary_color,
+            linewidth=linewidth,
+            zorder=1,
+        )
 
     if interface_color is not None:
         x_int = 1e-3 * ds_transect.dInterfaceSegment.values.T
         z_int = ds_transect.zInterfaceSegment.values.T
-        ax.plot(x_int, z_int, color=interface_color, linewidth=linewidth,
-                zorder=2)
+        ax.plot(
+            x_int, z_int, color=interface_color, linewidth=linewidth, zorder=2
+        )
 
     if ssh_color is not None:
         valid = ds_transect.validNodes.any(dim='nVertNodes')
@@ -175,8 +224,13 @@ def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
         valid = ds_transect.validNodes.any(dim='nVertNodes')
         x_floor = 1e-3 * ds_transect.dNode.values
         z_floor = ds_transect.zSeafloor.where(valid).values
-        ax.plot(x_floor, z_floor, color=seafloor_color, linewidth=linewidth,
-                zorder=5)
+        ax.plot(
+            x_floor,
+            z_floor,
+            color=seafloor_color,
+            linewidth=linewidth,
+            zorder=5,
+        )
 
     if color_start_and_end:
         ax.spines['left'].set_color(start_color)
@@ -185,8 +239,9 @@ def _plot_interfaces(ds_transect, ax, interface_color, cell_boundary_color,
         ax.spines['right'].set_linewidth(4 * linewidth)
 
 
-def _plot_outline(x, z, valid_nodes, ax, outline_color, linewidth,
-                  epsilon=1e-6):
+def _plot_outline(
+    x, z, valid_nodes, ax, outline_color, linewidth, epsilon=1e-6
+):
     if outline_color is not None:
         # add a buffer of invalid values around the edge of the domain
         valid = np.zeros((x.shape[0] + 2, x.shape[1] + 2), dtype=float)
@@ -206,5 +261,12 @@ def _plot_outline(x, z, valid_nodes, ax, outline_color, linewidth,
         x_buf[:, 0] = x_buf[:, 1]
         x_buf[:, -1] = x_buf[:, -2]
 
-        ax.contour(x_buf, z_buf, valid, levels=[1. - epsilon],
-                   colors=outline_color, linewidths=linewidth, zorder=3)
+        ax.contour(
+            x_buf,
+            z_buf,
+            valid,
+            levels=[1.0 - epsilon],
+            colors=outline_color,
+            linewidths=linewidth,
+            zorder=3,
+        )

@@ -33,5 +33,5 @@ def compute_planar_hex_nx_ny(lx, ly, resolution):
     # for greater flexibility
     nx = max(2 * int(0.5 * lx / resolution + 0.5), 4)
     # factor of 2/sqrt(3) because of hexagonal mesh
-    ny = max(2 * int(0.5 * ly * (2. / np.sqrt(3)) / resolution + 0.5), 4)
+    ny = max(2 * int(0.5 * ly * (2.0 / np.sqrt(3)) / resolution + 0.5), 4)
     return nx, ny

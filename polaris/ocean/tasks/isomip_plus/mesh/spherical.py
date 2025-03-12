@@ -16,6 +16,7 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
     """
     A step for creating an ISOMIP+ mesh that is a small region on a sphere
     """
+
     def setup(self):
         """
         Add input files
@@ -45,14 +46,14 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
         dlon = 0.1
         dlat = dlon
         earth_radius = constants['SHR_CONST_REARTH']
-        nlon = int(360. / dlon) + 1
-        nlat = int(180. / dlat) + 1
-        lon = np.linspace(-180., 180., nlon)
-        lat = np.linspace(-90., 90., nlat)
+        nlon = int(360.0 / dlon) + 1
+        nlat = int(180.0 / dlat) + 1
+        lon = np.linspace(-180.0, 180.0, nlon)
+        lat = np.linspace(-90.0, 90.0, nlat)
 
         # this is the width of cells (in km) on the globe outside the domain of
         # interest, set to a coarse value to speed things up
-        background_width = 100.
+        background_width = 100.0
 
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
@@ -61,15 +62,19 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
         fc.to_geojson('isomip_plus_high_res.geojson')
 
         signed_distance = signed_distance_from_geojson(
-            fc, lon, lat, earth_radius, max_length=0.25)
+            fc, lon, lat, earth_radius, max_length=0.25
+        )
 
         # this is a distance (in m) over which the resolution coarsens outside
         # the domain of interest plus buffer
         trans_width = 1000e3
-        weights = np.maximum(0., np.minimum(1., signed_distance / trans_width))
+        weights = np.maximum(
+            0.0, np.minimum(1.0, signed_distance / trans_width)
+        )
 
-        cell_width = (self.cell_width * (1 - weights) +
-                      background_width * weights)
+        cell_width = (
+            self.cell_width * (1 - weights) + background_width * weights
+        )
 
         return cell_width, lon, lat
 
@@ -89,8 +94,7 @@ def _make_feature(lx, ly, buffer):
     # (0 <= x <= 800) and (0 <= y <= 80)
     bounds = 1e3 * np.array((-buffer, lx + buffer, -buffer, ly + buffer))
     projection, lat_lon_projection = get_projections()
-    transformer = pyproj.Transformer.from_proj(projection,
-                                               lat_lon_projection)
+    transformer = pyproj.Transformer.from_proj(projection, lat_lon_projection)
 
     x = [bounds[0], bounds[1], bounds[1], bounds[0], bounds[0]]
     y = [bounds[2], bounds[2], bounds[3], bounds[3], bounds[2]]
@@ -100,17 +104,14 @@ def _make_feature(lx, ly, buffer):
 
     features = [
         {
-            "type": "Feature",
-            "properties": {
-                "name": "ISOMIP+ high res region",
-                "component": "ocean",
-                "object": "region",
-                "author": "Polaris"
+            'type': 'Feature',
+            'properties': {
+                'name': 'ISOMIP+ high res region',
+                'component': 'ocean',
+                'object': 'region',
+                'author': 'Polaris',
             },
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": coordinates
-            }
+            'geometry': {'type': 'Polygon', 'coordinates': coordinates},
         }
     ]
 

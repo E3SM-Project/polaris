@@ -47,8 +47,9 @@ def get_available_parallel_resources(config):
         if config.has_option('parallel', 'threads_per_core'):
             threads_per_core = config.getint('parallel', 'threads_per_core')
             # correct for this in allocated_cores, which might not match
-            cores_per_node = ((cores_per_node * threads_per_core) //
-                              slurm_threads_per_core)
+            cores_per_node = (
+                cores_per_node * threads_per_core
+            ) // slurm_threads_per_core
         else:
             threads_per_core = slurm_threads_per_core
         args = ['squeue', '--noheader', '-j', job_id, '-o', '%D']
@@ -56,8 +57,10 @@ def get_available_parallel_resources(config):
         cores = cores_per_node * nodes
         mpi_allowed = True
     elif parallel_system == 'login':
-        cores = min(multiprocessing.cpu_count(),
-                    config.getint('parallel', 'login_cores'))
+        cores = min(
+            multiprocessing.cpu_count(),
+            config.getint('parallel', 'login_cores'),
+        )
         cores_per_node = cores
         nodes = 1
         mpi_allowed = False
@@ -75,12 +78,13 @@ def get_available_parallel_resources(config):
         cores=cores,
         nodes=nodes,
         cores_per_node=cores_per_node,
-        mpi_allowed=mpi_allowed
+        mpi_allowed=mpi_allowed,
     )
 
     if config.has_option('parallel', 'gpus_per_node'):
-        available_resources['gpus_per_node'] = \
-            config.getint('parallel', 'gpus_per_node')
+        available_resources['gpus_per_node'] = config.getint(
+            'parallel', 'gpus_per_node'
+        )
 
     return available_resources
 
@@ -103,7 +107,7 @@ def set_cores_per_node(config, cores_per_node):
             warnings.warn(
                 f'Slurm found {cores_per_node} cpus per node but '
                 f'config from mache was {old_cores_per_node}',
-                stacklevel=2
+                stacklevel=2,
             )
     elif parallel_system == 'single_node':
         if not config.has_option('parallel', 'cores_per_node'):
@@ -146,8 +150,9 @@ def run_command(args, cpus_per_task, ntasks, openmp_threads, config, logger):
     if openmp_threads > 1:
         logger.info(f'Running with {openmp_threads} OpenMP threads')
 
-    command_line_args = get_parallel_command(args, cpus_per_task, ntasks,
-                                             config)
+    command_line_args = get_parallel_command(
+        args, cpus_per_task, ntasks, config
+    )
     check_call(command_line_args, logger, env=env)
 
 
@@ -189,9 +194,9 @@ def get_parallel_command(args, cpus_per_task, ntasks, config):
         cores = ntasks * cpus_per_task
         cores_per_node = config.getint('parallel', 'cores_per_node')
         nodes = int(np.ceil(cores / cores_per_node))
-        command_line_args.extend(['-c', f'{cpus_per_task}',
-                                  '-N', f'{nodes}',
-                                  '-n', f'{ntasks}'])
+        command_line_args.extend(
+            ['-c', f'{cpus_per_task}', '-N', f'{nodes}', '-n', f'{ntasks}']
+        )
     elif parallel_system == 'single_node':
         command_line_args.extend(['-n', f'{ntasks}'])
     else:

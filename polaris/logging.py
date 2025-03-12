@@ -43,9 +43,11 @@ def log_method_call(method, logger):
             break
 
     if actual_class is None:
-        raise ValueError(f'Hmm, it seems that none of {child_location} or its '
-                         f'parent classes implements\n the {method_name} '
-                         f'method, how strange!')
+        raise ValueError(
+            f'Hmm, it seems that none of {child_location} or its '
+            f'parent classes implements\n the {method_name} '
+            f'method, how strange!'
+        )
     actual_location = f'{actual_class.__module__}.{actual_class.__name__}'
 
     # not every class is defined in a file (e.g. python intrinsics) but we
@@ -86,6 +88,7 @@ def log_function_call(function, logger):
     filename = inspect.getfile(function)
 
     # log what we found out
-    logger.info(f'polaris calling: '
-                f'{function.__module__}.{function.__name__}()')
+    logger.info(
+        f'polaris calling: {function.__module__}.{function.__name__}()'
+    )
     logger.info(f'  in {filename}')

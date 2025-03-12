@@ -24,10 +24,22 @@ class ConvergenceForward(OceanModelStep):
         refinement option
     """
 
-    def __init__(self, component, name, subdir, refinement_factor, mesh, init,
-                 package, yaml_filename='forward.yaml',
-                 options=None, graph_target=None, output_filename='output.nc',
-                 validate_vars=None, refinement='both'):
+    def __init__(
+        self,
+        component,
+        name,
+        subdir,
+        refinement_factor,
+        mesh,
+        init,
+        package,
+        yaml_filename='forward.yaml',
+        options=None,
+        graph_target=None,
+        output_filename='output.nc',
+        validate_vars=None,
+        refinement='both',
+    ):
         """
         Create a new step
 
@@ -71,8 +83,13 @@ class ConvergenceForward(OceanModelStep):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-        super().__init__(component=component, name=name, subdir=subdir,
-                         openmp_threads=1, graph_target=graph_target)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            openmp_threads=1,
+            graph_target=graph_target,
+        )
 
         self.refinement = refinement
         self.refinement_factor = refinement_factor
@@ -84,15 +101,17 @@ class ConvergenceForward(OceanModelStep):
 
         if options is not None:
             for config_model in options:
-                self.add_model_config_options(options=options[config_model],
-                                              config_model=config_model)
+                self.add_model_config_options(
+                    options=options[config_model], config_model=config_model
+                )
 
         self.add_input_file(
-            filename='init.nc',
-            work_dir_target=f'{init.path}/initial_state.nc')
+            filename='init.nc', work_dir_target=f'{init.path}/initial_state.nc'
+        )
 
-        self.add_output_file(filename=output_filename,
-                             validate_vars=validate_vars)
+        self.add_output_file(
+            filename=output_filename, validate_vars=validate_vars
+        )
 
     def compute_cell_count(self):
         """
@@ -104,8 +123,10 @@ class ConvergenceForward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        raise ValueError('compute_cell_count method must be overridden by '
-                         'spherical or planar method')
+        raise ValueError(
+            'compute_cell_count method must be overridden by '
+            'spherical or planar method'
+        )
 
     def dynamic_model_config(self, at_setup):
         """
@@ -127,19 +148,22 @@ class ConvergenceForward(OceanModelStep):
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         timestep, btr_timestep = get_timestep_for_task(
-            config, refinement_factor, refinement=self.refinement)
+            config, refinement_factor, refinement=self.refinement
+        )
         dt_str = get_time_interval_string(seconds=timestep)
         btr_dt_str = get_time_interval_string(seconds=btr_timestep)
 
-        s_per_hour = 3600.
+        s_per_hour = 3600.0
         section = config['convergence_forward']
         run_duration = section.getfloat('run_duration')
         run_duration_str = get_time_interval_string(
-            seconds=run_duration * s_per_hour)
+            seconds=run_duration * s_per_hour
+        )
 
         output_interval = section.getfloat('output_interval')
         output_interval_str = get_time_interval_string(
-            seconds=output_interval * s_per_hour)
+            seconds=output_interval * s_per_hour
+        )
 
         # For Omega, we want the output interval as a number of seconds
         output_freq = int(output_interval * s_per_hour)
@@ -151,9 +175,11 @@ class ConvergenceForward(OceanModelStep):
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
             else:
-                print('Warning: mapping from time integrator '
-                      f'{time_integrator} to omega not found, '
-                      'retaining name given in config')
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
 
         replacements = dict(
             time_integrator=time_integrator,
@@ -161,8 +187,11 @@ class ConvergenceForward(OceanModelStep):
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
-            output_freq=f'{output_freq}'
+            output_freq=f'{output_freq}',
         )
 
-        self.add_yaml_file(self.package, self.yaml_filename,
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            self.package,
+            self.yaml_filename,
+            template_replacements=replacements,
+        )

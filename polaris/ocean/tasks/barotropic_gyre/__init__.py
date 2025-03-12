@@ -18,8 +18,9 @@ def add_barotropic_gyre_tasks(component):
         the ocean component that the task will be added to
     """
     test_name = 'default'
-    component.add_task(BarotropicGyre(component=component,
-                                      test_name=test_name))
+    component.add_task(
+        BarotropicGyre(component=component, test_name=test_name)
+    )
 
 
 class BarotropicGyre(Task):
@@ -44,29 +45,44 @@ class BarotropicGyre(Task):
         config = self.config
         config_filename = f'{group_name}.cfg'
         config.filepath = f'{subdir}/{config_filename}'
-        config.add_from_package(f'polaris.ocean.tasks.{group_name}',
-                                config_filename)
+        config.add_from_package(
+            f'polaris.ocean.tasks.{group_name}', config_filename
+        )
         self.set_shared_config(config, link=config_filename)
 
         init = Init(component=component, subdir=subdir)
         init.set_shared_config(config, link=config_filename)
         self.add_step(init)
 
-        forward = Forward(component=component, indir=self.subdir, ntasks=None,
-                          min_tasks=None, openmp_threads=1,
-                          name='short_forward', run_time_steps=3,
-                          graph_target=f'{init.path}/culled_graph.info')
+        forward = Forward(
+            component=component,
+            indir=self.subdir,
+            ntasks=None,
+            min_tasks=None,
+            openmp_threads=1,
+            name='short_forward',
+            run_time_steps=3,
+            graph_target=f'{init.path}/culled_graph.info',
+        )
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward)
 
-        forward = Forward(component=component, indir=self.subdir, ntasks=None,
-                          min_tasks=None, openmp_threads=1,
-                          name='long_forward',
-                          graph_target=f'{init.path}/culled_graph.info')
+        forward = Forward(
+            component=component,
+            indir=self.subdir,
+            ntasks=None,
+            min_tasks=None,
+            openmp_threads=1,
+            name='long_forward',
+            graph_target=f'{init.path}/culled_graph.info',
+        )
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward, run_by_default=False)
 
-        analysis = Analysis(component=component, indir=self.subdir,
-                            boundary_condition='free slip')
+        analysis = Analysis(
+            component=component,
+            indir=self.subdir,
+            boundary_condition='free slip',
+        )
         analysis.set_shared_config(config, link=config_filename)
         self.add_step(analysis, run_by_default=False)

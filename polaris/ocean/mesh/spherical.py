@@ -48,12 +48,18 @@ def add_spherical_base_mesh_step(component, resolution, icosahedral):
     else:
         if icosahedral:
             base_mesh = IcosahedralMeshStep(
-                component=component, name=name, subdir=subdir,
-                cell_width=resolution)
+                component=component,
+                name=name,
+                subdir=subdir,
+                cell_width=resolution,
+            )
         else:
             base_mesh = QuasiUniformSphericalMeshStep(
-                component=component, name=name, subdir=subdir,
-                cell_width=resolution)
+                component=component,
+                name=name,
+                subdir=subdir,
+                cell_width=resolution,
+            )
 
         # add default config options for spherical meshes
         config_filename = f'{base_mesh.name}.cfg'

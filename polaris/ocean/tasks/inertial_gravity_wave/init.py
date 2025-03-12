@@ -23,6 +23,7 @@ class Init(Step):
     resolution : float
         The resolution of the test case in km
     """
+
     def __init__(self, component, resolution, subdir):
         """
         Create the step
@@ -39,12 +40,15 @@ class Init(Step):
             The subdirectory that the task belongs to
         """
         mesh_name = resolution_to_subdir(resolution)
-        super().__init__(component=component,
-                         name=f'init_{mesh_name}',
-                         subdir=subdir)
+        super().__init__(
+            component=component, name=f'init_{mesh_name}', subdir=subdir
+        )
         self.resolution = resolution
-        for filename in ['culled_mesh.nc', 'initial_state.nc',
-                         'culled_graph.info']:
+        for filename in [
+            'culled_mesh.nc',
+            'initial_state.nc',
+            'culled_graph.info',
+        ]:
             self.add_output_file(filename=filename)
 
     def run(self):
@@ -64,14 +68,15 @@ class Init(Step):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-                                       nonperiodic_x=False,
-                                       nonperiodic_y=False)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
+        )
         write_netcdf(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -95,8 +100,9 @@ class Init(Step):
 
         layerThickness = ssh + bottom_depth
         layerThickness, _ = xr.broadcast(layerThickness, ds.refBottomDepth)
-        layerThickness = layerThickness.transpose('Time', 'nCells',
-                                                  'nVertLevels')
+        layerThickness = layerThickness.transpose(
+            'Time', 'nCells', 'nVertLevels'
+        )
         ds['layerThickness'] = layerThickness
 
         normal_velocity = exact_solution.normal_velocity(0.0)

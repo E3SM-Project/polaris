@@ -30,9 +30,11 @@ def area_for_field(ds_mesh, field):
             cov = ds_mesh.cellsOnVertex.isel(vertexDegree=ivert) - 1
             mask = cov >= 0
             kite_area = ds_mesh.kiteAreasOnVertex.isel(vertexDegree=ivert)
-            area = area + kite_area.where(mask, other=0.)
+            area = area + kite_area.where(mask, other=0.0)
     else:
-        raise ValueError('The field does not have any of the expected '
-                         'horizontal dimensions for an MPAS mesh')
+        raise ValueError(
+            'The field does not have any of the expected '
+            'horizontal dimensions for an MPAS mesh'
+        )
 
     return area

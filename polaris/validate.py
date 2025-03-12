@@ -4,9 +4,18 @@ import numpy as np
 import xarray as xr
 
 
-def compare_variables(variables, filename1, filename2, logger, l1_norm=0.0,
-                      l2_norm=0.0, linf_norm=0.0, quiet=True, ds1=None,
-                      ds2=None):
+def compare_variables(
+    variables,
+    filename1,
+    filename2,
+    logger,
+    l1_norm=0.0,
+    l2_norm=0.0,
+    linf_norm=0.0,
+    quiet=True,
+    ds1=None,
+    ds2=None,
+):
     """
     compare variables in the two files
 
@@ -89,24 +98,27 @@ def compare_variables(variables, filename1, filename2, logger, l1_norm=0.0,
         da2 = ds2[variable]
 
         if not np.all(da1.dims == da2.dims):
-            logger.error(f"Dimensions for variable {variable} don't match "
-                         f"between files {filename1} and {filename2}.")
+            logger.error(
+                f"Dimensions for variable {variable} don't match "
+                f'between files {filename1} and {filename2}.'
+            )
             all_pass = False
             continue
 
-        if not _all_sizes_match(da1, filename1, da2, filename2, variable,
-                                logger):
+        if not _all_sizes_match(
+            da1, filename1, da2, filename2, variable, logger
+        ):
             all_pass = False
             continue
 
         if not quiet:
-            print("    Pass thresholds are:")
+            print('    Pass thresholds are:')
             if l1_norm is not None:
-                print(f"       L1: {l1_norm:16.14e}")
+                print(f'       L1: {l1_norm:16.14e}')
             if l2_norm is not None:
-                print(f"       L2: {l2_norm:16.14e}")
+                print(f'       L2: {l2_norm:16.14e}')
             if linf_norm is not None:
-                print(f"       L_Infinity: {linf_norm:16.14e}")
+                print(f'       L_Infinity: {linf_norm:16.14e}')
         variable_pass = True
         if 'Time' in da1.dims:
             time_range = range(0, da1.sizes['Time'])
@@ -115,15 +127,22 @@ def compare_variables(variables, filename1, filename2, logger, l1_norm=0.0,
             for time_index in time_range:
                 slice1 = da1.isel(Time=time_index)
                 slice2 = da2.isel(Time=time_index)
-                result = _compute_norms(slice1, slice2, quiet, l1_norm,
-                                        l2_norm, linf_norm,
-                                        time_index=time_index)
+                result = _compute_norms(
+                    slice1,
+                    slice2,
+                    quiet,
+                    l1_norm,
+                    l2_norm,
+                    linf_norm,
+                    time_index=time_index,
+                )
                 variable_pass = variable_pass and result
 
         else:
             print(f'{variable}')
-            result = _compute_norms(da1, da2, quiet, l1_norm, l2_norm,
-                                    linf_norm)
+            result = _compute_norms(
+                da1, da2, quiet, l1_norm, l2_norm, linf_norm
+            )
             variable_pass = variable_pass and result
 
         # ANSI fail text: https://stackoverflow.com/a/287944/7728169
@@ -144,7 +163,7 @@ def compare_variables(variables, filename1, filename2, logger, l1_norm=0.0,
 
 
 def _all_found(ds1, filename1, ds2, filename2, variable, logger):
-    """ Is the variable found in both datasets? """
+    """Is the variable found in both datasets?"""
     all_found = True
     for ds, filename in [(ds1, filename1), (ds2, filename2)]:
         if variable not in ds:
@@ -154,19 +173,22 @@ def _all_found(ds1, filename1, ds2, filename2, variable, logger):
 
 
 def _all_sizes_match(da1, filename1, da2, filename2, variable, logger):
-    """ Do all dimension sizes match between the two variables? """
+    """Do all dimension sizes match between the two variables?"""
     all_match = True
     for dim in da1.sizes:
         if da1.sizes[dim] != da2.sizes[dim]:
-            logger.error(f"Field sizes for variable {variable} don't "
-                         f"match files {filename1} and {filename2}.")
+            logger.error(
+                f"Field sizes for variable {variable} don't "
+                f'match files {filename1} and {filename2}.'
+            )
             all_match = False
     return all_match
 
 
-def _compute_norms(da1, da2, quiet, max_l1_norm, max_l2_norm, max_linf_norm,
-                   time_index=None):
-    """ Compute norms between variables in two DataArrays """
+def _compute_norms(
+    da1, da2, quiet, max_l1_norm, max_l2_norm, max_linf_norm, time_index=None
+):
+    """Compute norms between variables in two DataArrays"""
 
     da1 = _rename_duplicate_dims(da1)
     da2 = _rename_duplicate_dims(da2)
@@ -211,10 +233,10 @@ def _rename_duplicate_dims(da):
     new_dims = list(dims)
     duplicates = False
     for index, dim in enumerate(dims):
-        if dim in dims[index + 1:]:
+        if dim in dims[index + 1 :]:
             duplicates = True
             suffix = 2
-            for other_index, other in enumerate(dims[index + 1:]):
+            for other_index, other in enumerate(dims[index + 1 :]):
                 if other == dim:
                     new_dims[other_index + index + 1] = f'{dim}_{suffix}'
                     suffix += 1

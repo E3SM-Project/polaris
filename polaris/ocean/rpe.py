@@ -50,12 +50,13 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     xMax = np.max(xEdge.values)
     areaDomain = (yMax - yMin) * (xMax - xMin)
 
-    vert_index = \
-        xr.DataArray.from_dict({'dims': ('nVertLevels',),
-                                'data': np.arange(nVertLevels)})
+    vert_index = xr.DataArray.from_dict(
+        {'dims': ('nVertLevels',), 'data': np.arange(nVertLevels)}
+    )
 
-    cell_mask = np.logical_and(vert_index >= minLevelCell,
-                               vert_index <= maxLevelCell)
+    cell_mask = np.logical_and(
+        vert_index >= minLevelCell, vert_index <= maxLevelCell
+    )
     cell_mask = np.swapaxes(cell_mask, 0, 1)
 
     with xr.open_dataset(output_filenames[0]) as ds:
@@ -65,7 +66,6 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     rpe = np.ones((num_files, nt))
 
     for file_index, out_filename in enumerate(output_filenames):
-
         ds = xr.open_dataset(out_filename)
 
         xtime = ds.xtime.values
@@ -73,7 +73,6 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
         densityFull = ds.density
 
         for time_index in range(nt):
-
             h = hFull[time_index, :, :].values
             vol = np.multiply(h, areaCellMatrix)
             density = densityFull[time_index, :, :].values
@@ -88,11 +87,11 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
             thickness = np.divide(vol_sorted.tolist(), areaDomain)
 
             # RPE computation
-            z = np.append([0.], -np.cumsum(thickness))
+            z = np.append([0.0], -np.cumsum(thickness))
             zMid = z[0:-1] - 0.5 * thickness + bottomMax
             rpe1 = gravity * np.multiply(
-                np.multiply(density_sorted, zMid),
-                vol_sorted)
+                np.multiply(density_sorted, zMid), vol_sorted
+            )
 
             rpe[file_index, time_index] = np.sum(rpe1) / np.sum(areaCell)
 
@@ -100,8 +99,9 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
 
     with open('rpe.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        headers = ['time'] + \
-            [f'output_{index + 1}' for index in range(num_files)]
+        headers = ['time'] + [
+            f'output_{index + 1}' for index in range(num_files)
+        ]
         writer.writerow(headers)
         for time_index in range(nt):
             time = xtime[time_index].astype(str)

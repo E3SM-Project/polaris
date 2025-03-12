@@ -15,8 +15,7 @@ def add_isomip_plus_xy(ds):
         The MPAS mesh on a sphere
     """
     projection, lat_lon_projection = get_projections()
-    transformer = pyproj.Transformer.from_proj(lat_lon_projection,
-                                               projection)
+    transformer = pyproj.Transformer.from_proj(lat_lon_projection, projection)
     lon = np.rad2deg(ds.lonCell.values)
     lat = np.rad2deg(ds.latCell.values)
 

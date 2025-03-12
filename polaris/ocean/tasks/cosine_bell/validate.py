@@ -13,6 +13,7 @@ class Validate(OceanIOStep):
     step_subdirs : list of str
         The number of processors used in each run
     """
+
     def __init__(self, component, step_subdirs, indir):
         """
         Create the step
@@ -27,14 +28,15 @@ class Validate(OceanIOStep):
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
-       """
+        """
         super().__init__(component=component, name='validate', indir=indir)
 
         self.step_subdirs = step_subdirs
 
         for subdir in step_subdirs:
-            self.add_input_file(filename=f'output_{subdir}.nc',
-                                target=f'../{subdir}/output.nc')
+            self.add_input_file(
+                filename=f'output_{subdir}.nc', target=f'../{subdir}/output.nc'
+            )
 
     def run(self):
         """
@@ -59,10 +61,16 @@ class Validate(OceanIOStep):
             ds1 = self.open_model_dataset(filename1)
             ds2 = self.open_model_dataset(filename2)
 
-            all_pass = compare_variables(variables=variables,
-                                         filename1=filename1,
-                                         filename2=filename2, logger=logger,
-                                         ds1=ds1, ds2=ds2)
+            all_pass = compare_variables(
+                variables=variables,
+                filename1=filename1,
+                filename2=filename2,
+                logger=logger,
+                ds1=ds1,
+                ds2=ds2,
+            )
         if not all_pass:
-            raise ValueError(f'Validation failed comparing outputs between '
-                             f'{step_subdirs[0]} and {step_subdirs[1]}.')
+            raise ValueError(
+                f'Validation failed comparing outputs between '
+                f'{step_subdirs[0]} and {step_subdirs[1]}.'
+            )

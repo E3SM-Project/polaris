@@ -15,8 +15,8 @@ def main():
     """
 
     parser = argparse.ArgumentParser(
-        description="Perform polaris operations",
-        usage='''
+        description='Perform polaris operations',
+        usage="""
 polaris <command> [<args>]
 
 The available polaris commands are:
@@ -28,27 +28,34 @@ The available polaris commands are:
  To get help on an individual command, run:
 
     polaris <command> --help
-    ''')
+    """,
+    )
 
     parser.add_argument('command', help='command to run')
-    parser.add_argument('-v', '--version',
-                        action='version',
-                        version=f'polaris {__version__}',
-                        help="Show version number and exit")
+    parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=f'polaris {__version__}',
+        help='Show version number and exit',
+    )
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(0)
 
     args = parser.parse_args(sys.argv[1:2])
 
-    commands = {'list': list.main,
-                'setup': setup.main,
-                'suite': suite.main,
-                'serial': run_serial.main}
+    commands = {
+        'list': list.main,
+        'setup': setup.main,
+        'suite': suite.main,
+        'serial': run_serial.main,
+    }
 
     # only allow the "polaris cache" command if we're on Anvil or Chrysalis
-    allow_cache = ('POLARIS_MACHINE' in os.environ and
-                   os.environ['POLARIS_MACHINE'] in ['anvil', 'chrysalis'])
+    allow_cache = 'POLARIS_MACHINE' in os.environ and os.environ[
+        'POLARIS_MACHINE'
+    ] in ['anvil', 'chrysalis']
 
     if allow_cache:
         commands['cache'] = cache.main
@@ -62,5 +69,5 @@ The available polaris commands are:
     commands[args.command]()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

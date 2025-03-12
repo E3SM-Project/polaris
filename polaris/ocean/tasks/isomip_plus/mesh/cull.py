@@ -57,8 +57,7 @@ class CullMesh(Step):
 
         topo_path = topo_remap.path
         target = os.path.join(topo_path, 'topography_remapped.nc')
-        self.add_input_file(filename='topography.nc',
-                            work_dir_target=target)
+        self.add_input_file(filename='topography.nc', work_dir_target=target)
 
         for file in ['culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(filename=file)
@@ -72,16 +71,19 @@ class CullMesh(Step):
         min_ocean_fraction = section.getfloat('min_ocean_fraction')
 
         with LoggingContext(name=__name__, logger=logger) as logger:
-            _land_mask_from_topo(topo_filename='topography.nc',
-                                 mask_filename='land_mask.nc',
-                                 min_ocean_fraction=min_ocean_fraction)
+            _land_mask_from_topo(
+                topo_filename='topography.nc',
+                mask_filename='land_mask.nc',
+                min_ocean_fraction=min_ocean_fraction,
+            )
 
             ds_base = xr.open_dataset('base_mesh.nc')
             ds_land_mask = xr.open_dataset('land_mask.nc')
 
             # cull the mesh based on the land mask
-            ds_culled = cull(ds_base, dsMask=ds_land_mask, logger=logger,
-                             dir='.')
+            ds_culled = cull(
+                ds_base, dsMask=ds_land_mask, logger=logger, dir='.'
+            )
 
             # sort the cell, edge and vertex indices for better performances
             ds_culled = sort_mesh(ds_culled)
@@ -92,8 +94,10 @@ class CullMesh(Step):
             write_netcdf(ds_culled, out_filename)
 
             # we need to make the graph file after sorting
-            make_graph_file(mesh_filename='culled_mesh.nc',
-                            graph_filename='culled_graph.info')
+            make_graph_file(
+                mesh_filename='culled_mesh.nc',
+                graph_filename='culled_graph.info',
+            )
 
 
 def _land_mask_from_topo(topo_filename, mask_filename, min_ocean_fraction):

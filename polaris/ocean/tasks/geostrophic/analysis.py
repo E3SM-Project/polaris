@@ -10,6 +10,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the geostrophic test case
     """
+
     def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
@@ -28,16 +29,17 @@ class Analysis(ConvergenceAnalysis):
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
-        convergence_vars = [{'name': 'h',
-                             'title': 'water-column thickness',
-                             'zidx': None},
-                            {'name': 'normalVelocity',
-                             'title': 'normal velocity',
-                             'zidx': 0}]
-        super().__init__(component=component, subdir=subdir,
-                         dependencies=dependencies,
-                         convergence_vars=convergence_vars,
-                         refinement=refinement)
+        convergence_vars = [
+            {'name': 'h', 'title': 'water-column thickness', 'zidx': None},
+            {'name': 'normalVelocity', 'title': 'normal velocity', 'zidx': 0},
+        ]
+        super().__init__(
+            component=component,
+            subdir=subdir,
+            dependencies=dependencies,
+            convergence_vars=convergence_vars,
+            refinement=refinement,
+        )
 
     def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
@@ -68,8 +70,10 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name not in ['h', 'normalVelocity']:
-            print(f'Variable {field_name} not available as an analytic '
-                  'solution for the geostrophic test case')
+            print(
+                f'Variable {field_name} not available as an analytic '
+                'solution for the geostrophic test case'
+            )
 
         config = self.config
 
@@ -81,7 +85,8 @@ class Analysis(ConvergenceAnalysis):
         mesh_filename = f'mesh_r{refinement_factor:02g}.nc'
 
         h, _, _, normalVelocity = compute_exact_solution(
-            alpha, vel_period, gh_0, mesh_filename)
+            alpha, vel_period, gh_0, mesh_filename
+        )
 
         if field_name == 'h':
             return h
@@ -113,19 +118,27 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name not in ['h', 'normalVelocity']:
-            print(f'Variable {field_name} not available for analysis in the '
-                  f'geostrophic test case')
+            print(
+                f'Variable {field_name} not available for analysis in the '
+                f'geostrophic test case'
+            )
 
         if field_name == 'normalVelocity':
             return super().get_output_field(
                 refinement_factor=refinement_factor,
-                field_name=field_name, time=time, zidx=zidx)
+                field_name=field_name,
+                time=time,
+                zidx=zidx,
+            )
         else:
             ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
             bottom_depth = ds_init.bottomDepth
             ssh = super().get_output_field(
                 refinement_factor=refinement_factor,
-                field_name='ssh', time=time, zidx=None)
+                field_name='ssh',
+                time=time,
+                zidx=None,
+            )
             h = ssh + bottom_depth
             return h
 
@@ -147,8 +160,9 @@ class Analysis(ConvergenceAnalysis):
             The maximum convergence rate
         """
         config = self.config
-        conv_thresh = config.getfloat('geostrophic',
-                                      f'convergence_thresh_{field_name}')
+        conv_thresh = config.getfloat(
+            'geostrophic', f'convergence_thresh_{field_name}'
+        )
         error_type = config.get('convergence', 'error_type')
 
         return conv_thresh, error_type

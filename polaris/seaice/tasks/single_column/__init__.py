@@ -15,7 +15,5 @@ def add_single_column_tasks(component):
     component : polaris.seaice.Seaice
         the component that that the tasks will be added to
     """
-    component.add_task(
-        StandardPhysics(component=component))
-    component.add_task(
-        ExactRestart(component=component))
+    component.add_task(StandardPhysics(component=component))
+    component.add_task(ExactRestart(component=component))

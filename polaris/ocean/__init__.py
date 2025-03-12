@@ -56,8 +56,7 @@ class Ocean(Component):
         """
         section = config['ocean']
         model = section.get('model')
-        configs = {'mpas-ocean': 'mpas_ocean.cfg',
-                   'omega': 'omega.cfg'}
+        configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
         if model not in configs:
             raise ValueError(f'Unknown ocean model {model} in config options')
 

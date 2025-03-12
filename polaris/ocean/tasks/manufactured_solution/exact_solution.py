@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class ExactSolution():
+class ExactSolution:
     """
     Class to compute the exact solution for the manufactured solution
     test case
@@ -60,8 +60,7 @@ class ExactSolution():
         self.lambda_y = (ly * 1e3) / npy
         self.kx = 2.0 * np.pi / self.lambda_x
         self.ky = 2.0 * np.pi / self.lambda_y
-        self.omega = np.sqrt(self.g * bottom_depth *
-                             (self.kx**2 + self.ky**2))
+        self.omega = np.sqrt(self.g * bottom_depth * (self.kx**2 + self.ky**2))
 
         if ds is not None:
             self.angleEdge = ds.angleEdge
@@ -86,9 +85,9 @@ class ExactSolution():
 
         """
 
-        eta = self.eta0 * np.sin(self.kx * self.xCell +
-                                 self.ky * self.yCell -
-                                 self.omega * t)
+        eta = self.eta0 * np.sin(
+            self.kx * self.xCell + self.ky * self.yCell - self.omega * t
+        )
 
         return eta
 
@@ -106,8 +105,8 @@ class ExactSolution():
         normalvelocity : xr.DataArray
             the exact normal velocity solution on edges at time t
         """
-        u = self.eta0 * np.cos(self.kx * self.xEdge +
-                               self.ky * self.yEdge -
-                               self.omega * t)
+        u = self.eta0 * np.cos(
+            self.kx * self.xEdge + self.ky * self.yEdge - self.omega * t
+        )
         v = u
         return u * np.cos(self.angleEdge) + v * np.sin(self.angleEdge)

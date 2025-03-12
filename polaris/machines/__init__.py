@@ -41,10 +41,12 @@ def _get_possible_hosts():
             machine = os.path.split(filename)[0]
             config = PolarisConfigParser()
             config.add_from_package('polaris.machines', filename)
-            if config.has_section('discovery') and \
-                    config.has_option('discovery', 'hostname_contains'):
-                hostname_contains = config.get('discovery',
-                                               'hostname_contains')
+            if config.has_section('discovery') and config.has_option(
+                'discovery', 'hostname_contains'
+            ):
+                hostname_contains = config.get(
+                    'discovery', 'hostname_contains'
+                )
                 possible_hosts[machine] = hostname_contains
 
     return possible_hosts

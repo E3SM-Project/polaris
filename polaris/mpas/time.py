@@ -51,7 +51,6 @@ def time_since_start(xtime, start_xtime=None):
     t0 = datetime.datetime.strptime(start_xtime, '%Y-%m-%d_%H:%M:%S')
     dt = np.zeros((len(xtime),))
     for idx, xt in enumerate(xtime):
-        t = datetime.datetime.strptime(xt.decode(),
-                                       '%Y-%m-%d_%H:%M:%S')
+        t = datetime.datetime.strptime(xt.decode(), '%Y-%m-%d_%H:%M:%S')
         dt[idx] = (t - t0).total_seconds()
     return dt
