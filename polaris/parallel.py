@@ -100,8 +100,11 @@ def set_cores_per_node(config, cores_per_node):
         old_cores_per_node = config.getint('parallel', 'cores_per_node')
         config.set('parallel', 'cores_per_node', f'{cores_per_node}')
         if old_cores_per_node != cores_per_node:
-            warnings.warn(f'Slurm found {cores_per_node} cpus per node but '
-                          f'config from mache was {old_cores_per_node}')
+            warnings.warn(
+                f'Slurm found {cores_per_node} cpus per node but '
+                f'config from mache was {old_cores_per_node}',
+                stacklevel=2
+            )
     elif parallel_system == 'single_node':
         if not config.has_option('parallel', 'cores_per_node'):
             config.set('parallel', 'cores_per_node', f'{cores_per_node}')

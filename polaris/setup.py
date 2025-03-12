@@ -533,10 +533,13 @@ def __get_machine_and_check_params(machine, config_file, tasks, numbers,
 
     if cached is not None:
         if tasks is None:
-            warnings.warn('Ignoring "cached" argument because "tasks" was '
-                          'not provided')
-        elif len(cached) != len(tasks):
-            raise ValueError('A list of cached steps must be provided for '
+            warnings.warn(
+                'Ignoring "cached" argument because "tasks" was '
+                'not provided',
+                stacklevel=2
+            )
+    elif len(cached) != len(tasks):
+        raise ValueError('A list of cached steps must be provided for '
                              'each task in "tasks"')
 
     return machine
