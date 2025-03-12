@@ -10,10 +10,10 @@ from matplotlib.colors import LogNorm
 from polaris.viz.style import use_mplstyle
 
 
-def plot_horiz_field(
+def plot_horiz_field(  # noqa: C901
     ds_mesh,
     field,
-    out_file_name=None,  # noqa: C901
+    out_file_name=None,
     ax=None,
     title=None,
     t_index=None,
