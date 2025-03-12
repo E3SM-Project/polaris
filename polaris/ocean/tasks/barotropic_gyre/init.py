@@ -68,7 +68,8 @@ class Init(Step):
                              f'maximum value is {nu_2_max}')
 
     def run(self):
-        """Create the at rest inital condition for the barotropic gyre testcase
+        """
+        Create the at rest inital condition for the barotropic gyre testcase
         """
         config = self.config
         logger = self.logger

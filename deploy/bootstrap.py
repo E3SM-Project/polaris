@@ -1001,11 +1001,12 @@ def _set_ld_library_path(options, spack_branch_base, spack_env):
     and environment
     """
 
-    commands = \
-        f'source {spack_branch_base}/share/spack/setup-env.sh && ' \
-        f'spack env activate {spack_env} && ' \
-        f'spack config add modules:prefix_inspections:lib:[LD_LIBRARY_PATH] && ' \
-        f'spack config add modules:prefix_inspections:lib64:[LD_LIBRARY_PATH]'  # noqa: E501
+    commands = (
+        f'source {spack_branch_base}/share/spack/setup-env.sh && '
+        f'spack env activate {spack_env} && '
+        f'spack config add modules:prefix_inspections:lib:[LD_LIBRARY_PATH] && '  # noqa: E501
+        f'spack config add modules:prefix_inspections:lib64:[LD_LIBRARY_PATH]'
+    )
     check_call(commands, logger=options['logger'])
 
 
