@@ -147,10 +147,12 @@
 <span class="sd">        The title of the plot</span>
 
 <span class="sd">    vmin : float, optional</span>
-<span class="sd">        The minimum values for the colorbar</span>
+<span class="sd">        The minimum values for the colorbar; if provided, must be positive if</span>
+<span class="sd">        ``cmap_scale == &#39;log&#39;``</span>
 
 <span class="sd">    vmax : float, optional</span>
-<span class="sd">        The maximum values for the colorbar</span>
+<span class="sd">        The maximum values for the colorbar; if provided, must be positive if</span>
+<span class="sd">        ``cmap_scale == &#39;log&#39;``</span>
 
 <span class="sd">    show_patch_edges : boolean, optional</span>
 <span class="sd">        If true, patches will be plotted with visible edges</span>
@@ -271,8 +273,10 @@
 
     <span class="k">if</span> <span class="n">cmap_scale</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
         <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LogNorm</span><span class="p">(</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
+        <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;vmin&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;vmax&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
