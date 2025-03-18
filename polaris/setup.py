@@ -654,10 +654,11 @@ def __get_machine_and_check_params(
                 'Ignoring "cached" argument because "tasks" was not provided',
                 stacklevel=2,
             )
-    elif len(cached) != len(tasks):
-        raise ValueError(
-            'A list of cached steps must be provided for each task in "tasks"'
-        )
+        elif len(cached) != len(tasks):
+            raise ValueError(
+                'A list of cached steps must be provided for each task in'
+                + '"tasks"'
+            )
 
     return machine
 
