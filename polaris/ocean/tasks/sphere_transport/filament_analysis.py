@@ -26,8 +26,17 @@ class FilamentAnalysis(Step):
     case_name : str
         The name of the test case
     """
-    def __init__(self, component, refinement_factors, icosahedral, subdir,
-                 case_name, dependencies, refinement='both'):
+
+    def __init__(
+        self,
+        component,
+        refinement_factors,
+        icosahedral,
+        subdir,
+        case_name,
+        dependencies,
+        refinement='both',
+    ):
         """
         Create the step
 
@@ -52,8 +61,9 @@ class FilamentAnalysis(Step):
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
         """
-        super().__init__(component=component, name='filament_analysis',
-                         subdir=subdir)
+        super().__init__(
+            component=component, name='filament_analysis', subdir=subdir
+        )
         self.refinement_factors = refinement_factors
         self.refinement = refinement
         self.case_name = case_name
@@ -64,13 +74,16 @@ class FilamentAnalysis(Step):
             forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+            )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc')
+                work_dir_target=f'{init.path}/initial_state.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{forward.path}/output.nc')
+                work_dir_target=f'{forward.path}/output.nc',
+            )
         self.add_output_file('filament.png')
 
     def run(self):
@@ -81,7 +94,8 @@ class FilamentAnalysis(Step):
         resolutions = list()
         for refinement_factor in self.refinement_factors:
             resolution = get_resolution_for_task(
-                self.config, refinement_factor, self.refinement)
+                self.config, refinement_factor, self.refinement
+            )
             resolutions.append(resolution)
         config = self.config
         section = config[self.case_name]
@@ -97,21 +111,23 @@ class FilamentAnalysis(Step):
         for i, refinement_factor in enumerate(self.refinement_factors):
             mesh_name = resolution_to_subdir(resolutions[i])
             ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
-            tidx = time_index_from_xtime(ds.xtime.values,
-                                         eval_time * s_per_day)
+            tidx = time_index_from_xtime(
+                ds.xtime.values, eval_time * s_per_day
+            )
             tracer = ds[variable_name]
-            area_cell = ds["areaCell"]
+            area_cell = ds['areaCell']
             for j, tau in enumerate(filament_tau):
                 cells_above_tau = tracer[tidx, :, zidx] >= tau
                 cells_above_tau0 = tracer[0, :, zidx] >= tau
-                if np.sum(cells_above_tau0 * area_cell) == 0.:
+                if np.sum(cells_above_tau0 * area_cell) == 0.0:
                     filament_norm[i, j] = np.nan
                 else:
                     filament_norm[i, j] = np.divide(
                         np.sum(area_cell * cells_above_tau),
-                        np.sum(cells_above_tau0 * area_cell))
+                        np.sum(cells_above_tau0 * area_cell),
+                    )
             plt.plot(filament_tau, filament_norm[i, :], '.-', label=mesh_name)
-        plt.plot([filament_tau[0], filament_tau[-1]], [1., 1.], 'k--')
+        plt.plot([filament_tau[0], filament_tau[-1]], [1.0, 1.0], 'k--')
         ax.set_xlim([filament_tau[0], filament_tau[-1]])
         ax.set_xlabel(r'$\tau$')
         ax.set_ylabel(r'$l_f$')

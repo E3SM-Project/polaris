@@ -1,8 +1,8 @@
-import os
+import os as os
 
-from polaris import Task
-from polaris.seaice.tasks.single_column.forward import Forward
-from polaris.seaice.tasks.single_column.standard_physics.viz import Viz
+from polaris import Task as Task
+from polaris.seaice.tasks.single_column.forward import Forward as Forward
+from polaris.seaice.tasks.single_column.standard_physics.viz import Viz as Viz
 
 
 class StandardPhysics(Task):
@@ -26,10 +26,18 @@ class StandardPhysics(Task):
         step = Forward(component=component, indir=self.subdir)
         step.add_namelist_file(
             package='polaris.seaice.tasks.single_column.standard_physics',
-            namelist='namelist.seaice')
-        variables = ['iceAreaCell', 'iceVolumeCell', 'snowVolumeCell',
-                     'surfaceTemperatureCell', 'shortwaveDown', 'longwaveDown']
-        step.add_output_file(filename='output/output.2000.nc',
-                             validate_vars=variables)
+            namelist='namelist.seaice',
+        )
+        variables = [
+            'iceAreaCell',
+            'iceVolumeCell',
+            'snowVolumeCell',
+            'surfaceTemperatureCell',
+            'shortwaveDown',
+            'longwaveDown',
+        ]
+        step.add_output_file(
+            filename='output/output.2000.nc', validate_vars=variables
+        )
         self.add_step(step)
         self.add_step(Viz(component=component, indir=self.subdir))

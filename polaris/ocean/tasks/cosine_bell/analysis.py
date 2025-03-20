@@ -11,6 +11,7 @@ class Analysis(ConvergenceAnalysis):
     """
     A step for analyzing the output from the cosine bell test case
     """
+
     def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
@@ -29,13 +30,14 @@ class Analysis(ConvergenceAnalysis):
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
-        convergence_vars = [{'name': 'tracer1',
-                             'title': 'tracer1',
-                             'zidx': 0}]
-        super().__init__(component=component, subdir=subdir,
-                         dependencies=dependencies,
-                         convergence_vars=convergence_vars,
-                         refinement=refinement)
+        convergence_vars = [{'name': 'tracer1', 'title': 'tracer1', 'zidx': 0}]
+        super().__init__(
+            component=component,
+            subdir=subdir,
+            dependencies=dependencies,
+            convergence_vars=convergence_vars,
+            refinement=refinement,
+        )
 
     def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
@@ -66,8 +68,10 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name != 'tracer1':
-            print(f'Variable {field_name} not available as an analytic '
-                  'solution for the cosine_bell test case')
+            print(
+                f'Variable {field_name} not available as an analytic '
+                'solution for the cosine_bell test case'
+            )
 
         config = self.config
         lat_center = config.getfloat('cosine_bell', 'lat_center')
@@ -93,16 +97,16 @@ class Analysis(ConvergenceAnalysis):
             lon_new -= 2.0 * np.pi
 
         x_center, y_center, z_center = lon_lat_to_cartesian(
-            lon_new, lat_center, sphere_radius, degrees=False)
+            lon_new, lat_center, sphere_radius, degrees=False
+        )
         x_cells, y_cells, z_cells = lon_lat_to_cartesian(
-            lonCell, latCell, sphere_radius, degrees=False)
+            lonCell, latCell, sphere_radius, degrees=False
+        )
         xyz_center = Vector(x_center, y_center, z_center)
         xyz_cells = Vector(x_cells, y_cells, z_cells)
         ang_dist_from_center = xyz_cells.angular_distance(xyz_center)
         distance_from_center = ang_dist_from_center * sphere_radius
 
         bell_value = cosine_bell(psi0, distance_from_center, radius)
-        tracer1 = np.where(distance_from_center < radius,
-                           bell_value,
-                           0.0)
+        tracer1 = np.where(distance_from_center < radius, bell_value, 0.0)
         return xr.DataArray(data=tracer1, dims=('nCells',))

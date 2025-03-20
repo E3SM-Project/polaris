@@ -9,6 +9,7 @@ class Analysis(ConvergenceAnalysis):
     A step for analysing the output from the manufactured solution
     test case
     """
+
     def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
@@ -30,13 +31,14 @@ class Analysis(ConvergenceAnalysis):
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
-        convergence_vars = [{'name': 'ssh',
-                             'title': 'SSH',
-                             'zidx': None}]
-        super().__init__(component=component, subdir=subdir,
-                         dependencies=dependencies,
-                         convergence_vars=convergence_vars,
-                         refinement=refinement)
+        convergence_vars = [{'name': 'ssh', 'title': 'SSH', 'zidx': None}]
+        super().__init__(
+            component=component,
+            subdir=subdir,
+            dependencies=dependencies,
+            convergence_vars=convergence_vars,
+            refinement=refinement,
+        )
 
     def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """

@@ -26,6 +26,7 @@ class SphericalBaseStep(Step):
     opts : jigsawpy.jigsaw_jig_t
         JIGSAW options for creating the mesh
     """
+
     def __init__(self, component, name, subdir):
         """
         Create a new step
@@ -64,8 +65,11 @@ class SphericalBaseStep(Step):
         """
         section = self.config['spherical_mesh']
         da = xarray.DataArray(
-            cell_width, dims=['lat', 'lon'], coords={'lat': lat, 'lon': lon},
-            name='cellWidth')
+            cell_width,
+            dims=['lat', 'lon'],
+            coords={'lat': lat, 'lon': lon},
+            name='cellWidth',
+        )
         cell_width_filename = section.get('cell_width_filename')
         da.to_netcdf(cell_width_filename)
 
@@ -77,8 +81,11 @@ class SphericalBaseStep(Step):
         Add output files
         """
         config = self.config
-        for option in ['jigsaw_mesh_filename', 'mpas_mesh_filename',
-                       'cell_width_filename']:
+        for option in [
+            'jigsaw_mesh_filename',
+            'mpas_mesh_filename',
+            'cell_width_filename',
+        ]:
             filename = config.get('spherical_mesh', option)
             self.add_output_file(filename=filename)
         self.add_output_file(filename='graph.info')
@@ -96,23 +103,27 @@ class SphericalBaseStep(Step):
         mpas_mesh_filename = section.get('mpas_mesh_filename')
 
         logger.info('Convert triangles from jigsaw format to netcdf')
-        jigsaw_to_netcdf(msh_filename=jigsaw_mesh_filename,
-                         output_name='mesh_triangles.nc', on_sphere=True,
-                         sphere_radius=earth_radius)
+        jigsaw_to_netcdf(
+            msh_filename=jigsaw_mesh_filename,
+            output_name='mesh_triangles.nc',
+            on_sphere=True,
+            sphere_radius=earth_radius,
+        )
 
         logger.info('Convert from triangles to MPAS mesh')
 
-        args = ['MpasMeshConverter.x',
-                'mesh_triangles.nc',
-                mpas_mesh_filename]
+        args = ['MpasMeshConverter.x', 'mesh_triangles.nc', mpas_mesh_filename]
         check_call(args=args, logger=logger)
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
             ds = xarray.open_dataset('cellWidthVsLatLon.nc')
             inject_spherical_meshDensity(
-                ds.cellWidth.values, ds.lon.values, ds.lat.values,
-                mesh_filename=mpas_mesh_filename)
+                ds.cellWidth.values,
+                ds.lon.values,
+                ds.lat.values,
+                mesh_filename=mpas_mesh_filename,
+            )
 
         if section.getboolean('convert_to_vtk'):
             vtk_dir = section.get('vtk_dir')
@@ -121,14 +132,19 @@ class SphericalBaseStep(Step):
             lat_lon = section.getboolean('vtk_lat_lon')
 
             logger.info('Create vtk file for visualization')
-            extract_vtk(ignore_time=True, lonlat=lat_lon,
-                        dimension_list=['maxEdges='],
-                        variable_list=['allOnCells'],
-                        filename_pattern=mpas_mesh_filename,
-                        out_dir=vtk_dir, use_progress_bar=use_progress_bar)
+            extract_vtk(
+                ignore_time=True,
+                lonlat=lat_lon,
+                dimension_list=['maxEdges='],
+                variable_list=['allOnCells'],
+                filename_pattern=mpas_mesh_filename,
+                out_dir=vtk_dir,
+                use_progress_bar=use_progress_bar,
+            )
 
-        make_graph_file(mesh_filename=mpas_mesh_filename,
-                        graph_filename='graph.info')
+        make_graph_file(
+            mesh_filename=mpas_mesh_filename, graph_filename='graph.info'
+        )
 
     def _plot_cell_width(self, cell_width):
         """
@@ -141,15 +157,21 @@ class SphericalBaseStep(Step):
         """
         config = self.config
         cmap = config.get('spherical_mesh', 'cell_width_colormap')
-        image_filename = config.get('spherical_mesh',
-                                    'cell_width_image_filename')
+        image_filename = config.get(
+            'spherical_mesh', 'cell_width_image_filename'
+        )
         register_sci_viz_colormaps()
         fig = plt.figure(figsize=[16.0, 8.0])
         ax = plt.axes(projection=ccrs.PlateCarree())
         ax.set_global()
-        im = ax.imshow(cell_width, origin='lower',
-                       transform=ccrs.PlateCarree(),
-                       extent=[-180, 180, -90, 90], cmap=cmap, zorder=0)
+        im = ax.imshow(
+            cell_width,
+            origin='lower',
+            transform=ccrs.PlateCarree(),
+            extent=[-180, 180, -90, 90],
+            cmap=cmap,
+            zorder=0,
+        )
         ax.add_feature(cartopy.feature.LAND, edgecolor='black', zorder=1)
         gl = ax.gridlines(
             crs=ccrs.PlateCarree(),
@@ -157,14 +179,17 @@ class SphericalBaseStep(Step):
             linewidth=1,
             color='gray',
             alpha=0.5,
-            linestyle='-', zorder=2)
+            linestyle='-',
+            zorder=2,
+        )
         gl.top_labels = False
         gl.right_labels = False
         min_width = np.amin(cell_width)
         max_width = np.amax(cell_width)
         plt.title(
-            f'Grid cell size, km, min: {min_width:.1f} max: {max_width:.1f}')
-        plt.colorbar(im, shrink=.60)
+            f'Grid cell size, km, min: {min_width:.1f} max: {max_width:.1f}'
+        )
+        plt.colorbar(im, shrink=0.60)
         fig.canvas.draw()
         plt.tight_layout()
         plt.savefig(image_filename, bbox_inches='tight')
@@ -184,8 +209,9 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         The approximate cell width in km of the mesh if constant resolution
     """
 
-    def __init__(self, component, name='base_mesh', subdir=None,
-                 cell_width=None):
+    def __init__(
+        self, component, name='base_mesh', subdir=None, cell_width=None
+    ):
         """
         Create a new step
 
@@ -266,12 +292,12 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         logger.info(f'  cell width: {cell_width} km')
 
         # save the constant approximate resolution on a 10 degree grid
-        dlon = 10.
+        dlon = 10.0
         dlat = dlon
-        nlon = int(360. / dlon) + 1
-        nlat = int(180. / dlat) + 1
-        lon = np.linspace(-180., 180., nlon)
-        lat = np.linspace(-90., 90., nlat)
+        nlon = int(360.0 / dlon) + 1
+        nlat = int(180.0 / dlat) + 1
+        lon = np.linspace(-180.0, 180.0, nlon)
+        lat = np.linspace(-90.0, 90.0, nlat)
         cell_width = cell_width * np.ones((nlat, nlon))
         return cell_width, lon, lat
 
@@ -324,8 +350,14 @@ class IcosahedralMeshStep(SphericalBaseStep):
         The number of subdivisions of the icosahedral mesh to perform
     """
 
-    def __init__(self, component, name='base_mesh', subdir=None,
-                 cell_width=None, subdivisions=None):
+    def __init__(
+        self,
+        component,
+        name='base_mesh',
+        subdir=None,
+        cell_width=None,
+        subdivisions=None,
+    ):
         """
         Create a new step
 
@@ -354,7 +386,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         self.cell_width = cell_width
         self.subdivisions = subdivisions
 
-        self.opts.hfun_hmax = 1.
+        self.opts.hfun_hmax = 1.0
         # 2-dim. simplexes
         self.opts.mesh_dims = 2
 
@@ -378,8 +410,9 @@ class IcosahedralMeshStep(SphericalBaseStep):
         logger = self.logger
         logger.info('Generate JIGSAW icosahedral mesh')
 
-        subdivisions, cell_width, lon, lat = \
+        subdivisions, cell_width, lon, lat = (
             self.build_subdivisions_cell_width_lat_lon()
+        )
         self.save_and_plot_cell_width(lon, lat, cell_width)
 
         self.make_jigsaw_mesh(subdivisions)
@@ -440,9 +473,11 @@ class IcosahedralMeshStep(SphericalBaseStep):
                 raise ValueError('The cell width was not set.')
             subdivisions = self.get_subdivisions(cell_width)
         else:
-            raise ValueError(f'"icosahedral_method" must be either '
-                             f'"cell_width" or the "subdivisions".  Got '
-                             f'{icosahedral_method}.')
+            raise ValueError(
+                f'"icosahedral_method" must be either '
+                f'"cell_width" or the "subdivisions".  Got '
+                f'{icosahedral_method}.'
+            )
 
         cell_width = self.get_cell_width(subdivisions)
 
@@ -452,8 +487,8 @@ class IcosahedralMeshStep(SphericalBaseStep):
         # save the constant approximate resolution on a 1 degree grid
         nlon = 361
         nlat = 181
-        lon = np.linspace(-180., 180., nlon)
-        lat = np.linspace(-90., 90., nlat)
+        lon = np.linspace(-180.0, 180.0, nlon)
+        lat = np.linspace(-90.0, 90.0, nlat)
         cell_width = cell_width * np.ones((nlat, nlon))
         return subdivisions, cell_width, lon, lat
 
@@ -474,11 +509,11 @@ class IcosahedralMeshStep(SphericalBaseStep):
             The number of subdivisions of the icosahedron
         """
         earth_radius = constants['SHR_CONST_REARTH']
-        earth_area = 4 * np.pi * earth_radius ** 2
+        earth_area = 4 * np.pi * earth_radius**2
 
         # Using Euclidean, not spherical area, so not accurate for large cell
         # widths
-        triangle_area = np.sqrt(3) / 4. * (cell_width * 1e3)**2
+        triangle_area = np.sqrt(3) / 4.0 * (cell_width * 1e3) ** 2
         triangle_count = earth_area / triangle_area
         subdivisions = 0.5 * np.log2(triangle_count / 20)
         subdivisions = max(0, int(np.round(subdivisions)))
@@ -516,11 +551,11 @@ class IcosahedralMeshStep(SphericalBaseStep):
             The approximate size in km of each cell
         """
         earth_radius = constants['SHR_CONST_REARTH']
-        earth_area = 4 * np.pi * earth_radius ** 2
+        earth_area = 4 * np.pi * earth_radius**2
 
         # compute and save the cell widths for later use in computing mesh
         # density
-        triangle_count = 20 * 2**(2 * subdivisions)
+        triangle_count = 20 * 2 ** (2 * subdivisions)
         triangle_area = earth_area / triangle_count
-        cell_width = 1e-3 * np.sqrt(triangle_area * 4. / np.sqrt(3))
+        cell_width = 1e-3 * np.sqrt(triangle_area * 4.0 / np.sqrt(3))
         return cell_width

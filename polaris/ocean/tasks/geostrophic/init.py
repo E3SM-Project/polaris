@@ -14,6 +14,7 @@ class Init(Step):
     """
     A step for an initial condition for for the geostrophic test case
     """
+
     def __init__(self, component, name, subdir, base_mesh):
         """
         Create the step
@@ -36,17 +37,23 @@ class Init(Step):
 
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+        )
 
         self.add_input_file(
             filename='graph.info',
-            work_dir_target=f'{base_mesh.path}/graph.info')
+            work_dir_target=f'{base_mesh.path}/graph.info',
+        )
 
-        self.add_output_file(filename='initial_state.nc',
-                             validate_vars=['temperature',
-                                            'salinity',
-                                            'layerThickness',
-                                            'normalVelocity'])
+        self.add_output_file(
+            filename='initial_state.nc',
+            validate_vars=[
+                'temperature',
+                'salinity',
+                'layerThickness',
+                'normalVelocity',
+            ],
+        )
 
     def run(self):
         """
@@ -64,7 +71,8 @@ class Init(Step):
         mesh_filename = 'mesh.nc'
 
         h, u_cell, v_cell, normalVelocity = compute_exact_solution(
-            alpha, vel_period, gh_0, mesh_filename)
+            alpha, vel_period, gh_0, mesh_filename
+        )
 
         omega = 2 * np.pi / constants['SHR_CONST_SDAY']
 
@@ -108,6 +116,12 @@ class Init(Step):
 
 
 def _coriolis(lon, lat, alpha, omega):
-    f = 2 * omega * (-np.cos(lon) * np.cos(lat) * np.sin(alpha) +
-                     np.sin(lat) * np.cos(alpha))
+    f = (
+        2
+        * omega
+        * (
+            -np.cos(lon) * np.cos(lat) * np.sin(alpha)
+            + np.sin(lat) * np.cos(alpha)
+        )
+    )
     return f

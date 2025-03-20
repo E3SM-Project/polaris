@@ -17,6 +17,7 @@ class Analysis(Step):
     nus : list
         A list of viscosities
     """
+
     def __init__(self, component, indir, resolution, nus):
         """
         Create the step
@@ -39,20 +40,22 @@ class Analysis(Step):
         self.nus = nus
 
         self.add_input_file(
-            filename='mesh.nc',
-            target='../../init/culled_mesh.nc')
+            filename='mesh.nc', target='../../init/culled_mesh.nc'
+        )
 
         self.add_input_file(
-            filename='init.nc',
-            target='../../init/initial_state.nc')
+            filename='init.nc', target='../../init/initial_state.nc'
+        )
 
         for nu in nus:
             self.add_input_file(
                 filename=f'output_nu_{nu:g}.nc',
-                target=f'../nu_{nu:g}/output.nc')
+                target=f'../nu_{nu:g}/output.nc',
+            )
 
         self.add_output_file(
-            filename=f'sections_baroclinic_channel_{resolution}.png')
+            filename=f'sections_baroclinic_channel_{resolution}.png'
+        )
         self.add_output_file(filename='rpe_t.png')
         self.add_output_file(filename='rpe.csv')
 
@@ -66,9 +69,11 @@ class Analysis(Step):
         nus = self.nus
         section = self.config['baroclinic_channel_rpe']
 
-        rpe = compute_rpe(mesh_filename=mesh_filename,
-                          initial_state_filename=init_filename,
-                          output_filenames=self.inputs[2:])
+        rpe = compute_rpe(
+            mesh_filename=mesh_filename,
+            initial_state_filename=init_filename,
+            output_filenames=self.inputs[2:],
+        )
 
         plt.switch_backend('Agg')
         sim_count = len(nus)
@@ -93,8 +98,9 @@ class Analysis(Step):
         ds_mesh = xr.open_dataset(mesh_filename)
         ds_init = xr.open_dataset(init_filename)
 
-        fig, axes = plt.subplots(1, sim_count, figsize=(
-            3 * sim_count, 5.0), constrained_layout=True)
+        fig, axes = plt.subplots(
+            1, sim_count, figsize=(3 * sim_count, 5.0), constrained_layout=True
+        )
 
         for row_index, nu in enumerate(nus):
             ax = axes[row_index]
@@ -104,10 +110,17 @@ class Analysis(Step):
             time_index = np.argmin(np.abs(times - time))
 
             cell_mask = ds_init.maxLevelCell >= 1
-            plot_horiz_field(ds_mesh, ds['temperature'], ax=ax,
-                             cmap='cmo.thermal', t_index=time_index,
-                             vmin=min_temp, vmax=max_temp,
-                             cmap_title='SST (C)', field_mask=cell_mask)
+            plot_horiz_field(
+                ds_mesh,
+                ds['temperature'],
+                ax=ax,
+                cmap='cmo.thermal',
+                t_index=time_index,
+                vmin=min_temp,
+                vmax=max_temp,
+                cmap_title='SST (C)',
+                field_mask=cell_mask,
+            )
             ax.set_title(f'day {times[time_index]:g}, $\\nu_h=${nu:g}')
 
         plt.savefig(output_filename)

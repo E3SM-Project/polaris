@@ -1,8 +1,10 @@
-from polaris import Task
+from polaris import Task as Task
 from polaris.ocean.tasks.baroclinic_channel.restart.restart_step import (
-    RestartStep,
+    RestartStep as RestartStep,
 )
-from polaris.ocean.tasks.baroclinic_channel.validate import Validate
+from polaris.ocean.tasks.baroclinic_channel.validate import (
+    Validate as Validate,
+)
 
 
 class Restart(Task):
@@ -34,16 +36,29 @@ class Restart(Task):
 
         self.add_step(init, symlink='init')
 
-        full = RestartStep(component=component, resolution=resolution,
-                           name='full_run', indir=self.subdir, init=init)
+        full = RestartStep(
+            component=component,
+            resolution=resolution,
+            name='full_run',
+            indir=self.subdir,
+            init=init,
+        )
         self.add_step(full)
 
-        restart = RestartStep(component=component, resolution=resolution,
-                              name='restart_run', indir=self.subdir,
-                              init=init)
+        restart = RestartStep(
+            component=component,
+            resolution=resolution,
+            name='restart_run',
+            indir=self.subdir,
+            init=init,
+        )
         restart.add_dependency(full, full.name)
         self.add_step(restart)
 
-        self.add_step(Validate(component=component,
-                               step_subdirs=['full_run', 'restart_run'],
-                               indir=self.subdir))
+        self.add_step(
+            Validate(
+                component=component,
+                step_subdirs=['full_run', 'restart_run'],
+                indir=self.subdir,
+            )
+        )

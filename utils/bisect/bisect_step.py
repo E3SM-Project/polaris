@@ -6,8 +6,16 @@ import os
 import subprocess
 
 
-def run(launch_path, e3sm_path, mpas_path, work_base, load_script,
-        make_command, setup_command, run_command):
+def run(
+    launch_path,
+    e3sm_path,
+    mpas_path,
+    work_base,
+    load_script,
+    make_command,
+    setup_command,
+    run_command,
+):
     """
     This function runs a single step in the bisection process.  It is typically
     called through ``git bisect run`` within the ``utils/bisect/bisect.py`` but
@@ -45,10 +53,12 @@ def run(launch_path, e3sm_path, mpas_path, work_base, load_script,
     work_base = to_abs(work_base, launch_path)
     load_script = to_abs(load_script, launch_path)
 
-    commands = f'cd {mpas_path} && ' \
-               f'git rev-parse --short HEAD'
-    git_hash = subprocess.check_output(
-        commands, shell=True).decode('utf-8').strip('\n')
+    commands = f'cd {mpas_path} && git rev-parse --short HEAD'
+    git_hash = (
+        subprocess.check_output(commands, shell=True)
+        .decode('utf-8')
+        .strip('\n')
+    )
     git_hash = git_hash.split('\n')[-1]
 
     work_path = os.path.join(work_base, f'e3sm_hash_{git_hash}')
@@ -58,16 +68,18 @@ def run(launch_path, e3sm_path, mpas_path, work_base, load_script,
     except FileExistsError:
         pass
 
-    commands = f'source {load_script} && ' \
-               f'cd {e3sm_path} && ' \
-               f'rm -rf * && ' \
-               f'git reset --hard HEAD && ' \
-               f'git submodule update --init --recursive && ' \
-               f'cd {mpas_path} && ' \
-               f'{make_command} >& {work_path}/make.log && ' \
-               f'{setup_command} -p {mpas_path} -w {work_path} && ' \
-               f'cd {work_path} && ' \
-               f'{run_command}'
+    commands = (
+        f'source {load_script} && '
+        f'cd {e3sm_path} && '
+        f'rm -rf * && '
+        f'git reset --hard HEAD && '
+        f'git submodule update --init --recursive && '
+        f'cd {mpas_path} && '
+        f'{make_command} >& {work_path}/make.log && '
+        f'{setup_command} -p {mpas_path} -w {work_path} && '
+        f'cd {work_path} && '
+        f'{run_command}'
+    )
     print('\n')
     print(72 * '-')
     print('Bisect Step')
@@ -102,27 +114,37 @@ def to_abs(path, launch_path):
 def main():
     parser = argparse.ArgumentParser(
         description='Used internally by "git bisect run" to find the first '
-                    'E3SM commit for which a given test fails')
-    parser.add_argument("-f", "--config_file", dest="config_file",
-                        required=True,
-                        help="Configuration file with bisect options.",
-                        metavar="FILE")
+        'E3SM commit for which a given test fails'
+    )
+    parser.add_argument(
+        '-f',
+        '--config_file',
+        dest='config_file',
+        required=True,
+        help='Configuration file with bisect options.',
+        metavar='FILE',
+    )
 
     args = parser.parse_args()
 
     config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation())
+        interpolation=configparser.ExtendedInterpolation()
+    )
     config.read(args.config_file)
 
     launch_path = os.path.dirname(args.config_file)
 
     section = config['bisect']
-    run(launch_path=launch_path, e3sm_path=section['e3sm_path'],
+    run(
+        launch_path=launch_path,
+        e3sm_path=section['e3sm_path'],
         mpas_path=section['mpas_path'],
-        work_base=section['work_base'], load_script=section['load_script'],
+        work_base=section['work_base'],
+        load_script=section['load_script'],
         make_command=section['make_command'],
         setup_command=section['setup_command'],
-        run_command=section['run_command'])
+        run_command=section['run_command'],
+    )
     print('\n')
 
 

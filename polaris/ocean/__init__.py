@@ -5,12 +5,12 @@ from polaris.ocean.tasks.cosine_bell import add_cosine_bell_tasks
 from polaris.ocean.tasks.geostrophic import add_geostrophic_tasks
 from polaris.ocean.tasks.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.ocean.tasks.inertial_gravity_wave import (
-    add_inertial_gravity_wave_tasks,
+    add_inertial_gravity_wave_tasks as add_inertial_gravity_wave_tasks,
 )
 from polaris.ocean.tasks.internal_wave import add_internal_wave_tasks
 from polaris.ocean.tasks.isomip_plus import add_isomip_plus_tasks
 from polaris.ocean.tasks.manufactured_solution import (
-    add_manufactured_solution_tasks,
+    add_manufactured_solution_tasks as add_manufactured_solution_tasks,
 )
 from polaris.ocean.tasks.single_column import add_single_column_tasks
 from polaris.ocean.tasks.sphere_transport import add_sphere_transport_tasks
@@ -56,8 +56,7 @@ class Ocean(Component):
         """
         section = config['ocean']
         model = section.get('model')
-        configs = {'mpas-ocean': 'mpas_ocean.cfg',
-                   'omega': 'omega.cfg'}
+        configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
         if model not in configs:
             raise ValueError(f'Unknown ocean model {model} in config options')
 

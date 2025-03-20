@@ -10,6 +10,7 @@ class Viz(Step):
     """
     A step for visualizing a cross-section through the internal wave
     """
+
     def __init__(self, component, indir):
         """
         Create the step
@@ -21,14 +22,14 @@ class Viz(Step):
         """
         super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(
-            filename='mesh.nc',
-            target='../../../init/culled_mesh.nc')
+            filename='mesh.nc', target='../../../init/culled_mesh.nc'
+        )
         self.add_input_file(
-            filename='init.nc',
-            target='../../../init/initial_state.nc')
+            filename='init.nc', target='../../../init/initial_state.nc'
+        )
         self.add_input_file(
-            filename='output.nc',
-            target='../forward/output.nc')
+            filename='output.nc', target='../forward/output.nc'
+        )
 
     def run(self):
         """
@@ -50,37 +51,51 @@ class Viz(Step):
 
         tidx = 0  # Plot the initial time
         ds_transect = compute_transect(
-            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            x=x,
+            y=y,
+            ds_horiz_mesh=ds_mesh,
             layer_thickness=ds_init.layerThickness.isel(Time=tidx),
             bottom_depth=ds_mesh.bottomDepth,
             min_level_cell=ds_mesh.minLevelCell - 1,
             max_level_cell=ds_mesh.maxLevelCell - 1,
-            spherical=False)
+            spherical=False,
+        )
 
-        plot_transect(ds_transect,
-                      mpas_field=ds_init.temperature.isel(Time=tidx),
-                      out_filename='temperature_section_init.png',
-                      title='temperature',
-                      interface_color='grey',
-                      vmin=vmin_temp, vmax=vmax_temp,
-                      colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+        plot_transect(
+            ds_transect,
+            mpas_field=ds_init.temperature.isel(Time=tidx),
+            out_filename='temperature_section_init.png',
+            title='temperature',
+            interface_color='grey',
+            vmin=vmin_temp,
+            vmax=vmax_temp,
+            colorbar_label=r'$^{\circ}$C',
+            cmap='cmo.thermal',
+        )
 
         tidx = -1  # Plot the final time
         ds_transect = compute_transect(
-            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            x=x,
+            y=y,
+            ds_horiz_mesh=ds_mesh,
             layer_thickness=ds.layerThickness.isel(Time=tidx),
             bottom_depth=ds_mesh.bottomDepth,
             min_level_cell=ds_mesh.minLevelCell - 1,
             max_level_cell=ds_mesh.maxLevelCell - 1,
-            spherical=False)
+            spherical=False,
+        )
 
-        plot_transect(ds_transect,
-                      mpas_field=ds.temperature.isel(Time=tidx),
-                      out_filename='temperature_section_final.png',
-                      title='temperature',
-                      interface_color='grey',
-                      vmin=vmin_temp, vmax=vmax_temp,
-                      colorbar_label=r'$^{\circ}$C', cmap='cmo.thermal')
+        plot_transect(
+            ds_transect,
+            mpas_field=ds.temperature.isel(Time=tidx),
+            out_filename='temperature_section_final.png',
+            title='temperature',
+            interface_color='grey',
+            vmin=vmin_temp,
+            vmax=vmax_temp,
+            colorbar_label=r'$^{\circ}$C',
+            cmap='cmo.thermal',
+        )
 
         w_values = ds.vertVelocityTop.isel(Time=tidx).values[:, :-1]
         w = w_values * xr.ones_like(ds.temperature.isel(Time=tidx))
@@ -89,5 +104,8 @@ class Viz(Step):
             mpas_field=w,
             out_filename='vertical_velocity_section_final.png',
             title='vertical velocity',
-            vmin=-vmax_v, vmax=vmax_v,
-            colorbar_label='m/s', cmap='cmo.balance')
+            vmin=-vmax_v,
+            vmax=vmax_v,
+            colorbar_label='m/s',
+            cmap='cmo.balance',
+        )

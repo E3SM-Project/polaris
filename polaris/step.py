@@ -148,10 +148,21 @@ class Step:
         same parallel resources.
     """
 
-    def __init__(self, component, name, subdir=None, indir=None,
-                 cpus_per_task=1, min_cpus_per_task=1, ntasks=1, min_tasks=1,
-                 openmp_threads=1, max_memory=None, cached=False,
-                 run_as_subprocess=False):
+    def __init__(
+        self,
+        component,
+        name,
+        subdir=None,
+        indir=None,
+        cpus_per_task=1,
+        min_cpus_per_task=1,
+        ntasks=1,
+        min_tasks=1,
+        openmp_threads=1,
+        max_memory=None,
+        cached=False,
+        run_as_subprocess=False,
+    ):
         """
         Create a new task
 
@@ -233,7 +244,7 @@ class Step:
         self.has_shared_config = False
 
         self.config = PolarisConfigParser()
-        self.config_filename = ""
+        self.config_filename = ''
 
         # child steps (or tasks) will add to these
         self.input_data = list()
@@ -246,8 +257,8 @@ class Step:
 
         # these will be set later during setup, dummy placeholders for now
         self.machine_info = MachineInfo(machine='default')
-        self.work_dir = ""
-        self.base_work_dir = ""
+        self.work_dir = ''
+        self.base_work_dir = ''
         # may be set during setup if there is a baseline for comparison
         self.baseline_dir = None
         self.validate_vars = dict()
@@ -260,9 +271,15 @@ class Step:
         # output caching
         self.cached = cached
 
-    def set_resources(self, cpus_per_task=None, min_cpus_per_task=None,
-                      ntasks=None, min_tasks=None, openmp_threads=None,
-                      max_memory=None):
+    def set_resources(
+        self,
+        cpus_per_task=None,
+        min_cpus_per_task=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=None,
+        max_memory=None,
+    ):
         """
         Update the resources for the subtask.  This can be done within init,
         ``setup()`` or ``runtime_setup()`` of this step, or init,
@@ -328,16 +345,19 @@ class Step:
         if not mpi_allowed and self.ntasks > 1:
             raise ValueError(
                 'You are trying to run an MPI job on a login node.\n'
-                'Please switch to a compute node.')
+                'Please switch to a compute node.'
+            )
 
         available_cores = available_resources['cores']
         cores_per_node = available_resources['cores_per_node']
-        self.cpus_per_task = min(self.cpus_per_task,
-                                 min(available_cores, cores_per_node))
+        self.cpus_per_task = min(
+            self.cpus_per_task, min(available_cores, cores_per_node)
+        )
         if self.cpus_per_task < self.min_cpus_per_task:
             raise ValueError(
                 f'Available cpus_per_task ({self.cpus_per_task}) is below the '
-                f'minimum of {self.min_cpus_per_task} for step {self.name}')
+                f'minimum of {self.min_cpus_per_task} for step {self.name}'
+            )
 
         available_tasks = available_cores // self.cpus_per_task
         self.ntasks = min(self.ntasks, available_tasks)
@@ -345,7 +365,8 @@ class Step:
         if self.ntasks < self.min_tasks:
             raise ValueError(
                 f'Available number of MPI tasks ({self.ntasks}) is below the '
-                f'minimum of {self.min_tasks} for step {self.name}')
+                f'minimum of {self.min_tasks} for step {self.name}'
+            )
 
     def setup(self):
         """
@@ -375,9 +396,17 @@ class Step:
         """
         pass
 
-    def add_input_file(self, filename=None, target=None, database=None,
-                       database_component=None, url=None, work_dir_target=None,
-                       package=None, copy=False):
+    def add_input_file(
+        self,
+        filename=None,
+        target=None,
+        database=None,
+        database_component=None,
+        url=None,
+        work_dir_target=None,
+        package=None,
+        copy=False,
+    ):
         """
         Add an input file to the step (but not necessarily to the MPAS model).
         The file can be local, a symlink to a file that will be created in
@@ -430,15 +459,23 @@ class Step:
         """
         if filename is None:
             if target is None:
-                raise ValueError('At least one of local_name and target are '
-                                 'required.')
+                raise ValueError(
+                    'At least one of local_name and target are required.'
+                )
             filename = os.path.basename(target)
 
-        self.input_data.append(dict(filename=filename, target=target,
-                                    database=database,
-                                    database_component=database_component,
-                                    url=url, work_dir_target=work_dir_target,
-                                    package=package, copy=copy))
+        self.input_data.append(
+            dict(
+                filename=filename,
+                target=target,
+                database=database,
+                database_component=database_component,
+                url=url,
+                work_dir_target=work_dir_target,
+                package=package,
+                copy=copy,
+            )
+        )
 
     def add_output_file(self, filename, validate_vars=None):
         """
@@ -487,8 +524,9 @@ class Step:
         if name is None:
             name = step.name
         if name in self.dependencies:
-            raise ValueError('Adding a dependency that is already in '
-                             'dependencies.')
+            raise ValueError(
+                'Adding a dependency that is already in dependencies.'
+            )
         self.dependencies[name] = step
         step.is_dependency = True
         step.add_output_file('step_after_run.pickle')
@@ -510,8 +548,10 @@ class Step:
             Whether the outputs were successfully validated against a baseline
         """
         if self.work_dir is None:
-            raise ValueError('The work directory must be set before the step '
-                             'outputs can be validated against baselines.')
+            raise ValueError(
+                'The work directory must be set before the step '
+                'outputs can be validated against baselines.'
+            )
         compared = False
         success = True
         if self.baseline_dir is not None:
@@ -522,7 +562,8 @@ class Step:
                 this_filename = os.path.join(self.work_dir, filename)
                 baseline_filename = os.path.join(self.baseline_dir, filename)
                 result = compare_variables(
-                    variables, this_filename, baseline_filename, logger=logger)
+                    variables, this_filename, baseline_filename, logger=logger
+                )
                 success = success and result
                 compared = True
         return compared, success
@@ -552,7 +593,7 @@ class Step:
         :py:meth:`polaris.Step.add_output_file`.  This includes downloading
         files, making symlinks, and converting relative paths to absolute
         paths.
-       """
+        """
         component = self.component.name
         step_dir = self.work_dir
         config = self.config
@@ -566,32 +607,37 @@ class Step:
             for output in self.outputs:
                 filename = os.path.join(self.path, output)
                 if filename not in self.component.cached_files:
-                    raise ValueError(f'The file {filename} has not been added '
-                                     f'to the cache database')
+                    raise ValueError(
+                        f'The file {filename} has not been added '
+                        f'to the cache database'
+                    )
                 target = self.component.cached_files[filename]
                 self.add_input_file(
-                    filename=output,
-                    target=target,
-                    database='polaris_cache')
+                    filename=output, target=target, database='polaris_cache'
+                )
 
         inputs = []
         databases_with_downloads = set()
         for entry in self.input_data:
             input_file, database_subdirs = Step._process_input(
-                entry, config, base_work_dir, component, step_dir)
+                entry, config, base_work_dir, component, step_dir
+            )
             if database_subdirs is not None:
                 databases_with_downloads.update(database_subdirs)
             inputs.append(input_file)
         self.inputs = inputs
 
-        if len(databases_with_downloads) > 0 and \
-                config.has_option('e3sm_unified', 'group'):
+        if len(databases_with_downloads) > 0 and config.has_option(
+            'e3sm_unified', 'group'
+        ):
             group = config.get('e3sm_unified', 'group')
             update_permissions(databases_with_downloads, group)
 
         # inputs are already absolute paths, convert outputs to absolute paths
-        self.outputs = [os.path.abspath(os.path.join(step_dir, filename)) for
-                        filename in self.outputs]
+        self.outputs = [
+            os.path.abspath(os.path.join(step_dir, filename))
+            for filename in self.outputs
+        ]
 
     def _set_config(self, config, link=None):
         """
@@ -614,9 +660,11 @@ class Step:
         if link is None:
             directory, basename = os.path.split(config.filepath)
             if directory != self.subdir:
-                raise ValueError('No link parameter was provided but the '
-                                 'config file is not in this step\'s work '
-                                 'directory.')
+                raise ValueError(
+                    'No link parameter was provided but the '
+                    "config file is not in this step's work "
+                    'directory.'
+                )
             self.config_filename = basename
         else:
             self.config_filename = link
@@ -636,8 +684,9 @@ class Step:
         if package is not None:
             if target is None:
                 target = filename
-            target = str(imp_res.as_file(
-                imp_res.files(package).joinpath(target)))
+            target = str(
+                imp_res.as_file(imp_res.files(package).joinpath(target))
+            )
 
         if work_dir_target is not None:
             target = os.path.join(base_work_dir, work_dir_target)
@@ -660,13 +709,14 @@ class Step:
                 url = f'{base_url}/{database_component}/{database}/{target}'
 
             database_root = config.get('paths', 'database_root')
-            download_path = os.path.join(database_root, database_component,
-                                         database, download_target)
+            download_path = os.path.join(
+                database_root, database_component, database, download_target
+            )
             if not os.path.exists(download_path):
                 database_subdirs = {
                     database_root,
                     os.path.join(database_root, database_component),
-                    os.path.join(database_root, database_component, database)
+                    os.path.join(database_root, database_component, database),
                 }
         elif url is not None:
             download_path = download_target

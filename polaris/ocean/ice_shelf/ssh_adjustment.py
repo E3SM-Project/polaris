@@ -12,8 +12,10 @@ class SshAdjustment(Step):
     A step for iteratively adjusting the pressure from the weight of the ice
     shelf to match the sea-surface height as part of ice-shelf 2D test cases
     """
-    def __init__(self, component, mesh_filename, forward, indir=None,
-                 name='ssh_adjust'):
+
+    def __init__(
+        self, component, mesh_filename, forward, indir=None, name='ssh_adjust'
+    ):
         """
         Create the step
 
@@ -34,15 +36,17 @@ class SshAdjustment(Step):
         name : str, optional
             the name of this step
         """
-        super().__init__(component=component, name=name,
-                         indir=f'{indir}/ssh_adjustment')
+        super().__init__(
+            component=component, name=name, indir=f'{indir}/ssh_adjustment'
+        )
 
-        self.add_input_file(filename='final.nc',
-                            work_dir_target=f'{forward.path}/output.nc')
-        self.add_input_file(filename='init.nc',
-                            work_dir_target=f'{forward.path}/init.nc')
-        self.add_input_file(filename='mesh.nc',
-                            work_dir_target=mesh_filename)
+        self.add_input_file(
+            filename='final.nc', work_dir_target=f'{forward.path}/output.nc'
+        )
+        self.add_input_file(
+            filename='init.nc', work_dir_target=f'{forward.path}/init.nc'
+        )
+        self.add_input_file(filename='mesh.nc', work_dir_target=mesh_filename)
         self.add_output_file(filename='output.nc')
 
     # no setup() is needed
@@ -66,12 +70,14 @@ class SshAdjustment(Step):
         ds_out = ds_init.copy()
 
         if adjust_variable not in ['ssh', 'landIcePressure']:
-            raise ValueError(f"Unknown variable to modify: {adjust_variable}")
+            raise ValueError(f'Unknown variable to modify: {adjust_variable}')
         if mask_variable not in ds_init.keys():
-            raise ValueError(f"Mask variable {mask_variable} is not contained "
-                             f"in {init_filename}")
+            raise ValueError(
+                f'Mask variable {mask_variable} is not contained '
+                f'in {init_filename}'
+            )
 
-        logger.info("   * Updating SSH or land-ice pressure")
+        logger.info('   * Updating SSH or land-ice pressure')
 
         # keep the data set with Time for output
         # and generate these time slices
@@ -115,10 +121,12 @@ class SshAdjustment(Step):
             delta_land_ice_pressure = top_density * gravity * delta_ssh
 
             land_ice_pressure = np.maximum(
-                0.0, ds_final.landIcePressure + delta_land_ice_pressure)
+                0.0, ds_final.landIcePressure + delta_land_ice_pressure
+            )
 
-            ds_out['landIcePressure'] = \
-                land_ice_pressure.expand_dims(dim='Time', axis=0)
+            ds_out['landIcePressure'] = land_ice_pressure.expand_dims(
+                dim='Time', axis=0
+            )
 
             final_ssh = init_ssh
 
@@ -126,8 +134,7 @@ class SshAdjustment(Step):
 
         # Write the largest change in SSH and its lon/lat to a file
         with open('maxDeltaSSH.log', 'w') as log_file:
-
-            mask = land_ice_pressure > 0.
+            mask = land_ice_pressure > 0.0
             i_cell = np.abs(delta_ssh.where(mask)).argmax().values
 
             ds_cell = ds_final.isel(nCells=i_cell)
@@ -135,20 +142,25 @@ class SshAdjustment(Step):
             delta_ssh_max = delta_ssh.isel(nCells=i_cell).values
 
             if on_a_sphere:
-                coords = (f'lon/lat: '
-                          f'{np.rad2deg(ds_cell.lonCell.values):f} '
-                          f'{np.rad2deg(ds_cell.latCell.values):f}')
+                coords = (
+                    f'lon/lat: '
+                    f'{np.rad2deg(ds_cell.lonCell.values):f} '
+                    f'{np.rad2deg(ds_cell.latCell.values):f}'
+                )
             else:
-                coords = (f'x/y: {1e-3 * ds_mesh.xCell.values:f} '
-                          f'{1e-3 * ds_mesh.yCell.values:f}')
-            string = (f'deltaSSHMax: '
-                      f'{delta_ssh_max:g}, {coords}')
+                coords = (
+                    f'x/y: {1e-3 * ds_mesh.xCell.values:f} '
+                    f'{1e-3 * ds_mesh.yCell.values:f}'
+                )
+            string = f'deltaSSHMax: {delta_ssh_max:g}, {coords}'
             logger.info(f'     {string}')
             log_file.write(f'{string}\n')
-            string = (f'ssh: {final_ssh.isel(nCells=i_cell).values:g}, '
-                      f'land_ice_pressure: '
-                      f'{land_ice_pressure.isel(nCells=i_cell).values:g}')
+            string = (
+                f'ssh: {final_ssh.isel(nCells=i_cell).values:g}, '
+                f'land_ice_pressure: '
+                f'{land_ice_pressure.isel(nCells=i_cell).values:g}'
+            )
             logger.info(f'     {string}')
             log_file.write(f'{string}\n')
 
-        logger.info("   - Complete\n")
+        logger.info('   - Complete\n')

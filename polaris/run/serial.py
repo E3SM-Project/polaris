@@ -34,8 +34,13 @@ fail_str = f'{start_fail}FAIL{end_color}'
 error_str = f'{start_fail}ERROR{end_color}'
 
 
-def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
-              steps_to_skip=None):
+def run_tasks(
+    suite_name,
+    quiet=False,
+    is_task=False,
+    steps_to_run=None,
+    steps_to_skip=None,
+):
     """
     Run the given suite or task
 
@@ -66,14 +71,13 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
     # get the config file for the first task in the suite
     task = next(iter(suite['tasks'].values()))
     component = task.component
-    common_config = setup_config(task.base_work_dir,
-                                 component.name,
-                                 f'{component.name}.cfg')
+    common_config = setup_config(
+        task.base_work_dir, component.name, f'{component.name}.cfg'
+    )
     available_resources = get_available_parallel_resources(common_config)
 
     # start logging to stdout/stderr
     with LoggingContext(suite_name) as stdout_logger:
-
         os.environ['PYTHONUNBUFFERED'] = '1'
 
         if not is_task:
@@ -101,9 +105,16 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
                 task_logger = None
 
             result_str, success, task_time = _log_and_run_task(
-                task, stdout_logger, task_logger, quiet, log_filename,
-                is_task, steps_to_run, steps_to_skip,
-                available_resources)
+                task,
+                stdout_logger,
+                task_logger,
+                quiet,
+                log_filename,
+                is_task,
+                steps_to_run,
+                steps_to_skip,
+                available_resources,
+            )
             result_strs[task_name] = result_str
             if not success:
                 failures += 1
@@ -112,8 +123,9 @@ def run_tasks(suite_name, quiet=False, is_task=False, steps_to_run=None,
         suite_time = time.time() - suite_start
 
         os.chdir(cwd)
-        _log_task_runtimes(stdout_logger, task_times, result_strs, suite_time,
-                           failures)
+        _log_task_runtimes(
+            stdout_logger, task_times, result_strs, suite_time, failures
+        )
 
 
 def run_single_step(step_is_subprocess=False, quiet=False):
@@ -140,9 +152,9 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     if step_is_subprocess:
         step.run_as_subprocess = False
 
-    config = setup_config(step.base_work_dir,
-                          step.component.name,
-                          step.config.filepath)
+    config = setup_config(
+        step.base_work_dir, step.component.name, step.config.filepath
+    )
     task.config = config
     available_resources = get_available_parallel_resources(config)
     set_cores_per_node(task.config, available_resources['cores_per_node'])
@@ -166,25 +178,41 @@ def run_single_step(step_is_subprocess=False, quiet=False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Run a suite, task or step',
-        prog='polaris serial')
-    parser.add_argument("suite", nargs='?',
-                        help="The name of a suite to run. Can exclude "
-                        "or include the .pickle filename suffix.")
-    parser.add_argument("--steps", dest="steps", nargs='+',
-                        help="The steps of a task to run.")
-    parser.add_argument("--skip_steps", dest="skip_steps", nargs='+',
-                        help="The steps of a task not to run, see "
-                             "steps_to_run in the config file for defaults.")
-    parser.add_argument("-q", "--quiet", dest="quiet", action="store_true",
-                        help="If set, step names are not included in the "
-                             "output as the suite progresses.  Has no "
-                             "effect when running tasks or steps on "
-                             "their own.")
-    parser.add_argument("--step_is_subprocess", dest="step_is_subprocess",
-                        action="store_true",
-                        help="Used internally by polaris to indicate that "
-                             "a step is being run as a subprocess.")
+        description='Run a suite, task or step', prog='polaris serial'
+    )
+    parser.add_argument(
+        'suite',
+        nargs='?',
+        help='The name of a suite to run. Can exclude '
+        'or include the .pickle filename suffix.',
+    )
+    parser.add_argument(
+        '--steps', dest='steps', nargs='+', help='The steps of a task to run.'
+    )
+    parser.add_argument(
+        '--skip_steps',
+        dest='skip_steps',
+        nargs='+',
+        help='The steps of a task not to run, see '
+        'steps_to_run in the config file for defaults.',
+    )
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        dest='quiet',
+        action='store_true',
+        help='If set, step names are not included in the '
+        'output as the suite progresses.  Has no '
+        'effect when running tasks or steps on '
+        'their own.',
+    )
+    parser.add_argument(
+        '--step_is_subprocess',
+        dest='step_is_subprocess',
+        action='store_true',
+        help='Used internally by polaris to indicate that '
+        'a step is being run as a subprocess.',
+    )
     args = parser.parse_args(sys.argv[2:])
 
     if args.suite is not None:
@@ -192,12 +220,18 @@ def main():
         run_tasks(args.suite, quiet=args.quiet)
     elif os.path.exists('task.pickle'):
         # Running a task inside of its work directory
-        run_tasks(suite_name='task', quiet=args.quiet, is_task=True,
-                  steps_to_run=args.steps, steps_to_skip=args.skip_steps)
+        run_tasks(
+            suite_name='task',
+            quiet=args.quiet,
+            is_task=True,
+            steps_to_run=args.steps,
+            steps_to_skip=args.skip_steps,
+        )
     elif os.path.exists('step.pickle'):
         # Running a step inside of its work directory
-        run_single_step(step_is_subprocess=args.step_is_subprocess,
-                        quiet=args.quiet)
+        run_single_step(
+            step_is_subprocess=args.step_is_subprocess, quiet=args.quiet
+        )
     else:
         pickles = glob.glob('*.pickle')
         if len(pickles) == 1:
@@ -205,15 +239,20 @@ def main():
             suite = os.path.splitext(os.path.basename(pickles[0]))[0]
             run_tasks(suite, quiet=args.quiet)
         elif len(pickles) == 0:
-            raise OSError('No pickle files were found. Are you sure this is '
-                          'a polaris suite, task or step work directory?')
+            raise OSError(
+                'No pickle files were found. Are you sure this is '
+                'a polaris suite, task or step work directory?'
+            )
         else:
-            raise ValueError('More than one suite was found. Please specify '
-                             'which to run: polaris serial <suite>')
+            raise ValueError(
+                'More than one suite was found. Please specify '
+                'which to run: polaris serial <suite>'
+            )
 
 
-def _update_steps_to_run(task_name, steps_to_run, steps_to_skip, config,
-                         steps):
+def _update_steps_to_run(
+    task_name, steps_to_run, steps_to_skip, config, steps
+):
     """
     Update the steps to run
     """
@@ -226,7 +265,8 @@ def _update_steps_to_run(task_name, steps_to_run, steps_to_skip, config,
             raise ValueError(
                 f'A step "{step}" was requested but is not one of the steps '
                 f'in this task:'
-                f'\n{list(steps)}')
+                f'\n{list(steps)}'
+            )
 
     if steps_to_skip is not None:
         for step in steps_to_skip:
@@ -234,24 +274,28 @@ def _update_steps_to_run(task_name, steps_to_run, steps_to_skip, config,
                 raise ValueError(
                     f'A step "{step}" was flagged not to run but is not one '
                     f'of the steps in this task:'
-                    f'\n{list(steps)}')
+                    f'\n{list(steps)}'
+                )
 
-        steps_to_run = [step for step in steps_to_run if step not in
-                        steps_to_skip]
+        steps_to_run = [
+            step for step in steps_to_run if step not in steps_to_skip
+        ]
 
     return steps_to_run
 
 
-def _log_task_runtimes(stdout_logger, task_times, result_strs, suite_time,
-                       failures):
+def _log_task_runtimes(
+    stdout_logger, task_times, result_strs, suite_time, failures
+):
     """
     Log the runtimes for the task(s)
     """
     stdout_logger.info('Task Runtimes:')
     for task_name, task_time in task_times.items():
         task_time_str = str(timedelta(seconds=round(task_time)))
-        stdout_logger.info(f'{task_time_str} '
-                           f'{result_strs[task_name]} {task_name}')
+        stdout_logger.info(
+            f'{task_time_str} {result_strs[task_name]} {task_name}'
+        )
     suite_time_str = str(timedelta(seconds=round(suite_time)))
     stdout_logger.info(f'Total runtime: {suite_time_str}')
 
@@ -277,13 +321,21 @@ def _print_to_stdout(task, message):
             task.logger.info(message)
 
 
-def _log_and_run_task(task, stdout_logger, task_logger, quiet,
-                      log_filename, is_task, steps_to_run,
-                      steps_to_skip, available_resources):
-
+def _log_and_run_task(
+    task,
+    stdout_logger,
+    task_logger,
+    quiet,
+    log_filename,
+    is_task,
+    steps_to_run,
+    steps_to_skip,
+    available_resources,
+):
     task_name = task.path.replace('/', '_')
-    with LoggingContext(task_name, logger=task_logger,
-                        log_filename=log_filename) as task_logger:
+    with LoggingContext(
+        task_name, logger=task_logger, log_filename=log_filename
+    ) as task_logger:
         if quiet:
             # just log the step names and any failure messages to the
             # log file
@@ -301,18 +353,18 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
 
         os.chdir(task.work_dir)
 
-        config = setup_config(task.base_work_dir,
-                              task.component.name,
-                              task.config.filepath)
+        config = setup_config(
+            task.base_work_dir, task.component.name, task.config.filepath
+        )
         task.config = config
-        set_cores_per_node(task.config,
-                           available_resources['cores_per_node'])
+        set_cores_per_node(task.config, available_resources['cores_per_node'])
 
         mpas_tools.io.default_format = config.get('io', 'format')
         mpas_tools.io.default_engine = config.get('io', 'engine')
 
         task.steps_to_run = _update_steps_to_run(
-            task.name, steps_to_run, steps_to_skip, config, task.steps)
+            task.name, steps_to_run, steps_to_skip, config, task.steps
+        )
 
         task_start = time.time()
 
@@ -327,8 +379,9 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         except Exception:
             run_status = error_str
             task_pass = False
-            task_logger.exception('Exception raised while running '
-                                  'the steps of the task')
+            task_logger.exception(
+                'Exception raised while running the steps of the task'
+            )
 
         status = f'  task execution:   {run_status}'
         if task_pass:
@@ -358,8 +411,9 @@ def _log_and_run_task(task, stdout_logger, task_logger, quiet,
         task_time = time.time() - task_start
 
         task_time_str = str(timedelta(seconds=round(task_time)))
-        stdout_logger.info(f'  task runtime:     '
-                           f'{start_time_color}{task_time_str}{end_color}')
+        stdout_logger.info(
+            f'  task runtime:     {start_time_color}{task_time_str}{end_color}'
+        )
 
         return result_str, success, task_time
 
@@ -373,8 +427,9 @@ def _run_task(task, available_resources):
     baselines_passed = None
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
-        complete_filename = os.path.join(step.work_dir,
-                                         'polaris_step_complete.log')
+        complete_filename = os.path.join(
+            step.work_dir, 'polaris_step_complete.log'
+        )
 
         _print_to_stdout(task, f'  * step: {step_name}')
 
@@ -387,9 +442,9 @@ def _run_task(task, available_resources):
 
         step_start = time.time()
 
-        step.config = setup_config(step.base_work_dir,
-                                   step.component.name,
-                                   step.config.filepath)
+        step.config = setup_config(
+            step.base_work_dir, step.component.name, step.config.filepath
+        )
         if task.log_filename is not None:
             step_log_filename = task.log_filename
         else:
@@ -397,17 +452,19 @@ def _run_task(task, available_resources):
 
         try:
             if step.run_as_subprocess:
-                _run_step_as_subprocess(
-                    logger, step, task.new_step_log_file)
+                _run_step_as_subprocess(logger, step, task.new_step_log_file)
             else:
-                _run_step(task, step, task.new_step_log_file,
-                          available_resources, step_log_filename)
+                _run_step(
+                    task,
+                    step,
+                    task.new_step_log_file,
+                    available_resources,
+                    step_log_filename,
+                )
         except Exception:
-            _print_to_stdout(task,
-                             f'          execution:        {error_str}')
+            _print_to_stdout(task, f'          execution:        {error_str}')
             raise
-        _print_to_stdout(task,
-                         f'          execution:        {success_str}')
+        _print_to_stdout(task, f'          execution:        {success_str}')
         os.chdir(cwd)
         step_time = time.time() - step_start
         step_time_str = str(timedelta(seconds=round(step_time)))
@@ -418,22 +475,26 @@ def _run_task(task, available_resources):
                 baseline_str = pass_str
             else:
                 baseline_str = fail_str
-            _print_to_stdout(task,
-                             f'          baseline comp.:   {baseline_str}')
+            _print_to_stdout(
+                task, f'          baseline comp.:   {baseline_str}'
+            )
             if baselines_passed is None:
                 baselines_passed = status
             elif not status:
                 baselines_passed = False
 
-        _print_to_stdout(task,
-                         f'          runtime:          '
-                         f'{start_time_color}{step_time_str}{end_color}')
+        _print_to_stdout(
+            task,
+            f'          runtime:          '
+            f'{start_time_color}{step_time_str}{end_color}',
+        )
 
     return baselines_passed
 
 
-def _run_step(task, step, new_log_file, available_resources,
-              step_log_filename):
+def _run_step(
+    task, step, new_log_file, available_resources, step_log_filename
+):
     """
     Run the requested step
     """
@@ -448,7 +509,8 @@ def _run_step(task, step, new_log_file, available_resources,
     if len(missing_files) > 0:
         raise OSError(
             f'input file(s) missing in step {step.name} in '
-            f'{step.component.name}/{step.subdir}: {missing_files}')
+            f'{step.component.name}/{step.subdir}: {missing_files}'
+        )
 
     load_dependencies(step)
 
@@ -469,8 +531,9 @@ def _run_step(task, step, new_log_file, available_resources,
 
     step.log_filename = step_log_filename
 
-    with LoggingContext(name=logger_name, logger=step_logger,
-                        log_filename=new_log_filename) as step_logger:
+    with LoggingContext(
+        name=logger_name, logger=step_logger, log_filename=new_log_filename
+    ) as step_logger:
         step.logger = step_logger
         os.chdir(step.work_dir)
 
@@ -488,13 +551,21 @@ def _run_step(task, step, new_log_file, available_resources,
         step.runtime_setup()
 
         if step.args is not None:
-            step_logger.info('\nBypassing step\'s run() method and running '
-                             'with command line args\n')
+            step_logger.info(
+                "\nBypassing step's run() method and running "
+                'with command line args\n'
+            )
             for args in step.args:
                 log_function_call(function=run_command, logger=step_logger)
                 step_logger.info('')
-                run_command(args, step.cpus_per_task, step.ntasks,
-                            step.openmp_threads, step.config, step.logger)
+                run_command(
+                    args,
+                    step.cpus_per_task,
+                    step.ntasks,
+                    step.openmp_threads,
+                    step.config,
+                    step.logger,
+                )
         else:
             step_logger.info('')
             log_method_call(method=step.run, logger=step_logger)
@@ -516,7 +587,8 @@ def _run_step(task, step, new_log_file, available_resources,
             pass
         raise OSError(
             f'output file(s) missing in step {step.name} in '
-            f'{step.component.name}/{step.subdir}: {missing_files}')
+            f'{step.component.name}/{step.subdir}: {missing_files}'
+        )
 
 
 def _run_step_as_subprocess(logger, step, new_log_file):
@@ -534,9 +606,9 @@ def _run_step_as_subprocess(logger, step, new_log_file):
 
     step.log_filename = log_filename
 
-    with LoggingContext(name=logger_name, logger=step_logger,
-                        log_filename=log_filename) as step_logger:
-
+    with LoggingContext(
+        name=logger_name, logger=step_logger, log_filename=log_filename
+    ) as step_logger:
         os.chdir(step.work_dir)
         step_args = ['polaris', 'serial', '--step_is_subprocess']
         check_call(step_args, step_logger)

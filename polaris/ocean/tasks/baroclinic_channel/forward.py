@@ -23,9 +23,21 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, component, resolution, name='forward', subdir=None,
-                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
-                 nu=None, run_time_steps=None, graph_target='graph.info'):
+
+    def __init__(
+        self,
+        component,
+        resolution,
+        name='forward',
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+        nu=None,
+        run_time_steps=None,
+        graph_target='graph.info',
+    ):
         """
         Create a new task
 
@@ -72,30 +84,44 @@ class Forward(OceanModelStep):
         """
         self.resolution = resolution
         self.run_time_steps = run_time_steps
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads,
-                         graph_target=graph_target)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            graph_target=graph_target,
+        )
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='initial_state.nc',
-                            target='../../init/initial_state.nc')
+        self.add_input_file(
+            filename='initial_state.nc', target='../../init/initial_state.nc'
+        )
 
-        self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
-                           'forward.yaml')
+        self.add_yaml_file(
+            'polaris.ocean.tasks.baroclinic_channel', 'forward.yaml'
+        )
 
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml
-            self.add_model_config_options(options=dict(config_mom_del2=nu),
-                                          config_model='mpas-ocean')
+            self.add_model_config_options(
+                options=dict(config_mom_del2=nu), config_model='mpas-ocean'
+            )
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness',
-                           'normalVelocity'])
+            validate_vars=[
+                'temperature',
+                'salinity',
+                'layerThickness',
+                'normalVelocity',
+            ],
+        )
 
         self.dt = None
         self.btr_dt = None
@@ -139,24 +165,26 @@ class Forward(OceanModelStep):
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(dt))
+        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
             run_seconds = self.run_time_steps * dt
-            options['config_run_duration'] = \
-                time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+            options['config_run_duration'] = time.strftime(
+                '%H:%M:%S', time.gmtime(run_seconds)
+            )
             options['config_stop_time'] = 'none'
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
         btr_dt = btr_dt_per_km * self.resolution
-        options['config_btr_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+        options['config_btr_dt'] = time.strftime(
+            '%H:%M:%S', time.gmtime(btr_dt)
+        )
 
         self.dt = dt
         self.btr_dt = btr_dt
 
-        self.add_model_config_options(options=options,
-                                      config_model='mpas-ocean')
+        self.add_model_config_options(
+            options=options, config_model='mpas-ocean'
+        )

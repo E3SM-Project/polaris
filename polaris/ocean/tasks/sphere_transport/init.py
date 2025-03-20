@@ -20,6 +20,7 @@ class Init(OceanIOStep):
     """
     A step for an initial condition for for the cosine bell test case
     """
+
     def __init__(self, component, name, subdir, base_mesh, case_name):
         """
         Create the step
@@ -46,11 +47,13 @@ class Init(OceanIOStep):
         self.case_name = case_name
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+        )
 
         self.add_input_file(
             filename='graph.info',
-            work_dir_target=f'{base_mesh.path}/graph.info')
+            work_dir_target=f'{base_mesh.path}/graph.info',
+        )
 
         self.add_output_file(filename='initial_state.nc')
 
@@ -97,57 +100,94 @@ class Init(OceanIOStep):
         radius = section.getfloat('cosine_bells_radius')
         background_value = section.getfloat('cosine_bells_background')
         amplitude = section.getfloat('cosine_bells_amplitude')
-        tracer2 = cosine_bells(lonCell, latCell, radius, background_value,
-                               amplitude, sphere_radius)
+        tracer2 = cosine_bells(
+            lonCell,
+            latCell,
+            radius,
+            background_value,
+            amplitude,
+            sphere_radius,
+        )
 
         # tracer3
         if case_name == 'correlated_tracers_2d':
-            coeff = config.getlist(case_name, 'correlation_coefficients',
-                                   dtype=float)
+            coeff = config.getlist(
+                case_name, 'correlation_coefficients', dtype=float
+            )
             tracer3 = correlation_fn(tracer2, coeff[0], coeff[1], coeff[2])
         else:
             section = config['sphere_transport']
             radius = section.getfloat('slotted_cylinders_radius')
             background_value = section.getfloat('slotted_cylinders_background')
             amplitude = section.getfloat('slotted_cylinders_amplitude')
-            tracer3 = slotted_cylinders(lonCell, latCell, radius,
-                                        background_value, amplitude,
-                                        sphere_radius)
+            tracer3 = slotted_cylinders(
+                lonCell,
+                latCell,
+                radius,
+                background_value,
+                amplitude,
+                sphere_radius,
+            )
         _, tracer1_array = np.meshgrid(ds.refZMid.values, tracer1)
         _, tracer2_array = np.meshgrid(ds.refZMid.values, tracer2)
         _, tracer3_array = np.meshgrid(ds.refZMid.values, tracer3)
 
-        ds['tracer1'] = (('nCells', 'nVertLevels',), tracer1_array)
+        ds['tracer1'] = (
+            (
+                'nCells',
+                'nVertLevels',
+            ),
+            tracer1_array,
+        )
         ds['tracer1'] = ds.tracer1.expand_dims(dim='Time', axis=0)
-        ds['tracer2'] = (('nCells', 'nVertLevels',), tracer2_array)
+        ds['tracer2'] = (
+            (
+                'nCells',
+                'nVertLevels',
+            ),
+            tracer2_array,
+        )
         ds['tracer2'] = ds.tracer2.expand_dims(dim='Time', axis=0)
-        ds['tracer3'] = (('nCells', 'nVertLevels',), tracer3_array)
+        ds['tracer3'] = (
+            (
+                'nCells',
+                'nVertLevels',
+            ),
+            tracer3_array,
+        )
         ds['tracer3'] = ds.tracer3.expand_dims(dim='Time', axis=0)
 
         # Initialize velocity
-        s_per_hour = 3600.
+        s_per_hour = 3600.0
         if case_name == 'rotation_2d':
-            rotation_vector = config.getlist(case_name, 'rotation_vector',
-                                             dtype=float)
+            rotation_vector = config.getlist(
+                case_name, 'rotation_vector', dtype=float
+            )
             vector = np.array(rotation_vector)
-            u, v = flow_rotation(lonEdge, latEdge, vector,
-                                 vel_pd * s_per_hour, sphere_radius)
+            u, v = flow_rotation(
+                lonEdge, latEdge, vector, vel_pd * s_per_hour, sphere_radius
+            )
         elif case_name == 'divergent_2d':
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
-            u, v = flow_divergent(0., lonEdge, latEdge,
-                                  vel_amp, vel_pd * s_per_hour)
-        elif (case_name == 'nondivergent_2d' or
-              case_name == 'correlated_tracers_2d'):
+            u, v = flow_divergent(
+                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
+            )
+        elif (
+            case_name == 'nondivergent_2d'
+            or case_name == 'correlated_tracers_2d'
+        ):
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
-            u, v = flow_nondivergent(0., lonEdge, latEdge,
-                                     vel_amp, vel_pd * s_per_hour)
+            u, v = flow_nondivergent(
+                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
+            )
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 
-        normalVelocity = sphere_radius * (u * np.cos(angleEdge) +
-                                          v * np.sin(angleEdge))
+        normalVelocity = sphere_radius * (
+            u * np.cos(angleEdge) + v * np.sin(angleEdge)
+        )
         normalVelocity, _ = xr.broadcast(normalVelocity, ds.refZMid)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
 

@@ -57,8 +57,9 @@ class Component:
             The task to add
         """
         if task.subdir in self.tasks:
-            raise ValueError(f'A task has already been added with path '
-                             f'{task.subdir}')
+            raise ValueError(
+                f'A task has already been added with path {task.subdir}'
+            )
         self.tasks[task.subdir] = task
 
     def add_step(self, step):
@@ -71,8 +72,10 @@ class Component:
             The step to add
         """
         if step.subdir in self.steps and self.steps[step.subdir] != step:
-            raise ValueError(f'A different step has already been added with '
-                             f'path {step.subdir}')
+            raise ValueError(
+                f'A different step has already been added with '
+                f'path {step.subdir}'
+            )
         self.steps[step.subdir] = step
 
     def remove_step(self, step):
@@ -85,8 +88,10 @@ class Component:
             The step to add if adding by Step object, not subdirectory
         """
         if step.subdir not in self.steps:
-            raise ValueError(f'step {step.name} at {step.subdir} not in the '
-                             f'{self.name} component')
+            raise ValueError(
+                f'step {step.name} at {step.subdir} not in the '
+                f'{self.name} component'
+            )
         self.steps.pop(step.subdir)
 
     def add_config(self, config):
@@ -99,12 +104,18 @@ class Component:
             The config to add
         """
         if config.filepath is None:
-            raise ValueError('The filepath attribute of a config must be set '
-                             'before it can be added to a component')
-        if config.filepath in self.configs and \
-                self.configs[config.filepath] != config:
-            raise ValueError(f'A different shared config has already been '
-                             f'added at {config.filepath}')
+            raise ValueError(
+                'The filepath attribute of a config must be set '
+                'before it can be added to a component'
+            )
+        if (
+            config.filepath in self.configs
+            and self.configs[config.filepath] != config
+        ):
+            raise ValueError(
+                f'A different shared config has already been '
+                f'added at {config.filepath}'
+            )
         self.configs[config.filepath] = config
 
     def configure(self, config):
@@ -119,7 +130,7 @@ class Component:
         pass
 
     def _read_cached_files(self):
-        """ Read in the dictionary of cached files from cached_files.json """
+        """Read in the dictionary of cached files from cached_files.json"""
 
         package = f'polaris.{self.name}'
         filename = 'cached_files.json'

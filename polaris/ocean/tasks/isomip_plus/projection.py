@@ -15,8 +15,10 @@ def get_projection_string():
     # like -y
     #
     # x_0 is close to lat=-75 and lon=90 so latitude is approximately like x
-    proj_str = ('+proj=stere +lon_0=0 +lat_0=-90 +lat_ts=-75.0 +x_0=-2000e3 '
-                '+y_0=40.0e3 +ellps=WGS84')
+    proj_str = (
+        '+proj=stere +lon_0=0 +lat_0=-90 +lat_ts=-75.0 +x_0=-2000e3 '
+        '+y_0=40.0e3 +ellps=WGS84'
+    )
     return proj_str
 
 

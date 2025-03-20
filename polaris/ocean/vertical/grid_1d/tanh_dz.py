@@ -2,8 +2,9 @@ import numpy as np
 from scipy.optimize import root_scalar
 
 
-def create_tanh_dz_grid(num_vert_levels, bottom_depth, min_layer_thickness,
-                        max_layer_thickness):
+def create_tanh_dz_grid(
+    num_vert_levels, bottom_depth, min_layer_thickness, max_layer_thickness
+):
     """
     Creates the vertical grid for MPAS-Ocean in which the layer thicknesses
     vary as a tanh function in depth with origin at z=0.  The tanh function
@@ -40,9 +41,12 @@ def create_tanh_dz_grid(num_vert_levels, bottom_depth, min_layer_thickness,
     # and the root finder will determine a value of delta (sol.root) such that
     # match_bottom is within a tolerance of zero, meaning the bottom of the
     # coordinate computed by cumsum_z hits bottom_depth almost exactly
-    sol = root_scalar(_tanh_match_bottom, method='brentq',
-                      bracket=[dz1, 10 * bottom_depth],
-                      args=(nz, dz1, dz2, bottom_depth))
+    sol = root_scalar(
+        _tanh_match_bottom,
+        method='brentq',
+        bracket=[dz1, 10 * bottom_depth],
+        args=(nz, dz1, dz2, bottom_depth),
+    )
 
     delta = sol.root
     layerThickness, z = _tanh_cumsum_z(delta, nz, dz1, dz2)

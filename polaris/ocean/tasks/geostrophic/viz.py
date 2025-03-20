@@ -14,8 +14,10 @@ class Viz(Step):
     mesh_name : str
         The name of the mesh
     """
-    def __init__(self, component, name, subdir, base_mesh, init, forward,
-                 mesh_name):
+
+    def __init__(
+        self, component, name, subdir, base_mesh, init, forward, mesh_name
+    ):
         """
         Create the step
 
@@ -45,13 +47,15 @@ class Viz(Step):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+        )
         self.add_input_file(
             filename='initial_state.nc',
-            work_dir_target=f'{init.path}/initial_state.nc')
+            work_dir_target=f'{init.path}/initial_state.nc',
+        )
         self.add_input_file(
-            filename='output.nc',
-            work_dir_target=f'{forward.path}/output.nc')
+            filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
+        )
         self.mesh_name = mesh_name
 
     def run(self):
@@ -60,13 +64,15 @@ class Viz(Step):
         """
         config = self.config
         mesh_name = self.mesh_name
-        run_duration = \
-            config.getfloat('convergence_forward', 'run_duration') / 24.
+        run_duration = (
+            config.getfloat('convergence_forward', 'run_duration') / 24.0
+        )
 
         colormap_sections = dict(
             h='geostrophic_viz_h',
             u='geostrophic_viz_vel',
-            v='geostrophic_viz_vel')
+            v='geostrophic_viz_vel',
+        )
 
         ds_init = xr.open_dataset('initial_state.nc')
         bottom_depth = ds_init.bottomDepth
@@ -82,7 +88,8 @@ class Viz(Step):
                 colormap_section=colormap_section,
                 colorbar_label=config.get(colormap_section, 'label'),
                 title=f'{mesh_name} {var} at init',
-                plot_land=False)
+                plot_land=False,
+            )
 
         ds_out = xr.open_dataset('output.nc')
         ds_out = self._process_ds(ds_out, bottom_depth, time_index=-1)
@@ -97,12 +104,14 @@ class Viz(Step):
                 colormap_section=colormap_section,
                 colorbar_label=config.get(colormap_section, 'label'),
                 title=f'{mesh_name} {var} after {run_duration:g} days',
-                plot_land=False)
+                plot_land=False,
+            )
 
         colormap_sections = dict(
             h='geostrophic_viz_diff_h',
             u='geostrophic_viz_diff_vel',
-            v='geostrophic_viz_diff_vel')
+            v='geostrophic_viz_diff_vel',
+        )
 
         for var, colormap_section in colormap_sections.items():
             diff = ds_out[var] - ds_init[var]
@@ -114,12 +123,17 @@ class Viz(Step):
                 colormap_section=colormap_section,
                 colorbar_label=config.get(colormap_section, 'label'),
                 title=f'{mesh_name} {var} change after {run_duration:g} days',
-                plot_land=False)
+                plot_land=False,
+            )
 
     @staticmethod
     def _process_ds(ds, bottom_depth, time_index):
         ds_out = ds.isel(Time=time_index, nVertLevels=0)
         ds_out['h'] = ds_out.ssh + bottom_depth
-        ds_out = ds_out.rename(dict(velocityZonal='u',
-                                    velocityMeridional='v',))
+        ds_out = ds_out.rename(
+            dict(
+                velocityZonal='u',
+                velocityMeridional='v',
+            )
+        )
         return ds_out

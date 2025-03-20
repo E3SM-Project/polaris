@@ -19,6 +19,7 @@ class Init(Step):
     resolution : float
         The resolution of the task in km
     """
+
     def __init__(self, component, resolution, indir):
         """
         Create the step
@@ -39,9 +40,10 @@ class Init(Step):
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
-        self.add_output_file('output.nc',
-                             validate_vars=['temperature', 'salinity',
-                                            'layerThickness'])
+        self.add_output_file(
+            'output.nc',
+            validate_vars=['temperature', 'salinity', 'layerThickness'],
+        )
 
     def run(self):
         """
@@ -63,14 +65,15 @@ class Init(Step):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-                                       nonperiodic_x=False,
-                                       nonperiodic_y=True)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
+        )
         write_netcdf(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
@@ -98,24 +101,22 @@ class Init(Step):
 
         # Column thickness is a piecewise linear function
         column_thickness = xr.where(
-            y_cell < y1,
-            d1,
-            d1 + (d2 - d1) * (y_cell - y1) / (y2 - y1))
+            y_cell < y1, d1, d1 + (d2 - d1) * (y_cell - y1) / (y2 - y1)
+        )
         column_thickness = xr.where(
             y_cell < y2,
             column_thickness,
-            d2 + (d3 - d2) * (y_cell - y2) / (y3 - y2))
-        column_thickness = xr.where(
-            y_cell < y3,
-            column_thickness,
-            d3)
+            d2 + (d3 - d2) * (y_cell - y2) / (y3 - y2),
+        )
+        column_thickness = xr.where(y_cell < y3, column_thickness, d3)
 
         ds['ssh'] = -bottom_depth + column_thickness
 
         init_vertical_coord(config, ds)
 
         modify_mask = xr.where(y_cell < y3, 1, 0).expand_dims(
-            dim='Time', axis=0)
+            dim='Time', axis=0
+        )
         landIceFraction = modify_mask.astype(float)
         landIceMask = modify_mask.copy()
         landIceFloatingFraction = landIceFraction.copy()
@@ -124,11 +125,14 @@ class Init(Step):
         ref_density = constants['SHR_CONST_RHOSW']
         landIceDraft = ds.ssh
         landIcePressure = _compute_land_ice_pressure_from_draft(
-            land_ice_draft=landIceDraft, modify_mask=modify_mask,
-            ref_density=ref_density)
+            land_ice_draft=landIceDraft,
+            modify_mask=modify_mask,
+            ref_density=ref_density,
+        )
 
-        salinity = surface_salinity + ((bottom_salinity - surface_salinity) *
-                                       (ds.zMid / (-bottom_depth)))
+        salinity = surface_salinity + (
+            (bottom_salinity - surface_salinity) * (ds.zMid / (-bottom_depth))
+        )
         salinity, _ = xr.broadcast(salinity, ds.layerThickness)
         ds['salinity'] = salinity.transpose('Time', 'nCells', 'nVertLevels')
 
@@ -141,8 +145,9 @@ class Init(Step):
 
         mask_variable = config.get('ssh_adjustment', 'mask_variable')
         mask = xr.zeros_like(ds_mesh.yCell)
-        mask = np.logical_and(ds.maxLevelCell > 0,
-                              ds_mesh.yCell < y3).astype(float)
+        mask = np.logical_and(ds.maxLevelCell > 0, ds_mesh.yCell < y3).astype(
+            float
+        )
         ds[mask_variable] = mask
 
         ds['normalVelocity'] = normal_velocity
@@ -167,12 +172,14 @@ class Init(Step):
         ds_forcing = xr.Dataset()
         y_max = np.max(ds.yCell.values)
         ds_forcing['tidalInputMask'] = xr.where(
-            y_cell > (y_max - 0.6 * dc), 1.0, 0.0)
+            y_cell > (y_max - 0.6 * dc), 1.0, 0.0
+        )
         write_netcdf(ds_forcing, 'init_mode_forcing_data.nc')
 
 
-def _compute_land_ice_pressure_from_draft(land_ice_draft, modify_mask,
-                                          ref_density=None):
+def _compute_land_ice_pressure_from_draft(
+    land_ice_draft, modify_mask, ref_density=None
+):
     """
     Compute the pressure from an overlying ice shelf from ice draft
 
@@ -195,6 +202,7 @@ def _compute_land_ice_pressure_from_draft(land_ice_draft, modify_mask,
     gravity = constants['SHR_CONST_G']
     if ref_density is None:
         ref_density = constants['SHR_CONST_RHOSW']
-    land_ice_pressure = \
-        modify_mask * np.maximum(-ref_density * gravity * land_ice_draft, 0.)
+    land_ice_pressure = modify_mask * np.maximum(
+        -ref_density * gravity * land_ice_draft, 0.0
+    )
     return land_ice_pressure

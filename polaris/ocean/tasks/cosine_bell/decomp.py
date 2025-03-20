@@ -12,8 +12,15 @@ class Decomp(Task):
     identical results on different numbers of cores.
     """
 
-    def __init__(self, component, config, prefix, refinement_factor,
-                 refinement, proc_counts):
+    def __init__(
+        self,
+        component,
+        config,
+        prefix,
+        refinement_factor,
+        refinement,
+        proc_counts,
+    ):
         """
         Create the convergence test
 
@@ -49,19 +56,25 @@ class Decomp(Task):
         self.set_shared_config(config, link=config_filename)
 
         resolution = get_resolution_for_task(
-            config, refinement_factor, refinement=refinement)
+            config, refinement_factor, refinement=refinement
+        )
 
-        icosahedral = (prefix == 'icos')
+        icosahedral = prefix == 'icos'
         base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-            component, resolution, icosahedral)
+            component, resolution, icosahedral
+        )
 
         name = f'{prefix}_init_{mesh_name}'
         init_subdir = f'spherical/{prefix}/cosine_bell/init/{mesh_name}'
         if init_subdir in component.steps:
             init_step = component.steps[init_subdir]
         else:
-            init_step = Init(component=component, name=name,
-                             subdir=init_subdir, base_mesh=base_mesh_step)
+            init_step = Init(
+                component=component,
+                name=name,
+                subdir=init_subdir,
+                base_mesh=base_mesh_step,
+            )
             init_step.set_shared_config(config, link=config_filename)
 
         self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
@@ -73,17 +86,22 @@ class Decomp(Task):
             step_names.append(name)
             subdir = f'{task_subdir}/{name}'
             step = Forward(
-                component=component, name=name, subdir=subdir,
-                mesh=base_mesh_step, init=init_step,
+                component=component,
+                name=name,
+                subdir=subdir,
+                mesh=base_mesh_step,
+                init=init_step,
                 refinement_factor=refinement_factor,
-                refinement=refinement)
+                refinement=refinement,
+            )
             step.dynamic_ntasks = False
             step.ntasks = procs
             step.min_tasks = procs
-            step.set_shared_config(
-                config, link=config_filename)
+            step.set_shared_config(config, link=config_filename)
             self.add_step(step)
 
-        self.add_step(Validate(component=component,
-                               step_subdirs=step_names,
-                               indir=task_subdir))
+        self.add_step(
+            Validate(
+                component=component, step_subdirs=step_names, indir=task_subdir
+            )
+        )

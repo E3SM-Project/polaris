@@ -30,21 +30,21 @@ def main():
 
     env_name = 'polaris_bootstrap'
 
-    source_activation_scripts = \
-        f'source {conda_base}/etc/profile.d/conda.sh'
+    source_activation_scripts = f'source {conda_base}/etc/profile.d/conda.sh'
 
     activate_base = f'{source_activation_scripts} && conda activate'
 
-    activate_install_env = \
-        f'{source_activation_scripts} && ' \
-        f'conda activate {env_name}'
+    activate_install_env = (
+        f'{source_activation_scripts} && conda activate {env_name}'
+    )
     os.makedirs(name='deploy_tmp/logs', exist_ok=True)
 
     if args.verbose:
         logger = None
     else:
-        logger = get_logger(log_filename='deploy_tmp/logs/prebootstrap.log',
-                            name=__name__)
+        logger = get_logger(
+            log_filename='deploy_tmp/logs/prebootstrap.log', name=__name__
+        )
 
     # install miniforge if needed
     install_miniforge(conda_base, activate_base, logger)
@@ -58,20 +58,29 @@ def main():
         mache_version = config.get('deploy', 'mache')
         packages = f'{packages} "mache={mache_version}"'
 
-    _setup_install_env(env_name, activate_base, args.use_local, logger,
-                       args.recreate, conda_base, packages)
+    _setup_install_env(
+        env_name,
+        activate_base,
+        args.use_local,
+        logger,
+        args.recreate,
+        conda_base,
+        packages,
+    )
 
     if local_mache:
         print('Clone and install local mache\n')
-        commands = f'{activate_install_env} && ' \
-                   f'rm -rf deploy_tmp/build_mache && ' \
-                   f'mkdir -p deploy_tmp/build_mache && ' \
-                   f'cd deploy_tmp/build_mache && ' \
-                   f'git clone -b {args.mache_branch} ' \
-                   f'git@github.com:{args.mache_fork}.git mache && ' \
-                   f'cd mache && ' \
-                   f'conda install -y --file spec-file.txt && ' \
-                   f'python -m pip install --no-deps --no-build-isolation .'
+        commands = (
+            f'{activate_install_env} && '
+            f'rm -rf deploy_tmp/build_mache && '
+            f'mkdir -p deploy_tmp/build_mache && '
+            f'cd deploy_tmp/build_mache && '
+            f'git clone -b {args.mache_branch} '
+            f'git@github.com:{args.mache_fork}.git mache && '
+            f'cd mache && '
+            f'conda install -y --file spec-file.txt && '
+            f'python -m pip install --no-deps --no-build-isolation .'
+        )
 
         check_call(commands, logger=logger)
 
@@ -105,8 +114,9 @@ def _get_config(config_file):
     return config
 
 
-def _setup_install_env(env_name, activate_base, use_local, logger, recreate,
-                       conda_base, packages):
+def _setup_install_env(
+    env_name, activate_base, use_local, logger, recreate, conda_base, packages
+):
     """
     Setup a conda environment for installing polaris
     """
@@ -124,8 +134,10 @@ def _setup_install_env(env_name, activate_base, use_local, logger, recreate,
     else:
         print('Updating conda environment for installing polaris\n')
         conda_command = 'install'
-    commands = f'{activate_base} && ' \
-               f'conda {conda_command} -y -n {env_name} {channels} {packages}'
+    commands = (
+        f'{activate_base} && '
+        f'conda {conda_command} -y -n {env_name} {channels} {packages}'
+    )
 
     check_call(commands, logger=logger)
 
@@ -137,8 +149,10 @@ def _bootstrap(activate_install_env, source_path, local_conda_build):
 
     print('Creating the polaris conda environment\n')
     bootstrap_command = f'{source_path}/deploy/bootstrap.py'
-    command = f'{activate_install_env} && ' \
-              f'{bootstrap_command} {" ".join(sys.argv[1:])}'
+    command = (
+        f'{activate_install_env} && '
+        f'{bootstrap_command} {" ".join(sys.argv[1:])}'
+    )
     if local_conda_build is not None:
         command = f'{command} --local_conda_build {local_conda_build}'
     check_call(command)

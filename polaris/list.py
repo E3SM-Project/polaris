@@ -51,10 +51,12 @@ def list_cases(task_expr=None, number=None, verbose=False):
                 prefix = ''
             if verbose:
                 lines = list()
-                to_print = {'path': task.path,
-                            'name': task.name,
-                            'component': task.component.name,
-                            'subdir': task.subdir}
+                to_print = {
+                    'path': task.path,
+                    'name': task.name,
+                    'component': task.component.name,
+                    'subdir': task.subdir,
+                }
                 for key in to_print:
                     key_string = f'{key}: '.ljust(15)
                     lines.append(f'{prefix}{key_string}{to_print[key]}')
@@ -77,9 +79,12 @@ def list_cases(task_expr=None, number=None, verbose=False):
 
 def list_machines():
     machine_configs = sorted(
-        [resource.name for resource in
-         imp_res.files('polaris.machines').iterdir() if
-         resource.is_file()])
+        [
+            resource.name
+            for resource in imp_res.files('polaris.machines').iterdir()
+            if resource.is_file()
+        ]
+    )
 
     print('Machines:')
     for config in machine_configs:
@@ -94,9 +99,13 @@ def list_suites(components=None, verbose=False):
     for component in components:
         package = f'polaris.{component}.suites'
         try:
-            suites = sorted([resource.name for resource in
-                             imp_res.files(package).iterdir() if
-                             resource.is_file()])
+            suites = sorted(
+                [
+                    resource.name
+                    for resource in imp_res.files(package).iterdir()
+                    if resource.is_file()
+                ]
+            )
         except FileNotFoundError:
             continue
         for suite in sorted(suites):
@@ -117,36 +126,60 @@ def list_suites(components=None, verbose=False):
                             # multiple lines of cached steps
                             print_header_if_cached = False
                             print(task.replace('cached: ', '\t    '))
-                        elif (len(task) > 0 and task not in tasks and
-                              not task.startswith('#')):
+                        elif (
+                            len(task) > 0
+                            and task not in tasks
+                            and not task.startswith('#')
+                        ):
                             print(f'\t* {task}')
                             print_header_if_cached = True
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='List the available tasks or machines',
-        prog='polaris list')
-    parser.add_argument('-t', '--task_expr', dest='task_expr',
-                        help='A regular expression for a task path name to '
-                             'search for.',
-                        metavar='TASK')
-    parser.add_argument('-n', '--number', dest='number', type=int,
-                        help='The number of the task to list.')
-    parser.add_argument('--machines', dest='machines', action='store_true',
-                        help='List supported machines (instead of task '
-                             'cases).')
-    parser.add_argument('--suites', dest='suites', action='store_true',
-                        help='List suites (instead of tasks).')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
-                        help='List details of each task, not just the '
-                             'path.  When applied to suites, verbose lists '
-                             'the tasks contained in each suite.')
+        description='List the available tasks or machines', prog='polaris list'
+    )
+    parser.add_argument(
+        '-t',
+        '--task_expr',
+        dest='task_expr',
+        help='A regular expression for a task path name to search for.',
+        metavar='TASK',
+    )
+    parser.add_argument(
+        '-n',
+        '--number',
+        dest='number',
+        type=int,
+        help='The number of the task to list.',
+    )
+    parser.add_argument(
+        '--machines',
+        dest='machines',
+        action='store_true',
+        help='List supported machines (instead of task cases).',
+    )
+    parser.add_argument(
+        '--suites',
+        dest='suites',
+        action='store_true',
+        help='List suites (instead of tasks).',
+    )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        help='List details of each task, not just the '
+        'path.  When applied to suites, verbose lists '
+        'the tasks contained in each suite.',
+    )
     args = parser.parse_args(sys.argv[2:])
     if args.machines:
         list_machines()
     elif args.suites:
         list_suites(verbose=args.verbose)
     else:
-        list_cases(task_expr=args.task_expr, number=args.number,
-                   verbose=args.verbose)
+        list_cases(
+            task_expr=args.task_expr, number=args.number, verbose=args.verbose
+        )

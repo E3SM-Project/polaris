@@ -12,6 +12,7 @@ class TopoRemap(Step):
     MPAS mesh
 
     """
+
     def __init__(self, component, name, subdir, config, topo_map, experiment):
         """
         Create the step
@@ -45,14 +46,17 @@ class TopoRemap(Step):
             ocean1='Ocean1_input_geom_v1.01.nc',
             ocean2='Ocean2_input_geom_v1.01.nc',
             ocean3='Ocean3_input_geom_v1.01.nc',
-            ocean4='Ocean4_input_geom_v1.01.nc')
+            ocean4='Ocean4_input_geom_v1.01.nc',
+        )
 
         if experiment not in geom_filenames:
             raise ValueError(f'No input geometry for experiment {experiment}')
 
-        self.add_input_file(filename='topography.nc',
-                            target=geom_filenames[experiment],
-                            database='isomip_plus')
+        self.add_input_file(
+            filename='topography.nc',
+            target=geom_filenames[experiment],
+            database='isomip_plus',
+        )
         self.add_dependency(topo_map, name='topo_map')
         self.add_output_file('topography_remapped.nc')
 
@@ -68,7 +72,7 @@ class TopoRemap(Step):
     def _preprocess(self):
         ice_density = self.config.getfloat('isomip_plus', 'ice_density')
 
-        with (xr.open_dataset('topography.nc') as ds_in):
+        with xr.open_dataset('topography.nc') as ds_in:
             if 't' in ds_in.dims:
                 ds_in = ds_in.chunk({'t': 1})
             ds_in['iceThickness'] = ds_in.upperSurface - ds_in.lowerSurface
@@ -76,21 +80,29 @@ class TopoRemap(Step):
             ds_in.iceThickness.attrs['units'] = 'm'
 
             gravity = constants['SHR_CONST_G']
-            ds_in['landIcePressure'] = (ice_density * gravity *
-                                        ds_in.iceThickness)
-            ds_in.iceThickness.attrs['description'] = \
+            ds_in['landIcePressure'] = (
+                ice_density * gravity * ds_in.iceThickness
+            )
+            ds_in.iceThickness.attrs['description'] = (
                 'pressure at the ice base'
+            )
             ds_in.iceThickness.attrs['units'] = 'Pa'
 
             ds_in.drop_vars(['upperSurface'])
-            ds_in = ds_in.rename({'floatingMask': 'landIceFloatingFraction',
-                                  'groundedMask': 'landIceGroundedFraction',
-                                  'openOceanMask': 'openOceanFraction',
-                                  'lowerSurface': 'landIceDraft'})
-            ds_in['oceanFraction'] = \
-                (ds_in.bedrockTopography < 0.).astype(float)
-            ds_in['landIceFraction'] = (ds_in.landIceFloatingFraction +
-                                        ds_in.landIceGroundedFraction)
+            ds_in = ds_in.rename(
+                {
+                    'floatingMask': 'landIceFloatingFraction',
+                    'groundedMask': 'landIceGroundedFraction',
+                    'openOceanMask': 'openOceanFraction',
+                    'lowerSurface': 'landIceDraft',
+                }
+            )
+            ds_in['oceanFraction'] = (ds_in.bedrockTopography < 0.0).astype(
+                float
+            )
+            ds_in['landIceFraction'] = (
+                ds_in.landIceFloatingFraction + ds_in.landIceGroundedFraction
+            )
 
             ds_in.to_netcdf('topography_processed.nc')
 
@@ -100,9 +112,11 @@ class TopoRemap(Step):
 
         remapper = topo_map.get_remapper()
 
-        remapper.remap_file(inFileName='topography_processed.nc',
-                            outFileName='topography_ncremap.nc',
-                            logger=logger)
+        remapper.remap_file(
+            inFileName='topography_processed.nc',
+            outFileName='topography_ncremap.nc',
+            logger=logger,
+        )
 
     @staticmethod
     def _rename():
@@ -136,7 +150,7 @@ class TopoRemap(Step):
             for var in ds_out:
                 if 'nCells' in ds_out[var].dims:
                     attrs = ds_out[var].attrs
-                    mask = ocean_frac > 0.
+                    mask = ocean_frac > 0.0
                     ds_out[var] = (ds_out[var] / ocean_frac).where(mask)
                     ds_out[var].attrs = attrs
 

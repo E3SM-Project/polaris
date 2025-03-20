@@ -14,10 +14,20 @@ from polaris.job import write_job_script
 from polaris.machines import discover_machine
 
 
-def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
-                machine=None, baseline_dir=None, component_path=None,
-                suite_name='custom', cached=None, copy_executable=False,
-                clean=False, model=None):
+def setup_tasks(
+    work_dir,
+    task_list=None,
+    numbers=None,
+    config_file=None,
+    machine=None,
+    baseline_dir=None,
+    component_path=None,
+    suite_name='custom',
+    cached=None,
+    copy_executable=False,
+    clean=False,
+    model=None,
+):
     """
     Set up one or more tasks
 
@@ -74,12 +84,15 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         A dictionary of tasks, with the relative path in the work
         directory as keys
     """
-    machine = __get_machine_and_check_params(machine, config_file, task_list,
-                                             numbers, cached)
+    machine = __get_machine_and_check_params(
+        machine, config_file, task_list, numbers, cached
+    )
 
     if work_dir is None:
-        print('Warning: no base work directory was provided so setting up in '
-              'the current directory.')
+        print(
+            'Warning: no base work directory was provided so setting up in '
+            'the current directory.'
+        )
         work_dir = os.getcwd()
     work_dir = os.path.abspath(work_dir)
 
@@ -100,8 +113,9 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     first_path = next(iter(tasks))
     component = tasks[first_path].component
 
-    basic_config = _get_basic_config(config_file, machine, component_path,
-                                     component, model)
+    basic_config = _get_basic_config(
+        config_file, machine, component_path, component, model
+    )
 
     provenance.write(work_dir, tasks, config=basic_config)
 
@@ -113,23 +127,35 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
         _clean_tasks_and_steps(tasks, work_dir)
         print('')
 
-    _setup_configs(component, tasks, work_dir, config_file, machine,
-                   component_path, copy_executable, model)
+    _setup_configs(
+        component,
+        tasks,
+        work_dir,
+        config_file,
+        machine,
+        component_path,
+        copy_executable,
+        model,
+    )
 
     print('Setting up tasks:')
     for path, task in tasks.items():
-        setup_task(path, task, machine, work_dir,
-                   baseline_dir, cached_steps=cached_steps[path], model=model)
+        setup_task(
+            path,
+            task,
+            machine,
+            work_dir,
+            baseline_dir,
+            cached_steps=cached_steps[path],
+            model=model,
+        )
 
     _check_dependencies(tasks)
 
-    suite = {'name': suite_name,
-             'tasks': tasks,
-             'work_dir': work_dir}
+    suite = {'name': suite_name, 'tasks': tasks, 'work_dir': work_dir}
 
     # pickle the task or step dictionary for use at runtime
-    pickle_file = os.path.join(suite['work_dir'],
-                               f'{suite_name}.pickle')
+    pickle_file = os.path.join(suite['work_dir'], f'{suite_name}.pickle')
     with open(pickle_file, 'wb') as handle:
         pickle.dump(suite, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -141,14 +167,21 @@ def setup_tasks(work_dir, task_list=None, numbers=None, config_file=None,
     print(f'minimum cores: {max_of_min_cores}')
 
     if machine is not None:
-        write_job_script(basic_config, machine, max_cores, max_of_min_cores,
-                         work_dir, suite=suite_name)
+        write_job_script(
+            basic_config,
+            machine,
+            max_cores,
+            max_of_min_cores,
+            work_dir,
+            suite=suite_name,
+        )
 
     return tasks
 
 
-def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps,
-               model):
+def setup_task(
+    path, task, machine, work_dir, baseline_dir, cached_steps, model
+):
     """
     Set up one or more tasks
 
@@ -210,102 +243,166 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps,
         # pickle the task and step for use at runtime
         pickle_filename = os.path.join(step.work_dir, 'step.pickle')
         with open(pickle_filename, 'wb') as handle:
-            pickle.dump(step, handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(step, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         _symlink_load_script(step.work_dir)
 
         if machine is not None:
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
-            write_job_script(step.config, machine, cores, min_cores,
-                             step.work_dir)
+            write_job_script(
+                step.config, machine, cores, min_cores, step.work_dir
+            )
         step.setup_complete = True
 
     # pickle the task and step for use at runtime
     pickle_filename = os.path.join(task.work_dir, 'task.pickle')
     with open(pickle_filename, 'wb') as handle:
-        suite = {'name': 'task',
-                 'tasks': {task.path: task},
-                 'work_dir': task.work_dir}
+        suite = {
+            'name': 'task',
+            'tasks': {task.path: task},
+            'work_dir': task.work_dir,
+        }
         pickle.dump(suite, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     _symlink_load_script(task_dir)
 
     if machine is not None:
         max_cores, max_of_min_cores = _get_required_cores({path: task})
-        write_job_script(task.config, machine, max_cores, max_of_min_cores,
-                         task_dir)
+        write_job_script(
+            task.config, machine, max_cores, max_of_min_cores, task_dir
+        )
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Set up one or more tasks', prog='polaris setup')
-    parser.add_argument("-t", "--tasks", nargs='+', dest="tasks",
-                        help="Relative path for a task(s) to set up.",
-                        metavar="PATH")
-    parser.add_argument("-n", "--task_number", nargs='+', dest="task_num",
-                        type=str,
-                        help="Task number(s) to setup, as listed from "
-                             "'polaris list'. Can be a space-separated "
-                             "list of task numbers.  A suffix 'c' indicates "
-                             "that all steps in the task should use cached "
-                             "outputs.", metavar="NUM")
-    parser.add_argument("-f", "--config_file", dest="config_file",
-                        help="Configuration file for task setup.",
-                        metavar="FILE")
-    parser.add_argument("-m", "--machine", dest="machine",
-                        help="The name of the machine for loading machine-"
-                             "related config options.", metavar="MACH")
-    parser.add_argument("-w", "--work_dir", dest="work_dir", required=True,
-                        help="A base directory for setting up tasks.",
-                        metavar="PATH")
-    parser.add_argument("-b", "--baseline_dir", dest="baseline_dir",
-                        help="Location of baselines that can be compared to.",
-                        metavar="PATH")
-    parser.add_argument("-p", "--component_path", dest="component_path",
-                        help="The path where the component executable and "
-                             "default namelists have been built.",
-                        metavar="PATH")
-    parser.add_argument("--suite_name", dest="suite_name", default="custom",
-                        help="The name to use for the 'custom' suite "
-                             "containing all setup tasks.",
-                        metavar="SUITE")
-    parser.add_argument("--cached", dest="cached", nargs='+',
-                        help="A list of steps in a single task supplied with "
-                             "--tasks or --task_number that should use cached "
-                             "outputs, or '_all' if all steps should be "
-                             "cached.",
-                        metavar="STEP")
-    parser.add_argument("--copy_executable", dest="copy_executable",
-                        action="store_true",
-                        help="If the model executable should be copied to the "
-                             "work directory.")
-    parser.add_argument("--clean", dest="clean", action="store_true",
-                        help="If the base work directory should be deleted "
-                             "before setting up the tasks.")
-    parser.add_argument("--model", dest="model",
-                        help="The model to run (one of 'mpas-ocean', 'omega', "
-                             "or 'mpas-seaice')")
+        description='Set up one or more tasks', prog='polaris setup'
+    )
+    parser.add_argument(
+        '-t',
+        '--tasks',
+        nargs='+',
+        dest='tasks',
+        help='Relative path for a task(s) to set up.',
+        metavar='PATH',
+    )
+    parser.add_argument(
+        '-n',
+        '--task_number',
+        nargs='+',
+        dest='task_num',
+        type=str,
+        help='Task number(s) to setup, as listed from '
+        "'polaris list'. Can be a space-separated "
+        "list of task numbers.  A suffix 'c' indicates "
+        'that all steps in the task should use cached '
+        'outputs.',
+        metavar='NUM',
+    )
+    parser.add_argument(
+        '-f',
+        '--config_file',
+        dest='config_file',
+        help='Configuration file for task setup.',
+        metavar='FILE',
+    )
+    parser.add_argument(
+        '-m',
+        '--machine',
+        dest='machine',
+        help='The name of the machine for loading machine-'
+        'related config options.',
+        metavar='MACH',
+    )
+    parser.add_argument(
+        '-w',
+        '--work_dir',
+        dest='work_dir',
+        required=True,
+        help='A base directory for setting up tasks.',
+        metavar='PATH',
+    )
+    parser.add_argument(
+        '-b',
+        '--baseline_dir',
+        dest='baseline_dir',
+        help='Location of baselines that can be compared to.',
+        metavar='PATH',
+    )
+    parser.add_argument(
+        '-p',
+        '--component_path',
+        dest='component_path',
+        help='The path where the component executable and '
+        'default namelists have been built.',
+        metavar='PATH',
+    )
+    parser.add_argument(
+        '--suite_name',
+        dest='suite_name',
+        default='custom',
+        help="The name to use for the 'custom' suite "
+        'containing all setup tasks.',
+        metavar='SUITE',
+    )
+    parser.add_argument(
+        '--cached',
+        dest='cached',
+        nargs='+',
+        help='A list of steps in a single task supplied with '
+        '--tasks or --task_number that should use cached '
+        "outputs, or '_all' if all steps should be "
+        'cached.',
+        metavar='STEP',
+    )
+    parser.add_argument(
+        '--copy_executable',
+        dest='copy_executable',
+        action='store_true',
+        help='If the model executable should be copied to the work directory.',
+    )
+    parser.add_argument(
+        '--clean',
+        dest='clean',
+        action='store_true',
+        help='If the base work directory should be deleted '
+        'before setting up the tasks.',
+    )
+    parser.add_argument(
+        '--model',
+        dest='model',
+        help="The model to run (one of 'mpas-ocean', 'omega', "
+        "or 'mpas-seaice')",
+    )
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
     if args.cached is not None:
         if args.tasks is not None and len(args.tasks) != 1:
-            raise ValueError('You can only cache steps for one task at at '
-                             'time.')
+            raise ValueError(
+                'You can only cache steps for one task at at time.'
+            )
         if args.task_num is not None and len(args.task_num) != 1:
-            raise ValueError('You can only cache steps for one task at at '
-                             'time.')
+            raise ValueError(
+                'You can only cache steps for one task at at time.'
+            )
         # cached is a list of lists
         cached = [args.cached]
 
-    setup_tasks(task_list=args.tasks, numbers=args.task_num,
-                config_file=args.config_file, machine=args.machine,
-                work_dir=args.work_dir, baseline_dir=args.baseline_dir,
-                component_path=args.component_path, suite_name=args.suite_name,
-                cached=cached, copy_executable=args.copy_executable,
-                clean=args.clean, model=args.model)
+    setup_tasks(
+        task_list=args.tasks,
+        numbers=args.task_num,
+        config_file=args.config_file,
+        machine=args.machine,
+        work_dir=args.work_dir,
+        baseline_dir=args.baseline_dir,
+        component_path=args.component_path,
+        suite_name=args.suite_name,
+        cached=cached,
+        copy_executable=args.copy_executable,
+        clean=args.clean,
+        model=args.model,
+    )
 
 
 def _expand_and_mark_cached_steps(tasks, cached_steps):
@@ -322,12 +419,21 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
             task.steps[step_name].cached = True
 
 
-def _setup_configs(component, tasks, work_dir, config_file, machine,
-                   component_path, copy_executable, model):
-    """ Set up config parsers for this component """
+def _setup_configs(
+    component,
+    tasks,
+    work_dir,
+    config_file,
+    machine,
+    component_path,
+    copy_executable,
+    model,
+):
+    """Set up config parsers for this component"""
 
-    common_config = _get_basic_config(config_file, machine, component_path,
-                                      component, model)
+    common_config = _get_basic_config(
+        config_file, machine, component_path, component, model
+    )
     if copy_executable:
         common_config.set('setup', 'copy_executable', 'True')
 
@@ -341,9 +447,9 @@ def _setup_configs(component, tasks, work_dir, config_file, machine,
 
     # okay, we're finally ready to configure all the tasks and add configs
     # to the "owned" steps
-    configs = _configure_tasks_and_add_step_configs(tasks, component,
-                                                    initial_configs,
-                                                    common_config)
+    configs = _configure_tasks_and_add_step_configs(
+        tasks, component, initial_configs, common_config
+    )
 
     _write_configs(common_config, configs, component.name, work_dir)
 
@@ -361,8 +467,9 @@ def _add_task_configs(component, tasks, common_config):
     for task in tasks.values():
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
-            task.config.filepath = os.path.join(task.subdir,
-                                                task.config_filename)
+            task.config.filepath = os.path.join(
+                task.subdir, task.config_filename
+            )
         component.add_config(task.config)
         configs[task.config.filepath] = task.config
 
@@ -375,8 +482,9 @@ def _add_task_configs(component, tasks, common_config):
     return configs
 
 
-def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
-                                          common_config):
+def _configure_tasks_and_add_step_configs(
+    tasks, component, initial_configs, common_config
+):
     """
     Call the configure() method for each task and add configs to "owned" steps
     """
@@ -384,11 +492,13 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
     for config in initial_configs.values():
         for task in config.tasks:
             task.configure()
-            config.set(section=f'{task.name}',
-                       option='steps_to_run',
-                       value=' '.join(task.steps_to_run),
-                       comment=f'A list of steps to include when running the '
-                               f'{task.name} task')
+            config.set(
+                section=f'{task.name}',
+                option='steps_to_run',
+                value=' '.join(task.steps_to_run),
+                comment=f'A list of steps to include when running the '
+                f'{task.name} task',
+            )
 
     # add configs to steps after calling task.configure() on all tasks in case
     # new steps were added
@@ -401,8 +511,9 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
                 configs[step.config.filepath] = step.config
                 if step.config.filepath is None:
                     step.config_filename = f'{step.name}.cfg'
-                    step.config.filepath = os.path.join(step.subdir,
-                                                        step.config_filename)
+                    step.config.filepath = os.path.join(
+                        step.subdir, step.config_filename
+                    )
                 if step.config.filepath not in initial_configs:
                     new_configs[step.config.filepath] = step.config
                     component.add_config(step.config)
@@ -417,7 +528,7 @@ def _configure_tasks_and_add_step_configs(tasks, component, initial_configs,
 
 
 def _write_configs(common_config, configs, component_name, work_dir):
-    """ Write out all the config files """
+    """Write out all the config files"""
 
     # add the common config at the component level
     common_config.filepath = f'{component_name}.cfg'
@@ -437,7 +548,7 @@ def _write_configs(common_config, configs, component_name, work_dir):
 
 
 def _symlink_configs(tasks, component_name, work_dir):
-    """ Symlink config files for requested tasks and steps """
+    """Symlink config files for requested tasks and steps"""
 
     component_work_dir = os.path.join(work_dir, component_name)
 
@@ -445,16 +556,18 @@ def _symlink_configs(tasks, component_name, work_dir):
     for task in tasks.values():
         config = task.config
         config_filepath = os.path.join(component_work_dir, config.filepath)
-        link_path = os.path.join(component_work_dir, task.subdir,
-                                 task.config_filename)
+        link_path = os.path.join(
+            component_work_dir, task.subdir, task.config_filename
+        )
         if not os.path.exists(link_path) and link_path not in symlinks:
             symlinks[link_path] = config_filepath
 
         for step in task.steps.values():
             config = step.config
             config_filepath = os.path.join(component_work_dir, config.filepath)
-            link_path = os.path.join(component_work_dir, step.subdir,
-                                     step.config_filename)
+            link_path = os.path.join(
+                component_work_dir, step.subdir, step.config_filename
+            )
             if not os.path.exists(link_path) and link_path not in symlinks:
                 symlinks[link_path] = config_filepath
 
@@ -490,7 +603,7 @@ def _clean_tasks_and_steps(tasks, base_work_dir):
 
 
 def _get_required_cores(tasks):
-    """ Get the maximum number of target cores and the max of min cores """
+    """Get the maximum number of target cores and the max of min cores"""
 
     max_cores = 0
     max_of_min_cores = 0
@@ -500,11 +613,13 @@ def _get_required_cores(tasks):
             if step.ntasks is None:
                 raise ValueError(
                     f'The number of tasks (ntasks) was never set for '
-                    f'{task.path} step {step_name}')
+                    f'{task.path} step {step_name}'
+                )
             if step.cpus_per_task is None:
                 raise ValueError(
                     f'The number of CPUs per task (cpus_per_task) was never '
-                    f'set for {task.path} step {step_name}')
+                    f'set for {task.path} step {step_name}'
+                )
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
             max_cores = max(max_cores, cores)
@@ -513,8 +628,9 @@ def _get_required_cores(tasks):
     return max_cores, max_of_min_cores
 
 
-def __get_machine_and_check_params(machine, config_file, tasks, numbers,
-                                   cached):
+def __get_machine_and_check_params(
+    machine, config_file, tasks, numbers, cached
+):
     if machine is None and 'POLARIS_MACHINE' in os.environ:
         machine = os.environ['POLARIS_MACHINE']
 
@@ -526,18 +642,23 @@ def __get_machine_and_check_params(machine, config_file, tasks, numbers,
 
     if config_file is not None and not os.path.exists(config_file):
         raise FileNotFoundError(
-            f'The user config file wasn\'t found: {config_file}')
+            f"The user config file wasn't found: {config_file}"
+        )
 
     if tasks is None and numbers is None:
         raise ValueError('At least one of tasks or numbers is needed.')
 
     if cached is not None:
         if tasks is None:
-            warnings.warn('Ignoring "cached" argument because "tasks" was '
-                          'not provided')
+            warnings.warn(
+                'Ignoring "cached" argument because "tasks" was not provided',
+                stacklevel=2,
+            )
         elif len(cached) != len(tasks):
-            raise ValueError('A list of cached steps must be provided for '
-                             'each task in "tasks"')
+            raise ValueError(
+                'A list of cached steps must be provided for each task in'
+                + '"tasks"'
+            )
 
     return machine
 
@@ -561,8 +682,9 @@ def _get_basic_config(config_file, machine, component_path, component, model):
 
     # add the E3SM config options from mache
     if machine is not None:
-        config.add_from_package('mache.machines', f'{machine}.cfg',
-                                exception=False)
+        config.add_from_package(
+            'mache.machines', f'{machine}.cfg', exception=False
+        )
 
     # add the polaris machine config file
     if machine is None:
@@ -576,8 +698,9 @@ def _get_basic_config(config_file, machine, component_path, component, model):
         config.set('paths', 'polaris_branch', os.getcwd())
 
     # add the config options for the component
-    config.add_from_package(f'polaris.{component.name}',
-                            f'{component.name}.cfg')
+    config.add_from_package(
+        f'polaris.{component.name}', f'{component.name}.cfg'
+    )
 
     component.configure(config)
 
@@ -601,8 +724,10 @@ def _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps):
                 number = int(number)
 
             if number >= len(keys):
-                raise ValueError(f'task number {number} is out of range.  '
-                                 f'There are only {len(keys)} tasks.')
+                raise ValueError(
+                    f'task number {number} is out of range.  '
+                    f'There are only {len(keys)} tasks.'
+                )
             path = keys[number]
             if cache_all:
                 cached_steps[path] = ['_all']
@@ -615,8 +740,7 @@ def _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps):
     if task_list is not None:
         for index, path in enumerate(task_list):
             if path not in all_tasks:
-                raise ValueError(f'Task with path {path} is not in '
-                                 f'tasks')
+                raise ValueError(f'Task with path {path} is not in tasks')
             if cached is not None:
                 cached_steps[path] = cached[index]
             else:
@@ -625,14 +749,15 @@ def _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps):
 
 
 def _setup_step(task, step, work_dir, baseline_dir, task_dir):
-    """ Set up a step in a task """
+    """Set up a step in a task"""
 
     # make the step directory if it doesn't exist
     step_dir = os.path.join(work_dir, step.path)
 
     if step.name in task.step_symlinks:
-        symlink(step_dir,
-                os.path.join(task_dir, task.step_symlinks[step.name]))
+        symlink(
+            step_dir, os.path.join(task_dir, task.step_symlinks[step.name])
+        )
 
     if step.setup_complete:
         # this is a shared step that has already been set up
@@ -657,11 +782,10 @@ def _setup_step(task, step, work_dir, baseline_dir, task_dir):
 
 
 def _symlink_load_script(work_dir):
-    """ make a symlink to the script for loading the polaris conda env. """
+    """make a symlink to the script for loading the polaris conda env."""
     if 'LOAD_POLARIS_ENV' in os.environ:
         script_filename = os.environ['LOAD_POLARIS_ENV']
-        symlink(script_filename,
-                os.path.join(work_dir, 'load_polaris_env.sh'))
+        symlink(script_filename, os.path.join(work_dir, 'load_polaris_env.sh'))
 
 
 def _check_dependencies(tasks):
@@ -669,6 +793,8 @@ def _check_dependencies(tasks):
         for step in task.steps.values():
             for name, dependency in step.dependencies.items():
                 if dependency.work_dir == '':
-                    raise ValueError(f'The dependency {name} of '
-                                     f'{task.path} step {step.name} was '
-                                     f'not set up.')
+                    raise ValueError(
+                        f'The dependency {name} of '
+                        f'{task.path} step {step.name} was '
+                        f'not set up.'
+                    )

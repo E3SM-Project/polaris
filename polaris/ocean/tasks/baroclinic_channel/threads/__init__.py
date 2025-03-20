@@ -1,6 +1,8 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.validate import Validate
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.validate import (
+    Validate as Validate,
+)
 
 
 class Threads(Task):
@@ -35,11 +37,22 @@ class Threads(Task):
         subdirs = list()
         for openmp_threads in [1, 2]:
             name = f'{openmp_threads}thread'
-            self.add_step(Forward(
-                component=component, name=name, indir=self.subdir, ntasks=4,
-                min_tasks=4, openmp_threads=openmp_threads,
-                resolution=resolution, run_time_steps=3,
-                graph_target=f'{init.path}/culled_graph.info'))
+            self.add_step(
+                Forward(
+                    component=component,
+                    name=name,
+                    indir=self.subdir,
+                    ntasks=4,
+                    min_tasks=4,
+                    openmp_threads=openmp_threads,
+                    resolution=resolution,
+                    run_time_steps=3,
+                    graph_target=f'{init.path}/culled_graph.info',
+                )
+            )
             subdirs.append(name)
-        self.add_step(Validate(component=component, step_subdirs=subdirs,
-                               indir=self.subdir))
+        self.add_step(
+            Validate(
+                component=component, step_subdirs=subdirs, indir=self.subdir
+            )
+        )

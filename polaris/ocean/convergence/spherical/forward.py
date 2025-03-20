@@ -32,7 +32,7 @@ class SphericalConvergenceForward(ConvergenceForward):
         """
         # use a heuristic based on QU30 (65275 cells) and QU240 (10383 cells)
         resolution = get_resolution_for_task(
-            self.config, self.refinement_factor,
-            refinement=self.refinement)
+            self.config, self.refinement_factor, refinement=self.refinement
+        )
         cell_count = 6e8 / resolution**2
         return cell_count

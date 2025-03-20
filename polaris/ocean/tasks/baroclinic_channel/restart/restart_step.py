@@ -7,6 +7,7 @@ class RestartStep(Forward):
     """
     A forward model step in the restart test case
     """
+
     def __init__(self, component, resolution, name, indir, init):
         """
         Create a new test case
@@ -29,10 +30,16 @@ class RestartStep(Forward):
             the initial state step
         """
         self.resolution = resolution
-        super().__init__(component=component, name=name, indir=indir, ntasks=4,
-                         min_tasks=4, openmp_threads=1,
-                         resolution=resolution,
-                         graph_target=f'{init.path}/culled_graph.info')
+        super().__init__(
+            component=component,
+            name=name,
+            indir=indir,
+            ntasks=4,
+            min_tasks=4,
+            openmp_threads=1,
+            resolution=resolution,
+            graph_target=f'{init.path}/culled_graph.info',
+        )
 
     def dynamic_model_config(self, at_setup):
         """
@@ -55,9 +62,9 @@ class RestartStep(Forward):
         if self.name == 'full_run':
             # 2 time steps without a restart
             do_restart = False
-            start_time = 0.
-            run_duration = 2. * dt
-            output_interval = 2. * dt
+            start_time = 0.0
+            run_duration = 2.0 * dt
+            output_interval = 2.0 * dt
         elif self.name == 'restart_run':
             # 1 time step from the restart at 1 time step
             do_restart = True
@@ -69,14 +76,17 @@ class RestartStep(Forward):
 
         # to keep the time formatting from getting too complicated, we'll
         # assume 2 time steps is never more than a day
-        start_time_str = time.strftime('0001-01-01_%H:%M:%S',
-                                       time.gmtime(start_time))
+        start_time_str = time.strftime(
+            '0001-01-01_%H:%M:%S', time.gmtime(start_time)
+        )
 
-        run_duration_str = time.strftime('0000-00-00_%H:%M:%S',
-                                         time.gmtime(run_duration))
+        run_duration_str = time.strftime(
+            '0000-00-00_%H:%M:%S', time.gmtime(run_duration)
+        )
 
-        output_interval_str = time.strftime('0000-00-00_%H:%M:%S',
-                                            time.gmtime(output_interval))
+        output_interval_str = time.strftime(
+            '0000-00-00_%H:%M:%S', time.gmtime(output_interval)
+        )
 
         package = 'polaris.ocean.tasks.baroclinic_channel.restart'
         replacements = dict(
@@ -86,6 +96,8 @@ class RestartStep(Forward):
             output_interval=output_interval_str,
         )
 
-        self.add_yaml_file(package=package,
-                           yaml='forward.yaml',
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            package=package,
+            yaml='forward.yaml',
+            template_replacements=replacements,
+        )

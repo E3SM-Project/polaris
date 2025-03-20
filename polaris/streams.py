@@ -43,10 +43,9 @@ def read(package, streams_filename, tree=None, replacements=None):
 
 
 def write(streams, out_filename):
-    """ write the streams XML data to the file """
+    """write the streams XML data to the file"""
 
     with open(out_filename, 'w') as stream_file:
-
         stream_file.write('<streams>\n')
 
         # Write out all immutable streams first
@@ -85,8 +84,10 @@ def write(streams, out_filename):
                         continue
                     if 'packages' in child.attrib.keys():
                         package_name = child.attrib['packages']
-                        entry = f'    <{tag} name="{child_name}" ' \
-                                f'packages="{package_name}"/>\n'
+                        entry = (
+                            f'    <{tag} name="{child_name}" '
+                            f'packages="{package_name}"/>\n'
+                        )
                     else:
                         entry = f'    <{tag} name="{child_name}"/>\n'
                     stream_file.write(entry)
@@ -111,9 +112,11 @@ def update_defaults(new_child, defaults):
         if child.attrib['name'] == name:
             found = True
             if child.tag != new_child.tag:
-                raise ValueError(f'Trying to update stream "{name}" with '
-                                 f'inconsistent tags {child.tag} vs. '
-                                 f'{new_child.tag}.')
+                raise ValueError(
+                    f'Trying to update stream "{name}" with '
+                    f'inconsistent tags {child.tag} vs. '
+                    f'{new_child.tag}.'
+                )
 
             # copy the attributes
             for attr, value in new_child.attrib.items():
@@ -177,9 +180,11 @@ def _update_element(new_child, elements):
         if child.attrib['name'] == name:
             found = True
             if child.tag != new_child.tag:
-                raise ValueError(f'Trying to update stream "{name}" with '
-                                 f'inconsistent tags {child.tag} vs. '
-                                 f'{new_child.tag}.')
+                raise ValueError(
+                    f'Trying to update stream "{name}" with '
+                    f'inconsistent tags {child.tag} vs. '
+                    f'{new_child.tag}.'
+                )
 
             # copy the attributes
             for attr, value in new_child.attrib.items():

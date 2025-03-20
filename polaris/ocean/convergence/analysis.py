@@ -57,8 +57,15 @@ class ConvergenceAnalysis(OceanIOStep):
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
     """
-    def __init__(self, component, subdir, dependencies, convergence_vars,
-                 refinement='both'):
+
+    def __init__(
+        self,
+        component,
+        subdir,
+        dependencies,
+        convergence_vars,
+        refinement='both',
+    ):
         """
         Create the step
 
@@ -128,21 +135,23 @@ class ConvergenceAnalysis(OceanIOStep):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('convergence', option,
-                                            dtype=float)
+        refinement_factors = config.getlist('convergence', option, dtype=float)
         for refinement_factor in refinement_factors:
             base_mesh = dependencies['mesh'][refinement_factor]
             init = dependencies['init'][refinement_factor]
             forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{base_mesh.path}/base_mesh.nc')
+                work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+            )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc')
+                work_dir_target=f'{init.path}/initial_state.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{forward.path}/output.nc')
+                work_dir_target=f'{forward.path}/output.nc',
+            )
 
     def run(self):
         """
@@ -153,14 +162,15 @@ class ConvergenceAnalysis(OceanIOStep):
         variables_failed = []
         for var in convergence_vars:
             convergence_failed = self.plot_convergence(
-                variable_name=var["name"],
-                title=var["title"],
-                zidx=var["zidx"])
+                variable_name=var['name'], title=var['title'], zidx=var['zidx']
+            )
             if convergence_failed:
-                variables_failed.append(var["name"])
+                variables_failed.append(var['name'])
         if len(variables_failed) >= 1:
-            raise ValueError('Convergence rate below minimum tolerance for '
-                             f'variables {", ".join(variables_failed)}.')
+            raise ValueError(
+                'Convergence rate below minimum tolerance for '
+                f'variables {", ".join(variables_failed)}.'
+            )
 
     def plot_convergence(self, variable_name, title, zidx):
         """
@@ -182,7 +192,8 @@ class ConvergenceAnalysis(OceanIOStep):
         config = self.config
         logger = self.logger
         conv_thresh, error_type = self.convergence_parameters(
-            field_name=variable_name)
+            field_name=variable_name
+        )
 
         error = []
         if self.refinement == 'time':
@@ -191,22 +202,24 @@ class ConvergenceAnalysis(OceanIOStep):
         else:
             option = 'refinement_factors_space'
             header = 'resolution'
-        refinement_factors = config.getlist('convergence', option,
-                                            dtype=float)
+        refinement_factors = config.getlist('convergence', option, dtype=float)
         resolutions = list()
         timesteps = list()
         for refinement_factor in refinement_factors:
             timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement)
+                config, refinement_factor, refinement=self.refinement
+            )
             timesteps.append(timestep)
             resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement)
+                config, refinement_factor, refinement=self.refinement
+            )
             resolutions.append(resolution)
             error_res = self.compute_error(
                 refinement_factor=refinement_factor,
                 variable_name=variable_name,
                 zidx=zidx,
-                error_type=error_type)
+                error_type=error_type,
+            )
             error.append(error_res)
 
         if self.refinement == 'time':
@@ -228,10 +241,14 @@ class ConvergenceAnalysis(OceanIOStep):
 
         fit = refinement_array ** poly[0] * 10 ** poly[1]
 
-        order1 = 0.5 * error_array[-1] * \
-            (refinement_array / refinement_array[-1])
-        order2 = 0.5 * error_array[-1] * \
-            (refinement_array / refinement_array[-1])**2
+        order1 = (
+            0.5 * error_array[-1] * (refinement_array / refinement_array[-1])
+        )
+        order2 = (
+            0.5
+            * error_array[-1]
+            * (refinement_array / refinement_array[-1]) ** 2
+        )
 
         use_mplstyle()
         fig = plt.figure()
@@ -240,12 +257,14 @@ class ConvergenceAnalysis(OceanIOStep):
         error_title = error_dict[error_type]
 
         ax = fig.add_subplot(111)
-        ax.loglog(resolutions, order1, '--k', label='first order',
-                  alpha=0.3)
-        ax.loglog(resolutions, order2, 'k', label='second order',
-                  alpha=0.3)
-        ax.loglog(refinement_array, fit, 'k',
-                  label=f'linear fit (order={convergence:1.3f})')
+        ax.loglog(resolutions, order1, '--k', label='first order', alpha=0.3)
+        ax.loglog(resolutions, order2, 'k', label='second order', alpha=0.3)
+        ax.loglog(
+            refinement_array,
+            fit,
+            'k',
+            label=f'linear fit (order={convergence:1.3f})',
+        )
         ax.loglog(refinement_array, error_array, 'o', label='numerical')
 
         if self.baseline_dir is not None:
@@ -254,43 +273,59 @@ class ConvergenceAnalysis(OceanIOStep):
                 data = pd.read_csv(baseline_filename)
                 if error_type not in data.keys():
                     raise ValueError(
-                        f'{error_type} not available for baseline')
+                        f'{error_type} not available for baseline'
+                    )
                 else:
                     refinement_array = data.resolution.to_numpy()
                     error_array = data[error_type].to_numpy()
                     poly = np.polyfit(
-                        np.log10(refinement_array), np.log10(error_array), 1)
+                        np.log10(refinement_array), np.log10(error_array), 1
+                    )
                     base_convergence = poly[0]
                     conv_round = base_convergence
 
                     fit = refinement_array ** poly[0] * 10 ** poly[1]
-                    ax.loglog(refinement_array, error_array, 'o',
-                              color='#ff7f0e', label='baseline')
-                    ax.loglog(refinement_array, fit, color='#ff7f0e',
-                              label=f'linear fit, baseline '
-                                    f'(order={base_convergence:1.3f})')
+                    ax.loglog(
+                        refinement_array,
+                        error_array,
+                        'o',
+                        color='#ff7f0e',
+                        label='baseline',
+                    )
+                    ax.loglog(
+                        refinement_array,
+                        fit,
+                        color='#ff7f0e',
+                        label=f'linear fit, baseline '
+                        f'(order={base_convergence:1.3f})',
+                    )
         ax.set_xlabel(x_label)
         ax.set_ylabel(f'{error_title}')
         ax.set_title(f'Error Convergence of {title}')
         ax.legend(loc='lower left')
         ax.invert_xaxis()
-        fig.savefig(f'convergence_{variable_name}.png',
-                    bbox_inches='tight', pad_inches=0.1)
+        fig.savefig(
+            f'convergence_{variable_name}.png',
+            bbox_inches='tight',
+            pad_inches=0.1,
+        )
         plt.close()
 
-        logger.info(f'Order of convergence for {title}: '
-                    f'{conv_round:1.3f}')
+        logger.info(f'Order of convergence for {title}: {conv_round:1.3f}')
 
         if conv_round < conv_thresh:
-            logger.error(f'Error: order of convergence for {title}\n'
-                         f'  {conv_round:1.3f} < min tolerance '
-                         f'{conv_thresh}')
+            logger.error(
+                f'Error: order of convergence for {title}\n'
+                f'  {conv_round:1.3f} < min tolerance '
+                f'{conv_thresh}'
+            )
             convergence_failed = True
 
         return convergence_failed
 
-    def compute_error(self, refinement_factor, variable_name, zidx=None,
-                      error_type='l2'):
+    def compute_error(
+        self, refinement_factor, variable_name, zidx=None, error_type='l2'
+    ):
         """
         Compute the error for a given resolution
 
@@ -321,12 +356,18 @@ class ConvergenceAnalysis(OceanIOStep):
         eval_time = section.getfloat('convergence_eval_time')
         s_per_hour = 3600.0
 
-        field_exact = self.exact_solution(refinement_factor, variable_name,
-                                          time=eval_time * s_per_hour,
-                                          zidx=zidx)
-        field_mpas = self.get_output_field(refinement_factor, variable_name,
-                                           time=eval_time * s_per_hour,
-                                           zidx=zidx)
+        field_exact = self.exact_solution(
+            refinement_factor,
+            variable_name,
+            time=eval_time * s_per_hour,
+            zidx=zidx,
+        )
+        field_mpas = self.get_output_field(
+            refinement_factor,
+            variable_name,
+            time=eval_time * s_per_hour,
+            zidx=zidx,
+        )
         diff = field_exact - field_mpas
 
         # Only the L2 norm is area-weighted
@@ -401,8 +442,9 @@ class ConvergenceAnalysis(OceanIOStep):
             model output field
         """
         config = self.config
-        ds_out = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc',
-                                         decode_times=False)
+        ds_out = self.open_model_dataset(
+            f'output_r{refinement_factor:02g}.nc', decode_times=False
+        )
 
         model = config.get('ocean', 'model')
         if model == 'mpas-o':

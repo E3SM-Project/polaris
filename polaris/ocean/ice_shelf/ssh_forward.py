@@ -21,11 +21,23 @@ class SshForward(OceanModelStep):
         key, string combinations for templated replacements in the yaml
         file
     """
-    def __init__(self, component, min_resolution, init_filename,
-                 graph_target, name='ssh_forward', subdir=None,
-                 package=None, yaml_filename='ssh_forward.yaml',
-                 yaml_replacements=None, indir=None, ntasks=None,
-                 min_tasks=None, openmp_threads=1):
+
+    def __init__(
+        self,
+        component,
+        min_resolution,
+        init_filename,
+        graph_target,
+        name='ssh_forward',
+        subdir=None,
+        package=None,
+        yaml_filename='ssh_forward.yaml',
+        yaml_replacements=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+    ):
         """
         Create a new task
 
@@ -76,10 +88,16 @@ class SshForward(OceanModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
         """
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=f'{indir}/ssh_adjustment', ntasks=ntasks,
-                         min_tasks=min_tasks, openmp_threads=openmp_threads,
-                         graph_target=graph_target)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=f'{indir}/ssh_adjustment',
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            graph_target=graph_target,
+        )
 
         self.min_resolution = min_resolution
         self.package = package
@@ -89,15 +107,20 @@ class SshForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='init.nc',
-                            work_dir_target=init_filename)
-        self.add_input_file(filename='graph.info',
-                            work_dir_target=graph_target)
+        self.add_input_file(filename='init.nc', work_dir_target=init_filename)
+        self.add_input_file(
+            filename='graph.info', work_dir_target=graph_target
+        )
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness',
-                           'normalVelocity'])
+            validate_vars=[
+                'temperature',
+                'salinity',
+                'layerThickness',
+                'normalVelocity',
+            ],
+        )
 
     def compute_cell_count(self):
         """
@@ -109,8 +132,10 @@ class SshForward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        raise ValueError('compute_cell_count method must be overridden by '
-                         'spherical or planar method')
+        raise ValueError(
+            'compute_cell_count method must be overridden by '
+            'spherical or planar method'
+        )
 
     def dynamic_model_config(self, at_setup):
         """
@@ -142,21 +167,25 @@ class SshForward(OceanModelStep):
         else:
             dt_per_km = section.getfloat('split_dt_per_km')
         dt_str = get_time_interval_string(
-            seconds=dt_per_km * self.min_resolution)
+            seconds=dt_per_km * self.min_resolution
+        )
 
         # btr_dt is also proportional to resolution
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
         btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * self.min_resolution)
+            seconds=btr_dt_per_km * self.min_resolution
+        )
 
-        s_per_hour = 3600.
+        s_per_hour = 3600.0
         run_duration = section.getfloat('run_duration')
         run_duration_str = get_time_interval_string(
-            seconds=run_duration * s_per_hour)
+            seconds=run_duration * s_per_hour
+        )
 
         output_interval = section.getfloat('output_interval')
         output_interval_str = get_time_interval_string(
-            seconds=output_interval * s_per_hour)
+            seconds=output_interval * s_per_hour
+        )
 
         replacements = dict(
             dt=dt_str,
@@ -166,10 +195,14 @@ class SshForward(OceanModelStep):
             output_interval=output_interval_str,
         )
 
-        self.add_yaml_file('polaris.ocean.ice_shelf',
-                           'ssh_forward.yaml',
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            'polaris.ocean.ice_shelf',
+            'ssh_forward.yaml',
+            template_replacements=replacements,
+        )
         if self.package is not None:
-            self.add_yaml_file(package=self.package,
-                               yaml=self.yaml_filename,
-                               template_replacements=self.yaml_replacements)
+            self.add_yaml_file(
+                package=self.package,
+                yaml=self.yaml_filename,
+                template_replacements=self.yaml_replacements,
+            )

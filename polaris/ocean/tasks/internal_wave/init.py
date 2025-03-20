@@ -15,6 +15,7 @@ class Init(Step):
     A step for creating a mesh and initial condition for internal wave test
     cases
     """
+
     def __init__(self, component, indir):
         """
         Create the step
@@ -31,9 +32,10 @@ class Init(Step):
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
-        self.add_output_file('initial_state.nc',
-                             validate_vars=['temperature', 'salinity',
-                                            'layerThickness'])
+        self.add_output_file(
+            'initial_state.nc',
+            validate_vars=['temperature', 'salinity', 'layerThickness'],
+        )
 
     def run(self):
         """
@@ -61,14 +63,15 @@ class Init(Step):
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-                                       nonperiodic_x=False,
-                                       nonperiodic_y=True)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
+        )
         write_netcdf(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
@@ -91,23 +94,25 @@ class Init(Step):
             perturb_width = (y_max - y_min) * amplitude_width_frac
 
         # Set stratified temperature
-        temp_vert = (bottom_temperature +
-                     (surface_temperature - bottom_temperature) *
-                     ((ds.refZMid + bottom_depth) / bottom_depth))
+        temp_vert = bottom_temperature + (
+            surface_temperature - bottom_temperature
+        ) * ((ds.refZMid + bottom_depth) / bottom_depth)
 
         depth_frac = xr.zeros_like(temp_vert)
         ref_bottom_depth = ds['refBottomDepth']
         for k in range(1, vert_levels):
-            depth_frac[k] = (ref_bottom_depth[k - 1] /
-                             ref_bottom_depth[vert_levels - 1])
+            depth_frac[k] = (
+                ref_bottom_depth[k - 1] / ref_bottom_depth[vert_levels - 1]
+            )
 
         # If cell is in the southern half, outside the sin width, subtract
         # temperature difference
         frac = xr.where(
             np.abs(y_cell - y_mid) < perturb_width,
-            np.cos(0.5 * np.pi * (y_cell - y_mid) / perturb_width) *
-            np.sin(np.pi * depth_frac),
-            0.)
+            np.cos(0.5 * np.pi * (y_cell - y_mid) / perturb_width)
+            * np.sin(np.pi * depth_frac),
+            0.0,
+        )
 
         temperature = temp_vert - temperature_difference * frac
         temperature = temperature.transpose('nCells', 'nVertLevels')

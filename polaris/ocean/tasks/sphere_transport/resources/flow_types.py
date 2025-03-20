@@ -32,11 +32,12 @@ def flow_nondivergent(t, lon, lat, u_0, tau):
     v : np.ndarray of type float
        meridional velocity
     """
-    lon_p = lon - 2. * pi * t / tau
+    lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (1 / tau) * (u_0 * (sin(lon_p)**2) * sin(2 * lat) * cost +
-                     2. * pi * coslat)
+    u = (1 / tau) * (
+        u_0 * (sin(lon_p) ** 2) * sin(2 * lat) * cost + 2.0 * pi * coslat
+    )
     v = (u_0 / tau) * sin(2 * lon_p) * coslat * cost
     return u, v
 
@@ -70,11 +71,13 @@ def flow_divergent(t, lon, lat, u_0, tau):
     v : np.ndarray of type float
        meridional velocity
     """
-    lon_p = lon - 2. * pi * t / tau
+    lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (1 / tau) * (-u_0 * (sin(lon_p / 2)**2) * sin(2 * lat) *
-                     (coslat**2) * cost + 2. * pi * coslat)
+    u = (1 / tau) * (
+        -u_0 * (sin(lon_p / 2) ** 2) * sin(2 * lat) * (coslat**2) * cost
+        + 2.0 * pi * coslat
+    )
     v = (u_0 / (2 * tau)) * sin(lon_p) * (coslat**3) * cost
     return u, v
 
@@ -109,7 +112,7 @@ def flow_rotation(lon, lat, omega, tau, sphere_radius):
     v : np.ndarray of type float
        meridional velocity
     """
-    omega = (2. * pi / tau) * (omega / np.linalg.norm(omega))
+    omega = (2.0 * pi / tau) * (omega / np.linalg.norm(omega))
     x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
     xyz = np.stack((x, y, z), axis=1)
     vel = np.cross(omega, np.divide(np.transpose(xyz), sphere_radius), axis=0)

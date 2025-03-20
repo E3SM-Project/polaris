@@ -26,9 +26,18 @@ class IsomipPlusTest(Task):
         Whether the test case runs on a planar or a spherical mesh
     """
 
-    def __init__(self, component, resdir, resolution, experiment,
-                 vertical_coordinate, planar, shared_steps,
-                 thin_film=False, tidal_forcing=False):
+    def __init__(
+        self,
+        component,
+        resdir,
+        resolution,
+        experiment,
+        vertical_coordinate,
+        planar,
+        shared_steps,
+        thin_film=False,
+        tidal_forcing=False,
+    ):
         """
         Create the test case
 
@@ -88,5 +97,6 @@ class IsomipPlusTest(Task):
         Modify the configuration options for this test case.
         """
         config = self.config
-        config.add_from_package('polaris.ocean.tasks.isomip_plus',
-                                'isomip_plus.cfg')
+        config.add_from_package(
+            'polaris.ocean.tasks.isomip_plus', 'isomip_plus.cfg'
+        )

@@ -19,8 +19,16 @@ class Forward(ConvergenceForward):
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
     """
-    def __init__(self, component, name, refinement_factor, subdir,
-                 init, refinement='both'):
+
+    def __init__(
+        self,
+        component,
+        name,
+        refinement_factor,
+        subdir,
+        init,
+        refinement='both',
+    ):
         """
         Create a new test case
 
@@ -44,16 +52,20 @@ class Forward(ConvergenceForward):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-        super().__init__(component=component,
-                         name=name, subdir=subdir,
-                         refinement=refinement,
-                         refinement_factor=refinement_factor,
-                         mesh=init, init=init,
-                         package='polaris.ocean.tasks.inertial_gravity_wave',
-                         yaml_filename='forward.yaml',
-                         graph_target=f'{init.path}/culled_graph.info',
-                         output_filename='output.nc',
-                         validate_vars=['layerThickness', 'normalVelocity'])
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            refinement=refinement,
+            refinement_factor=refinement_factor,
+            mesh=init,
+            init=init,
+            package='polaris.ocean.tasks.inertial_gravity_wave',
+            yaml_filename='forward.yaml',
+            graph_target=f'{init.path}/culled_graph.info',
+            output_filename='output.nc',
+            validate_vars=['layerThickness', 'normalVelocity'],
+        )
 
     def compute_cell_count(self):
         """
@@ -67,7 +79,8 @@ class Forward(ConvergenceForward):
         """
         section = self.config['inertial_gravity_wave']
         resolution = get_resolution_for_task(
-            self.config, self.refinement_factor, refinement=self.refinement)
+            self.config, self.refinement_factor, refinement=self.refinement
+        )
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)

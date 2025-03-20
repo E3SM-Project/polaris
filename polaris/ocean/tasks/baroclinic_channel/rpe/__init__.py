@@ -1,6 +1,8 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import (
+    Analysis as Analysis,
+)
 
 
 class Rpe(Task):
@@ -53,7 +55,7 @@ class Rpe(Task):
         self._add_rpe_and_analysis_steps()
 
     def _add_rpe_and_analysis_steps(self):
-        """ Add the steps in the test case either at init or set-up """
+        """Add the steps in the test case either at init or set-up"""
 
         config = self.config
         for step_name in list(self.steps.keys()):
@@ -67,21 +69,33 @@ class Rpe(Task):
         component = self.component
         resolution = self.resolution
 
-        nus = config.getlist('baroclinic_channel_rpe', 'viscosities',
-                             dtype=float)
+        nus = config.getlist(
+            'baroclinic_channel_rpe', 'viscosities', dtype=float
+        )
         for nu in nus:
             name = f'nu_{nu:g}'
             step = Forward(
-                component=component, name=name, indir=self.subdir,
-                ntasks=None, min_tasks=None, openmp_threads=1,
-                resolution=resolution, nu=nu,
-                graph_target=f'{init.path}/culled_graph.info')
+                component=component,
+                name=name,
+                indir=self.subdir,
+                ntasks=None,
+                min_tasks=None,
+                openmp_threads=1,
+                resolution=resolution,
+                nu=nu,
+                graph_target=f'{init.path}/culled_graph.info',
+            )
 
             step.add_yaml_file(
-                'polaris.ocean.tasks.baroclinic_channel.rpe',
-                'forward.yaml')
+                'polaris.ocean.tasks.baroclinic_channel.rpe', 'forward.yaml'
+            )
             self.add_step(step)
 
         self.add_step(
-            Analysis(component=component, resolution=resolution, nus=nus,
-                     indir=self.subdir))
+            Analysis(
+                component=component,
+                resolution=resolution,
+                nus=nus,
+                indir=self.subdir,
+            )
+        )

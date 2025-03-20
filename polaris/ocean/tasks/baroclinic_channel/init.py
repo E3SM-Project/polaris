@@ -23,6 +23,7 @@ class Init(Step):
     resolution : float
         The resolution of the task in km
     """
+
     def __init__(self, component, resolution, indir):
         """
         Create the step
@@ -43,9 +44,10 @@ class Init(Step):
 
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
-        self.add_output_file('initial_state.nc',
-                             validate_vars=['temperature', 'salinity',
-                                            'layerThickness'])
+        self.add_output_file(
+            'initial_state.nc',
+            validate_vars=['temperature', 'salinity', 'layerThickness'],
+        )
 
     def run(self):
         """
@@ -66,14 +68,15 @@ class Init(Step):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(nx=nx, ny=ny, dc=dc,
-                                       nonperiodic_x=False,
-                                       nonperiodic_y=True)
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
+        )
         write_netcdf(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(ds_mesh, graphInfoFileName='culled_graph.info',
-                          logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         section = config['baroclinic_channel']
@@ -112,36 +115,48 @@ class Init(Step):
             perturb_width = (y_max - y_min) * gradient_width_frac
 
         y_offset = perturb_width * np.sin(
-            6.0 * np.pi * (x_cell - x_min) / (x_max - x_min))
+            6.0 * np.pi * (x_cell - x_min) / (x_max - x_min)
+        )
 
-        temp_vert = (bottom_temperature +
-                     (surface_temperature - bottom_temperature) *
-                     ((ds.refZMid + bottom_depth) / bottom_depth))
+        temp_vert = bottom_temperature + (
+            surface_temperature - bottom_temperature
+        ) * ((ds.refZMid + bottom_depth) / bottom_depth)
 
-        frac = xr.where(y_cell < y_mid - y_offset, 1., 0.)
+        frac = xr.where(y_cell < y_mid - y_offset, 1.0, 0.0)
 
-        mask = np.logical_and(y_cell >= y_mid - y_offset,
-                              y_cell < y_mid - y_offset + perturb_width)
-        frac = xr.where(mask,
-                        1. - (y_cell - (y_mid - y_offset)) / perturb_width,
-                        frac)
+        mask = np.logical_and(
+            y_cell >= y_mid - y_offset,
+            y_cell < y_mid - y_offset + perturb_width,
+        )
+        frac = xr.where(
+            mask, 1.0 - (y_cell - (y_mid - y_offset)) / perturb_width, frac
+        )
 
         temperature = temp_vert - temperature_difference * frac
         temperature = temperature.transpose('nCells', 'nVertLevels')
 
         # Determine y_offset for 3rd crest in sin wave
-        y_offset = 0.5 * perturb_width * np.sin(
-            np.pi * (x_cell - x_perturb_min) / (x_perturb_max - x_perturb_min))
+        y_offset = (
+            0.5
+            * perturb_width
+            * np.sin(
+                np.pi
+                * (x_cell - x_perturb_min)
+                / (x_perturb_max - x_perturb_min)
+            )
+        )
 
         mask = np.logical_and(
-            np.logical_and(y_cell >= y_mid - y_offset - 0.5 * perturb_width,
-                           y_cell <= y_mid - y_offset + 0.5 * perturb_width),
-            np.logical_and(x_cell >= x_perturb_min,
-                           x_cell <= x_perturb_max))
+            np.logical_and(
+                y_cell >= y_mid - y_offset - 0.5 * perturb_width,
+                y_cell <= y_mid - y_offset + 0.5 * perturb_width,
+            ),
+            np.logical_and(x_cell >= x_perturb_min, x_cell <= x_perturb_max),
+        )
 
-        temperature = (temperature +
-                       mask * 0.3 * (1. - ((y_cell - (y_mid - y_offset)) /
-                                           (0.5 * perturb_width))))
+        temperature = temperature + mask * 0.3 * (
+            1.0 - ((y_cell - (y_mid - y_offset)) / (0.5 * perturb_width))
+        )
 
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
@@ -166,9 +181,14 @@ class Init(Step):
         cell_mask = ds.maxLevelCell >= 1
         edge_mask = cell_mask_to_edge_mask(ds, cell_mask)
 
-        plot_horiz_field(ds_mesh, ds['normalVelocity'],
-                         'initial_normal_velocity.png', cmap='cmo.balance',
-                         show_patch_edges=True, field_mask=edge_mask)
+        plot_horiz_field(
+            ds_mesh,
+            ds['normalVelocity'],
+            'initial_normal_velocity.png',
+            cmap='cmo.balance',
+            show_patch_edges=True,
+            field_mask=edge_mask,
+        )
 
         y_min = ds_mesh.yVertex.min().values
         y_max = ds_mesh.yVertex.max().values
@@ -178,21 +198,39 @@ class Init(Step):
         x = x_mid * xr.ones_like(y)
 
         ds_transect = compute_transect(
-            x=x, y=y, ds_horiz_mesh=ds_mesh,
+            x=x,
+            y=y,
+            ds_horiz_mesh=ds_mesh,
             layer_thickness=ds.layerThickness.isel(Time=0),
-            bottom_depth=ds.bottomDepth, min_level_cell=ds.minLevelCell - 1,
-            max_level_cell=ds.maxLevelCell - 1, spherical=False)
+            bottom_depth=ds.bottomDepth,
+            min_level_cell=ds.minLevelCell - 1,
+            max_level_cell=ds.maxLevelCell - 1,
+            spherical=False,
+        )
 
         field_name = 'temperature'
         vmin = ds[field_name].min().values
         vmax = ds[field_name].max().values
-        plot_transect(ds_transect=ds_transect,
-                      mpas_field=ds[field_name].isel(Time=0),
-                      title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
-                      out_filename=f'initial_{field_name}_section.png',
-                      vmin=vmin, vmax=vmax, cmap='cmo.thermal',
-                      colorbar_label=r'$^\circ$C', color_start_and_end=True)
+        plot_transect(
+            ds_transect=ds_transect,
+            mpas_field=ds[field_name].isel(Time=0),
+            title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
+            out_filename=f'initial_{field_name}_section.png',
+            vmin=vmin,
+            vmax=vmax,
+            cmap='cmo.thermal',
+            colorbar_label=r'$^\circ$C',
+            color_start_and_end=True,
+        )
 
-        plot_horiz_field(ds_mesh, ds['temperature'], 'initial_temperature.png',
-                         vmin=vmin, vmax=vmax, cmap='cmo.thermal',
-                         field_mask=cell_mask, transect_x=x, transect_y=y)
+        plot_horiz_field(
+            ds_mesh,
+            ds['temperature'],
+            'initial_temperature.png',
+            vmin=vmin,
+            vmax=vmax,
+            cmap='cmo.thermal',
+            field_mask=cell_mask,
+            transect_x=x,
+            transect_y=y,
+        )

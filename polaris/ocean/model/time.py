@@ -23,7 +23,7 @@ def get_time_interval_string(days=None, seconds=None):
 
     """
     sec_per_day = 86400
-    total = 0.
+    total = 0.0
     if seconds is not None:
         total += seconds
     if days is not None:

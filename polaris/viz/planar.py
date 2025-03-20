@@ -10,15 +10,34 @@ from matplotlib.colors import LogNorm
 from polaris.viz.style import use_mplstyle
 
 
-def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
-                     ax=None, title=None, t_index=None, z_index=None,
-                     vmin=None, vmax=None, show_patch_edges=False,
-                     cmap=None, cmap_set_under=None, cmap_set_over=None,
-                     cmap_scale='linear', cmap_title=None, figsize=None,
-                     vert_dim='nVertLevels', field_mask=None, descriptor=None,
-                     transect_x=None, transect_y=None, transect_color='black',
-                     transect_start='red', transect_end='green',
-                     transect_linewidth=2., transect_markersize=12.):
+def plot_horiz_field(  # noqa: C901
+    ds_mesh,
+    field,
+    out_file_name=None,
+    ax=None,
+    title=None,
+    t_index=None,
+    z_index=None,
+    vmin=None,
+    vmax=None,
+    show_patch_edges=False,
+    cmap=None,
+    cmap_set_under=None,
+    cmap_set_over=None,
+    cmap_scale='linear',
+    cmap_title=None,
+    figsize=None,
+    vert_dim='nVertLevels',
+    field_mask=None,
+    descriptor=None,
+    transect_x=None,
+    transect_y=None,
+    transect_color='black',
+    transect_start='red',
+    transect_end='green',
+    transect_linewidth=2.0,
+    transect_markersize=12.0,
+):
     """
     Plot a horizontal field from a planar domain using x,y coordinates at a
     single time and depth slice.
@@ -115,8 +134,9 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         needs to be created once per mesh file.
     """
     if (transect_x is None) != (transect_y is None):
-        raise ValueError('You must supply both transect_x and transect_y or '
-                         'neither')
+        raise ValueError(
+            'You must supply both transect_x and transect_y or neither'
+        )
 
     use_mplstyle()
 
@@ -166,9 +186,7 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         pcolor_kwargs['linewidth'] = 0.25
 
     if cmap_scale == 'log':
-        pcolor_kwargs['norm'] = LogNorm(
-            vmin=vmin, vmax=vmax, clip=False
-        )
+        pcolor_kwargs['norm'] = LogNorm(vmin=vmin, vmax=vmax, clip=False)
         pcolor_kwargs.pop('vmin', None)
         pcolor_kwargs.pop('vmax', None)
 
@@ -185,12 +203,13 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         ax = plt.subplot(111)
 
     if field_mask is not None:
-
         if field_mask.shape != field.shape:
-            raise ValueError(f"The shape of `field_mask`: {field_mask.shape} "
-                             f"does match shape of `field array`: "
-                             f"{field.shape} make sure both arrays are defined"
-                             f" at the same location")
+            raise ValueError(
+                f'The shape of `field_mask`: {field_mask.shape} '
+                f'does match shape of `field array`: '
+                f'{field.shape} make sure both arrays are defined'
+                f' at the same location'
+            )
 
         if np.any(~field_mask):
             field = field.where(field_mask)
@@ -221,14 +240,28 @@ def plot_horiz_field(ds_mesh, field, out_file_name=None,  # noqa: C901
         cbar.set_label(cmap_title)
 
     if transect_x is not None:
-        ax.plot(transect_x, transect_y, color=transect_color,
-                linewidth=transect_linewidth)
+        ax.plot(
+            transect_x,
+            transect_y,
+            color=transect_color,
+            linewidth=transect_linewidth,
+        )
         if transect_start is not None:
-            ax.plot(transect_x[0], transect_y[0], '.', color=transect_start,
-                    markersize=transect_markersize)
+            ax.plot(
+                transect_x[0],
+                transect_y[0],
+                '.',
+                color=transect_start,
+                markersize=transect_markersize,
+            )
         if transect_end is not None:
-            ax.plot(transect_x[-1], transect_y[-1], '.', color=transect_end,
-                    markersize=transect_markersize)
+            ax.plot(
+                transect_x[-1],
+                transect_y[-1],
+                '.',
+                color=transect_end,
+                markersize=transect_markersize,
+            )
     if create_fig:
         plt.title(title)
         plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)

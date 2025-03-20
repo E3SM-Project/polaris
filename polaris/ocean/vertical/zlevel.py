@@ -60,23 +60,36 @@ def init_z_level_vertical_coord(config, ds):
 
     ds['vertCoordMovementWeights'] = xarray.ones_like(ds.refBottomDepth)
 
-    ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = \
-        compute_min_max_level_cell(ds.refTopDepth, ds.refBottomDepth, ds.ssh,
-                                   ds.bottomDepth)
+    ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = (
+        compute_min_max_level_cell(
+            ds.refTopDepth, ds.refBottomDepth, ds.ssh, ds.bottomDepth
+        )
+    )
 
     ds['bottomDepth'], ds['maxLevelCell'] = alter_bottom_depth(
-        config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell)
+        config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell
+    )
 
     ds['ssh'], ds['minLevelCell'] = alter_ssh(
-        config, ds.ssh, ds.refBottomDepth, ds.minLevelCell)
+        config, ds.ssh, ds.refBottomDepth, ds.minLevelCell
+    )
 
     ds['layerThickness'] = compute_z_level_layer_thickness(
-        ds.refTopDepth, ds.refBottomDepth, ds.ssh, ds.bottomDepth,
-        ds.minLevelCell, ds.maxLevelCell)
+        ds.refTopDepth,
+        ds.refBottomDepth,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
     ds['restingThickness'] = compute_z_level_resting_thickness(
-        ds.layerThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
-        ds.maxLevelCell)
+        ds.layerThickness,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
 
 def update_z_level_layer_thickness(config, ds):
@@ -95,12 +108,23 @@ def update_z_level_layer_thickness(config, ds):
         construct the vertical coordinate
     """
     ds['layerThickness'] = compute_z_level_layer_thickness(
-        ds.refTopDepth, ds.refBottomDepth, ds.ssh, ds.bottomDepth,
-        ds.minLevelCell, ds.maxLevelCell)
+        ds.refTopDepth,
+        ds.refBottomDepth,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
 
-def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth,
-                               min_vert_levels=None, min_layer_thickness=None):
+def compute_min_max_level_cell(
+    refTopDepth,
+    refBottomDepth,
+    ssh,
+    bottomDepth,
+    min_vert_levels=None,
+    min_layer_thickness=None,
+):
     """
     Compute ``minLevelCell`` and ``maxLevelCell`` indices as well as a cell
     mask for the given reference grid and top and bottom topography.
@@ -138,23 +162,27 @@ def compute_min_max_level_cell(refTopDepth, refBottomDepth, ssh, bottomDepth,
 
     aboveTopMask = (refBottomDepth <= -ssh).transpose('nCells', 'nVertLevels')
     aboveBottomMask = (refTopDepth < bottomDepth).transpose(
-        'nCells', 'nVertLevels')
+        'nCells', 'nVertLevels'
+    )
     aboveBottomMask = numpy.logical_and(aboveBottomMask, valid)
 
     minLevelCell = (aboveTopMask.sum(dim='nVertLevels')).where(valid, 0)
     maxLevelCell = (aboveBottomMask.sum(dim='nVertLevels') - 1).where(valid, 0)
     if min_vert_levels is not None:
-        maxLevelCell = numpy.maximum(maxLevelCell,
-                                     minLevelCell + min_vert_levels - 1)
-    cellMask = numpy.logical_and(numpy.logical_not(aboveTopMask),
-                                 aboveBottomMask)
+        maxLevelCell = numpy.maximum(
+            maxLevelCell, minLevelCell + min_vert_levels - 1
+        )
+    cellMask = numpy.logical_and(
+        numpy.logical_not(aboveTopMask), aboveBottomMask
+    )
     cellMask = numpy.logical_and(cellMask, valid)
 
     return minLevelCell, maxLevelCell, cellMask
 
 
-def compute_z_level_layer_thickness(refTopDepth, refBottomDepth, ssh,
-                                    bottomDepth, minLevelCell, maxLevelCell):
+def compute_z_level_layer_thickness(
+    refTopDepth, refBottomDepth, ssh, bottomDepth, minLevelCell, maxLevelCell
+):
     """
     Compute z-level layer thickness from ssh and bottomDepth
 
@@ -187,21 +215,25 @@ def compute_z_level_layer_thickness(refTopDepth, refBottomDepth, ssh,
     nVertLevels = refBottomDepth.sizes['nVertLevels']
     layerThickness = []
     for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(zIndex >= minLevelCell,
-                                 zIndex <= maxLevelCell)
+        mask = numpy.logical_and(
+            zIndex >= minLevelCell, zIndex <= maxLevelCell
+        )
         zTop = numpy.minimum(ssh, -refTopDepth[zIndex])
         zBot = numpy.maximum(-bottomDepth, -refBottomDepth[zIndex])
-        thickness = (zTop - zBot).where(mask, 0.)
+        thickness = (zTop - zBot).where(mask, 0.0)
         layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(layerThickness,
-                                           dims=['nVertLevels', 'nCells'])
+    layerThicknessArray = xarray.DataArray(
+        layerThickness, dims=['nVertLevels', 'nCells']
+    )
     layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels')
+        'nCells', 'nVertLevels'
+    )
     return layerThicknessArray
 
 
-def compute_z_level_resting_thickness(layerThickness, ssh, bottomDepth,
-                                      minLevelCell, maxLevelCell):
+def compute_z_level_resting_thickness(
+    layerThickness, ssh, bottomDepth, minLevelCell, maxLevelCell
+):
     """
     Compute z-level resting thickness by "unstretching" layerThickness
     based on ssh and bottomDepth
@@ -234,14 +266,16 @@ def compute_z_level_resting_thickness(layerThickness, ssh, bottomDepth,
 
     layerStretch = bottomDepth / (ssh + bottomDepth)
     for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(zIndex >= minLevelCell,
-                                 zIndex <= maxLevelCell)
-        thickness = layerStretch * layerThickness.isel(
-            nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.)
+        mask = numpy.logical_and(
+            zIndex >= minLevelCell, zIndex <= maxLevelCell
+        )
+        thickness = layerStretch * layerThickness.isel(nVertLevels=zIndex)
+        thickness = thickness.where(mask, 0.0)
         restingThickness.append(thickness)
-    restingThicknessArray = xarray.DataArray(restingThickness,
-                                             dims=['nVertLevels', 'nCells'])
+    restingThicknessArray = xarray.DataArray(
+        restingThickness, dims=['nVertLevels', 'nCells']
+    )
     restingThicknessArray = restingThicknessArray.transpose(
-        'nCells', 'nVertLevels')
+        'nCells', 'nVertLevels'
+    )
     return restingThicknessArray

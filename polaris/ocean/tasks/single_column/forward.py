@@ -18,9 +18,18 @@ class Forward(OceanModelStep):
     btr_dt : float
         The model barotropic time step in seconds
     """
-    def __init__(self, component, name='forward', subdir=None, indir=None,
-                 ntasks=None, min_tasks=None, openmp_threads=1,
-                 validate_vars=None):
+
+    def __init__(
+        self,
+        component,
+        name='forward',
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+        validate_vars=None,
+    ):
         """
         Create a new test case
 
@@ -55,25 +64,31 @@ class Forward(OceanModelStep):
             A list of variable names to compare with a baseline (if one is
             provided)
         """
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+        )
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='initial_state.nc',
-                            target='../init/initial_state.nc')
-        self.add_input_file(filename='forcing.nc',
-                            target='../init/forcing.nc')
-        self.add_input_file(filename='graph.info',
-                            target='../init/culled_graph.info')
+        self.add_input_file(
+            filename='initial_state.nc', target='../init/initial_state.nc'
+        )
+        self.add_input_file(filename='forcing.nc', target='../init/forcing.nc')
+        self.add_input_file(
+            filename='graph.info', target='../init/culled_graph.info'
+        )
 
-        self.add_yaml_file('polaris.ocean.tasks.single_column',
-                           'forward.yaml')
+        self.add_yaml_file('polaris.ocean.tasks.single_column', 'forward.yaml')
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
-        self.resources_fixed = (ntasks is not None)
+        self.resources_fixed = ntasks is not None
 
         self.dt = None
         self.btr_dt = None

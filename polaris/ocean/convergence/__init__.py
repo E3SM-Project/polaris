@@ -1,5 +1,4 @@
-def get_resolution_for_task(config, refinement_factor,
-                            refinement='both'):
+def get_resolution_for_task(config, refinement_factor, refinement='both'):
     """
     Get the resolution for a step in a convergence task
 
@@ -30,7 +29,8 @@ def get_resolution_for_task(config, refinement_factor,
     if refinement_factor not in refinement_factors:
         raise ValueError(
             f'refinement_factor {refinement_factor} not found in config '
-            f'option {option}:\n {refinement_factors}')
+            f'option {option}:\n {refinement_factors}'
+        )
 
     if refinement == 'time':
         resolution = base_resolution
@@ -40,8 +40,7 @@ def get_resolution_for_task(config, refinement_factor,
     return resolution
 
 
-def get_timestep_for_task(config, refinement_factor,
-                          refinement='both'):
+def get_timestep_for_task(config, refinement_factor, refinement='both'):
     """
     Get the time step for a forward step in a convergence task
 
@@ -73,23 +72,24 @@ def get_timestep_for_task(config, refinement_factor,
     if refinement_factor not in refinement_factors:
         raise ValueError(
             f'refinement_factor {refinement_factor} not found in config '
-            f'option {option}:\n {refinement_factors}')
+            f'option {option}:\n {refinement_factors}'
+        )
 
     resolution = get_resolution_for_task(
-        config, refinement_factor, refinement=refinement)
+        config, refinement_factor, refinement=refinement
+    )
 
     section = config['convergence_forward']
     time_integrator = section.get('time_integrator')
     # dt is proportional to resolution: default 30 seconds per km
     if time_integrator == 'RK4':
         dt_per_km = section.getfloat('rk4_dt_per_km')
-        btr_timestep = 0.
+        btr_timestep = 0.0
     else:
         dt_per_km = section.getfloat('split_dt_per_km')
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
         if refinement == 'time':
-            btr_timestep = btr_dt_per_km * base_resolution * \
-                refinement_factor
+            btr_timestep = btr_dt_per_km * base_resolution * refinement_factor
         elif refinement == 'space':
             btr_timestep = btr_dt_per_km * base_resolution
         else:

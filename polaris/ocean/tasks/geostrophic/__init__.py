@@ -1,17 +1,26 @@
-from math import ceil
-from typing import Dict
+from math import ceil as ceil
+from typing import Dict as Dict
 
-from polaris import Step, Task
-from polaris.config import PolarisConfigParser
-from polaris.ocean.convergence import (
-    get_resolution_for_task,
-    get_timestep_for_task,
+from polaris import (
+    Step as Step,
 )
-from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
-from polaris.ocean.tasks.geostrophic.analysis import Analysis
-from polaris.ocean.tasks.geostrophic.forward import Forward
-from polaris.ocean.tasks.geostrophic.init import Init
-from polaris.ocean.tasks.geostrophic.viz import Viz
+from polaris import (
+    Task as Task,
+)
+from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.convergence import (
+    get_resolution_for_task as get_resolution_for_task,
+)
+from polaris.ocean.convergence import (
+    get_timestep_for_task as get_timestep_for_task,
+)
+from polaris.ocean.mesh.spherical import (
+    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
+)
+from polaris.ocean.tasks.geostrophic.analysis import Analysis as Analysis
+from polaris.ocean.tasks.geostrophic.forward import Forward as Forward
+from polaris.ocean.tasks.geostrophic.init import Init as Init
+from polaris.ocean.tasks.geostrophic.viz import Viz as Viz
 
 
 def add_geostrophic_tasks(component):
@@ -23,23 +32,27 @@ def add_geostrophic_tasks(component):
     """
 
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-
         filepath = f'spherical/{prefix}/geostrophic/geostrophic.cfg'
         config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package('polaris.ocean.convergence',
-                                'convergence.cfg')
-        config.add_from_package('polaris.ocean.convergence.spherical',
-                                'spherical.cfg')
-        config.add_from_package('polaris.ocean.tasks.geostrophic',
-                                'geostrophic.cfg')
+        config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
+        config.add_from_package(
+            'polaris.ocean.convergence.spherical', 'spherical.cfg'
+        )
+        config.add_from_package(
+            'polaris.ocean.tasks.geostrophic', 'geostrophic.cfg'
+        )
 
         for refinement in ['space', 'time', 'both']:
             for include_viz in [False, True]:
-                component.add_task(Geostrophic(component=component,
-                                               config=config,
-                                               icosahedral=icosahedral,
-                                               include_viz=include_viz,
-                                               refinement=refinement))
+                component.add_task(
+                    Geostrophic(
+                        component=component,
+                        config=config,
+                        icosahedral=icosahedral,
+                        include_viz=include_viz,
+                        refinement=refinement,
+                    )
+                )
 
 
 class Geostrophic(Task):
@@ -58,8 +71,10 @@ class Geostrophic(Task):
     include_viz : bool
         Include VizMap and Viz steps for each resolution
     """
-    def __init__(self, component, config, icosahedral, include_viz,
-                 refinement='both'):
+
+    def __init__(
+        self, component, config, icosahedral, include_viz, refinement='both'
+    ):
         """
         Create the convergence test
 
@@ -134,17 +149,19 @@ class Geostrophic(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist('spherical_convergence',
-                                            f'{prefix}_{option}', dtype=str)
+        refinement_factors = config.getlist(
+            'spherical_convergence', f'{prefix}_{option}', dtype=str
+        )
         refinement_factors = ', '.join(refinement_factors)
         config.set('convergence', option, value=refinement_factors)
-        refinement_factors = config.getlist('convergence',
-                                            option, dtype=float)
+        refinement_factors = config.getlist('convergence', option, dtype=float)
 
-        base_resolution = config.getfloat('spherical_convergence',
-                                          f'{prefix}_base_resolution')
-        config.set('convergence', 'base_resolution',
-                   value=f'{base_resolution:03g}')
+        base_resolution = config.getfloat(
+            'spherical_convergence', f'{prefix}_base_resolution'
+        )
+        config.set(
+            'convergence', 'base_resolution', value=f'{base_resolution:03g}'
+        )
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -157,15 +174,18 @@ class Geostrophic(Task):
 
         case_dir = f'spherical/{prefix}/geostrophic'
 
-        analysis_dependencies: Dict[str, Dict[float, Step]] = (
-            dict(mesh=dict(), init=dict(), forward=dict()))
+        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
+            mesh=dict(), init=dict(), forward=dict()
+        )
 
         for refinement_factor in refinement_factors:
             resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=refinement)
+                config, refinement_factor, refinement=refinement
+            )
 
             base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral)
+                component, resolution, icosahedral
+            )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
             name = f'{prefix}_init_{mesh_name}'
@@ -173,8 +193,12 @@ class Geostrophic(Task):
             if subdir in component.steps:
                 init_step = component.steps[subdir]
             else:
-                init_step = Init(component=component, name=name,
-                                 subdir=subdir, base_mesh=base_mesh_step)
+                init_step = Init(
+                    component=component,
+                    name=name,
+                    subdir=subdir,
+                    base_mesh=base_mesh_step,
+                )
                 init_step.set_shared_config(config, link=config_filename)
             analysis_dependencies['init'][refinement_factor] = init_step
 
@@ -184,7 +208,8 @@ class Geostrophic(Task):
                 resolutions.append(resolution)
 
             timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=refinement)
+                config, refinement_factor, refinement=refinement
+            )
             timestep = ceil(timestep)
             timesteps.append(timestep)
 
@@ -195,13 +220,15 @@ class Geostrophic(Task):
             else:
                 name = f'{prefix}_forward_{mesh_name}_{timestep}s'
                 forward_step = Forward(
-                    component=component, name=name,
+                    component=component,
+                    name=name,
                     subdir=subdir,
                     refinement_factor=refinement_factor,
                     mesh=base_mesh_step,
-                    init=init_step, refinement=refinement)
-                forward_step.set_shared_config(
-                    config, link=config_filename)
+                    init=init_step,
+                    refinement=refinement,
+                )
+                forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
@@ -211,10 +238,15 @@ class Geostrophic(Task):
                 if subdir in component.steps:
                     viz_step = component.steps[subdir]
                 else:
-                    viz_step = Viz(component=component, name=name,
-                                   subdir=subdir, base_mesh=base_mesh_step,
-                                   init=init_step, forward=forward_step,
-                                   mesh_name=mesh_name)
+                    viz_step = Viz(
+                        component=component,
+                        name=name,
+                        subdir=subdir,
+                        base_mesh=base_mesh_step,
+                        init=init_step,
+                        forward=forward_step,
+                        mesh_name=mesh_name,
+                    )
                     viz_step.set_shared_config(config, link=config_filename)
                 self.add_step(viz_step)
 
@@ -224,10 +256,12 @@ class Geostrophic(Task):
             step.resolutions = resolutions
             step.dependencies_dict = analysis_dependencies
         else:
-            step = Analysis(component=component,
-                            subdir=subdir,
-                            dependencies=analysis_dependencies,
-                            refinement=refinement)
+            step = Analysis(
+                component=component,
+                subdir=subdir,
+                dependencies=analysis_dependencies,
+                refinement=refinement,
+            )
             step.set_shared_config(config, link=config_filename)
         if self.include_viz:
             symlink = f'analysis_{refinement}'

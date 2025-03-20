@@ -14,9 +14,21 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, component, init, name='forward', subdir=None,
-                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
-                 nu=None, run_time_steps=None, vadv_method='standard'):
+
+    def __init__(
+        self,
+        component,
+        init,
+        name='forward',
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+        nu=None,
+        run_time_steps=None,
+        vadv_method='standard',
+    ):
         """
         Create a new test case
 
@@ -60,35 +72,44 @@ class Forward(OceanModelStep):
             The vertical advection method, 'standard' or 'vlr'
         """
         self.run_time_steps = run_time_steps
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads,
-                         graph_target=f'{init.path}/culled_graph.info')
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            graph_target=f'{init.path}/culled_graph.info',
+        )
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='initial_state.nc',
-                            work_dir_target=f'{init.path}/initial_state.nc')
+        self.add_input_file(
+            filename='initial_state.nc',
+            work_dir_target=f'{init.path}/initial_state.nc',
+        )
 
-        self.add_yaml_file('polaris.ocean.tasks.internal_wave',
-                           'forward.yaml')
+        self.add_yaml_file('polaris.ocean.tasks.internal_wave', 'forward.yaml')
 
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml
-            self.add_model_config_options(options=dict(config_mom_del2=nu),
-                                          config_model='mpas-ocean')
+            self.add_model_config_options(
+                options=dict(config_mom_del2=nu), config_model='mpas-ocean'
+            )
 
-        vadv_dict = {'standard': 'flux-form',
-                     'vlr': 'remap'}
-        self.add_model_config_options({
-            'config_vert_advection_method': f"{vadv_dict[vadv_method]}"},
-            config_model='mpas-ocean')
+        vadv_dict = {'standard': 'flux-form', 'vlr': 'remap'}
+        self.add_model_config_options(
+            {'config_vert_advection_method': f'{vadv_dict[vadv_method]}'},
+            config_model='mpas-ocean',
+        )
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['layerThickness', 'normalVelocity'])
+            validate_vars=['layerThickness', 'normalVelocity'],
+        )
 
     def compute_cell_count(self):
         """
@@ -131,14 +152,15 @@ class Forward(OceanModelStep):
         dt_per_km = config.getfloat('internal_wave', 'dt_per_km')
         dt = dt_per_km * resolution
         # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(dt))
+        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
             run_seconds = self.run_time_steps * dt
-            options['config_run_duration'] = \
-                time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+            options['config_run_duration'] = time.strftime(
+                '%H:%M:%S', time.gmtime(run_seconds)
+            )
             options['config_stop_time'] = 'none'
-        self.add_model_config_options(options=options,
-                                      config_model='mpas-ocean')
+        self.add_model_config_options(
+            options=options, config_model='mpas-ocean'
+        )

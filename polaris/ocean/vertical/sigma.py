@@ -62,16 +62,19 @@ def init_sigma_vertical_coord(config, ds):
     ds['cellMask'] = cell_mask.transpose('nCells', 'nVertLevels')
 
     ds['minLevelCell'] = xarray.zeros_like(ds.bottomDepth, dtype=int)
-    ds['maxLevelCell'] = (ds.sizes['nVertLevels'] - 1 *
-                          xarray.ones_like(ds.bottomDepth, dtype=int))
+    ds['maxLevelCell'] = ds.sizes['nVertLevels'] - 1 * xarray.ones_like(
+        ds.bottomDepth, dtype=int
+    )
 
     resting_ssh = xarray.zeros_like(ds.bottomDepth)
 
     ds['restingThickness'] = compute_sigma_layer_thickness(
-        ds.refInterfaces, resting_ssh, ds.bottomDepth)
+        ds.refInterfaces, resting_ssh, ds.bottomDepth
+    )
 
     ds['layerThickness'] = compute_sigma_layer_thickness(
-        ds.refInterfaces, ds.ssh, ds.bottomDepth)
+        ds.refInterfaces, ds.ssh, ds.bottomDepth
+    )
 
 
 def update_sigma_layer_thickness(config, ds):
@@ -90,11 +93,13 @@ def update_sigma_layer_thickness(config, ds):
         construct the vertical coordinate
     """
     ds['layerThickness'] = compute_sigma_layer_thickness(
-        ds.refInterfaces, ds.ssh, ds.bottomDepth)
+        ds.refInterfaces, ds.ssh, ds.bottomDepth
+    )
 
 
-def compute_sigma_layer_thickness(ref_interfaces, ssh, bottom_depth,
-                                  max_level=None):
+def compute_sigma_layer_thickness(
+    ref_interfaces, ssh, bottom_depth, max_level=None
+):
     """
     Compute sigma layer thickness by stretching restingThickness based on ssh
     and bottom_depth
@@ -133,14 +138,17 @@ def compute_sigma_layer_thickness(ref_interfaces, ssh, bottom_depth,
     layer_thickness = []
 
     for z_index in range(max_level):
-        thickness = ((stretch[z_index + 1] - stretch[z_index]) *
-                     column_thickness)
-        thickness = thickness.where(valid, 0.)
+        thickness = (
+            stretch[z_index + 1] - stretch[z_index]
+        ) * column_thickness
+        thickness = thickness.where(valid, 0.0)
         layer_thickness.append(thickness)
-    for z_index in range(max_level, n_vert_levels):
+    for _ in range(max_level, n_vert_levels):
         layer_thickness.append(xarray.zeros_like(bottom_depth))
-    layer_thickness_array = xarray.DataArray(layer_thickness,
-                                             dims=['nVertLevels', 'nCells'])
+    layer_thickness_array = xarray.DataArray(
+        layer_thickness, dims=['nVertLevels', 'nCells']
+    )
     layer_thickness_array = layer_thickness_array.transpose(
-        'nCells', 'nVertLevels')
+        'nCells', 'nVertLevels'
+    )
     return layer_thickness_array

@@ -39,9 +39,7 @@ def slotted_cylinders(lon, lat, r, b, c, sphere_radius):
     lat1 = 0
     lon2 = -5 * (np.pi / 6)
     lat2 = 0
-    lon0 = np.where(lon > np.pi,
-                    lon - 2 * np.pi,
-                    lon)
+    lon0 = np.where(lon > np.pi, lon - 2 * np.pi, lon)
     x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
     x1, y1, z1 = lon_lat_to_cartesian(lon1, lat1, sphere_radius, degrees=False)
     x2, y2, z2 = lon_lat_to_cartesian(lon2, lat2, sphere_radius, degrees=False)
@@ -50,21 +48,32 @@ def slotted_cylinders(lon, lat, r, b, c, sphere_radius):
     xyz2 = Vector(x2, y2, z2)
     r1 = xyz.angular_distance(xyz1)
     r2 = xyz.angular_distance(xyz2)
-    scs = np.where(r1 <= r,
-                   np.where(np.logical_or((abs(lon0 - lon1) >= lon_thr),
-                                          np.logical_and(
-                                              abs(lon0 - lon1) < lon_thr,
-                                              lat - lat1 < -lat_thr)),
-                            c,
-                            b),
-                   np.where(np.logical_and(r2 <= r,
-                                           np.logical_or(
-                                               (abs(lon0 - lon2) >= lon_thr),
-                                               np.logical_and(
-                                                   abs(lon0 - lon2) < lon_thr,
-                                                   lat - lat2 > lat_thr))),
-                            c,
-                            b))
+    scs = np.where(
+        r1 <= r,
+        np.where(
+            np.logical_or(
+                (abs(lon0 - lon1) >= lon_thr),
+                np.logical_and(
+                    abs(lon0 - lon1) < lon_thr, lat - lat1 < -lat_thr
+                ),
+            ),
+            c,
+            b,
+        ),
+        np.where(
+            np.logical_and(
+                r2 <= r,
+                np.logical_or(
+                    (abs(lon0 - lon2) >= lon_thr),
+                    np.logical_and(
+                        abs(lon0 - lon2) < lon_thr, lat - lat2 > lat_thr
+                    ),
+                ),
+            ),
+            c,
+            b,
+        ),
+    )
     return scs
 
 
@@ -117,11 +126,11 @@ def cosine_bells(lon, lat, r, b, c, sphere_radius):
     # Distance of each cell from the center of the second cosine bell
     r2 = xyz.angular_distance(xyz2)
 
-    cbs = np.where(r1 < r,
-                   cosine_bell(1.0, r1, r),
-                   np.where(r2 < r,
-                            cosine_bell(1.0, r2, r),
-                            0.))
+    cbs = np.where(
+        r1 < r,
+        cosine_bell(1.0, r1, r),
+        np.where(r2 < r, cosine_bell(1.0, r2, r), 0.0),
+    )
     return b + c * cbs
 
 
@@ -210,4 +219,4 @@ def correlation_fn(q1, a, b, c):
     q2 : np.ndarray
         correlated tracer values
     """
-    return a * q1**2. + b * q1 + c
+    return a * q1**2.0 + b * q1 + c

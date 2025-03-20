@@ -58,8 +58,9 @@ def mesh_to_triangles(ds_mesh):
     max_edges = ds_mesh.sizes['maxEdges']
     n_cells = ds_mesh.sizes['nCells']
     if ds_mesh.sizes['vertexDegree'] != 3:
-        raise ValueError('mesh_to_triangles only supports meshes with '
-                         'vertexDegree = 3')
+        raise ValueError(
+            'mesh_to_triangles only supports meshes with vertexDegree = 3'
+        )
 
     # find the third vertex for each triangle
     next_vertex = -1 * np.ones(vertices_on_cell.shape, int)
@@ -70,17 +71,18 @@ def mesh_to_triangles(ds_mesh):
         nv = n_vertices_on_cell[valid]
         cell_indices = np.arange(0, n_cells)[valid]
         i_next = np.where(i_vertex < nv - 1, i_vertex + 1, 0)
-        next_vertex[:, i_vertex][valid] = (
-            vertices_on_cell[cell_indices, i_next])
+        next_vertex[:, i_vertex][valid] = vertices_on_cell[
+            cell_indices, i_next
+        ]
 
     valid = vertices_on_cell >= 0
     vertices_on_cell = vertices_on_cell[valid]
     next_vertex = next_vertex[valid]
 
     # find the cell index for each triangle
-    tri_cell_indices, _ = np.meshgrid(np.arange(0, n_cells),
-                                      np.arange(0, max_edges),
-                                      indexing='ij')
+    tri_cell_indices, _ = np.meshgrid(
+        np.arange(0, n_cells), np.arange(0, max_edges), indexing='ij'
+    )
     tri_cell_indices = tri_cell_indices[valid]
 
     # find list of cells and weights for each triangle node
@@ -90,7 +92,7 @@ def mesh_to_triangles(ds_mesh):
     # the first node is at the cell center, so the value is just the one from
     # that cell
     node_cell_indices[:, 0, 0] = tri_cell_indices
-    node_cell_weights[:, 0, 0] = 1.
+    node_cell_weights[:, 0, 0] = 1.0
 
     # the other 2 nodes are associated with vertices
     node_cell_indices[:, 1, :] = cells_on_vertex[vertices_on_cell, :]
@@ -101,14 +103,19 @@ def mesh_to_triangles(ds_mesh):
     weight_sum = np.sum(node_cell_weights, axis=2)
     for i_node in range(3):
         node_cell_weights[:, :, i_node] = (
-            node_cell_weights[:, :, i_node] / weight_sum)
+            node_cell_weights[:, :, i_node] / weight_sum
+        )
 
     ds_tris = xr.Dataset()
     ds_tris['triCellIndices'] = ('nTriangles', tri_cell_indices)
-    ds_tris['nodeCellIndices'] = (('nTriangles', 'nNodes', 'nInterp'),
-                                  node_cell_indices)
-    ds_tris['nodeCellWeights'] = (('nTriangles', 'nNodes', 'nInterp'),
-                                  node_cell_weights)
+    ds_tris['nodeCellIndices'] = (
+        ('nTriangles', 'nNodes', 'nInterp'),
+        node_cell_indices,
+    )
+    ds_tris['nodeCellWeights'] = (
+        ('nTriangles', 'nNodes', 'nInterp'),
+        node_cell_weights,
+    )
 
     # get Cartesian and lon/lat coordinates of each node
     for prefix in ['x', 'y', 'z', 'lat', 'lon']:
@@ -124,13 +131,16 @@ def mesh_to_triangles(ds_mesh):
     # nothing obvious we can do about triangles containing the poles
 
     if on_a_sphere:
-        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='lonNode',
-                                     period=2 * np.pi)
+        ds_tris = _fix_periodic_tris(
+            ds_tris, periodic_var='lonNode', period=2 * np.pi
+        )
     elif is_periodic:
-        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='xNode',
-                                     period=x_period)
-        ds_tris = _fix_periodic_tris(ds_tris, periodic_var='yNode',
-                                     period=y_period)
+        ds_tris = _fix_periodic_tris(
+            ds_tris, periodic_var='xNode', period=x_period
+        )
+        ds_tris = _fix_periodic_tris(
+            ds_tris, periodic_var='yNode', period=y_period
+        )
 
     return ds_tris
 
@@ -160,8 +170,10 @@ def make_triangle_tree(ds_tris):
     node_coords[:, 2] = ds_tris.zNode.values.ravel()
 
     next_tri, next_node = np.meshgrid(
-        np.arange(n_triangles), np.mod(np.arange(n_nodes) + 1, 3),
-        indexing='ij')
+        np.arange(n_triangles),
+        np.mod(np.arange(n_nodes) + 1, 3),
+        indexing='ij',
+    )
     nextIndices = n_nodes * next_tri.ravel() + next_node.ravel()
 
     # edge centers are half way between adjacent nodes (ignoring great-circle
@@ -173,8 +185,15 @@ def make_triangle_tree(ds_tris):
 
 
 def find_spherical_transect_cells_and_weights(
-        lon_transect, lat_transect, ds_tris, ds_mesh, tree, degrees=True,
-        earth_radius=None, subdivision_res=10e3):
+    lon_transect,
+    lat_transect,
+    ds_tris,
+    ds_mesh,
+    tree,
+    degrees=True,
+    earth_radius=None,
+    subdivision_res=10e3,
+):
     """
     Find "nodes" where the transect intersects the edges of the triangles
     that make up MPAS cells.
@@ -256,11 +275,13 @@ def find_spherical_transect_cells_and_weights(
     """
     if earth_radius is None:
         earth_radius = ds_mesh.attrs['sphere_radius']
-    buffer = np.maximum(np.amax(ds_mesh.dvEdge.values),
-                        np.amax(ds_mesh.dcEdge.values))
+    buffer = np.maximum(
+        np.amax(ds_mesh.dvEdge.values), np.amax(ds_mesh.dcEdge.values)
+    )
 
-    x, y, z = lon_lat_to_cartesian(lon_transect, lat_transect, earth_radius,
-                                   degrees)
+    x, y, z = lon_lat_to_cartesian(
+        lon_transect, lat_transect, earth_radius, degrees
+    )
 
     n_nodes = ds_tris.sizes['nNodes']
     node_cell_weights = ds_tris.nodeCellWeights.values
@@ -285,19 +306,25 @@ def find_spherical_transect_cells_and_weights(
 
     first = True
 
-    d_start = 0.
+    d_start = 0.0
     for seg_index in range(len(x) - 1):
-        transectv0 = Vector(x[seg_index].values,
-                            y[seg_index].values,
-                            z[seg_index].values)
-        transectv1 = Vector(x[seg_index + 1].values,
-                            y[seg_index + 1].values,
-                            z[seg_index + 1].values)
+        transectv0 = Vector(
+            x[seg_index].values, y[seg_index].values, z[seg_index].values
+        )
+        transectv1 = Vector(
+            x[seg_index + 1].values,
+            y[seg_index + 1].values,
+            z[seg_index + 1].values,
+        )
 
         sub_slice = slice(seg_index, seg_index + 2)
         x_sub, y_sub, z_sub, _, _ = subdivide_great_circle(
-            x[sub_slice].values, y[sub_slice].values, z[sub_slice].values,
-            subdivision_res, earth_radius)
+            x[sub_slice].values,
+            y[sub_slice].values,
+            z[sub_slice].values,
+            subdivision_res,
+            earth_radius,
+        )
 
         coords = np.zeros((len(x_sub), 3))
         coords[:, 0] = x_sub
@@ -320,32 +347,38 @@ def find_spherical_transect_cells_and_weights(
         next_node_index = np.mod(n0_indices_cand + 1, n_nodes)
         n1_indices_cand = n_nodes * tris_cand + next_node_index
 
-        n0_cand = Vector(x_node[n0_indices_cand],
-                         y_node[n0_indices_cand],
-                         z_node[n0_indices_cand])
-        n1_cand = Vector(x_node[n1_indices_cand],
-                         y_node[n1_indices_cand],
-                         z_node[n1_indices_cand])
+        n0_cand = Vector(
+            x_node[n0_indices_cand],
+            y_node[n0_indices_cand],
+            z_node[n0_indices_cand],
+        )
+        n1_cand = Vector(
+            x_node[n1_indices_cand],
+            y_node[n1_indices_cand],
+            z_node[n1_indices_cand],
+        )
 
-        intersect = Vector.intersects(n0_cand, n1_cand, transectv0,
-                                      transectv1)
+        intersect = Vector.intersects(n0_cand, n1_cand, transectv0, transectv1)
 
-        n0_inter = Vector(n0_cand.x[intersect],
-                          n0_cand.y[intersect],
-                          n0_cand.z[intersect])
-        n1_inter = Vector(n1_cand.x[intersect],
-                          n1_cand.y[intersect],
-                          n1_cand.z[intersect])
+        n0_inter = Vector(
+            n0_cand.x[intersect], n0_cand.y[intersect], n0_cand.z[intersect]
+        )
+        n1_inter = Vector(
+            n1_cand.x[intersect], n1_cand.y[intersect], n1_cand.z[intersect]
+        )
 
         tris_inter = tris_cand[intersect]
         n0_indices_inter = n0_indices_cand[intersect]
         n1_indices_inter = n1_indices_cand[intersect]
 
-        intersections = Vector.intersection(n0_inter, n1_inter, transectv0,
-                                            transectv1)
-        intersections = Vector(earth_radius * intersections.x,
-                               earth_radius * intersections.y,
-                               earth_radius * intersections.z)
+        intersections = Vector.intersection(
+            n0_inter, n1_inter, transectv0, transectv1
+        )
+        intersections = Vector(
+            earth_radius * intersections.x,
+            earth_radius * intersections.y,
+            earth_radius * intersections.z,
+        )
 
         angular_distance = transectv0.angular_distance(intersections)
 
@@ -356,22 +389,26 @@ def find_spherical_transect_cells_and_weights(
         node0_inter = np.mod(n0_indices_inter, n_nodes)
         node1_inter = np.mod(n1_indices_inter, n_nodes)
 
-        node_weights = (intersections.angular_distance(n1_inter) /
-                        n0_inter.angular_distance(n1_inter))
+        node_weights = intersections.angular_distance(
+            n1_inter
+        ) / n0_inter.angular_distance(n1_inter)
 
         weights = np.zeros((len(tris_inter), n_horiz_weights))
         cell_indices = np.zeros((len(tris_inter), n_horiz_weights), int)
         for index in range(3):
             weights[:, index] = (
-                node_weights *
-                node_cell_weights[tris_inter, node0_inter, index])
-            cell_indices[:, index] = (
-                node_cell_indices[tris_inter, node0_inter, index])
-            weights[:, index + 3] = (
-                (1.0 - node_weights) *
-                node_cell_weights[tris_inter, node1_inter, index])
-            cell_indices[:, index + 3] = (
-                node_cell_indices[tris_inter, node1_inter, index])
+                node_weights
+                * node_cell_weights[tris_inter, node0_inter, index]
+            )
+            cell_indices[:, index] = node_cell_indices[
+                tris_inter, node0_inter, index
+            ]
+            weights[:, index + 3] = (1.0 - node_weights) * node_cell_weights[
+                tris_inter, node1_inter, index
+            ]
+            cell_indices[:, index + 3] = node_cell_indices[
+                tris_inter, node1_inter, index
+            ]
 
         if first:
             x_out = intersections.x
@@ -398,18 +435,37 @@ def find_spherical_transect_cells_and_weights(
         d_transect[seg_index + 1] = d_start
 
     epsilon = 1e-6 * subdivision_res
-    (d_node, x_out, y_out, z_out, seg_tris, seg_nodes, interp_cells,
-     cell_weights, valid_nodes) = _sort_intersections(
-        d_node, tris, nodes, x_out, y_out, z_out, interp_cells, cell_weights,
-        epsilon)
+    (
+        d_node,
+        x_out,
+        y_out,
+        z_out,
+        seg_tris,
+        seg_nodes,
+        interp_cells,
+        cell_weights,
+        valid_nodes,
+    ) = _sort_intersections(
+        d_node,
+        tris,
+        nodes,
+        x_out,
+        y_out,
+        z_out,
+        interp_cells,
+        cell_weights,
+        epsilon,
+    )
 
-    lon_out, lat_out = cartesian_to_lon_lat(x_out, y_out, z_out, earth_radius,
-                                            degrees)
+    lon_out, lat_out = cartesian_to_lon_lat(
+        x_out, y_out, z_out, earth_radius, degrees
+    )
 
     valid_segs = seg_tris >= 0
     cell_indices = -1 * np.ones(seg_tris.shape, dtype=int)
-    cell_indices[valid_segs] = (
-        ds_tris.triCellIndices.values[seg_tris[valid_segs]])
+    cell_indices[valid_segs] = ds_tris.triCellIndices.values[
+        seg_tris[valid_segs]
+    ]
 
     ds_out = xr.Dataset()
     ds_out['xCartNode'] = (('nNodes',), x_out)
@@ -421,12 +477,18 @@ def find_spherical_transect_cells_and_weights(
 
     ds_out['horizTriangleIndices'] = ('nSegments', seg_tris)
     ds_out['horizCellIndices'] = ('nSegments', cell_indices)
-    ds_out['horizTriangleNodeIndices'] = (('nSegments', 'nHorizBounds'),
-                                          seg_nodes)
-    ds_out['interpHorizCellIndices'] = (('nNodes', 'nHorizWeights'),
-                                        interp_cells)
-    ds_out['interpHorizCellWeights'] = (('nNodes', 'nHorizWeights'),
-                                        cell_weights)
+    ds_out['horizTriangleNodeIndices'] = (
+        ('nSegments', 'nHorizBounds'),
+        seg_nodes,
+    )
+    ds_out['interpHorizCellIndices'] = (
+        ('nNodes', 'nHorizWeights'),
+        interp_cells,
+    )
+    ds_out['interpHorizCellWeights'] = (
+        ('nNodes', 'nHorizWeights'),
+        cell_weights,
+    )
     ds_out['validNodes'] = (('nNodes',), valid_nodes)
 
     transect_indices_on_horiz_node = np.zeros(d_node.shape, dtype=int)
@@ -448,16 +510,21 @@ def find_spherical_transect_cells_and_weights(
     ds_out['yCartTransect'] = y
     ds_out['zCartTransect'] = z
     ds_out['dTransect'] = (lon_transect.dims, d_transect)
-    ds_out['transectIndicesOnHorizNode'] = (('nNodes',),
-                                            transect_indices_on_horiz_node)
-    ds_out['transectWeightsOnHorizNode'] = (('nNodes',),
-                                            transect_weights_on_horiz_node)
+    ds_out['transectIndicesOnHorizNode'] = (
+        ('nNodes',),
+        transect_indices_on_horiz_node,
+    )
+    ds_out['transectWeightsOnHorizNode'] = (
+        ('nNodes',),
+        transect_weights_on_horiz_node,
+    )
 
     return ds_out
 
 
 def find_planar_transect_cells_and_weights(
-        x_transect, y_transect, ds_tris, ds_mesh, tree, subdivision_res=10e3):
+    x_transect, y_transect, ds_tris, ds_mesh, tree, subdivision_res=10e3
+):
     """
     Find "nodes" where the transect intersects the edges of the triangles
     that make up MPAS cells.
@@ -526,8 +593,9 @@ def find_planar_transect_cells_and_weights(
                         + (transectValues[transectIndicesOnHorizNode+1] *
                            (1.0 - transectWeightsOnHorizNode))
     """
-    buffer = np.maximum(np.amax(ds_mesh.dvEdge.values),
-                        np.amax(ds_mesh.dcEdge.values))
+    buffer = np.maximum(
+        np.amax(ds_mesh.dvEdge.values), np.amax(ds_mesh.dcEdge.values)
+    )
 
     n_nodes = ds_tris.sizes['nNodes']
     node_cell_weights = ds_tris.nodeCellWeights.values
@@ -557,17 +625,19 @@ def find_planar_transect_cells_and_weights(
 
     first = True
 
-    d_start = 0.
+    d_start = 0.0
     for seg_index in range(len(x) - 1):
-
         sub_slice = slice(seg_index, seg_index + 2)
         x_sub, y_sub, _, _ = subdivide_planar(
-            x[sub_slice].values, y[sub_slice].values, subdivision_res)
+            x[sub_slice].values, y[sub_slice].values, subdivision_res
+        )
 
-        start_point = Point(x_transect[seg_index].values,
-                            y_transect[seg_index].values)
-        end_point = Point(x_transect[seg_index + 1].values,
-                          y_transect[seg_index + 1].values)
+        start_point = Point(
+            x_transect[seg_index].values, y_transect[seg_index].values
+        )
+        end_point = Point(
+            x_transect[seg_index + 1].values, y_transect[seg_index + 1].values
+        )
 
         segment = LineString([start_point, end_point])
 
@@ -613,10 +683,12 @@ def find_planar_transect_cells_and_weights(
                 intersecting_nodes.append((node0, node1, start, end, edge))
 
                 if isinstance(point, LineString):
-                    raise ValueError('A triangle edge exactly coincides with '
-                                     'a transect segment and I can\'t handle '
-                                     'that case.  Try moving the transect a '
-                                     'tiny bit.')
+                    raise ValueError(
+                        'A triangle edge exactly coincides with '
+                        "a transect segment and I can't handle "
+                        'that case.  Try moving the transect a '
+                        'tiny bit.'
+                    )
                 elif not isinstance(point, Point):
                     raise ValueError(f'Unexpected intersection type {point}')
 
@@ -625,8 +697,10 @@ def find_planar_transect_cells_and_weights(
 
                 start_to_intersection = LineString([start_point, point])
 
-                weight = (LineString([point, node1]).length /
-                          LineString([node0, node1]).length)
+                weight = (
+                    LineString([point, node1]).length
+                    / LineString([node0, node1]).length
+                )
 
                 node_weights_list.append(weight)
                 node0_inter_list.append(np.mod(start, n_nodes))
@@ -650,15 +724,18 @@ def find_planar_transect_cells_and_weights(
         cell_indices = np.zeros((len(tris_inter), n_horiz_weights), int)
         for index in range(3):
             weights[:, index] = (
-                node_weights *
-                node_cell_weights[tris_inter, node0_inter, index])
-            cell_indices[:, index] = (
-                node_cell_indices[tris_inter, node0_inter, index])
-            weights[:, index + 3] = (
-                (1.0 - node_weights) *
-                node_cell_weights[tris_inter, node1_inter, index])
-            cell_indices[:, index + 3] = (
-                node_cell_indices[tris_inter, node1_inter, index])
+                node_weights
+                * node_cell_weights[tris_inter, node0_inter, index]
+            )
+            cell_indices[:, index] = node_cell_indices[
+                tris_inter, node0_inter, index
+            ]
+            weights[:, index + 3] = (1.0 - node_weights) * node_cell_weights[
+                tris_inter, node1_inter, index
+            ]
+            cell_indices[:, index + 3] = node_cell_indices[
+                tris_inter, node1_inter, index
+            ]
 
         if first:
             x_out = x_intersection
@@ -685,15 +762,33 @@ def find_planar_transect_cells_and_weights(
     z_out = np.zeros(x_out.shape)
 
     epsilon = 1e-6 * subdivision_res
-    (d_node, x_out, y_out, z_out, seg_tris, seg_nodes, interp_cells,
-     cell_weights, valid_nodes) = _sort_intersections(
-        d_node, tris, nodes, x_out, y_out, z_out, interp_cells, cell_weights,
-        epsilon)
+    (
+        d_node,
+        x_out,
+        y_out,
+        z_out,
+        seg_tris,
+        seg_nodes,
+        interp_cells,
+        cell_weights,
+        valid_nodes,
+    ) = _sort_intersections(
+        d_node,
+        tris,
+        nodes,
+        x_out,
+        y_out,
+        z_out,
+        interp_cells,
+        cell_weights,
+        epsilon,
+    )
 
     valid_segs = seg_tris >= 0
     cell_indices = -1 * np.ones(seg_tris.shape, dtype=int)
-    cell_indices[valid_segs] = (
-        ds_tris.triCellIndices.values[seg_tris[valid_segs]])
+    cell_indices[valid_segs] = ds_tris.triCellIndices.values[
+        seg_tris[valid_segs]
+    ]
 
     ds_out = xr.Dataset()
     ds_out['xNode'] = (('nNodes',), x_out)
@@ -702,12 +797,18 @@ def find_planar_transect_cells_and_weights(
 
     ds_out['horizTriangleIndices'] = ('nSegments', seg_tris)
     ds_out['horizCellIndices'] = ('nSegments', cell_indices)
-    ds_out['horizTriangleNodeIndices'] = (('nSegments', 'nHorizBounds'),
-                                          seg_nodes)
-    ds_out['interpHorizCellIndices'] = (('nNodes', 'nHorizWeights'),
-                                        interp_cells)
-    ds_out['interpHorizCellWeights'] = (('nNodes', 'nHorizWeights'),
-                                        cell_weights)
+    ds_out['horizTriangleNodeIndices'] = (
+        ('nSegments', 'nHorizBounds'),
+        seg_nodes,
+    )
+    ds_out['interpHorizCellIndices'] = (
+        ('nNodes', 'nHorizWeights'),
+        interp_cells,
+    )
+    ds_out['interpHorizCellWeights'] = (
+        ('nNodes', 'nHorizWeights'),
+        cell_weights,
+    )
     ds_out['validNodes'] = (('nNodes',), valid_nodes)
 
     transect_indices_on_horiz_node = np.zeros(d_node.shape, int)
@@ -726,10 +827,14 @@ def find_planar_transect_cells_and_weights(
     ds_out['xTransect'] = x
     ds_out['yTransect'] = y
     ds_out['dTransect'] = (x_transect.dims, d_transect)
-    ds_out['transectIndicesOnHorizNode'] = (('nNodes',),
-                                            transect_indices_on_horiz_node)
-    ds_out['transectWeightsOnHorizNode'] = (('nNodes',),
-                                            transect_weights_on_horiz_node)
+    ds_out['transectIndicesOnHorizNode'] = (
+        ('nNodes',),
+        transect_indices_on_horiz_node,
+    )
+    ds_out['transectWeightsOnHorizNode'] = (
+        ('nNodes',),
+        transect_weights_on_horiz_node,
+    )
 
     return ds_out
 
@@ -766,9 +871,18 @@ def interp_mpas_horiz_to_transect_nodes(ds_transect, da):
     return da_nodes
 
 
-def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
-                        cell_weights, epsilon):
-    """ sort nodes by distance and define segment between them """
+def _sort_intersections(
+    d_node,
+    tris,
+    nodes,
+    x_out,
+    y_out,
+    z_out,
+    interp_cells,
+    cell_weights,
+    epsilon,
+):
+    """sort nodes by distance and define segment between them"""
 
     sort_indices = np.argsort(d_node)
     d_sorted = d_node[sort_indices]
@@ -777,7 +891,10 @@ def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
     d = d_sorted[0]
     unique_d_indices = [sort_indices[0]]
     unique_d_all_indices = [[sort_indices[0]]]
-    for index, next_d, in zip(sort_indices[1:], d_sorted[1:]):
+    for (
+        index,
+        next_d,
+    ) in zip(sort_indices[1:], d_sorted[1:], strict=False):
         if next_d - d < epsilon:
             # this d value is effectively the same as the last, so we'll treat
             # it as the same
@@ -838,8 +955,7 @@ def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
     seg_nodes = np.array(seg_nodes_list, dtype=int)
 
     valid_nodes = np.ones(len(indices), dtype=bool)
-    valid_nodes[1:-1] = np.logical_or(seg_tris[0:-1] >= 0,
-                                      seg_tris[1:] > 0)
+    valid_nodes[1:-1] = np.logical_or(seg_tris[0:-1] >= 0, seg_tris[1:] > 0)
 
     x_out = x_out[indices]
     y_out = y_out[indices]
@@ -848,8 +964,17 @@ def _sort_intersections(d_node, tris, nodes, x_out, y_out, z_out, interp_cells,
     interp_cells = interp_cells[indices, :]
     cell_weights = cell_weights[indices, :]
 
-    return (d_node, x_out, y_out, z_out, seg_tris, seg_nodes, interp_cells,
-            cell_weights, valid_nodes)
+    return (
+        d_node,
+        x_out,
+        y_out,
+        z_out,
+        seg_tris,
+        seg_nodes,
+        interp_cells,
+        cell_weights,
+        valid_nodes,
+    )
 
 
 def _fix_periodic_tris(ds_tris, periodic_var, period):
@@ -872,8 +997,9 @@ def _fix_periodic_tris(ds_tris, periodic_var, period):
 
     pos_indices = np.nonzero(copy_pos)[0]
     neg_indices = np.nonzero(copy_neg)[0]
-    tri_indices = np.append(np.append(np.arange(0, n_triangles),
-                                      pos_indices), neg_indices)
+    tri_indices = np.append(
+        np.append(np.arange(0, n_triangles), pos_indices), neg_indices
+    )
 
     ds_new = xr.Dataset(ds_tris)
     ds_new[periodic_var] = (('nTriangles', 'nNodes'), coord_node)
@@ -882,8 +1008,10 @@ def _fix_periodic_tris(ds_tris, periodic_var, period):
 
     pos_slice = slice(n_triangles, n_triangles + len(pos_indices))
     coord_node[pos_slice, :] = coord_node[pos_slice, :] + period
-    neg_slice = slice(n_triangles + len(pos_indices),
-                      n_triangles + len(pos_indices) + len(neg_indices))
+    neg_slice = slice(
+        n_triangles + len(pos_indices),
+        n_triangles + len(pos_indices) + len(neg_indices),
+    )
     coord_node[neg_slice, :] = coord_node[neg_slice, :] - period
     ds_new[periodic_var] = (('nTriangles', 'nNodes'), coord_node)
     return ds_new

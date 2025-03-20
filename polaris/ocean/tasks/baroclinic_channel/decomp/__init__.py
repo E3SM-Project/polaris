@@ -1,6 +1,8 @@
-from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.validate import Validate
+from polaris import Task as Task
+from polaris.ocean.tasks.baroclinic_channel.forward import Forward as Forward
+from polaris.ocean.tasks.baroclinic_channel.validate import (
+    Validate as Validate,
+)
 
 
 class Decomp(Task):
@@ -36,11 +38,22 @@ class Decomp(Task):
         for procs in [4, 8]:
             name = f'{procs}proc'
 
-            self.add_step(Forward(
-                component=component, name=name, indir=self.subdir,
-                ntasks=procs, min_tasks=procs, openmp_threads=1,
-                resolution=resolution, run_time_steps=3,
-                graph_target=f'{init.path}/culled_graph.info'))
+            self.add_step(
+                Forward(
+                    component=component,
+                    name=name,
+                    indir=self.subdir,
+                    ntasks=procs,
+                    min_tasks=procs,
+                    openmp_threads=1,
+                    resolution=resolution,
+                    run_time_steps=3,
+                    graph_target=f'{init.path}/culled_graph.info',
+                )
+            )
             subdirs.append(name)
-        self.add_step(Validate(component=component, step_subdirs=subdirs,
-                               indir=self.subdir))
+        self.add_step(
+            Validate(
+                component=component, step_subdirs=subdirs, indir=self.subdir
+            )
+        )

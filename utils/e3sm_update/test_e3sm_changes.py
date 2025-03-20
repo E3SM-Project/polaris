@@ -7,9 +7,20 @@ import subprocess
 from typing import Dict, List
 
 
-def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
-                      framework_strings, current, new, work_base, mpas_subdir,
-                      make_command, setup_command, load_script):
+def submit_e3sm_tests(
+    submodule,
+    repo_url,
+    ocean_strings,
+    landice_strings,
+    framework_strings,
+    current,
+    new,
+    work_base,
+    mpas_subdir,
+    make_command,
+    setup_command,
+    load_script,
+):
     """
     The driver function for calling ``git bisect`` to find the first "bad"
     commit between a known "good" and "bad" E3SM commit.
@@ -71,9 +82,11 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
     setup_worktree(submodule, worktree=new_submodule, hash=new)
 
     # get a list of merges between the current and new hashes
-    commands = f'cd {new_submodule}; ' \
-               f'git log --oneline --first-parent --ancestry-path ' \
-               f'{current}..{new}'
+    commands = (
+        f'cd {new_submodule}; '
+        f'git log --oneline --first-parent --ancestry-path '
+        f'{current}..{new}'
+    )
 
     all_commits = print_and_run(commands, get_output=True)
 
@@ -93,10 +106,14 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
                 pull_request = end.split()[0]
                 index = len(pull_requests)
                 worktree = f'{index + 1:02d}_{pull_request}'
-                pull_requests.append({'hash': hash,
-                                      'component': component,
-                                      'pull_request': pull_request,
-                                      'worktree': worktree})
+                pull_requests.append(
+                    {
+                        'hash': hash,
+                        'component': component,
+                        'pull_request': pull_request,
+                        'worktree': worktree,
+                    }
+                )
             else:
                 print(f'Warning: skipping commit with no "#" for PR:\n{line}')
 
@@ -106,13 +123,13 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
         hash = data['hash']
         pull_request = data['pull_request']
         component = data['component']
-        print(f'{index+1:02d}: {hash} {pull_request} ({component})')
-    print(f'{len(pull_requests)+1:02d}: {new} {new_submodule} (new)')
+        print(f'{index + 1:02d}: {hash} {pull_request} ({component})')
+    print(f'{len(pull_requests) + 1:02d}: {new} {new_submodule} (new)')
     print('\n')
 
     print('Setting up worktrees of all commits of interest\n')
 
-    for index, data in enumerate(pull_requests):
+    for _, data in enumerate(pull_requests):
         hash = data['hash']
         worktree = data['worktree']
         setup_worktree(submodule, worktree=worktree, hash=hash)
@@ -121,61 +138,89 @@ def submit_e3sm_tests(submodule, repo_url, ocean_strings, landice_strings,
 
     print('00: current\n')
     baseline = f'{work_base}/00_current'
-    build_model(load_script=load_script, worktree=current_submodule,
-                mpas_subdir=mpas_subdir, make_command=make_command)
-    setup_and_submit(load_script=load_script, setup_command=setup_command,
-                     worktree=current_submodule, mpas_subdir=mpas_subdir,
-                     workdir=baseline)
+    build_model(
+        load_script=load_script,
+        worktree=current_submodule,
+        mpas_subdir=mpas_subdir,
+        make_command=make_command,
+    )
+    setup_and_submit(
+        load_script=load_script,
+        setup_command=setup_command,
+        worktree=current_submodule,
+        mpas_subdir=mpas_subdir,
+        workdir=baseline,
+    )
     previous = 'current'
 
     for index, data in enumerate(pull_requests):
         worktree = data['worktree']
         pull_request = data['pull_request']
-        workdir = f'{work_base}/{index+1:02d}_{pull_request}_{previous}'
-        print(f'{index+1:02d}: {pull_request}\n')
-        build_model(load_script=load_script, worktree=worktree,
-                    mpas_subdir=mpas_subdir, make_command=make_command)
-        setup_and_submit(load_script=load_script, setup_command=setup_command,
-                         worktree=worktree,
-                         mpas_subdir=mpas_subdir, workdir=workdir,
-                         baseline=baseline)
+        workdir = f'{work_base}/{index + 1:02d}_{pull_request}_{previous}'
+        print(f'{index + 1:02d}: {pull_request}\n')
+        build_model(
+            load_script=load_script,
+            worktree=worktree,
+            mpas_subdir=mpas_subdir,
+            make_command=make_command,
+        )
+        setup_and_submit(
+            load_script=load_script,
+            setup_command=setup_command,
+            worktree=worktree,
+            mpas_subdir=mpas_subdir,
+            workdir=workdir,
+            baseline=baseline,
+        )
         baseline = workdir
         previous = pull_request
 
     index = len(pull_requests)
-    print(f'{index+1:02d}: new\n')
-    workdir = f'{work_base}/{index+1:02d}_new_{previous}'
-    build_model(load_script=load_script, worktree=new_submodule,
-                mpas_subdir=mpas_subdir, make_command=make_command)
-    setup_and_submit(load_script=load_script, setup_command=setup_command,
-                     worktree=new_submodule, mpas_subdir=mpas_subdir,
-                     workdir=workdir, baseline=baseline)
+    print(f'{index + 1:02d}: new\n')
+    workdir = f'{work_base}/{index + 1:02d}_new_{previous}'
+    build_model(
+        load_script=load_script,
+        worktree=new_submodule,
+        mpas_subdir=mpas_subdir,
+        make_command=make_command,
+    )
+    setup_and_submit(
+        load_script=load_script,
+        setup_command=setup_command,
+        worktree=new_submodule,
+        mpas_subdir=mpas_subdir,
+        workdir=workdir,
+        baseline=baseline,
+    )
 
     print_pr_description(submodule, repo_url, current, new, pull_requests)
 
 
 def setup_worktree(submodule, worktree, hash):
     if not os.path.exists(worktree):
-        commands = f'cd {submodule}; ' \
-                   f'git worktree add ../{worktree}'
+        commands = f'cd {submodule}; git worktree add ../{worktree}'
         print_and_run(commands)
 
-    commands = f'cd {worktree}; ' \
-               f'git reset --hard {hash}; ' \
-               f'git submodule update --init --recursive >& submodule.log'
+    commands = (
+        f'cd {worktree}; '
+        f'git reset --hard {hash}; '
+        f'git submodule update --init --recursive >& submodule.log'
+    )
     print_and_run(commands)
 
 
 def build_model(load_script, worktree, mpas_subdir, make_command):
-    commands = f'source {load_script}; ' \
-               f'cd {worktree}/{mpas_subdir}; ' \
-               f'{make_command} &> make.log'
+    commands = (
+        f'source {load_script}; '
+        f'cd {worktree}/{mpas_subdir}; '
+        f'{make_command} &> make.log'
+    )
     print_and_run(commands)
 
 
-def setup_and_submit(load_script, setup_command, worktree, mpas_subdir,
-                     workdir, baseline=None):
-
+def setup_and_submit(
+    load_script, setup_command, worktree, mpas_subdir, workdir, baseline=None
+):
     if ' -t ' in setup_command:
         split = setup_command.split()
         index = split.index('-t')
@@ -191,12 +236,10 @@ def setup_and_submit(load_script, setup_command, worktree, mpas_subdir,
     if baseline is not None:
         full_setup = f'{full_setup} -b {baseline}'
 
-    commands = f'source {load_script}; ' \
-               f'{full_setup}'
+    commands = f'source {load_script}; {full_setup}'
     print_and_run(commands)
 
-    commands = f'cd {workdir}; ' \
-               f'sbatch job_script.{suite}.sh'
+    commands = f'cd {workdir}; sbatch job_script.{suite}.sh'
     print_and_run(commands)
 
 
@@ -221,18 +264,21 @@ def print_pr_description(submodule, repo_url, current, new, pull_requests):
     print(72 * '-')
     print('')
 
-    print(f'This merge updates the {submodule} submodule from '
-          f'[{current}]({repo_url}/tree/{current}) '
-          f'to [{new}]({repo_url}/tree/{new}).\n')
+    print(
+        f'This merge updates the {submodule} submodule from '
+        f'[{current}]({repo_url}/tree/{current}) '
+        f'to [{new}]({repo_url}/tree/{new}).\n'
+    )
 
-    print('This update includes the following MPAS-Ocean and MPAS-Frameworks '
-          'PRs (check mark indicates bit-for-bit with previous PR in the '
-          'list):')
+    print(
+        'This update includes the following MPAS-Ocean and MPAS-Frameworks '
+        'PRs (check mark indicates bit-for-bit with previous PR in the '
+        'list):'
+    )
     for data in pull_requests:
         pull_request = data['pull_request']
         component = data['component']
-        print(f'- [ ]  ({component}) '
-              f'{repo_url}/pull/{pull_request}')
+        print(f'- [ ]  ({component}) {repo_url}/pull/{pull_request}')
     print('\n')
 
 
@@ -243,30 +289,40 @@ def string_to_list(string):
 def main():
     parser = argparse.ArgumentParser(
         description='Test changes in E3SM before an update to the '
-                    'E3SM-Project (or another) submodule')
-    parser.add_argument("-f", "--config_file", dest="config_file",
-                        required=True,
-                        help="Configuration file.",
-                        metavar="FILE")
+        'E3SM-Project (or another) submodule'
+    )
+    parser.add_argument(
+        '-f',
+        '--config_file',
+        dest='config_file',
+        required=True,
+        help='Configuration file.',
+        metavar='FILE',
+    )
 
     args = parser.parse_args()
 
     config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation())
+        interpolation=configparser.ExtendedInterpolation()
+    )
     config.read(args.config_file)
 
     section = config['e3sm_update']
 
     submit_e3sm_tests(
-        submodule=section['submodule'], repo_url=section['repo_url'],
+        submodule=section['submodule'],
+        repo_url=section['repo_url'],
         ocean_strings=string_to_list(section['ocean_strings']),
         landice_strings=string_to_list(section['landice_strings']),
         framework_strings=string_to_list(section['framework_strings']),
-        current=section['current'], new=section['new'],
-        work_base=section['work_base'], mpas_subdir=section['mpas_subdir'],
+        current=section['current'],
+        new=section['new'],
+        work_base=section['work_base'],
+        mpas_subdir=section['mpas_subdir'],
         make_command=section['make_command'],
         setup_command=section['setup_command'],
-        load_script=section['load_script'])
+        load_script=section['load_script'],
+    )
 
 
 if __name__ == '__main__':

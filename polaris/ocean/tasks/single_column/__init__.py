@@ -1,5 +1,5 @@
-from polaris.ocean.tasks.single_column.cvmix import CVMix
-from polaris.ocean.tasks.single_column.ideal_age import IdealAge
+from polaris.ocean.tasks.single_column.cvmix import CVMix as CVMix
+from polaris.ocean.tasks.single_column.ideal_age import IdealAge as IdealAge
 
 
 def add_single_column_tasks(component):

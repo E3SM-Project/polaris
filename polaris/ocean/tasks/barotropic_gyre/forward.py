@@ -21,9 +21,20 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, component, name='forward', subdir=None,
-                 indir=None, ntasks=None, min_tasks=None, openmp_threads=1,
-                 nu=None, run_time_steps=None, graph_target='graph.info'):
+
+    def __init__(
+        self,
+        component,
+        name='forward',
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+        nu=None,
+        run_time_steps=None,
+        graph_target='graph.info',
+    ):
         """
         Create a new task
 
@@ -62,22 +73,27 @@ class Forward(OceanModelStep):
             If none, it will be created.
         """
         self.run_time_steps = run_time_steps
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads,
-                         graph_target=graph_target)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            graph_target=graph_target,
+        )
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='init.nc',
-                            target='../init/init.nc')
-        self.add_input_file(filename='forcing.nc',
-                            target='../init/forcing.nc')
+        self.add_input_file(filename='init.nc', target='../init/init.nc')
+        self.add_input_file(filename='forcing.nc', target='../init/forcing.nc')
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['layerThickness', 'normalVelocity'])
+            validate_vars=['layerThickness', 'normalVelocity'],
+        )
 
         self.package = 'polaris.ocean.tasks.barotropic_gyre'
         self.yaml_filename = 'forward.yaml'
@@ -120,24 +136,26 @@ class Forward(OceanModelStep):
         if model == 'mpas-ocean':
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
-        nu = config.getfloat("barotropic_gyre", "nu_2")
-        rho_0 = config.getfloat("barotropic_gyre", "rho_0")
+        nu = config.getfloat('barotropic_gyre', 'nu_2')
+        rho_0 = config.getfloat('barotropic_gyre', 'rho_0')
 
         dt_max = compute_max_time_step(config)
-        dt = floor(dt_max / 3.)
+        dt = floor(dt_max / 3.0)
         dt_str = get_time_interval_string(seconds=dt)
 
-        options = {'config_dt': dt_str,
-                   'config_density0': rho_0}
-        self.add_model_config_options(options=options,
-                                      config_model='mpas-ocean')
+        options = {'config_dt': dt_str, 'config_density0': rho_0}
+        self.add_model_config_options(
+            options=options, config_model='mpas-ocean'
+        )
 
         if self.run_time_steps is not None:
             run_duration = ceil(self.run_time_steps * dt)
-            stop_time_str = time.strftime('0001-01-01_%H:%M:%S',
-                                          time.gmtime(run_duration))
-            output_interval_str = time.strftime('0000_%H:%M:%S',
-                                                time.gmtime(run_duration))
+            stop_time_str = time.strftime(
+                '0001-01-01_%H:%M:%S', time.gmtime(run_duration)
+            )
+            output_interval_str = time.strftime(
+                '0000_%H:%M:%S', time.gmtime(run_duration)
+            )
         else:
             stop_time_str = time.strftime('0004-01-01_00:00:00')
             output_interval_str = time.strftime('0000-01-00_00:00:00')
@@ -150,8 +168,11 @@ class Forward(OceanModelStep):
         )
 
         # make sure output is double precision
-        self.add_yaml_file(self.package, self.yaml_filename,
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            self.package,
+            self.yaml_filename,
+            template_replacements=replacements,
+        )
 
 
 def compute_max_time_step(config):
@@ -168,11 +189,12 @@ def compute_max_time_step(config):
     dt_max : float
         The approximate maximum time step for stability
     """
-    u_max = 1.  # m/s
+    u_max = 1.0  # m/s
     stability_parameter_max = 0.25
     resolution = config.getfloat('barotropic_gyre', 'resolution')
-    f_0 = config.getfloat("barotropic_gyre", "f_0")
-    dt_max = min(stability_parameter_max * resolution * 1e3 /
-                 (2 * u_max),
-                 stability_parameter_max / f_0)
+    f_0 = config.getfloat('barotropic_gyre', 'f_0')
+    dt_max = min(
+        stability_parameter_max * resolution * 1e3 / (2 * u_max),
+        stability_parameter_max / f_0,
+    )
     return dt_max

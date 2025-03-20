@@ -2,7 +2,7 @@ import numpy as np
 from mpas_tools.cime.constants import constants
 
 
-class ExactSolution():
+class ExactSolution:
     """
     Class to compute the exact solution for the inertial gravity wave
     test case
@@ -39,6 +39,7 @@ class ExactSolution():
     omega : float
         Angular frequency
     """
+
     def __init__(self, ds, config):
         """
         Create a new exact solution object
@@ -69,8 +70,9 @@ class ExactSolution():
         ly = np.sqrt(3.0) / 2.0 * lx
         self.kx = npx * 2.0 * np.pi / (lx * 1e3)
         self.ky = npy * 2.0 * np.pi / (ly * 1e3)
-        self.omega = np.sqrt(self.f0**2 +
-                             self.g * bottom_depth * (self.kx**2 + self.ky**2))
+        self.omega = np.sqrt(
+            self.f0**2 + self.g * bottom_depth * (self.kx**2 + self.ky**2)
+        )
 
     def ssh(self, t):
         """
@@ -87,9 +89,9 @@ class ExactSolution():
             the exact sea surface height solution on cells at time t
 
         """
-        eta = self.eta0 * np.cos(self.kx * self.xCell +
-                                 self.ky * self.yCell -
-                                 self.omega * t)
+        eta = self.eta0 * np.cos(
+            self.kx * self.xCell + self.ky * self.yCell - self.omega * t
+        )
 
         return eta
 
@@ -107,17 +109,47 @@ class ExactSolution():
         norm_vel : xr.DataArray
             the exact normal velocity solution on edges at time t
         """
-        u = self.eta0 * (self.g / (self.omega**2.0 - self.f0**2.0) *
-                         (self.omega * self.kx * np.cos(self.kx * self.xEdge +
-                          self.ky * self.yEdge - self.omega * t) -
-                          self.f0 * self.ky * np.sin(self.kx * self.xEdge +
-                          self.ky * self.yEdge - self.omega * t)))
+        u = self.eta0 * (
+            self.g
+            / (self.omega**2.0 - self.f0**2.0)
+            * (
+                self.omega
+                * self.kx
+                * np.cos(
+                    self.kx * self.xEdge
+                    + self.ky * self.yEdge
+                    - self.omega * t
+                )
+                - self.f0
+                * self.ky
+                * np.sin(
+                    self.kx * self.xEdge
+                    + self.ky * self.yEdge
+                    - self.omega * t
+                )
+            )
+        )
 
-        v = self.eta0 * (self.g / (self.omega**2.0 - self.f0**2.0) *
-                         (self.omega * self.ky * np.cos(self.kx * self.xEdge +
-                          self.ky * self.yEdge - self.omega * t) +
-                          self.f0 * self.kx * np.sin(self.kx * self.xEdge +
-                          self.ky * self.yEdge - self.omega * t)))
+        v = self.eta0 * (
+            self.g
+            / (self.omega**2.0 - self.f0**2.0)
+            * (
+                self.omega
+                * self.ky
+                * np.cos(
+                    self.kx * self.xEdge
+                    + self.ky * self.yEdge
+                    - self.omega * t
+                )
+                + self.f0
+                * self.kx
+                * np.sin(
+                    self.kx * self.xEdge
+                    + self.ky * self.yEdge
+                    - self.omega * t
+                )
+            )
+        )
 
         norm_vel = u * np.cos(self.angleEdge) + v * np.sin(self.angleEdge)
 

@@ -72,12 +72,28 @@ class ModelStep(Step):
     streams_section : str
         The name of the streams section in yaml files
     """
-    def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
-                 min_tasks=None, openmp_threads=None, max_memory=None,
-                 cached=False, namelist=None, streams=None, yaml=None,
-                 update_pio=True, make_graph=False, mesh_filename=None,
-                 partition_graph=True, graph_filename='graph.info',
-                 make_yaml=False):
+
+    def __init__(
+        self,
+        component,
+        name,
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=None,
+        max_memory=None,
+        cached=False,
+        namelist=None,
+        streams=None,
+        yaml=None,
+        update_pio=True,
+        make_graph=False,
+        mesh_filename=None,
+        partition_graph=True,
+        graph_filename='graph.info',
+        make_yaml=False,
+    ):
         """
         Make a step for running the model
 
@@ -149,11 +165,19 @@ class ModelStep(Step):
             Whether to create a yaml file with model config options and streams
             instead of MPAS namelist and streams files
         """
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, cpus_per_task=openmp_threads,
-                         min_cpus_per_task=openmp_threads, ntasks=ntasks,
-                         min_tasks=min_tasks, openmp_threads=openmp_threads,
-                         max_memory=max_memory, cached=cached)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            cpus_per_task=openmp_threads,
+            min_cpus_per_task=openmp_threads,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            max_memory=max_memory,
+            cached=cached,
+        )
 
         if namelist is None:
             namelist = f'namelist.{component.name}'
@@ -188,19 +212,26 @@ class ModelStep(Step):
         self._streams_tree = None
 
     def setup(self):
-        """ Setup the command-line arguments """
+        """Setup the command-line arguments"""
         config = self.config
         component_path = config.get('executables', 'component')
         model_basename = os.path.basename(component_path)
         if self.make_yaml:
             self.args = [[f'./{model_basename}']]
         else:
-            self.args = [[f'./{model_basename}',
-                          '-n', self.namelist,
-                          '-s', self.streams]]
+            self.args = [
+                [
+                    f'./{model_basename}',
+                    '-n',
+                    self.namelist,
+                    '-s',
+                    self.streams,
+                ]
+            ]
 
-    def set_model_resources(self, ntasks=None, min_tasks=None,
-                            openmp_threads=None, max_memory=None):
+    def set_model_resources(
+        self, ntasks=None, min_tasks=None, openmp_threads=None, max_memory=None
+    ):
         """
         Update the resources for the step.  This can be done within init,
         ``setup()`` or ``runtime_setup()`` for the step that this step
@@ -228,10 +259,14 @@ class ModelStep(Step):
             This is currently just a placeholder for later use with task
             parallelism
         """
-        self.set_resources(cpus_per_task=openmp_threads,
-                           min_cpus_per_task=openmp_threads, ntasks=ntasks,
-                           min_tasks=min_tasks, openmp_threads=openmp_threads,
-                           max_memory=max_memory)
+        self.set_resources(
+            cpus_per_task=openmp_threads,
+            min_cpus_per_task=openmp_threads,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            max_memory=max_memory,
+        )
 
     def add_model_config_options(self, options, config_model=None):
         """
@@ -250,8 +285,9 @@ class ModelStep(Step):
             If config options are available for multiple models, the model that
             the config options are from
         """
-        self.model_config_data.append(dict(options=options,
-                                           config_model=config_model))
+        self.model_config_data.append(
+            dict(options=options, config_model=config_model)
+        )
 
     def add_yaml_file(self, package, yaml, template_replacements=None):
         """
@@ -271,10 +307,16 @@ class ModelStep(Step):
             A dictionary of replacements, in which case ``yaml`` must be a
             Jinja2 template to be rendered with these replacements
         """
-        self.model_config_data.append(dict(package=package, yaml=yaml,
-                                           replacements=template_replacements))
-        self.streams_data.append(dict(package=package, yaml=yaml,
-                                      replacements=template_replacements))
+        self.model_config_data.append(
+            dict(
+                package=package, yaml=yaml, replacements=template_replacements
+            )
+        )
+        self.streams_data.append(
+            dict(
+                package=package, yaml=yaml, replacements=template_replacements
+            )
+        )
 
     def map_yaml_options(self, options, config_model):
         """
@@ -434,8 +476,12 @@ class ModelStep(Step):
             Jinja2 template to be rendered with these replacements
         """
         self.streams_data.append(
-            dict(package=package, streams=streams,
-                 replacements=template_replacements))
+            dict(
+                package=package,
+                streams=streams,
+                replacements=template_replacements,
+            )
+        )
 
     def dynamic_model_config(self, at_setup):
         """
@@ -474,8 +520,10 @@ class ModelStep(Step):
         self._write_model_config()
 
         if self.make_graph:
-            make_graph_file(mesh_filename=self.mesh_filename,
-                            graph_filename=self.graph_filename)
+            make_graph_file(
+                mesh_filename=self.mesh_filename,
+                graph_filename=self.graph_filename,
+            )
 
         if self.partition_graph:
             self.partition(graph_file=self.graph_filename)
@@ -491,7 +539,8 @@ class ModelStep(Step):
 
             if filename == '<<<model>>>':
                 filename, target = ModelStep._process_model(
-                    self.config, self.base_work_dir)
+                    self.config, self.base_work_dir
+                )
 
                 entry['filename'] = filename
                 entry['target'] = target
@@ -531,12 +580,16 @@ class ModelStep(Step):
         pio_num_iotasks = int(np.ceil(cores / cores_per_node))
         pio_stride = self.ntasks // pio_num_iotasks
         if pio_stride > cores_per_node:
-            raise ValueError(f'Not enough nodes for the number of cores.  '
-                             f'cores: {cores}, cores per node: '
-                             f'{cores_per_node}')
+            raise ValueError(
+                f'Not enough nodes for the number of cores.  '
+                f'cores: {cores}, cores per node: '
+                f'{cores_per_node}'
+            )
 
-        replacements = {'config_pio_num_iotasks': pio_num_iotasks,
-                        'config_pio_stride': pio_stride}
+        replacements = {
+            'config_pio_num_iotasks': pio_num_iotasks,
+            'config_pio_stride': pio_stride,
+        }
 
         self.add_model_config_options(options=replacements)
 
@@ -558,14 +611,15 @@ class ModelStep(Step):
 
     @staticmethod
     def _process_model(config, base_work_dir):
-        """ Process the E3SM component model as an input to the step """
+        """Process the E3SM component model as an input to the step"""
         model = config.get('executables', 'component')
         filename = os.path.basename(model)
         copy_executable = config.getboolean('setup', 'copy_executable')
         if copy_executable:
             # make a copy of the model executable, then link to that
             component_subdir = os.path.basename(
-                config.get('paths', 'component_path'))
+                config.get('paths', 'component_path')
+            )
             component_workdir = os.path.join(base_work_dir, component_subdir)
             target = os.path.join(component_workdir, filename)
             try:
@@ -589,8 +643,9 @@ class ModelStep(Step):
         config = self.config
         if self.make_yaml:
             defaults_filename = config.get('model_config', 'defaults')
-            self._yaml = PolarisYaml.read(defaults_filename,
-                                          streams_section=self.streams_section)
+            self._yaml = PolarisYaml.read(
+                defaults_filename, streams_section=self.streams_section
+            )
         else:
             defaults_filename = config.get('namelists', 'forward')
             self._namelist = polaris.namelist.ingest(defaults_filename)
@@ -605,8 +660,9 @@ class ModelStep(Step):
         """
         if self.make_yaml:
             filename = os.path.join(self.work_dir, self.yaml)
-            self._yaml = PolarisYaml.read(filename,
-                                          streams_section=self.streams_section)
+            self._yaml = PolarisYaml.read(
+                filename, streams_section=self.streams_section
+            )
         else:
             filename = os.path.join(self.work_dir, self.namelist)
             self._namelist = polaris.namelist.ingest(filename)
@@ -623,20 +679,26 @@ class ModelStep(Step):
         if self.make_yaml:
             yaml_filename = f'{step_work_dir}/{self.yaml}'
             if self._yaml is None:
-                raise ValueError('Trying to write a yaml file but no yaml '
-                                 'object was created.')
+                raise ValueError(
+                    'Trying to write a yaml file but no yaml '
+                    'object was created.'
+                )
             self._yaml.write(yaml_filename)
         else:
             namelist_filename = f'{step_work_dir}/{self.namelist}'
             if self._namelist is None:
-                raise ValueError('Trying to write a namelist file but no '
-                                 'namelist object was created.')
+                raise ValueError(
+                    'Trying to write a namelist file but no '
+                    'namelist object was created.'
+                )
             polaris.namelist.write(self._namelist, namelist_filename)
 
             streams_filename = f'{step_work_dir}/{self.streams}'
             if self._streams_tree is None:
-                raise ValueError('Trying to write a streams file but no '
-                                 'streams XML tree was created.')
+                raise ValueError(
+                    'Trying to write a streams file but no '
+                    'streams XML tree was created.'
+                )
             polaris.streams.write(self._streams_tree, streams_filename)
         # set these back to None because we don't need to keep them around
         # and the streams tree can't be pickled
@@ -657,25 +719,33 @@ class ModelStep(Step):
         for entry in self.model_config_data:
             if 'namelist' in entry:
                 options = polaris.namelist.parse_replacements(
-                    entry['package'], entry['namelist'])
+                    entry['package'], entry['namelist']
+                )
                 replacements.update(options)
             for config_model in self.config_models:
-                if 'options' in entry and \
-                        entry['config_model'] == config_model:
+                if (
+                    'options' in entry
+                    and entry['config_model'] == config_model
+                ):
                     # this is a dictionary of replacement model config options
                     options = entry['options']
-                    options = self.map_yaml_options(options=entry['options'],
-                                                    config_model=config_model)
+                    options = self.map_yaml_options(
+                        options=entry['options'], config_model=config_model
+                    )
                     options = self.map_yaml_to_namelist(options)
                     replacements.update(options)
                 if 'yaml' in entry:
                     yaml = PolarisYaml.read(
-                        filename=entry['yaml'], package=entry['package'],
-                        replacements=entry['replacements'], model=config_model,
-                        streams_section=self.streams_section)
+                        filename=entry['yaml'],
+                        package=entry['package'],
+                        replacements=entry['replacements'],
+                        model=config_model,
+                        streams_section=self.streams_section,
+                    )
 
-                    configs = self.map_yaml_configs(configs=yaml.configs,
-                                                    config_model=config_model)
+                    configs = self.map_yaml_configs(
+                        configs=yaml.configs, config_model=config_model
+                    )
                     configs = self.map_yaml_to_namelist(configs)
                     replacements.update(configs)
 
@@ -685,8 +755,9 @@ class ModelStep(Step):
                 print(f'{key} = {value}')
 
         if self._streams_tree is None:
-            raise ValueError('Trying to update a namelist object but it was '
-                             'never created.')
+            raise ValueError(
+                'Trying to update a namelist object but it was never created.'
+            )
         self._namelist = polaris.namelist.replace(self._namelist, replacements)
 
     def _process_streams(self, quiet, remove_unrequested):
@@ -703,8 +774,9 @@ class ModelStep(Step):
         tree = None
 
         processed_registry_filename = None
-        if config.has_section('registry') and \
-                config.has_option('registry', 'processed'):
+        if config.has_section('registry') and config.has_option(
+            'registry', 'processed'
+        ):
             processed_registry_filename = config.get('registry', 'processed')
 
         for entry in self.streams_data:
@@ -716,13 +788,22 @@ class ModelStep(Step):
                     print(f'{package} {streams_filename}')
 
                 tree = polaris.streams.read(
-                    package=package, streams_filename=streams_filename,
-                    replacements=replacements, tree=tree)
+                    package=package,
+                    streams_filename=streams_filename,
+                    replacements=replacements,
+                    tree=tree,
+                )
             for config_model in self.config_models:
                 if 'yaml' in entry:
                     tree = self._process_yaml_streams(
-                        entry['yaml'], package, replacements, config_model,
-                        processed_registry_filename, tree, quiet)
+                        entry['yaml'],
+                        package,
+                        replacements,
+                        config_model,
+                        processed_registry_filename,
+                        tree,
+                        quiet,
+                    )
 
             if not quiet and replacements is not None:
                 for key, value in replacements.items():
@@ -733,8 +814,9 @@ class ModelStep(Step):
             return
 
         if self._streams_tree is None:
-            raise ValueError('Trying to update a streams XML tree but it was '
-                             'never created.')
+            raise ValueError(
+                'Trying to update a streams XML tree but it was never created.'
+            )
 
         defaults = next(self._streams_tree.iter('streams'))
         streams = next(tree.iter('streams'))
@@ -755,20 +837,28 @@ class ModelStep(Step):
                 if not found:
                     defaults.remove(default)
 
-    def _process_yaml_streams(self, yaml_filename, package, replacements,
-                              config_model, processed_registry_filename,
-                              tree, quiet):
+    def _process_yaml_streams(
+        self,
+        yaml_filename,
+        package,
+        replacements,
+        config_model,
+        processed_registry_filename,
+        tree,
+        quiet,
+    ):
         if not quiet:
             print(f'{package} {yaml_filename}')
 
-        yaml = PolarisYaml.read(filename=yaml_filename,
-                                package=package,
-                                replacements=replacements,
-                                model=config_model,
-                                streams_section=self.streams_section)
+        yaml = PolarisYaml.read(
+            filename=yaml_filename,
+            package=package,
+            replacements=replacements,
+            model=config_model,
+            streams_section=self.streams_section,
+        )
         assert processed_registry_filename is not None
-        new_tree = yaml_to_mpas_streams(
-            processed_registry_filename, yaml)
+        new_tree = yaml_to_mpas_streams(processed_registry_filename, yaml)
         tree = polaris.streams.update_tree(tree, new_tree)
         return tree
 
@@ -781,8 +871,9 @@ class ModelStep(Step):
             return
 
         if self._yaml is None:
-            raise ValueError('Trying to update a yaml object but it was '
-                             'never created.')
+            raise ValueError(
+                'Trying to update a yaml object but it was never created.'
+            )
 
         if not quiet:
             print(f'Warning: replacing yaml options in {self.yaml}')
@@ -791,34 +882,49 @@ class ModelStep(Step):
 
         for entry in self.model_config_data:
             if 'namelist' in entry:
-                raise ValueError('Cannot generate a yaml config from an MPAS '
-                                 'namelist file.')
+                raise ValueError(
+                    'Cannot generate a yaml config from an MPAS namelist file.'
+                )
 
             for config_model in self.config_models:
-                if 'options' in entry and \
-                        entry['config_model'] == config_model:
+                if (
+                    'options' in entry
+                    and entry['config_model'] == config_model
+                ):
                     # this is a dictionary of replacement model config options
                     options = entry['options']
-                    options = self.map_yaml_options(options=entry['options'],
-                                                    config_model=config_model)
+                    options = self.map_yaml_options(
+                        options=entry['options'], config_model=config_model
+                    )
                     self._yaml.update(options=options, quiet=quiet)
                 if 'yaml' in entry:
                     yaml = PolarisYaml.read(
-                        filename=entry['yaml'], package=entry['package'],
-                        replacements=entry['replacements'], model=config_model,
-                        streams_section=self.streams_section)
+                        filename=entry['yaml'],
+                        package=entry['package'],
+                        replacements=entry['replacements'],
+                        model=config_model,
+                        streams_section=self.streams_section,
+                    )
 
-                    configs = self.map_yaml_configs(configs=yaml.configs,
-                                                    config_model=config_model)
+                    configs = self.map_yaml_configs(
+                        configs=yaml.configs, config_model=config_model
+                    )
                     new_streams = self.map_yaml_streams(
-                        streams=yaml.streams, config_model=config_model)
-                    self._update_yaml_streams(streams, new_streams,
-                                              quiet=quiet,
-                                              remove_unrequested=False)
+                        streams=yaml.streams, config_model=config_model
+                    )
+                    self._update_yaml_streams(
+                        streams,
+                        new_streams,
+                        quiet=quiet,
+                        remove_unrequested=False,
+                    )
                     self._yaml.update(configs=configs, quiet=quiet)
         self._update_yaml_streams(
-            self._yaml.streams, streams, quiet=quiet,
-            remove_unrequested=remove_unrequested_streams)
+            self._yaml.streams,
+            streams,
+            quiet=quiet,
+            remove_unrequested=remove_unrequested_streams,
+        )
 
     @staticmethod
     def _update_yaml_streams(streams, new_streams, quiet, remove_unrequested):
@@ -848,8 +954,9 @@ class ModelStep(Step):
                     streams.pop(stream_name)
 
 
-def make_graph_file(mesh_filename, graph_filename='graph.info',
-                    weight_field=None):
+def make_graph_file(
+    mesh_filename, graph_filename='graph.info', weight_field=None
+):
     """
     Make a graph file from the MPAS mesh for use in the Metis graph
     partitioning software
@@ -868,15 +975,15 @@ def make_graph_file(mesh_filename, graph_filename='graph.info',
     """
 
     with xr.open_dataset(mesh_filename) as ds:
-
         nCells = ds.sizes['nCells']
 
         nEdgesOnCell = ds.nEdgesOnCell.values
         cellsOnCell = ds.cellsOnCell.values - 1
         if weight_field is not None:
             if weight_field in ds:
-                raise ValueError(f'weight_field {weight_field} not found in '
-                                 f'{mesh_filename}')
+                raise ValueError(
+                    f'weight_field {weight_field} not found in {mesh_filename}'
+                )
             weights = ds[weight_field].values
         else:
             weights = None

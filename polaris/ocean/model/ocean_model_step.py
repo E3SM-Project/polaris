@@ -25,10 +25,25 @@ class OceanModelStep(ModelStep):
         The name of the graph partition file to link to (relative to the base
         working directory)
     """
-    def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
-                 min_tasks=None, openmp_threads=None, max_memory=None,
-                 cached=False, yaml=None, update_pio=True, make_graph=False,
-                 mesh_filename=None, partition_graph=True, graph_target=None):
+
+    def __init__(
+        self,
+        component,
+        name,
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=None,
+        max_memory=None,
+        cached=False,
+        yaml=None,
+        update_pio=True,
+        make_graph=False,
+        mesh_filename=None,
+        partition_graph=True,
+        graph_target=None,
+    ):
         """
         Make a step for running the model
 
@@ -95,14 +110,24 @@ class OceanModelStep(ModelStep):
             self.make_graph = True
 
         super().__init__(
-            component=component, name=name, subdir=subdir, indir=indir,
-            ntasks=ntasks, min_tasks=min_tasks, openmp_threads=openmp_threads,
-            max_memory=max_memory, cached=cached, yaml=yaml,
-            update_pio=update_pio, make_graph=make_graph,
-            mesh_filename=mesh_filename, partition_graph=partition_graph,
-            graph_filename='graph.info')
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            max_memory=max_memory,
+            cached=cached,
+            yaml=yaml,
+            update_pio=update_pio,
+            make_graph=make_graph,
+            mesh_filename=mesh_filename,
+            partition_graph=partition_graph,
+            graph_filename='graph.info',
+        )
 
-        self.dynamic_ntasks = (ntasks is None and min_tasks is None)
+        self.dynamic_ntasks = ntasks is None and min_tasks is None
 
         self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
         self.graph_target = graph_target
@@ -126,13 +151,13 @@ class OceanModelStep(ModelStep):
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
             self.add_input_file(
-                filename='graph.info',
-                work_dir_target=self.graph_target)
+                filename='graph.info', work_dir_target=self.graph_target
+            )
             self.streams_section = 'streams'
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
 
-        self.dynamic_ntasks = (self.ntasks is None and self.min_tasks is None)
+        self.dynamic_ntasks = self.ntasks is None and self.min_tasks is None
 
         if self.dynamic_ntasks:
             self._update_ntasks()
@@ -226,8 +251,9 @@ class OceanModelStep(ModelStep):
         namelist : str
             The name of the namelist replacements file to read from
         """
-        raise ValueError('Input namelist files are not supported in '
-                         'OceanModelStep')
+        raise ValueError(
+            'Input namelist files are not supported in OceanModelStep'
+        )
 
     def add_streams_file(self, package, streams, template_replacements=None):
         """
@@ -246,8 +272,9 @@ class OceanModelStep(ModelStep):
             A dictionary of replacements, in which case ``streams`` must be a
             Jinja2 template to be rendered with these replacements
         """
-        raise ValueError('Input streams files are not supported in '
-                         'OceanModelStep')
+        raise ValueError(
+            'Input streams files are not supported in OceanModelStep'
+        )
 
     def _update_ntasks(self):
         """
@@ -257,10 +284,12 @@ class OceanModelStep(ModelStep):
         config = self.config
         cell_count = self.compute_cell_count()
         if cell_count is None:
-            raise ValueError('ntasks and min_tasks were not set explicitly '
-                             'but they also cannot be computed because '
-                             'compute_cell_count() does not appear to have '
-                             'been overridden.')
+            raise ValueError(
+                'ntasks and min_tasks were not set explicitly '
+                'but they also cannot be computed because '
+                'compute_cell_count() does not appear to have '
+                'been overridden.'
+            )
 
         goal_cells_per_core = config.getfloat('ocean', 'goal_cells_per_core')
         max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
@@ -270,8 +299,9 @@ class OceanModelStep(ModelStep):
         # ideally, about 200 cells per core
         self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
         # In a pinch, about 2000 cells per core
-        self.min_tasks = max(1,
-                             4 * round(cell_count / (4 * max_cells_per_core)))
+        self.min_tasks = max(
+            1, 4 * round(cell_count / (4 * max_cells_per_core))
+        )
 
     def _read_config_map(self):
         """
@@ -295,7 +325,8 @@ class OceanModelStep(ModelStep):
         for mpaso_option, mpaso_value in options.items():
             try:
                 omega_option, omega_value = self._map_mpaso_to_omega_option(
-                    option=mpaso_option, value=mpaso_value)
+                    option=mpaso_option, value=mpaso_value
+                )
                 out_options[omega_option] = omega_value
             except ValueError:
                 not_found.append(mpaso_option)
@@ -340,9 +371,11 @@ class OceanModelStep(ModelStep):
         for section, options in configs.items():
             for option, mpaso_value in options.items():
                 try:
-                    omega_section, omega_option, omega_value = \
+                    omega_section, omega_option, omega_value = (
                         self._map_mpaso_to_omega_section_option(
-                            section=section, option=option, value=mpaso_value)
+                            section=section, option=option, value=mpaso_value
+                        )
+                    )
                     if omega_section not in out_configs:
                         out_configs[omega_section] = {}
                     out_configs[omega_section][omega_option] = omega_value
@@ -392,7 +425,7 @@ class OceanModelStep(ModelStep):
 
     @staticmethod
     def _warn_not_found(not_found):
-        """ Warn about options that were not found in the map """
+        """Warn about options that were not found in the map"""
         if len(not_found) == 0:
             return
 

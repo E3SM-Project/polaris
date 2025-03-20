@@ -128,8 +128,9 @@ class Task:
         """
         pass
 
-    def add_step(self, step=None, subdir=None, symlink=None,
-                 run_by_default=True):
+    def add_step(
+        self, step=None, subdir=None, symlink=None, run_by_default=True
+    ):
         """
         Add a step to the task and component (if not already present)
 
@@ -161,14 +162,18 @@ class Task:
 
         if subdir is not None:
             if subdir not in self.component.steps:
-                raise ValueError(f'Could not find {subdir} in the steps in '
-                                 f'the component.  Add the step to the '
-                                 f'component first, then to the task.')
+                raise ValueError(
+                    f'Could not find {subdir} in the steps in '
+                    f'the component.  Add the step to the '
+                    f'component first, then to the task.'
+                )
             step = component.steps[subdir]
 
         if step.name in self.steps:
-            raise ValueError(f'A step has already been added to this task '
-                             f'with name {step.name}')
+            raise ValueError(
+                f'A step has already been added to this task '
+                f'with name {step.name}'
+            )
 
         # add the step to the component (if it's not already there)
         component.add_step(step)
@@ -224,9 +229,11 @@ class Task:
         if link is None:
             directory, basename = os.path.split(config.filepath)
             if directory != self.subdir:
-                raise ValueError('No link parameter was provided but the '
-                                 'config file is not in this task\'s work '
-                                 'directory.')
+                raise ValueError(
+                    'No link parameter was provided but the '
+                    "config file is not in this task's work "
+                    'directory.'
+                )
             self.config_filename = basename
         else:
             self.config_filename = link

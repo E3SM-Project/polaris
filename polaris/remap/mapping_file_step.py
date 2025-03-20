@@ -49,8 +49,17 @@ class MappingFileStep(Step):
         The name of the SCRIP file for the destination mesh
     """
 
-    def __init__(self, component, name, subdir=None, indir=None, ntasks=None,
-                 min_tasks=None, map_filename=None, method='bilinear'):
+    def __init__(
+        self,
+        component,
+        name,
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        map_filename=None,
+        method='bilinear',
+    ):
         """
         Create a new step
 
@@ -82,8 +91,14 @@ class MappingFileStep(Step):
         method : {'bilinear', 'neareststod', 'conserve'}, optional
             The method of interpolation used
         """
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+        )
         self.src_grid_info = dict()
         self.dst_grid_info = dict()
         self.map_filename = map_filename
@@ -137,8 +152,9 @@ class MappingFileStep(Step):
         dst['mpas_mesh_type'] = mesh_type
         self.dst_grid_info = dst
 
-    def src_from_lon_lat(self, filename, mesh_name=None, lon_var='lon',
-                         lat_var='lat'):
+    def src_from_lon_lat(
+        self, filename, mesh_name=None, lon_var='lon', lat_var='lat'
+    ):
         """
         Set the source grid from a file with a longitude-latitude grid.  The
         latitude and longitude variables can be 1D or 2D.
@@ -167,8 +183,9 @@ class MappingFileStep(Step):
             src['name'] = mesh_name
         self.src_grid_info = src
 
-    def dst_from_lon_lat(self, filename, mesh_name=None, lon_var='lon',
-                         lat_var='lat'):
+    def dst_from_lon_lat(
+        self, filename, mesh_name=None, lon_var='lon', lat_var='lat'
+    ):
         """
         Set the destination grid from a file with a longitude-latitude grid.
         The latitude and longitude variables can be 1D or 2D.
@@ -197,7 +214,7 @@ class MappingFileStep(Step):
             dst['name'] = mesh_name
         self.dst_grid_info = dst
 
-    def dst_global_lon_lat(self, dlon, dlat, lon_min=-180., mesh_name=None):
+    def dst_global_lon_lat(self, dlon, dlat, lon_min=-180.0, mesh_name=None):
         """
         Set the destination grid from a file with a longitude-latitude grid.
         The latitude and longitude variables can be 1D or 2D.
@@ -227,8 +244,15 @@ class MappingFileStep(Step):
             dst['name'] = mesh_name
         self.dst_grid_info = dst
 
-    def src_from_proj(self, filename, mesh_name, x_var='x', y_var='y',
-                      proj_attr=None, proj_str=None):
+    def src_from_proj(
+        self,
+        filename,
+        mesh_name,
+        x_var='x',
+        y_var='y',
+        proj_attr=None,
+        proj_str=None,
+    ):
         """
         Set the source grid from a file with a projection grid.
 
@@ -268,8 +292,15 @@ class MappingFileStep(Step):
             raise ValueError('Must provide one of "proj_attr" or "proj_str".')
         self.src_grid_info = src
 
-    def dst_from_proj(self, filename, mesh_name, x_var='x', y_var='y',
-                      proj_attr=None, proj_str=None):
+    def dst_from_proj(
+        self,
+        filename,
+        mesh_name,
+        x_var='x',
+        y_var='y',
+        proj_attr=None,
+        proj_str=None,
+    ):
         """
         Set the destination grid from a file with a projection grid.
 
@@ -309,8 +340,9 @@ class MappingFileStep(Step):
             raise ValueError('Must provide one of "proj_attr" or "proj_str".')
         self.dst_grid_info = dst
 
-    def dst_from_points(self, filename, mesh_name, lon_var='lon',
-                        lat_var='lat'):
+    def dst_from_points(
+        self, filename, mesh_name, lon_var='lon', lat_var='lat'
+    ):
         """
         Set the destination grid from a file with a collection of points.
 
@@ -359,31 +391,31 @@ class MappingFileStep(Step):
         # to absolute paths for when the remapper is used in another step
         for info in [src, dst]:
             if 'filename' in info:
-                info['filename'] = os.path.abspath(os.path.join(
-                    self.work_dir, info['filename']))
+                info['filename'] = os.path.abspath(
+                    os.path.join(self.work_dir, info['filename'])
+                )
 
         in_descriptor = _get_descriptor(src)
         out_descriptor = _get_descriptor(dst)
 
         if self.map_filename is None:
             map_tool = self.config.get('mapping', 'map_tool')
-            prefixes = {
-                'esmf': 'esmf',
-                'moab': 'mbtr'
-            }
+            prefixes = {'esmf': 'esmf', 'moab': 'mbtr'}
             suffixes = {
                 'conserve': 'aave',
                 'bilinear': 'bilin',
-                'neareststod': 'neareststod'
+                'neareststod': 'neareststod',
             }
             suffix = f'{prefixes[map_tool]}{suffixes[self.method]}'
 
-            self.map_filename = \
-                f'map_{in_descriptor.meshName}_to_{out_descriptor.meshName}' \
+            self.map_filename = (
+                f'map_{in_descriptor.meshName}_to_{out_descriptor.meshName}'
                 f'_{suffix}.nc'
+            )
 
-        self.map_filename = os.path.abspath(os.path.join(
-            self.work_dir, self.map_filename))
+        self.map_filename = os.path.abspath(
+            os.path.join(self.work_dir, self.map_filename)
+        )
 
         remapper = Remapper(in_descriptor, out_descriptor, self.map_filename)
         return remapper
@@ -400,22 +432,30 @@ class MappingFileStep(Step):
         src_descriptor.to_scrip(self.src_mesh_filename)
 
         dst_descriptor = remapper.destinationDescriptor
-        dst_descriptor.to_scrip(self.dst_mesh_filename,
-                                expandDist=self.expand_distance,
-                                expandFactor=self.expand_factor)
+        dst_descriptor.to_scrip(
+            self.dst_mesh_filename,
+            expandDist=self.expand_distance,
+            expandFactor=self.expand_factor,
+        )
 
         if map_tool == 'esmf':
-            self.args = _esmf_build_map_args(remapper, self.method,
-                                             src_descriptor,
-                                             self.src_mesh_filename,
-                                             dst_descriptor,
-                                             self.dst_mesh_filename)
+            self.args = _esmf_build_map_args(
+                remapper,
+                self.method,
+                src_descriptor,
+                self.src_mesh_filename,
+                dst_descriptor,
+                self.dst_mesh_filename,
+            )
         elif map_tool == 'moab':
-            self.args = _moab_build_map_args(remapper, self.method,
-                                             src_descriptor,
-                                             self.src_mesh_filename,
-                                             dst_descriptor,
-                                             self.dst_mesh_filename)
+            self.args = _moab_build_map_args(
+                remapper,
+                self.method,
+                src_descriptor,
+                self.src_mesh_filename,
+                dst_descriptor,
+                self.dst_mesh_filename,
+            )
 
 
 def _check_remapper(remapper, method, map_tool):
@@ -423,32 +463,48 @@ def _check_remapper(remapper, method, map_tool):
     Check for inconsistencies in the remapper
     """
     if map_tool not in ['moab', 'esmf']:
-        raise ValueError(f'Unexpected map_tool {map_tool}. Valid '
-                         f'values are "esmf" or "moab".')
+        raise ValueError(
+            f'Unexpected map_tool {map_tool}. Valid '
+            f'values are "esmf" or "moab".'
+        )
 
-    if isinstance(remapper.destinationDescriptor,
-                  PointCollectionDescriptor) and \
-            method not in ['bilinear', 'neareststod']:
-        raise ValueError(f'method {method} not supported for destination '
-                         f'grid of type PointCollectionDescriptor.')
+    if isinstance(
+        remapper.destinationDescriptor, PointCollectionDescriptor
+    ) and method not in ['bilinear', 'neareststod']:
+        raise ValueError(
+            f'method {method} not supported for destination '
+            f'grid of type PointCollectionDescriptor.'
+        )
 
     if map_tool == 'moab' and method == 'neareststod':
         raise ValueError('method neareststod not supported by mbtempest.')
 
 
-def _esmf_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
-                         dst_descriptor, dst_mesh_filename):
+def _esmf_build_map_args(
+    remapper,
+    method,
+    src_descriptor,
+    src_mesh_filename,
+    dst_descriptor,
+    dst_mesh_filename,
+):
     """
     Get command-line arguments for making a mapping file with
     ESMF_RegridWeightGen
     """
 
-    args = ['ESMF_RegridWeightGen',
-            '--source', src_mesh_filename,
-            '--destination', dst_mesh_filename,
-            '--weight', remapper.mappingFileName,
-            '--method', method,
-            '--netcdf4']
+    args = [
+        'ESMF_RegridWeightGen',
+        '--source',
+        src_mesh_filename,
+        '--destination',
+        dst_mesh_filename,
+        '--weight',
+        remapper.mappingFileName,
+        '--method',
+        method,
+        '--netcdf4',
+    ]
 
     if src_descriptor.regional:
         args.append('--src_regional')
@@ -462,25 +518,34 @@ def _esmf_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
     return [args]
 
 
-def _moab_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
-                         dst_descriptor, dst_mesh_filename):
+def _moab_build_map_args(
+    remapper,
+    method,
+    src_descriptor,
+    src_mesh_filename,
+    dst_descriptor,
+    dst_mesh_filename,
+):
     """
     Get command-line arguments for making a mapping file with mbtempest
     """
-    fvmethod = {
-        'conserve': 'none',
-        'bilinear': 'bilin'}
+    fvmethod = {'conserve': 'none', 'bilinear': 'bilin'}
 
     map_filename = remapper.mappingFileName
-    intx_filename = \
+    intx_filename = (
         f'moab_intx_{src_descriptor.meshName}_to_{dst_descriptor.meshName}.h5m'
+    )
 
     intx_args = [
         'mbtempest',
-        '--type', '5',
-        '--load', src_mesh_filename,
-        '--load', dst_mesh_filename,
-        '--intx', intx_filename
+        '--type',
+        '5',
+        '--load',
+        src_mesh_filename,
+        '--load',
+        dst_mesh_filename,
+        '--intx',
+        intx_filename,
     ]
 
     if src_descriptor.regional or dst_descriptor.regional:
@@ -488,21 +553,32 @@ def _moab_build_map_args(remapper, method, src_descriptor, src_mesh_filename,
 
     map_args = [
         'mbtempest',
-        '--type', '5',
-        '--load', src_mesh_filename,
-        '--load', dst_mesh_filename,
-        '--intx', intx_filename,
+        '--type',
+        '5',
+        '--load',
+        src_mesh_filename,
+        '--load',
+        dst_mesh_filename,
+        '--intx',
+        intx_filename,
         '--weights',
-        '--method', 'fv',
-        '--method', 'fv',
-        '--file', map_filename,
-        '--order', '1',
-        '--order', '1',
-        '--fvmethod', fvmethod[method]
+        '--method',
+        'fv',
+        '--method',
+        'fv',
+        '--file',
+        map_filename,
+        '--order',
+        '1',
+        '--order',
+        '1',
+        '--fvmethod',
+        fvmethod[method],
     ]
 
-    if method == 'conserve' and (src_descriptor.regional or
-                                 dst_descriptor.regional):
+    if method == 'conserve' and (
+        src_descriptor.regional or dst_descriptor.regional
+    ):
         map_args.append('--rrmgrids')
 
     return [intx_args, map_args]
@@ -538,14 +614,17 @@ def _get_mpas_descriptor(info):
     mesh_name = info['name']
 
     if mesh_type == 'cell':
-        descriptor = MpasCellMeshDescriptor(fileName=filename,
-                                            meshName=mesh_name)
+        descriptor = MpasCellMeshDescriptor(
+            fileName=filename, meshName=mesh_name
+        )
     elif mesh_type == 'vertex':
-        descriptor = MpasVertexMeshDescriptor(fileName=filename,
-                                              meshName=mesh_name)
+        descriptor = MpasVertexMeshDescriptor(
+            fileName=filename, meshName=mesh_name
+        )
     elif mesh_type == 'edge':
-        descriptor = MpasEdgeMeshDescriptor(fileName=filename,
-                                            meshName=mesh_name)
+        descriptor = MpasEdgeMeshDescriptor(
+            fileName=filename, meshName=mesh_name
+        )
     else:
         raise ValueError(f'Unexpected MPAS mesh type {mesh_type}')
 
@@ -559,11 +638,13 @@ def _get_lon_lat_descriptor(info):
 
     if 'dlat' in info and 'dlon' in info:
         lon_min = info['lon_min']
-        lon_max = lon_min + 360.
-        descriptor = get_lat_lon_descriptor(dLon=info['dlon'],
-                                            dLat=info['dlat'],
-                                            lonMin=lon_min,
-                                            lonMax=lon_max)
+        lon_max = lon_min + 360.0
+        descriptor = get_lat_lon_descriptor(
+            dLon=info['dlon'],
+            dLat=info['dlat'],
+            lonMin=lon_min,
+            lonMax=lon_max,
+        )
     else:
         filename = info['filename']
         lon = info['lon']
@@ -572,19 +653,21 @@ def _get_lon_lat_descriptor(info):
             lon_lat_1d = len(ds[lon].dims) == 1 and len(ds[lat].dims) == 1
             lon_lat_2d = len(ds[lon].dims) == 2 and len(ds[lat].dims) == 2
             if not lon_lat_1d and not lon_lat_2d:
-                raise ValueError(f'longitude and latitude coordinates {lon} '
-                                 f'and {lat} have unexpected sizes '
-                                 f'{len(ds[lon].dims)} and '
-                                 f'{len(ds[lat].dims)}.')
+                raise ValueError(
+                    f'longitude and latitude coordinates {lon} '
+                    f'and {lat} have unexpected sizes '
+                    f'{len(ds[lon].dims)} and '
+                    f'{len(ds[lat].dims)}.'
+                )
 
         if lon_lat_1d:
-            descriptor = LatLonGridDescriptor.read(fileName=filename,
-                                                   lonVarName=lon,
-                                                   latVarName=lat)
+            descriptor = LatLonGridDescriptor.read(
+                fileName=filename, lonVarName=lon, latVarName=lat
+            )
         else:
-            descriptor = LatLon2DGridDescriptor.read(fileName=filename,
-                                                     lonVarName=lon,
-                                                     latVarName=lat)
+            descriptor = LatLon2DGridDescriptor.read(
+                fileName=filename, lonVarName=lon, latVarName=lat
+            )
 
     if 'name' in info:
         descriptor.meshName = info['name']
@@ -608,11 +691,13 @@ def _get_proj_descriptor(info):
 
     proj = pyproj.Proj(proj_str)
 
-    descriptor = ProjectionGridDescriptor.read(projection=proj,
-                                               fileName=filename,
-                                               meshName=grid_name,
-                                               xVarName=x,
-                                               yVarName=y)
+    descriptor = ProjectionGridDescriptor.read(
+        projection=proj,
+        fileName=filename,
+        meshName=grid_name,
+        xVarName=x,
+        yVarName=y,
+    )
 
     return descriptor
 
@@ -636,8 +721,8 @@ def _get_points_descriptor(info):
         else:
             raise ValueError(f'Unexpected longitude unit unit {unit_attr}')
 
-    descriptor = PointCollectionDescriptor(lons=lon, lats=lat,
-                                           collectionName=collection_name,
-                                           units=units)
+    descriptor = PointCollectionDescriptor(
+        lons=lon, lats=lat, collectionName=collection_name, units=units
+    )
 
     return descriptor

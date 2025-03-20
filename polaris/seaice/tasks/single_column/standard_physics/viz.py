@@ -10,6 +10,7 @@ class Viz(Step):
     """
     A step for plotting the results of a single column test
     """
+
     def __init__(self, component, indir):
         """
         Create the step
@@ -26,14 +27,14 @@ class Viz(Step):
         super().__init__(component=component, name='viz', indir=indir)
         self.add_input_file(
             filename='output.2000.nc',
-            target='../forward/output/output.2000.nc')
+            target='../forward/output/output.2000.nc',
+        )
 
     def run(self):
         """
         Run this step of the test case
         """
-        style_filename = str(
-            imp_res.files('polaris.viz') / 'polaris.mplstyle')
+        style_filename = str(imp_res.files('polaris.viz') / 'polaris.mplstyle')
         plt.style.use(style_filename)
         ds = xr.open_dataset('output.2000.nc', decode_times=False)
         daysSinceStartOfSim = ds.daysSinceStartOfSim.values
@@ -43,8 +44,12 @@ class Viz(Step):
 
         fig, axis = plt.subplots(figsize=(8, 8))
 
-        axis.plot(daysSinceStartOfSim, surfaceTemperatureCell,
-                  color='green', label='surfaceTemperature')
+        axis.plot(
+            daysSinceStartOfSim,
+            surfaceTemperatureCell,
+            color='green',
+            label='surfaceTemperature',
+        )
         axis.set_ylabel('Temperature (C)')
         axis.set_xlabel('Days')
         axis.set_xlim(0, daysSinceStartOfSim[-1])
@@ -55,10 +60,15 @@ class Viz(Step):
 
         axis2 = axis.twinx()
 
-        axis2.plot(daysSinceStartOfSim, iceVolumeCell,
-                   color='red', label='iceVolume')
-        axis2.plot(daysSinceStartOfSim, snowVolumeCell,
-                   color='blue', label='snowVolume')
+        axis2.plot(
+            daysSinceStartOfSim, iceVolumeCell, color='red', label='iceVolume'
+        )
+        axis2.plot(
+            daysSinceStartOfSim,
+            snowVolumeCell,
+            color='blue',
+            label='snowVolume',
+        )
         axis2.set_ylabel('Thickness (m)')
         axis2.set_ylim(0, None)
 

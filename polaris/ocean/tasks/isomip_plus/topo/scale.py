@@ -17,6 +17,7 @@ class TopoScale(Step):
     experiment : {'inception', 'drying', 'wetting'}
         The scaling experiment
     """
+
     def __init__(self, component, subdir, config, topo_remap, experiment):
         """
         Create the step
@@ -47,8 +48,9 @@ class TopoScale(Step):
         self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         topo_filename = os.path.join(topo_remap.path, 'topography_remapped.nc')
-        self.add_input_file(filename='topography_unscaled.nc',
-                            work_dir_target=topo_filename)
+        self.add_input_file(
+            filename='topography_unscaled.nc', work_dir_target=topo_filename
+        )
         self.add_output_file('topography_remapped.nc')
 
     def run(self):
@@ -58,13 +60,13 @@ class TopoScale(Step):
         experiment = self.experiment
         config = self.config
 
-        dates: List[str] = config.getlist('isomip_plus_scaling',
-                                          f'{experiment}_dates',
-                                          dtype=str)
+        dates: List[str] = config.getlist(
+            'isomip_plus_scaling', f'{experiment}_dates', dtype=str
+        )
         dates = [date.ljust(64) for date in dates]
-        scales: List[float] = config.getlist('isomip_plus_scaling',
-                                             f'{experiment}_scales',
-                                             dtype=float)
+        scales: List[float] = config.getlist(
+            'isomip_plus_scaling', f'{experiment}_scales', dtype=float
+        )
 
         ds_orig = xr.open_dataset('topography_unscaled.nc')
 

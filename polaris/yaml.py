@@ -38,8 +38,14 @@ class PolarisYaml:
         self.model = None
 
     @classmethod
-    def read(cls, filename, package=None, replacements=None, model=None,
-             streams_section='streams'):
+    def read(
+        cls,
+        filename,
+        package=None,
+        replacements=None,
+        model=None,
+        streams_section='streams',
+    ):
         """
         Add config options from a yaml file
 
@@ -91,7 +97,8 @@ class PolarisYaml:
             if len(keys) > 1:
                 raise ValueError(
                     f'Config yaml file contains unexpected sections: \n '
-                    f'{keys[1:]}')
+                    f'{keys[1:]}'
+                )
             model = keys[0]
 
         yaml.model = model
@@ -154,9 +161,9 @@ class PolarisYaml:
             yaml.dump(model_configs, outfile)
 
 
-def mpas_namelist_and_streams_to_yaml(model, namelist_template=None,
-                                      namelist=None,
-                                      streams=None):
+def mpas_namelist_and_streams_to_yaml(
+    model, namelist_template=None, namelist=None, streams=None
+):
     """
     Add config options from a yaml file
 
@@ -191,24 +198,42 @@ def mpas_namelist_and_streams_to_yaml(model, namelist_template=None,
 
 def main_mpas_to_yaml():
     parser = argparse.ArgumentParser(
-        description='Convert a namelist and/or streams file to yaml')
-    parser.add_argument("-n", "--namelist", dest="namelist",
-                        required=False,
-                        help="MPAS namelist file")
-    parser.add_argument("-s", "--streams", dest="streams",
-                        required=False,
-                        help="MPAS streams file")
-    parser.add_argument("-t", "--namelist_template", dest="namelist_template",
-                        required=False,
-                        help="MPAS namelist template file (with all namelist "
-                             "options). For MPAS-Ocean, this will typically be"
-                             " ${PATH_TO_MPASO}/default_inputs/"
-                             "namelist.ocean.forward")
-    parser.add_argument("-y", "--yaml", dest="yaml",
-                        required=True,
-                        help="Output yaml file")
-    parser.add_argument("-m", "--model", dest="model", default='mpas-ocean',
-                        help="Model name for the yaml")
+        description='Convert a namelist and/or streams file to yaml'
+    )
+    parser.add_argument(
+        '-n',
+        '--namelist',
+        dest='namelist',
+        required=False,
+        help='MPAS namelist file',
+    )
+    parser.add_argument(
+        '-s',
+        '--streams',
+        dest='streams',
+        required=False,
+        help='MPAS streams file',
+    )
+    parser.add_argument(
+        '-t',
+        '--namelist_template',
+        dest='namelist_template',
+        required=False,
+        help='MPAS namelist template file (with all namelist '
+        'options). For MPAS-Ocean, this will typically be'
+        ' ${PATH_TO_MPASO}/default_inputs/'
+        'namelist.ocean.forward',
+    )
+    parser.add_argument(
+        '-y', '--yaml', dest='yaml', required=True, help='Output yaml file'
+    )
+    parser.add_argument(
+        '-m',
+        '--model',
+        dest='model',
+        default='mpas-ocean',
+        help='Model name for the yaml',
+    )
 
     args = parser.parse_args()
 
@@ -216,7 +241,8 @@ def main_mpas_to_yaml():
         model=args.model,
         namelist_template=args.namelist_template,
         namelist=args.namelist,
-        streams=args.streams)
+        streams=args.streams,
+    )
 
     yaml.write(args.yaml)
 
@@ -280,7 +306,8 @@ def _update_section(src, dst, quiet, print_section=None):
                 raise ValueError(
                     f'Attempting to modify config options to a '
                     f'nonexistent config\n'
-                    f'(sub)section: {print_subsection}')
+                    f'(sub)section: {print_subsection}'
+                )
             # this is a subsection
             src_sub = src[name]
             dst_sub = dst[name]
@@ -289,7 +316,8 @@ def _update_section(src, dst, quiet, print_section=None):
             if name not in dst:
                 raise ValueError(
                     f'Attempting to modify a nonexistent config '
-                    f'options: {print_section}: {name}')
+                    f'options: {print_section}: {name}'
+                )
             if not quiet:
                 print(f'  {print_section}: {name} = {src[name]}')
             dst[name] = src[name]
@@ -303,8 +331,8 @@ def _update_options(src, dst, quiet):
         success = _update_option(name, src[name], dst, quiet)
         if not success:
             raise ValueError(
-                f'Attempting to modify a nonexistent config '
-                f'options: {name}')
+                f'Attempting to modify a nonexistent config options: {name}'
+            )
 
 
 def _update_option(option, value, dst, quiet, print_section=None):
@@ -318,8 +346,9 @@ def _update_option(option, value, dst, quiet, print_section=None):
                 print_subsection = f'{print_section}: {name}'
             else:
                 print_subsection = name
-            success = _update_option(option, value, dst[name], quiet,
-                                     print_subsection)
+            success = _update_option(
+                option, value, dst[name], quiet, print_subsection
+            )
             if success:
                 return True
         elif name == option:
@@ -331,7 +360,7 @@ def _update_option(option, value, dst, quiet, print_section=None):
 
 
 def _read_namelist(namelist_template, namelist_filename):
-    """ Read the defaults file """
+    """Read the defaults file"""
     record_map = _read_namelist_template(namelist_template)
 
     with open(namelist_filename, 'r') as f:
@@ -350,7 +379,7 @@ def _read_namelist(namelist_template, namelist_filename):
 
 
 def _read_namelist_template(namelist_template):
-    """ Read the defaults file """
+    """Read the defaults file"""
     with open(namelist_template, 'r') as f:
         lines = f.readlines()
 
@@ -375,8 +404,7 @@ def _read_namelist_line(line):
     elif '=' in line:
         opt, val = line.strip('\n').split('=')
         opt = opt.strip()
-        str_value = \
-            val.strip().strip('\"').strip('\'').strip()
+        str_value = val.strip().strip('"').strip("'").strip()
         try:
             value = int(str_value)
         except ValueError:
@@ -394,14 +422,16 @@ def _read_namelist_line(line):
 
 
 def _streams_xml_to_dict(streams_filename):
-    """ Convert a streams XML file to nested dictionaries """
+    """Convert a streams XML file to nested dictionaries"""
     streams: Dict[str, Dict[str, str | list]] = dict()
     tree = etree.parse(streams_filename)
     xml_streams = next(tree.iter('streams'))
     for child in xml_streams:
         if child.tag not in ['stream', 'immutable_stream']:
-            raise ValueError(f'Unexpected tag {child.tag} instead of stream or'
-                             f'immutable stream')
+            raise ValueError(
+                f'Unexpected tag {child.tag} instead of stream or'
+                f'immutable stream'
+            )
         stream_name = child.attrib['name']
         streams[stream_name] = dict()
         for attr, value in child.attrib.items():
@@ -427,14 +457,16 @@ def _streams_xml_to_dict(streams_filename):
 
 
 def _get_stream_tag(registry, stream):
-    """ Get the xml tag, 'stream' or 'immutable_stream' for a given stream """
+    """Get the xml tag, 'stream' or 'immutable_stream' for a given stream"""
     streams = next(next(registry.iter('registry')).iter('streams'))
     # if we don't find the stream, it can't be an immutable stream
     tag = 'stream'
     for child in streams:
         if child.tag == 'stream' and child.attrib['name'] == stream:
-            if 'immutable' in child.attrib and \
-                    child.attrib['immutable'] == 'true':
+            if (
+                'immutable' in child.attrib
+                and child.attrib['immutable'] == 'true'
+            ):
                 tag = 'immutable_stream'
             break
     return tag
@@ -458,13 +490,17 @@ def _get_var_tag(registry, variable):
                 return 'var_struct'
 
             for grandchild in child:
-                if grandchild.tag in ['var_struct', 'var_array', 'var'] and \
-                        grandchild.attrib['name'] == variable:
+                if (
+                    grandchild.tag in ['var_struct', 'var_array', 'var']
+                    and grandchild.attrib['name'] == variable
+                ):
                     return grandchild.tag
                 if grandchild.tag in ['var_struct', 'var_array']:
                     for greatgrand in grandchild:
-                        if greatgrand.tag in ['var_array', 'var'] and \
-                                greatgrand.attrib['name'] == variable:
+                        if (
+                            greatgrand.tag in ['var_array', 'var']
+                            and greatgrand.attrib['name'] == variable
+                        ):
                             return greatgrand.tag
 
     if tag is None:

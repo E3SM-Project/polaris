@@ -66,24 +66,40 @@ def init_z_star_vertical_coord(config, ds):
 
     restingSSH = xarray.zeros_like(ds.bottomDepth)
     min_vert_levels = config.getint('vertical_grid', 'min_vert_levels')
-    min_layer_thickness = config.getfloat('vertical_grid',
-                                          'min_layer_thickness')
-    ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = \
-        compute_min_max_level_cell(ds.refTopDepth, ds.refBottomDepth,
-                                   restingSSH, ds.bottomDepth,
-                                   min_vert_levels=min_vert_levels,
-                                   min_layer_thickness=min_layer_thickness)
+    min_layer_thickness = config.getfloat(
+        'vertical_grid', 'min_layer_thickness'
+    )
+    ds['minLevelCell'], ds['maxLevelCell'], ds['cellMask'] = (
+        compute_min_max_level_cell(
+            ds.refTopDepth,
+            ds.refBottomDepth,
+            restingSSH,
+            ds.bottomDepth,
+            min_vert_levels=min_vert_levels,
+            min_layer_thickness=min_layer_thickness,
+        )
+    )
 
     ds['bottomDepth'], ds['maxLevelCell'] = alter_bottom_depth(
-        config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell)
+        config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell
+    )
 
     ds['restingThickness'] = compute_z_level_layer_thickness(
-        ds.refTopDepth, ds.refBottomDepth, restingSSH, ds.bottomDepth,
-        ds.minLevelCell, ds.maxLevelCell)
+        ds.refTopDepth,
+        ds.refBottomDepth,
+        restingSSH,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
     ds['layerThickness'] = _compute_z_star_layer_thickness(
-        ds.restingThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
-        ds.maxLevelCell)
+        ds.restingThickness,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
 
 def update_z_star_layer_thickness(config, ds):
@@ -102,12 +118,17 @@ def update_z_star_layer_thickness(config, ds):
         construct the vertical coordinate
     """
     ds['layerThickness'] = _compute_z_star_layer_thickness(
-        ds.restingThickness, ds.ssh, ds.bottomDepth, ds.minLevelCell,
-        ds.maxLevelCell)
+        ds.restingThickness,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+    )
 
 
-def _compute_z_star_layer_thickness(restingThickness, ssh, bottomDepth,
-                                    minLevelCell, maxLevelCell):
+def _compute_z_star_layer_thickness(
+    restingThickness, ssh, bottomDepth, minLevelCell, maxLevelCell
+):
     """
     Compute z-star layer thickness by stretching restingThickness based on ssh
     and bottomDepth
@@ -138,16 +159,20 @@ def _compute_z_star_layer_thickness(restingThickness, ssh, bottomDepth,
     nVertLevels = restingThickness.sizes['nVertLevels']
     layerThickness = []
 
-    layerStretch = (ssh + bottomDepth) / \
-        restingThickness.sum(dim='nVertLevels')
+    layerStretch = (ssh + bottomDepth) / restingThickness.sum(
+        dim='nVertLevels'
+    )
     for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(zIndex >= minLevelCell,
-                                 zIndex <= maxLevelCell)
+        mask = numpy.logical_and(
+            zIndex >= minLevelCell, zIndex <= maxLevelCell
+        )
         thickness = layerStretch * restingThickness.isel(nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.)
+        thickness = thickness.where(mask, 0.0)
         layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(layerThickness,
-                                           dims=['nVertLevels', 'nCells'])
+    layerThicknessArray = xarray.DataArray(
+        layerThickness, dims=['nVertLevels', 'nCells']
+    )
     layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels')
+        'nCells', 'nVertLevels'
+    )
     return layerThicknessArray

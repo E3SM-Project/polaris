@@ -13,10 +13,10 @@ def resolution_to_subdir(resolution):
         The resolution as a string for use as a subdirectory
 
     """
-    if resolution >= 1.:
+    if resolution >= 1.0:
         res_str = f'{resolution:g}km'
     elif resolution < 0.001:
-        res_str = f'{resolution * 1.e5:g}cm'
+        res_str = f'{resolution * 1.0e5:g}cm'
     else:
-        res_str = f'{resolution * 1000.:g}m'
+        res_str = f'{resolution * 1000.0:g}m'
     return res_str

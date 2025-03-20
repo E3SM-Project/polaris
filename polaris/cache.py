@@ -44,7 +44,7 @@ def update_cache(step_paths, date_string=None, dry_run=False):
     config.add_from_package('polaris.machines', f'{machine}.cfg')
 
     if date_string is None:
-        date_string = datetime.now().strftime("%y%m%d")
+        date_string = datetime.now().strftime('%y%m%d')
 
     # make a dictionary with components as keys, and lists of steps as values
     steps: Dict[str, List[Step]] = dict()
@@ -88,7 +88,7 @@ def update_cache(step_paths, date_string=None, dry_run=False):
                 output = os.path.basename(output)
                 out_filename = os.path.join(step_path, output)
                 # remove the component from the file path
-                target = out_filename[len(component) + 1:]
+                target = out_filename[len(component) + 1 :]
                 path, ext = os.path.splitext(target)
                 target = f'{path}.{date_string}{ext}'
                 cached_files[out_filename] = target
@@ -114,22 +114,40 @@ def update_cache(step_paths, date_string=None, dry_run=False):
 def main():
     parser = argparse.ArgumentParser(
         description='Cache the output files from one or more steps for use in '
-                    'a cached variant of the step',
-        prog='polaris cache')
-    parser.add_argument("-i", "--orig_steps", nargs='+', dest="orig_steps",
-                        type=str,
-                        help="The relative path of the original (uncached) "
-                             "steps from the base work directory.",
-                        metavar="STEP")
-    parser.add_argument("-d", "--date_string", dest="date_string", type=str,
-                        help="The datestamp (YYMMDD) to use on the files.  "
-                             "Default is today's date.",
-                        metavar="DATE")
-    parser.add_argument("-r", "--dry_run", dest="dry_run",
-                        help="Whether this is a dry run (producing the json "
-                             "file but not copying files to the LCRC server).",
-                        action="store_true")
+        'a cached variant of the step',
+        prog='polaris cache',
+    )
+    parser.add_argument(
+        '-i',
+        '--orig_steps',
+        nargs='+',
+        dest='orig_steps',
+        type=str,
+        help='The relative path of the original (uncached) '
+        'steps from the base work directory.',
+        metavar='STEP',
+    )
+    parser.add_argument(
+        '-d',
+        '--date_string',
+        dest='date_string',
+        type=str,
+        help='The datestamp (YYMMDD) to use on the files.  '
+        "Default is today's date.",
+        metavar='DATE',
+    )
+    parser.add_argument(
+        '-r',
+        '--dry_run',
+        dest='dry_run',
+        help='Whether this is a dry run (producing the json '
+        'file but not copying files to the LCRC server).',
+        action='store_true',
+    )
 
     args = parser.parse_args(sys.argv[2:])
-    update_cache(step_paths=args.orig_steps, date_string=args.date_string,
-                 dry_run=args.dry_run)
+    update_cache(
+        step_paths=args.orig_steps,
+        date_string=args.date_string,
+        dry_run=args.dry_run,
+    )
