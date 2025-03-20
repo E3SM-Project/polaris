@@ -178,14 +178,30 @@
 <span class="sd">    streams_section : str</span>
 <span class="sd">        The name of the streams section in yaml files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ModelStep.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">partition_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                 <span class="n">make_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">partition_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+        <span class="n">make_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a step for running the model</span>
 
@@ -257,11 +273,19 @@
 <span class="sd">            Whether to create a yaml file with model config options and streams</span>
 <span class="sd">            instead of MPAS namelist and streams files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                         <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
-                         <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                         <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
+            <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">namelist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">namelist</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;namelist.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -299,22 +323,29 @@
 <div class="viewcode-block" id="ModelStep.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.setup.html#polaris.ModelStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Setup the command-line arguments &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup the command-line arguments&quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
         <span class="n">model_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[[</span><span class="sa">f</span><span class="s1">&#39;./</span><span class="si">{</span><span class="n">model_basename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[[</span><span class="sa">f</span><span class="s1">&#39;./</span><span class="si">{</span><span class="n">model_basename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                          <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="p">,</span>
-                          <span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">]]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="sa">f</span><span class="s1">&#39;./</span><span class="si">{</span><span class="n">model_basename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="p">,</span>
+                    <span class="s1">&#39;-s&#39;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.set_model_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_model_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_model_resources</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the resources for the step.  This can be done within init,</span>
 <span class="sd">        ``setup()`` or ``runtime_setup()`` for the step that this step</span>
@@ -342,10 +373,14 @@
 <span class="sd">            This is currently just a placeholder for later use with task</span>
 <span class="sd">            parallelism</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_resources</span><span class="p">(</span><span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                           <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
-                           <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                           <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resources</span><span class="p">(</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.add_model_config_options">
@@ -367,8 +402,9 @@
 <span class="sd">            If config options are available for multiple models, the model that</span>
 <span class="sd">            the config options are from</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-                                           <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.add_yaml_file">
@@ -391,10 +427,16 @@
 <span class="sd">            A dictionary of replacements, in which case ``yaml`` must be a</span>
 <span class="sd">            Jinja2 template to be rendered with these replacements</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span>
-                                           <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span>
-                                      <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.map_yaml_options">
@@ -569,8 +611,12 @@
 <span class="sd">            Jinja2 template to be rendered with these replacements</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="nb">dict</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="n">streams</span><span class="p">,</span>
-                 <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">))</span></div>
+            <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+                <span class="n">streams</span><span class="o">=</span><span class="n">streams</span><span class="p">,</span>
+                <span class="n">replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.dynamic_model_config">
@@ -615,8 +661,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_model_config</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_graph</span><span class="p">:</span>
-            <span class="n">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">,</span>
-                            <span class="n">graph_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_filename</span><span class="p">)</span>
+            <span class="n">make_graph_file</span><span class="p">(</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">,</span>
+                <span class="n">graph_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_filename</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_graph</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">graph_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_filename</span><span class="p">)</span></div>
@@ -635,7 +683,8 @@
 
             <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;model&gt;&gt;&gt;&#39;</span><span class="p">:</span>
                 <span class="n">filename</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">ModelStep</span><span class="o">.</span><span class="n">_process_model</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span>
+                <span class="p">)</span>
 
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
@@ -678,12 +727,16 @@
         <span class="n">pio_num_iotasks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
         <span class="n">pio_stride</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">//</span> <span class="n">pio_num_iotasks</span>
         <span class="k">if</span> <span class="n">pio_stride</span> <span class="o">&gt;</span> <span class="n">cores_per_node</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Not enough nodes for the number of cores.  &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;cores: </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1">, cores per node: &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Not enough nodes for the number of cores.  &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;cores: </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1">, cores per node: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
 
-        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="n">pio_num_iotasks</span><span class="p">,</span>
-                        <span class="s1">&#39;config_pio_stride&#39;</span><span class="p">:</span> <span class="n">pio_stride</span><span class="p">}</span>
+        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="n">pio_num_iotasks</span><span class="p">,</span>
+            <span class="s1">&#39;config_pio_stride&#39;</span><span class="p">:</span> <span class="n">pio_stride</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span></div>
 
@@ -709,14 +762,15 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_model</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Process the E3SM component model as an input to the step &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the E3SM component model as an input to the step&quot;&quot;&quot;</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executables&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">)</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="n">copy_executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
             <span class="c1"># make a copy of the model executable, then link to that</span>
             <span class="n">component_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">))</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">component_workdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component_subdir</span><span class="p">)</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
@@ -740,8 +794,9 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_config&#39;</span><span class="p">,</span> <span class="s1">&#39;defaults&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">,</span>
-                                          <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">defaults_filename</span><span class="p">,</span> <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">defaults_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;namelists&#39;</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">)</span>
@@ -756,8 +811,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
-                                          <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">filename</span><span class="p">,</span> <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -774,20 +830,26 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span><span class="p">:</span>
             <span class="n">yaml_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to write a yaml file but no yaml &#39;</span>
-                                 <span class="s1">&#39;object was created.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Trying to write a yaml file but no yaml &#39;</span>
+                    <span class="s1">&#39;object was created.&#39;</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml_filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">namelist_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">namelist</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to write a namelist file but no &#39;</span>
-                                 <span class="s1">&#39;namelist object was created.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Trying to write a namelist file but no &#39;</span>
+                    <span class="s1">&#39;namelist object was created.&#39;</span>
+                <span class="p">)</span>
             <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span><span class="p">,</span> <span class="n">namelist_filename</span><span class="p">)</span>
 
             <span class="n">streams_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to write a streams file but no &#39;</span>
-                                 <span class="s1">&#39;streams XML tree was created.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Trying to write a streams file but no &#39;</span>
+                    <span class="s1">&#39;streams XML tree was created.&#39;</span>
+                <span class="p">)</span>
             <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span><span class="p">,</span> <span class="n">streams_filename</span><span class="p">)</span>
         <span class="c1"># set these back to None because we don&#39;t need to keep them around</span>
         <span class="c1"># and the streams tree can&#39;t be pickled</span>
@@ -808,25 +870,33 @@
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;namelist&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                 <span class="n">options</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;namelist&#39;</span><span class="p">])</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;namelist&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
                 <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">config_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;options&#39;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="ow">and</span> \
-                        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;config_model&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config_model</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s1">&#39;options&#39;</span> <span class="ow">in</span> <span class="n">entry</span>
+                    <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;config_model&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config_model</span>
+                <span class="p">):</span>
                     <span class="c1"># this is a dictionary of replacement model config options</span>
                     <span class="n">options</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span>
-                                                    <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
+                        <span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                    <span class="p">)</span>
                     <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
                     <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                     <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span> <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
-                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
-                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
+                        <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
+                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span>
+                        <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">,</span>
+                    <span class="p">)</span>
 
-                    <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span>
-                                                    <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span>
+                        <span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                    <span class="p">)</span>
                     <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
                     <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
 
@@ -836,8 +906,9 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to update a namelist object but it was &#39;</span>
-                             <span class="s1">&#39;never created.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Trying to update a namelist object but it was never created.&#39;</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namelist</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
@@ -854,8 +925,9 @@
         <span class="n">tree</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">processed_registry_filename</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">)</span> <span class="ow">and</span> \
-                <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">,</span> <span class="s1">&#39;processed&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+            <span class="s1">&#39;registry&#39;</span><span class="p">,</span> <span class="s1">&#39;processed&#39;</span>
+        <span class="p">):</span>
             <span class="n">processed_registry_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;registry&#39;</span><span class="p">,</span> <span class="s1">&#39;processed&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams_data</span><span class="p">:</span>
@@ -867,13 +939,22 @@
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">streams_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                 <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-                    <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">streams_filename</span><span class="o">=</span><span class="n">streams_filename</span><span class="p">,</span>
-                    <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">)</span>
+                    <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+                    <span class="n">streams_filename</span><span class="o">=</span><span class="n">streams_filename</span><span class="p">,</span>
+                    <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+                    <span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="k">for</span> <span class="n">config_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span><span class="p">:</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                     <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_yaml_streams</span><span class="p">(</span>
-                        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="p">,</span>
-                        <span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">quiet</span><span class="p">)</span>
+                        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
+                        <span class="n">package</span><span class="p">,</span>
+                        <span class="n">replacements</span><span class="p">,</span>
+                        <span class="n">config_model</span><span class="p">,</span>
+                        <span class="n">processed_registry_filename</span><span class="p">,</span>
+                        <span class="n">tree</span><span class="p">,</span>
+                        <span class="n">quiet</span><span class="p">,</span>
+                    <span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span> <span class="ow">and</span> <span class="n">replacements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -884,8 +965,9 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to update a streams XML tree but it was &#39;</span>
-                             <span class="s1">&#39;never created.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Trying to update a streams XML tree but it was never created.&#39;</span>
+            <span class="p">)</span>
 
         <span class="n">defaults</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
         <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
@@ -906,20 +988,28 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
                     <span class="n">defaults</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_process_yaml_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">replacements</span><span class="p">,</span>
-                              <span class="n">config_model</span><span class="p">,</span> <span class="n">processed_registry_filename</span><span class="p">,</span>
-                              <span class="n">tree</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_yaml_streams</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">yaml_filename</span><span class="p">,</span>
+        <span class="n">package</span><span class="p">,</span>
+        <span class="n">replacements</span><span class="p">,</span>
+        <span class="n">config_model</span><span class="p">,</span>
+        <span class="n">processed_registry_filename</span><span class="p">,</span>
+        <span class="n">tree</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">yaml_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">yaml_filename</span><span class="p">,</span>
-                                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-                                <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-                                <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
-                                <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
+        <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">yaml_filename</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+            <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+            <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">assert</span> <span class="n">processed_registry_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">new_tree</span> <span class="o">=</span> <span class="n">yaml_to_mpas_streams</span><span class="p">(</span>
-            <span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">)</span>
+        <span class="n">new_tree</span> <span class="o">=</span> <span class="n">yaml_to_mpas_streams</span><span class="p">(</span><span class="n">processed_registry_filename</span><span class="p">,</span> <span class="n">yaml</span><span class="p">)</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tree</span>
 
@@ -932,8 +1022,9 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to update a yaml object but it was &#39;</span>
-                             <span class="s1">&#39;never created.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Trying to update a yaml object but it was never created.&#39;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: replacing yaml options in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -942,34 +1033,49 @@
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config_data</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;namelist&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot generate a yaml config from an MPAS &#39;</span>
-                                 <span class="s1">&#39;namelist file.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Cannot generate a yaml config from an MPAS namelist file.&#39;</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">config_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;options&#39;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="ow">and</span> \
-                        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;config_model&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config_model</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s1">&#39;options&#39;</span> <span class="ow">in</span> <span class="n">entry</span>
+                    <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;config_model&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config_model</span>
+                <span class="p">):</span>
                     <span class="c1"># this is a dictionary of replacement model config options</span>
                     <span class="n">options</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span>
-                                                    <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
+                        <span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                    <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                     <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span> <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
-                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
-                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">)</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
+                        <span class="n">package</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">],</span>
+                        <span class="n">replacements</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;replacements&#39;</span><span class="p">],</span>
+                        <span class="n">model</span><span class="o">=</span><span class="n">config_model</span><span class="p">,</span>
+                        <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">,</span>
+                    <span class="p">)</span>
 
-                    <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span>
-                                                    <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+                    <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span>
+                        <span class="n">configs</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                    <span class="p">)</span>
                     <span class="n">new_streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_streams</span><span class="p">(</span>
-                        <span class="n">streams</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span>
-                                              <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
-                                              <span class="n">remove_unrequested</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="n">streams</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_yaml_streams</span><span class="p">(</span>
+                        <span class="n">streams</span><span class="p">,</span>
+                        <span class="n">new_streams</span><span class="p">,</span>
+                        <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+                        <span class="n">remove_unrequested</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_yaml_streams</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
-            <span class="n">remove_unrequested</span><span class="o">=</span><span class="n">remove_unrequested_streams</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span>
+            <span class="n">streams</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+            <span class="n">remove_unrequested</span><span class="o">=</span><span class="n">remove_unrequested_streams</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_yaml_streams</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">new_streams</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">remove_unrequested</span><span class="p">):</span>
@@ -1002,8 +1108,9 @@
 
 <div class="viewcode-block" id="make_graph_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.model_step.make_graph_file.html#polaris.make_graph_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                    <span class="n">weight_field</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_graph_file</span><span class="p">(</span>
+    <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span> <span class="n">weight_field</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a graph file from the MPAS mesh for use in the Metis graph</span>
 <span class="sd">    partitioning software</span>
@@ -1022,15 +1129,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-
         <span class="n">nCells</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
 
         <span class="n">nEdgesOnCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">nEdgesOnCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">cellsOnCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellsOnCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">weight_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">weight_field</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;weight_field </span><span class="si">{</span><span class="n">weight_field</span><span class="si">}</span><span class="s1"> not found in &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;weight_field </span><span class="si">{</span><span class="n">weight_field</span><span class="si">}</span><span class="s1"> not found in </span><span class="si">{</span><span class="n">mesh_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">weight_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>

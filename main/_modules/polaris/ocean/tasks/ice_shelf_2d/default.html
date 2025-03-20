@@ -104,11 +104,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.ice_shelf_2d.default</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.ice_shelf</span><span class="w"> </span><span class="kn">import</span> <span class="n">IceShelfTask</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.ssh_forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">SshForward</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">Validate</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.ice_shelf</span><span class="w"> </span><span class="kn">import</span> <span class="n">IceShelfTask</span> <span class="k">as</span> <span class="n">IceShelfTask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span> <span class="k">as</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.ssh_forward</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SshForward</span> <span class="k">as</span> <span class="n">SshForward</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">Validate</span> <span class="k">as</span> <span class="n">Validate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.ice_shelf_2d.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span> <span class="k">as</span> <span class="n">Viz</span>
 
 
 <div class="viewcode-block" id="Default">
@@ -125,9 +127,17 @@
 
 <div class="viewcode-block" id="Default.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.ice_shelf_2d.default.Default.html#polaris.ocean.tasks.ice_shelf_2d.default.Default.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
-                 <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_restart</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">include_tides</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_restart</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_tides</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the test case</span>
 
@@ -156,8 +166,9 @@
 <span class="sd">            Include tidal forcing in the forward step</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">include_tides</span> <span class="ow">and</span> <span class="n">include_restart</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Restart test is not compatible with tidal &#39;</span>
-                             <span class="s1">&#39;forcing&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Restart test is not compatible with tidal forcing&#39;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">include_tides</span><span class="p">:</span>
             <span class="n">base_name</span> <span class="o">=</span> <span class="s1">&#39;default_tidal_forcing&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -176,8 +187,13 @@
         <span class="n">forward_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="c1"># Put the ssh adjustment steps in indir rather than subdir</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                         <span class="n">name</span><span class="o">=</span><span class="n">test_name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span> <span class="n">sshdir</span><span class="o">=</span><span class="n">ssh_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">min_resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">test_name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span>
+            <span class="n">sshdir</span><span class="o">=</span><span class="n">ssh_dir</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
 
@@ -185,21 +201,28 @@
             <span class="n">mesh_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span><span class="p">,</span>
             <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
             <span class="n">init_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">config_filename</span><span class="o">=</span><span class="s1">&#39;ice_shelf_2d.cfg&#39;</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="s1">&#39;ice_shelf_2d.cfg&#39;</span><span class="p">,</span>
             <span class="n">ForwardStep</span><span class="o">=</span><span class="n">SshForward</span><span class="p">,</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.ocean.tasks.ice_shelf_2d&#39;</span><span class="p">)</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.ocean.tasks.ice_shelf_2d&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">forward_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward_dir</span><span class="si">}</span><span class="s1">/forward&#39;</span>
         <span class="k">if</span> <span class="n">forward_path</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">forward_path</span><span class="p">]</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="s1">&#39;forward&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                                   <span class="n">indir</span><span class="o">=</span><span class="n">forward_dir</span><span class="p">,</span>
-                                   <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                   <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                                   <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">,</span>
-                                   <span class="n">tidal_forcing</span><span class="o">=</span><span class="n">include_tides</span><span class="p">)</span>
+            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="n">forward_dir</span><span class="p">,</span>
+                <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">,</span>
+                <span class="n">tidal_forcing</span><span class="o">=</span><span class="n">include_tides</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;ice_shelf_2d.cfg&#39;</span><span class="p">)</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
@@ -210,24 +233,38 @@
                 <span class="n">restart_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">restart_path</span><span class="p">]</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="s1">&#39;restart&#39;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">restart_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                                       <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span>
-                                       <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                       <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                                       <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">,</span>
-                                       <span class="n">do_restart</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">restart_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span>
+                    <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                    <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                    <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">,</span>
+                    <span class="n">do_restart</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">restart_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;ice_shelf_2d.cfg&#39;</span><span class="p">)</span>
                 <span class="n">restart_step</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">forward_step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">restart_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Validate</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                                   <span class="n">step_subdirs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="s1">&#39;restart&#39;</span><span class="p">],</span>
-                                   <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+                <span class="n">Validate</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">step_subdirs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="s1">&#39;restart&#39;</span><span class="p">],</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-                <span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
-                    <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">))</span></div>
+                <span class="n">Viz</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="n">test_subdir</span><span class="p">,</span>
+                    <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                    <span class="n">init</span><span class="o">=</span><span class="n">last_adjust_step</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

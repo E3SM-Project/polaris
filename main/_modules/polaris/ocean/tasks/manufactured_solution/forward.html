@@ -139,10 +139,20 @@
 <span class="sd">    del4 : bool</span>
 <span class="sd">        Whether to evaluate the momentum del4 operator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.forward.Forward.html#polaris.ocean.tasks.manufactured_solution.forward.Forward.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
-                 <span class="n">init</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">del2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">del4</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">refinement_factor</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
+        <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+        <span class="n">del2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">del4</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
 
@@ -173,15 +183,20 @@
 <span class="sd">        del4 : bool</span>
 <span class="sd">            Whether to evaluate the momentum del4 operator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
-                         <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-                         <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
-                         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
-                         <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-                         <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+            <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.ocean.tasks.manufactured_solution&#39;</span><span class="p">,</span>
+            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">del2</span> <span class="o">=</span> <span class="n">del2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">del4</span> <span class="o">=</span> <span class="n">del4</span></div>
 
@@ -211,7 +226,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># no file to read from, so we&#39;ll compute it based on config options</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span>
+        <span class="p">)</span>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;manufactured_solution&#39;</span><span class="p">]</span>
         <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
         <span class="n">ly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">lx</span>
@@ -233,12 +249,17 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="n">exact_solution</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span><span class="p">),</span>
-                        <span class="s1">&#39;config_manufactured_solution_wavelength_x&#39;</span><span class="p">:</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span><span class="p">),</span>
-                        <span class="s1">&#39;config_manufactured_solution_wavelength_y&#39;</span><span class="p">:</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span><span class="p">)}</span>
+        <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">exact_solution</span><span class="o">.</span><span class="n">eta0</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;config_manufactured_solution_wavelength_x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_x</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;config_manufactured_solution_wavelength_y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">exact_solution</span><span class="o">.</span><span class="n">lambda_y</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
         <span class="n">shared_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">del2</span><span class="p">:</span>
             <span class="n">mpas_options</span><span class="p">[</span><span class="s1">&#39;config_disable_vel_hmix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>

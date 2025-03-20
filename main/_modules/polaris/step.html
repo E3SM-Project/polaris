@@ -256,10 +256,21 @@
 
 <div class="viewcode-block" id="Step.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">run_as_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">run_as_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
 
@@ -341,7 +352,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">has_shared_config</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="c1"># child steps (or tasks) will add to these</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -354,8 +365,8 @@
 
         <span class="c1"># these will be set later during setup, dummy placeholders for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">machine_info</span> <span class="o">=</span> <span class="n">MachineInfo</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="c1"># may be set during setup if there is a baseline for comparison</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -371,9 +382,15 @@
 
 <div class="viewcode-block" id="Step.set_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.set_resources.html#polaris.Step.set_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_resources</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the resources for the subtask.  This can be done within init,</span>
 <span class="sd">        ``setup()`` or ``runtime_setup()`` of this step, or init,</span>
@@ -442,16 +459,19 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mpi_allowed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;You are trying to run an MPI job on a login node.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="s1">&#39;Please switch to a compute node.&#39;</span><span class="p">)</span>
+                <span class="s1">&#39;Please switch to a compute node.&#39;</span>
+            <span class="p">)</span>
 
         <span class="n">available_cores</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores&#39;</span><span class="p">]</span>
         <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
-                                 <span class="nb">min</span><span class="p">(</span><span class="n">available_cores</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">available_cores</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Available cpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">) is below the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
 
         <span class="n">available_tasks</span> <span class="o">=</span> <span class="n">available_cores</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">available_tasks</span><span class="p">)</span>
@@ -459,7 +479,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is below the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Step.setup">
@@ -501,9 +522,17 @@
 
 <div class="viewcode-block" id="Step.add_input_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">database_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_input_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">database_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an input file to the step (but not necessarily to the MPAS model).</span>
 <span class="sd">        The file can be local, a symlink to a file that will be created in</span>
@@ -556,15 +585,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of local_name and target are &#39;</span>
-                                 <span class="s1">&#39;required.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;At least one of local_name and target are required.&#39;</span>
+                <span class="p">)</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
-                                    <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
-                                    <span class="n">database_component</span><span class="o">=</span><span class="n">database_component</span><span class="p">,</span>
-                                    <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">work_dir_target</span><span class="p">,</span>
-                                    <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
+                <span class="n">database_component</span><span class="o">=</span><span class="n">database_component</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">work_dir_target</span><span class="p">,</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Step.add_output_file">
@@ -619,8 +656,9 @@
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Adding a dependency that is already in &#39;</span>
-                             <span class="s1">&#39;dependencies.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Adding a dependency that is already in dependencies.&#39;</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
         <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
@@ -645,8 +683,10 @@
 <span class="sd">            Whether the outputs were successfully validated against a baseline</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The work directory must be set before the step &#39;</span>
-                             <span class="s1">&#39;outputs can be validated against baselines.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;The work directory must be set before the step &#39;</span>
+                <span class="s1">&#39;outputs can be validated against baselines.&#39;</span>
+            <span class="p">)</span>
         <span class="n">compared</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -657,7 +697,8 @@
                 <span class="n">this_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                 <span class="n">baseline_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span>
-                    <span class="n">variables</span><span class="p">,</span> <span class="n">this_filename</span><span class="p">,</span> <span class="n">baseline_filename</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+                    <span class="n">variables</span><span class="p">,</span> <span class="n">this_filename</span><span class="p">,</span> <span class="n">baseline_filename</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+                <span class="p">)</span>
                 <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span>
                 <span class="n">compared</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">compared</span><span class="p">,</span> <span class="n">success</span></div>
@@ -691,7 +732,7 @@
 <span class="sd">        :py:meth:`polaris.Step.add_output_file`.  This includes downloading</span>
 <span class="sd">        files, making symlinks, and converting relative paths to absolute</span>
 <span class="sd">        paths.</span>
-<span class="sd">       &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span>
         <span class="n">step_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
@@ -705,32 +746,37 @@
             <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">cached_files</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has not been added &#39;</span>
-                                     <span class="sa">f</span><span class="s1">&#39;to the cache database&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;The file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has not been added &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;to the cache database&#39;</span>
+                    <span class="p">)</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">cached_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="n">output</span><span class="p">,</span>
-                    <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
-                    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;polaris_cache&#39;</span><span class="p">)</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;polaris_cache&#39;</span>
+                <span class="p">)</span>
 
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">databases_with_downloads</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span><span class="p">:</span>
             <span class="n">input_file</span><span class="p">,</span> <span class="n">database_subdirs</span> <span class="o">=</span> <span class="n">Step</span><span class="o">.</span><span class="n">_process_input</span><span class="p">(</span>
-                <span class="n">entry</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">step_dir</span><span class="p">)</span>
+                <span class="n">entry</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">step_dir</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">database_subdirs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">databases_with_downloads</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">database_subdirs</span><span class="p">)</span>
             <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> \
-                <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+            <span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span>
+        <span class="p">):</span>
             <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
             <span class="n">update_permissions</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
 
         <span class="c1"># inputs are already absolute paths, convert outputs to absolute paths</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span> <span class="k">for</span>
-                        <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span>
+        <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -753,9 +799,11 @@
         <span class="k">if</span> <span class="n">link</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">directory</span><span class="p">,</span> <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">directory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No link parameter was provided but the &#39;</span>
-                                 <span class="s1">&#39;config file is not in this step</span><span class="se">\&#39;</span><span class="s1">s work &#39;</span>
-                                 <span class="s1">&#39;directory.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;No link parameter was provided but the &#39;</span>
+                    <span class="s2">&quot;config file is not in this step&#39;s work &quot;</span>
+                    <span class="s1">&#39;directory.&#39;</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">basename</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">link</span>
@@ -775,8 +823,9 @@
         <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="n">filename</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span>
-                <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">imp_res</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">work_dir_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="p">)</span>
@@ -799,13 +848,14 @@
                 <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_component</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
 
             <span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;database_root&#39;</span><span class="p">)</span>
-            <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">,</span>
-                                         <span class="n">database</span><span class="p">,</span> <span class="n">download_target</span><span class="p">)</span>
+            <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">download_target</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">download_path</span><span class="p">):</span>
                 <span class="n">database_subdirs</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="n">database_root</span><span class="p">,</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">),</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">,</span> <span class="n">database</span><span class="p">),</span>
                 <span class="p">}</span>
         <span class="k">elif</span> <span class="n">url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">download_path</span> <span class="o">=</span> <span class="n">download_target</span>

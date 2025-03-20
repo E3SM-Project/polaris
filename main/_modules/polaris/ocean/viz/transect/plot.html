@@ -116,13 +116,29 @@
 
 <div class="viewcode-block" id="plot_transect">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_transect</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span>
-                  <span class="n">outline_color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">ssh_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seafloor_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">interface_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_boundary_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">start_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">end_color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_transect</span><span class="p">(</span>
+    <span class="n">ds_transect</span><span class="p">,</span>
+    <span class="n">mpas_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span>
+    <span class="n">outline_color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+    <span class="n">ssh_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">seafloor_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">interface_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cell_boundary_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">start_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+    <span class="n">end_color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    plot a transect showing the field on the MPAS-Ocean mesh and save to a file</span>
 
@@ -222,30 +238,48 @@
 
     <span class="k">if</span> <span class="n">mpas_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;flat&#39;</span><span class="p">:</span>
-            <span class="n">transect_field</span> <span class="o">=</span> <span class="n">interp_mpas_to_transect_cells</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span>
-                                                           <span class="n">mpas_field</span><span class="p">)</span>
+            <span class="n">transect_field</span> <span class="o">=</span> <span class="n">interp_mpas_to_transect_cells</span><span class="p">(</span>
+                <span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span>
+            <span class="p">)</span>
             <span class="n">shading</span> <span class="o">=</span> <span class="s1">&#39;flat&#39;</span>
         <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span>
-            <span class="n">transect_field</span> <span class="o">=</span> <span class="n">interp_mpas_to_transect_nodes</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span>
-                                                           <span class="n">mpas_field</span><span class="p">)</span>
+            <span class="n">transect_field</span> <span class="o">=</span> <span class="n">interp_mpas_to_transect_nodes</span><span class="p">(</span>
+                <span class="n">ds_transect</span><span class="p">,</span> <span class="n">mpas_field</span>
+            <span class="p">)</span>
             <span class="n">shading</span> <span class="o">=</span> <span class="s1">&#39;gouraud&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">z</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">transect_field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                           <span class="n">shading</span><span class="o">=</span><span class="n">shading</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-                           <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">transect_field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">shading</span><span class="o">=</span><span class="n">shading</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">colorbar_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-                         <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+                <span class="n">pc</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span>
+            <span class="p">)</span>
 
-    <span class="n">_plot_interfaces</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">interface_color</span><span class="p">,</span> <span class="n">cell_boundary_color</span><span class="p">,</span>
-                     <span class="n">ssh_color</span><span class="p">,</span> <span class="n">seafloor_color</span><span class="p">,</span> <span class="n">color_start_and_end</span><span class="p">,</span>
-                     <span class="n">start_color</span><span class="p">,</span> <span class="n">end_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">)</span>
+    <span class="n">_plot_interfaces</span><span class="p">(</span>
+        <span class="n">ds_transect</span><span class="p">,</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="n">interface_color</span><span class="p">,</span>
+        <span class="n">cell_boundary_color</span><span class="p">,</span>
+        <span class="n">ssh_color</span><span class="p">,</span>
+        <span class="n">seafloor_color</span><span class="p">,</span>
+        <span class="n">color_start_and_end</span><span class="p">,</span>
+        <span class="n">start_color</span><span class="p">,</span>
+        <span class="n">end_color</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">_plot_outline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">validNodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span>
-                  <span class="n">linewidth</span><span class="p">)</span>
+    <span class="n">_plot_outline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">validNodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;transect distance (km)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;z (m)&#39;</span><span class="p">)</span>
@@ -258,20 +292,35 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_interfaces</span><span class="p">(</span><span class="n">ds_transect</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">interface_color</span><span class="p">,</span> <span class="n">cell_boundary_color</span><span class="p">,</span>
-                     <span class="n">ssh_color</span><span class="p">,</span> <span class="n">seafloor_color</span><span class="p">,</span> <span class="n">color_start_and_end</span><span class="p">,</span>
-                     <span class="n">start_color</span><span class="p">,</span> <span class="n">end_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_interfaces</span><span class="p">(</span>
+    <span class="n">ds_transect</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">interface_color</span><span class="p">,</span>
+    <span class="n">cell_boundary_color</span><span class="p">,</span>
+    <span class="n">ssh_color</span><span class="p">,</span>
+    <span class="n">seafloor_color</span><span class="p">,</span>
+    <span class="n">color_start_and_end</span><span class="p">,</span>
+    <span class="n">start_color</span><span class="p">,</span>
+    <span class="n">end_color</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="k">if</span> <span class="n">cell_boundary_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">x_bnd</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">dCellBoundary</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
         <span class="n">z_bnd</span> <span class="o">=</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">zCellBoundary</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_bnd</span><span class="p">,</span> <span class="n">z_bnd</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cell_boundary_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
-                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">x_bnd</span><span class="p">,</span>
+            <span class="n">z_bnd</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">cell_boundary_color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">interface_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">x_int</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">dInterfaceSegment</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
         <span class="n">z_int</span> <span class="o">=</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">zInterfaceSegment</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_int</span><span class="p">,</span> <span class="n">z_int</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">interface_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
-                <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">x_int</span><span class="p">,</span> <span class="n">z_int</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">interface_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ssh_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">validNodes</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertNodes&#39;</span><span class="p">)</span>
@@ -283,8 +332,13 @@
         <span class="n">valid</span> <span class="o">=</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">validNodes</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertNodes&#39;</span><span class="p">)</span>
         <span class="n">x_floor</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">dNode</span><span class="o">.</span><span class="n">values</span>
         <span class="n">z_floor</span> <span class="o">=</span> <span class="n">ds_transect</span><span class="o">.</span><span class="n">zSeafloor</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_floor</span><span class="p">,</span> <span class="n">z_floor</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">seafloor_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
-                <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">x_floor</span><span class="p">,</span>
+            <span class="n">z_floor</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">seafloor_color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">color_start_and_end</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">start_color</span><span class="p">)</span>
@@ -293,8 +347,9 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">linewidth</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_outline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">valid_nodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span>
-                  <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_outline</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">valid_nodes</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span>
+<span class="p">):</span>
     <span class="k">if</span> <span class="n">outline_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># add a buffer of invalid values around the edge of the domain</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -314,8 +369,15 @@
         <span class="n">x_buf</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_buf</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">x_buf</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_buf</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">x_buf</span><span class="p">,</span> <span class="n">z_buf</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">epsilon</span><span class="p">],</span>
-                   <span class="n">colors</span><span class="o">=</span><span class="n">outline_color</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">x_buf</span><span class="p">,</span>
+            <span class="n">z_buf</span><span class="p">,</span>
+            <span class="n">valid</span><span class="p">,</span>
+            <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">epsilon</span><span class="p">],</span>
+            <span class="n">colors</span><span class="o">=</span><span class="n">outline_color</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 
            </div>

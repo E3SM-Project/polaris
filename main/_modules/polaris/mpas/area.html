@@ -136,10 +136,12 @@
             <span class="n">cov</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">vertexDegree</span><span class="o">=</span><span class="n">ivert</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">cov</span> <span class="o">&gt;=</span> <span class="mi">0</span>
             <span class="n">kite_area</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">kiteAreasOnVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">vertexDegree</span><span class="o">=</span><span class="n">ivert</span><span class="p">)</span>
-            <span class="n">area</span> <span class="o">=</span> <span class="n">area</span> <span class="o">+</span> <span class="n">kite_area</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">area</span> <span class="o">+</span> <span class="n">kite_area</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The field does not have any of the expected &#39;</span>
-                         <span class="s1">&#39;horizontal dimensions for an MPAS mesh&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;The field does not have any of the expected &#39;</span>
+            <span class="s1">&#39;horizontal dimensions for an MPAS mesh&#39;</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">area</span></div>
 

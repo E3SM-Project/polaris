@@ -105,8 +105,7 @@
   <h1>Source code for polaris.ocean.convergence</h1><div class="highlight"><pre>
 <div class="viewcode-block" id="get_resolution_for_task">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.convergence.get_resolution_for_task.html#polaris.ocean.convergence.get_resolution_for_task">[docs]</a>
-<span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_resolution_for_task</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span>
-                            <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+<span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_resolution_for_task</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the resolution for a step in a convergence task</span>
 
@@ -137,7 +136,8 @@
     <span class="k">if</span> <span class="n">refinement_factor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;refinement_factor </span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">}</span><span class="s1"> not found in config &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;option </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{</span><span class="n">refinement_factors</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;option </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{</span><span class="n">refinement_factors</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">base_resolution</span>
@@ -150,8 +150,7 @@
 
 <div class="viewcode-block" id="get_timestep_for_task">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.convergence.get_timestep_for_task.html#polaris.ocean.convergence.get_timestep_for_task">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_timestep_for_task</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span>
-                          <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_timestep_for_task</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the time step for a forward step in a convergence task</span>
 
@@ -183,23 +182,24 @@
     <span class="k">if</span> <span class="n">refinement_factor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;refinement_factor </span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">}</span><span class="s1"> not found in config &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;option </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{</span><span class="n">refinement_factors</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;option </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{</span><span class="n">refinement_factors</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 
     <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
-        <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span>
+    <span class="p">)</span>
 
     <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">]</span>
     <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
     <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
     <span class="k">if</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">&#39;RK4&#39;</span><span class="p">:</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;rk4_dt_per_km&#39;</span><span class="p">)</span>
-        <span class="n">btr_timestep</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">btr_timestep</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;split_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
-            <span class="n">btr_timestep</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="n">base_resolution</span> <span class="o">*</span> \
-                <span class="n">refinement_factor</span>
+            <span class="n">btr_timestep</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="n">base_resolution</span> <span class="o">*</span> <span class="n">refinement_factor</span>
         <span class="k">elif</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;space&#39;</span><span class="p">:</span>
             <span class="n">btr_timestep</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="n">base_resolution</span>
         <span class="k">else</span><span class="p">:</span>

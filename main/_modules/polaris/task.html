@@ -242,8 +242,9 @@
 
 <div class="viewcode-block" id="Task.add_step">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.add_step.html#polaris.Task.add_step">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">run_by_default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a step to the task and component (if not already present)</span>
 
@@ -275,14 +276,18 @@
 
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">subdir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find </span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1"> in the steps in &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;the component.  Add the step to the &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;component first, then to the task.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Could not find </span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1"> in the steps in &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;the component.  Add the step to the &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;component first, then to the task.&#39;</span>
+                <span class="p">)</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A step has already been added to this task &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;with name </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;A step has already been added to this task &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;with name </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
 
         <span class="c1"># add the step to the component (if it&#39;s not already there)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
@@ -344,9 +349,11 @@
         <span class="k">if</span> <span class="n">link</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">directory</span><span class="p">,</span> <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">directory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No link parameter was provided but the &#39;</span>
-                                 <span class="s1">&#39;config file is not in this task</span><span class="se">\&#39;</span><span class="s1">s work &#39;</span>
-                                 <span class="s1">&#39;directory.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;No link parameter was provided but the &#39;</span>
+                    <span class="s2">&quot;config file is not in this task&#39;s work &quot;</span>
+                    <span class="s1">&#39;directory.&#39;</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">basename</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">link</span></div>

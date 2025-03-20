@@ -627,22 +627,23 @@ activation script you sourced before setting up the suite or task).</p>
 guidelines, the easiest way to stay in compliance as a developer writing new
 code or modifying existing code is to use a PEP8 style checker. When you create
 a load script, we automatically install <a class="reference external" href="https://pre-commit.com/">pre-commit</a>,
-a tools that helps to enforce this standard by checking your code each time you
-make a commit.  It will tell you about various types of problems it finds.
-Internally, it uses <a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> to check PEP8
-compliance, <a class="reference external" href="https://pycqa.github.io/isort/">isort</a> to sort, check and format
-imports, <a class="reference external" href="https://github.com/ikamensh/flynt">flynt</a> to change any format
-strings to f-strings, and <a class="reference external" href="https://mypy-lang.org/">mypy</a> to check for
-consistent variable types. An example error might be:</p>
+a tool that helps to enforce this standard by checking your code each time you
+make a commit. It will tell you about various types of problems it finds.
+Internally, <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> uses <a class="reference external" href="https://docs.astral.sh/ruff/">ruff</a> to perform
+various checks, such as enforcing PEP8 compliance and sorting and formatting
+imports. Additionally, <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> uses
+<a class="reference external" href="https://github.com/ikamensh/flynt">flynt</a> to update any old-style format
+strings to f-strings and <a class="reference external" href="https://mypy-lang.org/">mypy</a> to check for consistent
+variable types. An example error might be:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>example.py:77:1:<span class="w"> </span>E302<span class="w"> </span>expected<span class="w"> </span><span class="m">2</span><span class="w"> </span>blank<span class="w"> </span>lines,<span class="w"> </span>found<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
 <p>For this example, we would just add an additional blank line after line 77 and
 try the commit again to make sure we’ve resolved the issue.</p>
 <p>You may also find it useful to use an IDE with a PEP8 style checker built in,
-such as <a class="reference external" href="https://www.jetbrains.com/pycharm/">PyCharm</a>. See
-<a class="reference external" href="https://www.jetbrains.com/help/pycharm/tutorial-code-quality-assistance-tips-and-tricks.html">this tutorial</a>
-for some tips on checking code style in PyCharm.</p>
+such as <a class="reference external" href="https://code.visualstudio.com/">VS Code</a>. See
+<a class="reference external" href="https://code.visualstudio.com/docs/python/formatting">Formatting Python in VS Code</a>
+for some tips on checking code style in VS Code.</p>
 <p>Once you open a pull request for your feature, there is an additional PEP8
 style check at this stage (again using pre-commit).</p>
 </section>

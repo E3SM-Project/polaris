@@ -150,8 +150,9 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">do_download</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File not found and downloading is disabled: &#39;</span>
-                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;File not found and downloading is disabled: </span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">dest_path</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">check_size</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_path</span><span class="p">):</span>
@@ -194,8 +195,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_path</span><span class="p">):</span>
             <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">in_file_name</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;  to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">in_file_name</span><span class="si">}</span><span class="se">\n</span><span class="s1">  to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span><span class="p">:</span>
@@ -210,8 +210,9 @@
         <span class="c1"># we can do the download in chunks and use a progress bar, yay!</span>
 
         <span class="n">total_size_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_size</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span> <span class="ow">and</span> \
-                <span class="n">total_size_int</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">dest_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">total_size_int</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span>
+            <span class="n">dest_path</span>
+        <span class="p">):</span>
             <span class="c1"># we already have the file, so just return</span>
             <span class="k">return</span> <span class="n">dest_path</span>
 
@@ -220,12 +221,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">file_names</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">in_file_name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">out_file_name</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">file_names</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">_sizeof_fmt</span><span class="p">(</span><span class="n">total_size_int</span><span class="p">)</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span>
-              <span class="sa">f</span><span class="s1">&#39;  to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span>
-                   <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
-        <span class="n">bar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span><span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span>
-                                      <span class="n">max_value</span><span class="o">=</span><span class="n">total_size_int</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">file_names</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">_sizeof_fmt</span><span class="p">(</span><span class="n">total_size_int</span><span class="p">)</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;  to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
+            <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span>
+            <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span>
+            <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="n">total_size_int</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -299,7 +308,8 @@
         <span class="c1"># Preempt os.replace on a directory with a nicer message</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">link_name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">link_name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IsADirectoryError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Cannot symlink over existing directory: &#39;</span><span class="si">{</span><span class="n">link_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot symlink over existing directory: &#39;</span><span class="si">{</span><span class="n">link_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">temp_link_name</span><span class="p">,</span> <span class="n">link_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">temp_link_name</span><span class="p">):</span>
@@ -329,11 +339,23 @@
     <span class="n">new_uid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getuid</span><span class="p">()</span>
     <span class="n">new_gid</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">getgrnam</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="n">gr_gid</span>
 
-    <span class="n">write_perm</span> <span class="o">=</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWUSR</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span> <span class="o">|</span>
-                  <span class="n">stat</span><span class="o">.</span><span class="n">S_IWGRP</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span><span class="p">)</span>
-    <span class="n">exec_perm</span> <span class="o">=</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWUSR</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXUSR</span> <span class="o">|</span>
-                 <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWGRP</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXGRP</span> <span class="o">|</span>
-                 <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXOTH</span><span class="p">)</span>
+    <span class="n">write_perm</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWUSR</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWGRP</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span>
+    <span class="p">)</span>
+    <span class="n">exec_perm</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWUSR</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXUSR</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IWGRP</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXGRP</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span>
+        <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXOTH</span>
+    <span class="p">)</span>
 
     <span class="n">mask</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRWXU</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRWXG</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRWXO</span>
 
@@ -349,10 +371,16 @@
     <span class="n">files_and_dirs</span> <span class="o">=</span> <span class="n">_walk_dirs</span><span class="p">(</span><span class="n">directories</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">show_progressbar</span><span class="p">:</span>
-        <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span>
-                   <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
-        <span class="n">bar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span><span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span>
-                                      <span class="n">maxval</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files_and_dirs</span><span class="p">))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
+            <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span>
+            <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span>
+            <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files_and_dirs</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">bar</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">progress</span> <span class="o">=</span> <span class="mi">0</span>
@@ -363,16 +391,24 @@
                 <span class="k">if</span> <span class="n">show_progressbar</span><span class="p">:</span>
                     <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
 
-                <span class="n">_set_dir_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span>
-                               <span class="n">new_gid</span><span class="p">)</span>
+                <span class="n">_set_dir_perms</span><span class="p">(</span>
+                    <span class="n">root</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span> <span class="n">new_gid</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
                 <span class="n">progress</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">show_progressbar</span><span class="p">:</span>
                     <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
                 <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-                <span class="n">_set_file_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">write_perm</span><span class="p">,</span>
-                                <span class="n">new_uid</span><span class="p">,</span> <span class="n">new_gid</span><span class="p">)</span>
+                <span class="n">_set_file_perms</span><span class="p">(</span>
+                    <span class="n">root</span><span class="p">,</span>
+                    <span class="n">file_name</span><span class="p">,</span>
+                    <span class="n">mask</span><span class="p">,</span>
+                    <span class="n">exec_perm</span><span class="p">,</span>
+                    <span class="n">write_perm</span><span class="p">,</span>
+                    <span class="n">new_uid</span><span class="p">,</span>
+                    <span class="n">new_gid</span><span class="p">,</span>
+                <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">show_progressbar</span><span class="p">:</span>
         <span class="n">bar</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
@@ -386,7 +422,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">files_and_dirs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
             <span class="n">files_and_dirs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span>
             <span class="n">files_and_dirs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">files_and_dirs</span>
@@ -420,8 +456,9 @@
         <span class="k">return</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_set_file_perms</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">write_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span>
-                    <span class="n">new_gid</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_file_perms</span><span class="p">(</span>
+    <span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">exec_perm</span><span class="p">,</span> <span class="n">write_perm</span><span class="p">,</span> <span class="n">new_uid</span><span class="p">,</span> <span class="n">new_gid</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set permissions for a directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -460,9 +497,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;Ki&#39;</span><span class="p">,</span> <span class="s1">&#39;Mi&#39;</span><span class="p">,</span> <span class="s1">&#39;Gi&#39;</span><span class="p">,</span> <span class="s1">&#39;Ti&#39;</span><span class="p">,</span> <span class="s1">&#39;Pi&#39;</span><span class="p">,</span> <span class="s1">&#39;Ei&#39;</span><span class="p">,</span> <span class="s1">&#39;Zi&#39;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1024.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s2">3.1f</span><span class="si">}{</span><span class="n">unit</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s1">3.1f</span><span class="si">}{</span><span class="n">unit</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">num</span> <span class="o">/=</span> <span class="mf">1024.0</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="s1">&#39;Yi&#39;</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}{</span><span class="s2">&quot;Yi&quot;</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
 </pre></div>
 
            </div>

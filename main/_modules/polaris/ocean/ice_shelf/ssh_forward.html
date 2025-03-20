@@ -129,13 +129,25 @@
 <span class="sd">        key, string combinations for templated replacements in the yaml</span>
 <span class="sd">        file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SshForward.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="p">,</span> <span class="n">init_filename</span><span class="p">,</span>
-                 <span class="n">graph_target</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ssh_forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
-                 <span class="n">yaml_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">min_resolution</span><span class="p">,</span>
+        <span class="n">init_filename</span><span class="p">,</span>
+        <span class="n">graph_target</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ssh_forward&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
+        <span class="n">yaml_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
 
@@ -186,10 +198,16 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads the step will use</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/ssh_adjustment&#39;</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
-                         <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                         <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/ssh_adjustment&#39;</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span> <span class="o">=</span> <span class="n">min_resolution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="o">=</span> <span class="n">package</span>
@@ -199,15 +217,20 @@
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">init_filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-                            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">init_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">graph_target</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span></div>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span>
+                <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SshForward.compute_cell_count">
@@ -222,8 +245,10 @@
 <span class="sd">        cell_count : int or None</span>
 <span class="sd">            The approximate number of cells in the mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;compute_cell_count method must be overridden by &#39;</span>
-                         <span class="s1">&#39;spherical or planar method&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;compute_cell_count method must be overridden by &#39;</span>
+            <span class="s1">&#39;spherical or planar method&#39;</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SshForward.dynamic_model_config">
@@ -258,21 +283,25 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;split_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-            <span class="n">seconds</span><span class="o">=</span><span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span><span class="p">)</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span>
+        <span class="p">)</span>
 
         <span class="c1"># btr_dt is also proportional to resolution</span>
         <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">btr_dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-            <span class="n">seconds</span><span class="o">=</span><span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span><span class="p">)</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span>
+        <span class="p">)</span>
 
-        <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.</span>
+        <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.0</span>
         <span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
         <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-            <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="n">s_per_hour</span>
+        <span class="p">)</span>
 
         <span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
         <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-            <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval</span> <span class="o">*</span> <span class="n">s_per_hour</span>
+        <span class="p">)</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">dt</span><span class="o">=</span><span class="n">dt_str</span><span class="p">,</span>
@@ -282,13 +311,17 @@
             <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.ice_shelf&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
-                           <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.ocean.ice_shelf&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
-                               <span class="n">yaml</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
-                               <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_replacements</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
+                <span class="n">yaml</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
+                <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_replacements</span><span class="p">,</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -140,7 +140,7 @@
 <div class="viewcode-block" id="ingest">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.namelist.ingest.html#polaris.namelist.ingest">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ingest</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the defaults file &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the defaults file&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">defaults_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -162,7 +162,7 @@
 <div class="viewcode-block" id="replace">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.namelist.replace.html#polaris.namelist.replace">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">replacements</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Replace entries in the namelist using the replacements dict &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace entries in the namelist using the replacements dict&quot;&quot;&quot;</span>
     <span class="n">new</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">namelist</span><span class="p">)</span>
     <span class="n">is_not_replaced</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">new</span><span class="p">:</span>
@@ -172,8 +172,10 @@
                 <span class="n">is_not_replaced</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">replacements</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">is_not_replaced</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not in the namelist and replacements &#39;</span>
-                  <span class="s1">&#39;will not be used&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not in the namelist and replacements &#39;</span>
+                <span class="s1">&#39;will not be used&#39;</span>
+            <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">new</span></div>
 
@@ -182,7 +184,7 @@
 <div class="viewcode-block" id="write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.namelist.write.html#polaris.namelist.write">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Write the namelist out &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the namelist out&quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">namelist</span><span class="p">:</span>

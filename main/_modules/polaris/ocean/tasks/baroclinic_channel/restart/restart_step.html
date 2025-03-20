@@ -116,6 +116,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A forward model step in the restart test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="RestartStep.__init__">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
@@ -140,10 +141,16 @@
 <span class="sd">            the initial state step</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                         <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RestartStep.dynamic_model_config">
@@ -169,9 +176,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;full_run&#39;</span><span class="p">:</span>
             <span class="c1"># 2 time steps without a restart</span>
             <span class="n">do_restart</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">start_time</span> <span class="o">=</span> <span class="mf">0.</span>
-            <span class="n">run_duration</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">dt</span>
-            <span class="n">output_interval</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">dt</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">run_duration</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">dt</span>
+            <span class="n">output_interval</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">dt</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;restart_run&#39;</span><span class="p">:</span>
             <span class="c1"># 1 time step from the restart at 1 time step</span>
             <span class="n">do_restart</span> <span class="o">=</span> <span class="kc">True</span>
@@ -183,14 +190,17 @@
 
         <span class="c1"># to keep the time formatting from getting too complicated, we&#39;ll</span>
         <span class="c1"># assume 2 time steps is never more than a day</span>
-        <span class="n">start_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span>
-                                       <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">start_time</span><span class="p">))</span>
+        <span class="n">start_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+            <span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0000-00-00_%H:%M:%S&#39;</span><span class="p">,</span>
-                                         <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">))</span>
+        <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+            <span class="s1">&#39;0000-00-00_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0000-00-00_%H:%M:%S&#39;</span><span class="p">,</span>
-                                            <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">output_interval</span><span class="p">))</span>
+        <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+            <span class="s1">&#39;0000-00-00_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">output_interval</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel.restart&#39;</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -200,9 +210,11 @@
             <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-                           <span class="n">yaml</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-                           <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+            <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+            <span class="n">yaml</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

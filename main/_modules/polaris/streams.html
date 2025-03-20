@@ -152,10 +152,9 @@
 <div class="viewcode-block" id="write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.write.html#polaris.streams.write">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; write the streams XML data to the file &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;write the streams XML data to the file&quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream_file</span><span class="p">:</span>
-
         <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;streams&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="c1"># Write out all immutable streams first</span>
@@ -194,8 +193,10 @@
                         <span class="k">continue</span>
                     <span class="k">if</span> <span class="s1">&#39;packages&#39;</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">package_name</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;packages&#39;</span><span class="p">]</span>
-                        <span class="n">entry</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;    &lt;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> name=&quot;</span><span class="si">{</span><span class="n">child_name</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
-                                <span class="sa">f</span><span class="s1">&#39;packages=&quot;</span><span class="si">{</span><span class="n">package_name</span><span class="si">}</span><span class="s1">&quot;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="n">entry</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;    &lt;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> name=&quot;</span><span class="si">{</span><span class="n">child_name</span><span class="si">}</span><span class="s1">&quot; &#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;packages=&quot;</span><span class="si">{</span><span class="n">package_name</span><span class="si">}</span><span class="s1">&quot;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">entry</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;    &lt;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> name=&quot;</span><span class="si">{</span><span class="n">child_name</span><span class="si">}</span><span class="s1">&quot;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
                     <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -223,9 +224,11 @@
         <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
 
             <span class="c1"># copy the attributes</span>
             <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -293,9 +296,11 @@
         <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
 
             <span class="c1"># copy the attributes</span>
             <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

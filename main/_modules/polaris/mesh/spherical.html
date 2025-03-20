@@ -132,6 +132,7 @@
 <span class="sd">    opts : jigsawpy.jigsaw_jig_t</span>
 <span class="sd">        JIGSAW options for creating the mesh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SphericalBaseStep.__init__">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
@@ -175,8 +176,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
         <span class="n">da</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">cell_width</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">],</span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cellWidth&#39;</span><span class="p">)</span>
+            <span class="n">cell_width</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">],</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cellWidth&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_width_filename&#39;</span><span class="p">)</span>
         <span class="n">da</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">cell_width_filename</span><span class="p">)</span>
 
@@ -191,8 +195,11 @@
 <span class="sd">        Add output files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;jigsaw_mesh_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_mesh_filename&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;cell_width_filename&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s1">&#39;jigsaw_mesh_filename&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mpas_mesh_filename&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cell_width_filename&#39;</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">)</span></div>
@@ -213,23 +220,27 @@
         <span class="n">mpas_mesh_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mpas_mesh_filename&#39;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Convert triangles from jigsaw format to netcdf&#39;</span><span class="p">)</span>
-        <span class="n">jigsaw_to_netcdf</span><span class="p">(</span><span class="n">msh_filename</span><span class="o">=</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span>
-                         <span class="n">output_name</span><span class="o">=</span><span class="s1">&#39;mesh_triangles.nc&#39;</span><span class="p">,</span> <span class="n">on_sphere</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="n">sphere_radius</span><span class="o">=</span><span class="n">earth_radius</span><span class="p">)</span>
+        <span class="n">jigsaw_to_netcdf</span><span class="p">(</span>
+            <span class="n">msh_filename</span><span class="o">=</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s1">&#39;mesh_triangles.nc&#39;</span><span class="p">,</span>
+            <span class="n">on_sphere</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sphere_radius</span><span class="o">=</span><span class="n">earth_radius</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Convert from triangles to MPAS mesh&#39;</span><span class="p">)</span>
 
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MpasMeshConverter.x&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;mesh_triangles.nc&#39;</span><span class="p">,</span>
-                <span class="n">mpas_mesh_filename</span><span class="p">]</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MpasMeshConverter.x&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh_triangles.nc&#39;</span><span class="p">,</span> <span class="n">mpas_mesh_filename</span><span class="p">]</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;add_mesh_density&#39;</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Add meshDensity into the mesh file&#39;</span><span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;cellWidthVsLatLon.nc&#39;</span><span class="p">)</span>
             <span class="n">inject_spherical_meshDensity</span><span class="p">(</span>
-                <span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">)</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;convert_to_vtk&#39;</span><span class="p">):</span>
             <span class="n">vtk_dir</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vtk_dir&#39;</span><span class="p">)</span>
@@ -238,14 +249,19 @@
             <span class="n">lat_lon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;vtk_lat_lon&#39;</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Create vtk file for visualization&#39;</span><span class="p">)</span>
-            <span class="n">extract_vtk</span><span class="p">(</span><span class="n">ignore_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lonlat</span><span class="o">=</span><span class="n">lat_lon</span><span class="p">,</span>
-                        <span class="n">dimension_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;maxEdges=&#39;</span><span class="p">],</span>
-                        <span class="n">variable_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;allOnCells&#39;</span><span class="p">],</span>
-                        <span class="n">filename_pattern</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
-                        <span class="n">out_dir</span><span class="o">=</span><span class="n">vtk_dir</span><span class="p">,</span> <span class="n">use_progress_bar</span><span class="o">=</span><span class="n">use_progress_bar</span><span class="p">)</span>
+            <span class="n">extract_vtk</span><span class="p">(</span>
+                <span class="n">ignore_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">lonlat</span><span class="o">=</span><span class="n">lat_lon</span><span class="p">,</span>
+                <span class="n">dimension_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;maxEdges=&#39;</span><span class="p">],</span>
+                <span class="n">variable_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;allOnCells&#39;</span><span class="p">],</span>
+                <span class="n">filename_pattern</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
+                <span class="n">out_dir</span><span class="o">=</span><span class="n">vtk_dir</span><span class="p">,</span>
+                <span class="n">use_progress_bar</span><span class="o">=</span><span class="n">use_progress_bar</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">make_graph_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
-                        <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">)</span></div>
+        <span class="n">make_graph_file</span><span class="p">(</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_cell_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
@@ -259,15 +275,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_width_colormap&#39;</span><span class="p">)</span>
-        <span class="n">image_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span>
-                                    <span class="s1">&#39;cell_width_image_filename&#39;</span><span class="p">)</span>
+        <span class="n">image_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_width_image_filename&#39;</span>
+        <span class="p">)</span>
         <span class="n">register_sci_viz_colormaps</span><span class="p">()</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mf">16.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">])</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_global</span><span class="p">()</span>
-        <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cell_width</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
-                       <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
-                       <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">cell_width</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+            <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">LAND</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span>
             <span class="n">crs</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
@@ -275,14 +297,17 @@
             <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">min_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span>
         <span class="n">max_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Grid cell size, km, min: </span><span class="si">{</span><span class="n">min_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> max: </span><span class="si">{</span><span class="n">max_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">.60</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;Grid cell size, km, min: </span><span class="si">{</span><span class="n">min_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> max: </span><span class="si">{</span><span class="n">max_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">image_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
@@ -307,8 +332,9 @@
 
 <div class="viewcode-block" id="QuasiUniformSphericalMeshStep.__init__">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -398,12 +424,12 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  cell width: </span><span class="si">{</span><span class="n">cell_width</span><span class="si">}</span><span class="s1"> km&#39;</span><span class="p">)</span>
 
         <span class="c1"># save the constant approximate resolution on a 10 degree grid</span>
-        <span class="n">dlon</span> <span class="o">=</span> <span class="mf">10.</span>
+        <span class="n">dlon</span> <span class="o">=</span> <span class="mf">10.0</span>
         <span class="n">dlat</span> <span class="o">=</span> <span class="n">dlon</span>
-        <span class="n">nlon</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">360.</span> <span class="o">/</span> <span class="n">dlon</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">nlat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">180.</span> <span class="o">/</span> <span class="n">dlat</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">180.</span><span class="p">,</span> <span class="mf">180.</span><span class="p">,</span> <span class="n">nlon</span><span class="p">)</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">90.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">,</span> <span class="n">nlat</span><span class="p">)</span>
+        <span class="n">nlon</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">dlon</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">nlat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">/</span> <span class="n">dlat</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="n">nlon</span><span class="p">)</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">nlat</span><span class="p">)</span>
         <span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
 
@@ -465,8 +491,14 @@
 
 <div class="viewcode-block" id="IcosahedralMeshStep.__init__">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdivisions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">subdivisions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -495,7 +527,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subdivisions</span> <span class="o">=</span> <span class="n">subdivisions</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_hmax</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_hmax</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="c1"># 2-dim. simplexes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">mesh_dims</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -525,8 +557,9 @@
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Generate JIGSAW icosahedral mesh&#39;</span><span class="p">)</span>
 
-        <span class="n">subdivisions</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> \
+        <span class="n">subdivisions</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">build_subdivisions_cell_width_lat_lon</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_and_plot_cell_width</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">make_jigsaw_mesh</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">)</span>
@@ -593,9 +626,11 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The cell width was not set.&#39;</span><span class="p">)</span>
             <span class="n">subdivisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subdivisions</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;icosahedral_method&quot; must be either &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;&quot;cell_width&quot; or the &quot;subdivisions&quot;.  Got &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">icosahedral_method</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;icosahedral_method&quot; must be either &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;cell_width&quot; or the &quot;subdivisions&quot;.  Got &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">icosahedral_method</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="p">)</span>
 
         <span class="n">cell_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_width</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">)</span>
 
@@ -605,8 +640,8 @@
         <span class="c1"># save the constant approximate resolution on a 1 degree grid</span>
         <span class="n">nlon</span> <span class="o">=</span> <span class="mi">361</span>
         <span class="n">nlat</span> <span class="o">=</span> <span class="mi">181</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">180.</span><span class="p">,</span> <span class="mf">180.</span><span class="p">,</span> <span class="n">nlon</span><span class="p">)</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">90.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">,</span> <span class="n">nlat</span><span class="p">)</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="n">nlon</span><span class="p">)</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">nlat</span><span class="p">)</span>
         <span class="n">cell_width</span> <span class="o">=</span> <span class="n">cell_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">subdivisions</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
 
@@ -630,11 +665,11 @@
 <span class="sd">            The number of subdivisions of the icosahedron</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
-        <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="c1"># Using Euclidean, not spherical area, so not accurate for large cell</span>
         <span class="c1"># widths</span>
-        <span class="n">triangle_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span> <span class="o">*</span> <span class="p">(</span><span class="n">cell_width</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">triangle_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">cell_width</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="n">triangle_count</span> <span class="o">=</span> <span class="n">earth_area</span> <span class="o">/</span> <span class="n">triangle_area</span>
         <span class="n">subdivisions</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">triangle_count</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span>
         <span class="n">subdivisions</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">)))</span>
@@ -675,13 +710,13 @@
 <span class="sd">            The approximate size in km of each cell</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
-        <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="c1"># compute and save the cell widths for later use in computing mesh</span>
         <span class="c1"># density</span>
-        <span class="n">triangle_count</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">subdivisions</span><span class="p">)</span>
+        <span class="n">triangle_count</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">subdivisions</span><span class="p">)</span>
         <span class="n">triangle_area</span> <span class="o">=</span> <span class="n">earth_area</span> <span class="o">/</span> <span class="n">triangle_count</span>
-        <span class="n">cell_width</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">triangle_area</span> <span class="o">*</span> <span class="mf">4.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">cell_width</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">triangle_area</span> <span class="o">*</span> <span class="mf">4.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cell_width</span></div>
 </div>
 

@@ -153,8 +153,9 @@
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">):</span>
             <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">)</span>
             <span class="c1"># correct for this in allocated_cores, which might not match</span>
-            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="p">((</span><span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">threads_per_core</span><span class="p">)</span> <span class="o">//</span>
-                              <span class="n">slurm_threads_per_core</span><span class="p">)</span>
+            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">threads_per_core</span>
+            <span class="p">)</span> <span class="o">//</span> <span class="n">slurm_threads_per_core</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">slurm_threads_per_core</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%D&#39;</span><span class="p">]</span>
@@ -162,8 +163,10 @@
         <span class="n">cores</span> <span class="o">=</span> <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span>
         <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;login&#39;</span><span class="p">:</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
-                    <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;login_cores&#39;</span><span class="p">))</span>
+        <span class="n">cores</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;login_cores&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">cores</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="kc">False</span>
@@ -181,12 +184,13 @@
         <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
         <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
         <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
-        <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">mpi_allowed</span>
+        <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">mpi_allowed</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">):</span>
-        <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">)</span>
+        <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">available_resources</span></div>
 
@@ -209,8 +213,11 @@
         <span class="n">old_cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">old_cores_per_node</span> <span class="o">!=</span> <span class="n">cores_per_node</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Slurm found </span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1"> cpus per node but &#39;</span>
-                          <span class="sa">f</span><span class="s1">&#39;config from mache was </span><span class="si">{</span><span class="n">old_cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Slurm found </span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1"> cpus per node but &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;config from mache was </span><span class="si">{</span><span class="n">old_cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
     <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">):</span>
             <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
@@ -255,8 +262,9 @@
     <span class="k">if</span> <span class="n">openmp_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads&#39;</span><span class="p">)</span>
 
-    <span class="n">command_line_args</span> <span class="o">=</span> <span class="n">get_parallel_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span>
-                                             <span class="n">config</span><span class="p">)</span>
+    <span class="n">command_line_args</span> <span class="o">=</span> <span class="n">get_parallel_command</span><span class="p">(</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">config</span>
+    <span class="p">)</span>
     <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
 
@@ -301,9 +309,9 @@
         <span class="n">cores</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="o">*</span> <span class="n">cpus_per_task</span>
         <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
-        <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                                  <span class="s1">&#39;-N&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nodes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                                  <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span>
+        <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;-N&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nodes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
         <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>

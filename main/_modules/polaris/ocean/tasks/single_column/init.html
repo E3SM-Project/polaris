@@ -120,6 +120,7 @@
 <span class="sd">    A step for creating a mesh and initial condition for single column</span>
 <span class="sd">    test cases</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Init.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -140,8 +141,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ideal_age</span> <span class="o">=</span> <span class="n">ideal_age</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;forcing.nc&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></div>
 
 
@@ -159,13 +165,14 @@
         <span class="n">nx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;nx&#39;</span><span class="p">)</span>
         <span class="n">ny</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;ny&#39;</span><span class="p">)</span>
         <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
-                                       <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                       <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span>
+            <span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
-                          <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+        <span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -176,59 +183,69 @@
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;single_column&#39;</span><span class="p">]</span>
-        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;surface_temperature&#39;</span><span class="p">)</span>
+        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_temperature&#39;</span><span class="p">)</span>
         <span class="n">temperature_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_gradient_mixed_layer&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_gradient_mixed_layer&#39;</span>
+        <span class="p">)</span>
         <span class="n">temperature_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_difference_across_mixed_layer&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_difference_across_mixed_layer&#39;</span>
+        <span class="p">)</span>
         <span class="n">temperature_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_gradient_interior&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_gradient_interior&#39;</span>
+        <span class="p">)</span>
         <span class="n">mixed_layer_depth_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;mixed_layer_depth_temperature&#39;</span><span class="p">)</span>
-        <span class="n">surface_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;surface_salinity&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;mixed_layer_depth_temperature&#39;</span>
+        <span class="p">)</span>
+        <span class="n">surface_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_salinity&#39;</span><span class="p">)</span>
         <span class="n">salinity_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_gradient_mixed_layer&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;salinity_gradient_mixed_layer&#39;</span>
+        <span class="p">)</span>
         <span class="n">salinity_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_difference_across_mixed_layer&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;salinity_difference_across_mixed_layer&#39;</span>
+        <span class="p">)</span>
         <span class="n">salinity_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_gradient_interior&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;salinity_gradient_interior&#39;</span>
+        <span class="p">)</span>
         <span class="n">mixed_layer_depth_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;mixed_layer_depth_salinity&#39;</span><span class="p">)</span>
-        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;mixed_layer_depth_salinity&#39;</span>
+        <span class="p">)</span>
+        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
 
         <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
 
         <span class="n">temperature_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_difference_across_mixed_layer</span><span class="p">)</span>
+            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_difference_across_mixed_layer</span>
+        <span class="p">)</span>
         <span class="n">temperature_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
             <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_temperature</span><span class="p">,</span>
             <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
-            <span class="n">temperature_at_mixed_layer_depth</span> <span class="o">+</span>
-            <span class="n">temperature_gradient_interior</span> <span class="o">*</span>
-            <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_temperature</span><span class="p">))</span>
+            <span class="n">temperature_at_mixed_layer_depth</span>
+            <span class="o">+</span> <span class="n">temperature_gradient_interior</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_temperature</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">temperature_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_temperature</span>
         <span class="n">temperature</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">temperature_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">salinity_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_difference_across_mixed_layer</span><span class="p">)</span>
+            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_difference_across_mixed_layer</span>
+        <span class="p">)</span>
         <span class="n">salinity_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
             <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_salinity</span><span class="p">,</span>
             <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
-            <span class="n">salinity_at_mixed_layer_depth</span> <span class="o">+</span>
-            <span class="n">salinity_gradient_interior</span> <span class="o">*</span>
-            <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_salinity</span><span class="p">))</span>
+            <span class="n">salinity_at_mixed_layer_depth</span>
+            <span class="o">+</span> <span class="n">salinity_gradient_interior</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_salinity</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">salinity_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_salinity</span>
         <span class="n">salinity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">salinity_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span>
-            <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span>
+        <span class="p">)</span>
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -252,20 +269,25 @@
         <span class="n">forcing_array</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">forcing_array_surface</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">)</span>
         <span class="n">forcing_array_surface</span> <span class="o">=</span> <span class="n">forcing_array_surface</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;single_column_forcing&#39;</span><span class="p">]</span>
         <span class="n">temperature_piston_velocity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_piston_velocity&#39;</span><span class="p">)</span>
-        <span class="n">salinity_piston_velocity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_piston_velocity&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_piston_velocity&#39;</span>
+        <span class="p">)</span>
+        <span class="n">salinity_piston_velocity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity_piston_velocity&#39;</span><span class="p">)</span>
         <span class="n">temperature_surface_restoring_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_surface_restoring_value&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_surface_restoring_value&#39;</span>
+        <span class="p">)</span>
         <span class="n">salinity_surface_restoring_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_surface_restoring_value&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;salinity_surface_restoring_value&#39;</span>
+        <span class="p">)</span>
         <span class="n">temperature_interior_restoring_rate</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;temperature_interior_restoring_rate&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;temperature_interior_restoring_rate&#39;</span>
+        <span class="p">)</span>
         <span class="n">salinity_interior_restoring_rate</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;salinity_interior_restoring_rate&#39;</span><span class="p">)</span>
+            <span class="s1">&#39;salinity_interior_restoring_rate&#39;</span>
+        <span class="p">)</span>
 
         <span class="n">latent_heat_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;latent_heat_flux&#39;</span><span class="p">)</span>
         <span class="n">sensible_heat_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;sensible_heat_flux&#39;</span><span class="p">)</span>
@@ -275,31 +297,42 @@
         <span class="n">wind_stress_zonal</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;wind_stress_zonal&#39;</span><span class="p">)</span>
         <span class="n">wind_stress_meridional</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;wind_stress_meridional&#39;</span><span class="p">)</span>
 
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperaturePistonVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperaturePistonVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">temperature_piston_velocity</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinityPistonVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinityPistonVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">salinity_piston_velocity</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperatureSurfaceRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperatureSurfaceRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">temperature_surface_restoring_value</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinitySurfaceRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinitySurfaceRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">salinity_surface_restoring_value</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperatureInteriorRestoringRate&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperatureInteriorRestoringRate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">temperature_interior_restoring_rate</span> <span class="o">*</span> <span class="n">forcing_array</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinityInteriorRestoringRate&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinityInteriorRestoringRate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">salinity_interior_restoring_rate</span> <span class="o">*</span> <span class="n">forcing_array</span>
+        <span class="p">)</span>
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;temperatureInteriorRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;salinityInteriorRestoringValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;windStressZonal&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;windStressZonal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">wind_stress_zonal</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;windStressMeridional&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;windStressMeridional&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">wind_stress_meridional</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="p">)</span>
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;latentHeatFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latent_heat_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;sensibleHeatFlux&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;sensibleHeatFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">sensible_heat_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;shortWaveHeatFlux&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;shortWaveHeatFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">shortwave_heat_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;evaporationFlux&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;evaporationFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">evaporation_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="p">)</span>
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;rainFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rain_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="s1">&#39;forcing.nc&#39;</span><span class="p">)</span></div>
 </div>

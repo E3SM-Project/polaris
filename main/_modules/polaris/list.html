@@ -157,10 +157,12 @@
                 <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-                <span class="n">to_print</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-                            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="s1">&#39;component&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="s1">&#39;subdir&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">}</span>
+                <span class="n">to_print</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s1">&#39;component&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s1">&#39;subdir&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="p">}</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">to_print</span><span class="p">:</span>
                     <span class="n">key_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: &#39;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
                     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">key_string</span><span class="si">}{</span><span class="n">to_print</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -186,9 +188,12 @@
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.list.list_machines.html#polaris.list.list_machines">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">list_machines</span><span class="p">():</span>
     <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span>
-         <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span>
-         <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
+        <span class="p">[</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">machine_configs</span><span class="p">:</span>
@@ -206,9 +211,13 @@
     <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
         <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">.suites&#39;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">suites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span>
-                             <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span>
-                             <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
+            <span class="n">suites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">resource</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">for</span> <span class="n">suite</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">suites</span><span class="p">):</span>
@@ -229,8 +238,11 @@
                             <span class="c1"># multiple lines of cached steps</span>
                             <span class="n">print_header_if_cached</span> <span class="o">=</span> <span class="kc">False</span>
                             <span class="nb">print</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;cached: &#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">    &#39;</span><span class="p">))</span>
-                        <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tasks</span> <span class="ow">and</span>
-                              <span class="ow">not</span> <span class="n">task</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)):</span>
+                        <span class="k">elif</span> <span class="p">(</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                            <span class="ow">and</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tasks</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="n">task</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+                        <span class="p">):</span>
                             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">* </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                             <span class="n">print_header_if_cached</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -238,31 +250,52 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;List the available tasks or machines&#39;</span><span class="p">,</span>
-        <span class="n">prog</span><span class="o">=</span><span class="s1">&#39;polaris list&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--task_expr&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;task_expr&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A regular expression for a task path name to &#39;</span>
-                             <span class="s1">&#39;search for.&#39;</span><span class="p">,</span>
-                        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;TASK&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--number&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of the task to list.&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--machines&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;machines&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List supported machines (instead of task &#39;</span>
-                             <span class="s1">&#39;cases).&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--suites&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;suites&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List suites (instead of tasks).&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List details of each task, not just the &#39;</span>
-                             <span class="s1">&#39;path.  When applied to suites, verbose lists &#39;</span>
-                             <span class="s1">&#39;the tasks contained in each suite.&#39;</span><span class="p">)</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;List the available tasks or machines&#39;</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s1">&#39;polaris list&#39;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-t&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--task_expr&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;task_expr&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A regular expression for a task path name to search for.&#39;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;TASK&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--number&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;number&#39;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of the task to list.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--machines&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;machines&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List supported machines (instead of task cases).&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--suites&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;suites&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List suites (instead of tasks).&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-v&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List details of each task, not just the &#39;</span>
+        <span class="s1">&#39;path.  When applied to suites, verbose lists &#39;</span>
+        <span class="s1">&#39;the tasks contained in each suite.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">machines</span><span class="p">:</span>
         <span class="n">list_machines</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">suites</span><span class="p">:</span>
         <span class="n">list_suites</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">list_cases</span><span class="p">(</span><span class="n">task_expr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">task_expr</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">number</span><span class="p">,</span>
-                   <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">list_cases</span><span class="p">(</span>
+            <span class="n">task_expr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">task_expr</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
+        <span class="p">)</span>
 </pre></div>
 
            </div>

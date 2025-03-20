@@ -109,7 +109,7 @@
 
 <div class="viewcode-block" id="ExactSolution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExactSolution</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExactSolution</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to compute the exact solution for the manufactured solution</span>
 <span class="sd">    test case</span>
@@ -170,8 +170,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lambda_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">ly</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span> <span class="o">/</span> <span class="n">npy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_x</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_y</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">bottom_depth</span> <span class="o">*</span>
-                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">ds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span>
@@ -199,9 +198,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">eta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">+</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">eta</span></div>
 
@@ -222,9 +221,9 @@
 <span class="sd">        normalvelocity : xr.DataArray</span>
 <span class="sd">            the exact normal velocity solution on edges at time t</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span>
-                               <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span>
-                               <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+        <span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">u</span>
         <span class="k">return</span> <span class="n">u</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span></div>
 </div>

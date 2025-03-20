@@ -129,11 +129,22 @@
 <span class="sd">    run_time_steps : int or None</span>
 <span class="sd">        Number of time steps to run for</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.barotropic_gyre.forward.Forward.html#polaris.ocean.tasks.barotropic_gyre.forward.Forward.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                 <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph_target</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">graph_target</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new task</span>
 
@@ -172,22 +183,27 @@
 <span class="sd">            If none, it will be created.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">=</span> <span class="n">run_time_steps</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
-                         <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-                         <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/forcing.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/forcing.nc&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.barotropic_gyre&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="s1">&#39;forward.yaml&#39;</span></div>
@@ -236,24 +252,26 @@
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;single_layer.yaml&#39;</span><span class="p">)</span>
 
-        <span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;barotropic_gyre&quot;</span><span class="p">,</span> <span class="s2">&quot;nu_2&quot;</span><span class="p">)</span>
-        <span class="n">rho_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;barotropic_gyre&quot;</span><span class="p">,</span> <span class="s2">&quot;rho_0&quot;</span><span class="p">)</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;nu_2&#39;</span><span class="p">)</span>
+        <span class="n">rho_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;rho_0&#39;</span><span class="p">)</span>
 
         <span class="n">dt_max</span> <span class="o">=</span> <span class="n">compute_max_time_step</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">dt_max</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">dt_max</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
         <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 
-        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="n">dt_str</span><span class="p">,</span>
-                   <span class="s1">&#39;config_density0&#39;</span><span class="p">:</span> <span class="n">rho_0</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-                                      <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="n">dt_str</span><span class="p">,</span> <span class="s1">&#39;config_density0&#39;</span><span class="p">:</span> <span class="n">rho_0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">run_duration</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
-            <span class="n">stop_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span>
-                                          <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">))</span>
-            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0000_%H:%M:%S&#39;</span><span class="p">,</span>
-                                                <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">))</span>
+            <span class="n">stop_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="s1">&#39;0000_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stop_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0004-01-01_00:00:00&#39;</span><span class="p">)</span>
             <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0000-01-00_00:00:00&#39;</span><span class="p">)</span>
@@ -266,8 +284,11 @@
         <span class="p">)</span>
 
         <span class="c1"># make sure output is double precision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
-                           <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -288,13 +309,14 @@
 <span class="sd">    dt_max : float</span>
 <span class="sd">        The approximate maximum time step for stability</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">u_max</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># m/s</span>
+    <span class="n">u_max</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># m/s</span>
     <span class="n">stability_parameter_max</span> <span class="o">=</span> <span class="mf">0.25</span>
     <span class="n">resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
-    <span class="n">f_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;barotropic_gyre&quot;</span><span class="p">,</span> <span class="s2">&quot;f_0&quot;</span><span class="p">)</span>
-    <span class="n">dt_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">stability_parameter_max</span> <span class="o">*</span> <span class="n">resolution</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span>
-                 <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_max</span><span class="p">),</span>
-                 <span class="n">stability_parameter_max</span> <span class="o">/</span> <span class="n">f_0</span><span class="p">)</span>
+    <span class="n">f_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;f_0&#39;</span><span class="p">)</span>
+    <span class="n">dt_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+        <span class="n">stability_parameter_max</span> <span class="o">*</span> <span class="n">resolution</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_max</span><span class="p">),</span>
+        <span class="n">stability_parameter_max</span> <span class="o">/</span> <span class="n">f_0</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">dt_max</span></div>
 
 </pre></div>

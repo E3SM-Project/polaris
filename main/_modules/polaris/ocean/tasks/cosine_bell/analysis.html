@@ -119,6 +119,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for analyzing the output from the cosine bell test case</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
@@ -139,13 +140,14 @@
 <span class="sd">        refinement : str, optional</span>
 <span class="sd">            Whether to refine in space, time or both space and time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
-                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
-                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span></div>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+            <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
+            <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Analysis.exact_solution">
@@ -179,8 +181,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic &#39;</span>
-                  <span class="s1">&#39;solution for the cosine_bell test case&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic &#39;</span>
+                <span class="s1">&#39;solution for the cosine_bell test case&#39;</span>
+            <span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">lat_center</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bell&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_center&#39;</span><span class="p">)</span>
@@ -206,18 +210,18 @@
             <span class="n">lon_new</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
         <span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">z_center</span> <span class="o">=</span> <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
-            <span class="n">lon_new</span><span class="p">,</span> <span class="n">lat_center</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">lon_new</span><span class="p">,</span> <span class="n">lat_center</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
         <span class="n">x_cells</span><span class="p">,</span> <span class="n">y_cells</span><span class="p">,</span> <span class="n">z_cells</span> <span class="o">=</span> <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
-            <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
         <span class="n">xyz_center</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">z_center</span><span class="p">)</span>
         <span class="n">xyz_cells</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">x_cells</span><span class="p">,</span> <span class="n">y_cells</span><span class="p">,</span> <span class="n">z_cells</span><span class="p">)</span>
         <span class="n">ang_dist_from_center</span> <span class="o">=</span> <span class="n">xyz_cells</span><span class="o">.</span><span class="n">angular_distance</span><span class="p">(</span><span class="n">xyz_center</span><span class="p">)</span>
         <span class="n">distance_from_center</span> <span class="o">=</span> <span class="n">ang_dist_from_center</span> <span class="o">*</span> <span class="n">sphere_radius</span>
 
         <span class="n">bell_value</span> <span class="o">=</span> <span class="n">cosine_bell</span><span class="p">(</span><span class="n">psi0</span><span class="p">,</span> <span class="n">distance_from_center</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>
-        <span class="n">tracer1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">distance_from_center</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">,</span>
-                           <span class="n">bell_value</span><span class="p">,</span>
-                           <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">tracer1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">distance_from_center</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">,</span> <span class="n">bell_value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">tracer1</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,))</span></div>
 </div>
 

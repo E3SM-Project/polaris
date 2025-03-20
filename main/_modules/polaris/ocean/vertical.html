@@ -107,16 +107,22 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.sigma</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">init_sigma_vertical_coord</span><span class="p">,</span>
-    <span class="n">update_sigma_layer_thickness</span><span class="p">,</span>
+    <span class="n">init_sigma_vertical_coord</span> <span class="k">as</span> <span class="n">init_sigma_vertical_coord</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.sigma</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">update_sigma_layer_thickness</span> <span class="k">as</span> <span class="n">update_sigma_layer_thickness</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.zlevel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">init_z_level_vertical_coord</span><span class="p">,</span>
-    <span class="n">update_z_level_layer_thickness</span><span class="p">,</span>
+    <span class="n">init_z_level_vertical_coord</span> <span class="k">as</span> <span class="n">init_z_level_vertical_coord</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.zlevel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">update_z_level_layer_thickness</span> <span class="k">as</span> <span class="n">update_z_level_layer_thickness</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.zstar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">init_z_star_vertical_coord</span><span class="p">,</span>
-    <span class="n">update_z_star_layer_thickness</span><span class="p">,</span>
+    <span class="n">init_z_star_vertical_coord</span> <span class="k">as</span> <span class="n">init_z_star_vertical_coord</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.zstar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">update_z_star_layer_thickness</span> <span class="k">as</span> <span class="n">update_z_star_layer_thickness</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -196,8 +202,9 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown coordinate type </span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="c1"># recompute the cell mask since min/max indices may have changed</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;cellMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_cell_mask</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span>
-                                        <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;cellMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_cell_mask</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="c1"># mask layerThickness and restingThickness</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellMask</span><span class="p">)</span>
@@ -206,11 +213,13 @@
     <span class="c1"># add (back) Time dimension</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span> <span class="o">=</span> \
-        <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
 
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;zMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_zmid_from_layer_thickness</span><span class="p">(</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellMask</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellMask</span>
+    <span class="p">)</span>
 
     <span class="c1"># fortran 1-based indexing</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;minLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">+</span> <span class="mi">1</span>
@@ -267,8 +276,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_compute_cell_mask</span><span class="p">(</span><span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="p">):</span>
     <span class="n">cellMask</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">zIndex</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span>
-                              <span class="n">zIndex</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">zIndex</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">zIndex</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span><span class="p">)</span>
         <span class="n">cellMask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
     <span class="n">cellMaskArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">cellMask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">])</span>
     <span class="n">cellMaskArray</span> <span class="o">=</span> <span class="n">cellMaskArray</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
@@ -301,12 +309,13 @@
     <span class="n">zMid</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">cellMask</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">zTop</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">thickness</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
         <span class="n">zMid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
         <span class="n">zTop</span> <span class="o">-=</span> <span class="n">thickness</span>
-    <span class="n">zMid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">zMid</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-                                                        <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+    <span class="n">zMid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">zMid</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">zMid</span>
 </pre></div>
 

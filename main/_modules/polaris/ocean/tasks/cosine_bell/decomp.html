@@ -122,8 +122,15 @@
 
 <div class="viewcode-block" id="Decomp.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span>
-                 <span class="n">refinement</span><span class="p">,</span> <span class="n">proc_counts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">,</span>
+        <span class="n">refinement_factor</span><span class="p">,</span>
+        <span class="n">refinement</span><span class="p">,</span>
+        <span class="n">proc_counts</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the convergence test</span>
 
@@ -159,19 +166,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span>
+        <span class="p">)</span>
 
-        <span class="n">icosahedral</span> <span class="o">=</span> <span class="p">(</span><span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span><span class="p">)</span>
+        <span class="n">icosahedral</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span>
         <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
-            <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">)</span>
+            <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span>
+        <span class="p">)</span>
 
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">init_subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">init_subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">init_subdir</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                             <span class="n">subdir</span><span class="o">=</span><span class="n">init_subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">)</span>
+            <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">init_subdir</span><span class="p">,</span>
+                <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;base_mesh/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -183,20 +196,25 @@
             <span class="n">step_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task_subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
                 <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
-                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">step</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">procs</span>
             <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="n">procs</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Validate</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                               <span class="n">step_subdirs</span><span class="o">=</span><span class="n">step_names</span><span class="p">,</span>
-                               <span class="n">indir</span><span class="o">=</span><span class="n">task_subdir</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Validate</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">step_subdirs</span><span class="o">=</span><span class="n">step_names</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">task_subdir</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

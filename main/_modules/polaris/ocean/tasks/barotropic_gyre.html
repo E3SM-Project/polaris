@@ -103,11 +103,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.tasks.barotropic_gyre</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Step</span> <span class="k">as</span> <span class="n">Step</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Task</span> <span class="k">as</span> <span class="n">Task</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span> <span class="k">as</span> <span class="n">Analysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span> <span class="k">as</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.barotropic_gyre.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span> <span class="k">as</span> <span class="n">Init</span>
 
 
 <div class="viewcode-block" id="add_barotropic_gyre_tasks">
@@ -120,8 +125,9 @@
 <span class="sd">        the ocean component that the task will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">test_name</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">BarotropicGyre</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                                      <span class="n">test_name</span><span class="o">=</span><span class="n">test_name</span><span class="p">))</span></div>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+        <span class="n">BarotropicGyre</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">test_name</span><span class="o">=</span><span class="n">test_name</span><span class="p">)</span>
+    <span class="p">)</span></div>
 
 
 
@@ -151,30 +157,45 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
         <span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.ocean.tasks.</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                                <span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;polaris.ocean.tasks.</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
         <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="n">init</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
 
-        <span class="n">forward</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;short_forward&#39;</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                          <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">)</span>
+        <span class="n">forward</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;short_forward&#39;</span><span class="p">,</span>
+            <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">forward</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward</span><span class="p">)</span>
 
-        <span class="n">forward</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;long_forward&#39;</span><span class="p">,</span>
-                          <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">)</span>
+        <span class="n">forward</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;long_forward&#39;</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">forward</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">analysis</span> <span class="o">=</span> <span class="n">Analysis</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
-                            <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">)</span>
+        <span class="n">analysis</span> <span class="o">=</span> <span class="n">Analysis</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">analysis</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 </div>

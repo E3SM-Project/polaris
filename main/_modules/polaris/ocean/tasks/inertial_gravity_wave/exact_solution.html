@@ -110,7 +110,7 @@
 
 <div class="viewcode-block" id="ExactSolution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExactSolution</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExactSolution</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to compute the exact solution for the inertial gravity wave</span>
 <span class="sd">    test case</span>
@@ -147,6 +147,7 @@
 <span class="sd">    omega : float</span>
 <span class="sd">        Angular frequency</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ExactSolution.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
@@ -179,8 +180,9 @@
         <span class="n">ly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">lx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">=</span> <span class="n">npx</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">lx</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">=</span> <span class="n">npy</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">ly</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
-                             <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExactSolution.ssh">
@@ -200,9 +202,9 @@
 <span class="sd">            the exact sea surface height solution on cells at time t</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">eta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">+</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">eta</span></div>
 
@@ -223,17 +225,47 @@
 <span class="sd">        norm_vel : xr.DataArray</span>
 <span class="sd">            the exact normal velocity solution on edges at time t</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span>
-                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">-</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">f0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)))</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
+            <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omega</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kx</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span>
+                    <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+                <span class="p">)</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span>
+                    <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span>
-                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">f0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">+</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span><span class="p">)))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
+            <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omega</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span>
+                    <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kx</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span>
+                    <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="n">norm_vel</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span>
 

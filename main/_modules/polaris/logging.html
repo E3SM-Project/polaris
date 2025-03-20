@@ -111,8 +111,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log the module path and file path of a call to a method, e.g.::</span>
 
-<span class="sd">      polaris calling: polaris.landice.tasks.dome.decomposition_test.DecompositionTest.run()  # noqa: E501</span>
-<span class="sd">        in /turquoise/usr/projects/climate/mhoffman/mpas/polaris/polaris/landice/tasks/dome/decomposition_test/__init__.py  # noqa: E501</span>
+<span class="sd">      polaris calling: polaris.landice.tasks.dome.decomposition_test.DecompositionTest.run()</span>
+<span class="sd">        in /turquoise/usr/projects/climate/mhoffman/mpas/polaris/polaris/landice/tasks/dome/decomposition_test/__init__.py</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -121,7 +121,7 @@
 
 <span class="sd">    logger: logging.Logger</span>
 <span class="sd">        The logger to log the method path and file path to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The &quot;method&quot; argument must be a method&#39;</span><span class="p">)</span>
 
@@ -149,9 +149,11 @@
             <span class="k">break</span>
 
     <span class="k">if</span> <span class="n">actual_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hmm, it seems that none of </span><span class="si">{</span><span class="n">child_location</span><span class="si">}</span><span class="s1"> or its &#39;</span>
-                         <span class="sa">f</span><span class="s1">&#39;parent classes implements</span><span class="se">\n</span><span class="s1"> the </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1"> &#39;</span>
-                         <span class="sa">f</span><span class="s1">&#39;method, how strange!&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Hmm, it seems that none of </span><span class="si">{</span><span class="n">child_location</span><span class="si">}</span><span class="s1"> or its &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;parent classes implements</span><span class="se">\n</span><span class="s1"> the </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1"> &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;method, how strange!&#39;</span>
+        <span class="p">)</span>
     <span class="n">actual_location</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">actual_class</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">actual_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span>
 
     <span class="c1"># not every class is defined in a file (e.g. python intrinsics) but we</span>
@@ -193,8 +195,9 @@
     <span class="n">filename</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
 
     <span class="c1"># log what we found out</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris calling: &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">()&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;polaris calling: </span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">()&#39;</span>
+    <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  in </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 

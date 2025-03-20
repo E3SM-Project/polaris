@@ -113,6 +113,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for staging a mesh for “single column” test cases</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.seaice.tasks.single_column.forward.Forward.html#polaris.seaice.tasks.single_column.forward.Forward.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -130,44 +131,61 @@
 <span class="sd">        indir : str, optional</span>
 <span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
-                         <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grid.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;grid_sc_71.35_-156.5.nc&#39;</span><span class="p">,</span>
-                            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grid.nc&#39;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;grid_sc_71.35_-156.5.nc&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1948</span><span class="p">,</span> <span class="mi">2008</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;forcing/atmosphere_forcing_six_hourly.</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
                 <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;LYq_six_hourly.</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+                <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/atmosphere_forcing_monthly.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;LYq_monthly.nc&#39;</span><span class="p">,</span>
-                            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/atmosphere_forcing_monthly.nc&#39;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;LYq_monthly.nc&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/ocean_forcing_monthly.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;oceanmixed_ice_depth_sc_71.35_-156.5.nc&#39;</span><span class="p">,</span>
-                            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/ocean_forcing_monthly.nc&#39;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;oceanmixed_ice_depth_sc_71.35_-156.5.nc&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/snicar_optics_5bnd_snow_and_aerosols.nc&#39;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;snicar_optics_5bnd_snow_and_aerosols.nc&#39;</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing/standard_optics_mpas_seaice.nc&#39;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="s1">&#39;standard_optics_mpas_seaice.nc&#39;</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">)</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;domains/domain_sc_71.35_-156.5/&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
             <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.seaice.tasks.single_column&#39;</span><span class="p">,</span>
-            <span class="n">namelist</span><span class="o">=</span><span class="s1">&#39;namelist.seaice&#39;</span><span class="p">)</span>
+            <span class="n">namelist</span><span class="o">=</span><span class="s1">&#39;namelist.seaice&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
             <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.seaice.tasks.single_column&#39;</span><span class="p">,</span>
-            <span class="n">streams</span><span class="o">=</span><span class="s1">&#39;streams.seaice&#39;</span><span class="p">)</span></div>
+            <span class="n">streams</span><span class="o">=</span><span class="s1">&#39;streams.seaice&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

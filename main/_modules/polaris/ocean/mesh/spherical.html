@@ -155,12 +155,18 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
             <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">IcosahedralMeshStep</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># add default config options for spherical meshes</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
