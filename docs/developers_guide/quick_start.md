@@ -604,9 +604,9 @@ For this example, we would just add an additional blank line after line 77 and
 try the commit again to make sure we've resolved the issue.
 
 You may also find it useful to use an IDE with a PEP8 style checker built in,
-such as [PyCharm](https://www.jetbrains.com/pycharm/). See
-[this tutorial](https://www.jetbrains.com/help/pycharm/tutorial-code-quality-assistance-tips-and-tricks.html)
-for some tips on checking code style in PyCharm.
+such as [VS Code](https://code.visualstudio.com/). See
+[Formatting Python in VS Code](https://code.visualstudio.com/docs/python/formatting)
+for some tips on checking code style in VS Code.
 
 Once you open a pull request for your feature, there is an additional PEP8
 style check at this stage (again using pre-commit).
