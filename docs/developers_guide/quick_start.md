@@ -587,13 +587,14 @@ Polaris complies with the coding conventions of
 guidelines, the easiest way to stay in compliance as a developer writing new
 code or modifying existing code is to use a PEP8 style checker. When you create
 a load script, we automatically install [pre-commit](https://pre-commit.com/),
-a tools that helps to enforce this standard by checking your code each time you
-make a commit.  It will tell you about various types of problems it finds.
-Internally, it uses [flake8](https://flake8.pycqa.org/en/latest/) to check PEP8
-compliance, [isort](https://pycqa.github.io/isort/) to sort, check and format
-imports, [flynt](https://github.com/ikamensh/flynt) to change any format
-strings to f-strings, and [mypy](https://mypy-lang.org/) to check for
-consistent variable types. An example error might be:
+a tool that helps to enforce this standard by checking your code each time you
+make a commit. It will tell you about various types of problems it finds.
+Internally, `pre-commit` uses [ruff](https://docs.astral.sh/ruff/) to perform 
+various checks, such as enforcing PEP8 compliance and sorting and formatting 
+imports. Additionally, `pre-commit` uses 
+[flynt](https://github.com/ikamensh/flynt) to update any old-style format 
+strings to f-strings and [mypy](https://mypy-lang.org/) to check for consistent
+variable types. An example error might be:
 
 ```bash
 example.py:77:1: E302 expected 2 blank lines, found 1
