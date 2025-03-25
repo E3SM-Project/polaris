@@ -106,6 +106,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LatLon2DGridDescriptor</span><span class="p">,</span>
     <span class="n">LatLonGridDescriptor</span><span class="p">,</span>
@@ -586,15 +587,52 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;moab&#39;</span><span class="p">:</span>
+            <span class="n">src_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moab_partition_scrip_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span>
+            <span class="p">)</span>
+            <span class="n">dst_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moab_partition_scrip_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_moab_build_map_args</span><span class="p">(</span>
-                <span class="n">remapper</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-                <span class="n">src_descriptor</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">,</span>
-                <span class="n">dst_descriptor</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">,</span>
+                <span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span>
             <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_moab_partition_scrip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Partition SCRIP file for parallel mbtempest use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">ntasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Partition SCRIP file </span><span class="si">{</span><span class="n">in_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">h5m_filename</span> <span class="o">=</span> <span class="n">in_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;.h5m&#39;</span><span class="p">)</span>
+        <span class="n">h5m_part_filename</span> <span class="o">=</span> <span class="n">in_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;.p</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">.h5m&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Convert source SCRIP to mbtempest</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;mbconvert&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-B&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="p">,</span>
+            <span class="n">h5m_filename</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="c1"># Partition source SCRIP</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;mbpart&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-z&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;RCB&#39;</span><span class="p">,</span>
+            <span class="n">h5m_filename</span><span class="p">,</span>
+            <span class="n">h5m_part_filename</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;  Done.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h5m_part_filename</span></div>
 
 
 
@@ -659,12 +697,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_moab_build_map_args</span><span class="p">(</span>
-    <span class="n">remapper</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">,</span>
-    <span class="n">src_descriptor</span><span class="p">,</span>
-    <span class="n">src_mesh_filename</span><span class="p">,</span>
-    <span class="n">dst_descriptor</span><span class="p">,</span>
-    <span class="n">dst_mesh_filename</span><span class="p">,</span>
+    <span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get command-line arguments for making a mapping file with mbtempest</span>
@@ -672,11 +705,8 @@
     <span class="n">fvmethod</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;conserve&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span> <span class="s1">&#39;bilin&#39;</span><span class="p">}</span>
 
     <span class="n">map_filename</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">mappingFileName</span>
-    <span class="n">intx_filename</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;moab_intx_</span><span class="si">{</span><span class="n">src_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dst_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">.h5m&#39;</span>
-    <span class="p">)</span>
 
-    <span class="n">intx_args</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s1">&#39;mbtempest&#39;</span><span class="p">,</span>
         <span class="s1">&#39;--type&#39;</span><span class="p">,</span>
         <span class="s1">&#39;5&#39;</span><span class="p">,</span>
@@ -684,30 +714,16 @@
         <span class="n">src_mesh_filename</span><span class="p">,</span>
         <span class="s1">&#39;--load&#39;</span><span class="p">,</span>
         <span class="n">dst_mesh_filename</span><span class="p">,</span>
-        <span class="s1">&#39;--intx&#39;</span><span class="p">,</span>
-        <span class="n">intx_filename</span><span class="p">,</span>
-    <span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
-        <span class="n">intx_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--rrmgrids&#39;</span><span class="p">)</span>
-
-    <span class="n">map_args</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s1">&#39;mbtempest&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--type&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;5&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--load&#39;</span><span class="p">,</span>
-        <span class="n">src_mesh_filename</span><span class="p">,</span>
-        <span class="s1">&#39;--load&#39;</span><span class="p">,</span>
-        <span class="n">dst_mesh_filename</span><span class="p">,</span>
-        <span class="s1">&#39;--intx&#39;</span><span class="p">,</span>
-        <span class="n">intx_filename</span><span class="p">,</span>
-        <span class="s1">&#39;--weights&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;--file&#39;</span><span class="p">,</span>
         <span class="n">map_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--weights&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--gnomonic&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--boxeps&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;1e-9&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;--order&#39;</span><span class="p">,</span>
         <span class="s1">&#39;1&#39;</span><span class="p">,</span>
         <span class="s1">&#39;--order&#39;</span><span class="p">,</span>
@@ -716,12 +732,7 @@
         <span class="n">fvmethod</span><span class="p">[</span><span class="n">method</span><span class="p">],</span>
     <span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;conserve&#39;</span> <span class="ow">and</span> <span class="p">(</span>
-        <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span>
-    <span class="p">):</span>
-        <span class="n">map_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--rrmgrids&#39;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="p">[</span><span class="n">intx_args</span><span class="p">,</span> <span class="n">map_args</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
