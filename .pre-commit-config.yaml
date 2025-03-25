@@ -20,10 +20,6 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.9
     hooks:
-      # Sort the imports
-      - id: ruff
-        name: ruff-sort-imports
-        args: [--select, I, --fix]
       # Run the linter.
       - id: ruff
         args: [--fix]
