@@ -14,7 +14,7 @@ class TopoScale(Step):
 
     Attributes
     ----------
-    experiment : {'inception', 'drying', 'wetting'}
+    experiment : {'drying', 'wetting'}
         The scaling experiment
     """
 
@@ -36,10 +36,10 @@ class TopoScale(Step):
         topo_remap : polaris.ocean.tasks.isomip_plus.topo_map.TopoRemap
             The step that produced the remapped topography to be scaled
 
-        experiment : {'inception', 'drying', 'wetting'}
+        experiment : {'drying', 'wetting'}
             The scaling experiment
         """
-        if experiment not in ['inception', 'drying', 'wetting']:
+        if experiment not in ['drying', 'wetting']:
             raise ValueError(f'Unexpected experiment {experiment}')
 
         super().__init__(component=component, name='topo_scale', subdir=subdir)
