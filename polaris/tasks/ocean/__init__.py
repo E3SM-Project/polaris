@@ -12,6 +12,7 @@ from polaris.tasks.ocean.isomip_plus import add_isomip_plus_tasks
 from polaris.tasks.ocean.manufactured_solution import (
     add_manufactured_solution_tasks as add_manufactured_solution_tasks,
 )
+from polaris.tasks.ocean.overflow import add_overflow_tasks
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
 
@@ -35,6 +36,7 @@ class Ocean(Component):
         add_internal_wave_tasks(component=self)
         add_isomip_plus_tasks(component=self, mesh_type='planar')
         add_manufactured_solution_tasks(component=self)
+        add_overflow_tasks(component=self)
 
         # single column
         add_single_column_tasks(component=self)
