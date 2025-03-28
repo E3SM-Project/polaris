@@ -1,36 +1,47 @@
+from math import ceil as ceil
+
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.ocean.convergence import (
+    get_resolution_for_task,
+    get_timestep_for_task,
+)
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.ocean.tasks.merry_go_round.default import Default
+from polaris.ocean.tasks.merry_go_round.forward import Forward
 from polaris.ocean.tasks.merry_go_round.init import Init
 
 
 def add_merry_go_round_tasks(component):
-    resolution = 5
-    resdir = resolution_to_subdir(resolution)
-    resdir = f'planar/merry_go_round/{resdir}'
+    basedir = 'planar/merry_go_round'
 
     package_path = 'polaris.ocean.tasks.merry_go_round'
     config_filename = 'merry_go_round.cfg'
-    config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+    config = PolarisConfigParser(filepath=f'{basedir}/{config_filename}')
     config.add_from_package(package_path, config_filename)
 
-    init = Init(component=component, resolution=resolution, indir=resdir)
+    component.add_task(
+        MerryGoRound(
+            component=component, config=config, refinement='both',
+        )
+    )
+    """
+    init = Init(component=component, resolution=resolution, subdir=resdir)
     init.set_shared_config(config, link=config_filename)
 
     default = Default(component=component, resolution=resolution,
                       indir=resdir, init=init)
     default.set_shared_config(config, link=config_filename)
     component.add_task(default)
+    """
 
 
-'''
 class MerryGoRound(Task):
     """
     A test group for tracer advection test cases "merry-go-round"
     """
 
-    def __init__(self, component, config):
+    def __init__(self, component, config, refinement='both'):
         """
         Create the test case
 
@@ -41,6 +52,57 @@ class MerryGoRound(Task):
 
         config : polaris.config.PolarisConfigParser
             A shared config parser
+
+        refinement : str, optional
+            Whether to refine in space, time or both space and time
         """
-        pass
-'''
+        name = f'merry_go_round_convergence_{refinement}'
+        basedir = 'planar/merry_go_round'
+        subdir = f'{basedir}/convergence_{refinement}/{name}'
+        config_filename = 'merry_go_round.cfg'
+
+        super().__init__(component=component, name=name, subdir=subdir)
+        self.set_shared_config(config, link=config_filename)
+
+        """
+        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
+            mesh=dict(), init=dict(), forward=dict()
+        )
+        """
+
+        if refinement == 'time':
+            option = 'refinement_factors_time'
+        else:
+            option = 'refinement_factors_space'
+        refinement_factors = self.config.getlist(
+            'convergence', option, dtype=float
+        )
+        timesteps = list()
+        resolutions = list()
+        for refinement_factor in refinement_factors:
+            resolution = get_resolution_for_task(
+                self.config, refinement_factor, refinement=refinement
+            )
+            mesh_name = resolution_to_subdir(resolution)
+
+            subdir = f'{basedir}/init/{mesh_name}'
+            symlink = f'init/{mesh_name}'
+            if subdir in component.steps:
+                init_step = component.steps[subdir]
+            else:
+                init_step = Init(
+                    component=component,
+                    resolution=resolution,
+                    name=f'init_{mesh_name}',
+                    subdir=subdir,
+                )
+                init_step.set_shared_config(self.config, link=config_filename)
+            if resolution not in resolutions:
+                self.add_step(init_step, symlink=symlink)
+                resolutions.append(resolution)
+
+            timestep, _ = get_timestep_for_task(
+                config, refinement_factor, refinement=refinement
+            )
+            timestep = ceil(timestep)
+            timesteps.append(timestep)
