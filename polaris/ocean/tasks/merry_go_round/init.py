@@ -4,12 +4,12 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for merry-go-round task
 
@@ -19,7 +19,7 @@ class Init(Step):
         The resolution of the task in km
     """
 
-    def __init__(self, component, resolution, indir):
+    def __init__(self, component, name, resolution, subdir):
         """
         Create the step
 
@@ -31,18 +31,21 @@ class Init(Step):
         resolution : float
             The resolution of the test case in km
 
-        indir : str
+        subdir : str
             The directory the task is in, to which ``name`` will be appended
         """
-        super().__init__(component=component, name='init', indir=indir)
+        super().__init__(component=component, name=name, subdir=subdir)
         self.resolution = resolution
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
-            self.add_output_file(file)
+    def setup(self):
+        super().setup()
+        output_filenames = ['culled_mesh.nc', 'initial_state.nc']
+        model = self.config.get('ocean', 'model')
+        if model == 'mpas-ocean':
+            output_filenames.append('culled_graph.info')
 
-        self.add_output_file('initial_state.nc',
-                             validate_vars=['temperature', 'salinity',
-                                            'layerThickness'])
+        for file in output_filenames:
+            self.add_output_file(file)
 
     def run(self):
         """
@@ -64,7 +67,8 @@ class Init(Step):
         if not (vert_coord == 'z-level' or vert_coord == 'sigma'):
             raise ValueError('Vertical coordinate {vert_coord} not supported')
 
-        lx, ly = (500, 5)
+        lx = section.getfloat("lx")
+        ly = section.getfloat("ly")
         nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
         nz = int(50 / (self.resolution / 5))
 
