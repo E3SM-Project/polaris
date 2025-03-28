@@ -106,3 +106,19 @@ class MerryGoRound(Task):
             )
             timestep = ceil(timestep)
             timesteps.append(timestep)
+
+            subdir = f'{basedir}/forward/{mesh_name}_{timestep}s'
+            symlink = f'forward/{mesh_name}_{timestep}s'
+            if subdir in component.steps:
+                forward_step = component.steps[subdir]
+            else:
+                forward_step = Forward(
+                    component=component,
+                    refinement=refinement,
+                    refinement_factor=refinement_factor,
+                    name=f'forward_{mesh_name}_{timestep}s',
+                    subdir=subdir,
+                    init=init_step,
+                )
+                forward_step.set_shared_config(config, link=config_filename)
+            self.add_step(forward_step, symlink=symlink)
