@@ -1,5 +1,6 @@
 from polaris import Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.ocean.tasks.overflow.forward import Forward as Forward
 from polaris.ocean.tasks.overflow.init import Init as Init
 
 
@@ -48,6 +49,11 @@ class Overflow(Task):
         if subdir in component.steps:
             init_step = component.steps[subdir]
         else:
-            init_step = Init(component=component, name='init')
+            init_step = Init(component=component, name='init', subdir=subdir)
             init_step.set_shared_config(self.config, link=config_filename)
         self.add_step(init_step, symlink=symlink)
+        subdir = f'{basedir}/{test_name}/forward'
+        forward_step = Forward(
+            component=component, init=init_step, name='forward', subdir=subdir
+        )
+        self.add_step(forward_step)
