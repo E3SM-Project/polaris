@@ -2,6 +2,7 @@ from polaris import Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.ocean.tasks.overflow.forward import Forward as Forward
 from polaris.ocean.tasks.overflow.init import Init as Init
+from polaris.ocean.tasks.overflow.viz import Viz as Viz
 
 
 def add_overflow_tasks(component):
@@ -38,11 +39,11 @@ class Overflow(Task):
         """
         test_name = 'default'
         basedir = 'planar/overflow'
-        subdir = f'{basedir}/{test_name}'
+        indir = f'{basedir}/{test_name}'
         name = f'overflow_{test_name}'
-        config_filename = 'manufactured_solution.cfg'
+        config_filename = 'overflow.cfg'
 
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(component=component, name=name, subdir=indir)
         self.set_shared_config(config, link=config_filename)
         subdir = f'{basedir}/init'
         symlink = 'init'
@@ -52,8 +53,8 @@ class Overflow(Task):
             init_step = Init(component=component, name='init', subdir=subdir)
             init_step.set_shared_config(self.config, link=config_filename)
         self.add_step(init_step, symlink=symlink)
-        subdir = f'{basedir}/{test_name}/forward'
         forward_step = Forward(
-            component=component, init=init_step, name='forward', subdir=subdir
+            component=component, init=init_step, name='forward', indir=indir
         )
         self.add_step(forward_step)
+        self.add_step(Viz(component=component, indir=indir))
