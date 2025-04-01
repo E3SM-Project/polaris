@@ -46,10 +46,25 @@ dependencies = [
     "scipy>=1.8.0",
     "shapely>=2.0,<3.0",
     "xarray",
-    "pre-commit",
-    "mypy",
-    "ruff",
+]
+
+[project.optional-dependencies]
+docs = [
+    # building documentation
+    "sphinx >=7.0.0",
+    "sphinx_rtd_theme",
+    "myst-parser",
+    "sphinx-multiversion",
+]
+
+dev = [
+    # linting and testing
     "flynt",
+    "mypy",
+    "pip",
+    "pytest",
+    "pre-commit",
+    "ruff",
 ]
 
 [tool.mypy]
