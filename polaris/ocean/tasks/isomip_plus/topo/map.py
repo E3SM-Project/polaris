@@ -86,7 +86,7 @@ class TopoMap(MappingFileStep):
             work_dir_target=f'{mesh_step.path}/{mesh_filename}',
         )
 
-    def runtime_setup(self):
+    def run(self):
         """
         Set up the source and destination grids for this step
         """
@@ -95,16 +95,18 @@ class TopoMap(MappingFileStep):
                 'isomip_plus_topo', 'expand_factor'
             )
             if expand_factor != 1.0:
-                self.expand_factor = expand_factor
+                self.remapper.expand_factor = expand_factor
 
         proj_str = get_projection_string()
-        self.src_from_proj(
+        self.remapper.src_from_proj(
             filename='input_topo.nc',
             mesh_name='ISOMIP+_input_topo',
             x_var='x',
             y_var='y',
             proj_str=proj_str,
         )
-        self.dst_from_mpas(filename='mesh.nc', mesh_name=self.mesh_name)
+        self.remapper.dst_from_mpas(
+            filename='mesh.nc', mesh_name=self.mesh_name
+        )
 
-        super().runtime_setup()
+        super().run()
