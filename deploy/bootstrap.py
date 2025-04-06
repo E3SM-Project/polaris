@@ -688,7 +688,12 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
     commands = (
         f'{activate_env} && conda remove -y --force-remove jigsaw jigsawpy'
     )
-    check_call(commands, logger=logger)
+    try:
+        check_call(commands, logger=logger)
+    except subprocess.CalledProcessError:
+        # this is fine, we just want to make sure these package are removed if
+        # present
+        pass
 
     commands = (
         f'{activate_env} && '
