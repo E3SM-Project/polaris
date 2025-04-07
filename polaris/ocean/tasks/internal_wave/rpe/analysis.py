@@ -2,10 +2,10 @@ import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris import Step
 from polaris.ocean.rpe import compute_rpe
-from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import use_mplstyle
 
 
