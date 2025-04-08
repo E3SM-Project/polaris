@@ -45,11 +45,11 @@ min_layer_thickness = 0
 ```
 
 The vertical coordinate is typically defined based on a 1D reference grid.
-Possible 1D grid types are: `uniform`, `tanh_dz`, `index_tanh_dz`, 
+Possible 1D grid types are: `uniform`, `tanh_dz`, `index_tanh_dz`,
 `60layerPHC`, `80layerE3SMv1`, and `100layerE3SMv1`.
 
 The meaning of the config options `vert_levels`, `bottom_depth`,
-`min_layer_thickness`, `max_layer_thickness`, and `transition_levels` depends 
+`min_layer_thickness`, `max_layer_thickness`, and `transition_levels` depends
 grid type and is described below.
 
 The options `coord_type`, `partial_cell_type` and `min_pc_fraction`
@@ -253,12 +253,12 @@ with the sea floor at 2500 m.
 ## 3D vertical coordinates
 
 Currently, `z-star`, `z-level` and `sigma` vertical coordinates are supported
-(`coord_type`).  The `z-star` and `z-level` types support 3 options for 
-`partial_cell_type`: `full` meaning the topography (bottom depth and 
-sea-surface height) are expanded so that all layers have their full thickness; 
-`partial` meaning that cells adjacent to the topography are allowed to be a 
-small fraction of a full layer thickness; or `None` to indicate that no 
-alteration is needed for full or partial cells (typically only in cases where 
+(`coord_type`).  The `z-star` and `z-level` types support 3 options for
+`partial_cell_type`: `full` meaning the topography (bottom depth and
+sea-surface height) are expanded so that all layers have their full thickness;
+`partial` meaning that cells adjacent to the topography are allowed to be a
+small fraction of a full layer thickness; or `None` to indicate that no
+alteration is needed for full or partial cells (typically only in cases where
 the topography is already flat).
 
 If `partial_cell_type = partial`, the option `min_pc_fraction` indicates
@@ -277,7 +277,7 @@ by default.  Typically (in the absence of ice-shelf cavities), the initial
 height evolves, the coordinate stretches and squashes in proportion to changes
 in the local water-column thickness.
 
-In configurations with {ref}`ocean-ice-shelf-cavities`, the ice draft
+In configurations with {ref}`ocean-ice-shelf` cavities, the ice draft
 (elevation of the ice shelf-ocean interface) also acts the sea-surface height
 for a z-star coordinate.  This means that the initial layers are squashed
 significantly from their "resting" thickness under ice shelves as if they were
@@ -287,7 +287,7 @@ being pressed down by the weight of the ice.
 
 ### z-level
 
-In the absence of {ref}`ocean-ice-shelf-cavities`, the z-level coordinate in
+In the absence of {ref}`ocean-ice-shelf` cavities, the z-level coordinate in
 ocean is the same as the {ref}`ocean-z-star` coordinate.
 
 When ice-shelf cavities are included, rather than depressing the vertical grid
