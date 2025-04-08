@@ -26,6 +26,8 @@ its {py:class}`polaris.ocean.ice_shelf.ssh_forward.SshForward` and
 are used to set up one of each step for each iteration given by the config
 option `ssh_adjustment:iterations`.
 
+(dev-ocean-ice-shelf-2d-init)=
+
 ### init
 
 The class :py:class:`polaris.ocean.tasks.ice_shelf_2d.init.Init`
@@ -41,23 +43,29 @@ or top layers are removed where there is an ice shelf using a z-level
 coordinate. Finally, the initial salinity profile is computed along with
 uniform temperature and zero initial velocity.
 
+(dev-ocean-ice-shelf-2d-forward)=
+
 ### forward
 
 The class {py:class}`polaris.ocean.tests.ice_shelf_2d.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
 the `init` step. For MPAS-Ocean, PIO namelist options are modified and a
-graph partition is generated as part of `runtime_setup()`.  Next, the ocean 
-model is run. 
+graph partition is generated as part of `runtime_setup()`.  Next, the ocean
+model is run.
+
+(dev-ocean-ice-shelf-2d-validate)=
 
 ### validate
 
 The class {py:class}`polaris.ocean.tasks.ice_shelf_2d.validate.Validate`
 defines a step for validating outputs in two step directories against one
-another.  This step ensures that `temperature`, `salinity`, `layerThickness` 
+another.  This step ensures that `temperature`, `salinity`, `layerThickness`
 and `normalVelocity` are identical in `output.nc` files in the two steps.
 It also checks a number of land ice variables and frazil variables stored in
 `land_ice_fluxes.nc` and `frazil.nc`, respectively. This step is used by the
 restart test (see {ref}`dev-ocean-ice-shelf-2d-restart`).
+
+(dev-ocean-ice-shelf-2d-viz)=
 
 ### viz
 
@@ -79,9 +87,17 @@ dynamic balance with the land-ice pressure.  Then, it performs a 10-minute
 (both prognostic and related to land-ice fluxes) are checked to make sure
 they match the baseline.
 
+(dev-ocean-ice-shelf-2d-restart)=
+
+## with_restart
+
 The restart test, `ocean/planar/ice_shelf_2d/$RES/$COORD_TYPE/default/with_restart`
 is just a variant of the default test that has two additional steps, a `forward`
-step and a `validate` step. 
+step and a `validate` step.
+
+(dev-ocean-ice-shelf-2d-tidal-forcing)=
+
+## default_tidal_forcing
 
 The tidal forcing test, `ocean/planar/ice_shelf_2d/$RES/$COORD_TYPE/default_tidal_forcing`
 is a variant of the `default` test that has tidal forcing, is run for longer
