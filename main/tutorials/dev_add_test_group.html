@@ -578,7 +578,7 @@ By default, the subdirectory for the step is the same as the step name, but
 just like for a task, you can give the step a more complicated
 subdirectory name, possibly with multiple levels of directories.  This is
 particularly important for parameter studies, an example of which can be seen
-in the <span class="xref std std-ref">dev-ocean-global-convergence-cosine-bell</span> task.</p>
+in the <a class="reference internal" href="../developers_guide/ocean/tasks/cosine_bell.html#dev-ocean-cosine-bell"><span class="std std-ref">cosine_bell</span></a> task.</p>
 <section id="creating-a-horizontal-mesh">
 <h3>Creating a horizontal mesh<a class="headerlink" href="#creating-a-horizontal-mesh" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step does the actual work of
@@ -1312,12 +1312,12 @@ to the functionality we anticipate adding to this step:</p>
 <section id="defining-model-config-options-and-streams">
 <span id="dev-tutorial-add-test-group-model-config-and-streams"></span><h3>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Link to this heading"></a></h3>
 <p>The E3SM components supported by polaris require both model config options
-and streams definitions (namelist and streams files for MPAS components,
-see <span class="xref std std-ref">dev-step-namelists-and-streams</span>, and yaml files for Omega, see
-<span class="xref std std-ref">dev-step-add-yaml-file</span>) to work properly.  An important part of polaris’
-functionality is that it takes the default model config options and E3SM
-component and modifies only those options that are specific to the task to
-produce the final model config files used to run the model.</p>
+and streams definitions (namelist and streams files for MPAS components, and
+yaml files for Omega, see <a class="reference internal" href="../developers_guide/framework/model.html#dev-model-yaml-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>) to work
+properly.  An important part of polaris’ functionality is that it takes the
+default model config options and E3SM component and modifies only those options
+that are specific to the task to produce the final model config files used to
+run the model.</p>
 <p>In polaris, there are two main ways to set model config options and we will
 demonstrate both in this task.  First, you can define a namelist or yaml
 file with the desired values.  This is useful for model config options that are
@@ -2205,7 +2205,7 @@ combination is run and then an analysis step computes the rate of convergence
 from the results. We won’t cover this example here, in part because a
 resolution study involves both a forward step and an initial condition step for
 each resolution in order to generate unique meshes for each step. You may refer
-to <span class="xref std std-ref">dev-ocean-global-convergence-cosine-bell</span> for these details. Instead,
+to <a class="reference internal" href="../developers_guide/ocean/tasks/cosine_bell.html#dev-ocean-cosine-bell"><span class="std std-ref">cosine_bell</span></a> for these details. Instead,
 we will explore the <code class="docutils literal notranslate"><span class="pre">rpe</span></code> for the <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> test group, which
 only requires unique forward runs for different viscosity values.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> has been used to show that MPAS-Ocean has lower spurious

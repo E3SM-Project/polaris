@@ -489,7 +489,7 @@ By default, the subdirectory for the step is the same as the step name, but
 just like for a task, you can give the step a more complicated
 subdirectory name, possibly with multiple levels of directories.  This is
 particularly important for parameter studies, an example of which can be seen
-in the {ref}`dev-ocean-global-convergence-cosine-bell` task.
+in the {ref}`dev-ocean-cosine-bell` task.
 
 ### Creating a horizontal mesh
 
@@ -1294,12 +1294,12 @@ class Forward(OceanModelStep):
 ### Defining model config options and streams
 
 The E3SM components supported by polaris require both model config options
-and streams definitions (namelist and streams files for MPAS components,
-see {ref}`dev-step-namelists-and-streams`, and yaml files for Omega, see
-{ref}`dev-step-add-yaml-file`) to work properly.  An important part of polaris'
-functionality is that it takes the default model config options and E3SM
-component and modifies only those options that are specific to the task to
-produce the final model config files used to run the model.
+and streams definitions (namelist and streams files for MPAS components, and
+yaml files for Omega, see {ref}`dev-model-yaml-namelists-and-streams`) to work
+properly.  An important part of polaris' functionality is that it takes the
+default model config options and E3SM component and modifies only those options
+that are specific to the task to produce the final model config files used to
+run the model.
 
 In polaris, there are two main ways to set model config options and we will
 demonstrate both in this task.  First, you can define a namelist or yaml
@@ -2254,7 +2254,7 @@ combination is run and then an analysis step computes the rate of convergence
 from the results. We won't cover this example here, in part because a
 resolution study involves both a forward step and an initial condition step for
 each resolution in order to generate unique meshes for each step. You may refer
-to {ref}`dev-ocean-global-convergence-cosine-bell` for these details. Instead,
+to {ref}`dev-ocean-cosine-bell` for these details. Instead,
 we will explore the `rpe` for the `baroclinic_channel` test group, which
 only requires unique forward runs for different viscosity values.
 

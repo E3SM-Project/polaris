@@ -64,6 +64,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
@@ -372,7 +374,7 @@ by default.  Typically (in the absence of ice-shelf cavities), the initial
 “resting” grid uses a <a class="reference internal" href="#ocean-z-level"><span class="std std-ref">z-level</span></a> coordinate.  As the sea-surface
 height evolves, the coordinate stretches and squashes in proportion to changes
 in the local water-column thickness.</p>
-<p>In configurations with <span class="xref std std-ref">ocean-ice-shelf-cavities</span>, the ice draft
+<p>In configurations with <a class="reference internal" href="ice_shelf.html#ocean-ice-shelf"><span class="std std-ref">Ice shelf</span></a> cavities, the ice draft
 (elevation of the ice shelf-ocean interface) also acts the sea-surface height
 for a z-star coordinate.  This means that the initial layers are squashed
 significantly from their “resting” thickness under ice shelves as if they were
@@ -380,7 +382,7 @@ being pressed down by the weight of the ice.</p>
 </section>
 <section id="z-level">
 <span id="ocean-z-level"></span><h3>z-level<a class="headerlink" href="#z-level" title="Link to this heading"></a></h3>
-<p>In the absence of <span class="xref std std-ref">ocean-ice-shelf-cavities</span>, the z-level coordinate in
+<p>In the absence of <a class="reference internal" href="ice_shelf.html#ocean-ice-shelf"><span class="std std-ref">Ice shelf</span></a> cavities, the z-level coordinate in
 ocean is the same as the <a class="reference internal" href="#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinate.</p>
 <p>When ice-shelf cavities are included, rather than depressing the vertical grid
 under the weight of the ice, the z-level coordinate used top cells to mask out

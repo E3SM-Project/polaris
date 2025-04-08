@@ -54,7 +54,13 @@
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cosine-bell-suite">cosine_bell suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pr-suite">pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#omega-pr-suite">omega_pr suite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#framework-pr-suite">framework_pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convergence-suite">convergence suite</a></li>
 </ul>
 </li>
 </ul>
@@ -117,29 +123,119 @@
 <span id="ocean-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
 <p>The ocean component includes a number of <a class="reference internal" href="../suites.html#suites"><span class="std std-ref">Suites</span></a> that can be used to
 run a series of ocean tasks and optionally compare them against a baseline
-run of the same tasks.</p>
-<section id="cosine-bell-suite">
-<span id="ocean-suite-cosine-bell"></span><h2>cosine_bell suite<a class="headerlink" href="#cosine-bell-suite" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>cosine_bell<span class="w"> </span>...
+run of the same tasks.  To set them up, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>&lt;suite_name&gt;<span class="w"> </span>...
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> suite includes the following tasks:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/spherical/icos/cosine_bell/convergence_space
-ocean/spherical/icos/cosine_bell/convergence_space/with_viz
-ocean/spherical/icos/cosine_bell/convergence_time
-ocean/spherical/icos/cosine_bell/convergence_time/with_viz
-ocean/spherical/icos/cosine_bell/convergence_both
-ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+<p>Below are details on some of the most commonly used suites.  The other suites
+are mostly focused on specific tests as indicated by their names.</p>
+<section id="pr-suite">
+<span id="ocean-suite-pr"></span><h2>pr suite<a class="headerlink" href="#pr-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite is designed for testing pull-requests (PRs) that involve
+changes to the Ocean component or the Polaris framework.  It includes some
+basic tests that are always expected to work, and which should indicate if
+any changes have been inadvertently introduced by the PR.  For now, the
+suite is designed for use with MPAS-Ocean but not fully supported by Omega.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/internal_wave/standard/default
+ocean/planar/internal_wave/vlr/default
+# currently not converging in MPAS-Ocean
+# ocean/planar/manufactured_solution/convergence_both
+ocean/single_column/cvmix
+ocean/single_column/ideal_age
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
-ocean/spherical/qu/cosine_bell/convergence_space
-ocean/spherical/qu/cosine_bell/convergence_space/with_viz
-ocean/spherical/qu/cosine_bell/convergence_time
-ocean/spherical/qu/cosine_bell/convergence_time/with_viz
+</pre></div>
+</div>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nightly-suite">
+<span id="ocean-suite-nightly"></span><h1>nightly suite<a class="headerlink" href="#nightly-suite" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">nightly</span></code> suite is similar to the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite but is designed to allow for
+slightly heavier testing on a nightly basis.  For now, the suite actually
+includes fewer tests than <code class="docutils literal notranslate"><span class="pre">pr</span></code> but it is expected to be fleshed out as Omega
+development matures:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+# ocean/planar/manufactured_solution
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+</pre></div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="omega-pr-suite">
+<h1>omega_pr suite<a class="headerlink" href="#omega-pr-suite" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite is designed to test changes in Omega or the affects of
+Polaris changes on Omega results.</p>
+<p>Here are the tests in the suite:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/manufactured_solution/convergence_both/default
+ocean/spherical/icos/rotation_2d
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+</pre></div>
+</div>
+<section id="framework-pr-suite">
+<span id="ocean-suite-framework-pr"></span><h2>framework_pr suite<a class="headerlink" href="#framework-pr-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">framework_pr</span></code> suite is designed for testing pull-requests (PRs) that
+involve changes to the Polaris and/or Ocean framework.  It includes the tests
+in the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite plus additional tests focued on visualizaiton and remapping.
+The tasks in this suite include:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>## pr suite
+ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/internal_wave/standard/default
+ocean/planar/internal_wave/vlr/default
+# ocean/planar/manufactured_solution/convergence_both
+ocean/single_column/cvmix
+ocean/single_column/ideal_age
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+
+## viz
+ocean/planar/baroclinic_channel/10km/default
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/rotation_2d/with_viz
+
+## remapping
+ocean/planar/isomip_plus/4km/z-star/ocean0
+</pre></div>
+</div>
+</section>
+<section id="convergence-suite">
+<span id="ocean-suite-convergence"></span><h2>convergence suite<a class="headerlink" href="#convergence-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence</span></code> suite is designed for running all convergence tests. To
+speed up the process, most tests have cached base meshes. Here are the tests
+included:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/manufactured_solution/convergence_both/default
+ocean/planar/manufactured_solution/convergence_both/del2
+ocean/planar/manufactured_solution/convergence_both/del4
+ocean/spherical/icos/correlated_tracers_2d
+ocean/spherical/qu/correlated_tracers_2d
+ocean/spherical/icos/cosine_bell/convergence_both
 ocean/spherical/qu/cosine_bell/convergence_both
-ocean/spherical/qu/cosine_bell/convergence_both/with_viz
-ocean/spherical/qu/cosine_bell/decomp
-ocean/spherical/qu/cosine_bell/restart
+ocean/spherical/icos/geostrophic/convergence_both
+ocean/spherical/qu/geostrophic/convergence_both
+ocean/spherical/icos/divergent_2d
+ocean/spherical/qu/divergent_2d
+ocean/spherical/icos/nondivergent_2d
+ocean/spherical/qu/nondivergent_2d
+ocean/spherical/icos/rotation_2d
+ocean/spherical/qu/rotation_2d
 </pre></div>
 </div>
 </section>
