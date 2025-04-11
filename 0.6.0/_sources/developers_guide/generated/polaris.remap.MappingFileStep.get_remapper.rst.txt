@@ -1,0 +1,6 @@
+﻿polaris.remap.MappingFileStep.get\_remapper
+===========================================
+
+.. currentmodule:: polaris.remap
+
+.. automethod:: MappingFileStep.get_remapper

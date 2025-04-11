@@ -1,0 +1,6 @@
+﻿polaris.seaice.tasks.single\_column.standard\_physics.viz.Viz.run
+=================================================================
+
+.. currentmodule:: polaris.seaice.tasks.single_column.standard_physics.viz
+
+.. automethod:: Viz.run

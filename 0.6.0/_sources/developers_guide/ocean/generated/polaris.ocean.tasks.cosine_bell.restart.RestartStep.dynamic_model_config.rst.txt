@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.cosine\_bell.restart.RestartStep.dynamic\_model\_config
+===========================================================================
+
+.. currentmodule:: polaris.ocean.tasks.cosine_bell.restart
+
+.. automethod:: RestartStep.dynamic_model_config

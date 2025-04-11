@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.internal\_wave.forward.Forward.dynamic\_model\_config
+=========================================================================
+
+.. currentmodule:: polaris.ocean.tasks.internal_wave.forward
+
+.. automethod:: Forward.dynamic_model_config

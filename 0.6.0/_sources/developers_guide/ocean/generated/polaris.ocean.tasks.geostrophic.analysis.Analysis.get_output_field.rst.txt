@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.geostrophic.analysis.Analysis.get\_output\_field
+====================================================================
+
+.. currentmodule:: polaris.ocean.tasks.geostrophic.analysis
+
+.. automethod:: Analysis.get_output_field

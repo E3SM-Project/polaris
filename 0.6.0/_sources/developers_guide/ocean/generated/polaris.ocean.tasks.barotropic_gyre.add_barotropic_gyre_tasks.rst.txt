@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.barotropic\_gyre.add\_barotropic\_gyre\_tasks
+=================================================================
+
+.. currentmodule:: polaris.ocean.tasks.barotropic_gyre
+
+.. autofunction:: add_barotropic_gyre_tasks

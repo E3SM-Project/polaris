@@ -1,0 +1,927 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.remap.mapping_file_step</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.remap.mapping_file_step</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.remap.mapping_file_step</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LatLon2DGridDescriptor</span><span class="p">,</span>
+    <span class="n">LatLonGridDescriptor</span><span class="p">,</span>
+    <span class="n">MpasCellMeshDescriptor</span><span class="p">,</span>
+    <span class="n">MpasEdgeMeshDescriptor</span><span class="p">,</span>
+    <span class="n">MpasVertexMeshDescriptor</span><span class="p">,</span>
+    <span class="n">PointCollectionDescriptor</span><span class="p">,</span>
+    <span class="n">ProjectionGridDescriptor</span><span class="p">,</span>
+    <span class="n">Remapper</span><span class="p">,</span>
+    <span class="n">get_lat_lon_descriptor</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<div class="viewcode-block" id="MappingFileStep">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MappingFileStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for creating a mapping file between grids</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    src_grid_info : dict</span>
+<span class="sd">        Information about the source grid</span>
+
+<span class="sd">    dst_grid_info : dict</span>
+<span class="sd">        Information about the destination grid</span>
+
+<span class="sd">    method : {&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;}</span>
+<span class="sd">        The method of interpolation used</span>
+
+<span class="sd">    map_filename : str or None</span>
+<span class="sd">        The name of the output mapping file</span>
+
+<span class="sd">    expand_distance : float or None</span>
+<span class="sd">        The distance in meters over which to expand destination grid cells for</span>
+<span class="sd">         smoothing</span>
+
+<span class="sd">    expand_factor : float or None</span>
+<span class="sd">        The factor by which to expand destination grid cells for smoothing</span>
+
+<span class="sd">    src_mesh_filename : str</span>
+<span class="sd">        The name of the SCRIP file for the source mesh</span>
+
+<span class="sd">    dst_mesh_filename : str</span>
+<span class="sd">        The name of the SCRIP file for the destination mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MappingFileStep.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">map_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            the name of the step</span>
+
+<span class="sd">        subdir : str, optional</span>
+<span class="sd">            the subdirectory for the step.  If neither this nor ``indir``</span>
+<span class="sd">             are provided, the directory is the ``name``</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
+
+<span class="sd">        ntasks : int, optional</span>
+<span class="sd">            the target number of MPI tasks the step would ideally use</span>
+
+<span class="sd">        min_tasks : int, optional</span>
+<span class="sd">            the number of MPI tasks the step requires</span>
+
+<span class="sd">        map_filename : str, optional</span>
+<span class="sd">            The name of the output mapping file,</span>
+<span class="sd">            ``map_{source_type}_{dest_type}_{method}.nc`` by default</span>
+
+<span class="sd">        method : {&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;}, optional</span>
+<span class="sd">            The method of interpolation used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="n">map_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span> <span class="o">=</span> <span class="s1">&#39;src_mesh.nc&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span> <span class="o">=</span> <span class="s1">&#39;dst_mesh.nc&#39;</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.src_from_mpas">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_mpas.html#polaris.remap.MappingFileStep.src_from_mpas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the source grid from an MPAS mesh file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the MPAS mesh</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the MPAS mesh</span>
+
+<span class="sd">        mesh_type : {&#39;cell&#39;, &#39;edge&#39;, &#39;vertex&#39;}, optional</span>
+<span class="sd">            Which type of MPAS mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mpas&#39;</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;mpas_mesh_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span> <span class="o">=</span> <span class="n">src</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.dst_from_mpas">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_mpas.html#polaris.remap.MappingFileStep.dst_from_mpas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_mpas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the destination grid from an MPAS mesh file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the MPAS mesh</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the MPAS mesh</span>
+
+<span class="sd">        mesh_type : {&#39;cell&#39;, &#39;edge&#39;, &#39;vertex&#39;}, optional</span>
+<span class="sd">            Which type of MPAS mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mpas&#39;</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;mpas_mesh_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="n">dst</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.src_from_lon_lat">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_lon_lat.html#polaris.remap.MappingFileStep.src_from_lon_lat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_lon_lat</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the source grid from a file with a longitude-latitude grid.  The</span>
+<span class="sd">        latitude and longitude variables can be 1D or 2D.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the latitude-longitude grid</span>
+
+<span class="sd">        mesh_name : str, optional</span>
+<span class="sd">            The name of the lon-lat grid (defaults to resolution and units,</span>
+<span class="sd">            something like &quot;0.5x0.5degree&quot;)</span>
+
+<span class="sd">        lon_var : str, optional</span>
+<span class="sd">            The name of the longitude coordinate in the file</span>
+
+<span class="sd">        lat_var : str, optional</span>
+<span class="sd">            The name of the latitude coordinate in the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lon-lat&#39;</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_var</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_var</span>
+        <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">src</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span> <span class="o">=</span> <span class="n">src</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.dst_from_lon_lat">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_lon_lat.html#polaris.remap.MappingFileStep.dst_from_lon_lat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_lon_lat</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the destination grid from a file with a longitude-latitude grid.</span>
+<span class="sd">        The latitude and longitude variables can be 1D or 2D.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the latitude-longitude grid</span>
+
+<span class="sd">        mesh_name : str, optional</span>
+<span class="sd">            The name of the lon-lat grid (defaults to resolution and units,</span>
+<span class="sd">            something like &quot;0.5x0.5degree&quot;)</span>
+
+<span class="sd">        lon_var : str, optional</span>
+<span class="sd">            The name of the longitude coordinate in the file</span>
+
+<span class="sd">        lat_var : str, optional</span>
+<span class="sd">            The name of the latitude coordinate in the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lon-lat&#39;</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_var</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_var</span>
+        <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="n">dst</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.dst_global_lon_lat">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_global_lon_lat.html#polaris.remap.MappingFileStep.dst_global_lon_lat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_global_lon_lat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=-</span><span class="mf">180.0</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the destination grid from a file with a longitude-latitude grid.</span>
+<span class="sd">        The latitude and longitude variables can be 1D or 2D.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dlon : float</span>
+<span class="sd">            The longitude resolution in degrees</span>
+
+<span class="sd">        dlat : float</span>
+<span class="sd">            The latitude resolution in degrees</span>
+
+<span class="sd">        lon_min : float, optional</span>
+<span class="sd">            The longitude for the left-hand edge of the global grid in degrees</span>
+
+<span class="sd">        mesh_name : str, optional</span>
+<span class="sd">            The name of the lon-lat grid (defaults to resolution and units,</span>
+<span class="sd">            something like &quot;0.5x0.5degree&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lon-lat&#39;</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;dlon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dlon</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;dlat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dlat</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;lon_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_min</span>
+        <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="n">dst</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.src_from_proj">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.src_from_proj.html#polaris.remap.MappingFileStep.src_from_proj">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">src_from_proj</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+        <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
+        <span class="n">proj_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the source grid from a file with a projection grid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the projection grid</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the projection grid</span>
+
+<span class="sd">        x_var : str, optional</span>
+<span class="sd">            The name of the x coordinate in the file</span>
+
+<span class="sd">        y_var : str, optional</span>
+<span class="sd">            The name of the y coordinate in the file</span>
+
+<span class="sd">        proj_attr : str, optional</span>
+<span class="sd">            The name of a global attribute in the file containing the proj</span>
+<span class="sd">            string for the projection</span>
+
+<span class="sd">        proj_str : str, optional</span>
+<span class="sd">            A proj string defining the projection, ignored if ``proj_attr``</span>
+<span class="sd">            is provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;proj&#39;</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_var</span>
+        <span class="n">src</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_var</span>
+        <span class="k">if</span> <span class="n">proj_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">src</span><span class="p">[</span><span class="s1">&#39;proj_attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proj_attr</span>
+        <span class="k">elif</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">src</span><span class="p">[</span><span class="s1">&#39;proj_str&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proj_str</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide one of &quot;proj_attr&quot; or &quot;proj_str&quot;.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span> <span class="o">=</span> <span class="n">src</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.dst_from_proj">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_proj.html#polaris.remap.MappingFileStep.dst_from_proj">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_proj</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">x_var</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+        <span class="n">y_var</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
+        <span class="n">proj_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the destination grid from a file with a projection grid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the projection grid</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the projection grid</span>
+
+<span class="sd">        x_var : str, optional</span>
+<span class="sd">            The name of the x coordinate in the file</span>
+
+<span class="sd">        y_var : str, optional</span>
+<span class="sd">            The name of the y coordinate in the file</span>
+
+<span class="sd">        proj_attr : str, optional</span>
+<span class="sd">            The name of a global attribute in the file containing the proj</span>
+<span class="sd">            string for the projection</span>
+
+<span class="sd">        proj_str : str, optional</span>
+<span class="sd">            A proj string defining the projection, ignored if ``proj_attr``</span>
+<span class="sd">            is provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;proj&#39;</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_var</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_var</span>
+        <span class="k">if</span> <span class="n">proj_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;proj_attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proj_attr</span>
+        <span class="k">elif</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;proj_str&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proj_str</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide one of &quot;proj_attr&quot; or &quot;proj_str&quot;.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="n">dst</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.dst_from_points">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.dst_from_points.html#polaris.remap.MappingFileStep.dst_from_points">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dst_from_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the destination grid from a file with a collection of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A file containing the latitude-longitude grid</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the point collection</span>
+
+<span class="sd">        lon_var : str, optional</span>
+<span class="sd">            The name of the longitude coordinate in the file</span>
+
+<span class="sd">        lat_var : str, optional</span>
+<span class="sd">            The name of the latitude coordinate in the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;points&#39;</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_var</span>
+        <span class="n">dst</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_var</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span> <span class="o">=</span> <span class="n">dst</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.get_remapper">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.get_remapper.html#polaris.remap.MappingFileStep.get_remapper">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_remapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the remapper for this step.  After the step has been run, it can</span>
+<span class="sd">        be used to remap data between the source and destination grids by</span>
+<span class="sd">        calling its ``remap_file()`` or ``remap()`` methods.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        remapper : pyremap.Remapper</span>
+<span class="sd">            The remapper between the source and destination grids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_grid_info</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst_grid_info</span>
+
+        <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;None of the &quot;src_from_*()&quot; methods were called&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;None of the &quot;dst_from_*()&quot; methods were called&#39;</span><span class="p">)</span>
+
+        <span class="c1"># to absolute paths for when the remapper is used in another step</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="p">[</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s1">&#39;filename&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">])</span>
+                <span class="p">)</span>
+
+        <span class="n">in_descriptor</span> <span class="o">=</span> <span class="n">_get_descriptor</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">out_descriptor</span> <span class="o">=</span> <span class="n">_get_descriptor</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">map_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mapping&#39;</span><span class="p">,</span> <span class="s1">&#39;map_tool&#39;</span><span class="p">)</span>
+            <span class="n">prefixes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;esmf&#39;</span><span class="p">:</span> <span class="s1">&#39;esmf&#39;</span><span class="p">,</span> <span class="s1">&#39;moab&#39;</span><span class="p">:</span> <span class="s1">&#39;mbtr&#39;</span><span class="p">}</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;conserve&#39;</span><span class="p">:</span> <span class="s1">&#39;aave&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span> <span class="s1">&#39;bilin&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;neareststod&#39;</span><span class="p">:</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefixes</span><span class="p">[</span><span class="n">map_tool</span><span class="p">]</span><span class="si">}{</span><span class="n">suffixes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;map_</span><span class="si">{</span><span class="n">in_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">out_descriptor</span><span class="o">.</span><span class="n">meshName</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc&#39;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">remapper</span> <span class="o">=</span> <span class="n">Remapper</span><span class="p">(</span><span class="n">in_descriptor</span><span class="p">,</span> <span class="n">out_descriptor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">remapper</span></div>
+
+
+<div class="viewcode-block" id="MappingFileStep.runtime_setup">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a remapper and set the command-line arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">remapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_remapper</span><span class="p">()</span>
+        <span class="n">map_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mapping&#39;</span><span class="p">,</span> <span class="s1">&#39;map_tool&#39;</span><span class="p">)</span>
+        <span class="n">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="o">=</span><span class="n">map_tool</span><span class="p">)</span>
+
+        <span class="n">src_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">sourceDescriptor</span>
+        <span class="n">src_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">)</span>
+
+        <span class="n">dst_descriptor</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span>
+        <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">,</span>
+            <span class="n">expandDist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span>
+            <span class="n">expandFactor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;esmf&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_esmf_build_map_args</span><span class="p">(</span>
+                <span class="n">remapper</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">src_descriptor</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span><span class="p">,</span>
+                <span class="n">dst_descriptor</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;moab&#39;</span><span class="p">:</span>
+            <span class="n">src_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moab_partition_scrip_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">src_mesh_filename</span>
+            <span class="p">)</span>
+            <span class="n">dst_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moab_partition_scrip_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst_mesh_filename</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">_moab_build_map_args</span><span class="p">(</span>
+                <span class="n">remapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_moab_partition_scrip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Partition SCRIP file for parallel mbtempest use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">ntasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Partition SCRIP file </span><span class="si">{</span><span class="n">in_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">h5m_filename</span> <span class="o">=</span> <span class="n">in_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;.h5m&#39;</span><span class="p">)</span>
+        <span class="n">h5m_part_filename</span> <span class="o">=</span> <span class="n">in_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;.p</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">.h5m&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Convert source SCRIP to mbtempest</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;mbconvert&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-B&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="p">,</span>
+            <span class="n">h5m_filename</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="c1"># Partition source SCRIP</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;mbpart&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-z&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;RCB&#39;</span><span class="p">,</span>
+            <span class="n">h5m_filename</span><span class="p">,</span>
+            <span class="n">h5m_part_filename</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;  Done.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h5m_part_filename</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_remapper</span><span class="p">(</span><span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">map_tool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for inconsistencies in the remapper</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">map_tool</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;moab&#39;</span><span class="p">,</span> <span class="s1">&#39;esmf&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unexpected map_tool </span><span class="si">{</span><span class="n">map_tool</span><span class="si">}</span><span class="s1">. Valid &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;values are &quot;esmf&quot; or &quot;moab&quot;.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">remapper</span><span class="o">.</span><span class="n">destinationDescriptor</span><span class="p">,</span> <span class="n">PointCollectionDescriptor</span>
+    <span class="p">)</span> <span class="ow">and</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> not supported for destination &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;grid of type PointCollectionDescriptor.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">map_tool</span> <span class="o">==</span> <span class="s1">&#39;moab&#39;</span> <span class="ow">and</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;neareststod&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method neareststod not supported by mbtempest.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_esmf_build_map_args</span><span class="p">(</span>
+    <span class="n">remapper</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">,</span>
+    <span class="n">src_descriptor</span><span class="p">,</span>
+    <span class="n">src_mesh_filename</span><span class="p">,</span>
+    <span class="n">dst_descriptor</span><span class="p">,</span>
+    <span class="n">dst_mesh_filename</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get command-line arguments for making a mapping file with</span>
+<span class="sd">    ESMF_RegridWeightGen</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;ESMF_RegridWeightGen&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--source&#39;</span><span class="p">,</span>
+        <span class="n">src_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--destination&#39;</span><span class="p">,</span>
+        <span class="n">dst_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--weight&#39;</span><span class="p">,</span>
+        <span class="n">remapper</span><span class="o">.</span><span class="n">mappingFileName</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">,</span>
+        <span class="s1">&#39;--netcdf4&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--src_regional&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--dst_regional&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">src_descriptor</span><span class="o">.</span><span class="n">regional</span> <span class="ow">or</span> <span class="n">dst_descriptor</span><span class="o">.</span><span class="n">regional</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--ignore_unmapped&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_moab_build_map_args</span><span class="p">(</span>
+    <span class="n">remapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">src_mesh_filename</span><span class="p">,</span> <span class="n">dst_mesh_filename</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get command-line arguments for making a mapping file with mbtempest</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fvmethod</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;conserve&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;bilinear&#39;</span><span class="p">:</span> <span class="s1">&#39;bilin&#39;</span><span class="p">}</span>
+
+    <span class="n">map_filename</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">mappingFileName</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;mbtempest&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--type&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span>
+        <span class="n">src_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--load&#39;</span><span class="p">,</span>
+        <span class="n">dst_mesh_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--file&#39;</span><span class="p">,</span>
+        <span class="n">map_filename</span><span class="p">,</span>
+        <span class="s1">&#39;--weights&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--gnomonic&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--boxeps&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;1e-9&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--method&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--order&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--order&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--fvmethod&#39;</span><span class="p">,</span>
+        <span class="n">fvmethod</span><span class="p">[</span><span class="n">method</span><span class="p">],</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a mesh descriptor from the mesh info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grid_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;mpas&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;lon-lat&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_lon_lat_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;proj&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;points&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected grid type </span><span class="si">{</span><span class="n">grid_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># for compatibility with mbtempest</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;NETCDF3_64BIT_DATA&#39;</span>
+    <span class="k">return</span> <span class="n">descriptor</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mpas_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an MPAS mesh descriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mesh_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;mpas_mesh_type&#39;</span><span class="p">]</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+    <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;cell&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasCellMeshDescriptor</span><span class="p">(</span>
+            <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;vertex&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasVertexMeshDescriptor</span><span class="p">(</span>
+            <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;edge&#39;</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasEdgeMeshDescriptor</span><span class="p">(</span>
+            <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">meshName</span><span class="o">=</span><span class="n">mesh_name</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected MPAS mesh type </span><span class="si">{</span><span class="n">mesh_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">descriptor</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_lon_lat_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a lon-lat descriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s1">&#39;dlat&#39;</span> <span class="ow">in</span> <span class="n">info</span> <span class="ow">and</span> <span class="s1">&#39;dlon&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+        <span class="n">lon_min</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon_min&#39;</span><span class="p">]</span>
+        <span class="n">lon_max</span> <span class="o">=</span> <span class="n">lon_min</span> <span class="o">+</span> <span class="mf">360.0</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">get_lat_lon_descriptor</span><span class="p">(</span>
+            <span class="n">dLon</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;dlon&#39;</span><span class="p">],</span>
+            <span class="n">dLat</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;dlat&#39;</span><span class="p">],</span>
+            <span class="n">lonMin</span><span class="o">=</span><span class="n">lon_min</span><span class="p">,</span>
+            <span class="n">lonMax</span><span class="o">=</span><span class="n">lon_max</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">lon_lat_1d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lon</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lat</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">lon_lat_2d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lon</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lat</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">lon_lat_1d</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lon_lat_2d</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;longitude and latitude coordinates </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s1"> &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;and </span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s1"> have unexpected sizes &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lon</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span><span class="si">}</span><span class="s1"> and &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">lat</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lon_lat_1d</span><span class="p">:</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="n">LatLonGridDescriptor</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">lonVarName</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">latVarName</span><span class="o">=</span><span class="n">lat</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="n">LatLon2DGridDescriptor</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">lonVarName</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">latVarName</span><span class="o">=</span><span class="n">lat</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+        <span class="n">descriptor</span><span class="o">.</span><span class="n">meshName</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">descriptor</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_proj_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a ProjectionGridDescriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+    <span class="n">grid_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;proj_attr&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">proj_str</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;proj_attr&#39;</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">proj_str</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;proj_str&#39;</span><span class="p">]</span>
+
+    <span class="n">proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj_str</span><span class="p">)</span>
+
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="n">ProjectionGridDescriptor</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+        <span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">,</span>
+        <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+        <span class="n">meshName</span><span class="o">=</span><span class="n">grid_name</span><span class="p">,</span>
+        <span class="n">xVarName</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+        <span class="n">yVarName</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">descriptor</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_points_descriptor</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a PointCollectionDescriptor from the given info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+    <span class="n">collection_name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">lon_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>
+    <span class="n">lat_var</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">lon_var</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">lat_var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">unit_attr</span> <span class="o">=</span> <span class="n">lon</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;deg&#39;</span> <span class="ow">in</span> <span class="n">unit_attr</span><span class="p">:</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;degrees&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;rad&#39;</span> <span class="ow">in</span> <span class="n">unit_attr</span><span class="p">:</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;radians&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected longitude unit unit </span><span class="si">{</span><span class="n">unit_attr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="n">PointCollectionDescriptor</span><span class="p">(</span>
+        <span class="n">lons</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lats</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">collectionName</span><span class="o">=</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">descriptor</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.6.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
+      <dd><a href="mapping_file_step.html">0.6.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.manufactured\_solution.init.Init.setup
+==========================================================
+
+.. currentmodule:: polaris.ocean.tasks.manufactured_solution.init
+
+.. automethod:: Init.setup

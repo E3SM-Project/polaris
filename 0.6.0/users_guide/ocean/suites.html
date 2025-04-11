@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suites</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sea ice component" href="../seaice/index.html" />
+    <link rel="prev" title="Ice shelf" href="framework/ice_shelf.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pr-suite">pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#omega-pr-suite">omega_pr suite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#framework-pr-suite">framework_pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convergence-suite">convergence suite</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Ocean component</a></li>
+      <li class="breadcrumb-item active">Suites</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/users_guide/ocean/suites.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="suites">
+<span id="ocean-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
+<p>The ocean component includes a number of <a class="reference internal" href="../suites.html#suites"><span class="std std-ref">Suites</span></a> that can be used to
+run a series of ocean tasks and optionally compare them against a baseline
+run of the same tasks.  To set them up, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>&lt;suite_name&gt;<span class="w"> </span>...
+</pre></div>
+</div>
+<p>Below are details on some of the most commonly used suites.  The other suites
+are mostly focused on specific tests as indicated by their names.</p>
+<section id="pr-suite">
+<span id="ocean-suite-pr"></span><h2>pr suite<a class="headerlink" href="#pr-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite is designed for testing pull-requests (PRs) that involve
+changes to the Ocean component or the Polaris framework.  It includes some
+basic tests that are always expected to work, and which should indicate if
+any changes have been inadvertently introduced by the PR.  For now, the
+suite is designed for use with MPAS-Ocean but not fully supported by Omega.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/internal_wave/standard/default
+ocean/planar/internal_wave/vlr/default
+# currently not converging in MPAS-Ocean
+# ocean/planar/manufactured_solution/convergence_both
+ocean/single_column/cvmix
+ocean/single_column/ideal_age
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+</pre></div>
+</div>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nightly-suite">
+<span id="ocean-suite-nightly"></span><h1>nightly suite<a class="headerlink" href="#nightly-suite" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">nightly</span></code> suite is similar to the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite but is designed to allow for
+slightly heavier testing on a nightly basis.  For now, the suite actually
+includes fewer tests than <code class="docutils literal notranslate"><span class="pre">pr</span></code> but it is expected to be fleshed out as Omega
+development matures:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+# ocean/planar/manufactured_solution
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+</pre></div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="omega-pr-suite">
+<h1>omega_pr suite<a class="headerlink" href="#omega-pr-suite" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite is designed to test changes in Omega or the affects of
+Polaris changes on Omega results.</p>
+<p>Here are the tests in the suite:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/manufactured_solution/convergence_both/default
+ocean/spherical/icos/rotation_2d
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+</pre></div>
+</div>
+<section id="framework-pr-suite">
+<span id="ocean-suite-framework-pr"></span><h2>framework_pr suite<a class="headerlink" href="#framework-pr-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">framework_pr</span></code> suite is designed for testing pull-requests (PRs) that
+involve changes to the Polaris and/or Ocean framework.  It includes the tests
+in the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite plus additional tests focued on visualizaiton and remapping.
+The tasks in this suite include:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>## pr suite
+ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/baroclinic_channel/10km/decomp
+ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/internal_wave/standard/default
+ocean/planar/internal_wave/vlr/default
+# ocean/planar/manufactured_solution/convergence_both
+ocean/single_column/cvmix
+ocean/single_column/ideal_age
+ocean/spherical/icos/cosine_bell/decomp
+ocean/spherical/icos/cosine_bell/restart
+
+## viz
+ocean/planar/baroclinic_channel/10km/default
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/icos/rotation_2d/with_viz
+
+## remapping
+ocean/planar/isomip_plus/4km/z-star/ocean0
+</pre></div>
+</div>
+</section>
+<section id="convergence-suite">
+<span id="ocean-suite-convergence"></span><h2>convergence suite<a class="headerlink" href="#convergence-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence</span></code> suite is designed for running all convergence tests. To
+speed up the process, most tests have cached base meshes. Here are the tests
+included:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/inertial_gravity_wave/convergence_both
+ocean/planar/manufactured_solution/convergence_both/default
+ocean/planar/manufactured_solution/convergence_both/del2
+ocean/planar/manufactured_solution/convergence_both/del4
+ocean/spherical/icos/correlated_tracers_2d
+ocean/spherical/qu/correlated_tracers_2d
+ocean/spherical/icos/cosine_bell/convergence_both
+ocean/spherical/qu/cosine_bell/convergence_both
+ocean/spherical/icos/geostrophic/convergence_both
+ocean/spherical/qu/geostrophic/convergence_both
+ocean/spherical/icos/divergent_2d
+ocean/spherical/qu/divergent_2d
+ocean/spherical/icos/nondivergent_2d
+ocean/spherical/qu/nondivergent_2d
+ocean/spherical/icos/rotation_2d
+ocean/spherical/qu/rotation_2d
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="framework/ice_shelf.html" class="btn btn-neutral float-left" title="Ice shelf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../seaice/index.html" class="btn btn-neutral float-right" title="Sea ice component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: 0.6.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
+      <dd><a href="suites.html">0.6.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../main/index.html">main</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

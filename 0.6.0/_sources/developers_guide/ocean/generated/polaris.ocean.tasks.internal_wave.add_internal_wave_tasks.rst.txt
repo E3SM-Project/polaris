@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.internal\_wave.add\_internal\_wave\_tasks
+=============================================================
+
+.. currentmodule:: polaris.ocean.tasks.internal_wave
+
+.. autofunction:: add_internal_wave_tasks

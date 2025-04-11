@@ -1,0 +1,6 @@
+﻿polaris.namelist.parse\_replacements
+====================================
+
+.. currentmodule:: polaris.namelist
+
+.. autofunction:: parse_replacements

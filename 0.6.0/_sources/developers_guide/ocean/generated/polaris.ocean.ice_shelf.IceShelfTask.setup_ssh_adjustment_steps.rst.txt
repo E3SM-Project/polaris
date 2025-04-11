@@ -1,0 +1,6 @@
+﻿polaris.ocean.ice\_shelf.IceShelfTask.setup\_ssh\_adjustment\_steps
+===================================================================
+
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. automethod:: IceShelfTask.setup_ssh_adjustment_steps

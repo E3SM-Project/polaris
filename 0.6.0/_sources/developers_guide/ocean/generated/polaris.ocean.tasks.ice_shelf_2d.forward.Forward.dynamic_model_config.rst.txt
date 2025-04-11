@@ -1,0 +1,6 @@
+﻿polaris.ocean.tasks.ice\_shelf\_2d.forward.Forward.dynamic\_model\_config
+=========================================================================
+
+.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d.forward
+
+.. automethod:: Forward.dynamic_model_config
