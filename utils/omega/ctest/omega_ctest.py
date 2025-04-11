@@ -59,6 +59,11 @@ def make_build_script(
     if account is not None:
         cmake_flags = f'{cmake_flags} -DOMEGA_CIME_PROJECT={account}'
 
+    if machine in ['pm-cpu', 'pm-gpu']:
+        nersc_host = 'export NERSC_HOST="perlmuter"'
+    else:
+        nersc_host = ''
+
     script = template.render(
         update_omega_submodule=update_omega_submodule,
         polaris_source_dir=polaris_source_dir,
@@ -75,6 +80,7 @@ def make_build_script(
         build_type=build_type,
         clean=clean,
         cmake_flags=cmake_flags,
+        nersc_host=nersc_host,
     )
 
     script = clean_up_whitespace(script)

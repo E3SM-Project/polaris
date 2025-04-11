@@ -2,6 +2,7 @@
 
 cwd=${PWD}
 
+{{ nersc_host }}
 module load cmake
 module load python
 
