@@ -3,13 +3,13 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
+from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.mpas import cell_mask_to_edge_mask
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
 

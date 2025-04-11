@@ -350,16 +350,7 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
-   MappingFileStep.src_from_mpas
-   MappingFileStep.dst_from_mpas
-   MappingFileStep.src_from_lon_lat
-   MappingFileStep.dst_from_lon_lat
-   MappingFileStep.dst_global_lon_lat
-   MappingFileStep.src_from_proj
-   MappingFileStep.dst_from_proj
-   MappingFileStep.dst_from_points
-   MappingFileStep.get_remapper
-   MappingFileStep.runtime_setup
+   MappingFileStep.run
 ```
 
 

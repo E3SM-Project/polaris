@@ -2,7 +2,9 @@
 
 cwd=${PWD}
 
+{{ nersc_host }}
 module load cmake
+module load python
 
 # quit on errors
 set -e

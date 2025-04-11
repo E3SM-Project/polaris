@@ -110,11 +110,11 @@ class TopoRemap(Step):
         logger = self.logger
         topo_map = self.dependencies['topo_map']
 
-        remapper = topo_map.get_remapper()
+        remapper = topo_map.remapper
 
-        remapper.remap_file(
-            inFileName='topography_processed.nc',
-            outFileName='topography_ncremap.nc',
+        remapper.ncremap(
+            in_filename='topography_processed.nc',
+            out_filename='topography_ncremap.nc',
             logger=logger,
         )
 
@@ -122,14 +122,12 @@ class TopoRemap(Step):
     def _rename():
         with xr.open_dataset('topography_ncremap.nc') as ds_out:
             drop = ['x', 'y', 'area', 'lat_vertices', 'lon_vertices']
-            rename = {'ncol': 'nCells'}
             if 't' in ds_out.dims:
                 # this confusing bit first drops the t coordinate, then renames
                 # the t dimension to Time
                 drop.append('t')
-                rename['t'] = 'Time'
+                ds_out = ds_out.rename({'t': 'Time'})
             ds_out = ds_out.drop_vars(drop)
-            ds_out = ds_out.rename(rename)
 
             if 'Time' in ds_out.dims:
                 xtime = []

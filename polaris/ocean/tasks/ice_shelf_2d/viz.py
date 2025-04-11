@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris import Step
 from polaris.mpas import cell_mask_to_edge_mask
-from polaris.ocean.viz import compute_transect, plot_transect
 from polaris.viz import plot_horiz_field
 
 
