@@ -3,6 +3,7 @@
 cwd=${PWD}
 
 module load cmake
+module load python
 
 # quit on errors
 set -e
