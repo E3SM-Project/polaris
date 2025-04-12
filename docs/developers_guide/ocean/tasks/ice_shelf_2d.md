@@ -71,7 +71,7 @@ restart test (see {ref}`dev-ocean-ice-shelf-2d-restart`).
 
 The class {py:class}`polaris.ocean.tasks.ice_shelf_2d.viz.Viz` uses the planar
 visualization capabilities provided by
-{py:func}`polaris.ocean.viz.compute_transect()`.
+{py:func}`mpas_tools.ocean.viz.transect.compute_transect()`.
 
 (dev-ocean-ice-shelf-2d-default)=
 
