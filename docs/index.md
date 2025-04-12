@@ -1,8 +1,8 @@
 (polaris)=
 # Polaris
-```{image} _static/polaris_logo_rect.png
+```{image} _static/polaris_logo_large.png
 :align: center
-:width: 384 px
+:width: 400 px
 ```
 
 Polaris is a python package that provides an automated system to set up test
