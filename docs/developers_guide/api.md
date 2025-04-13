@@ -368,6 +368,21 @@ seaice/api
    update_tree
 ```
 
+### topo
+
+```{eval-rst}
+.. currentmodule:: polaris.topo
+
+.. autosummary::
+   :toctree: generated/
+
+   Combine
+   Combine.get_subdir
+   Combine.setup
+   Combine.constrain_resources
+   Combine.run
+```
+
 ### validate
 
 ```{eval-rst}
