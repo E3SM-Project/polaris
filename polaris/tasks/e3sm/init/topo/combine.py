@@ -20,6 +20,12 @@ class Combine(Step):
 
     Attributes
     ----------
+    antarctic_dataset : {'bedmap3', 'bedmachinev3'}
+        The antarctic dataset to use
+
+    global_dataset : {'gebco2023'}
+        The global dataset to use
+
     resolution : float
         degrees (float) or face subdivisions (int)
 
@@ -44,10 +50,26 @@ class Combine(Step):
         },
     }
 
-    NAME = 'combine_topo'
-    SUBDIR = 'spherical/topo/combine'
+    @staticmethod
+    def get_subdir(antarctic_dataset, global_dataset):
+        """
+        Get the subdirectory for the step based on the datasets
 
-    def __init__(self, component):
+        Parameters
+        ----------
+        antarctic_dataset : {'bedmap3', 'bedmachinev3'}
+            The antarctic dataset to use
+
+        global_dataset : {'gebco2023'}
+            The global dataset to use
+        """
+        return os.path.join(
+            'spherical',
+            'topo',
+            f'combine_{antarctic_dataset}_{global_dataset}',
+        )
+
+    def __init__(self, component, antarctic_dataset, global_dataset):
         """
         Create a new step
 
@@ -55,22 +77,35 @@ class Combine(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
+
+        antarctic_dataset : {'bedmap3', 'bedmachinev3'}
+            The antarctic dataset to use
+
+        global_dataset : {'gebco2023'}
+            The global dataset to use
         """
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
+        subdir = self.get_subdir(
+            antarctic_dataset=antarctic_dataset,
+            global_dataset=global_dataset,
+        )
         super().__init__(
             component=component,
-            name=self.NAME,
-            subdir=self.SUBDIR,
+            name=name,
+            subdir=subdir,
             ntasks=None,
             min_tasks=None,
         )
         self.resolution = None
         self.resolution_name = None
+        self.antarctic_dataset = antarctic_dataset
+        self.global_dataset = global_dataset
 
         # add default config options for combining topo -- since this is a
         # shared step, they need to be defined separately from any task this
         # may be added to
         config_filename = 'combine_topo.cfg'
-        filepath = os.path.join(component.name, self.SUBDIR, config_filename)
+        filepath = os.path.join(component.name, subdir, config_filename)
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.tasks.e3sm.init.topo', 'combine.cfg')
         self.set_shared_config(config)
@@ -86,8 +121,8 @@ class Combine(Step):
         section = config['combine_topo']
 
         # Get input filenames and resolution
-        antarctic_dataset = section.get('antarctic_dataset')
-        global_dataset = section.get('global_dataset')
+        antarctic_dataset = self.antarctic_dataset
+        global_dataset = self.global_dataset
 
         if antarctic_dataset not in self.DATASETS:
             raise ValueError(
@@ -135,10 +170,8 @@ class Combine(Step):
         """
         Run this step of the test case
         """
-        config = self.config
-        section = config['combine_topo']
-        antarctic_dataset = section.get('antarctic_dataset')
-        global_dataset = section.get('global_dataset')
+        antarctic_dataset = self.antarctic_dataset
+        global_dataset = self.global_dataset
         antarctic_filename = self.DATASETS[antarctic_dataset]['filename']
         global_filename = self.DATASETS[global_dataset]['filename']
 
@@ -156,6 +189,13 @@ class Combine(Step):
             in_filename = antarctic_filename
             antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
             self._modify_bedmachine(
+                in_filename=in_filename,
+                out_filename=antarctic_filename,
+            )
+        elif antarctic_dataset in ['bedmap3']:
+            in_filename = antarctic_filename
+            antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
+            self._modify_bedmap3(
                 in_filename=in_filename,
                 out_filename=antarctic_filename,
             )
@@ -201,8 +241,9 @@ class Combine(Step):
             )
 
         # Get input filenames and resolution
-        antarctic_dataset = section.get('antarctic_dataset')
-        global_dataset = section.get('global_dataset')
+        antarctic_dataset = self.antarctic_dataset
+        global_dataset = self.global_dataset
+
         # Parse resolution and update resolution attributes
         if target_grid == 'cubed_sphere':
             resolution = section.getint('resolution_cubedsphere')
@@ -310,6 +351,50 @@ class Combine(Step):
         _write_netcdf_with_fill_values(bedmachine, out_filename)
         logger.info('  Done.')
 
+    def _modify_bedmap3(self, in_filename, out_filename):
+        """
+        Modify Bedmap3 to compute the fields needed by MPAS-Ocean
+        """
+        logger = self.logger
+        logger.info('Modifying Bedmap3 with MPAS-Ocean names')
+
+        # Load Bedamp3 and get ice, ocean and grounded masks
+        bedmap3 = xr.open_dataset(in_filename)
+        mask = bedmap3.mask
+        ice_mask = (mask != 0).astype(float)
+        ocean_mask = np.logical_or(mask == 0, mask == 3).astype(float)
+        grounded_mask = np.logical_or(
+            np.logical_or(mask == 1, mask == 2), mask == 4
+        ).astype(float)
+
+        # Add new variables and apply ocean mask
+        bedmap3['bathymetry'] = bedmap3.bed_topography
+        bedmap3['thickness'] = bedmap3.ice_thickness
+        bedmap3['ice_draft'] = (
+            bedmap3.surface_topography - bedmap3.ice_thickness
+        )
+        bedmap3.ice_draft.attrs['units'] = 'meters'
+        bedmap3['ice_mask'] = ice_mask
+        bedmap3['grounded_mask'] = grounded_mask
+        bedmap3['ocean_mask'] = ocean_mask
+        bedmap3['valid_mask'] = xr.ones_like(ocean_mask)
+
+        # Remove all other variables
+        varlist = [
+            'bathymetry',
+            'ice_draft',
+            'thickness',
+            'ice_mask',
+            'grounded_mask',
+            'ocean_mask',
+            'valid_mask',
+        ]
+        bedmap3 = bedmap3[varlist]
+
+        # Write modified Bdemap3 to netCDF
+        _write_netcdf_with_fill_values(bedmap3, out_filename)
+        logger.info('  Done.')
+
     def _create_global_tile(self, global_filename, lon_tile, lat_tile):
         """
         Create lat/lon tiles of global data to make processing more tractable
@@ -330,7 +415,7 @@ class Combine(Step):
         section = config['combine_topo']
         lat_tiles = section.getint('lat_tiles')
         lon_tiles = section.getint('lon_tiles')
-        global_name = section.get('global_dataset')
+        global_name = self.global_dataset
         out_filename = f'tiles/{global_name}_tile_{lon_tile}_{lat_tile}.nc'
 
         logger.info(f'    creating {out_filename}')
@@ -382,10 +467,7 @@ class Combine(Step):
         logger = self.logger
         logger.info('    Creating Antarctic SCRIP file')
 
-        # Parse config
-        config = self.config
-        section = config['combine_topo']
-        antarctic_dataset = section.get('antarctic_dataset')
+        antarctic_dataset = self.antarctic_dataset
         proj4_string = self.DATASETS[antarctic_dataset]['proj4']
         mesh_name = self.DATASETS[antarctic_dataset]['mesh_name']
         netcdf4_filename = scrip_filename.replace('.nc', '.netcdf4.nc')
@@ -581,7 +663,7 @@ class Combine(Step):
         # Parse config
         config = self.config
         section = config['combine_topo']
-        global_name = section.get('global_dataset')
+        global_name = self.global_dataset
         method = section.get('method')
         lat_tiles = section.getint('lat_tiles')
         lon_tiles = section.getint('lon_tiles')
@@ -643,7 +725,7 @@ class Combine(Step):
         config = self.config
         section = config['combine_topo']
         method = section.get('method')
-        antartic_dataset = section.get('antarctic_dataset')
+        antartic_dataset = self.antarctic_dataset
 
         mesh_name = self.DATASETS[antartic_dataset]['mesh_name']
 
