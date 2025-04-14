@@ -1,14 +1,13 @@
-from typing import Dict as Dict
-
-from polaris import (
-    Step as Step,
+from polaris import Task
+from polaris.ocean.ice_shelf.freeze import (  # noqa: F401
+    compute_freezing_temperature,
 )
-from polaris import (
-    Task as Task,
+from polaris.ocean.ice_shelf.pressure import (  # noqa: F401
+    compute_land_ice_draft_from_pressure,
+    compute_land_ice_pressure_from_draft,
+    compute_land_ice_pressure_from_thickness,
 )
-from polaris.ocean.ice_shelf.ssh_adjustment import (
-    SshAdjustment as SshAdjustment,
-)
+from polaris.ocean.ice_shelf.ssh_adjustment import SshAdjustment
 from polaris.ocean.ice_shelf.ssh_forward import SshForward as SshForward
 
 
@@ -100,7 +99,7 @@ class IceShelfTask(Task):
         yaml_filename : str, optional
             the yaml filename used for ssh_forward steps
 
-        yaml_replacements : Dict, optional
+        yaml_replacements : dict, optional
             key, string combinations for templated replacements in the yaml
             file
 
