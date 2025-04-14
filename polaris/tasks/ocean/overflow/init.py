@@ -58,17 +58,20 @@ class Init(OceanIOStep):
         )
         self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
-        max_bottom_depth = section.getfloat('shelf_depth')
+        max_bottom_depth = section.getfloat('max_bottom_depth')
         shelf_depth = section.getfloat('shelf_depth')
         x_slope = section.getfloat('x_slope')
-        L_slope = section.getfloat('L_slope')
+        l_slope = section.getfloat('l_slope')
 
         ds = ds_mesh.copy()
-        ds['bottomDepth'] = -(
-            -max_bottom_depth
-            + 0.5
-            * (max_bottom_depth - shelf_depth)
-            * (1.0 + np.tanh((nx * dc - ds.xCell - x_slope) / L_slope))
+        ds['bottomDepth'] = shelf_depth + 0.5 * (
+            max_bottom_depth - shelf_depth
+        ) * (
+            1.0
+            + np.tanh(
+                (ds.xCell - ds.xCell.min() - x_slope * 1.0e3)
+                / (l_slope * 1.0e3)
+            )
         )
         # ssh
         ds['ssh'] = xr.zeros_like(ds.xCell)
@@ -77,17 +80,18 @@ class Init(OceanIOStep):
 
         # initial salinity and temperature
         salinity = section.getfloat('salinity')
-        ds['salinity'] = (salinity * xr.ones_like(ds.zMid)).where(ds.cellMask)
+        ds['salinity'] = salinity * xr.ones_like(ds.zMid)
 
         # T = Tref - (rho - rhoRef)/alpha
         x_dense = section.getfloat('x_dense')
         lower_temperature = section.getfloat('lower_temperature')
         higher_temperature = section.getfloat('higher_temperature')
-        x, _ = np.meshgrid(np.zeros(ds.sizes['nVertLevels']), ds.xCell)
+        _, x = np.meshgrid(np.zeros(ds.sizes['nVertLevels']), ds.xCell)
         temperature = np.where(
-            x < x_dense, lower_temperature, higher_temperature
+            (x - ds.xCell.min().values) < x_dense * 1.0e3,
+            lower_temperature,
+            higher_temperature,
         )
-        temperature = np.where(ds.cellMask, temperature, 0.0)
         ds['temperature'] = (
             (
                 'Time',
