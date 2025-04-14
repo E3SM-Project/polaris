@@ -47,6 +47,7 @@ extensions = [
 ]
 
 autosummary_generate = ['developers_guide/api.md',
+                        'developers_guide/e3sm/init/api.md',
                         'developers_guide/mesh/api.md',
                         'developers_guide/ocean/api.md',
                         'developers_guide/seaice/api.md']

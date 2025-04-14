@@ -6,7 +6,7 @@ combining topography datasets to create inputs for E3SM components such as
 MPAS-Ocean. The framework is designed to handle both global and regional
 datasets, supporting various grid types like lat-lon and cubed-sphere grids.
 
-## Combine Step
+## Combine Step and Task
 
 The {py:class}`polaris.tasks.e3sm.init.topo.CombineStep` step is a key
 component of the topography framework. It is responsible for combining global
@@ -14,10 +14,14 @@ and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.
 
+The {py:class}`polaris.tasks.e3sm.init.topo.CombineTask` wraps the
+`CombineStep` into a task that can be used to generate and cache combined
+topography datasets for reuse in other contexts.
+
 ### Key Features
 
-- **Dataset Support**: Supports multiple datasets, including `bedmap3`, `
-  bedmachinev3`, and `gebco2023`.
+- **Dataset Support**: Supports multiple datasets, including `bedmap3`,
+  `bedmachinev3`, and `gebco2023`.
 - **Grid Types**: Handles both lat-lon and cubed-sphere target grids.
 - **Blending**: Blends global and Antarctic datasets across a configurable
   latitude range.
@@ -28,8 +32,8 @@ ranges and remapping them to a target grid.
 
 ### Configuration Options
 
-The `CombineStep` step is configured through the `[combine_topo]` section in the
-configuration file. Key options include:
+The `CombineStep` step is configured through the `[combine_topo]` section in
+the configuration file. Key options include:
 
 - `resolution_latlon`: Target resolution for lat-lon grids (in degrees).
 - `resolution_cubedsphere`: Target resolution for cubed-sphere grids (e.g.,
@@ -51,30 +55,30 @@ configuration file. Key options include:
 
 ### Example Usage
 
-Below is an example of how the `CombineStep` step can be added to a Polaris
+Below is an example of how the `CombineStep` can be added to a Polaris
 task:
 
 ```python
-from polaris.topo import Combine
+from polaris.tasks.e3sm.init.topo import CombineStep
 
 
 component = task.component
-antarctic_dataset = 'bedmap3'
-global_dataset = 'gebco2023'
-subdir = Combine.get_subdir(
-    antarctic_dataset=antarctic_dataset,
-    global_dataset=global_dataset,
-)
+subdir = CombineStep.get_subdir()
 if subdir in component.steps:
     step = component.steps[subdir]
 else:
-    step = Combine(
-        component=component,
-        antarctic_dataset=antarctic_dataset,
-        global_dataset=global_dataset,
-        )
+    step = CombineStep(component=component)
     component.add_step(step)
 task.add_step(step)
+```
+
+To create a `CombineTask` for caching combined datasets:
+
+```python
+from polaris.tasks.e3sm.init.topo import CombineTask
+
+combine_task = CombineTask(component=my_component)
+my_component.add_task(combine_task)
 ```
 
 Since there is a single shared step for each pair of Antarctic and global
@@ -82,8 +86,8 @@ datasets, the step should be added only once to the component and the existing
 step (identifiable via its `subdir`) should be used subsequently.
 
 For more details, refer to the source code of the
-{py:class}`polaris.tasks.e3sm.init.topo.CombineStep` class.
-
+{py:class}`polaris.tasks.e3sm.init.topo.CombineStep` and
+{py:class}`polaris.tasks.e3sm.init.topo.CombineTask` classes.
 
 ```{note}
 Since this step is expensive and time-consuming to run, most tasks will

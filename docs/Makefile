@@ -30,7 +30,7 @@ help:
 
 
 clean:
-	rm -rf generated
+	rm -rf $(BUILDDIR) developers_guide/generated/ developers_guide/*/generated/
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean-versioned-html:
@@ -47,6 +47,3 @@ clean-versioned-html:
 # raise warnings to errors
 html-strict:
 	@$(SPHINXBUILD) -b html -nW --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
-
-clean:
-	rm -rf $(BUILDDIR) developers_guide/generated/ developers_guide/*/generated/

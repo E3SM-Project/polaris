@@ -6,8 +6,6 @@
 .. autosummary::
    :toctree: generated/
 
-   Ocean
-
    add_tasks.add_e3sm_init_tasks
 ```
 
@@ -16,7 +14,7 @@
 ### topo
 
 ```{eval-rst}
-.. currentmodule:: polaris.topo
+.. currentmodule:: polaris.tasks.e3sm.init.topo
 
 .. autosummary::
    :toctree: generated/
@@ -26,4 +24,5 @@
    CombineStep.setup
    CombineStep.constrain_resources
    CombineStep.run
+   CombineTask
 ```
