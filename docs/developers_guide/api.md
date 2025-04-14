@@ -376,11 +376,15 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
-   Combine
-   Combine.get_subdir
-   Combine.setup
-   Combine.constrain_resources
-   Combine.run
+   get_combine_topo_step
+
+   CombineStep
+   CombineStep.get_subdir
+   CombineStep.setup
+   CombineStep.constrain_resources
+   CombineStep.run
+   CombineTask
+
 ```
 
 ### validate
