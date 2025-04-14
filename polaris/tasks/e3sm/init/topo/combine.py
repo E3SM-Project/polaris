@@ -12,26 +12,53 @@ from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 from polaris.config import PolarisConfigParser
 from polaris.parallel import run_command
 from polaris.step import Step
+from polaris.task import Task
 
 
-class Combine(Step):
+def get_combine_topo_step(component, cached=True):
+    """
+    Get the shared combine topo step for the given component, adding it if
+    it doesn't exist
+
+    Parameters
+    ----------
+    component : polaris.Component
+        The component that the step will be added to
+
+    cached : bool, optional
+        Whether to use cached data for the step or not
+
+    Returns
+    -------
+    step : polaris.tasks.e3sm.init.topo.combine.CombineStep
+        The combine topo step
+    """
+    subdir = CombineStep.get_subdir()
+    if subdir in component.steps:
+        step = component.steps[subdir]
+    else:
+        step = CombineStep(component=component)
+        step.cached = cached
+        component.add_step(step)
+    return step
+
+
+class CombineStep(Step):
     """
     A step for combining global and antarctic topography datasets
 
     Attributes
     ----------
-    antarctic_dataset : {'bedmap3', 'bedmachinev3'}
-        The antarctic dataset to use
-
-    global_dataset : {'gebco2023'}
-        The global dataset to use
-
     resolution : float
         degrees (float) or face subdivisions (int)
 
     resolution_name: str
         either x.xxxx_degrees or NExxx
     """
+
+    # change these to update to the latest datasets
+    ANTARCTIC = 'bedmap3'
+    GLOBAL = 'gebco2023'
 
     DATASETS = {
         'bedmachinev3': {
@@ -51,25 +78,16 @@ class Combine(Step):
     }
 
     @staticmethod
-    def get_subdir(antarctic_dataset, global_dataset):
+    def get_subdir():
         """
         Get the subdirectory for the step based on the datasets
-
-        Parameters
-        ----------
-        antarctic_dataset : {'bedmap3', 'bedmachinev3'}
-            The antarctic dataset to use
-
-        global_dataset : {'gebco2023'}
-            The global dataset to use
         """
         return os.path.join(
-            'spherical',
             'topo',
-            f'combine_{antarctic_dataset}_{global_dataset}',
+            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}',
         )
 
-    def __init__(self, component, antarctic_dataset, global_dataset):
+    def __init__(self, component):
         """
         Create a new step
 
@@ -77,18 +95,11 @@ class Combine(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        antarctic_dataset : {'bedmap3', 'bedmachinev3'}
-            The antarctic dataset to use
-
-        global_dataset : {'gebco2023'}
-            The global dataset to use
         """
+        antarctic_dataset = self.ANTARCTIC
+        global_dataset = self.GLOBAL
         name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
-        subdir = self.get_subdir(
-            antarctic_dataset=antarctic_dataset,
-            global_dataset=global_dataset,
-        )
+        subdir = self.get_subdir()
         super().__init__(
             component=component,
             name=name,
@@ -98,8 +109,6 @@ class Combine(Step):
         )
         self.resolution = None
         self.resolution_name = None
-        self.antarctic_dataset = antarctic_dataset
-        self.global_dataset = global_dataset
 
         # add default config options for combining topo -- since this is a
         # shared step, they need to be defined separately from any task this
@@ -121,8 +130,8 @@ class Combine(Step):
         section = config['combine_topo']
 
         # Get input filenames and resolution
-        antarctic_dataset = self.antarctic_dataset
-        global_dataset = self.global_dataset
+        antarctic_dataset = self.ANTARCTIC
+        global_dataset = self.GLOBAL
 
         if antarctic_dataset not in self.DATASETS:
             raise ValueError(
@@ -170,8 +179,8 @@ class Combine(Step):
         """
         Run this step of the test case
         """
-        antarctic_dataset = self.antarctic_dataset
-        global_dataset = self.global_dataset
+        antarctic_dataset = self.ANTARCTIC
+        global_dataset = self.GLOBAL
         antarctic_filename = self.DATASETS[antarctic_dataset]['filename']
         global_filename = self.DATASETS[global_dataset]['filename']
 
@@ -241,8 +250,8 @@ class Combine(Step):
             )
 
         # Get input filenames and resolution
-        antarctic_dataset = self.antarctic_dataset
-        global_dataset = self.global_dataset
+        antarctic_dataset = self.ANTARCTIC
+        global_dataset = self.GLOBAL
 
         # Parse resolution and update resolution attributes
         if target_grid == 'cubed_sphere':
@@ -415,7 +424,7 @@ class Combine(Step):
         section = config['combine_topo']
         lat_tiles = section.getint('lat_tiles')
         lon_tiles = section.getint('lon_tiles')
-        global_name = self.global_dataset
+        global_name = self.GLOBAL
         out_filename = f'tiles/{global_name}_tile_{lon_tile}_{lat_tile}.nc'
 
         logger.info(f'    creating {out_filename}')
@@ -467,7 +476,7 @@ class Combine(Step):
         logger = self.logger
         logger.info('    Creating Antarctic SCRIP file')
 
-        antarctic_dataset = self.antarctic_dataset
+        antarctic_dataset = self.ANTARCTIC
         proj4_string = self.DATASETS[antarctic_dataset]['proj4']
         mesh_name = self.DATASETS[antarctic_dataset]['mesh_name']
         netcdf4_filename = scrip_filename.replace('.nc', '.netcdf4.nc')
@@ -663,7 +672,7 @@ class Combine(Step):
         # Parse config
         config = self.config
         section = config['combine_topo']
-        global_name = self.global_dataset
+        global_name = self.GLOBAL
         method = section.get('method')
         lat_tiles = section.getint('lat_tiles')
         lon_tiles = section.getint('lon_tiles')
@@ -725,7 +734,7 @@ class Combine(Step):
         config = self.config
         section = config['combine_topo']
         method = section.get('method')
-        antartic_dataset = self.antarctic_dataset
+        antartic_dataset = self.ANTARCTIC
 
         mesh_name = self.DATASETS[antartic_dataset]['mesh_name']
 
@@ -885,3 +894,37 @@ def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
         else:
             encoding[var_name] = {'_FillValue': None}
     ds.to_netcdf(filename, encoding=encoding, format=format)
+
+
+class CombineTask(Task):
+    """
+    A task for creating the combined topography dataset, used to create the
+    files to be cached for use in all other contexts
+    """
+
+    def __init__(self, component):
+        """
+        Create a new task
+
+        Parameters
+        ----------
+        component : polaris.Component
+            The component the task belongs to
+        """
+        antarctic_dataset = CombineStep.ANTARCTIC
+        global_dataset = CombineStep.GLOBAL
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}_task'
+        subdir = os.path.join(CombineStep.get_subdir(), 'task')
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+        )
+        self.config.add_from_package(
+            'polaris.tasks.e3sm.init.topo', 'combine.cfg'
+        )
+        step = get_combine_topo_step(
+            component=component,
+            cached=False,
+        )
+        self.add_step(step)
