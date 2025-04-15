@@ -228,7 +228,7 @@ class Task:
         config.tasks.add(self)
         if link is None:
             directory, basename = os.path.split(config.filepath)
-            if directory != self.subdir:
+            if directory != os.path.join(self.component.name, self.subdir):
                 raise ValueError(
                     'No link parameter was provided but the '
                     "config file is not in this task's work "

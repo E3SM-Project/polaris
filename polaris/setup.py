@@ -446,12 +446,12 @@ def _setup_configs(
     # okay, we're finally ready to configure all the tasks and add configs
     # to the "owned" steps
     configs = _configure_tasks_and_add_step_configs(
-        tasks, component, initial_configs, common_config
+        tasks, initial_configs, common_config
     )
 
     _write_configs(common_config, configs, component.name, work_dir)
 
-    _symlink_configs(tasks, component.name, work_dir)
+    _symlink_configs(tasks, work_dir)
 
 
 def _add_task_configs(component, tasks, common_config):
@@ -466,7 +466,7 @@ def _add_task_configs(component, tasks, common_config):
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
             task.config.filepath = os.path.join(
-                task.subdir, task.config_filename
+                component.name, task.subdir, task.config_filename
             )
         component.add_config(task.config)
         configs[task.config.filepath] = task.config
@@ -481,7 +481,7 @@ def _add_task_configs(component, tasks, common_config):
 
 
 def _configure_tasks_and_add_step_configs(
-    tasks, component, initial_configs, common_config
+    tasks, initial_configs, common_config
 ):
     """
     Call the configure() method for each task and add configs to "owned" steps
@@ -506,15 +506,15 @@ def _configure_tasks_and_add_step_configs(
         configs[task.config.filepath] = task.config
         for step in task.steps.values():
             if step.has_shared_config:
-                configs[step.config.filepath] = step.config
                 if step.config.filepath is None:
                     step.config_filename = f'{step.name}.cfg'
                     step.config.filepath = os.path.join(
-                        step.subdir, step.config_filename
+                        step.component.name, step.subdir, step.config_filename
                     )
+                configs[step.config.filepath] = step.config
                 if step.config.filepath not in initial_configs:
                     new_configs[step.config.filepath] = step.config
-                    component.add_config(step.config)
+                    step.component.add_config(step.config)
             else:
                 step._set_config(task.config, link=task.config_filename)
 
@@ -533,9 +533,8 @@ def _write_configs(common_config, configs, component_name, work_dir):
     configs[common_config.filepath] = common_config
 
     # finally, write out the config files
-    component_work_dir = os.path.join(work_dir, component_name)
     for config in configs.values():
-        config_filepath = os.path.join(component_work_dir, config.filepath)
+        config_filepath = os.path.join(work_dir, config.filepath)
         config_dir = os.path.dirname(config_filepath)
         try:
             os.makedirs(config_dir)
@@ -545,26 +544,27 @@ def _write_configs(common_config, configs, component_name, work_dir):
             config.write(f)
 
 
-def _symlink_configs(tasks, component_name, work_dir):
+def _symlink_configs(tasks, work_dir):
     """Symlink config files for requested tasks and steps"""
-
-    component_work_dir = os.path.join(work_dir, component_name)
 
     symlinks = dict()
     for task in tasks.values():
         config = task.config
-        config_filepath = os.path.join(component_work_dir, config.filepath)
+        config_filepath = os.path.join(work_dir, config.filepath)
         link_path = os.path.join(
-            component_work_dir, task.subdir, task.config_filename
+            work_dir, task.component.name, task.subdir, task.config_filename
         )
         if not os.path.exists(link_path) and link_path not in symlinks:
             symlinks[link_path] = config_filepath
 
         for step in task.steps.values():
             config = step.config
-            config_filepath = os.path.join(component_work_dir, config.filepath)
+            config_filepath = os.path.join(work_dir, config.filepath)
             link_path = os.path.join(
-                component_work_dir, step.subdir, step.config_filename
+                work_dir,
+                step.component.name,
+                step.subdir,
+                step.config_filename,
             )
             if not os.path.exists(link_path) and link_path not in symlinks:
                 symlinks[link_path] = config_filepath
