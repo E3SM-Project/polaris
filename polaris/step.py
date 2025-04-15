@@ -34,7 +34,7 @@ class Step:
 
     path : str
         the path within the base work directory of the step, made up of
-        ``component``, the task's ``subdir`` and the step's ``subdir``
+        ``component`` and the step's ``subdir``
 
     cpus_per_task : int, optional
         the number of cores per task the step would ideally use.  If
