@@ -10,7 +10,7 @@ A task can be a module but is usually a python package so it can
 incorporate modules for its steps and/or config files, namelists, streams, and
 YAML files.  The task must include a class that descends from
 {py:class}`polaris.Task`.  In addition to a constructor (`__init__()`),
-the class will sometimes override the `configure()` method of the base class, 
+the class will sometimes override the `configure()` method of the base class,
 as described below.
 
 (dev-task-class)=
@@ -47,7 +47,7 @@ Some attributes are available after calling the base class' constructor
 
 `self.config_filename`
 
-: The filename or symlink within the task where `config` is written to during 
+: The filename or symlink within the task where `config` is written to during
   setup and read from during run
 
 Other attributes become useful only after steps have been added to the task:
@@ -95,17 +95,17 @@ framework:
 
 `self.stdout_logger`
 
-: A logger for output from the task that goes to stdout regardless of whether 
+: A logger for output from the task that goes to stdout regardless of whether
   `logger` is a log file or stdout
 
 `self.log_filename`
 
-: At run time, the name of a log file where output/errors from the task are 
+: At run time, the name of a log file where output/errors from the task are
   being logged, or ``None`` if output is to stdout/stderr
 
 `self.new_step_log_file`
 
-: Used by the framework to know whether to create a new log file for each step 
+: Used by the framework to know whether to create a new log file for each step
   or log output to a common log file for the whole task
 
 You can add other attributes to the child class that keeps track of information
@@ -175,7 +175,7 @@ class SmokeTest(Task):
 The `__init__()` method must first call the base constructor
 `super().__init__()`, passing the name of the task, the component it
 will belong to, and the subdirectory within the component.  (The default is
-the name of the task, which is typically not what you want.) Then, it should 
+the name of the task, which is typically not what you want.) Then, it should
 create an object for each step (or make use of existing objects for shared
 steps) and add them to itself using call {py:func}`polaris.Task.add_step()`.
 
@@ -199,7 +199,7 @@ associated with these steps until the point where the step is being set up in
 - {py:meth}`polaris.ModelStep.add_streams_file()`
 
 We will demonstrate with a fairly complex example,
-{py:class}`polaris.ocean.tasks.cosine_bell.CosineBell`,
+{py:class}`polaris.tasks.ocean.cosine_bell.CosineBell`,
 to demonstrate how to make full use of {ref}`dev-code-sharing` in a task:
 
 ```python
@@ -207,10 +207,10 @@ from typing import Dict
 
 from polaris import Step, Task
 from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
-from polaris.ocean.tasks.cosine_bell.analysis import Analysis
-from polaris.ocean.tasks.cosine_bell.forward import Forward
-from polaris.ocean.tasks.cosine_bell.init import Init
-from polaris.ocean.tasks.cosine_bell.viz import Viz, VizMap
+from polaris.tasks.ocean.cosine_bell.analysis import Analysis
+from polaris.tasks.ocean.cosine_bell.forward import Forward
+from polaris.tasks.ocean.cosine_bell.init import Init
+from polaris.tasks.ocean.cosine_bell.viz import Viz, VizMap
 
 
 class CosineBell(Task):
@@ -341,40 +341,40 @@ class CosineBell(Task):
 ```
 
 By default, the task will go into a subdirectory within the component with the
-same name as the task (`cosine_bell` in this case).  However, this is rarely 
-desirable and polaris is flexible about the subdirectory structure and the 
-names of the subdirectories.  This flexibility was an important requirement in 
-polaris' design.  Each task and step must end up in a unique directory, so it 
-is nearly always important that the name and subdirectory of each task or 
-step depends in some way on the arguments passed the constructor.  In the 
+same name as the task (`cosine_bell` in this case).  However, this is rarely
+desirable and polaris is flexible about the subdirectory structure and the
+names of the subdirectories.  This flexibility was an important requirement in
+polaris' design.  Each task and step must end up in a unique directory, so it
+is nearly always important that the name and subdirectory of each task or
+step depends in some way on the arguments passed the constructor.  In the
 example above, whether the mesh is icosahedral or quasi-uniform is an argument
-(`icosahedral`) to the constructor, which is then saved as an attribute 
-(`self.icosahedral`) and also used to define a unique subdirectory: 
+(`icosahedral`) to the constructor, which is then saved as an attribute
+(`self.icosahedral`) and also used to define a unique subdirectory:
 `global_convergence/icos/cosine_bell` or `global_convergence/qu/cosine_bell`.
 
-The task imports a function -- 
+The task imports a function --
 {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()` --
 and classes --
 {py:class}`polaris.mesh.spherical.IcosahedralMeshStep`,
 {py:class}`polaris.mesh.spherical.QuasiUniformSphericalMeshStep`,
-{py:class}`polaris.ocean.tasks.cosine_bell.init.Init`,
-{py:class}`polaris.ocean.tasks.cosine_bell.forward.Forward`,
-{py:class}`polaris.ocean.tasks.cosine_bell.analysis.Analysis`,
-{py:class}`polaris.ocean.tasks.cosine_bell.viz.VizMap`, and
-{py:class}`polaris.ocean.tasks.cosine_bell.viz.Viz`
+{py:class}`polaris.tasks.ocean.cosine_bell.init.Init`,
+{py:class}`polaris.tasks.ocean.cosine_bell.forward.Forward`,
+{py:class}`polaris.tasks.ocean.cosine_bell.analysis.Analysis`,
+{py:class}`polaris.tasks.ocean.cosine_bell.viz.VizMap`, and
+{py:class}`polaris.tasks.ocean.cosine_bell.viz.Viz`
 -- for creating objects for each step.  The step objects are added to itself
-and the {py:class}`polaris.ocean.Ocean` component with calls to
+and the {py:class}`polaris.tasks.ocean.Ocean` component with calls to
 {py:func}`polaris.Task.add_step()`.  After this, the {py:class}`dict` of
 steps will be available in `self.steps`, and a list of steps to run by default
 will be in `self.steps_to_run`.  This example reads resolutions from a config
-option and uses them to make `base_mesh`, `init`, `forward`, `viz_map` and 
-`viz` steps for each resolution, and then a final `analysis` step to compare 
+option and uses them to make `base_mesh`, `init`, `forward`, `viz_map` and
+`viz` steps for each resolution, and then a final `analysis` step to compare
 all resolutions.
 
 This example takes advantage of shared steps.  The `base_mesh` step resides
 outside of the `cosine_bell` work directory so it could be used by any task
 that needs a quasi-uniform (`qu`) or subdivided icosahedral (`icos`) mesh of
-the given resolution.  A path within the task for a symlink is provided using 
+the given resolution.  A path within the task for a symlink is provided using
 the `symlink` argument to make it easier for users and developers to find the
 shared step.  Here's what the work directory structure will look like for the
 `ocean/spherical/icos/cosine_bell` task:
@@ -408,12 +408,12 @@ shared step.  Here's what the work directory structure will look like for the
 The directories in bold are symlinks.
 
 Similarly, the `init` and `forward` steps for each resolution are shared
-between the `cosine_bell` and the `cosine_bell/with_viz` tasks.  Since the 
+between the `cosine_bell` and the `cosine_bell/with_viz` tasks.  Since the
 steps reside in `cosine_bell`, we don't create symlinks to the shared steps for
 that version of the task, but we do for `cosine_bell/with_viz`, since the
 shared steps are outside its work directory.  Here is what the
 `ocean/spherical/icos/cosine_bell/with_viz` task looks like, where symlinks to
-the shared steps (which always reside lower in the tree, closer to the 
+the shared steps (which always reside lower in the tree, closer to the
 component directory) are again in bold:
 
  * ocean
@@ -473,9 +473,9 @@ set up in its work directory.  As part of setup, a user can pass their own
 config options to `polaris setup` that override those from polaris packages.
 
 The main usage of `configure()` in Polaris tasks is to re-add steps to the
-task that depend on config options that a user may have changed. In the cosine 
-bell example above, the `configure()` method simply calls the `_setup_steps()` 
-method again so that steps are recreated if the requested resolutions have 
+task that depend on config options that a user may have changed. In the cosine
+bell example above, the `configure()` method simply calls the `_setup_steps()`
+method again so that steps are recreated if the requested resolutions have
 change:
 
 ```python
@@ -495,11 +495,11 @@ class CosineBell(Task):
 
 The `configure()` method is not the right place for adding steps for the first
 time.  Steps should be added during init if possible and, if their names and
-locations rely on config options, they should be removed and re-added in 
+locations rely on config options, they should be removed and re-added in
 `configure()`, as in the example above. Typically, this is because there is
-a step for each of a list of resolutions (or another parameter) from a config 
-option.  If possible, alter the steps only in their own 
-{py:meth}`polaris.Step.setup()` or {py:meth}`polaris.Step.runtime_setup()` 
+a step for each of a list of resolutions (or another parameter) from a config
+option.  If possible, alter the steps only in their own
+{py:meth}`polaris.Step.setup()` or {py:meth}`polaris.Step.runtime_setup()`
 methods, not in `configure()`.
 
 You can also add config options from package files in `configure()`:
@@ -513,14 +513,14 @@ class InertialGravityWave(Task):
         Add the config file common to inertial gravity wave tests
         """
         self.config.add_from_package(
-            'polaris.ocean.tasks.inertial_gravity_wave',
+            'polaris.tasks.ocean.inertial_gravity_wave',
             'inertial_gravity_wave.cfg')
 ```
 
 However, this is more typically done in the constructor if config options are
 only being used by this task and external to the task if config options are
-shared across multiple tasks and/or shared steps. If many tasks need the same 
-config options, you should use a shared `config` outside of the task, and add 
+shared across multiple tasks and/or shared steps. If many tasks need the same
+config options, you should use a shared `config` outside of the task, and add
 it to the task using {py:meth}`polaris.Task.set_shared_config()`.
 
 A `configure()` method can also be used to perform other operations at the

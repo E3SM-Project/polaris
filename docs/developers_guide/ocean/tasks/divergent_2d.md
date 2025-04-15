@@ -2,7 +2,7 @@
 
 # divergent_2d
 
-The {py:class}`polaris.ocean.tasks.sphere_transport.SphereTransport`
+The {py:class}`polaris.tasks.ocean.sphere_transport.SphereTransport`
 `divergent_2d` test performs a 12-day run on the sphere that has a periodic
 divergent flow which affects tracer distributions. The resolution of the
 sphere varies (by default, between 60 and 240 km). After one period, the
@@ -29,14 +29,14 @@ Sphere transport tasks use shared `base_mesh` steps for creating
 
 ### init
 
-The class {py:class}`polaris.ocean.tasks.sphere_transport.init.Init`
+The class {py:class}`polaris.tasks.ocean.sphere_transport.init.Init`
 defines a step for setting up the initial state at each resolution. The
 initial state is differentiated between `divergent_2d` and the other tests
 set up by the class.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tasks.sphere_transport.forward.Forward`
+The class {py:class}`polaris.tasks.ocean.sphere_transport.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
 and defines a step for running MPAS-Ocean from an initial condition produced in
 an `init` step. See {ref}`dev-ocean-convergence` for some relevant
@@ -46,7 +46,7 @@ section.  Other model config options are taken from `forward.yaml`.
 
 ### analysis
 
-The class {py:class}`polaris.ocean.tasks.sphere_transport.analysis.Analysis`
+The class {py:class}`polaris.tasks.ocean.sphere_transport.analysis.Analysis`
 descends from
 {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`,
 and defines a step for computing the error norm (L2) for the results
@@ -59,7 +59,7 @@ Visualization step is available only in the `divergent_2d/with_viz`
 tasks.  It is not included in the `divergent_2d` in order to keep regression
 as fast as possible when visualization isn't needed.
 
-The class {py:class}`polaris.ocean.tasks.sphere_transport.viz.Viz`
+The class {py:class}`polaris.tasks.ocean.sphere_transport.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by these options:
 

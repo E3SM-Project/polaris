@@ -3,7 +3,7 @@
 # ice_shelf_2d
 
 The `ice_shelf_2d` test group
-(`polaris.ocean.tasks.ice_shelf_2d.IceShelf2d`)
+(`polaris.tasks.ocean.ice_shelf_2d.IceShelf2d`)
 implements a very simplified ice-shelf cavity that is invariant in the x
 direction (see {ref}`ocean-ice-shelf-2d`). Here, we describe the shared
 framework for this test group and the 2 test cases.
@@ -30,7 +30,7 @@ option `ssh_adjustment:iterations`.
 
 ### init
 
-The class :py:class:`polaris.ocean.tasks.ice_shelf_2d.init.Init`
+The class :py:class:`polaris.tasks.ocean.ice_shelf_2d.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -57,7 +57,7 @@ model is run.
 
 ### validate
 
-The class {py:class}`polaris.ocean.tasks.ice_shelf_2d.validate.Validate`
+The class {py:class}`polaris.tasks.ocean.ice_shelf_2d.validate.Validate`
 defines a step for validating outputs in two step directories against one
 another.  This step ensures that `temperature`, `salinity`, `layerThickness`
 and `normalVelocity` are identical in `output.nc` files in the two steps.
@@ -69,7 +69,7 @@ restart test (see {ref}`dev-ocean-ice-shelf-2d-restart`).
 
 ### viz
 
-The class {py:class}`polaris.ocean.tasks.ice_shelf_2d.viz.Viz` uses the planar
+The class {py:class}`polaris.tasks.ocean.ice_shelf_2d.viz.Viz` uses the planar
 visualization capabilities provided by
 {py:func}`mpas_tools.ocean.viz.transect.compute_transect()`.
 
@@ -77,7 +77,7 @@ visualization capabilities provided by
 
 ## default
 
-The {py:class}`polaris.ocean.tasks.ice_shelf_2d.default.Default` test case
+The {py:class}`polaris.tasks.ocean.ice_shelf_2d.default.Default` test case
 config options are described in {ref}`ocean-ice-shelf-2d-default`.
 
 The test creates and mesh and initial condition, performs 15 iterations of

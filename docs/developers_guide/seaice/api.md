@@ -1,7 +1,7 @@
 # seaice
 
 ```{eval-rst}
-.. currentmodule:: polaris.seaice
+.. currentmodule:: polaris.tasks.seaice
 
 .. autosummary::
    :toctree: generated/
@@ -14,7 +14,7 @@
 ### single_column
 
 ```{eval-rst}
-.. currentmodule:: polaris.seaice.tasks.single_column
+.. currentmodule:: polaris.tasks.seaice.single_column
 
 .. autosummary::
    :toctree: generated/

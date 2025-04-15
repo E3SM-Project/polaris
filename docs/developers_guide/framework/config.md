@@ -22,7 +22,7 @@ The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as in the
 `polaris.setup` module. Here is a typical example from
-{py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`:
+{py:class}`polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave`:
 
 ```python
 from polaris import Task
@@ -33,11 +33,11 @@ class InertialGravityWave(Task):
         name = 'inertial_gravity_wave'
         subdir = f'planar/{name}'
         super().__init__(component=component, name=name, subdir=subdir)
-        
+
         ...
 
         self.config.add_from_package(
-            'polaris.ocean.tasks.inertial_gravity_wave',
+            'polaris.tasks.ocean.inertial_gravity_wave',
             'inertial_gravity_wave.cfg')
 ```
 
@@ -48,8 +48,8 @@ the file is in the path `polaris/ocean/tasks/baroclinic_channel`
 that the config file should always exist, so we would like the code to raise
 an exception (`exception=True`) if the file is not found.  This is the
 default behavior.  In some cases, you would like the code to add the config
-options if the config file exists and do nothing if it does not.  In this 
-example from {py:func}`polaris.setup.setup_task()`, there may not be a config 
+options if the config file exists and do nothing if it does not.  In this
+example from {py:func}`polaris.setup.setup_task()`, there may not be a config
 file for the particular machine we're on, and that's fine:
 
 ```python
@@ -81,30 +81,30 @@ of functions (`range()`, {py:meth}`numpy.linspace()`,
 
 ## Shared config files
 
-Often, it makes sense for many tasks and steps to share the same config 
+Often, it makes sense for many tasks and steps to share the same config
 options.  The default behavior is for a task and its "owned" steps to share
-a config file in the task's work directory called `{task.name}.cfg` and 
+a config file in the task's work directory called `{task.name}.cfg` and
 symlinks with that same name in each step's work directory.  The default for
 a shared step is to have its own `{step.name}.cfg` in its work directory.
 
 Developers can create shared config parsers that define the location of the
 shared config file and add them to tasks and steps using
-{py:meth}`polaris.Task.set_shared_config()` and 
+{py:meth}`polaris.Task.set_shared_config()` and
 {py:meth}`polaris.Step.set_shared_config()`.  The location of the shared
 config file should be intuitive to users but local symlinks will also make
 it easy to modify the shared config options from within any of the tasks and
 steps that use them.
 
-As an example, the baroclinic channel tasks share a single 
+As an example, the baroclinic channel tasks share a single
 `baroclinic_channel.cfg` config file for each resolution that resides in the
 resolution's work directory:
 
 ```python
 from polaris.config import PolarisConfigParser
 from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.baroclinic_channel.default import Default
-from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
+from polaris.tasks.ocean.baroclinic_channel.default import Default
+from polaris.tasks.ocean.baroclinic_channel.init import Init
+from polaris.tasks.ocean.baroclinic_channel.rpe import Rpe
 
 
 def add_baroclinic_channel_tasks(component):
@@ -114,7 +114,7 @@ def add_baroclinic_channel_tasks(component):
 
         config_filename = 'baroclinic_channel.cfg'
         config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
-        config.add_from_package('polaris.ocean.tasks.baroclinic_channel',
+        config.add_from_package('polaris.tasks.ocean.baroclinic_channel',
                                 'baroclinic_channel.cfg')
 
         init = Init(component=component, resolution=resolution, indir=resdir)
@@ -126,7 +126,7 @@ def add_baroclinic_channel_tasks(component):
         component.add_task(default)
 
         ...
-        
+
         component.add_task(Rpe(component=component, resolution=resolution,
                                indir=resdir, init=init, config=config))
 ```
@@ -140,8 +140,8 @@ added as follows:
 
 ```python
 from polaris import Task
-from polaris.ocean.tasks.baroclinic_channel.forward import Forward
-from polaris.ocean.tasks.baroclinic_channel.rpe.analysis import Analysis
+from polaris.tasks.ocean.baroclinic_channel.forward import Forward
+from polaris.tasks.ocean.baroclinic_channel.rpe.analysis import Analysis
 
 
 class Rpe(Task):
@@ -171,7 +171,7 @@ class Rpe(Task):
                 resolution=resolution, nu=nu)
 
             step.add_yaml_file(
-                'polaris.ocean.tasks.baroclinic_channel.rpe',
+                'polaris.tasks.ocean.baroclinic_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 

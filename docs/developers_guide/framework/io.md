@@ -22,7 +22,7 @@ from polaris.io import symlink
 
 def configure(task, config):
     ...
-    with path('polaris.ocean.tasks.global_ocean.files_for_e3sm', 'README') as \
+    with path('polaris.tasks.ocean.global_ocean.files_for_e3sm', 'README') as \
             target:
         symlink(str(target), '{}/README'.format(task['work_dir']))
 ```

@@ -190,7 +190,7 @@ seaice/api
 ### components
 
 ```{eval-rst}
-.. currentmodule:: polaris.components
+.. currentmodule:: polaris.tasks
 
 .. autosummary::
    :toctree: generated/

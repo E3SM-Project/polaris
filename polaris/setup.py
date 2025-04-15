@@ -7,11 +7,11 @@ import warnings
 from typing import Dict, List
 
 from polaris import Task, provenance
-from polaris.components import get_components
 from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
+from polaris.tasks import get_components
 
 
 def setup_tasks(

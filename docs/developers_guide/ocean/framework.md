@@ -327,7 +327,7 @@ def add_cosine_bell_tasks(component):
                                 'convergence.cfg')
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
-        config.add_from_package('polaris.ocean.tasks.cosine_bell',
+        config.add_from_package('polaris.tasks.ocean.cosine_bell',
                                 'cosine_bell.cfg')
 ```
 
@@ -381,7 +381,7 @@ class Forward(SphericalConvergenceForward):
         refinement_factor : float
             The factor by which to scale space, time or both
         """
-        package = 'polaris.ocean.tasks.cosine_bell'
+        package = 'polaris.tasks.ocean.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
         super().__init__(component=component, name=name, subdir=subdir,
                          resolution=resolution, mesh=mesh,
@@ -505,7 +505,7 @@ The `polaris.ocean.ice_shelf` module provides support for ice shelf tasks.
 
 The {py:class}`polaris.ocean.ice_shelf.IceShelf` class can serve as a parent
 class for ice shelf tests, such as
-{py:class}`polaris.ocean.tasks.ice_shelf_2d.IceShelf2d`.
+{py:class}`polaris.tasks.ocean.ice_shelf_2d.IceShelf2d`.
 
 The {py:meth}`polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()`
 sets up `ssh_forward` and `ssh_adjustment` steps from the classes
