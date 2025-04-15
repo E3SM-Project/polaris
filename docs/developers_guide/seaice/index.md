@@ -2,8 +2,8 @@
 
 # SeaIce component
 
-The `seaice` component is defined by the {py:class}`polaris.seaice.SeaIce`
-class. All tasks in the `seaice` component  are single column tests 
+The `seaice` component is defined by the {py:class}`polaris.tasks.seaice.SeaIce`
+class. All tasks in the `seaice` component  are single column tests
 and contain very simple config options as follows:
 
 ```cfg
@@ -48,7 +48,7 @@ component = ${paths:component_path}/seaice_model
 
 The default location for MPAS-Seaice is in the
 [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
-`e3sm_submodules/E3SM-Project` in the directory `components/mpas-seaice`.  The 
+`e3sm_submodules/E3SM-Project` in the directory `components/mpas-seaice`.  The
 submodule  may not point to the latest MPAS-Seaice code in on the E3SM
 [master](https://github.com/E3SM-Project/E3SM/tree/master)
 branch but the plan is to update the submodule frequently.  The current version
@@ -63,7 +63,7 @@ git submodule update --init --recursive
 ```
 
 in the base directory of your local clone of the polaris repo.  Then, you can
-`cd` into the component's directory (e.g. 
+`cd` into the component's directory (e.g.
 `e3sm_submodules/E3SM-Project/components/mpas-seaice`) and build the code as
 appropriate for whichever of the {ref}`machines` you are using.
 

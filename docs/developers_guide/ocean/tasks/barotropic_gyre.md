@@ -16,7 +16,7 @@ streams.
 
 ### init
 
-The class {py:class}`polaris.ocean.tasks.barotropic_gyre.init.Init`
+The class {py:class}`polaris.tasks.ocean.barotropic_gyre.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -27,13 +27,13 @@ generated.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tasks.barotropic_gyre.forward.Forward`
+The class {py:class}`polaris.tasks.ocean.barotropic_gyre.forward.Forward`
 defines a step for running the ocean from the initial condition produced in
 the `init` step. Namelist and streams files are updated in
-{py:meth}`polaris.ocean.tasks.barotropic_gyre.forward.Forward.dynamic_model_config()`
+{py:meth}`polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The
 number of cells is approximated from config options in
-{py:meth}`polaris.ocean.tasks.barotropic_gyre.forward.Forward.compute_cell_count()`
+{py:meth}`polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
@@ -45,7 +45,7 @@ against a baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 ### analysis
 
-The {py:class}`polaris.ocean.tasks.barotropic_gyre.analysis.Analysis`
+The {py:class}`polaris.tasks.ocean.barotropic_gyre.analysis.Analysis`
 computes the L2 error norm at the final time step of the simulation against
 the analytical solution for the linearized dynamics. This step also produces a
 figure with the model solution, the analytical solution, and the difference
@@ -55,5 +55,5 @@ between the two.
 
 ## default
 
-The {py:class}`polaris.ocean.tasks.baroclinic_channel.default.Default`
+The {py:class}`polaris.tasks.ocean.baroclinic_channel.default.Default`
 test performs a test of the linearized dynamics.

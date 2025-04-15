@@ -3,11 +3,11 @@
 # Suites
 
 As described in the {ref}`suites` section of the User's Guide, polaris
-tasks can be organized into suites.  Each core has separate 
-regression suites, and a core can have multiple independent regression suites.  
-A developer  defines a suite by creating a `.txt` file within the 
-`polaris/<component>/suites` directory.  The format of the `.txt` file is a 
-list of the work directories to  the tasks desired to be part of the suite.  A 
+tasks can be organized into suites.  Each core has separate
+regression suites, and a core can have multiple independent regression suites.
+A developer  defines a suite by creating a `.txt` file within the
+`polaris/suites/<component>/` directory.  The format of the `.txt` file is a
+list of the work directories to  the tasks desired to be part of the suite.  A
 line starting with `#` will be  treated as a comment line.
 
 The philosophy and requirements for the suites are as follows:

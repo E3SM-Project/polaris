@@ -2,7 +2,7 @@
 
 # Components
 
-Currently, there are two components, `ocean`, which encompasses all the tasks 
+Currently, there are two components, `ocean`, which encompasses all the tasks
 for MPAS-Ocean and Omega, and `seaice`, which implements tasks for MPAS-Seaice.
 
 From a developer's perspective, a component is a package within polaris
@@ -10,39 +10,39 @@ that has four major pieces:
 
 1. A class that descends from the {py:class}`polaris.Component` base class.
    The class is defined in `__init__.py` and its `__init__()` method
-   calls the {py:meth}`polaris.Component.add_tasks()` method (or helper 
+   calls the {py:meth}`polaris.Component.add_tasks()` method (or helper
    functions that, in turn, call this method) to add tasks to the component.
-2. A `tasks` package, which contains packages for individual tasks and their 
-   steps, possibly within packages that help to sort them into broader 
+2. A `tasks` package, which contains packages for individual tasks and their
+   steps, possibly within packages that help to sort them into broader
    categories.
 3. An `<component>.cfg` config file containing any default config options
    that are universal to all tasks of the component.
 4. Additional "framework" packages and modules shared broadly between tasks.
 
-The component's framework is a mix of shared code and other files (config 
-files, YAML files for model config options, etc.) that is expected to be used 
-only by modules and packages within the component, not by other components or 
+The component's framework is a mix of shared code and other files (config
+files, YAML files for model config options, etc.) that is expected to be used
+only by modules and packages within the component, not by other components or
 the main polaris {ref}`dev-framework`.
 
 ## Constructor
 
 The constructor (`__init__()` method) for a child class of
 {py:class}`polaris.Component` simply calls the parent class' version
-of the constructor with `super().__init__()`, passing the name of the 
+of the constructor with `super().__init__()`, passing the name of the
 component.  Then, it calls helper functions to add tasks to the component, as
-in this example from {py:class}`polaris.ocean.Ocean`:
+in this example from {py:class}`polaris.tasks.ocean.Ocean`:
 
 ```python
 from polaris import Component
-from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
-from polaris.ocean.tasks.cosine_bell import add_cosine_bell_tasks
-from polaris.ocean.tasks.inertial_gravity_wave import (
+from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
+from polaris.tasks.ocean.cosine_bell import add_cosine_bell_tasks
+from polaris.tasks.ocean.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks,
 )
-from polaris.ocean.tasks.manufactured_solution import (
+from polaris.tasks.ocean.manufactured_solution import (
     add_manufactured_solution_tasks,
 )
-from polaris.ocean.tasks.single_column import add_single_column_tasks
+from polaris.tasks.ocean.single_column import add_single_column_tasks
 
 
 class Ocean(Component):
@@ -68,23 +68,23 @@ The object `self` is always passed as the `component` argument to the helper
 function so it can, in turn, be used both to add the task to the component and
 to identify which component the task belongs to in its constructor.
 
-An example of a helper function that adds tasks for baroclinic channel test 
+An example of a helper function that adds tasks for baroclinic channel test
 cases is:
 ```python
 from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.baroclinic_channel.decomp import Decomp
-from polaris.ocean.tasks.baroclinic_channel.default import Default
-from polaris.ocean.tasks.baroclinic_channel.init import Init
-from polaris.ocean.tasks.baroclinic_channel.restart import Restart
-from polaris.ocean.tasks.baroclinic_channel.rpe import Rpe
-from polaris.ocean.tasks.baroclinic_channel.threads import Threads
+from polaris.tasks.ocean.baroclinic_channel.decomp import Decomp
+from polaris.tasks.ocean.baroclinic_channel.default import Default
+from polaris.tasks.ocean.baroclinic_channel.init import Init
+from polaris.tasks.ocean.baroclinic_channel.restart import Restart
+from polaris.tasks.ocean.baroclinic_channel.rpe import Rpe
+from polaris.tasks.ocean.baroclinic_channel.threads import Threads
 
 
 def add_baroclinic_channel_tasks(component):
     """
     Add tasks for different baroclinic channel tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     for resolution in [10., 4., 1.]:
@@ -123,7 +123,7 @@ path should point to the path within the appropriate E3SM submodule where the
 standalone component can be built.  This is the path to the directory where the
 E3SM component's executable will be built, not to the executable itself.
 
-Typically, the config file will also define the paths to the component 
+Typically, the config file will also define the paths to the component
 executable  and the default namelist and streams files for "forward mode" (and,
 for  MPAS-Ocean, "init mode"):
 

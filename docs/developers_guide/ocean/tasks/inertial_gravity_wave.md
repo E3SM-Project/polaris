@@ -2,11 +2,11 @@
 
 # inertial_gravity_wave
 
-The inertial gravity wave test in `polaris.ocean.tasks.inertial_gravity_wave`
+The inertial gravity wave test in `polaris.tasks.ocean.inertial_gravity_wave`
 is a linear shallow water test case at 4 resolutions (200, 100, 50, and
 25 km).
 
-The {py:class}`polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave`
+The {py:class}`polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave`
 test performs a 10-hour run with a series of resolutions.  The convergence rate
 is calculated and visualizations are generated.
 
@@ -23,19 +23,19 @@ vertical momentum and tracer diffusion, as well as defining `mesh`, `input`,
 ### exact_solution
 
 The class
-{py:class}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution`
+{py:class}`polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution`
 defines a class for storing attributes and methods relevant to computing the
 exact solution.  The constructor obtains the parameters from the config file.
 The
-{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh()`
+{py:meth}`polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh()`
 method computes the SSH field.  The
-{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity()`
+{py:meth}`polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity()`
 method computes the `normalVelocity` field.
 
 ### init
 
 The class
-{py:class}`polaris.ocean.tasks.inertial_gravity_wave.init.Init`
+{py:class}`polaris.tasks.ocean.inertial_gravity_wave.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -47,14 +47,14 @@ the exact solution. The tracer and coriolis fields are uniform in space.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward`
+The class {py:class}`polaris.tasks.ocean.inertial_gravity_wave.forward.Forward`
 descends from
  {py:class}`polaris.ocean.convergence.ConvergenceForward`
 and runs MPAS-Ocean from the initial condition produced in the `init` step.
 Namelist and streams files are updated by the parent class with time steps
 determined algorithmically based on config options. The number
 of cells is approximated from config options in
-{py:meth}`polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()`
+{py:meth}`polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as  their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph
@@ -66,7 +66,7 @@ performed against a baseline if one is provided when calling
 ### analysis
 
 The class
-{py:class}`polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis`
+{py:class}`polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis`
 descends from {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`
 a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
@@ -74,6 +74,6 @@ convergence rate falls within acceptable bounds.
 
 ### viz
 
-The class {py:class}`polaris.ocean.tasks.inertial_gravity_wave.viz.Viz` defines
+The class {py:class}`polaris.tasks.ocean.inertial_gravity_wave.viz.Viz` defines
 a step for visualization. It produces a plan-view figure of the simulated,
 exact, and (simulated - exact) SSH fields.

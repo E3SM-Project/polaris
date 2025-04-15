@@ -14,8 +14,8 @@ are available for a user to manually alter and then run on their own.
 
 A step is defined by a class that descends from {py:class}`polaris.Step`.
 The child class must override the constructor and must also either override the
-{py:meth}`polaris.Step.run()` method or define the `args` attribute.  It will 
-sometimes also wish to override the {py:meth}`polaris.Step.setup()` method, 
+{py:meth}`polaris.Step.run()` method or define the `args` attribute.  It will
+sometimes also wish to override the {py:meth}`polaris.Step.setup()` method,
 described below.
 
 (dev-step-attributes)=
@@ -77,7 +77,7 @@ Some attributes are available after calling the base class' constructor
 
 `self.max_memory`
 
-: An aspirational attribute that will be used in the future to indicate the 
+: An aspirational attribute that will be used in the future to indicate the
   amount of memory that the step is allowed to use in MB
 
 `self.cached`
@@ -111,10 +111,10 @@ Some attributes are available after calling the base class' constructor
 
 : A dictionary of steps that this step depends on (i.e. it can't run until they
   have finished). Dependencies are used when the names of the files produced by
-  the dependency aren't known at setup (e.g. because they depend on config 
+  the dependency aren't known at setup (e.g. because they depend on config
   options or data read in from files). If the names of this step's input files
-  are known at setup, it is sufficient (and preferable) to indicate that an 
-  output file from another step is an input of this step to establish a 
+  are known at setup, it is sufficient (and preferable) to indicate that an
+  output file from another step is an input of this step to establish a
   dependency.
 
 `self.is_dependency`
@@ -193,13 +193,13 @@ output files against a baseline in one is provided:
 
 `self.baseline_dir`
 
-: Location of the same step within the baseline work directory, for use in 
+: Location of the same step within the baseline work directory, for use in
   comparing variables and timers
 
 `self.validate_vars`
 
-: A list of variables for each output file for which a baseline comparison 
-  should be performed if a baseline run has been provided. The baseline 
+: A list of variables for each output file for which a baseline comparison
+  should be performed if a baseline run has been provided. The baseline
   validation is performed after the step has run.
 
 You can add other attributes to the child class that keeps track of information
@@ -281,12 +281,12 @@ Each of these functions just caches information about the the inputs, outputs,
 namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.
 
-If this is a shared step with its own config options, it is also okay to call 
+If this is a shared step with its own config options, it is also okay to call
 {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` from the
 constructor.
 
 The following is from
-{py:class}`polaris.ocean.tasks.baroclinic_channel.forward.Forward()`:
+{py:class}`polaris.tasks.ocean.baroclinic_channel.forward.Forward()`:
 
 ```python
 from polaris.ocean.model import OceanModelStep
@@ -366,7 +366,7 @@ class Forward(OceanModelStep):
         self.add_input_file(filename='initial_state.nc',
                             target='../../init/initial_state.nc')
 
-        self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
+        self.add_yaml_file('polaris.tasks.ocean.baroclinic_channel',
                            'forward.yaml')
 
         if nu is not None:
@@ -389,8 +389,8 @@ are not included) and then passed on to the base class' constructor: `name`,
 `min_cpus_per_task`, and `openmp_threads`.  Additional parameters `nu` and
 `run_time_steps` are used to determine settings for running the model.
 
-Then, two yaml files with modifications to the model config options are added 
-(for later processing).  An additional model config option, `config_mom_del2` 
+Then, two yaml files with modifications to the model config options are added
+(for later processing).  An additional model config option, `config_mom_del2`
 is set manually via a python dictionary of namelist options.
 
 Additionally, two input and one output file are added.  By providing
@@ -420,7 +420,7 @@ other than downloading files.  Time-consuming work should be saved for
 `run()` whenever possible.
 
 As an example, here is
-{py:func}`polaris.ocean.tasks.global_ocean.mesh.mesh.MeshStep.setup()`:
+{py:func}`polaris.tasks.ocean.global_ocean.mesh.mesh.MeshStep.setup()`:
 
 ```python
 def setup(self):
@@ -452,8 +452,8 @@ prior to runtime, whereas other options can be set within `runtime_setup()`.
 
 The framework calls `constrain_resources()` within
 {py:func}`polaris.run.serial.run_tasks()`, and a step can override this method
-if desired, typically to get `ntasks`, `min_tasks`, `cpus_per_task`, etc. from 
-config options or compute them using an algorithm and set the corresponding 
+if desired, typically to get `ntasks`, `min_tasks`, `cpus_per_task`, etc. from
+config options or compute them using an algorithm and set the corresponding
 attributes. When overriding `constrain_resources`, it is important to also call
 the base class' version of the method with `super().constrain_resources()`.
 
@@ -462,7 +462,7 @@ The names of the resources are related to the
 
 `ntasks`
 
-: The target number of MPI tasks that a step will use if the resources 
+: The target number of MPI tasks that a step will use if the resources
   are available.
 
 `min_tasks`
@@ -495,7 +495,7 @@ For MPI applications without threading, `cpus_per_task` will always be
 
 The `runtime_setup()` method is used to modify any behaviors of the step at
 runtime. This includes things like partitioning an MPAS mesh across processors
-and computing a times step based on config options that might have been 
+and computing a times step based on config options that might have been
 modified by the user.  It must not include modifying the `ntasks`, `min_tasks`,
 `cpus_per_task`, `min_cpus_per_task` or `openmp_threads` attributes.
 These attributes must be altered by overriding
@@ -509,11 +509,11 @@ of python code before launching an command, often using MPI parallelism.
 
 ## run()
 
-This method defines how the step will run. The contents of `run()` can vary 
+This method defines how the step will run. The contents of `run()` can vary
 quite a lot between steps.
 
 In the baroclinic channel's `Init` step, the `run()` method,
-{py:meth}`polaris.ocean.tasks.baroclinic_channel.init.Init.run()`,
+{py:meth}`polaris.tasks.ocean.baroclinic_channel.init.Init.run()`,
 is quite involved:
 
 ```python
@@ -663,7 +663,7 @@ the file `ocean.nc`.
 In the example `Forward` step we showed above, there is no run method at all
 because we let its superclass `ModelStep` define an `args` attribute instead.
 Rather than call the `run()` method, the command given by these arguments
-will be run on the commandline.  This is capability important for supporting 
+will be run on the commandline.  This is capability important for supporting
 task parallelism, since each such command may need to run with its own set of
 MPI, threading and memory resources.
 
@@ -684,7 +684,7 @@ steps (again, possibly in other tasks).  There is no harm in including
 inputs to the step that do not come from other steps (e.g. files that will be
 downloaded when the task gets set up) as long as they are sure to exist
 before the step runs.  Likewise, there is no harm in including outputs from the
-step that aren't used by any other steps as long as the step will be sure to 
+step that aren't used by any other steps as long as the step will be sure to
 generate them.
 
 The inputs and outputs need to be defined during init of either the step or
@@ -785,7 +785,7 @@ subdirectory for this step or the target's step (or both) depends on
 parameters.  For such cases, there is a `work_dir_target` argument that
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
-{py:class}`polaris.ocean.tasks.global_ocean.forward.ForwardStep`:
+{py:class}`polaris.tasks.ocean.global_ocean.forward.ForwardStep`:
 
 ```python
 def __init__(self, component, mesh, init):
@@ -842,7 +842,7 @@ self.add_input_file(
 ```
 
 In this example from
-{py:class}`polaris.ocean.tasks.global_ocean.init.init.Init()`,
+{py:class}`polaris.tasks.ocean.global_ocean.init.init.Init()`,
 the file `BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc` is
 slated for later downloaded from the
 [Ocean bathymetry database](https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/).
@@ -922,7 +922,7 @@ self.add_output_file(
                    'normalVelocity'])
 ```
 
-If a baseline is provided during {ref}`dev-polaris-setup`, then after the step 
+If a baseline is provided during {ref}`dev-polaris-setup`, then after the step
 runs, the variables `temperature`, `salinity`, `layerThickness`, and
 `normalVelocity` in the file `output.nc` will be checked against the same
 variables in the same file in the baseline run to make sure they are identical.
@@ -1024,13 +1024,13 @@ circumstances, it is not feasible to specify the output filename with
 on that output file as an input use {py:meth}`polaris.Step.add_input_file()`.
 
 Under these circumstances, it is useful to be able to specify that a step
-is a dependency of another (dependent) step.  This is accomplished by passing 
-the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method 
-either during the creation of the dependent step, within the `configure()` 
+is a dependency of another (dependent) step.  This is accomplished by passing
+the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method
+either during the creation of the dependent step, within the `configure()`
 method of the parent task, or in the `setup()` method of the dependent
 step.  The dependency does not need to belong to the task, it can be a shared
 step, but it should be a step in any tasks that also use the dependent step.
-This is because the dependent step will fail to run if the dependency has not 
+This is because the dependent step will fail to run if the dependency has not
 run.
 
 When a step is added as a dependency, after it runs, its state will be stored

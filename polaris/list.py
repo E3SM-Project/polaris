@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from polaris.components import get_components
+from polaris.tasks import get_components
 
 
 def list_cases(task_expr=None, number=None, verbose=False):
@@ -97,7 +97,7 @@ def list_suites(components=None, verbose=False):
         components = [component.name for component in get_components()]
     print('Suites:')
     for component in components:
-        package = f'polaris.{component}.suites'
+        package = f'polaris.suites.{component}'
         try:
             suites = sorted(
                 [

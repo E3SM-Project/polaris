@@ -105,7 +105,7 @@ is located and the name of the input yaml file within that package
 as arguments to {py:meth}`polaris.ModelStep.add_yaml_file()`:
 
 ```python
-self.add_yaml_file('polaris.ocean.tasks.global_convergence.cosine_bell',
+self.add_yaml_file('polaris.tasks.ocean.global_convergence.cosine_bell',
                    'forward.yaml')
 ```
 
@@ -147,7 +147,7 @@ is located and the name of the input namelist file within that package
 as arguments to {py:meth}`polaris.ModelStep.add_namelist_file()`:
 
 ```python
-self.add_namelist_file('polaris.ocean.tasks.baroclinic_channel',
+self.add_namelist_file('polaris.tasks.ocean.baroclinic_channel',
                        'namelist.forward')
 ```
 
@@ -182,7 +182,7 @@ if nu is not None:
 # make sure output is double precision
 self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-self.add_yaml_file('polaris.ocean.tasks.baroclinic_channel',
+self.add_yaml_file('polaris.tasks.ocean.baroclinic_channel',
                    'forward.yaml')
 
 ```
@@ -310,7 +310,7 @@ A typical streams file is added by calling
 file is located and the name of the input streams file within that package:
 
 ```python
-self.add_streams_file('polaris.ocean.tasks.baroclinic_channel',
+self.add_streams_file('polaris.tasks.ocean.baroclinic_channel',
                       'streams.forward')
 ```
 
@@ -365,7 +365,7 @@ add_streams_file(step, module, 'streams.template',
 ```
 
 In this example, taken from
-{py:class}`polaris.ocean.tasks.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
+{py:class}`polaris.tasks.ocean.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
 we are creating a series of steps that will be used to perform dynamic
 adjustment of the ocean model, each of which might have different durations and
 restart intervals.  Rather than creating a streams file for each step of the

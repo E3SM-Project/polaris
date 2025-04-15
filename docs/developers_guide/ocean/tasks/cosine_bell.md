@@ -2,7 +2,7 @@
 
 # cosine_bell
 
-In most cases, the {py:class}`polaris.ocean.tasks.cosine_bell.CosineBell`
+In most cases, the {py:class}`polaris.tasks.ocean.cosine_bell.CosineBell`
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
@@ -30,13 +30,13 @@ Cosine bell tasks use shared `base_mesh` steps for creating
 
 ### init
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.init.Init`
+The class {py:class}`polaris.tasks.ocean.cosine_bell.init.Init`
 defines a step for setting up the initial state at each resolution with a
 tracer distributed in a cosine-bell shape.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.forward.Forward`
+The class {py:class}`polaris.tasks.ocean.cosine_bell.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
 and defines a step for running MPAS-Ocean from an initial condition produced in
 an `init` step. See {ref}`dev-ocean-convergence` for some relevant
@@ -46,7 +46,7 @@ section.  Other model config options are taken from `forward.yaml`.
 
 ### analysis
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.analysis.Analysis`
+The class {py:class}`polaris.tasks.ocean.cosine_bell.analysis.Analysis`
 descends from
 {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`,
 and defines a step for computing the error norm (L2) for the results
@@ -55,7 +55,7 @@ in `convergence_tracer1.png`.
 
 ### validate
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.validate.Validate` is a
+The class {py:class}`polaris.tasks.ocean.cosine_bell.validate.Validate` is a
 step for validating the results between two cosine-bell runs.  It is currently
 used to verify bit-for-bit restart in the `restart` test described below.
 
@@ -65,7 +65,7 @@ The visualization step is available only in the `cosine_bell/with_viz`
 tasks.  It is not included in the `cosine_bell` in order to keep regression
 as fast as possible when visualization isn't needed.
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.viz.Viz`
+The class {py:class}`polaris.tasks.ocean.cosine_bell.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by these options:
 
@@ -88,20 +88,20 @@ See {ref}`dev-visualization-global` for more details.
 
 ## decomp
 
-The class {py:class}`polaris.ocean.tasks.cosine_bell.decomp.Decomp` defines
+The class {py:class}`polaris.tasks.ocean.cosine_bell.decomp.Decomp` defines
 a decomposition test across core counts.  It runs Cosine Bell test at coarse
 resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
 for tracer advection across different core counts.
 
 ## restart
 
-The {py:class}`polaris.ocean.tasks.cosine_bell.restart.Restart` class defines
+The {py:class}`polaris.tasks.ocean.cosine_bell.restart.Restart` class defines
 a restart check that performs two time steps of the Cosine Bell test at coarse
 resolution, then performs reruns the second time step, as a restart run to
 verify the bit-for-bit restart capability for tracer advection.
 
 ### restart_step
 
-The {py:class}`polaris.ocean.tasks.cosine_bell.restart.RestartStep` class
+The {py:class}`polaris.tasks.ocean.cosine_bell.restart.RestartStep` class
 defines both steps of the restart run, the "full" run (2 time steps) and the
 "restart" run (repeating the last time step after a restart).

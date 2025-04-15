@@ -75,12 +75,12 @@ file can be empty or it can have code in it.  If it has functions or classes
 inside of it, they act like they're directly in the package.  As an example,
 the polaris file
 [polaris/ocean/\_\_init\_\_.py](https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py)
-has a class {py:class}`polaris.ocean.Ocean()` that looks like this (with the
+has a class {py:class}`polaris.tasks.ocean.Ocean()` that looks like this (with the
 [docstrings](https://www.python.org/dev/peps/pep-0257/) stripped out):
 
 ```python
 from polaris import Component
-from polaris.ocean.tasks.baroclinic_channel import add_baroclinic_channel_tasks
+from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
 
 
 class Ocean(Component):
@@ -100,7 +100,7 @@ class Ocean(Component):
         config.add_from_package('polaris.ocean', configs[model])
 ```
 
-This class contains all of the ocean tasks and steps.  The details aren't 
+This class contains all of the ocean tasks and steps.  The details aren't
 important.  The point is that the class can be imported like so:
 
 ```python
@@ -178,7 +178,7 @@ a handful of developers felt comfortable contributing directly to the code.
 
 Based on this experience, we were hesitant to use classes in compass, the
 predecessor to polaris and tried an implementation without them.  This led to a
-clumsy set of functions and 
+clumsy set of functions and
 [python dictionaries](https://docs.python.org/3/tutorial/datastructures.html#dictionaries)
 that was equally complex but harder to understand and document than classes.
 
@@ -193,9 +193,9 @@ meant to "override" (replace with their own version of the function, or augment
 by replacing the function and then calling the base class's version of the
 same function).
 
-We have some tutorials on how to add new components, tasks and steps, and more 
-will be developed in the near future.  These will explain the main features of 
-classes that developers need to know about. We also hope that the tasks 
+We have some tutorials on how to add new components, tasks and steps, and more
+will be developed in the near future.  These will explain the main features of
+classes that developers need to know about. We also hope that the tasks
 currently in the package can provide a starting point for new development.
 
 (dev-code-sharing)=
@@ -214,7 +214,7 @@ The polaris framework (modules and packages not in the component packages)
 has a lot of code that is shared across existing tasks and could be very
 useful for future ones.
 
-The framework has been broken into modules that make it clear what 
+The framework has been broken into modules that make it clear what
 functionality each contains, e.g. `polaris.namelists` and
 `polaris.streams` are for manipulating namelist and
 streams files, respectively; `polaris.io` has functionality for
@@ -223,7 +223,7 @@ downloading files from the
 and creating symlinks; `polaris.validation` can be used to ensure that
 variables are bit-for-bit identical between steps or when compared with a
 baseline, and to compare timers with a baseline; and the
-`polaris.parallel` module contains a function  
+`polaris.parallel` module contains a function
 {py:func}`polaris.parallel.get_available_cores_and_nodes()` that can find out
 the number of total cores and nodes available for running steps.
 
@@ -255,8 +255,8 @@ the same conceptual test (e.g. restart) can be defined:
 > - with or without ice-shelf cavities
 > - with the RK4 or split-explicit time integrators
 
-In theory, we could provide additional variants of these tasks with 
-different  initial conditions and other capabilities such as support for 
+In theory, we could provide additional variants of these tasks with
+different  initial conditions and other capabilities such as support for
 biogeochemistry.
 
 ### ...within a task

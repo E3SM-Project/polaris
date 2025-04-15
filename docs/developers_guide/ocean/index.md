@@ -2,7 +2,7 @@
 
 # Ocean component
 
-The `ocean` component is defined by the {py:class}`polaris.ocean.Ocean`
+The `ocean` component is defined by the {py:class}`polaris.tasks.ocean.Ocean`
 class. All tasks in the `ocean` component share the following set of
 default config options:
 
@@ -64,7 +64,7 @@ component = ${paths:component_path}/ocean_model
 
 The default location for MPAS-Ocean is in the
 [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
-`e3sm_submodules/E3SM-Project` in the directory `components/mpas-ocean`.  The 
+`e3sm_submodules/E3SM-Project` in the directory `components/mpas-ocean`.  The
 submodule  may not point to the latest MPAS-Ocean code in on the E3SM
 [master](https://github.com/E3SM-Project/E3SM/tree/master)
 branch but the plan is to update the submodule frequently.  The current version
@@ -73,7 +73,7 @@ corresponding version of polaris.
 
 Similarly, the `e3sm_submodules/Omega` submodule is where you can find
 a verison of Omega that is compatible with the current polaris.  The model
-can be built from the `components/omega` directory.  The  submodule may not 
+can be built from the `components/omega` directory.  The  submodule may not
 point to the latest Omega code in on the `Omega`
 [develop](https://github.com/E3SM-Project/Omega/tree/develop)
 branch but, again, the plan is to update the submodule frequently and to
@@ -87,7 +87,7 @@ git submodule update --init --recursive
 ```
 
 in the base directory of your local clone of the polaris repo.  Then, you can
-`cd` into the component's directory (e.g. 
+`cd` into the component's directory (e.g.
 `e3sm_submodules/E3SM-Project/components/mpas-ocean`) and build the code as
 appropriate for whichever of the {ref}`machines` you are using.
 

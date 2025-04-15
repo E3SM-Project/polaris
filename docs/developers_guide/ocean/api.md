@@ -1,7 +1,7 @@
 # ocean
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean
+.. currentmodule:: polaris.tasks.ocean
 
 .. autosummary::
    :toctree: generated/
@@ -14,7 +14,7 @@
 ### baroclinic_channel
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.baroclinic_channel
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel
 
 .. autosummary::
    :toctree: generated/
@@ -56,7 +56,7 @@
 ### barotropic_gyre
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.barotropic_gyre
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre
 
 .. autosummary::
    :toctree: generated/
@@ -84,7 +84,7 @@
 ### cosine_bell
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.cosine_bell
+.. currentmodule:: polaris.tasks.ocean.cosine_bell
 
 .. autosummary::
    :toctree: generated/
@@ -121,7 +121,7 @@
 ### geostrophic
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.geostrophic
+.. currentmodule:: polaris.tasks.ocean.geostrophic
 
 .. autosummary::
    :toctree: generated/
@@ -147,7 +147,7 @@
 ### ice_shelf_2d
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d
+.. currentmodule:: polaris.tasks.ocean.ice_shelf_2d
 
 .. autosummary::
    :toctree: generated/
@@ -173,7 +173,7 @@
 ### inertial_gravity_wave
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.inertial_gravity_wave
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave
 
 .. autosummary::
    :toctree: generated/
@@ -202,7 +202,7 @@
 ### internal_wave
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.internal_wave
+.. currentmodule:: polaris.tasks.ocean.internal_wave
 
 .. autosummary::
    :toctree: generated/
@@ -231,7 +231,7 @@
 ### manufactured_solution
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.manufactured_solution
+.. currentmodule:: polaris.tasks.ocean.manufactured_solution
 
 .. autosummary::
    :toctree: generated/
@@ -261,7 +261,7 @@
 ### single_column
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.single_column
+.. currentmodule:: polaris.tasks.ocean.single_column
 
 .. autosummary::
    :toctree: generated/
@@ -284,7 +284,7 @@
 ### sphere_transport
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.sphere_transport
+.. currentmodule:: polaris.tasks.ocean.sphere_transport
 
 .. autosummary::
    :toctree: generated/
