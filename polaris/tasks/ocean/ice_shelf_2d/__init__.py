@@ -1,3 +1,5 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.ice_shelf_2d.default import Default as Default
@@ -17,9 +19,8 @@ def add_ice_shelf_2d_tasks(component):
             basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 
             config_filename = 'ice_shelf_2d.cfg'
-            config = PolarisConfigParser(
-                filepath=f'{basedir}/{config_filename}'
-            )
+            filepath = os.path.join(component.name, basedir, config_filename)
+            config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.ice_shelf', 'ssh_adjustment.cfg'
             )
@@ -82,9 +83,8 @@ def add_ice_shelf_2d_tasks(component):
             basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 
             config_filename = 'ice_shelf_2d.cfg'
-            config = PolarisConfigParser(
-                filepath=f'{basedir}/{config_filename}'
-            )
+            filepath = os.path.join(component.name, basedir, config_filename)
+            config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.ice_shelf', 'ssh_adjustment.cfg'
             )

@@ -1,3 +1,4 @@
+import os
 from math import ceil as ceil
 from typing import Dict as Dict
 
@@ -36,14 +37,22 @@ def add_sphere_transport_tasks(component):
         the ocean component that the tasks will be added to
     """
 
+    case_names = [
+        'rotation_2d',
+        'nondivergent_2d',
+        'divergent_2d',
+        'correlated_tracers_2d',
+    ]
+
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-        for case_name in [
-            'rotation_2d',
-            'nondivergent_2d',
-            'divergent_2d',
-            'correlated_tracers_2d',
-        ]:
-            filepath = f'spherical/{prefix}/{case_name}/{case_name}.cfg'
+        for case_name in case_names:
+            filepath = os.path.join(
+                component.name,
+                'spherical',
+                prefix,
+                case_name,
+                f'{case_name}.cfg',
+            )
             config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.convergence', 'convergence.cfg'

@@ -1,3 +1,4 @@
+import os
 from typing import (
     Dict as Dict,
 )
@@ -46,7 +47,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         mesh_name = resolution_to_string(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
-        filepath = f'{resdir}/isomip_plus_topo.cfg'
+        filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
         config = PolarisConfigParser(filepath=filepath)
         if not planar:
             config.add_from_package('polaris.mesh', 'spherical.cfg')

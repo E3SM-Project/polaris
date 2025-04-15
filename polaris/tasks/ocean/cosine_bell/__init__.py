@@ -27,7 +27,9 @@ def add_cosine_bell_tasks(component):
     """
 
     for prefix, single_refinement in [('icos', 8.0), ('qu', 2.0)]:
-        filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        filepath = (
+            f'{component.name}/spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        )
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(

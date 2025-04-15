@@ -30,7 +30,9 @@ def add_geostrophic_tasks(component):
     """
 
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-        filepath = f'spherical/{prefix}/geostrophic/geostrophic.cfg'
+        filepath = (
+            f'{component.name}/spherical/{prefix}/geostrophic/geostrophic.cfg'
+        )
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(

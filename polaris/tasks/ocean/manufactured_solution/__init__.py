@@ -1,3 +1,4 @@
+import os
 from math import ceil as ceil
 from typing import Dict as Dict
 
@@ -30,7 +31,7 @@ def add_manufactured_solution_tasks(component):
     """
     basedir = 'planar/manufactured_solution'
     config_filename = 'manufactured_solution.cfg'
-    filepath = f'{basedir}/{config_filename}'
+    filepath = os.path.join(component.name, basedir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
     config.add_from_package(

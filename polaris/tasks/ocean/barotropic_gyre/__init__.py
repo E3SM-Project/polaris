@@ -1,3 +1,5 @@
+import os
+
 from polaris import (
     Step as Step,
 )
@@ -39,12 +41,12 @@ class BarotropicGyre(Task):
         """
         group_name = 'barotropic_gyre'
         name = f'{group_name}_{test_name}'
-        subdir = f'planar/{group_name}/{test_name}'
+        subdir = os.path.join('planar', group_name, test_name)
         super().__init__(component=component, name=name, subdir=subdir)
 
         config = self.config
         config_filename = f'{group_name}.cfg'
-        config.filepath = f'{subdir}/{config_filename}'
+        config.filepath = os.path.join(component.name, subdir, config_filename)
         config.add_from_package(
             f'polaris.tasks.ocean.{group_name}', config_filename
         )
@@ -62,7 +64,7 @@ class BarotropicGyre(Task):
             openmp_threads=1,
             name='short_forward',
             run_time_steps=3,
-            graph_target=f'{init.path}/culled_graph.info',
+            graph_target=os.path.join(init.path, 'culled_graph.info'),
         )
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward)
@@ -74,7 +76,7 @@ class BarotropicGyre(Task):
             min_tasks=None,
             openmp_threads=1,
             name='long_forward',
-            graph_target=f'{init.path}/culled_graph.info',
+            graph_target=os.path.join(init.path, 'culled_graph.info'),
         )
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward, run_by_default=False)

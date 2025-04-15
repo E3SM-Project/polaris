@@ -1,3 +1,5 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.baroclinic_channel.decomp import Decomp as Decomp
@@ -20,7 +22,9 @@ def add_baroclinic_channel_tasks(component):
         resdir = f'planar/baroclinic_channel/{resdir}'
 
         config_filename = 'baroclinic_channel.cfg'
-        config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        config = PolarisConfigParser(
+            filepath=os.path.join(component.name, resdir, config_filename)
+        )
         config.add_from_package(
             'polaris.tasks.ocean.baroclinic_channel', 'baroclinic_channel.cfg'
         )

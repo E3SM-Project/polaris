@@ -66,7 +66,9 @@ def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
 
         # add default config options for spherical meshes
         config_filename = f'{base_mesh.name}.cfg'
-        filepath = os.path.join(base_mesh.subdir, config_filename)
+        filepath = os.path.join(
+            component.name, base_mesh.subdir, config_filename
+        )
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.mesh', 'spherical.cfg')
         base_mesh.set_shared_config(config)
