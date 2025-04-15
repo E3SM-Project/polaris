@@ -11,7 +11,7 @@ from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
-from polaris.tasks import get_components
+from polaris.tasks import components
 
 
 def setup_tasks(
@@ -95,8 +95,6 @@ def setup_tasks(
         )
         work_dir = os.getcwd()
     work_dir = os.path.abspath(work_dir)
-
-    components = get_components()
 
     all_tasks = dict()
     for component in components:

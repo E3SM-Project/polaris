@@ -17,3 +17,7 @@ class SeaIce(Component):
 
         # please keep these in alphabetical order
         add_single_column_tasks(component=self)
+
+
+# create a single module-level instance available to other components
+seaice = SeaIce()

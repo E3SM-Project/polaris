@@ -13,3 +13,7 @@ class Mesh(Component):
         super().__init__(name='mesh')
 
         # please keep these in alphabetical order
+
+
+# create a single module-level instance available to other components
+mesh = Mesh()

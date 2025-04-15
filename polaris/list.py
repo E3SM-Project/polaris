@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from polaris.tasks import get_components
+from polaris.tasks import components as all_components
 
 
 def list_cases(task_expr=None, number=None, verbose=False):
@@ -23,13 +23,11 @@ def list_cases(task_expr=None, number=None, verbose=False):
         Whether to print details of each task or just the subdirectories.
         When applied to suites, verbose will list the tasks in the suite.
     """
-    components = get_components()
-
     if number is None:
         print('Tasks:')
 
     tasks = []
-    for component in components:
+    for component in all_components:
         for task in component.tasks.values():
             tasks.append(task)
 
@@ -94,7 +92,7 @@ def list_machines():
 
 def list_suites(components=None, verbose=False):
     if components is None:
-        components = [component.name for component in get_components()]
+        components = [component.name for component in all_components]
     print('Suites:')
     for component in components:
         package = f'polaris.suites.{component}'

@@ -187,18 +187,6 @@ seaice/api
    ModelStep.partition
 ```
 
-### components
-
-```{eval-rst}
-.. currentmodule:: polaris.tasks
-
-.. autosummary::
-   :toctree: generated/
-
-   get_components
-```
-
-
 ### config
 
 ```{eval-rst}

@@ -61,3 +61,7 @@ class Ocean(Component):
             raise ValueError(f'Unknown ocean model {model} in config options')
 
         config.add_from_package('polaris.ocean', configs[model])
+
+
+# create a single module-level instance available to other components
+ocean = Ocean()
