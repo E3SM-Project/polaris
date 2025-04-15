@@ -71,7 +71,7 @@ to identify which component the task belongs to in its constructor.
 An example of a helper function that adds tasks for baroclinic channel test
 cases is:
 ```python
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.baroclinic_channel.decomp import Decomp
 from polaris.tasks.ocean.baroclinic_channel.default import Default
 from polaris.tasks.ocean.baroclinic_channel.init import Init
@@ -88,7 +88,7 @@ def add_baroclinic_channel_tasks(component):
         the ocean component that the tasks will be added to
     """
     for resolution in [10., 4., 1.]:
-        resdir = resolution_to_subdir(resolution)
+        resdir = resolution_to_string(resolution)
         resdir = f'planar/baroclinic_channel/{resdir}'
 
         init = Init(component=component, resolution=resolution, indir=resdir)

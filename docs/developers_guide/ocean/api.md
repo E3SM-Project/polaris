@@ -394,16 +394,6 @@
    get_time_interval_string
 ```
 
-### Spherical Base Mesh Step
-
-```{eval-rst}
-.. currentmodule:: polaris.ocean.mesh.spherical
-
-.. autosummary::
-   :toctree: generated/
-
-   add_spherical_base_mesh_step
-```
 
 ### Reference Potential Energy (RPE)
 

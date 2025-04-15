@@ -6,7 +6,7 @@ import xarray as xr
 from polaris import Step
 from polaris.mpas import time_index_from_xtime
 from polaris.ocean.convergence import get_resolution_for_task
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.resolution import resolution_to_string
 from polaris.viz import use_mplstyle
 
 
@@ -109,7 +109,7 @@ class FilamentAnalysis(Step):
         use_mplstyle()
         fig, ax = plt.subplots()
         for i, refinement_factor in enumerate(self.refinement_factors):
-            mesh_name = resolution_to_subdir(resolutions[i])
+            mesh_name = resolution_to_string(resolutions[i])
             ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
             tidx = time_index_from_xtime(
                 ds.xtime.values, eval_time * s_per_day

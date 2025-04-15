@@ -3,14 +3,12 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
-)
-from polaris.ocean.mesh.spherical import (
-    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
 )
 from polaris.tasks.ocean.cosine_bell.analysis import Analysis as Analysis
 from polaris.tasks.ocean.cosine_bell.decomp import Decomp as Decomp
@@ -185,8 +183,8 @@ class CosineBell(Task):
                 config, refinement_factor, refinement=refinement
             )
 
-            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral=(prefix == 'icos')
+            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+                resolution, icosahedral=(prefix == 'icos')
             )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 

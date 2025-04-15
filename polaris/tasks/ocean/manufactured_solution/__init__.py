@@ -9,9 +9,7 @@ from polaris.ocean.convergence import (
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
 )
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.manufactured_solution.analysis import (
     Analysis as Analysis,
 )
@@ -126,7 +124,7 @@ class ManufacturedSolution(Task):
             resolution = get_resolution_for_task(
                 self.config, refinement_factor, refinement=refinement
             )
-            mesh_name = resolution_to_subdir(resolution)
+            mesh_name = resolution_to_string(resolution)
 
             subdir = f'{basedir}/init/{mesh_name}'
             symlink = f'init/{mesh_name}'

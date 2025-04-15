@@ -1,7 +1,5 @@
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.ice_shelf_2d.default import Default as Default
 from polaris.tasks.ocean.ice_shelf_2d.init import Init as Init
 
@@ -14,7 +12,7 @@ def add_ice_shelf_2d_tasks(component):
         the ocean component that the tasks will be added to
     """
     for resolution in [5.0, 2.0]:
-        resdir = resolution_to_subdir(resolution)
+        resdir = resolution_to_string(resolution)
         for coord_type in ['z-star', 'z-level']:
             basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 

@@ -7,9 +7,7 @@ from typing import (
 
 from polaris import Step as Step
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.isomip_plus.isomip_plus_test import (
     IsomipPlusTest as IsomipPlusTest,
 )
@@ -45,7 +43,7 @@ def add_isomip_plus_tasks(component, mesh_type):
     """
     planar = mesh_type == 'planar'
     for resolution in [4.0, 2.0, 1.0]:
-        mesh_name = resolution_to_subdir(resolution)
+        mesh_name = resolution_to_string(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
         filepath = f'{resdir}/isomip_plus_topo.cfg'
