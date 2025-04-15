@@ -1,6 +1,6 @@
 (polaris)=
 # Polaris
-```{image} _static/polaris_logo_large.png
+```{image} _static/polaris_logo_small.png
 :align: center
 :width: 400 px
 ```
