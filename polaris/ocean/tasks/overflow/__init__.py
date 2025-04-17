@@ -7,8 +7,7 @@ from polaris.ocean.tasks.overflow.viz import Viz as Viz
 
 def add_overflow_tasks(component):
     """
-    Add a task that defines a convergence test that uses the method of
-    manufactured solutions
+    Add a task TODO
 
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
@@ -23,7 +22,7 @@ def add_overflow_tasks(component):
 
 class Overflow(Task):
     """
-    The convergence test case using the method of manufactured solutions
+    The overflow test case TODO
     """
 
     def __init__(self, component, config):
