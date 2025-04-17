@@ -25,7 +25,7 @@ def add_geostrophic_tasks(component):
     """
     Add tasks that define variants of the geostrophic test
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
 
@@ -80,7 +80,7 @@ class Geostrophic(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser

@@ -36,7 +36,7 @@ def add_isomip_plus_tasks(component, mesh_type):
     """
     Add tasks for different baroclinic channel tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
 
     mesh_type : {'planar', 'spherical'}

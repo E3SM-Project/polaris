@@ -16,7 +16,7 @@ def add_barotropic_gyre_tasks(component):
     """
     Add a task that defines a convergence test for inertial gravity waves
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
     test_name = 'default'
@@ -36,7 +36,7 @@ class BarotropicGyre(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
         group_name = 'barotropic_gyre'

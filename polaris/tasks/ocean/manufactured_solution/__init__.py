@@ -26,7 +26,7 @@ def add_manufactured_solution_tasks(component):
     Add a task that defines a convergence test that uses the method of
     manufactured solutions
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
     basedir = 'planar/manufactured_solution'
@@ -68,7 +68,7 @@ class ManufacturedSolution(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser

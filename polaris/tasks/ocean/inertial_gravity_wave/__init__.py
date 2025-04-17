@@ -30,7 +30,7 @@ def add_inertial_gravity_wave_tasks(component):
     """
     Add a task that defines a convergence test for inertial gravity waves
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
     basedir = 'planar/inertial_gravity_wave'
@@ -60,7 +60,7 @@ class InertialGravityWave(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser

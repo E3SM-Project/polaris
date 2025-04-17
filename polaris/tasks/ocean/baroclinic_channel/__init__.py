@@ -14,7 +14,7 @@ def add_baroclinic_channel_tasks(component):
     """
     Add tasks for different baroclinic channel tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     for resolution in [10.0, 4.0, 1.0]:

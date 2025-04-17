@@ -10,7 +10,7 @@ def add_internal_wave_tasks(component):
     """
     Add tasks for different internal wave tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     config_filename = 'internal_wave.cfg'

@@ -21,7 +21,7 @@ class IceShelfTask(Task):
     sshdir : string
         The directory to put the ssh_adjustment steps in
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         The ocean component that this task belongs to
 
     min_resolution : float
@@ -34,7 +34,7 @@ class IceShelfTask(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         min_resolution : float

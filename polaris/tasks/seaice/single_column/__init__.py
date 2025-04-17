@@ -12,7 +12,7 @@ def add_single_column_tasks(component):
 
     Parameters
     ----------
-    component : polaris.seaice.Seaice
+    component : polaris.tasks.seaice.SeaIce
         the component that that the tasks will be added to
     """
     component.add_task(StandardPhysics(component=component))

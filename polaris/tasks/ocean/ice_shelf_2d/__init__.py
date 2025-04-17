@@ -10,7 +10,7 @@ def add_ice_shelf_2d_tasks(component):
     """
     Add tasks for different ice shelf 2-d tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     for resolution in [5.0, 2.0]:

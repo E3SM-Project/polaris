@@ -33,7 +33,7 @@ def add_sphere_transport_tasks(component):
     Add tasks that define variants of sphere transport test cases:
     nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
 
@@ -109,7 +109,7 @@ class SphereTransport(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
