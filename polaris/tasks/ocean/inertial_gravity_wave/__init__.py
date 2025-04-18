@@ -1,3 +1,4 @@
+import os
 from math import ceil as ceil
 from typing import Dict as Dict
 
@@ -14,9 +15,7 @@ from polaris.ocean.convergence import (
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
 )
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.inertial_gravity_wave.analysis import (
     Analysis as Analysis,
 )
@@ -31,12 +30,12 @@ def add_inertial_gravity_wave_tasks(component):
     """
     Add a task that defines a convergence test for inertial gravity waves
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
     basedir = 'planar/inertial_gravity_wave'
     config_filename = 'inertial_gravity_wave.cfg'
-    filepath = f'{basedir}/{config_filename}'
+    filepath = os.path.join(component.name, basedir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
     config.add_from_package(
@@ -61,7 +60,7 @@ class InertialGravityWave(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
@@ -94,7 +93,7 @@ class InertialGravityWave(Task):
             resolution = get_resolution_for_task(
                 self.config, refinement_factor, refinement=refinement
             )
-            mesh_name = resolution_to_subdir(resolution)
+            mesh_name = resolution_to_string(resolution)
 
             subdir = f'{basedir}/init/{mesh_name}'
             symlink = f'init/{mesh_name}'

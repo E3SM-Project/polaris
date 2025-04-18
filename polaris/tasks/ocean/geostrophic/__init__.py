@@ -8,14 +8,12 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
-)
-from polaris.ocean.mesh.spherical import (
-    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
 )
 from polaris.tasks.ocean.geostrophic.analysis import Analysis as Analysis
 from polaris.tasks.ocean.geostrophic.forward import Forward as Forward
@@ -27,12 +25,14 @@ def add_geostrophic_tasks(component):
     """
     Add tasks that define variants of the geostrophic test
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
 
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-        filepath = f'spherical/{prefix}/geostrophic/geostrophic.cfg'
+        filepath = (
+            f'{component.name}/spherical/{prefix}/geostrophic/geostrophic.cfg'
+        )
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
@@ -80,7 +80,7 @@ class Geostrophic(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
@@ -183,8 +183,8 @@ class Geostrophic(Task):
                 config, refinement_factor, refinement=refinement
             )
 
-            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral
+            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+                resolution, icosahedral
             )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 

@@ -4,7 +4,6 @@ import jigsawpy
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray
-import xarray.plot
 from jigsawpy.savejig import savejig
 from mpas_tools.cime.constants import constants
 from mpas_tools.logging import check_call

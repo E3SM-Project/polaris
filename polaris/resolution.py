@@ -1,4 +1,4 @@
-def resolution_to_subdir(resolution):
+def resolution_to_string(resolution):
     """
     Convert a resolution to a subdirectory name
 

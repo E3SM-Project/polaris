@@ -101,7 +101,7 @@ resolution's work directory:
 
 ```python
 from polaris.config import PolarisConfigParser
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.baroclinic_channel.default import Default
 from polaris.tasks.ocean.baroclinic_channel.init import Init
 from polaris.tasks.ocean.baroclinic_channel.rpe import Rpe
@@ -109,7 +109,7 @@ from polaris.tasks.ocean.baroclinic_channel.rpe import Rpe
 
 def add_baroclinic_channel_tasks(component):
     for resolution in [10., 4., 1.]:
-        resdir = resolution_to_subdir(resolution)
+        resdir = resolution_to_string(resolution)
         resdir = f'planar/baroclinic_channel/{resdir}'
 
         config_filename = 'baroclinic_channel.cfg'

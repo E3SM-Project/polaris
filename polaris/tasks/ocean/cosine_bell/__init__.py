@@ -3,14 +3,12 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
-)
-from polaris.ocean.mesh.spherical import (
-    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
 )
 from polaris.tasks.ocean.cosine_bell.analysis import Analysis as Analysis
 from polaris.tasks.ocean.cosine_bell.decomp import Decomp as Decomp
@@ -24,12 +22,14 @@ def add_cosine_bell_tasks(component):
     """
     Add tasks that define variants of the cosine bell test case
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
 
     for prefix, single_refinement in [('icos', 8.0), ('qu', 2.0)]:
-        filepath = f'spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        filepath = (
+            f'{component.name}/spherical/{prefix}/cosine_bell/cosine_bell.cfg'
+        )
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
@@ -101,7 +101,7 @@ class CosineBell(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
@@ -185,8 +185,8 @@ class CosineBell(Task):
                 config, refinement_factor, refinement=refinement
             )
 
-            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral=(prefix == 'icos')
+            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+                resolution, icosahedral=(prefix == 'icos')
             )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 

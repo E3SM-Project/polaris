@@ -1,7 +1,7 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.baroclinic_channel.decomp import Decomp as Decomp
 from polaris.tasks.ocean.baroclinic_channel.default import Default as Default
 from polaris.tasks.ocean.baroclinic_channel.init import Init as Init
@@ -14,15 +14,17 @@ def add_baroclinic_channel_tasks(component):
     """
     Add tasks for different baroclinic channel tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     for resolution in [10.0, 4.0, 1.0]:
-        resdir = resolution_to_subdir(resolution)
+        resdir = resolution_to_string(resolution)
         resdir = f'planar/baroclinic_channel/{resdir}'
 
         config_filename = 'baroclinic_channel.cfg'
-        config = PolarisConfigParser(filepath=f'{resdir}/{config_filename}')
+        config = PolarisConfigParser(
+            filepath=os.path.join(component.name, resdir, config_filename)
+        )
         config.add_from_package(
             'polaris.tasks.ocean.baroclinic_channel', 'baroclinic_channel.cfg'
         )

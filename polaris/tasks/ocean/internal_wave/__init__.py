@@ -1,3 +1,5 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.internal_wave.default import Default as Default
 from polaris.tasks.ocean.internal_wave.init import Init as Init
@@ -8,12 +10,14 @@ def add_internal_wave_tasks(component):
     """
     Add tasks for different internal wave tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     config_filename = 'internal_wave.cfg'
     base_dir = 'planar/internal_wave'
-    config = PolarisConfigParser(filepath=f'{base_dir}/{config_filename}')
+    config = PolarisConfigParser(
+        filepath=os.path.join(component.name, base_dir, config_filename)
+    )
     config.add_from_package(
         'polaris.tasks.ocean.internal_wave', config_filename
     )

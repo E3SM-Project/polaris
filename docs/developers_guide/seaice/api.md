@@ -1,12 +1,12 @@
 # seaice
 
 ```{eval-rst}
-.. currentmodule:: polaris.tasks.seaice
+.. currentmodule:: polaris.tasks.seaice.add_tasks
 
 .. autosummary::
    :toctree: generated/
 
-   SeaIce
+   add_seaice_tasks
 ```
 
 ## Tasks

@@ -1,3 +1,4 @@
+import os
 from typing import (
     Dict as Dict,
 )
@@ -7,9 +8,7 @@ from typing import (
 
 from polaris import Step as Step
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.isomip_plus.isomip_plus_test import (
     IsomipPlusTest as IsomipPlusTest,
 )
@@ -37,7 +36,7 @@ def add_isomip_plus_tasks(component, mesh_type):
     """
     Add tasks for different baroclinic channel tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
 
     mesh_type : {'planar', 'spherical'}
@@ -45,10 +44,10 @@ def add_isomip_plus_tasks(component, mesh_type):
     """
     planar = mesh_type == 'planar'
     for resolution in [4.0, 2.0, 1.0]:
-        mesh_name = resolution_to_subdir(resolution)
+        mesh_name = resolution_to_string(resolution)
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
-        filepath = f'{resdir}/isomip_plus_topo.cfg'
+        filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
         config = PolarisConfigParser(filepath=filepath)
         if not planar:
             config.add_from_package('polaris.mesh', 'spherical.cfg')

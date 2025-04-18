@@ -71,9 +71,7 @@ def run_tasks(
     # get the config file for the first task in the suite
     task = next(iter(suite['tasks'].values()))
     component = task.component
-    common_config = setup_config(
-        task.base_work_dir, component.name, f'{component.name}.cfg'
-    )
+    common_config = setup_config(task.base_work_dir, f'{component.name}.cfg')
     available_resources = get_available_parallel_resources(common_config)
 
     # start logging to stdout/stderr
@@ -152,9 +150,7 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     if step_is_subprocess:
         step.run_as_subprocess = False
 
-    config = setup_config(
-        step.base_work_dir, step.component.name, step.config.filepath
-    )
+    config = setup_config(step.base_work_dir, step.config.filepath)
     task.config = config
     available_resources = get_available_parallel_resources(config)
     set_cores_per_node(task.config, available_resources['cores_per_node'])
@@ -353,9 +349,7 @@ def _log_and_run_task(
 
         os.chdir(task.work_dir)
 
-        config = setup_config(
-            task.base_work_dir, task.component.name, task.config.filepath
-        )
+        config = setup_config(task.base_work_dir, task.config.filepath)
         task.config = config
         set_cores_per_node(task.config, available_resources['cores_per_node'])
 
@@ -442,9 +436,7 @@ def _run_task(task, available_resources):
 
         step_start = time.time()
 
-        step.config = setup_config(
-            step.base_work_dir, step.component.name, step.config.filepath
-        )
+        step.config = setup_config(step.base_work_dir, step.config.filepath)
         if task.log_filename is not None:
             step_log_filename = task.log_filename
         else:

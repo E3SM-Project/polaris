@@ -1,7 +1,7 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.resolution import (
-    resolution_to_subdir as resolution_to_subdir,
-)
+from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.ice_shelf_2d.default import Default as Default
 from polaris.tasks.ocean.ice_shelf_2d.init import Init as Init
 
@@ -10,18 +10,17 @@ def add_ice_shelf_2d_tasks(component):
     """
     Add tasks for different ice shelf 2-d tests to the ocean component
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     for resolution in [5.0, 2.0]:
-        resdir = resolution_to_subdir(resolution)
+        resdir = resolution_to_string(resolution)
         for coord_type in ['z-star', 'z-level']:
             basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 
             config_filename = 'ice_shelf_2d.cfg'
-            config = PolarisConfigParser(
-                filepath=f'{basedir}/{config_filename}'
-            )
+            filepath = os.path.join(component.name, basedir, config_filename)
+            config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.ice_shelf', 'ssh_adjustment.cfg'
             )
@@ -84,9 +83,8 @@ def add_ice_shelf_2d_tasks(component):
             basedir = f'planar/ice_shelf_2d/{resdir}/{coord_type}'
 
             config_filename = 'ice_shelf_2d.cfg'
-            config = PolarisConfigParser(
-                filepath=f'{basedir}/{config_filename}'
-            )
+            filepath = os.path.join(component.name, basedir, config_filename)
+            config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.ice_shelf', 'ssh_adjustment.cfg'
             )

@@ -106,9 +106,12 @@ def write(work_dir, tasks, config=None):
 
 
 def _get_component_git_version(config):
-    component_path = config.get('paths', 'component_path')
+    if config.has_option('paths', 'component_path'):
+        component_path = config.get('paths', 'component_path')
+    else:
+        component_path = None
 
-    if not os.path.exists(component_path):
+    if component_path is None or not os.path.exists(component_path):
         return None
 
     cwd = os.getcwd()

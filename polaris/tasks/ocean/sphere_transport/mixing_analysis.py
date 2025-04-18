@@ -8,7 +8,7 @@ from matplotlib.lines import Line2D
 from polaris import Step
 from polaris.mpas import time_index_from_xtime
 from polaris.ocean.convergence import get_resolution_for_task
-from polaris.ocean.resolution import resolution_to_subdir
+from polaris.resolution import resolution_to_string
 from polaris.viz import use_mplstyle
 
 
@@ -112,7 +112,7 @@ class MixingAnalysis(Step):
         for i, refinement_factor in enumerate(self.refinement_factors):
             ax = axes[int(i / 2), i % 2]
             _init_triplot_axes(ax)
-            mesh_name = resolution_to_subdir(resolutions[i])
+            mesh_name = resolution_to_string(resolutions[i])
             ax.set(title=mesh_name)
             ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
             if i % 2 == 0:

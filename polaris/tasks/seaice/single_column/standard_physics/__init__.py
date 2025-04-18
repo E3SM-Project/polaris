@@ -17,7 +17,7 @@ class StandardPhysics(Task):
 
         Parameters
         ----------
-        component : polaris.seaice.Seaice
+        component : polaris.tasks.seaice.SeaIce
             the component that that the task belongs to
         """
         name = 'standard_physics'

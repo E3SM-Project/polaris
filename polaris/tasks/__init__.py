@@ -3,22 +3,34 @@ from typing import List
 from polaris import Component
 
 # import new components here
-from polaris.tasks.ocean import Ocean
-from polaris.tasks.seaice import SeaIce
+from polaris.tasks.mesh import mesh
+from polaris.tasks.mesh.add_tasks import add_mesh_tasks
+from polaris.tasks.ocean import ocean
+from polaris.tasks.ocean.add_tasks import add_ocean_tasks
+from polaris.tasks.seaice import seaice
+from polaris.tasks.seaice.add_tasks import add_seaice_tasks
+
+# Add new components alphabetically to this list
+_components: List[Component] = [
+    mesh,
+    ocean,
+    seaice,
+]
+
+_tasks_added = False
 
 
 def get_components():
     """
-    Get a list of components, which in turn contain lists tasks
-
-    Returns
-    -------
-    components : list of polaris.Component
-        A list of components containing all available tasks
+    Add all tasks to the Polaris components
     """
-    # add new components here
-    components: List[Component] = [
-        Ocean(),
-        SeaIce(),
-    ]
-    return components
+    global _tasks_added
+    if not _tasks_added:
+        # add tasks to each component
+        add_mesh_tasks(component=mesh)
+        add_ocean_tasks(component=ocean)
+        add_seaice_tasks(component=seaice)
+
+        _tasks_added = True
+
+    return _components

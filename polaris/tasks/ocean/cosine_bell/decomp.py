@@ -1,6 +1,6 @@
 from polaris import Task
+from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import get_resolution_for_task
-from polaris.ocean.mesh.spherical import add_spherical_base_mesh_step
 from polaris.tasks.ocean.cosine_bell.forward import Forward
 from polaris.tasks.ocean.cosine_bell.init import Init
 from polaris.tasks.ocean.cosine_bell.validate import Validate
@@ -26,7 +26,7 @@ class Decomp(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
@@ -60,8 +60,8 @@ class Decomp(Task):
         )
 
         icosahedral = prefix == 'icos'
-        base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-            component, resolution, icosahedral
+        base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+            resolution, icosahedral
         )
 
         name = f'{prefix}_init_{mesh_name}'

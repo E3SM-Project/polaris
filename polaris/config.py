@@ -18,8 +18,8 @@ class PolarisConfigParser(MpasConfigParser):
     Attributes
     ----------
     filepath : str
-        A filepath within the component's work directory where this config
-        will be written out
+        A filepath within the work directory where this config will be written
+        out
 
     tasks : set of polaris.Task
         A list of tasks that use this config
@@ -32,8 +32,8 @@ class PolarisConfigParser(MpasConfigParser):
         Parameters
         ----------
         filepath : str, optional
-            A filepath within the component's work directory where this config
-            will be written out
+            A filepath within the work directory where this config will be
+            written out
         """
         super().__init__()
         self.filepath: Union[str, None] = filepath

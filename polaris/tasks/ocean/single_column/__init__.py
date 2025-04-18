@@ -6,7 +6,7 @@ def add_single_column_tasks(component):
     """
     Add tasks for various single-column tests
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
     component.add_task(CVMix(component=component))

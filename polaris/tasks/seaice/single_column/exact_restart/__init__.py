@@ -20,7 +20,7 @@ class ExactRestart(Task):
 
         Parameters
         ----------
-        component : polaris.seaice.Seaice
+        component : polaris.tasks.seaice.SeaIce
             the component that that the task belongs to
         """
         name = 'exact_restart'

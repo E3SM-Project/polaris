@@ -18,7 +18,7 @@ class IdealAge(Task):
         Create the test case
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
         name = 'ideal_age'

@@ -23,13 +23,11 @@ def list_cases(task_expr=None, number=None, verbose=False):
         Whether to print details of each task or just the subdirectories.
         When applied to suites, verbose will list the tasks in the suite.
     """
-    components = get_components()
-
     if number is None:
         print('Tasks:')
 
     tasks = []
-    for component in components:
+    for component in get_components():
         for task in component.tasks.values():
             tasks.append(task)
 

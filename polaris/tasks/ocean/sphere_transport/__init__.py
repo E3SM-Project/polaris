@@ -1,3 +1,4 @@
+import os
 from math import ceil as ceil
 from typing import Dict as Dict
 
@@ -8,14 +9,12 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
-)
-from polaris.ocean.mesh.spherical import (
-    add_spherical_base_mesh_step as add_spherical_base_mesh_step,
 )
 from polaris.tasks.ocean.sphere_transport.analysis import Analysis as Analysis
 from polaris.tasks.ocean.sphere_transport.filament_analysis import (
@@ -34,18 +33,26 @@ def add_sphere_transport_tasks(component):
     Add tasks that define variants of sphere transport test cases:
     nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d
 
-    component : polaris.ocean.Ocean
+    component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
 
+    case_names = [
+        'rotation_2d',
+        'nondivergent_2d',
+        'divergent_2d',
+        'correlated_tracers_2d',
+    ]
+
     for icosahedral, prefix in [(True, 'icos'), (False, 'qu')]:
-        for case_name in [
-            'rotation_2d',
-            'nondivergent_2d',
-            'divergent_2d',
-            'correlated_tracers_2d',
-        ]:
-            filepath = f'spherical/{prefix}/{case_name}/{case_name}.cfg'
+        for case_name in case_names:
+            filepath = os.path.join(
+                component.name,
+                'spherical',
+                prefix,
+                case_name,
+                f'{case_name}.cfg',
+            )
             config = PolarisConfigParser(filepath=filepath)
             config.add_from_package(
                 'polaris.ocean.convergence', 'convergence.cfg'
@@ -102,7 +109,7 @@ class SphereTransport(Task):
 
         Parameters
         ----------
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
         config : polaris.config.PolarisConfigParser
@@ -206,8 +213,8 @@ class SphereTransport(Task):
             resolution = get_resolution_for_task(
                 config, refinement_factor, refinement=refinement
             )
-            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
-                component, resolution, icosahedral
+            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+                resolution, icosahedral
             )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
