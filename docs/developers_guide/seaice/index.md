@@ -1,10 +1,9 @@
 (dev-seaice)=
 
-# SeaIce component
+# Sea ice component
 
-The `seaice` component is defined by the {py:class}`polaris.tasks.seaice.SeaIce`
-class. All tasks in the `seaice` component  are single column tests
-and contain very simple config options as follows:
+The `seaice` component currently consists of single column tests.  The
+component has the following config options as follows:
 
 ```cfg
 # This config file has default config options for MPAS-Seaice

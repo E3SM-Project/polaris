@@ -74,34 +74,30 @@ A python package is a directory that has a file called `__init__.py`.  That
 file can be empty or it can have code in it.  If it has functions or classes
 inside of it, they act like they're directly in the package.  As an example,
 the polaris file
-[polaris/ocean/\_\_init\_\_.py](https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py)
+[polaris/ocean/\_\_init\_\_.py](https://github.com/E3SM-Project/polaris/tree/main/polaris/tasks/ocean/__init__.py)
 has a class {py:class}`polaris.tasks.ocean.Ocean()` that looks like this (with the
 [docstrings](https://www.python.org/dev/peps/pep-0257/) stripped out):
 
 ```python
 from polaris import Component
-from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
 
 
 class Ocean(Component):
     def __init__(self):
         super().__init__(name='ocean')
 
-        add_baroclinic_channel_tasks(component=self)
-
     def configure(self, config):
         section = config['ocean']
         model = section.get('model')
-        configs = {'mpas-ocean': 'mpas_ocean.cfg',
-                   'omega': 'omega.cfg'}
+        configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
         if model not in configs:
             raise ValueError(f'Unknown ocean model {model} in config options')
 
         config.add_from_package('polaris.ocean', configs[model])
 ```
 
-This class contains all of the ocean tasks and steps.  The details aren't
-important.  The point is that the class can be imported like so:
+Elsewhere, all the ocean tasks and steps get added this class.  The details
+aren't important.  The point is that the class can be imported like so:
 
 ```python
 from polaris.ocean import Ocean
@@ -183,15 +179,14 @@ clumsy set of functions and
 that was equally complex but harder to understand and document than classes.
 
 The outcome of this experience is that we have used classes to define
-components, tasks and steps.  Each component will "descend"
-from the {py:class}`polaris.Component` base class; each task descends from
-{py:class}`polaris.Task`; and each steps descends from
-{py:class}`polaris.Step`.  These base classes contain functionality that can
-be shared with the "child" classes that descend from them and also define
-a few "methods" (functions that belong to a class) that the child class is
-meant to "override" (replace with their own version of the function, or augment
-by replacing the function and then calling the base class's version of the
-same function).
+tasks and steps. Components, however, do not need to descend from the
+{py:class}`polaris.Component` base class unless they require overriding
+functionality. Instead, a `polaris.Component` object can be created directly
+if no customization is needed.
+
+Tasks are added to components using the `polaris.tasks.add_tasks` module,
+which provides an `add_<component>_tasks()` function for each component. This
+approach avoids circular imports and simplifies task organization.
 
 We have some tutorials on how to add new components, tasks and steps, and more
 will be developed in the near future.  These will explain the main features of

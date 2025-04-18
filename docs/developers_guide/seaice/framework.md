@@ -1,5 +1,5 @@
 (dev-seaice-framework)=
 
-# SeaIce framework
+# Sea ice framework
 
 The `seaice` component currently does not contain any shared framework code.

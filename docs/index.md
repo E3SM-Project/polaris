@@ -56,6 +56,7 @@ users_guide/quick_start
 users_guide/tasks
 users_guide/config_files
 users_guide/suites
+users_guide/mesh/index
 users_guide/ocean/index
 users_guide/seaice/index
 users_guide/machines/index
@@ -69,6 +70,7 @@ developers_guide/quick_start
 developers_guide/overview
 developers_guide/command_line
 developers_guide/organization/index
+developers_guide/mesh/index
 developers_guide/ocean/index
 developers_guide/seaice/index
 developers_guide/framework/index

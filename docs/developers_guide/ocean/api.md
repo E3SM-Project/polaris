@@ -7,6 +7,8 @@
    :toctree: generated/
 
    Ocean
+
+   add_tasks.add_ocean_tasks
 ```
 
 ## Tasks

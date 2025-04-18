@@ -12,6 +12,7 @@ documentation.
 :maxdepth: 1
 :titlesonly: true
 
+mesh/api
 ocean/api
 seaice/api
 ```
