@@ -11,7 +11,7 @@ from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
-from polaris.tasks import components
+from polaris.tasks import get_components
 
 
 def setup_tasks(
@@ -97,7 +97,7 @@ def setup_tasks(
     work_dir = os.path.abspath(work_dir)
 
     all_tasks = dict()
-    for component in components:
+    for component in get_components():
         for task in component.tasks.values():
             all_tasks[task.path] = task
 
@@ -697,7 +697,9 @@ def _get_basic_config(config_file, machine, component_path, component, model):
 
     # add the config options for the component
     config.add_from_package(
-        f'polaris.{component.name}', f'{component.name}.cfg'
+        f'polaris.{component.name}',
+        f'{component.name}.cfg',
+        exception=False,
     )
 
     component.configure(config)
