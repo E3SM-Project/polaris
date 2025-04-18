@@ -12,13 +12,10 @@ from polaris.tasks.mesh import mesh as mesh_component
 def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
     """
     Add a shared step for creating spherical base mesh with the given
-    resolution to the ocean component (if one has not already been added)
+    resolution to the mesh component (if one has not already been added)
 
     Parameters
     ----------
-    component : polaris.Component
-        The ocean component that the step will be added to
-
     resolution : float
         The resolution in km of the mesh
 
