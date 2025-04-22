@@ -1,8 +1,8 @@
 from polaris import Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.ocean.tasks.overflow.forward import Forward as Forward
-from polaris.ocean.tasks.overflow.init import Init as Init
-from polaris.ocean.tasks.overflow.viz import Viz as Viz
+from polaris.tasks.ocean.overflow.forward import Forward as Forward
+from polaris.tasks.ocean.overflow.init import Init as Init
+from polaris.tasks.ocean.overflow.viz import Viz as Viz
 
 
 def add_overflow_tasks(component):
@@ -16,7 +16,7 @@ def add_overflow_tasks(component):
     config_filename = 'overflow.cfg'
     filepath = f'{basedir}/{config_filename}'
     config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.ocean.tasks.overflow', config_filename)
+    config.add_from_package('polaris.tasks.ocean.overflow', config_filename)
     component.add_task(Overflow(component=component, config=config))
 
 
