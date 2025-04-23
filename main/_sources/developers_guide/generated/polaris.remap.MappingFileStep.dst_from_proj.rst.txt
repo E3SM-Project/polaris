@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.dst\_from\_proj
-=============================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.dst_from_proj

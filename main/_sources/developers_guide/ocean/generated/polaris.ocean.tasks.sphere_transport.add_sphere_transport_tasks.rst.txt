@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.sphere\_transport.add\_sphere\_transport\_tasks
-===================================================================
-
-.. currentmodule:: polaris.ocean.tasks.sphere_transport
-
-.. autofunction:: add_sphere_transport_tasks

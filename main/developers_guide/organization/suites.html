@@ -13,13 +13,13 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Ocean component" href="../ocean/index.html" />
+    <link rel="next" title="Mesh component" href="../mesh/index.html" />
     <link rel="prev" title="Steps" href="steps.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -72,13 +73,15 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -121,9 +124,9 @@
 <span id="dev-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
 <p>As described in the <a class="reference internal" href="../../users_guide/suites.html#suites"><span class="std std-ref">Suites</span></a> section of the User’s Guide, polaris
 tasks can be organized into suites.  Each core has separate
-regression suites, and a core can have multiple independent regression suites.<br />
+regression suites, and a core can have multiple independent regression suites.
 A developer  defines a suite by creating a <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file within the
-<code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/suites</span></code> directory.  The format of the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file is a
+<code class="docutils literal notranslate"><span class="pre">polaris/suites/&lt;component&gt;/</span></code> directory.  The format of the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file is a
 list of the work directories to  the tasks desired to be part of the suite.  A
 line starting with <code class="docutils literal notranslate"><span class="pre">#</span></code> will be  treated as a comment line.</p>
 <p>The philosophy and requirements for the suites are as follows:</p>
@@ -175,7 +178,7 @@ wetting and drying)</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="steps.html" class="btn btn-neutral float-left" title="Steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../ocean/index.html" class="btn btn-neutral float-right" title="Ocean component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../mesh/index.html" class="btn btn-neutral float-right" title="Mesh component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -194,29 +197,31 @@ wetting and drying)</p></li>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="suites.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

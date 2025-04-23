@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.geostrophic.Geostrophic.configure
-=====================================================
-
-.. currentmodule:: polaris.ocean.tasks.geostrophic
-
-.. automethod:: Geostrophic.configure

@@ -206,7 +206,7 @@ created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the
 `icos` meshes only support a fixed set of resolutions described in
 {ref}`dev-spherical-meshes`.
 
-The function {py:func}`polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()`
+The function {py:func}`polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()`
 returns a step for for a spherical `qu` or `icos` mesh of a given resolution
 (in km).  The step can be shared between tasks.
 
@@ -327,7 +327,7 @@ def add_cosine_bell_tasks(component):
                                 'convergence.cfg')
         config.add_from_package('polaris.ocean.convergence.spherical',
                                 'spherical.cfg')
-        config.add_from_package('polaris.ocean.tasks.cosine_bell',
+        config.add_from_package('polaris.tasks.ocean.cosine_bell',
                                 'cosine_bell.cfg')
 ```
 
@@ -381,7 +381,7 @@ class Forward(SphericalConvergenceForward):
         refinement_factor : float
             The factor by which to scale space, time or both
         """
-        package = 'polaris.ocean.tasks.cosine_bell'
+        package = 'polaris.tasks.ocean.cosine_bell'
         validate_vars = ['normalVelocity', 'tracer1']
         super().__init__(component=component, name=name, subdir=subdir,
                          resolution=resolution, mesh=mesh,
@@ -505,7 +505,7 @@ The `polaris.ocean.ice_shelf` module provides support for ice shelf tasks.
 
 The {py:class}`polaris.ocean.ice_shelf.IceShelf` class can serve as a parent
 class for ice shelf tests, such as
-{py:class}`polaris.ocean.tasks.ice_shelf_2d.IceShelf2d`.
+{py:class}`polaris.tasks.ocean.ice_shelf_2d.IceShelf2d`.
 
 The {py:meth}`polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()`
 sets up `ssh_forward` and `ssh_adjustment` steps from the classes
@@ -558,15 +558,3 @@ density, which is horizontally constant and increases with depth.
 The {py:func}`polaris.ocean.rpe.compute_rpe()` is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in `rpe.csv` and also returned as a numpy array for plotting and analysis.
-
-## Visualization
-
-The `polaris.ocean.viz` module provides functions for making plots that are
-specific to the ocean component.
-
-The `polaris.ocean.viz.transect` modules includes functions for computing
-({py:func}`polaris.ocean.viz.compute_transect()`) and plotting
-({py:func}`polaris.ocean.viz.plot_transect()`) transects through the ocean
-from a sequence of x-y or latitude-longitude coordinates.  Currently, only
-transects on xarray data arrays with dimensions `nCells` by `nVertLevels` are
-supported.

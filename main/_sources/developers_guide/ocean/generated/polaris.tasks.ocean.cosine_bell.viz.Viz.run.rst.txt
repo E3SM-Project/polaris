@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.cosine\_bell.viz.Viz.run
+============================================
+
+.. currentmodule:: polaris.tasks.ocean.cosine_bell.viz
+
+.. automethod:: Viz.run

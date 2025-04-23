@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
@@ -86,12 +88,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -133,7 +136,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="internal-wave">
 <span id="dev-ocean-internal-wave"></span><h1>internal_wave<a class="headerlink" href="#internal-wave" title="Link to this heading"></a></h1>
-<p>The internal wave tests in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave</span></code> are
+<p>The internal wave tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave</span></code> are
 variants of the Internal Wave test case (see
 <a class="reference internal" href="../../../users_guide/ocean/tasks/internal_wave.html#ocean-internal-wave"><span class="std std-ref">internal wave</span></a>) at 5km horizontal resolution.  Here,
 we describe the 4 test cases and their shared framework.</p>
@@ -147,7 +150,7 @@ momentum and tracer diffusion, as well as defining <code class="docutils literal
 and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.</p>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.init.Init.html#polaris.ocean.tasks.internal_wave.init.Init" title="polaris.ocean.tasks.internal_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.init.Init</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.init.Init.html#polaris.tasks.ocean.internal_wave.init.Init" title="polaris.tasks.ocean.internal_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
@@ -161,15 +164,15 @@ identical to those same fields from the baseline run.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.forward.Forward.html#polaris.ocean.tasks.internal_wave.forward.Forward" title="polaris.ocean.tasks.internal_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.forward.Forward.html#polaris.tasks.ocean.internal_wave.forward.Forward" title="polaris.tasks.ocean.internal_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.forward.Forward</span></code></a>
 defines a step for running MPAS-Ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step.  If <code class="docutils literal notranslate"><span class="pre">nu</span></code> is provided as an argument to the
 constructor, the associate namelist option (<code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code>) will be given
 this value. Namelist and streams files are updated in
-<a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config()</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config()</span></code></a>
 with time steps determined algorithmically based on config options.  The
 number of cells is approximated from config options in
-<a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count()</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
@@ -180,7 +183,7 @@ against a baseline if one is provided when calling <a class="reference internal"
 </section>
 <section id="validate">
 <h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
-<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.validate.Validate</span></code>
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.validate.Validate</span></code>
 defines a step for validating outputs in two step directories against one
 another.  This step ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>
 and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical in <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> files in the two steps.</p>
@@ -188,20 +191,20 @@ and <code class="docutils literal notranslate"><span class="pre">normalVelocity<
 </section>
 <section id="default">
 <span id="dev-ocean-internal-wave-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.default.Default.html#polaris.ocean.tasks.internal_wave.default.Default" title="polaris.ocean.tasks.internal_wave.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.default.Default</span></code></a>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.default.Default.html#polaris.tasks.ocean.internal_wave.default.Default" title="polaris.tasks.ocean.internal_wave.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.default.Default</span></code></a>
 test performs a 3-time-step run on 4 cores. Two versions of this test exist,
 one with the flux-form vertical advection scheme (<code class="docutils literal notranslate"><span class="pre">standard</span></code>), and one with
 vertical Lagrangian-remapping (<code class="docutils literal notranslate"><span class="pre">vlr</span></code>).</p>
 </section>
 <section id="rpe">
 <span id="dev-ocean-internal-wave-rpe-test"></span><h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.rpe.Rpe.html#polaris.ocean.tasks.internal_wave.rpe.Rpe" title="polaris.ocean.tasks.internal_wave.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.rpe.Rpe</span></code></a>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.rpe.Rpe.html#polaris.tasks.ocean.internal_wave.rpe.Rpe" title="polaris.tasks.ocean.internal_wave.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.rpe.Rpe</span></code></a>
 performs a longer (20 day) integration of the model forward in time at 4
 different values of the viscosity. Two versions of this test exist,
 one with the flux-form vertical advection scheme (<code class="docutils literal notranslate"><span class="pre">standard</span></code>), and one with
 vertical Lagrangian-remapping (<code class="docutils literal notranslate"><span class="pre">vlr</span></code>).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step defined by
-<a class="reference internal" href="../generated/polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.html#polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis" title="polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis.html#polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis" title="polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis</span></code></a>
 makes plots of the final results with each value of the viscosity.</p>
 <p>This test is resource intensive enough that it is not used in regression
 testing.</p>
@@ -232,29 +235,31 @@ testing.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="internal_wave.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

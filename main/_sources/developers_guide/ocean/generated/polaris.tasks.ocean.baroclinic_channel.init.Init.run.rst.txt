@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.init.Init.run
+=====================================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel.init
+
+.. automethod:: Init.run

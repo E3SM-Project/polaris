@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -60,14 +61,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
@@ -80,6 +81,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -163,20 +165,20 @@ method:</p>
 
         <span class="c1"># you need to specify what type of source and destination mesh you</span>
         <span class="c1"># will use</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">src_from_lon_lat</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">dst_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="s1">&#39;QU60&#39;</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">src_from_lon_lat</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">dst_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="s1">&#39;QU60&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here is an example of creating a subclass to remap from an MPAS mesh to a
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup" title="polaris.remap.MappingFileStep.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.runtime_setup()</span></code></a>.  In the example, the
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.run()</span></code></a>.  In the example, the
 resolution of the lon-lat grid and the remapping method will be set using the
 config options provided while setting up the polaris task.  We call the
-<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods in the <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method to make sure
-we pick up any changes to the config options that a user might have made
-before running the task:</p>
+<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods of the <code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute in the <code class="docutils literal notranslate"><span class="pre">run()</span></code>
+method to make sure we pick up any changes to the config options that a user
+might have made before running the task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingFileStep</span>
 
@@ -188,17 +190,17 @@ before running the task:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../mesh/mesh.nc&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">]</span>
         <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlon&#39;</span><span class="p">)</span>
         <span class="n">dlat</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlat&#39;</span><span class="p">)</span>
         <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remap_method&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">src_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">src_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>It is important that the task that the step belongs to includes the required
@@ -216,10 +218,11 @@ calling:</p>
 </pre></div>
 </div>
 <p>Whether you create a <code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> object directly or create a subclass,
-you will need to call one of the <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to set up the source mesh or
-grid and one of the <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> to configure the destination.  Expect for lon-lat
-grids, you will need to provide a name for the mesh or grid, typically
-describing its resolution and perhaps its extent and the region covered.</p>
+you will need to call one of the <code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute’s <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to
+set up the source mesh or grid and one of the <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> to configure the
+destination.  Expect for lon-lat grids, you will need to provide a name for
+the mesh or grid, typically describing its resolution and perhaps its extent
+and the region covered.</p>
 <p>In nearly all situations, creating the mapping file is only one step in the
 workflow. After that, the mapping file will be used to remap data between
 the meshes or grids.  Steps that want to do this remapping need to have
@@ -251,29 +254,31 @@ the <code class="docutils literal notranslate"><span class="pre">MappingFileStep
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="remapping.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

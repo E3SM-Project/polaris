@@ -1,6 +1,0 @@
-﻿polaris.ocean.viz.transect.vert.find\_transect\_levels\_and\_weights
-====================================================================
-
-.. currentmodule:: polaris.ocean.viz.transect.vert
-
-.. autofunction:: find_transect_levels_and_weights

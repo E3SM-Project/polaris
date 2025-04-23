@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
@@ -87,12 +89,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -135,7 +138,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="ice-shelf-2d">
 <span id="dev-ocean-ice-shelf-2d"></span><h1>ice_shelf_2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code> test group
-(<code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.IceShelf2d</span></code>)
+(<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.IceShelf2d</span></code>)
 implements a very simplified ice-shelf cavity that is invariant in the x
 direction (see <a class="reference internal" href="../../../users_guide/ocean/tasks/ice_shelf_2d.html#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>). Here, we describe the shared
 framework for this test group and the 2 test cases.</p>
@@ -154,7 +157,7 @@ are used to set up one of each step for each iteration given by the config
 option <code class="docutils literal notranslate"><span class="pre">ssh_adjustment:iterations</span></code>.</p>
 <section id="init">
 <span id="dev-ocean-ice-shelf-2d-init"></span><h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
-<p>The class :py:class:<code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.init.Init</span></code>
+<p>The class :py:class:<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.init.Init</span></code>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
@@ -176,7 +179,7 @@ model is run.</p>
 </section>
 <section id="validate">
 <span id="dev-ocean-ice-shelf-2d-validate"></span><h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.ice_shelf_2d.validate.Validate.html#polaris.ocean.tasks.ice_shelf_2d.validate.Validate" title="polaris.ocean.tasks.ice_shelf_2d.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.validate.Validate</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.validate.Validate.html#polaris.tasks.ocean.ice_shelf_2d.validate.Validate" title="polaris.tasks.ocean.ice_shelf_2d.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.validate.Validate</span></code></a>
 defines a step for validating outputs in two step directories against one
 another.  This step ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>
 and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical in <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> files in the two steps.
@@ -186,14 +189,14 @@ restart test (see <a class="reference internal" href="#dev-ocean-ice-shelf-2d-re
 </section>
 <section id="viz">
 <span id="dev-ocean-ice-shelf-2d-viz"></span><h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.ice_shelf_2d.viz.Viz.html#polaris.ocean.tasks.ice_shelf_2d.viz.Viz" title="polaris.ocean.tasks.ice_shelf_2d.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.viz.Viz</span></code></a> uses the planar
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz" title="polaris.tasks.ocean.ice_shelf_2d.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.viz.Viz</span></code></a> uses the planar
 visualization capabilities provided by
-<a class="reference internal" href="../generated/polaris.ocean.viz.compute_transect.html#polaris.ocean.viz.compute_transect" title="polaris.ocean.viz.compute_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.compute_transect()</span></code></a>.</p>
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.ocean.viz.transect.compute_transect.html#mpas_tools.ocean.viz.transect.compute_transect" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.ocean.viz.transect.compute_transect()</span></code></a>.</p>
 </section>
 </section>
 <section id="default">
 <span id="dev-ocean-ice-shelf-2d-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.ice_shelf_2d.default.Default.html#polaris.ocean.tasks.ice_shelf_2d.default.Default" title="polaris.ocean.tasks.ice_shelf_2d.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.default.Default</span></code></a> test case
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.default.Default.html#polaris.tasks.ocean.ice_shelf_2d.default.Default" title="polaris.tasks.ocean.ice_shelf_2d.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.default.Default</span></code></a> test case
 config options are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/ice_shelf_2d.html#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
 <p>The test creates and mesh and initial condition, performs 15 iterations of
 SSH adjustment to make sure the SSH is as close as possible to being in
@@ -240,29 +243,31 @@ is a variant of the <code class="docutils literal notranslate"><span class="pre"
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="ice_shelf_2d.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

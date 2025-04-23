@@ -2,7 +2,7 @@
 
 # internal_wave
 
-The internal wave tests in `polaris.ocean.tasks.internal_wave` are
+The internal wave tests in `polaris.tasks.ocean.internal_wave` are
 variants of the Internal Wave test case (see
 {ref}`ocean-internal-wave`) at 5km horizontal resolution.  Here,
 we describe the 4 test cases and their shared framework.
@@ -21,7 +21,7 @@ and `output` streams.
 
 ### init
 
-The class {py:class}`polaris.ocean.tasks.internal_wave.init.Init`
+The class {py:class}`polaris.tasks.ocean.internal_wave.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
@@ -37,15 +37,15 @@ The same `init` step is shared by all tasks at a given resolution.
 
 ### forward
 
-The class {py:class}`polaris.ocean.tasks.internal_wave.forward.Forward`
+The class {py:class}`polaris.tasks.ocean.internal_wave.forward.Forward`
 defines a step for running MPAS-Ocean from the initial condition produced in
 the `init` step.  If `nu` is provided as an argument to the
 constructor, the associate namelist option (`config_mom_del2`) will be given
 this value. Namelist and streams files are updated in
-{py:meth}`polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config()`
+{py:meth}`polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config()`
 with time steps determined algorithmically based on config options.  The
 number of cells is approximated from config options in
-{py:meth}`polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count()`
+{py:meth}`polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
@@ -56,7 +56,7 @@ against a baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 ### validate
 
-The class {py:class}`polaris.ocean.tasks.internal_wave.validate.Validate`
+The class {py:class}`polaris.tasks.ocean.internal_wave.validate.Validate`
 defines a step for validating outputs in two step directories against one
 another.  This step ensures that `temperature`, `salinity`, `layerThickness`
 and `normalVelocity` are identical in `output.nc` files in the two steps.
@@ -65,7 +65,7 @@ and `normalVelocity` are identical in `output.nc` files in the two steps.
 
 ## default
 
-The {py:class}`polaris.ocean.tasks.internal_wave.default.Default`
+The {py:class}`polaris.tasks.ocean.internal_wave.default.Default`
 test performs a 3-time-step run on 4 cores. Two versions of this test exist,
 one with the flux-form vertical advection scheme (``standard``), and one with
 vertical Lagrangian-remapping (``vlr``).
@@ -74,14 +74,14 @@ vertical Lagrangian-remapping (``vlr``).
 
 ## rpe
 
-The {py:class}`polaris.ocean.tasks.internal_wave.rpe.Rpe`
+The {py:class}`polaris.tasks.ocean.internal_wave.rpe.Rpe`
 performs a longer (20 day) integration of the model forward in time at 4
 different values of the viscosity. Two versions of this test exist,
 one with the flux-form vertical advection scheme (``standard``), and one with
 vertical Lagrangian-remapping (``vlr``).
 
 The `analysis` step defined by
-{py:class}`polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis`
+{py:class}`polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis`
 makes plots of the final results with each value of the viscosity.
 
 This test is resource intensive enough that it is not used in regression

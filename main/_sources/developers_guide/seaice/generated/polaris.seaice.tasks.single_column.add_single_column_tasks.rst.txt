@@ -1,6 +1,0 @@
-﻿polaris.seaice.tasks.single\_column.add\_single\_column\_tasks
-==============================================================
-
-.. currentmodule:: polaris.seaice.tasks.single_column
-
-.. autofunction:: add_single_column_tasks

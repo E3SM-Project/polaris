@@ -1,6 +1,0 @@
-﻿polaris.ocean.viz.transect.horiz.make\_triangle\_tree
-=====================================================
-
-.. currentmodule:: polaris.ocean.viz.transect.horiz
-
-.. autofunction:: make_triangle_tree

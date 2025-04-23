@@ -1,6 +1,0 @@
-﻿polaris.ocean.viz.compute\_transect
-===================================
-
-.. currentmodule:: polaris.ocean.viz
-
-.. autofunction:: compute_transect

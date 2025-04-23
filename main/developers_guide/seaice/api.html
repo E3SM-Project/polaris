@@ -13,14 +13,14 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.seaice.SeaIce" href="generated/polaris.seaice.SeaIce.html" />
-    <link rel="prev" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes" href="../ocean/generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes.html" />
+    <link rel="next" title="polaris.tasks.seaice.add_tasks.add_seaice_tasks" href="generated/polaris.tasks.seaice.add_tasks.add_seaice_tasks.html" />
+    <link rel="prev" title="polaris.ocean.vertical.zstar.update_z_star_layer_thickness" href="../ocean/generated/polaris.ocean.vertical.zstar.update_z_star_layer_thickness.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -60,19 +61,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#components">Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mesh/api.html">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ocean/api.html">ocean</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seaice</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.seaice.SeaIce.html">polaris.seaice.SeaIce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.seaice.add_tasks.add_seaice_tasks.html">polaris.tasks.seaice.add_tasks.add_seaice_tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
 </ul>
 </li>
@@ -121,8 +125,8 @@
 <h1>seaice<a class="headerlink" href="#seaice" title="Link to this heading"></a></h1>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.SeaIce.html#polaris.seaice.SeaIce" title="polaris.seaice.SeaIce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeaIce</span></code></a>()</p></td>
-<td><p>The collection of all test case for the MPAS-Seaice component</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.add_tasks.add_seaice_tasks.html#polaris.tasks.seaice.add_tasks.add_seaice_tasks" title="polaris.tasks.seaice.add_tasks.add_seaice_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_seaice_tasks</span></code></a>(component)</p></td>
+<td><p>Add all tasks to the seaice component</p></td>
 </tr>
 </tbody>
 </table>
@@ -132,28 +136,28 @@
 <h3>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.add_single_column_tasks.html#polaris.seaice.tasks.single_column.add_single_column_tasks" title="polaris.seaice.tasks.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.add_single_column_tasks.html#polaris.tasks.seaice.single_column.add_single_column_tasks" title="polaris.tasks.seaice.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
 <td><p>Add various tasks that define single-column tests</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.forward.Forward.html#polaris.seaice.tasks.single_column.forward.Forward" title="polaris.seaice.tasks.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, indir])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.forward.Forward.html#polaris.tasks.seaice.single_column.forward.Forward" title="polaris.tasks.seaice.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, indir])</p></td>
 <td><p>A step for staging a mesh for “single column” test cases</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.ExactRestart</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.exact_restart.ExactRestart.html#polaris.tasks.seaice.single_column.exact_restart.ExactRestart" title="polaris.tasks.seaice.single_column.exact_restart.ExactRestart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.ExactRestart</span></code></a>(component)</p></td>
 <td><p>A single-column restart test case, which makes sure  the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.validate.Validate.html#polaris.seaice.tasks.single_column.exact_restart.validate.Validate" title="polaris.seaice.tasks.single_column.exact_restart.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.validate.Validate</span></code></a>(component, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.exact_restart.validate.Validate.html#polaris.tasks.seaice.single_column.exact_restart.validate.Validate" title="polaris.tasks.seaice.single_column.exact_restart.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.validate.Validate</span></code></a>(component, ...)</p></td>
 <td><p>A step for comparing outputs between steps in a single-column restart run</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.exact_restart.validate.Validate.run.html#polaris.seaice.tasks.single_column.exact_restart.validate.Validate.run" title="polaris.seaice.tasks.single_column.exact_restart.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.validate.Validate.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.exact_restart.validate.Validate.run.html#polaris.tasks.seaice.single_column.exact_restart.validate.Validate.run" title="polaris.tasks.seaice.single_column.exact_restart.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_restart.validate.Validate.run</span></code></a>()</p></td>
 <td><p>Compare the variables in the outputs of two previous steps with each other</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.StandardPhysics</span></code></a>(component)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.standard_physics.StandardPhysics.html#polaris.tasks.seaice.single_column.standard_physics.StandardPhysics" title="polaris.tasks.seaice.single_column.standard_physics.StandardPhysics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.StandardPhysics</span></code></a>(component)</p></td>
 <td><p>The single-column standard physics test case creates the mesh and initial condition, then performs a short forward run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.viz.Viz</span></code></a>(component, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.standard_physics.viz.Viz.html#polaris.tasks.seaice.single_column.standard_physics.viz.Viz" title="polaris.tasks.seaice.single_column.standard_physics.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.viz.Viz</span></code></a>(component, indir)</p></td>
 <td><p>A step for plotting the results of a single column test</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.seaice.single_column.standard_physics.viz.Viz.run.html#polaris.tasks.seaice.single_column.standard_physics.viz.Viz.run" title="polaris.tasks.seaice.single_column.standard_physics.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_physics.viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -166,8 +170,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../ocean/generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes.html" class="btn btn-neutral float-left" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/polaris.seaice.SeaIce.html" class="btn btn-neutral float-right" title="polaris.seaice.SeaIce" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../ocean/generated/polaris.ocean.vertical.zstar.update_z_star_layer_thickness.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.zstar.update_z_star_layer_thickness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/polaris.tasks.seaice.add_tasks.add_seaice_tasks.html" class="btn btn-neutral float-right" title="polaris.tasks.seaice.add_tasks.add_seaice_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -186,29 +190,31 @@
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="api.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

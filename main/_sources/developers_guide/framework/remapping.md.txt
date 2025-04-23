@@ -48,20 +48,20 @@ class MyTestCase(Task):
 
         # you need to specify what type of source and destination mesh you
         # will use
-        step.src_from_lon_lat(filename='woa.nc', lon_var='lon', lat_var='lat')
-        step.dst_from_mpas(filename='mesh.nc', mesh_name='QU60')
+        step.remapper.src_from_lon_lat(filename='woa.nc', lon_var='lon', lat_var='lat')
+        step.remapper.dst_from_mpas(filename='mesh.nc', mesh_name='QU60')
 ```
 
 Here is an example of creating a subclass to remap from an MPAS mesh to a
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-{py:meth}`polaris.remap.MappingFileStep.runtime_setup()`.  In the example, the
+{py:meth}`polaris.remap.MappingFileStep.run()`.  In the example, the
 resolution of the lon-lat grid and the remapping method will be set using the
 config options provided while setting up the polaris task.  We call the
-`src_*()` and `dst_*()` methods in the `runtime_setup()` method to make sure
-we pick up any changes to the config options that a user might have made
-before running the task:
+`src_*()` and `dst_*()` methods of the `remapper` attribute in the `run()`
+method to make sure we pick up any changes to the config options that a user
+might have made before running the task:
 
 ```python
 
@@ -75,17 +75,17 @@ class VizMap(MappingFileStep):
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
-    def runtime_setup(self):
+    def run(self):
         config = self.config
         section = config['cosine_bell_viz']
         dlon = section.getfloat('dlon')
         dlat = section.getfloat('dlat')
         method = section.get('remap_method')
-        self.src_from_mpas(filename='mesh.nc', mesh_name=self.mesh_name)
-        self.dst_global_lon_lat(dlon=dlon, dlat=dlat, lon_min=0.)
-        self.method = method
+        self.remapper.src_from_mpas(filename='mesh.nc', mesh_name=self.mesh_name)
+        self.remapper.dst_global_lon_lat(dlon=dlon, dlat=dlat, lon_min=0.)
+        self.remapper.method = method
 
-        super().runtime_setup()
+        super().run()
 ```
 
 It is important that the task that the step belongs to includes the required
@@ -104,10 +104,11 @@ map_tool = moab
 ```
 
 Whether you create a `MappingFileStep` object directly or create a subclass,
-you will need to call one of the `src_*()` methods to set up the source mesh or
-grid and one of the `dst_*()` to configure the destination.  Expect for lon-lat
-grids, you will need to provide a name for the mesh or grid, typically
-describing its resolution and perhaps its extent and the region covered.
+you will need to call one of the `remapper` attribute's `src_*()` methods to
+set up the source mesh or grid and one of the `dst_*()` to configure the
+destination.  Expect for lon-lat grids, you will need to provide a name for
+the mesh or grid, typically describing its resolution and perhaps its extent
+and the region covered.
 
 In nearly all situations, creating the mapping file is only one step in the
 workflow. After that, the mapping file will be used to remap data between

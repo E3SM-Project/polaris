@@ -1,6 +1,0 @@
-﻿polaris.ocean.viz.transect.vert.interp\_mpas\_to\_transect\_cells
-=================================================================
-
-.. currentmodule:: polaris.ocean.viz.transect.vert
-
-.. autofunction:: interp_mpas_to_transect_cells

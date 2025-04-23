@@ -13,14 +13,14 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.ocean.Ocean" href="generated/polaris.ocean.Ocean.html" />
-    <link rel="prev" title="API reference" href="../api.html" />
+    <link rel="next" title="polaris.tasks.ocean.Ocean" href="generated/polaris.tasks.ocean.Ocean.html" />
+    <link rel="prev" title="polaris.tasks.mesh.base.BaseMeshTask" href="../mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -60,18 +61,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#components">Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mesh/api.html">mesh</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">ocean</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.ocean.Ocean.html">polaris.ocean.Ocean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.html">polaris.tasks.ocean.Ocean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.add_tasks.add_ocean_tasks.html">polaris.tasks.ocean.add_tasks.add_ocean_tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-framework">Ocean Framework</a></li>
 </ul>
@@ -122,8 +127,11 @@
 <h1>ocean<a class="headerlink" href="#ocean" title="Link to this heading"></a></h1>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean</span></code></a>()</p></td>
 <td><p>The collection of all test case for the MPAS-Ocean core</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.add_tasks.add_ocean_tasks.html#polaris.tasks.ocean.add_tasks.add_ocean_tasks" title="polaris.tasks.ocean.add_tasks.add_ocean_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_tasks.add_ocean_tasks</span></code></a>(component)</p></td>
+<td><p>Add all ocean-related tasks to the ocean component.</p></td>
 </tr>
 </tbody>
 </table>
@@ -133,70 +141,70 @@
 <h3>baroclinic_channel<a class="headerlink" href="#baroclinic-channel" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.add_baroclinic_channel_tasks.html#polaris.ocean.tasks.baroclinic_channel.add_baroclinic_channel_tasks" title="polaris.ocean.tasks.baroclinic_channel.add_baroclinic_channel_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_baroclinic_channel_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.add_baroclinic_channel_tasks.html#polaris.tasks.ocean.baroclinic_channel.add_baroclinic_channel_tasks" title="polaris.tasks.ocean.baroclinic_channel.add_baroclinic_channel_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_baroclinic_channel_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for different baroclinic channel tests to the ocean component</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, resolution[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward" title="polaris.tasks.ocean.baroclinic_channel.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, resolution[, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of baroclinic channel tasks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.baroclinic_channel.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.baroclinic_channel.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.baroclinic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.baroclinic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.init.Init.html#polaris.ocean.tasks.baroclinic_channel.init.Init" title="polaris.ocean.tasks.baroclinic_channel.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.init.Init.html#polaris.tasks.ocean.baroclinic_channel.init.Init" title="polaris.tasks.ocean.baroclinic_channel.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, indir)</p></td>
 <td><p>A step for creating a mesh and initial condition for baroclinic channel tasks</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.init.Init.setup.html#polaris.ocean.tasks.baroclinic_channel.init.Init.setup" title="polaris.ocean.tasks.baroclinic_channel.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.init.Init.setup.html#polaris.tasks.ocean.baroclinic_channel.init.Init.setup" title="polaris.tasks.ocean.baroclinic_channel.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.init.Init.run.html#polaris.ocean.tasks.baroclinic_channel.init.Init.run" title="polaris.ocean.tasks.baroclinic_channel.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.init.Init.run.html#polaris.tasks.ocean.baroclinic_channel.init.Init.run" title="polaris.tasks.ocean.baroclinic_channel.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.validate.Validate.html#polaris.ocean.tasks.baroclinic_channel.validate.Validate" title="polaris.ocean.tasks.baroclinic_channel.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.validate.Validate.html#polaris.tasks.ocean.baroclinic_channel.validate.Validate" title="polaris.tasks.ocean.baroclinic_channel.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
 <td><p>A step for comparing outputs between steps in a baroclinic channel run</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.validate.Validate.run.html#polaris.ocean.tasks.baroclinic_channel.validate.Validate.run" title="polaris.ocean.tasks.baroclinic_channel.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.validate.Validate.run.html#polaris.tasks.ocean.baroclinic_channel.validate.Validate.run" title="polaris.tasks.ocean.baroclinic_channel.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
 <td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the outputs of two previous steps with each other</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.viz.Viz.html#polaris.ocean.tasks.baroclinic_channel.viz.Viz" title="polaris.ocean.tasks.baroclinic_channel.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz" title="polaris.tasks.ocean.baroclinic_channel.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
 <td><p>A step for plotting the results of a series of baroclinic channel RPE runs</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.viz.Viz.run.html#polaris.ocean.tasks.baroclinic_channel.viz.Viz.run" title="polaris.ocean.tasks.baroclinic_channel.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.run.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz.run" title="polaris.tasks.ocean.baroclinic_channel.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.default.Default.html#polaris.ocean.tasks.baroclinic_channel.default.Default" title="polaris.ocean.tasks.baroclinic_channel.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, resolution, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.default.Default.html#polaris.tasks.ocean.baroclinic_channel.default.Default" title="polaris.tasks.ocean.baroclinic_channel.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, resolution, ...)</p></td>
 <td><p>The default baroclinic channel test case simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.decomp.Decomp.html#polaris.ocean.tasks.baroclinic_channel.decomp.Decomp" title="polaris.ocean.tasks.baroclinic_channel.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, resolution, indir, init)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.html#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp" title="polaris.tasks.ocean.baroclinic_channel.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, resolution, indir, init)</p></td>
 <td><p>A baroclinic channel decomposition task, which makes sure the model produces identical results on 1 and 4 cores.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.restart.Restart.html#polaris.ocean.tasks.baroclinic_channel.restart.Restart" title="polaris.ocean.tasks.baroclinic_channel.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, resolution, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.restart.Restart.html#polaris.tasks.ocean.baroclinic_channel.restart.Restart" title="polaris.tasks.ocean.baroclinic_channel.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, resolution, ...)</p></td>
 <td><p>A baroclinic channel restart test case, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep" title="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.restart_step.RestartStep</span></code></a>(component, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep.html#polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep" title="polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.restart_step.RestartStep</span></code></a>(component, ...)</p></td>
 <td><p>A forward model step in the restart test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config" title="polaris.ocean.tasks.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.restart_step.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config" title="polaris.tasks.ocean.baroclinic_channel.restart.restart_step.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.restart_step.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.threads.Threads.html#polaris.ocean.tasks.baroclinic_channel.threads.Threads" title="polaris.ocean.tasks.baroclinic_channel.threads.Threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threads.Threads</span></code></a>(component, resolution, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.threads.Threads.html#polaris.tasks.ocean.baroclinic_channel.threads.Threads" title="polaris.tasks.ocean.baroclinic_channel.threads.Threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threads.Threads</span></code></a>(component, resolution, ...)</p></td>
 <td><p>A baroclinic channel thread test case, which makes sure the model produces identical results with 1 and 2 threads.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe" title="polaris.ocean.tasks.baroclinic_channel.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, resolution, indir, init, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.html#polaris.tasks.ocean.baroclinic_channel.rpe.Rpe" title="polaris.tasks.ocean.baroclinic_channel.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, resolution, indir, init, ...)</p></td>
 <td><p>The baroclinic channel reference potential energy (RPE) test case performs a 20-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure.html#polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure" title="polaris.ocean.tasks.baroclinic_channel.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.configure.html#polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.configure" title="polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this test case.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.html#polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis" title="polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.html#polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis" title="polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
 <td><p>A step for plotting the results of a series of baroclinic channel RPE runs</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.setup.html#polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.setup" title="polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.setup.html#polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.setup" title="polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.run.html#polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.run" title="polaris.ocean.tasks.baroclinic_channel.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.run.html#polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.run" title="polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -206,43 +214,43 @@
 <h3>barotropic_gyre<a class="headerlink" href="#barotropic-gyre" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.add_barotropic_gyre_tasks.html#polaris.ocean.tasks.barotropic_gyre.add_barotropic_gyre_tasks" title="polaris.ocean.tasks.barotropic_gyre.add_barotropic_gyre_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_barotropic_gyre_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks.html#polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks" title="polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_barotropic_gyre_tasks</span></code></a>(component)</p></td>
 <td><p>Add a task that defines a convergence test for inertial gravity waves</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.BarotropicGyre.html#polaris.ocean.tasks.barotropic_gyre.BarotropicGyre" title="polaris.ocean.tasks.barotropic_gyre.BarotropicGyre"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BarotropicGyre</span></code></a>(component, test_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre" title="polaris.tasks.ocean.barotropic_gyre.BarotropicGyre"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BarotropicGyre</span></code></a>(component, test_name)</p></td>
 <td><p>The convergence test case for inertial gravity waves</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis" title="polaris.ocean.tasks.barotropic_gyre.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir[, ...])</p></td>
 <td><p>A step for analysing the output from the barotropic gyre test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.compute_error.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.compute_error" title="polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.compute_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.compute_error</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.compute_error</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Compute the error for a given resolution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(ds_mesh, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(ds_mesh, config)</p></td>
 <td><p>Exact solution to the sea surface height for the linearized Munk layer experiments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.run.html#polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.run" title="polaris.ocean.tasks.barotropic_gyre.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.forward.compute_max_time_step.html#polaris.ocean.tasks.barotropic_gyre.forward.compute_max_time_step" title="polaris.ocean.tasks.barotropic_gyre.forward.compute_max_time_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.compute_max_time_step</span></code></a>(config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step" title="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.compute_max_time_step</span></code></a>(config)</p></td>
 <td><p>Compute the approximate maximum time step for stability</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.forward.Forward.html#polaris.ocean.tasks.barotropic_gyre.forward.Forward" title="polaris.ocean.tasks.barotropic_gyre.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of barotropic gyre tasks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.barotropic_gyre.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.barotropic_gyre.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.barotropic_gyre.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.barotropic_gyre.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.init.Init.html#polaris.ocean.tasks.barotropic_gyre.init.Init" title="polaris.ocean.tasks.barotropic_gyre.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, subdir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.html#polaris.tasks.ocean.barotropic_gyre.init.Init" title="polaris.tasks.ocean.barotropic_gyre.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, subdir)</p></td>
 <td><p>A step for creating a mesh and initial condition for baroclinic channel tasks</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.init.Init.setup.html#polaris.ocean.tasks.barotropic_gyre.init.Init.setup" title="polaris.ocean.tasks.barotropic_gyre.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.setup.html#polaris.tasks.ocean.barotropic_gyre.init.Init.setup" title="polaris.tasks.ocean.barotropic_gyre.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.barotropic_gyre.init.Init.run.html#polaris.ocean.tasks.barotropic_gyre.init.Init.run" title="polaris.ocean.tasks.barotropic_gyre.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.run.html#polaris.tasks.ocean.barotropic_gyre.init.Init.run" title="polaris.tasks.ocean.barotropic_gyre.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Create the at rest inital condition for the barotropic gyre testcase</p></td>
 </tr>
 </tbody>
@@ -252,55 +260,55 @@
 <h3>cosine_bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks.html#polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks" title="polaris.ocean.tasks.cosine_bell.add_cosine_bell_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cosine_bell_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.add_cosine_bell_tasks.html#polaris.tasks.ocean.cosine_bell.add_cosine_bell_tasks" title="polaris.tasks.ocean.cosine_bell.add_cosine_bell_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cosine_bell_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks that define variants of the cosine bell test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell</span></code></a>(component, config, prefix, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell" title="polaris.tasks.ocean.cosine_bell.CosineBell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell</span></code></a>(component, config, prefix, ...[, ...])</p></td>
 <td><p>A convergence test for the advection of a cosine-bell tracer</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.CosineBell.configure.html#polaris.ocean.tasks.cosine_bell.CosineBell.configure" title="polaris.ocean.tasks.cosine_bell.CosineBell.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell.configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.CosineBell.configure.html#polaris.tasks.ocean.cosine_bell.CosineBell.configure" title="polaris.tasks.ocean.cosine_bell.CosineBell.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CosineBell.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, base_mesh)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.init.Init.html#polaris.tasks.ocean.cosine_bell.init.Init" title="polaris.tasks.ocean.cosine_bell.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, base_mesh)</p></td>
 <td><p>A step for an initial condition for for the cosine bell test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.Init.run.html#polaris.ocean.tasks.cosine_bell.init.Init.run" title="polaris.ocean.tasks.cosine_bell.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.init.Init.run.html#polaris.tasks.ocean.cosine_bell.init.Init.run" title="polaris.tasks.ocean.cosine_bell.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.init.cosine_bell.html#polaris.ocean.tasks.cosine_bell.init.cosine_bell" title="polaris.ocean.tasks.cosine_bell.init.cosine_bell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.cosine_bell</span></code></a>(max_value, ri, r)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.init.cosine_bell.html#polaris.tasks.ocean.cosine_bell.init.cosine_bell" title="polaris.tasks.ocean.cosine_bell.init.cosine_bell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.cosine_bell</span></code></a>(max_value, ri, r)</p></td>
 <td><p>Compute values according to cosine bell function</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward" title="polaris.ocean.tasks.cosine_bell.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward" title="polaris.tasks.ocean.cosine_bell.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of the cosine bell test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.analysis.Analysis.html#polaris.tasks.ocean.cosine_bell.analysis.Analysis" title="polaris.tasks.ocean.cosine_bell.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
 <td><p>A step for analyzing the output from the cosine bell test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.cosine_bell.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.cosine_bell.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.validate.Validate.html#polaris.ocean.tasks.cosine_bell.validate.Validate" title="polaris.ocean.tasks.cosine_bell.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.validate.Validate.html#polaris.tasks.ocean.cosine_bell.validate.Validate" title="polaris.tasks.ocean.cosine_bell.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
 <td><p>A step for comparing outputs between steps in a cosine bell run</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.validate.Validate.run.html#polaris.ocean.tasks.cosine_bell.validate.Validate.run" title="polaris.ocean.tasks.cosine_bell.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.validate.Validate.run.html#polaris.tasks.ocean.cosine_bell.validate.Validate.run" title="polaris.tasks.ocean.cosine_bell.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
 <td><p>Compare <code class="docutils literal notranslate"><span class="pre">tracer1</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the outputs of two previous steps with each other</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz" title="polaris.tasks.ocean.cosine_bell.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.viz.Viz.run.html#polaris.ocean.tasks.cosine_bell.viz.Viz.run" title="polaris.ocean.tasks.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.viz.Viz.run.html#polaris.tasks.ocean.cosine_bell.viz.Viz.run" title="polaris.tasks.ocean.cosine_bell.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp" title="polaris.ocean.tasks.cosine_bell.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, config, prefix, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.decomp.Decomp.html#polaris.tasks.ocean.cosine_bell.decomp.Decomp" title="polaris.tasks.ocean.cosine_bell.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, config, prefix, ...)</p></td>
 <td><p>A cosine bell decomposition task, which makes sure the model produces identical results on different numbers of cores.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, config, prefix, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.restart.Restart.html#polaris.tasks.ocean.cosine_bell.restart.Restart" title="polaris.tasks.ocean.cosine_bell.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, config, prefix, ...)</p></td>
 <td><p>A cosine bell restart test case, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep" title="polaris.tasks.ocean.cosine_bell.restart.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A forward model step in the restart test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep.dynamic_model_config" title="polaris.tasks.ocean.cosine_bell.restart.RestartStep.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.RestartStep.dynamic_model_config</span></code></a>(...)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
 </tbody>
@@ -310,37 +318,37 @@
 <h3>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.add_geostrophic_tasks.html#polaris.ocean.tasks.geostrophic.add_geostrophic_tasks" title="polaris.ocean.tasks.geostrophic.add_geostrophic_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_geostrophic_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.add_geostrophic_tasks.html#polaris.tasks.ocean.geostrophic.add_geostrophic_tasks" title="polaris.tasks.ocean.geostrophic.add_geostrophic_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_geostrophic_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks that define variants of the geostrophic test</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.Geostrophic.html#polaris.ocean.tasks.geostrophic.Geostrophic" title="polaris.ocean.tasks.geostrophic.Geostrophic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Geostrophic</span></code></a>(component, config, icosahedral, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.Geostrophic.html#polaris.tasks.ocean.geostrophic.Geostrophic" title="polaris.tasks.ocean.geostrophic.Geostrophic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Geostrophic</span></code></a>(component, config, icosahedral, ...)</p></td>
 <td><p>A convergence test for a configuration in geostrophic balance</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.Geostrophic.configure.html#polaris.ocean.tasks.geostrophic.Geostrophic.configure" title="polaris.ocean.tasks.geostrophic.Geostrophic.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Geostrophic.configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.Geostrophic.configure.html#polaris.tasks.ocean.geostrophic.Geostrophic.configure" title="polaris.tasks.ocean.geostrophic.Geostrophic.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Geostrophic.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.init.Init.html#polaris.ocean.tasks.geostrophic.init.Init" title="polaris.ocean.tasks.geostrophic.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, base_mesh)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.init.Init.html#polaris.tasks.ocean.geostrophic.init.Init" title="polaris.tasks.ocean.geostrophic.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, base_mesh)</p></td>
 <td><p>A step for an initial condition for for the geostrophic test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.init.Init.run.html#polaris.ocean.tasks.geostrophic.init.Init.run" title="polaris.ocean.tasks.geostrophic.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.init.Init.run.html#polaris.tasks.ocean.geostrophic.init.Init.run" title="polaris.tasks.ocean.geostrophic.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the testcase</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.forward.Forward.html#polaris.ocean.tasks.geostrophic.forward.Forward" title="polaris.ocean.tasks.geostrophic.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.forward.Forward.html#polaris.tasks.ocean.geostrophic.forward.Forward" title="polaris.tasks.ocean.geostrophic.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of the cosine bell test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.html#polaris.ocean.tasks.geostrophic.analysis.Analysis" title="polaris.ocean.tasks.geostrophic.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.html#polaris.tasks.ocean.geostrophic.analysis.Analysis" title="polaris.tasks.ocean.geostrophic.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
 <td><p>A step for analyzing the output from the geostrophic test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.geostrophic.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.geostrophic.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field.html#polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field" title="polaris.ocean.tasks.geostrophic.analysis.Analysis.get_output_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.get_output_field</span></code></a>(...[, zidx])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field" title="polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.get_output_field</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the model output field at the given time and z index</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.Viz.html#polaris.ocean.tasks.geostrophic.viz.Viz" title="polaris.ocean.tasks.geostrophic.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.viz.Viz.html#polaris.tasks.ocean.geostrophic.viz.Viz" title="polaris.tasks.ocean.geostrophic.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.geostrophic.viz.Viz.run.html#polaris.ocean.tasks.geostrophic.viz.Viz.run" title="polaris.ocean.tasks.geostrophic.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.geostrophic.viz.Viz.run.html#polaris.tasks.ocean.geostrophic.viz.Viz.run" title="polaris.tasks.ocean.geostrophic.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -350,37 +358,37 @@
 <h3>ice_shelf_2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.add_ice_shelf_2d_tasks.html#polaris.ocean.tasks.ice_shelf_2d.add_ice_shelf_2d_tasks" title="polaris.ocean.tasks.ice_shelf_2d.add_ice_shelf_2d_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_ice_shelf_2d_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks.html#polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks" title="polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_ice_shelf_2d_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for different ice shelf 2-d tests to the ocean component</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.default.Default.html#polaris.ocean.tasks.ice_shelf_2d.default.Default" title="polaris.ocean.tasks.ice_shelf_2d.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, resolution, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.default.Default.html#polaris.tasks.ocean.ice_shelf_2d.default.Default" title="polaris.tasks.ocean.ice_shelf_2d.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, resolution, ...)</p></td>
 <td><p>The default ice shelf 2d test case simply creates the mesh and initial condition, then performs a short forward run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.forward.Forward.html#polaris.ocean.tasks.ice_shelf_2d.forward.Forward" title="polaris.ocean.tasks.ice_shelf_2d.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, resolution, mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.forward.Forward.html#polaris.tasks.ocean.ice_shelf_2d.forward.Forward" title="polaris.tasks.ocean.ice_shelf_2d.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, resolution, mesh, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of baroclinic channel tasks.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.ice_shelf_2d.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.ice_shelf_2d.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.ice_shelf_2d.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.ice_shelf_2d.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.ice_shelf_2d.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.ice_shelf_2d.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.ice_shelf_2d.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.ice_shelf_2d.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.init.Init.html#polaris.ocean.tasks.ice_shelf_2d.init.Init" title="polaris.ocean.tasks.ice_shelf_2d.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.init.Init.html#polaris.tasks.ocean.ice_shelf_2d.init.Init" title="polaris.tasks.ocean.ice_shelf_2d.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, indir)</p></td>
 <td><p>A step for creating a mesh and initial condition for ice shelf 2-d tasks</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.init.Init.run.html#polaris.ocean.tasks.ice_shelf_2d.init.Init.run" title="polaris.ocean.tasks.ice_shelf_2d.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.init.Init.run.html#polaris.tasks.ocean.ice_shelf_2d.init.Init.run" title="polaris.tasks.ocean.ice_shelf_2d.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.validate.Validate.html#polaris.ocean.tasks.ice_shelf_2d.validate.Validate" title="polaris.ocean.tasks.ice_shelf_2d.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.validate.Validate.html#polaris.tasks.ocean.ice_shelf_2d.validate.Validate" title="polaris.tasks.ocean.ice_shelf_2d.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, step_subdirs, indir)</p></td>
 <td><p>A step for comparing outputs between steps in a ice shelf 2d run</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.validate.Validate.run.html#polaris.ocean.tasks.ice_shelf_2d.validate.Validate.run" title="polaris.ocean.tasks.ice_shelf_2d.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.validate.Validate.run.html#polaris.tasks.ocean.ice_shelf_2d.validate.Validate.run" title="polaris.tasks.ocean.ice_shelf_2d.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
 <td><p>Compare <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the outputs of two previous steps with each other</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.viz.Viz.html#polaris.ocean.tasks.ice_shelf_2d.viz.Viz" title="polaris.ocean.tasks.ice_shelf_2d.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, mesh, init)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz" title="polaris.tasks.ocean.ice_shelf_2d.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, mesh, init)</p></td>
 <td><p>A step for visualizing a cross-section and horizontal planes through the ice shelf</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.ice_shelf_2d.viz.Viz.run.html#polaris.ocean.tasks.ice_shelf_2d.viz.Viz.run" title="polaris.ocean.tasks.ice_shelf_2d.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.run.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz.run" title="polaris.tasks.ocean.ice_shelf_2d.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -390,43 +398,43 @@
 <h3>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks.html#polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks" title="polaris.ocean.tasks.inertial_gravity_wave.add_inertial_gravity_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_inertial_gravity_wave_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.add_inertial_gravity_wave_tasks.html#polaris.tasks.ocean.inertial_gravity_wave.add_inertial_gravity_wave_tasks" title="polaris.tasks.ocean.inertial_gravity_wave.add_inertial_gravity_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_inertial_gravity_wave_tasks</span></code></a>(component)</p></td>
 <td><p>Add a task that defines a convergence test for inertial gravity waves</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InertialGravityWave</span></code></a>(component, config[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave.html#polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave" title="polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InertialGravityWave</span></code></a>(component, config[, ...])</p></td>
 <td><p>The convergence test case for inertial gravity waves</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis.html#polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis" title="polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
 <td><p>A step for analysing the output from the inertial gravity wave test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(ds, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(ds, config)</p></td>
 <td><p>Class to compute the exact solution for the inertial gravity wave test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
 <td><p>Exact solution for sea surface height</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
 <td><p>Exact solution for normal velocity</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.html#polaris.tasks.ocean.inertial_gravity_wave.forward.Forward" title="polaris.tasks.ocean.inertial_gravity_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, ...[, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of inertial gravity wave test cases.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, subdir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.init.Init.html#polaris.tasks.ocean.inertial_gravity_wave.init.Init" title="polaris.tasks.ocean.inertial_gravity_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, subdir)</p></td>
 <td><p>A step for creating a mesh and initial condition for the inertial gravity wave test cases</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.run.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init.run" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.init.Init.run.html#polaris.tasks.ocean.inertial_gravity_wave.init.Init.run" title="polaris.tasks.ocean.inertial_gravity_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, taskdir, dependencies[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, taskdir, dependencies[, ...])</p></td>
 <td><p>A step for visualizing the output from the inertial gravity wave test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -436,43 +444,43 @@
 <h3>internal_wave<a class="headerlink" href="#internal-wave" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.add_internal_wave_tasks.html#polaris.ocean.tasks.internal_wave.add_internal_wave_tasks" title="polaris.ocean.tasks.internal_wave.add_internal_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_internal_wave_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.add_internal_wave_tasks.html#polaris.tasks.ocean.internal_wave.add_internal_wave_tasks" title="polaris.tasks.ocean.internal_wave.add_internal_wave_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_internal_wave_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for different internal wave tests to the ocean component</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.html#polaris.ocean.tasks.internal_wave.forward.Forward" title="polaris.ocean.tasks.internal_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, name, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.forward.Forward.html#polaris.tasks.ocean.internal_wave.forward.Forward" title="polaris.tasks.ocean.internal_wave.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, name, ...])</p></td>
 <td><p>A step for performing forward MPAS-Ocean runs as part of internal wave test cases.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.internal_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.internal_wave.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config.html#polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config" title="polaris.ocean.tasks.internal_wave.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.internal_wave.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.init.Init.html#polaris.ocean.tasks.internal_wave.init.Init" title="polaris.ocean.tasks.internal_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.init.Init.html#polaris.tasks.ocean.internal_wave.init.Init" title="polaris.tasks.ocean.internal_wave.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir)</p></td>
 <td><p>A step for creating a mesh and initial condition for internal wave test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.init.Init.run.html#polaris.ocean.tasks.internal_wave.init.Init.run" title="polaris.ocean.tasks.internal_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.init.Init.run.html#polaris.tasks.ocean.internal_wave.init.Init.run" title="polaris.tasks.ocean.internal_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.viz.Viz.html#polaris.ocean.tasks.internal_wave.viz.Viz" title="polaris.ocean.tasks.internal_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.viz.Viz.html#polaris.tasks.ocean.internal_wave.viz.Viz" title="polaris.tasks.ocean.internal_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
 <td><p>A step for visualizing a cross-section through the internal wave</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.viz.Viz.run.html#polaris.ocean.tasks.internal_wave.viz.Viz.run" title="polaris.ocean.tasks.internal_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.viz.Viz.run.html#polaris.tasks.ocean.internal_wave.viz.Viz.run" title="polaris.tasks.ocean.internal_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.default.Default.html#polaris.ocean.tasks.internal_wave.default.Default" title="polaris.ocean.tasks.internal_wave.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.default.Default.html#polaris.tasks.ocean.internal_wave.default.Default" title="polaris.tasks.ocean.internal_wave.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init[, ...])</p></td>
 <td><p>The default test case for the internal wave test</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.Rpe.html#polaris.ocean.tasks.internal_wave.rpe.Rpe" title="polaris.ocean.tasks.internal_wave.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, indir, init, config[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.rpe.Rpe.html#polaris.tasks.ocean.internal_wave.rpe.Rpe" title="polaris.tasks.ocean.internal_wave.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, indir, init, config[, ...])</p></td>
 <td><p>The internal wave reference potential energy (RPE) test case performs a 20-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.Rpe.configure.html#polaris.ocean.tasks.internal_wave.rpe.Rpe.configure" title="polaris.ocean.tasks.internal_wave.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.rpe.Rpe.configure.html#polaris.tasks.ocean.internal_wave.rpe.Rpe.configure" title="polaris.tasks.ocean.internal_wave.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
 <td><p>Modify the configuration options for this test case.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.html#polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis" title="polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, nus)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis.html#polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis" title="polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, nus)</p></td>
 <td><p>A step for plotting the results of a series of internal wave RPE runs</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run.html#polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run" title="polaris.ocean.tasks.internal_wave.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis.run.html#polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis.run" title="polaris.tasks.ocean.internal_wave.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -482,46 +490,46 @@
 <h3>manufactured_solution<a class="headerlink" href="#manufactured-solution" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks.html#polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks" title="polaris.ocean.tasks.manufactured_solution.add_manufactured_solution_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_manufactured_solution_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.add_manufactured_solution_tasks.html#polaris.tasks.ocean.manufactured_solution.add_manufactured_solution_tasks" title="polaris.tasks.ocean.manufactured_solution.add_manufactured_solution_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_manufactured_solution_tasks</span></code></a>(component)</p></td>
 <td><p>Add a task that defines a convergence test that uses the method of manufactured solutions</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.ManufacturedSolution.html#polaris.ocean.tasks.manufactured_solution.ManufacturedSolution" title="polaris.ocean.tasks.manufactured_solution.ManufacturedSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManufacturedSolution</span></code></a>(component, config[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.ManufacturedSolution.html#polaris.tasks.ocean.manufactured_solution.ManufacturedSolution" title="polaris.tasks.ocean.manufactured_solution.ManufacturedSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManufacturedSolution</span></code></a>(component, config[, ...])</p></td>
 <td><p>The convergence test case using the method of manufactured solutions</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.analysis.Analysis.html#polaris.ocean.tasks.manufactured_solution.analysis.Analysis" title="polaris.ocean.tasks.manufactured_solution.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.analysis.Analysis.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis" title="polaris.tasks.ocean.manufactured_solution.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
 <td><p>A step for analysing the output from the manufactured solution test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.analysis.Analysis.exact_solution.html#polaris.ocean.tasks.manufactured_solution.analysis.Analysis.exact_solution" title="polaris.ocean.tasks.manufactured_solution.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(...[, zidx])</p></td>
 <td><p>Get the exact solution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution" title="polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(config[, ds])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.html#polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution" title="polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution</span></code></a>(config[, ds])</p></td>
 <td><p>Class to compute the exact solution for the manufactured solution test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.ssh.html#polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.ssh" title="polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.ssh</span></code></a>(t)</p></td>
 <td><p>Exact solution for sea surface height</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.manufactured_solution.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.normal_velocity.html#polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.normal_velocity" title="polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution.ExactSolution.normal_velocity</span></code></a>(t)</p></td>
 <td><p>Exact solution for normal velocity</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.forward.Forward.html#polaris.ocean.tasks.manufactured_solution.forward.Forward" title="polaris.ocean.tasks.manufactured_solution.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.forward.Forward.html#polaris.tasks.ocean.manufactured_solution.forward.Forward" title="polaris.tasks.ocean.manufactured_solution.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, ...[, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of manufactured solution test cases.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.manufactured_solution.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.manufactured_solution.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.manufactured_solution.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.manufactured_solution.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.init.Init.html#polaris.ocean.tasks.manufactured_solution.init.Init" title="polaris.ocean.tasks.manufactured_solution.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, subdir, name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.init.Init.html#polaris.tasks.ocean.manufactured_solution.init.Init" title="polaris.tasks.ocean.manufactured_solution.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution, subdir, name)</p></td>
 <td><p>A step for creating a mesh and initial condition for the manufactured solution test cases</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.init.Init.run.html#polaris.ocean.tasks.manufactured_solution.init.Init.run" title="polaris.ocean.tasks.manufactured_solution.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.init.Init.run.html#polaris.tasks.ocean.manufactured_solution.init.Init.run" title="polaris.tasks.ocean.manufactured_solution.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.init.Init.setup.html#polaris.ocean.tasks.manufactured_solution.init.Init.setup" title="polaris.ocean.tasks.manufactured_solution.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.init.Init.setup.html#polaris.tasks.ocean.manufactured_solution.init.Init.setup" title="polaris.tasks.ocean.manufactured_solution.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
 <td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.viz.Viz.html#polaris.ocean.tasks.manufactured_solution.viz.Viz" title="polaris.ocean.tasks.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.html#polaris.tasks.ocean.manufactured_solution.viz.Viz" title="polaris.tasks.ocean.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir[, ...])</p></td>
 <td><p>A step for visualizing the output from the manufactured solution test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.manufactured_solution.viz.Viz.run.html#polaris.ocean.tasks.manufactured_solution.viz.Viz.run" title="polaris.ocean.tasks.manufactured_solution.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.run.html#polaris.tasks.ocean.manufactured_solution.viz.Viz.run" title="polaris.tasks.ocean.manufactured_solution.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -531,28 +539,28 @@
 <h3>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.add_single_column_tasks.html#polaris.ocean.tasks.single_column.add_single_column_tasks" title="polaris.ocean.tasks.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.add_single_column_tasks.html#polaris.tasks.ocean.single_column.add_single_column_tasks" title="polaris.tasks.ocean.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for various single-column tests</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.forward.Forward.html#polaris.ocean.tasks.single_column.forward.Forward" title="polaris.ocean.tasks.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of baroclinic channel test cases.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.init.Init.html#polaris.ocean.tasks.single_column.init.Init" title="polaris.ocean.tasks.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir[, ideal_age])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir[, ideal_age])</p></td>
 <td><p>A step for creating a mesh and initial condition for single column test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.init.Init.run.html#polaris.ocean.tasks.single_column.init.Init.run" title="polaris.ocean.tasks.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.run.html#polaris.tasks.ocean.single_column.init.Init.run" title="polaris.tasks.ocean.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.viz.Viz.html#polaris.ocean.tasks.single_column.viz.Viz" title="polaris.ocean.tasks.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir[, ideal_age])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir[, ideal_age])</p></td>
 <td><p>A step for plotting the results of a single-column test</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.viz.Viz.run.html#polaris.ocean.tasks.single_column.viz.Viz.run" title="polaris.ocean.tasks.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.cvmix.CVMix.html#polaris.ocean.tasks.single_column.cvmix.CVMix" title="polaris.ocean.tasks.single_column.cvmix.CVMix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix</span></code></a>(component)</p></td>
 <td><p>The CVMix single-column test case creates the mesh and initial condition, then performs a short forward run testing vertical mixing on 1 core.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.single_column.ideal_age.IdealAge.html#polaris.ocean.tasks.single_column.ideal_age.IdealAge" title="polaris.ocean.tasks.single_column.ideal_age.IdealAge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge</span></code></a>(component[, ideal_age])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ideal_age.IdealAge.html#polaris.tasks.ocean.single_column.ideal_age.IdealAge" title="polaris.tasks.ocean.single_column.ideal_age.IdealAge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge</span></code></a>(component[, ideal_age])</p></td>
 <td><p>The ideal-age single-column test case creates the mesh and initial condition, then performs a short forward run evolving the ideal-age tracer on 1 core.</p></td>
 </tr>
 </tbody>
@@ -562,46 +570,46 @@
 <h3>sphere_transport<a class="headerlink" href="#sphere-transport" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks.html#polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks" title="polaris.ocean.tasks.sphere_transport.add_sphere_transport_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sphere_transport_tasks</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.add_sphere_transport_tasks.html#polaris.tasks.ocean.sphere_transport.add_sphere_transport_tasks" title="polaris.tasks.ocean.sphere_transport.add_sphere_transport_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sphere_transport_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks that define variants of sphere transport test cases: nondivergent_2d, divergent_2d, correlated_tracers_2d, rotation_2d</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.html#polaris.ocean.tasks.sphere_transport.SphereTransport" title="polaris.ocean.tasks.sphere_transport.SphereTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport</span></code></a>(component, config, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.SphereTransport.html#polaris.tasks.ocean.sphere_transport.SphereTransport" title="polaris.tasks.ocean.sphere_transport.SphereTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport</span></code></a>(component, config, ...[, ...])</p></td>
 <td><p>A test case for testing properties of tracer advection</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.SphereTransport.configure.html#polaris.ocean.tasks.sphere_transport.SphereTransport.configure" title="polaris.ocean.tasks.sphere_transport.SphereTransport.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport.configure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.SphereTransport.configure.html#polaris.tasks.ocean.sphere_transport.SphereTransport.configure" title="polaris.tasks.ocean.sphere_transport.SphereTransport.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SphereTransport.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.html#polaris.ocean.tasks.sphere_transport.init.Init" title="polaris.ocean.tasks.sphere_transport.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.init.Init.html#polaris.tasks.ocean.sphere_transport.init.Init" title="polaris.tasks.ocean.sphere_transport.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for an initial condition for for the cosine bell test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.init.Init.run.html#polaris.ocean.tasks.sphere_transport.init.Init.run" title="polaris.ocean.tasks.sphere_transport.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.init.Init.run.html#polaris.tasks.ocean.sphere_transport.init.Init.run" title="polaris.tasks.ocean.sphere_transport.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.forward.Forward.html#polaris.ocean.tasks.sphere_transport.forward.Forward" title="polaris.ocean.tasks.sphere_transport.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.forward.Forward.html#polaris.tasks.ocean.sphere_transport.forward.Forward" title="polaris.tasks.ocean.sphere_transport.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, subdir, ...)</p></td>
 <td><p>A step for performing forward ocean component runs as part of the sphere transport test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.analysis.Analysis.html#polaris.tasks.ocean.sphere_transport.analysis.Analysis" title="polaris.tasks.ocean.sphere_transport.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
 <td><p>A step for analyzing the output from sphere transport test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters.html#polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters" title="polaris.ocean.tasks.sphere_transport.analysis.Analysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.convergence_parameters</span></code></a>([...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.analysis.Analysis.convergence_parameters.html#polaris.tasks.ocean.sphere_transport.analysis.Analysis.convergence_parameters" title="polaris.tasks.ocean.sphere_transport.analysis.Analysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.convergence_parameters</span></code></a>([...])</p></td>
 <td><p>Get convergence parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis</span></code></a>(component, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis.html#polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis" title="polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis</span></code></a>(component, ...)</p></td>
 <td><p>A step for analyzing the output from sphere transport test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run.html#polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run" title="polaris.ocean.tasks.sphere_transport.mixing_analysis.MixingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis.run.html#polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis.run" title="polaris.tasks.ocean.sphere_transport.mixing_analysis.MixingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mixing_analysis.MixingAnalysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis" title="polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis</span></code></a>(...[, ...])</p></td>
 <td><p>A step for analyzing the output from sphere transport test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run.html#polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run" title="polaris.ocean.tasks.sphere_transport.filament_analysis.FilamentAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.run.html#polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.run" title="polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filament_analysis.FilamentAnalysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.html#polaris.ocean.tasks.sphere_transport.viz.Viz" title="polaris.ocean.tasks.sphere_transport.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.viz.Viz.html#polaris.tasks.ocean.sphere_transport.viz.Viz" title="polaris.tasks.ocean.sphere_transport.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, name, subdir, base_mesh, ...)</p></td>
 <td><p>A step for plotting fields from the cosine bell output</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.tasks.sphere_transport.viz.Viz.run.html#polaris.ocean.tasks.sphere_transport.viz.Viz.run" title="polaris.ocean.tasks.sphere_transport.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.sphere_transport.viz.Viz.run.html#polaris.tasks.ocean.sphere_transport.viz.Viz.run" title="polaris.tasks.ocean.sphere_transport.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -743,16 +751,6 @@
 </tbody>
 </table>
 </section>
-<section id="spherical-base-mesh-step">
-<h3>Spherical Base Mesh Step<a class="headerlink" href="#spherical-base-mesh-step" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.mesh.spherical.add_spherical_base_mesh_step.html#polaris.ocean.mesh.spherical.add_spherical_base_mesh_step" title="polaris.ocean.mesh.spherical.add_spherical_base_mesh_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_spherical_base_mesh_step</span></code></a>(component, ...)</p></td>
-<td><p>Add a shared step for creating spherical base mesh with the given resolution to the ocean component (if one has not already been added)</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="reference-potential-energy-rpe">
 <h3>Reference Potential Energy (RPE)<a class="headerlink" href="#reference-potential-energy-rpe" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -815,40 +813,6 @@
 </tbody>
 </table>
 </section>
-<section id="visualization">
-<h3>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.compute_transect.html#polaris.ocean.viz.compute_transect" title="polaris.ocean.viz.compute_transect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_transect</span></code></a>(x, y, ds_horiz_mesh, ...[, ...])</p></td>
-<td><p>build a sequence of quads showing the transect intersecting mpas cells.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transect</span></code></a>(ds_transect[, mpas_field, ...])</p></td>
-<td><p>plot a transect showing the field on the MPAS-Ocean mesh and save to a file</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.find_spherical_transect_cells_and_weights</span></code></a>(...)</p></td>
-<td><p>Find &quot;nodes&quot; where the transect intersects the edges of the triangles that make up MPAS cells.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.find_planar_transect_cells_and_weights</span></code></a>(...)</p></td>
-<td><p>Find &quot;nodes&quot; where the transect intersects the edges of the triangles that make up MPAS cells.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.make_triangle_tree.html#polaris.ocean.viz.transect.horiz.make_triangle_tree" title="polaris.ocean.viz.transect.horiz.make_triangle_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.make_triangle_tree</span></code></a>(ds_tris)</p></td>
-<td><p>Make a KD-Tree for finding triangle edges that are near enough to transect segments that they might intersect</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.mesh_to_triangles.html#polaris.ocean.viz.transect.horiz.mesh_to_triangles" title="polaris.ocean.viz.transect.horiz.mesh_to_triangles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.horiz.mesh_to_triangles</span></code></a>(ds_mesh)</p></td>
-<td><p>Construct a dataset in which each MPAS cell is divided into the triangles connecting pairs of adjacent vertices to cell centers.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.find_transect_levels_and_weights.html#polaris.ocean.viz.transect.vert.find_transect_levels_and_weights" title="polaris.ocean.viz.transect.vert.find_transect_levels_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.find_transect_levels_and_weights</span></code></a>(...)</p></td>
-<td><p>Construct a vertical coordinate for a transect produced by <a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.find_spherical_transect_cells_and_weights()</span></code></a> or <a class="reference internal" href="generated/polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights.html#polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights" title="polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect.horiz.find_planar_transect_cells_and_weights()</span></code></a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells.html#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.interp_mpas_to_transect_cells</span></code></a>(...)</p></td>
-<td><p>Interpolate an MPAS-Ocean DataArray with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> to transect cells</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes.html#polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes" title="polaris.ocean.viz.transect.vert.interp_mpas_to_transect_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transect.vert.interp_mpas_to_transect_nodes</span></code></a>(...)</p></td>
-<td><p>Interpolate an MPAS-Ocean DataArray with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> to transect nodes, linearly interpolating fields between the closest neighboring cells</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 </section>
 </section>
 
@@ -856,8 +820,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../api.html" class="btn btn-neutral float-left" title="API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/polaris.ocean.Ocean.html" class="btn btn-neutral float-right" title="polaris.ocean.Ocean" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html" class="btn btn-neutral float-left" title="polaris.tasks.mesh.base.BaseMeshTask" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/polaris.tasks.ocean.Ocean.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.Ocean" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -876,29 +840,31 @@
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="api.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.internal\_wave.rpe.analysis.Analysis.run
-============================================================
-
-.. currentmodule:: polaris.ocean.tasks.internal_wave.rpe.analysis
-
-.. automethod:: Analysis.run

@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.dst\_global\_lon\_lat
-===================================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.dst_global_lon_lat

@@ -1,6 +1,0 @@
-﻿polaris.ocean.viz.transect.horiz.mesh\_to\_triangles
-====================================================
-
-.. currentmodule:: polaris.ocean.viz.transect.horiz
-
-.. autofunction:: mesh_to_triangles

@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.src\_from\_lon\_lat
-=================================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.src_from_lon_lat

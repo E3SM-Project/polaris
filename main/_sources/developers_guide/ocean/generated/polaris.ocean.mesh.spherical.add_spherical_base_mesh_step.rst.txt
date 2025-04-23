@@ -1,6 +1,0 @@
-﻿polaris.ocean.mesh.spherical.add\_spherical\_base\_mesh\_step
-=============================================================
-
-.. currentmodule:: polaris.ocean.mesh.spherical
-
-.. autofunction:: add_spherical_base_mesh_step

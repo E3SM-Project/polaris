@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.geostrophic.analysis.Analysis.exact\_solution
-=================================================================
-
-.. currentmodule:: polaris.ocean.tasks.geostrophic.analysis
-
-.. automethod:: Analysis.exact_solution

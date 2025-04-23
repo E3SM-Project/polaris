@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.single\_column.init.Init.run
-================================================
-
-.. currentmodule:: polaris.ocean.tasks.single_column.init
-
-.. automethod:: Init.run

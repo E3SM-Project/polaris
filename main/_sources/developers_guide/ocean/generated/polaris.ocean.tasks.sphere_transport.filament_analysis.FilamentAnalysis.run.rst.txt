@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.sphere\_transport.filament\_analysis.FilamentAnalysis.run
-=============================================================================
-
-.. currentmodule:: polaris.ocean.tasks.sphere_transport.filament_analysis
-
-.. automethod:: FilamentAnalysis.run

@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -60,8 +61,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Config files</a><ul>
@@ -71,7 +73,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
@@ -84,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -142,7 +144,7 @@ multiple tasks.</p>
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as in the
 <code class="docutils literal notranslate"><span class="pre">polaris.setup</span></code> module. Here is a typical example from
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave</span></code></a>:</p>
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave.html#polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave" title="polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
@@ -151,11 +153,11 @@ options. Examples of this can be found in many tasks as well as in the
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;inertial_gravity_wave&#39;</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
-        
+
         <span class="o">...</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.ocean.tasks.inertial_gravity_wave&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polaris.tasks.ocean.inertial_gravity_wave&#39;</span><span class="p">,</span>
             <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -211,20 +213,20 @@ steps that use them.</p>
 <code class="docutils literal notranslate"><span class="pre">baroclinic_channel.cfg</span></code> config file for each resolution that resides in the
 resolution’s work directory:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_subdir</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.baroclinic_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.baroclinic_channel.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.baroclinic_channel.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpe</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]:</span>
-        <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_subdir</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/baroclinic_channel/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;baroclinic_channel.cfg&#39;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel&#39;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
 
         <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
@@ -236,7 +238,7 @@ resolution’s work directory:</p>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
         <span class="o">...</span>
-        
+
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Rpe</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                                <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span>
 </pre></div>
@@ -248,8 +250,8 @@ constructor so it has to be passed in.  We call <code class="docutils literal no
 in the constructor, and then use config options to determine the steps to be
 added as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel.rpe.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.baroclinic_channel.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.baroclinic_channel.rpe.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
@@ -279,7 +281,7 @@ added as follows:</p>
                 <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span>
 
             <span class="n">step</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.tasks.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
@@ -323,29 +325,31 @@ in MPAS-Tools for more details.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="config.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

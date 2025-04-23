@@ -13,13 +13,13 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="SeaIce framework" href="../framework.html" />
+    <link rel="next" title="Sea ice framework" href="../framework.html" />
     <link rel="prev" title="Tasks" href="index.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,8 +61,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">SeaIce component</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Sea ice component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
@@ -71,7 +73,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../framework.html">SeaIce framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Sea ice framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mpas_seaice.html">Supported Model: MPAS-Seaice</a></li>
 </ul>
 </li>
@@ -80,6 +82,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -107,7 +110,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../index.html">SeaIce component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Sea ice component</a></li>
           <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
       <li class="breadcrumb-item active">single_column</li>
       <li class="wy-breadcrumbs-aside">
@@ -121,7 +124,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="single-column">
 <span id="dev-seaice-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests in <code class="docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column</span></code> exercise
+<p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column</span></code> exercise
 column physics only. Here, we describe the tasks and their shared framework.</p>
 <section id="framework">
 <span id="dev-seaice-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
@@ -129,26 +132,26 @@ column physics only. Here, we describe the tasks and their shared framework.</p>
 shared namelists and streams files.</p>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.forward.Forward.html#polaris.seaice.tasks.single_column.forward.Forward" title="polaris.seaice.tasks.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.seaice.single_column.forward.Forward.html#polaris.tasks.seaice.single_column.forward.Forward" title="polaris.tasks.seaice.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column.forward.Forward</span></code></a>
 defines a step for running MPAS-Seaice. The step stages the forcing files,
 namelist and streams files for each task.</p>
 </section>
 </section>
 <section id="standard-physics-test">
 <h2>standard_physics_test<a class="headerlink" href="#standard-physics-test" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.standard_physics.StandardPhysics.html#polaris.seaice.tasks.single_column.standard_physics.StandardPhysics" title="polaris.seaice.tasks.single_column.standard_physics.StandardPhysics"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.standard_physics.StandardPhysics</span></code></a></p>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.seaice.single_column.standard_physics.StandardPhysics.html#polaris.tasks.seaice.single_column.standard_physics.StandardPhysics" title="polaris.tasks.seaice.single_column.standard_physics.StandardPhysics"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column.standard_physics.StandardPhysics</span></code></a></p>
 <p>The test runs for one year, using year 2000 conditions, as specified in the
 <code class="docutils literal notranslate"><span class="pre">namelist.seaice</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.seaice</span></code> files. The test will compare the contents
 of the output file for year 2000 against a baseline if provided.</p>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.standard_physics.viz.Viz.html#polaris.seaice.tasks.single_column.standard_physics.viz.Viz" title="polaris.seaice.tasks.single_column.standard_physics.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.standard_physics.viz.Viz</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.seaice.single_column.standard_physics.viz.Viz.html#polaris.tasks.seaice.single_column.standard_physics.viz.Viz" title="polaris.tasks.seaice.single_column.standard_physics.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column.standard_physics.viz.Viz</span></code></a>
 produces time series of sea ice volume, snow volume, and surface temperature.</p>
 </section>
 </section>
 <section id="exact-restart-test">
 <h2>exact_restart_test<a class="headerlink" href="#exact-restart-test" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.seaice.tasks.single_column.exact_restart.ExactRestart.html#polaris.seaice.tasks.single_column.exact_restart.ExactRestart" title="polaris.seaice.tasks.single_column.exact_restart.ExactRestart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.seaice.tasks.single_column.exact_restart.ExactRestart</span></code></a></p>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.seaice.single_column.exact_restart.ExactRestart.html#polaris.tasks.seaice.single_column.exact_restart.ExactRestart" title="polaris.tasks.seaice.single_column.exact_restart.ExactRestart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column.exact_restart.ExactRestart</span></code></a></p>
 <p>The test runs a <code class="docutils literal notranslate"><span class="pre">full_run</span></code> for one day, writing restarts every 12 hours, as
 specified by <code class="docutils literal notranslate"><span class="pre">namelist.full</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.full</span></code>. The test then runs a
 <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> from the full run’s 12 hour restart file, for 12 hours, writing
@@ -162,7 +165,7 @@ are then compared.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../framework.html" class="btn btn-neutral float-right" title="SeaIce framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../framework.html" class="btn btn-neutral float-right" title="Sea ice framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -181,29 +184,31 @@ are then compared.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="single_column.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

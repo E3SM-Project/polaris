@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -62,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ocean framework</a><ul>
@@ -77,18 +79,18 @@
 <li class="toctree-l3"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#visualization">Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -315,8 +317,8 @@ and outputting variables related to frazil ice and land-ice fluxes.</p>
 created with <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a>.  In general, the
 <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes are more uniform but the <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes are more flexible.  The
 <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes only support a fixed set of resolutions described in
-<a class="reference internal" href="../framework/mesh.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.</p>
-<p>The function <a class="reference internal" href="generated/polaris.ocean.mesh.spherical.add_spherical_base_mesh_step.html#polaris.ocean.mesh.spherical.add_spherical_base_mesh_step" title="polaris.ocean.mesh.spherical.add_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()</span></code></a>
+<a class="reference internal" href="../mesh/framework.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.</p>
+<p>The function <a class="reference internal" href="../generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html#polaris.mesh.add_step.add_uniform_spherical_base_mesh_step" title="polaris.mesh.add_step.add_uniform_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()</span></code></a>
 returns a step for for a spherical <code class="docutils literal notranslate"><span class="pre">qu</span></code> or <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh of a given resolution
 (in km).  The step can be shared between tasks.</p>
 </section>
@@ -428,7 +430,7 @@ its own config file to make sure they take precedence, e.g.:</p>
                                 <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence.spherical&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.cosine_bell&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -480,7 +482,7 @@ example:</p>
 <span class="sd">        refinement_factor : float</span>
 <span class="sd">            The factor by which to scale space, time or both</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.tasks.cosine_bell&#39;</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.cosine_bell&#39;</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
@@ -595,7 +597,7 @@ the evaluation time specified by the <code class="docutils literal notranslate">
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf</span></code> module provides support for ice shelf tasks.</p>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf</span></code> class can serve as a parent
 class for ice shelf tests, such as
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.ice_shelf_2d.IceShelf2d</span></code>.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.IceShelf2d</span></code>.</p>
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()</span></code>
 sets up <code class="docutils literal notranslate"><span class="pre">ssh_forward</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps from the classes
 <a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward" title="polaris.ocean.ice_shelf.ssh_forward.SshForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_forward.SshForward</span></code></a>
@@ -640,17 +642,6 @@ density, which is horizontally constant and increases with depth.</p>
 a function of time in a series of one or more output files.  The RPE is stored
 in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
 </section>
-<section id="visualization">
-<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.viz</span></code> module provides functions for making plots that are
-specific to the ocean component.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.viz.transect</span></code> modules includes functions for computing
-(<a class="reference internal" href="generated/polaris.ocean.viz.compute_transect.html#polaris.ocean.viz.compute_transect" title="polaris.ocean.viz.compute_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.compute_transect()</span></code></a>) and plotting
-(<a class="reference internal" href="generated/polaris.ocean.viz.plot_transect.html#polaris.ocean.viz.plot_transect" title="polaris.ocean.viz.plot_transect"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.viz.plot_transect()</span></code></a>) transects through the ocean
-from a sequence of x-y or latitude-longitude coordinates.  Currently, only
-transects on xarray data arrays with dimensions <code class="docutils literal notranslate"><span class="pre">nCells</span></code> by <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> are
-supported.</p>
-</section>
 </section>
 
 
@@ -677,29 +668,31 @@ supported.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="framework.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

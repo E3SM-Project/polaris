@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
@@ -86,12 +88,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -133,7 +136,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
 <span id="dev-ocean-cosine-bell"></span><h1>cosine_bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
-<p>In most cases, the <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>
+<p>In most cases, the <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell" title="polaris.tasks.ocean.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.CosineBell</span></code></a>
 test performs a series of 24-day runs that advect a bell-shaped tracer blob
 around the sphere.  The resolution of the sphere varies (by default, between
 60 and 240 km).  Advected results are compared with a known exact solution to
@@ -157,13 +160,13 @@ used to update model config options based on Polaris config options, see
 </section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.init.Init</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.init.Init.html#polaris.tasks.ocean.cosine_bell.init.Init" title="polaris.tasks.ocean.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.init.Init</span></code></a>
 defines a step for setting up the initial state at each resolution with a
 tracer distributed in a cosine-bell shape.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward" title="polaris.ocean.tasks.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward" title="polaris.tasks.ocean.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.forward.Forward</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
 and defines a step for running MPAS-Ocean from an initial condition produced in
 an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
@@ -173,7 +176,7 @@ section.  Other model config options are taken from <code class="docutils litera
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.analysis.Analysis</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.analysis.Analysis.html#polaris.tasks.ocean.cosine_bell.analysis.Analysis" title="polaris.tasks.ocean.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.analysis.Analysis</span></code></a>
 descends from
 <a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>,
 and defines a step for computing the error norm (L2) for the results
@@ -182,7 +185,7 @@ in <code class="docutils literal notranslate"><span class="pre">convergence_trac
 </section>
 <section id="validate">
 <h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.validate.Validate.html#polaris.ocean.tasks.cosine_bell.validate.Validate" title="polaris.ocean.tasks.cosine_bell.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.validate.Validate</span></code></a> is a
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.validate.Validate.html#polaris.tasks.ocean.cosine_bell.validate.Validate" title="polaris.tasks.ocean.cosine_bell.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.validate.Validate</span></code></a> is a
 step for validating the results between two cosine-bell runs.  It is currently
 used to verify bit-for-bit restart in the <code class="docutils literal notranslate"><span class="pre">restart</span></code> test described below.</p>
 </section>
@@ -191,7 +194,7 @@ used to verify bit-for-bit restart in the <code class="docutils literal notransl
 <p>The visualization step is available only in the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>
 tasks.  It is not included in the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> in order to keep regression
 as fast as possible when visualization isn’t needed.</p>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.viz.Viz</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz" title="polaris.tasks.ocean.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.viz.Viz</span></code></a>
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by these options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
@@ -213,20 +216,20 @@ each resolution.  The colormap is controlled by these options:</p>
 </section>
 <section id="decomp">
 <h2>decomp<a class="headerlink" href="#decomp" title="Link to this heading"></a></h2>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.decomp.Decomp.html#polaris.ocean.tasks.cosine_bell.decomp.Decomp" title="polaris.ocean.tasks.cosine_bell.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.decomp.Decomp</span></code></a> defines
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.decomp.Decomp.html#polaris.tasks.ocean.cosine_bell.decomp.Decomp" title="polaris.tasks.ocean.cosine_bell.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.decomp.Decomp</span></code></a> defines
 a decomposition test across core counts.  It runs Cosine Bell test at coarse
 resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
 for tracer advection across different core counts.</p>
 </section>
 <section id="restart">
 <h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.restart.Restart.html#polaris.ocean.tasks.cosine_bell.restart.Restart" title="polaris.ocean.tasks.cosine_bell.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.restart.Restart</span></code></a> class defines
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.restart.Restart.html#polaris.tasks.ocean.cosine_bell.restart.Restart" title="polaris.tasks.ocean.cosine_bell.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.restart.Restart</span></code></a> class defines
 a restart check that performs two time steps of the Cosine Bell test at coarse
 resolution, then performs reruns the second time step, as a restart run to
 verify the bit-for-bit restart capability for tracer advection.</p>
 <section id="restart-step">
 <h3>restart_step<a class="headerlink" href="#restart-step" title="Link to this heading"></a></h3>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.cosine_bell.restart.RestartStep.html#polaris.ocean.tasks.cosine_bell.restart.RestartStep" title="polaris.ocean.tasks.cosine_bell.restart.RestartStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.restart.RestartStep</span></code></a> class
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep" title="polaris.tasks.ocean.cosine_bell.restart.RestartStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.restart.RestartStep</span></code></a> class
 defines both steps of the restart run, the “full” run (2 time steps) and the
 “restart” run (repeating the last time step after a restart).</p>
 </section>
@@ -257,29 +260,31 @@ defines both steps of the restart run, the “full” run (2 time steps) and the
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="cosine_bell.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

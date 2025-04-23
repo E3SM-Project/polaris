@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -60,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
@@ -84,12 +86,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -131,10 +134,10 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="inertial-gravity-wave">
 <span id="dev-ocean-inertial-gravity-wave"></span><h1>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h1>
-<p>The inertial gravity wave test in <code class="docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave</span></code>
+<p>The inertial gravity wave test in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave</span></code>
 is a linear shallow water test case at 4 resolutions (200, 100, 50, and
 25 km).</p>
-<p>The <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave.html#polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave" title="polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.InertialGravityWave</span></code></a>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave.html#polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave" title="polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.InertialGravityWave</span></code></a>
 test performs a 10-hour run with a series of resolutions.  The convergence rate
 is calculated and visualizations are generated.</p>
 <section id="framework">
@@ -148,19 +151,19 @@ vertical momentum and tracer diffusion, as well as defining <code class="docutil
 <section id="exact-solution">
 <h3>exact_solution<a class="headerlink" href="#exact-solution" title="Link to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution</span></code></a>
 defines a class for storing attributes and methods relevant to computing the
 exact solution.  The constructor obtains the parameters from the config file.
 The
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.ssh()</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh()</span></code></a>
 method computes the SSH field.  The
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity()</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity" title="polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity()</span></code></a>
 method computes the <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field.</p>
 </section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.init.Init.html#polaris.ocean.tasks.inertial_gravity_wave.init.Init" title="polaris.ocean.tasks.inertial_gravity_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.init.Init</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.init.Init.html#polaris.tasks.ocean.inertial_gravity_wave.init.Init" title="polaris.tasks.ocean.inertial_gravity_wave.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
@@ -171,14 +174,14 @@ the exact solution. The tracer and coriolis fields are uniform in space.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward</span></code></a>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.html#polaris.tasks.ocean.inertial_gravity_wave.forward.Forward" title="polaris.tasks.ocean.inertial_gravity_wave.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.forward.Forward</span></code></a>
 descends from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.ConvergenceForward</span></code>
 and runs MPAS-Ocean from the initial condition produced in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step.
 Namelist and streams files are updated by the parent class with time steps
 determined algorithmically based on config options. The number
 of cells is approximated from config options in
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.forward.Forward.compute_cell_count()</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as  their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a graph
@@ -190,7 +193,7 @@ performed against a baseline if one is provided when calling
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis.html#polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis" title="polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.analysis.Analysis</span></code></a>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis.html#polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis" title="polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.analysis.Analysis</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>
 a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
@@ -198,7 +201,7 @@ convergence rate falls within acceptable bounds.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.ocean.tasks.inertial_gravity_wave.viz.Viz.html#polaris.ocean.tasks.inertial_gravity_wave.viz.Viz" title="polaris.ocean.tasks.inertial_gravity_wave.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.inertial_gravity_wave.viz.Viz</span></code></a> defines
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.inertial_gravity_wave.viz.Viz</span></code></a> defines
 a step for visualization. It produces a plan-view figure of the simulated,
 exact, and (simulated - exact) SSH fields.</p>
 </section>
@@ -229,29 +232,31 @@ exact, and (simulated - exact) SSH fields.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="inertial_gravity_wave.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

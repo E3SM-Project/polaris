@@ -12,6 +12,7 @@ documentation.
 :maxdepth: 1
 :titlesonly: true
 
+mesh/api
 ocean/api
 seaice/api
 ```
@@ -187,18 +188,6 @@ seaice/api
    ModelStep.partition
 ```
 
-### components
-
-```{eval-rst}
-.. currentmodule:: polaris.components
-
-.. autosummary::
-   :toctree: generated/
-
-   get_components
-```
-
-
 ### config
 
 ```{eval-rst}
@@ -277,6 +266,17 @@ seaice/api
    IcosahedralMeshStep.get_cell_width
 ```
 
+### Uniform Spherical Base Mesh Step
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.add_step
+
+.. autosummary::
+   :toctree: generated/
+
+   add_uniform_spherical_base_mesh_step
+```
+
 ### model_step
 
 ```{eval-rst}
@@ -350,18 +350,19 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
-   MappingFileStep.src_from_mpas
-   MappingFileStep.dst_from_mpas
-   MappingFileStep.src_from_lon_lat
-   MappingFileStep.dst_from_lon_lat
-   MappingFileStep.dst_global_lon_lat
-   MappingFileStep.src_from_proj
-   MappingFileStep.dst_from_proj
-   MappingFileStep.dst_from_points
-   MappingFileStep.get_remapper
-   MappingFileStep.runtime_setup
+   MappingFileStep.run
 ```
 
+### resolution
+
+```{eval-rst}
+.. currentmodule:: polaris.resolution
+
+.. autosummary::
+   :toctree: generated/
+
+   resolution_to_string
+```
 
 ### streams
 

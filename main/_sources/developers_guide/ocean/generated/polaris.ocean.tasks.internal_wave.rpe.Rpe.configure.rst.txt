@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.internal\_wave.rpe.Rpe.configure
-====================================================
-
-.. currentmodule:: polaris.ocean.tasks.internal_wave.rpe
-
-.. automethod:: Rpe.configure

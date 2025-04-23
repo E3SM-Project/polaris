@@ -134,7 +134,7 @@ class YetAnotherChannel(TestGroup):
     """
     def __init__(self, component):
         """
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             the ocean component that this test group belongs to
         """
         super().__init__(component=component, name='yet_another_channel')
@@ -180,9 +180,9 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/__init__.py
 :emphasize-lines: 4, 21
 
 from polaris import Component
-from polaris.ocean.tasks.baroclinic_channel import BaroclinicChannel
-from polaris.ocean.tasks.global_convergence import GlobalConvergence
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannel
+from polaris.tasks.ocean.baroclinic_channel import BaroclinicChannel
+from polaris.tasks.ocean.global_convergence import GlobalConvergence
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannel
 
 
 class Ocean(Component):
@@ -239,7 +239,7 @@ class Default(Task):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
         """
         name = 'default'
@@ -258,7 +258,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/__init__.py
 ```{code-block} python
 :emphasize-lines: 1, 16-18
 
-from polaris.ocean.tasks.yet_another_channel.default import Default
+from polaris.tasks.ocean.yet_another_channel.default import Default
 from polaris import TestGroup
 
 
@@ -268,7 +268,7 @@ class YetAnotherChannel(TestGroup):
     """
     def __init__(self, component):
         """
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
@@ -359,7 +359,7 @@ class Default(Task):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
 
         resolution : float
@@ -396,7 +396,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/__init__.py
 ```{code-block} python
 :emphasize-lines: 17-19
 
-from polaris.ocean.tasks.yet_another_channel.default import Default
+from polaris.tasks.ocean.yet_another_channel.default import Default
 from polaris import TestGroup
 
 
@@ -406,7 +406,7 @@ class YetAnotherChannel(TestGroup):
     """
     def __init__(self, component):
         """
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
@@ -624,7 +624,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 import os
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.init import Init
 
 
 class Default(Task):
@@ -684,7 +684,7 @@ $ cat polaris.o${SLURM_JOBID}
      Running steps: init
        * step: init
 
-     polaris calling: polaris.ocean.tasks.yet_another_channel.default.Default.validate()
+     polaris calling: polaris.tasks.ocean.yet_another_channel.default.Default.validate()
        inherited from: polaris.task.Task.validate()
        in /gpfs/fs1/home/ac.cbegeman/polaris-repo/main/polaris/task.py
 
@@ -1054,7 +1054,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 :emphasize-lines: 3, 10-19
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.init import Init
 from polaris.validate import compare_variables
 
 
@@ -1434,7 +1434,7 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_yaml_file('polaris.ocean.tasks.yet_another_channel',
+        self.add_yaml_file('polaris.tasks.ocean.yet_another_channel',
                            'forward.yaml')
 ```
 
@@ -1510,8 +1510,8 @@ Returning to the `default` task, we are now ready to add
 :emphasize-lines: 2, 13-15
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
-from polaris.ocean.tasks.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel.init import Init
 
 
 class Default(Task):
@@ -1647,9 +1647,9 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/default/__init__.py
 :emphasize-lines: 4, 18-19
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
-from polaris.ocean.tasks.yet_another_channel.init import Init
-from polaris.ocean.tasks.yet_another_channel.viz import Viz
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.viz import Viz
 
 
 class Default(Task):
@@ -1695,7 +1695,7 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/decomp/__init__.py
 import os
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.init import Init
 
 
 class Decomp(Task):
@@ -1715,7 +1715,7 @@ class Decomp(Task):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
 
         resolution : float
@@ -1740,7 +1740,7 @@ its own step.
 
 ```python
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
 
 ...
 
@@ -1797,8 +1797,8 @@ $ vi ${POLARIS_HEAD}/polaris/ocean/tasks/yet_another_channel/__init__.py
 
 ```python
 
-from polaris.ocean.tasks.yet_another_channel.decomp import Decomp
-from polaris.ocean.tasks.yet_another_channel.default import Default
+from polaris.tasks.ocean.yet_another_channel.decomp import Decomp
+from polaris.tasks.ocean.yet_another_channel.default import Default
 from polaris import TestGroup
 
 
@@ -1809,7 +1809,7 @@ class YetAnotherChannel(TestGroup):
 
     def __init__(self, component):
         """
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
@@ -2134,7 +2134,7 @@ In the file `yet_another_channel_test_case.py` in
 import os
 
 from polaris import Task
-from polaris.ocean.tasks.yet_another_channel.init import Init
+from polaris.tasks.ocean.yet_another_channel.init import Init
 from polaris.validate import compare_variables
 
 
@@ -2155,7 +2155,7 @@ class YetAnotherChannelTestCase(Task):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
 
         resolution : float
@@ -2192,9 +2192,9 @@ Now, we'll make `Default` descend from `YetAnotherChannelTestCase` and remove
 the redundant pieces.  Here's what's left:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
-from polaris.ocean.tasks.yet_another_channel.viz import Viz
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel.viz import Viz
 from polaris.validate import compare_variables
 
 
@@ -2211,7 +2211,7 @@ class Default(YetAnotherChannelTestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
 
         resolution : float
@@ -2282,7 +2282,7 @@ In analogy to the `default` task, we will start by creating a directory
 `YetAnotherChannelTestCase` base class:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2298,7 +2298,7 @@ class Rpe(YetAnotherChannelTestCase):
 
         Parameters
         ----------
-        test_group : polaris.ocean.tasks.yet_another_channel.YetAnotherChannel
+        test_group : polaris.tasks.ocean.yet_another_channel.YetAnotherChannel
             The test group that this task belongs to
 
         resolution : float
@@ -2320,11 +2320,11 @@ tet case. We add the following to the file `__init__.py` that defines the
 :emphasize-lines: 6, 21, 25-27
 
 from polaris import TestGroup
-from polaris.ocean.tasks.yet_another_channel.yet_another_channel_test_case import (  # noqa: E501
+from polaris.tasks.ocean.yet_another_channel.yet_another_channel_test_case import (  # noqa: E501
     YetAnotherChannelTestCase,
 )
-from polaris.ocean.tasks.yet_another_channel.default import Default
-from polaris.ocean.tasks.yet_another_channel.rpe import Rpe
+from polaris.tasks.ocean.yet_another_channel.default import Default
+from polaris.tasks.ocean.yet_another_channel.rpe import Rpe
 
 
 class YetAnotherChannel(TestGroup):
@@ -2333,7 +2333,7 @@ class YetAnotherChannel(TestGroup):
     """
     def __init__(self, component):
         """
-        component : polaris.ocean.Ocean
+        component : polaris.tasks.ocean.Ocean
             the ocean component that this test group belongs to
         """
         super().__init__(component=component,
@@ -2382,8 +2382,8 @@ We will handle this with the following additions to
 
 ```python
 from polaris.config import PolarisConfigParser
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2407,7 +2407,7 @@ class Rpe(YetAnotherChannelTestCase):
             # get just the default config options for yet_another_channel so
             # we can get the default viscosities
             config = PolarisConfigParser()
-            package = 'polaris.ocean.tasks.yet_another_channel'
+            package = 'polaris.tasks.ocean.yet_another_channel'
             config.add_from_package(package, 'yet_another_channel.cfg')
 
         for step in list(self.steps):
@@ -2426,7 +2426,7 @@ class Rpe(YetAnotherChannelTestCase):
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tasks.yet_another_channel.rpe',
+                'polaris.tasks.ocean.yet_another_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 ```
@@ -2441,7 +2441,7 @@ available yet from `self.config`:
 
 ```python
 from polaris.config import PolarisConfigParser
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2450,7 +2450,7 @@ class Rpe(YetAnotherChannelTestCase):
             # get just the default config options for yet_another_channel so
             # we can get the default viscosities
             config = PolarisConfigParser()
-            package = 'polaris.ocean.tasks.yet_another_channel'
+            package = 'polaris.tasks.ocean.yet_another_channel'
             config.add_from_package(package, 'yet_another_channel.cfg')
 ```
 
@@ -2486,7 +2486,7 @@ only remove steps that start with `rpe`.  To remove an item from a
 dictionary, you use {py:meth}`dict.pop()`:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2500,8 +2500,8 @@ class Rpe(YetAnotherChannelTestCase):
 Okay, now we're ready to actually add the steps:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
-from polaris.ocean.tasks.yet_another_channel.forward import Forward
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel.forward import Forward
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2518,7 +2518,7 @@ class Rpe(YetAnotherChannelTestCase):
                 resolution=resolution, nu=float(nu))
 
             step.add_yaml_file(
-                'polaris.ocean.tasks.yet_another_channel.rpe',
+                'polaris.tasks.ocean.yet_another_channel.rpe',
                 'forward.yaml')
             self.add_step(step)
 ```
@@ -2662,8 +2662,8 @@ It plots the results together in a single image that it writes out.
 We add the `analysis` step to the task as follows:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
-from polaris.ocean.tasks.yet_another_channel.rpe.analysis import Analysis
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel.rpe.analysis import Analysis
 
 
 class Rpe(YetAnotherChannelTestCase):
@@ -2688,7 +2688,7 @@ Adding validation to the `rpe` is very similar to `default`.  The only
 difference is that we need to do it once for each forward test:
 
 ```python
-from polaris.ocean.tasks.yet_another_channel import YetAnotherChannelTestCase
+from polaris.tasks.ocean.yet_another_channel import YetAnotherChannelTestCase
 from polaris.validate import compare_variables
 
 

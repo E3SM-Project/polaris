@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.ice\_shelf\_2d.add\_ice\_shelf\_2d\_tasks
-=============================================================
-
-.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d
-
-.. autofunction:: add_ice_shelf_2d_tasks

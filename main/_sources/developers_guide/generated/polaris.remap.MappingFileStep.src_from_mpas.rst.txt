@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.src\_from\_mpas
-=============================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.src_from_mpas

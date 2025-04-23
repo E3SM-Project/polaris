@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.runtime\_setup
-============================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.runtime_setup

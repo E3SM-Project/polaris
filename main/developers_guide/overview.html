@@ -13,7 +13,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -76,13 +77,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -184,32 +187,28 @@ concepts so here’s a short intro.</p>
 file can be empty or it can have code in it.  If it has functions or classes
 inside of it, they act like they’re directly in the package.  As an example,
 the polaris file
-<a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/ocean/__init__.py">polaris/ocean/__init__.py</a>
-has a class <a class="reference internal" href="ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean()</span></code></a> that looks like this (with the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/tree/main/polaris/tasks/ocean/__init__.py">polaris/ocean/__init__.py</a>
+has a class <a class="reference internal" href="ocean/generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.Ocean()</span></code></a> that looks like this (with the
 <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">docstrings</a> stripped out):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.baroclinic_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_baroclinic_channel_tasks</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
 
-        <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">}</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> in config options&#39;</span><span class="p">)</span>
 
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>This class contains all of the ocean tasks and steps.  The details aren’t
-important.  The point is that the class can be imported like so:</p>
+<p>Elsewhere, all the ocean tasks and steps get added this class.  The details
+aren’t important.  The point is that the class can be imported like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ocean</span>
 
 
@@ -279,15 +278,13 @@ clumsy set of functions and
 <a class="reference external" href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">python dictionaries</a>
 that was equally complex but harder to understand and document than classes.</p>
 <p>The outcome of this experience is that we have used classes to define
-components, tasks and steps.  Each component will “descend”
-from the <a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class; each task descends from
-<a class="reference internal" href="generated/polaris.Task.html#polaris.Task" title="polaris.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Task</span></code></a>; and each steps descends from
-<a class="reference internal" href="generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  These base classes contain functionality that can
-be shared with the “child” classes that descend from them and also define
-a few “methods” (functions that belong to a class) that the child class is
-meant to “override” (replace with their own version of the function, or augment
-by replacing the function and then calling the base class’s version of the
-same function).</p>
+tasks and steps. Components, however, do not need to descend from the
+<a class="reference internal" href="generated/polaris.Component.html#polaris.Component" title="polaris.Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Component</span></code></a> base class unless they require overriding
+functionality. Instead, a <code class="docutils literal notranslate"><span class="pre">polaris.Component</span></code> object can be created directly
+if no customization is needed.</p>
+<p>Tasks are added to components using the <code class="docutils literal notranslate"><span class="pre">polaris.tasks.add_tasks</span></code> module,
+which provides an <code class="docutils literal notranslate"><span class="pre">add_&lt;component&gt;_tasks()</span></code> function for each component. This
+approach avoids circular imports and simplifies task organization.</p>
 <p>We have some tutorials on how to add new components, tasks and steps, and more
 will be developed in the near future.  These will explain the main features of
 classes that developers need to know about. We also hope that the tasks
@@ -315,7 +312,7 @@ downloading files from the
 and creating symlinks; <code class="docutils literal notranslate"><span class="pre">polaris.validation</span></code> can be used to ensure that
 variables are bit-for-bit identical between steps or when compared with a
 baseline, and to compare timers with a baseline; and the
-<code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module contains a function<br />
+<code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module contains a function
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_cores_and_nodes()</span></code> that can find out
 the number of total cores and nodes available for running steps.</p>
 </section>
@@ -385,29 +382,31 @@ forward run with 5 different values of the viscosity.</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="overview.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

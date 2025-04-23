@@ -21,7 +21,7 @@ For examples, see:
 - {ref}`dev-ocean` in the Developer's Guide
 - {ref}`dev-ocean-baroclinic-channel` tasks in the Developer's Guide
 
-Documentation for each component in the User's guide should include a label 
+Documentation for each component in the User's guide should include a label
 with the name of the component:
 
 ```markdown
@@ -42,8 +42,8 @@ In the Developer's Guide, labels have `dev-` prepended to them:
 
 Each category of tasks (e.g. baroclinic channel) should have its own page in
 the `tasks` subdirectory of the component. The label for the page should have
-have the component name prepended (to make sure it's unique), and each task 
-(if explicitly labeled) should have the component and category of tasks 
+have the component name prepended (to make sure it's unique), and each task
+(if explicitly labeled) should have the component and category of tasks
 prepended to it. Thus, in the User's guide, we have:
 
 ```markdown
@@ -84,7 +84,7 @@ case, including:
 
 - A page for each category of tasks with a section for each task:
 
-  - A citation or link where the test case that is the basis for the tasks is 
+  - A citation or link where the test case that is the basis for the tasks is
     defined (if any)
   - A brief overview of the common characteristics of the tasks
   - An image showing typical output from one of the tasks
@@ -93,14 +93,14 @@ case, including:
   - The following sections as described in the template: description, mesh,
     vertical grid, initial conditions, forcing, time step, config, and cores
 
-- A description of any common framework within the component that the test 
+- A description of any common framework within the component that the test
   group or task pages may need to refer to.  This should only include
-  framework that users may need to be aware of, e.g. because of 
+  framework that users may need to be aware of, e.g. because of
   {ref}`config-files` or namelist options they may wish to edit.
 
 - A description of each suite, including which tasks are included
 
-A template is available for documenting groups of related tasks in the User's 
+A template is available for documenting groups of related tasks in the User's
 Guide: {ref}`ocean-category-of-task`
 
 The Developer's guide for each component should contain:
@@ -113,14 +113,14 @@ The Developer's guide for each component should contain:
     this category
   - A description of shared config, namelist and streams files
   - A description of shared steps
-  - A description of any other shared framework code shared between the tasks 
+  - A description of any other shared framework code shared between the tasks
     in that category
   - A description of each task and its steps
 
 - Technical details on the shared framework for the component
 
 Finally, all functions in the tasks and their shared framework that are part of
-the public API (i.e. all functions that don't start with an underscore) should 
+the public API (i.e. all functions that don't start with an underscore) should
 be added to `docs/<component>/api.md`:
 
 ````markdown
@@ -128,7 +128,7 @@ be added to `docs/<component>/api.md`:
 ### baroclinic_channel
 
 ```{eval-rst}
-.. currentmodule:: polaris.ocean.tasks.baroclinic_channel
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel
 
 .. autosummary::
    :toctree: generated/

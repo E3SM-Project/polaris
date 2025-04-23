@@ -102,7 +102,6 @@ ocean/spherical/icos/cosine_bell/restart
 ## viz
 ocean/planar/baroclinic_channel/10km/default
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
-ocean/spherical/icos/cosine_bell/convergence_both/with_viz
 ocean/spherical/icos/rotation_2d/with_viz
 
 ## remapping

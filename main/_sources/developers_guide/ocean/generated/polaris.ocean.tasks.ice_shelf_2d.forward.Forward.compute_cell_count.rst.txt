@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.ice\_shelf\_2d.forward.Forward.compute\_cell\_count
-=======================================================================
-
-.. currentmodule:: polaris.ocean.tasks.ice_shelf_2d.forward
-
-.. automethod:: Forward.compute_cell_count

@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.sphere\_transport.analysis.Analysis.convergence\_parameters
-===============================================================================
-
-.. currentmodule:: polaris.ocean.tasks.sphere_transport.analysis
-
-.. automethod:: Analysis.convergence_parameters

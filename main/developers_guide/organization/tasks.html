@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=557c4a80"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -73,13 +74,15 @@
 <li class="toctree-l2"><a class="reference internal" href="suites.html">Suites</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -280,16 +283,16 @@ associated with these steps until the point where the step is being set up in</p
 <li><p><a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a></p></li>
 </ul>
 <p>We will demonstrate with a fairly complex example,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.CosineBell.html#polaris.ocean.tasks.cosine_bell.CosineBell" title="polaris.ocean.tasks.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.CosineBell</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell" title="polaris.tasks.ocean.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.CosineBell</span></code></a>,
 to demonstrate how to make full use of <a class="reference internal" href="../overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a> in a task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.tasks.cosine_bell.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.add_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span><span class="p">,</span> <span class="n">VizMap</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
@@ -345,8 +348,8 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
         <span class="n">analysis_dependencies</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">dict</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">init</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">forward</span><span class="o">=</span><span class="nb">dict</span><span class="p">()))</span>
         <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
-            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
-                <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">)</span>
+            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
+                <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;base_mesh/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">resolution</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
 
@@ -431,17 +434,17 @@ example above, whether the mesh is icosahedral or quasi-uniform is an argument
 (<code class="docutils literal notranslate"><span class="pre">self.icosahedral</span></code>) and also used to define a unique subdirectory:
 <code class="docutils literal notranslate"><span class="pre">global_convergence/icos/cosine_bell</span></code> or <code class="docutils literal notranslate"><span class="pre">global_convergence/qu/cosine_bell</span></code>.</p>
 <p>The task imports a function –
-<a class="reference internal" href="../ocean/generated/polaris.ocean.mesh.spherical.add_spherical_base_mesh_step.html#polaris.ocean.mesh.spherical.add_spherical_base_mesh_step" title="polaris.ocean.mesh.spherical.add_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.mesh.spherical.add_spherical_base_mesh_step()</span></code></a> –
+<a class="reference internal" href="../generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html#polaris.mesh.add_step.add_uniform_spherical_base_mesh_step" title="polaris.mesh.add_step.add_uniform_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()</span></code></a> –
 and classes –
 <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.spherical.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.IcosahedralMeshStep</span></code></a>,
 <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.spherical.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.QuasiUniformSphericalMeshStep</span></code></a>,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.init.Init.html#polaris.ocean.tasks.cosine_bell.init.Init" title="polaris.ocean.tasks.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.init.Init</span></code></a>,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.forward.Forward.html#polaris.ocean.tasks.cosine_bell.forward.Forward" title="polaris.ocean.tasks.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.forward.Forward</span></code></a>,
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.analysis.Analysis.html#polaris.ocean.tasks.cosine_bell.analysis.Analysis" title="polaris.ocean.tasks.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.analysis.Analysis</span></code></a>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.viz.VizMap</span></code>, and
-<a class="reference internal" href="../ocean/generated/polaris.ocean.tasks.cosine_bell.viz.Viz.html#polaris.ocean.tasks.cosine_bell.viz.Viz" title="polaris.ocean.tasks.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tasks.cosine_bell.viz.Viz</span></code></a>
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.cosine_bell.init.Init.html#polaris.tasks.ocean.cosine_bell.init.Init" title="polaris.tasks.ocean.cosine_bell.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.init.Init</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward" title="polaris.tasks.ocean.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.forward.Forward</span></code></a>,
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.cosine_bell.analysis.Analysis.html#polaris.tasks.ocean.cosine_bell.analysis.Analysis" title="polaris.tasks.ocean.cosine_bell.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.analysis.Analysis</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.viz.VizMap</span></code>, and
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz" title="polaris.tasks.ocean.cosine_bell.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.viz.Viz</span></code></a>
 – for creating objects for each step.  The step objects are added to itself
-and the <a class="reference internal" href="../ocean/generated/polaris.ocean.Ocean.html#polaris.ocean.Ocean" title="polaris.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.Ocean</span></code></a> component with calls to
+and the <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.Ocean</span></code></a> component with calls to
 <a class="reference internal" href="../generated/polaris.Task.add_step.html#polaris.Task.add_step" title="polaris.Task.add_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.Task.add_step()</span></code></a>.  After this, the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
 steps will be available in <code class="docutils literal notranslate"><span class="pre">self.steps</span></code>, and a list of steps to run by default
 will be in <code class="docutils literal notranslate"><span class="pre">self.steps_to_run</span></code>.  This example reads resolutions from a config
@@ -645,7 +648,7 @@ methods, not in <code class="docutils literal notranslate"><span class="pre">con
 <span class="sd">        Add the config file common to inertial gravity wave tests</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.ocean.tasks.inertial_gravity_wave&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polaris.tasks.ocean.inertial_gravity_wave&#39;</span><span class="p">,</span>
             <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -696,29 +699,31 @@ creating a symlink to a README file that is shared across the whole task:</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../../../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="tasks.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
 
 </body>
 </html>

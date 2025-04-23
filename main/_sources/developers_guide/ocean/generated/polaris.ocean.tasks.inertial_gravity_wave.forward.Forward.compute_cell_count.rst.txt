@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.inertial\_gravity\_wave.forward.Forward.compute\_cell\_count
-================================================================================
-
-.. currentmodule:: polaris.ocean.tasks.inertial_gravity_wave.forward
-
-.. automethod:: Forward.compute_cell_count

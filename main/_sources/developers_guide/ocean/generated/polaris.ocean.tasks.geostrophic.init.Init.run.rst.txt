@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.geostrophic.init.Init.run
-=============================================
-
-.. currentmodule:: polaris.ocean.tasks.geostrophic.init
-
-.. automethod:: Init.run

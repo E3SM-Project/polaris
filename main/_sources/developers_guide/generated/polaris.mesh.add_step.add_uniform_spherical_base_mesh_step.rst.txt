@@ -1,0 +1,6 @@
+﻿polaris.mesh.add\_step.add\_uniform\_spherical\_base\_mesh\_step
+================================================================
+
+.. currentmodule:: polaris.mesh.add_step
+
+.. autofunction:: add_uniform_spherical_base_mesh_step

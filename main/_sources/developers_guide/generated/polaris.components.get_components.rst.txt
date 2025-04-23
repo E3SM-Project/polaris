@@ -1,6 +1,0 @@
-﻿polaris.components.get\_components
-==================================
-
-.. currentmodule:: polaris.components
-
-.. autofunction:: get_components

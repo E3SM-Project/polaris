@@ -1,6 +1,0 @@
-﻿polaris.ocean.tasks.baroclinic\_channel.rpe.analysis.Analysis.run
-=================================================================
-
-.. currentmodule:: polaris.ocean.tasks.baroclinic_channel.rpe.analysis
-
-.. automethod:: Analysis.run

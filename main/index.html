@@ -13,7 +13,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=557c4a80"></script>
+      <script src="_static/documentation_options.js?v=a8da1a53"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="users_guide/tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/machines/index.html">Machines</a></li>
@@ -59,13 +60,15 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">SeaIce component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design_docs/index.html">Design Documents</a></li>
@@ -105,7 +108,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="polaris">
 <span id="id1"></span><h1>Polaris<a class="headerlink" href="#polaris" title="Link to this heading"></a></h1>
-<a class="reference internal image-reference" href="_images/polaris_logo_large.png"><img alt="_images/polaris_logo_large.png" class="align-center" src="_images/polaris_logo_large.png" style="width: 400px;" />
+<a class="reference internal image-reference" href="_images/polaris_logo_small.png"><img alt="_images/polaris_logo_small.png" class="align-center" src="_images/polaris_logo_small.png" style="width: 400px;" />
 </a>
 <p>Polaris is a python package that provides an automated system to set up test
 cases or analysis tasks for several components of the Exascale Energy Earth
@@ -156,6 +159,10 @@ mesh generation capabilities would not be possible, are developed primarily by
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/mesh/tasks/index.html">Tasks</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/ocean/framework/index.html">Framework</a></li>
@@ -218,15 +225,20 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/organization/suites.html">Suites</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/mesh/tasks/index.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/mesh/framework.html">Mesh Framework</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/ocean/tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/ocean/framework.html">Ocean framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/ocean/models/index.html">Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">SeaIce component</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Sea ice component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/seaice/tasks/index.html">Tasks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/seaice/framework.html">SeaIce framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/seaice/framework.html">Sea ice framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/seaice/mpas_seaice.html">Supported Model: MPAS-Seaice</a></li>
 </ul>
 </li>
@@ -235,7 +247,6 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/config.html">Config files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/logging.html">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/io.html">IO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/mpas.html">MPAS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/model.html">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/framework/provenance.html">Provenance</a></li>
@@ -261,6 +272,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/deploying_spack.html">Deploying a new spack environment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/deploying_spack.html#where-do-we-update-polaris-dependencies">Where do we update polaris dependencies?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/deploying_spack.html#id1">Mache</a></li>
@@ -326,29 +338,31 @@ compass can be found at:</p>
       </div>
     </section>
   </div>
-  
-<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    <span class="fa fa-book"> Other Versions</span>
-    v: main
-    <span class="fa fa-caret-down"></span>
-  </span>
-  <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../0.5.0/index.html">0.5.0</a></dd>
-      <dd><a href="../0.6.0/index.html">0.6.0</a></dd>
-    </dl>
-    <dl>
-      <dt>Branches</dt>
-      <dd><a href="index.html">main</a></dd>
-    </dl>
-  </div>
-</div><script>
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="./">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../shared/version-switcher.js"></script>
+
 
 </body>
 </html>
