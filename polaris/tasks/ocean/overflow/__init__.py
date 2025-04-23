@@ -1,8 +1,8 @@
-from polaris import Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.tasks.ocean.overflow.forward import Forward as Forward
+from polaris.tasks.ocean.overflow.default import Default as Default
 from polaris.tasks.ocean.overflow.init import Init as Init
-from polaris.tasks.ocean.overflow.viz import Viz as Viz
+
+# from polaris.tasks.ocean.overflow.rpe import Rpe as Rpe
 
 
 def add_overflow_tasks(component):
@@ -12,53 +12,25 @@ def add_overflow_tasks(component):
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
     """
-    basedir = 'planar/overflow'
+    indir = 'planar/overflow'
     config_filename = 'overflow.cfg'
-    filepath = f'{basedir}/{config_filename}'
+    filepath = f'{indir}/{config_filename}'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.ocean.overflow', config_filename)
-    component.add_task(Overflow(component=component, config=config))
 
+    init_step = Init(component=component, name='init', indir=indir)
+    init_step.set_shared_config(config, link=config_filename)
 
-class Overflow(Task):
-    """
-    The overflow test case TODO
-    """
+    default = Default(component=component, indir=indir, init=init_step)
+    default.set_shared_config(config, link=config_filename)
+    component.add_task(default)
 
-    def __init__(self, component, config):
-        """
-        Create the test case
-
-        Parameters
-        ----------
-        component : polaris.ocean.Ocean
-            The ocean component that this task belongs to
-
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
-        """
-        test_name = 'default'
-        basedir = 'planar/overflow'
-        indir = f'{basedir}/{test_name}'
-        name = f'overflow_{test_name}'
-        config_filename = 'overflow.cfg'
-
-        super().__init__(component=component, name=name, subdir=indir)
-        self.set_shared_config(config, link=config_filename)
-        subdir = f'{basedir}/init'
-        symlink = 'init'
-        if subdir in component.steps:
-            init_step = component.steps[subdir]
-        else:
-            init_step = Init(component=component, name='init', subdir=subdir)
-            init_step.set_shared_config(self.config, link=config_filename)
-        self.add_step(init_step, symlink=symlink)
-        forward_step = Forward(
-            component=component,
-            init=init_step,
-            package='polaris.tasks.ocean.overflow',
-            name='forward',
-            indir=indir,
-        )
-        self.add_step(forward_step)
-        self.add_step(Viz(component=component, indir=indir))
+    # component.add_task(
+    #    Rpe(
+    #        component=component,
+    #        resolution=resolution,
+    #        indir=resdir,
+    #        init=init,
+    #        config=config,
+    #    )
+    # )
