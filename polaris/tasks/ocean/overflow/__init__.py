@@ -1,8 +1,7 @@
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.overflow.default import Default as Default
 from polaris.tasks.ocean.overflow.init import Init as Init
-
-# from polaris.tasks.ocean.overflow.rpe import Rpe as Rpe
+from polaris.tasks.ocean.overflow.rpe import Rpe as Rpe
 
 
 def add_overflow_tasks(component):
@@ -25,12 +24,11 @@ def add_overflow_tasks(component):
     default.set_shared_config(config, link=config_filename)
     component.add_task(default)
 
-    # component.add_task(
-    #    Rpe(
-    #        component=component,
-    #        resolution=resolution,
-    #        indir=resdir,
-    #        init=init,
-    #        config=config,
-    #    )
-    # )
+    component.add_task(
+        Rpe(
+            component=component,
+            indir=indir,
+            init=init_step,
+            config=config,
+        )
+    )
