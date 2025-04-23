@@ -12,15 +12,15 @@ class Forward(OceanModelStep):
         self,
         component,
         init,
-        package,
         yaml_filename='forward.yaml',
         name='forward',
+        task_name='default',
         subdir=None,
         indir=None,
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
-        nu=None,
+        nu=1000.0,
     ):
         """
         Create a new test case
@@ -64,10 +64,12 @@ class Forward(OceanModelStep):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            update_eos=True,
             graph_target=f'{init.path}/culled_graph.info',
         )
-        self.package = package
+        self.task_name = task_name
         self.yaml_filename = yaml_filename
+        self.nu = nu
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -76,13 +78,6 @@ class Forward(OceanModelStep):
             filename='initial_state.nc',
             work_dir_target=f'{init.path}/init.nc',
         )
-
-        if nu is not None:
-            # update the viscosity to the requested value *after* loading
-            # forward.yaml
-            self.add_model_config_options(
-                options=dict(config_mom_del2=nu), config_model='mpas-ocean'
-            )
 
         self.add_output_file(
             filename='output.nc',
@@ -105,13 +100,31 @@ class Forward(OceanModelStep):
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * resolution
         )
+        section = config[f'overflow_{self.task_name}']
+        run_duration = section.getfloat('run_duration')
+        output_interval = section.getfloat('output_interval')
+        if self.task_name == 'rpe':
+            run_duration_str = get_time_interval_string(days=run_duration)
+            output_interval_str = get_time_interval_string(
+                days=output_interval
+            )
+        else:
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * 60.0
+            )
+            output_interval_str = get_time_interval_string(
+                seconds=output_interval
+            )
+
         replacements = dict(
             dt=dt_str,
             btr_dt=btr_dt_str,
+            run_duration=run_duration_str,
+            output_interval=output_interval_str,
+            nu=self.nu,
         )
-        self.add_yaml_file('polaris.tasks.ocean.overflow', 'forward.yaml')
         self.add_yaml_file(
-            self.package,
+            'polaris.tasks.ocean.overflow',
             self.yaml_filename,
             template_replacements=replacements,
         )

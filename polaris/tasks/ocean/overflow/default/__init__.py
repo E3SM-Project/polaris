@@ -24,14 +24,15 @@ class Default(Task):
         init : polaris.tasks.ocean.overflow.init.Init
             A shared step for creating the initial state
         """
-        super().__init__(component=component, name='default', indir=indir)
+        task_name = 'default'
+        super().__init__(component=component, name=task_name, indir=indir)
 
         self.add_step(init, symlink='init')
 
         forward_step = Forward(
             component=component,
             init=init,
-            package='polaris.tasks.ocean.overflow',
+            task_name=task_name,
             name='forward',
             indir=self.subdir,
         )

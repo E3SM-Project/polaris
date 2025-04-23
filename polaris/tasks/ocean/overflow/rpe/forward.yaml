@@ -1,0 +1,17 @@
+mpas-ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: 40_00:00:00
+  streams:
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000-00-01_00:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - density
+      - daysSinceStartOfSim
+      - relativeVorticity
+      - layerThickness

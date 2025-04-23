@@ -9,7 +9,7 @@ mpas-ocean:
     config_write_output_on_startup: false
   hmix_del2:
     config_use_mom_del2: true
-    config_mom_del2: 1.0e3
+    config_mom_del2: {{ nu }}
   bottom_drag:
     config_implicit_bottom_drag_type: constant
     config_implicit_constant_bottom_drag_coeff: 0.01
@@ -23,7 +23,8 @@ mpas-ocean:
       filename_template: initial_state.nc
     input:
       filename_template: initial_state.nc
-    restart: {}
+    restart:
+      output_interval: 0010_00:00:00
     output:
       type: output
       filename_template: output.nc
