@@ -14,7 +14,7 @@ class Init(OceanIOStep):
     and the hydro vs nonhydro test cases.
     """
 
-    def __init__(self, component, name='init', subdir=None):
+    def __init__(self, component, name='init', indir=None):
         """
         Create the step
 
@@ -22,7 +22,7 @@ class Init(OceanIOStep):
         ----------
         test_case : compass.TestCase
         """
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(component=component, name=name, indir=indir)
 
     def setup(self):
         super().setup()
