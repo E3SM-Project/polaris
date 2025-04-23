@@ -62,9 +62,11 @@ class Viz(Step):
         )
 
         field_name = 'temperature'
-        vmin = ds_init[field_name].min().values
-        vmax = ds_init[field_name].max().values
+        cellMask = ds_init.cellMask.isel(nVertLevels=0)
         mpas_field = ds_init[field_name].isel(Time=t_index)
+        mpas_field_valid = ds_init[field_name].isel(nCells=cellMask == 1)
+        vmin = mpas_field_valid.min().values
+        vmax = mpas_field_valid.max().values
         plot_transect(
             ds_transect=ds_transect,
             mpas_field=mpas_field,
@@ -103,8 +105,6 @@ class Viz(Step):
         )
 
         field_name = 'temperature'
-        vmin = ds[field_name].min().values
-        vmax = ds[field_name].max().values
         mpas_field = ds[field_name].isel(Time=t_index)
         plot_transect(
             ds_transect=ds_transect,
