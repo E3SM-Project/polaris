@@ -72,7 +72,6 @@ udunits2
 sphinx >=7.0.0
 sphinx_rtd_theme
 myst-parser
-sphinx-multiversion
 
 # Visualization
 ncview
