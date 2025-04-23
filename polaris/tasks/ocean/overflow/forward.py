@@ -1,5 +1,5 @@
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class Forward(OceanModelStep):
@@ -12,6 +12,8 @@ class Forward(OceanModelStep):
         self,
         component,
         init,
+        package,
+        yaml_filename='forward.yaml',
         name='forward',
         subdir=None,
         indir=None,
@@ -64,6 +66,8 @@ class Forward(OceanModelStep):
             openmp_threads=openmp_threads,
             graph_target=f'{init.path}/culled_graph.info',
         )
+        self.package = package
+        self.yaml_filename = yaml_filename
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -72,7 +76,6 @@ class Forward(OceanModelStep):
             filename='initial_state.nc',
             work_dir_target=f'{init.path}/init.nc',
         )
-        self.add_yaml_file('polaris.ocean.tasks.internal_wave', 'forward.yaml')
 
         if nu is not None:
             # update the viscosity to the requested value *after* loading
@@ -91,7 +94,27 @@ class Forward(OceanModelStep):
             ],
         )
 
-    # no setup() is needed
+    def dynamic_model_config(self, at_setup):
+        super().dynamic_model_config(at_setup=at_setup)
+
+        config = self.config
+        resolution = config.getfloat('overflow', 'resolution')
+        dt_per_km = config.getfloat('overflow', 'dt_per_km')
+        btr_dt_per_km = config.getfloat('overflow', 'btr_dt_per_km')
+        dt_str = get_time_interval_string(seconds=dt_per_km * resolution)
+        btr_dt_str = get_time_interval_string(
+            seconds=btr_dt_per_km * resolution
+        )
+        replacements = dict(
+            dt=dt_str,
+            btr_dt=btr_dt_str,
+        )
+        self.add_yaml_file('polaris.tasks.ocean.overflow', 'forward.yaml')
+        self.add_yaml_file(
+            self.package,
+            self.yaml_filename,
+            template_replacements=replacements,
+        )
 
     def compute_cell_count(self):
         """

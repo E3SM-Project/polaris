@@ -54,7 +54,11 @@ class Overflow(Task):
             init_step.set_shared_config(self.config, link=config_filename)
         self.add_step(init_step, symlink=symlink)
         forward_step = Forward(
-            component=component, init=init_step, name='forward', indir=indir
+            component=component,
+            init=init_step,
+            package='polaris.tasks.ocean.overflow',
+            name='forward',
+            indir=indir,
         )
         self.add_step(forward_step)
         self.add_step(Viz(component=component, indir=indir))

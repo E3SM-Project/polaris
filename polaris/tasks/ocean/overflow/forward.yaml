@@ -3,8 +3,8 @@ mpas-ocean:
     config_stop_time: none
     config_run_duration: 0000_00:12:00
   time_integration:
-    config_dt: 0000_00:01:00
-    config_time_integrator: split_explicit
+    config_dt: {{ dt }}
+    config_time_integrator: split_explicit_ab2
   io:
     config_write_output_on_startup: false
   hmix_del2:
@@ -17,12 +17,12 @@ mpas-ocean:
     config_cvmix_background_scheme: none
     config_use_cvmix_convection: true
   split_explicit_ts:
-    config_btr_dt: 00:00:09
+    config_btr_dt: {{ btr_dt }}
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: initial_state.nc
     input:
-      filename_template: init.nc
+      filename_template: initial_state.nc
     restart: {}
     output:
       type: output
