@@ -101,9 +101,6 @@ html_title = ""
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_sidebars = {
-    "**": [
-        "versions.html",
-    ],
+html_context = {
+    "current_version": os.getenv("DOCS_VERSION", "main"),
 }
-

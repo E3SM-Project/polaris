@@ -91,7 +91,7 @@ jobs:
           init-shell: bash
           condarc: |
             channel_priority: strict
-            channels: 
+            channels:
                 - conda-forge
                 - e3sm/label/polaris
           create-args: >-
@@ -111,8 +111,5 @@ jobs:
         name: Build Sphinx Docs
         run: |
           source load_polaris_test_mpich.sh
-          # sphinx-multiversion expects at least a "main" branch
-          git branch main || echo "branch main already exists."
           cd docs
-          sphinx-multiversion . _build/html
-
+          DOCS_VERSION=test make versioned-html
