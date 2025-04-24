@@ -1,9 +1,8 @@
 from polaris import Task as Task
 from polaris.tasks.ocean.overflow.forward import Forward as Forward
-
-# from polaris.tasks.ocean.overflow.rpe.analysis import (
-#     Analysis as Analysis,
-# )
+from polaris.tasks.ocean.overflow.rpe.analysis import (
+    Analysis as Analysis,
+)
 
 
 class Rpe(Task):
@@ -80,10 +79,11 @@ class Rpe(Task):
 
             self.add_step(step)
 
-        # self.add_step(
-        #     Analysis(
-        #         component=component,
-        #         nus=nus,
-        #         indir=self.subdir,
-        #     )
-        # )
+        self.add_step(
+            Analysis(
+                component=component,
+                init=init,
+                nus=nus,
+                indir=self.subdir,
+            )
+        )
