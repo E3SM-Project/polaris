@@ -1,7 +1,7 @@
 mpas-ocean:
   time_management:
     config_stop_time: none
-    config_run_duration: 0000_00:12:00
+    config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: split_explicit_ab2
@@ -28,7 +28,7 @@ mpas-ocean:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:00:01
+      output_interval: {{ output_interval }}
       clobber_mode: truncate
       contents:
       - tracers
@@ -37,3 +37,6 @@ mpas-ocean:
       - layerThickness
       - ssh
       - vertVelocityTop
+      - density
+      - daysSinceStartOfSim
+      - relativeVorticity
