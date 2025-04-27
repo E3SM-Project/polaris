@@ -106,6 +106,7 @@ jobs:
             --verbose \
             --python=${{ matrix.python-version }}
           source load_polaris_test_mpich.sh
+          python -c "import polaris; import polaris.version; print(polaris.version.__version__)"
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs
