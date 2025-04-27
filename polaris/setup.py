@@ -697,7 +697,7 @@ def _get_basic_config(config_file, machine, component_path, component, model):
 
     # add the config options for the component
     config.add_from_package(
-        f'polaris.{component.name}',
+        f'polaris.{component.name.replace("/", ".")}',
         f'{component.name}.cfg',
         exception=False,
     )
