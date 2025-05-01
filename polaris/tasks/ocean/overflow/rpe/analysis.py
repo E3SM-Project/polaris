@@ -31,7 +31,8 @@ class Analysis(Step):
         indir : str
             the directory the step is in, to which ``name`` will be appended
 
-        init : TODO
+        init : polaris.tasks.ocean.overflow.init.Init
+            A shared step for creating the initial state
 
         nus : list of float
             A list of viscosities

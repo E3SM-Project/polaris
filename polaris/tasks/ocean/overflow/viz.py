@@ -9,7 +9,8 @@ from polaris.viz import plot_horiz_field
 
 class Viz(Step):
     """
-    A step for plotting the results of a series of overflow RPE runs
+    A step for plotting the results of the default overflow forward step
+    Similar viz is duplicated for the RPE task in its analysis step
     """
 
     def __init__(self, component, indir):
