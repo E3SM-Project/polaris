@@ -11,8 +11,7 @@ from polaris.ocean.vertical import init_vertical_coord
 
 class Init(OceanIOStep):
     """
-    A step for creating a mesh and initial condition for the nonhydro
-    and the hydro vs nonhydro test cases.
+    A step for creating a mesh and initial condition for overflow test cases.
     """
 
     def __init__(self, component, name='init', indir=None):
@@ -21,7 +20,14 @@ class Init(OceanIOStep):
 
         Parameters
         ----------
-        test_case : compass.TestCase
+        component : polaris.Component
+            The component the step belongs to
+
+        name : str
+            The name of the step
+
+        indir : str
+            The name of the directory the task will be set up in
         """
         super().__init__(component=component, name=name, indir=indir)
 
@@ -65,6 +71,8 @@ class Init(OceanIOStep):
         l_slope = section.getfloat('l_slope')
 
         ds = ds_mesh.copy()
+
+        # Form a continental shelf-like bathymetry
         ds['bottomDepth'] = shelf_depth + 0.5 * (
             max_bottom_depth - shelf_depth
         ) * (
@@ -74,12 +82,14 @@ class Init(OceanIOStep):
                 / (l_slope * 1.0e3)
             )
         )
-        # ssh
+
+        # ssh is zero
         ds['ssh'] = xr.zeros_like(ds.xCell)
 
         init_vertical_coord(config, ds)
 
-        # T = Tref - (rho - rhoRef)/alpha
+        # initial temperature is constant except for a block of cold water on
+        # the shelf
         x_dense = section.getfloat('x_dense')
         lower_temperature = section.getfloat('lower_temperature')
         higher_temperature = section.getfloat('higher_temperature')
@@ -98,7 +108,7 @@ class Init(OceanIOStep):
             np.expand_dims(temperature, axis=0),
         )
 
-        # initial salinity and temperature
+        # initial salinity is constant
         salinity = section.getfloat('salinity') * np.ones_like(temperature)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
@@ -112,7 +122,7 @@ class Init(OceanIOStep):
             np.expand_dims(density, axis=0),
         )
 
-        # initial velocity on edges
+        # initial velocity on edges is stationary
         ds['normalVelocity'] = (
             (
                 'Time',
@@ -122,7 +132,7 @@ class Init(OceanIOStep):
             np.zeros([1, ds.sizes['nEdges'], ds.sizes['nVertLevels']]),
         )
 
-        # Coriolis parameter
+        # Coriolis parameter is zero
         ds['fCell'] = (
             (
                 'nCells',

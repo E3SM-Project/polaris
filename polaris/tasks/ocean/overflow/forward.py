@@ -6,6 +6,17 @@ class Forward(OceanModelStep):
     """
     A step for performing forward MPAS-Ocean runs as part of overflow
     test cases.
+
+    Attributes
+    ----------
+    task_name : str
+       The name of the task that this step belongs to
+
+    yaml_filename : str
+       The name of the yaml file for this forward step
+
+    nu : float
+       The Laplacian viscosity to use for this forward step
     """
 
     def __init__(
@@ -32,6 +43,12 @@ class Forward(OceanModelStep):
 
         name : str
             the name of the task
+
+        task_name : str
+           The name of the task that this step belongs to
+
+        yaml_filename : str
+           The name of the yaml file for this forward step
 
         init : polaris.ocean.tasks.internal_wave.init.Init
             the initial state step
@@ -85,7 +102,6 @@ class Forward(OceanModelStep):
                 'layerThickness',
                 'normalVelocity',
                 'temperature',
-                'salinity',
             ],
         )
 

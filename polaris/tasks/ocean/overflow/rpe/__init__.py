@@ -8,7 +8,7 @@ from polaris.tasks.ocean.overflow.rpe.analysis import (
 class Rpe(Task):
     """
     The overflow reference potential energy (RPE) test case performs
-    a 20-day integration of the model forward in time at 5 different values of
+    a 40-day integration of the model forward in time at 5 different values of
     the viscosity at the given resolution.
 
     Attributes
@@ -27,7 +27,7 @@ class Rpe(Task):
         indir : str
             The directory the task is in, to which ``name`` will be appended
 
-        init : polaris.tasks.ocean.baroclinic_channel.init.Init
+        init : polaris.tasks.ocean.overflow.init.Init
             A shared step for creating the initial state
 
         config : polaris.config.PolarisConfigParser

@@ -6,15 +6,15 @@ from polaris.tasks.ocean.overflow.rpe import Rpe as Rpe
 
 def add_overflow_tasks(component):
     """
-    Add a task TODO
+    Add a task following the overflow test case of Petersen et al. (2015)
+    doi:10.1016/j.ocemod.2014.12.004
 
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
     """
     indir = 'planar/overflow'
     config_filename = 'overflow.cfg'
-    filepath = f'{indir}/{config_filename}'
-    config = PolarisConfigParser(filepath=filepath)
+    config = PolarisConfigParser(filepath=f'{indir}/{config_filename}')
     config.add_from_package('polaris.tasks.ocean.overflow', config_filename)
 
     init_step = Init(component=component, name='init', indir=indir)
