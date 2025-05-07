@@ -88,7 +88,6 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='init.nc', target='../init/init.nc')
-        self.add_input_file(filename='forcing.nc', target='../init/forcing.nc')
 
         self.add_output_file(
             filename='output.nc',
@@ -150,6 +149,7 @@ class Forward(OceanModelStep):
 
         if self.run_time_steps is not None:
             output_frequency_units = 'seconds'
+            output_frequency = '12'
             run_duration = ceil(self.run_time_steps * dt)
             stop_time_str = time.strftime(
                 '0001-01-01_%H:%M:%S', time.gmtime(run_duration)
@@ -170,9 +170,11 @@ class Forward(OceanModelStep):
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
             else:
-                print('Warning: mapping from time integrator '
-                      f'{time_integrator} to omega not found, '
-                      'retaining name given in config')
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
 
         replacements = dict(
             dt=dt_str,

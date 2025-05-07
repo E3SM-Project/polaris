@@ -37,7 +37,6 @@ class Init(Step):
             'base_mesh.nc',
             'culled_mesh.nc',
             'culled_graph.info',
-            'forcing.nc',
         ]:
             self.add_output_file(file)
         self.add_output_file('init.nc', validate_vars=['layerThickness'])
@@ -135,30 +134,27 @@ class Init(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        # write the initial condition file
-        write_netcdf(ds, 'init.nc')
-
         # set the wind stress forcing
-        ds_forcing = xr.Dataset()
         # Convert from km to m
         ly = ly * 1e3
         wind_stress_zonal = -tau_0 * np.cos(
             np.pi * (ds.yCell - ds.yCell.min()) / ly
         )
         wind_stress_meridional = xr.zeros_like(ds.xCell)
-        ds_forcing['windStressZonal'] = wind_stress_zonal.expand_dims(
+        ds['windStressZonal'] = wind_stress_zonal.expand_dims(
             dim='Time', axis=0
         )
-        ds_forcing['windStressMeridional'] = (
-            wind_stress_meridional.expand_dims(dim='Time', axis=0)
+        ds['windStressMeridional'] = wind_stress_meridional.expand_dims(
+            dim='Time', axis=0
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+        # write the initial condition file
+        write_netcdf(ds, 'init.nc')
 
         cell_mask = ds.maxLevelCell >= 1
 
         plot_horiz_field(
             ds_mesh,
-            ds_forcing['windStressZonal'],
+            ds['windStressZonal'],
             'forcing_wind_stress_zonal.png',
             cmap='cmo.balance',
             show_patch_edges=True,
