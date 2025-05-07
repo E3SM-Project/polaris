@@ -15,7 +15,7 @@ from polaris.step import Step
 from polaris.task import Task
 
 
-def get_combine_topo_step(component, cached=True):
+def get_combine_topo_steps(component, cached=True, include_viz=False):
     """
     Get the shared combine topo step for the given component, adding it if
     it doesn't exist
@@ -28,19 +28,26 @@ def get_combine_topo_step(component, cached=True):
     cached : bool, optional
         Whether to use cached data for the step or not
 
+    include_viz : bool, optional
+        Whether to include the visualization step or not
+        Default is False
+
     Returns
     -------
-    step : polaris.tasks.e3sm.init.topo.combine.CombineStep
-        The combine topo step
+    steps : list of polaris.Step
+        The combine topo step and optional visualization step
     """
+    steps = []
     subdir = CombineStep.get_subdir()
     if subdir in component.steps:
-        step = component.steps[subdir]
+        combine_step = component.steps[subdir]
     else:
-        step = CombineStep(component=component)
-        step.cached = cached
-        component.add_step(step)
-    return step
+        combine_step = CombineStep(component=component)
+        combine_step.cached = cached
+        component.add_step(combine_step)
+    steps.append(combine_step)
+
+    return steps
 
 
 class CombineStep(Step):
@@ -54,6 +61,15 @@ class CombineStep(Step):
 
     resolution_name: str
         either x.xxxx_degrees or NExxx
+
+    combined_filename : str
+        name of the combined topography file
+
+    dst_scrip_filename : str
+        name of the destination SCRIP file
+
+    exodus_filename : str
+        name of the exodus file for the cubed sphere mesh
     """
 
     # change these to update to the latest datasets
@@ -109,6 +125,9 @@ class CombineStep(Step):
         )
         self.resolution = None
         self.resolution_name = None
+        self.combined_filename = None
+        self.dst_scrip_filename = None
+        self.exodus_filename = None
 
         # add default config options for combining topo -- since this is a
         # shared step, they need to be defined separately from any task this
@@ -230,7 +249,7 @@ class CombineStep(Step):
         self._combine_datasets(
             antarctic_filename=antartic_remapped_filename,
             global_filename=global_remapped_filename,
-            out_filename=self.outputs[1],
+            out_filename=self.combined_filename,
         )
         self._cleanup()
 
@@ -275,16 +294,19 @@ class CombineStep(Step):
         # Build output filenames
         res_name = self.resolution_name
         assert res_name is not None, 'resolution_name should be set'
-        scrip_filename = f'{self.resolution_name}.scrip.nc'
-        combined_filename = '_'.join(
+        self.dst_scrip_filename = f'{self.resolution_name}.scrip.nc'
+        self.combined_filename = '_'.join(
             [
                 antarctic_dataset,
                 global_dataset,
                 f'{res_name}.nc',
             ]
         )
-        self.add_output_file(filename=scrip_filename)
-        self.add_output_file(filename=combined_filename)
+        self.exodus_filename = f'{self.resolution_name}.g'
+
+        self.add_output_file(filename=self.dst_scrip_filename)
+        self.add_output_file(filename=self.combined_filename)
+        self.add_output_file(filename=self.exodus_filename)
 
         if update:
             # We need to set absolute paths
@@ -519,9 +541,12 @@ class CombineStep(Step):
         section = self.config['combine_topo']
         target_grid = section.get('target_grid')
 
-        out_filename = self.outputs[0]
+        out_filename = self.dst_scrip_filename
+        assert out_filename is not None, 'dst_scrip_filename should be set'
         stem = pathlib.Path(out_filename).stem
         netcdf4_filename = f'{stem}.netcdf4.nc'
+
+        exodus_filename = self.exodus_filename
 
         # Build cubed sphere SCRIP file using tempestremap
         if target_grid == 'cubed_sphere':
@@ -532,7 +557,7 @@ class CombineStep(Step):
                 '--res',
                 f'{self.resolution}',
                 '--file',
-                f'{self.resolution_name}.g',
+                exodus_filename,
             ]
             check_call(args, logger)
 
@@ -540,7 +565,7 @@ class CombineStep(Step):
             args = [
                 'ConvertMeshToSCRIP',
                 '--in',
-                f'{self.resolution_name}.g',
+                exodus_filename,
                 '--out',
                 netcdf4_filename,
             ]
@@ -589,7 +614,7 @@ class CombineStep(Step):
             '--source',
             in_filename,
             '--destination',
-            self.outputs[0],
+            self.dst_scrip_filename,
             '--weight',
             out_filename,
             '--method',
@@ -771,7 +796,7 @@ class CombineStep(Step):
         section = config['combine_topo']
         renorm_thresh = section.getfloat('renorm_thresh')
 
-        out_filename = self.outputs[1]
+        out_filename = self.combined_filename
         stem = pathlib.Path(out_filename).stem
         netcdf4_filename = f'{stem}.netcdf4.nc'
 
@@ -923,8 +948,10 @@ class CombineTask(Task):
         self.config.add_from_package(
             'polaris.tasks.e3sm.init.topo', 'combine.cfg'
         )
-        step = get_combine_topo_step(
+        steps = get_combine_topo_steps(
             component=component,
             cached=False,
+            include_viz=True,
         )
-        self.add_step(step)
+        for step in steps:
+            self.add_step(step)
