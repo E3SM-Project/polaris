@@ -73,7 +73,7 @@ class CombineStep(Step):
         },
         'gebco2023': {
             'filename': 'GEBCO_2023.nc',
-            'mesh_name': 'Bedmap3_500m',
+            'mesh_name': 'GEBCO_2023',
         },
     }
 
