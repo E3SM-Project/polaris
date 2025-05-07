@@ -36,8 +36,10 @@ def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
 
     if icosahedral:
         prefix = 'icos'
+        mesh_name = f'Icos{res_str}'
     else:
         prefix = 'qu'
+        mesh_name = f'QU{res_str}'
 
     name = f'{prefix}_base_mesh_{res_str}'
     subdir = f'spherical/{prefix}/base_mesh/{res_str}'
@@ -52,6 +54,7 @@ def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
                 name=name,
                 subdir=subdir,
                 cell_width=resolution,
+                mesh_name=mesh_name,
             )
         else:
             base_mesh = QuasiUniformSphericalMeshStep(
@@ -59,6 +62,7 @@ def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
                 name=name,
                 subdir=subdir,
                 cell_width=resolution,
+                mesh_name=mesh_name,
             )
 
         # add default config options for spherical meshes
