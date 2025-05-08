@@ -1,13 +1,15 @@
 import os
 from math import ceil as ceil
+from typing import Dict as Dict
 
-from polaris import Task
+from polaris import Step, Task
 from polaris.config import PolarisConfigParser
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
 )
 from polaris.resolution import resolution_to_string
+from polaris.tasks.ocean.merry_go_round.analysis import Analysis
 from polaris.tasks.ocean.merry_go_round.forward import Forward
 from polaris.tasks.ocean.merry_go_round.init import Init
 
@@ -54,11 +56,15 @@ class MerryGoRound(Task):
         """
         name = f'merry_go_round_convergence_{refinement}'
         basedir = 'planar/merry_go_round'
-        subdir = f'{basedir}/convergence_{refinement}/{name}'
+        subdir = f'{basedir}/convergence_{refinement}/'
         config_filename = 'merry_go_round.cfg'
 
         super().__init__(component=component, name=name, subdir=subdir)
         self.set_shared_config(config, link=config_filename)
+
+        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
+            mesh=dict(), init=dict(), forward=dict()
+        )
 
         if refinement == 'time':
             option = 'refinement_factors_time'
@@ -112,3 +118,16 @@ class MerryGoRound(Task):
                 )
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
+
+            analysis_dependencies['mesh'][refinement_factor] = init_step
+            analysis_dependencies['init'][refinement_factor] = init_step
+            analysis_dependencies['forward'][refinement_factor] = forward_step
+
+        self.add_step(
+            Analysis(
+                component=component,
+                subdir=f'{self.subdir}/analysis',
+                dependencies=analysis_dependencies,
+                refinement=refinement,
+            )
+        )
