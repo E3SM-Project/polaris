@@ -30,7 +30,7 @@ help:
 
 
 clean:
-	rm -rf $(BUILDDIR) developers_guide/generated/ developers_guide/*/generated/
+	rm -rf $(BUILDDIR) developers_guide/generated/ developers_guide/*/generated/ developers_guide/*/*/generated/
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean-versioned-html:

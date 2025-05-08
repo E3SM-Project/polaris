@@ -14,7 +14,7 @@
 ### topo
 
 ```{eval-rst}
-.. currentmodule:: polaris.tasks.e3sm.init.topo
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
 
 .. autosummary::
    :toctree: generated/
@@ -25,4 +25,7 @@
    CombineStep.constrain_resources
    CombineStep.run
    CombineTask
+   VizCombinedStep
+   VizCombinedStep.setup
+   VizCombinedStep.run
 ```
