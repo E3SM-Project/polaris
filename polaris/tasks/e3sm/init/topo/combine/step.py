@@ -358,8 +358,13 @@ class CombineStep(Step):
         # Load Bedamp3 and get ice, ocean and grounded masks
         bedmap3 = xr.open_dataset(in_filename)
         mask = bedmap3.mask
-        ice_mask = (mask != 0).astype(float)
-        ocean_mask = np.logical_or(mask == 0, mask == 3).astype(float)
+        # -9999 = open ocean,
+        # 1     = grounded ice,
+        # 2     = transiently grounded ice shelf,
+        # 3     = floating ice shelf,
+        # 4     = rock
+        ice_mask = (mask.notnull()).astype(float)
+        ocean_mask = np.logical_or(mask.isnull(), mask == 3).astype(float)
         grounded_mask = np.logical_or(
             np.logical_or(mask == 1, mask == 2), mask == 4
         ).astype(float)
