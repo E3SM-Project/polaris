@@ -1,13 +1,12 @@
 from math import ceil as ceil
 
-from polaris import Step, Task
+from polaris import Task
 from polaris.config import PolarisConfigParser
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
 )
 from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.merry_go_round.default import Default
 from polaris.ocean.tasks.merry_go_round.forward import Forward
 from polaris.ocean.tasks.merry_go_round.init import Init
 
@@ -22,18 +21,11 @@ def add_merry_go_round_tasks(component):
 
     component.add_task(
         MerryGoRound(
-            component=component, config=config, refinement='both',
+            component=component,
+            config=config,
+            refinement='both',
         )
     )
-    """
-    init = Init(component=component, resolution=resolution, subdir=resdir)
-    init.set_shared_config(config, link=config_filename)
-
-    default = Default(component=component, resolution=resolution,
-                      indir=resdir, init=init)
-    default.set_shared_config(config, link=config_filename)
-    component.add_task(default)
-    """
 
 
 class MerryGoRound(Task):
@@ -63,12 +55,6 @@ class MerryGoRound(Task):
 
         super().__init__(component=component, name=name, subdir=subdir)
         self.set_shared_config(config, link=config_filename)
-
-        """
-        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
-            mesh=dict(), init=dict(), forward=dict()
-        )
-        """
 
         if refinement == 'time':
             option = 'refinement_factors_time'
