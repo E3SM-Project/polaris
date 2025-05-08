@@ -21,8 +21,15 @@ class Forward(ConvergenceForward):
         The resolution of the test case in km
     """
 
-    def __init__(self, component, name, refinement_factor, subdir,
-                 init, refinement='both'):
+    def __init__(
+        self,
+        component,
+        name,
+        refinement_factor,
+        subdir,
+        init,
+        refinement='both',
+    ):
         """
         Create a new test case
 
@@ -49,15 +56,20 @@ class Forward(ConvergenceForward):
         """
 
         validate_vars = ['normalVelocity', 'tracer1', 'tracer2', 'tracer3']
-        super().__init__(component=component,
-                         name=name, subdir=subdir,
-                         refinement_factor=refinement_factor,
-                         mesh=init, init=init, refinement=refinement,
-                         package='polaris.ocean.tasks.merry_go_round',
-                         yaml_filename='forward.yaml',
-                         graph_target=f'{init.path}/culled_graph.info',
-                         output_filename='output.nc',
-                         validate_vars=validate_vars)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            refinement_factor=refinement_factor,
+            mesh=init,
+            init=init,
+            refinement=refinement,
+            package='polaris.tasks.ocean.merry_go_round',
+            yaml_filename='forward.yaml',
+            graph_target=f'{init.path}/culled_graph.info',
+            output_filename='output.nc',
+            validate_vars=validate_vars,
+        )
 
     def compute_cell_count(self):
         """
@@ -77,7 +89,7 @@ class Forward(ConvergenceForward):
         )
 
         lx = section.getfloat('lx')
-        ly = section.getfloat("ly")
+        ly = section.getfloat('ly')
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
 

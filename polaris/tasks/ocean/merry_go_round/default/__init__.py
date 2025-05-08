@@ -36,12 +36,12 @@ class Default(Task):
                 refinement_factor=1,
                 name='default',
                 subdir=self.subdir,
-                init=init
+                init=init,
             )
         )
 
-        '''
+        """
         self.add_step(
             Viz(component=component, indir=self.subdir)
         )
-        '''
+        """
