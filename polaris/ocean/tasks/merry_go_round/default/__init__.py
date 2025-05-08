@@ -1,9 +1,5 @@
 from polaris import Task
-
-'''
 from polaris.ocean.tasks.merry_go_round.forward import Forward
-from polaris.ocean.tasks.merry_go_round.viz import Viz
-'''
 
 
 class Default(Task):
@@ -33,15 +29,19 @@ class Default(Task):
 
         self.add_step(init, symlink='init')
 
-        """
         self.add_step(
-            Forward(component=component, indir=self.subdir, ntasks=None,
-                    min_tasks=None, openmp_threads=1, resolution=resolution,
-                    run_time_steps=3,
-                    graph_target=f'{init.path}/culled_graph.info')
+            Forward(
+                component=component,
+                refinement='both',
+                refinement_factor=1,
+                name='default',
+                subdir=self.subdir,
+                init=init
+            )
         )
 
+        '''
         self.add_step(
             Viz(component=component, indir=self.subdir)
         )
-        """
+        '''
