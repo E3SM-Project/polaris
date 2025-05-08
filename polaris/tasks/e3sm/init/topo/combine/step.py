@@ -2,62 +2,16 @@ import os
 import pathlib
 from glob import glob
 
-import matplotlib.colors as mcolors
 import netCDF4
 import numpy as np
-import pandas as pd
 import pyproj
 import xarray as xr
-from matplotlib import cm
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
 from polaris.config import PolarisConfigParser
 from polaris.parallel import run_command
 from polaris.step import Step
-from polaris.task import Task
-
-
-def get_combine_topo_steps(component, cached=True, include_viz=False):
-    """
-    Get the shared combine topo step for the given component, adding it if
-    it doesn't exist
-
-    Parameters
-    ----------
-    component : polaris.Component
-        The component that the step will be added to
-
-    cached : bool, optional
-        Whether to use cached data for the step or not
-
-    include_viz : bool, optional
-        Whether to include the visualization step or not
-        Default is False, ignored if ``cached == True``.
-
-    Returns
-    -------
-    steps : list of polaris.Step
-        The combine topo step and optional visualization step
-    """
-    steps = []
-    subdir = CombineStep.get_subdir()
-    if subdir in component.steps:
-        combine_step = component.steps[subdir]
-    else:
-        combine_step = CombineStep(component=component)
-        combine_step.cached = cached
-        component.add_step(combine_step)
-    steps.append(combine_step)
-
-    if not cached and include_viz:
-        viz_step = VizCombinedStep(
-            component=component, combine_step=combine_step
-        )
-        component.add_step(viz_step)
-        steps.append(viz_step)
-
-    return steps
 
 
 class CombineStep(Step):
@@ -145,7 +99,9 @@ class CombineStep(Step):
         config_filename = 'combine_topo.cfg'
         filepath = os.path.join(component.name, subdir, config_filename)
         config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package('polaris.tasks.e3sm.init.topo', 'combine.cfg')
+        config.add_from_package(
+            'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
+        )
         self.set_shared_config(config)
 
     def setup(self):
@@ -929,188 +885,3 @@ def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
         else:
             encoding[var_name] = {'_FillValue': None}
     ds.to_netcdf(filename, encoding=encoding, format=format)
-
-
-class VizCombinedStep(Step):
-    """
-    A step for visualizing the combined topography dataset
-
-    Attributes
-    ----------
-    combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
-        The combine step to use for visualization
-
-    """
-
-    def __init__(self, component, combine_step):
-        """
-        Create a new step
-
-        Parameters
-        ----------
-        component : polaris.Component
-            The component the step belongs
-
-        combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
-            The combine step to use for visualization
-        """
-        super().__init__(
-            component=component,
-            name='viz_combine_topo',
-            subdir=os.path.join(CombineStep.get_subdir(), 'viz'),
-            cpus_per_task=128,
-            min_cpus_per_task=1,
-        )
-        self.combine_step = combine_step
-
-    def setup(self):
-        """
-        Set up the step in the work directory, including linking input files
-        """
-        combine_step = self.combine_step
-
-        topo_filename = combine_step.combined_filename
-        exodus_filename = combine_step.exodus_filename
-
-        self.add_input_file(
-            filename='topography.nc',
-            work_dir_target=os.path.join(combine_step.path, topo_filename),
-        )
-
-        self.add_input_file(
-            filename='cubed_sphere.g',
-            work_dir_target=os.path.join(combine_step.path, exodus_filename),
-        )
-
-    def run(self):
-        """
-        Run this step
-        """
-
-        colormaps = {
-            'bathymetry': 'cmo.deep_r',
-            'thickness': 'cmo.ice_r',
-            'ice_draft': 'cmo.deep_r',
-            'ice_mask': 'cmo.amp_r',
-            'grounded_mask': 'cmo.amp_r',
-            'ocean_mask': 'cmo.amp_r',
-        }
-
-        ds_data = xr.open_dataset('topography.nc')
-
-        # Use one field to define the valid mask (they all share indexing)
-        fill_val = ds_data['bathymetry']._FillValue
-        valid_mask = ds_data['bathymetry'].values != fill_val
-
-        # Build mesh only once
-        df_geom = self._load_cubed_sphere('cubed_sphere.g', valid_mask)
-
-        # Plot each field
-        for field in colormaps:
-            colors = self._cmap_to_colors(colormaps[field])
-            data = ds_data[field].values[valid_mask]
-            self._plot_field(df_geom, data, field, colors)
-
-    def _load_cubed_sphere(self, exodus_path, valid_mask):
-        ds_mesh = xr.open_dataset(exodus_path, decode_coords=False)
-        coords = ds_mesh['coord'].values
-        # 0-based
-        conn = ds_mesh['connect1'].values - 1
-
-        x, y, z = coords[0], coords[1], coords[2]
-        r = np.sqrt(x**2 + y**2 + z**2)
-        lat_nodes = np.degrees(np.arcsin(z / r))
-        lon_nodes = np.mod(np.degrees(np.arctan2(y, x)), 360)
-
-        # Apply mask to elements and get lat/lon per cell vertex
-        conn_valid = conn[valid_mask]
-        lat_vertices = lat_nodes[conn_valid]
-        lon_vertices = lon_nodes[conn_valid]
-
-        # Build static polygon geometry
-        n_cells = conn_valid.shape[0]
-        df_geom = pd.DataFrame(
-            {
-                'lat': lat_vertices.ravel(),
-                'lon': lon_vertices.ravel(),
-                'poly_id': np.repeat(np.arange(n_cells), 4),
-            }
-        )
-
-        return df_geom
-
-    def _plot_field(self, df_geom, field_data, field_name, colors):
-        try:
-            import datashader
-            from datashader import transfer_functions
-        except ImportError as err:
-            raise ImportError(
-                'the datashader package is not installed. '
-                'Please install in your conda environment so you can run '
-                'the topography visualization step.'
-            ) from err
-        import numba
-
-        numba.set_num_threads(self.cpus_per_task)
-
-        image_filename = f'{field_name}.png'
-        df_plot = df_geom.copy()
-        df_plot[field_name] = np.repeat(field_data, 4)
-
-        canvas = datashader.Canvas(
-            plot_width=2000,
-            plot_height=1000,
-            x_range=(0, 360),
-            y_range=(-90, -90),
-        )
-
-        agg = canvas.polygons(
-            df_plot, geometry='poly_id', agg=datashader.mean(field_name)
-        )
-        img = transfer_functions.shade(agg, cmap=colors, how='linear')
-        img.to_pil().save(image_filename)
-
-    @staticmethod
-    def _cmap_to_colors(cmap, n=256):
-        """
-        Convert a matplotlib colormap to a list of hex colors for Datashader.
-        """
-        if isinstance(cmap, str):
-            cmap = cm.get_cmap(cmap)
-        return [mcolors.rgb2hex(cmap(i / (n - 1))) for i in range(n)]
-
-
-class CombineTask(Task):
-    """
-    A task for creating the combined topography dataset, used to create the
-    files to be cached for use in all other contexts
-    """
-
-    def __init__(self, component):
-        """
-        Create a new task
-
-        Parameters
-        ----------
-        component : polaris.Component
-            The component the task belongs to
-        """
-        antarctic_dataset = CombineStep.ANTARCTIC
-        global_dataset = CombineStep.GLOBAL
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}_task'
-        subdir = os.path.join(CombineStep.get_subdir(), 'task')
-        super().__init__(
-            component=component,
-            name=name,
-            subdir=subdir,
-        )
-        self.config.add_from_package(
-            'polaris.tasks.e3sm.init.topo', 'combine.cfg'
-        )
-        steps = get_combine_topo_steps(
-            component=component,
-            cached=False,
-            include_viz=True,
-        )
-        for step in steps:
-            self.add_step(step)
