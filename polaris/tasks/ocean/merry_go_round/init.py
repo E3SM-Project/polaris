@@ -67,17 +67,18 @@ class Init(OceanIOStep):
         if not (vert_coord == 'z-level' or vert_coord == 'sigma'):
             raise ValueError('Vertical coordinate {vert_coord} not supported')
 
+        dc = self.resolution * 1e3
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-        nz = int(50 / (self.resolution / 5))
+        nz = int(50 / (dc / 5))
 
         ds_mesh = make_planar_hex_mesh(
             nx=nx,
             ny=ny,
-            dc=1e3 * self.resolution,
-            nonperiodic_x=False,
-            nonperiodic_y=True,
+            dc=dc,
+            nonperiodic_x=True,
+            nonperiodic_y=False,
         )
         write_netcdf(ds_mesh, 'base_mesh.nc')
 
@@ -91,7 +92,7 @@ class Init(OceanIOStep):
         x_cell_adjusted = ds.xCell - ds.xEdge.min()
         x_edge_adjusted = ds.xEdge - ds.xEdge.min()
 
-        ds['ssh'] = xr.ones_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds.xCell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
 
         config.set('vertical_grid', 'vert_levels', str(nz))
@@ -156,13 +157,13 @@ class Init(OceanIOStep):
 
         # Initialize debug tracers
         half_depth = 0.5 * bottom_depth
-        psi1 = 1.0 - ((x_cell_2D - 0.5 + x_max) ** 4 / (0.5 * x_max) ** 4)
-        psi2 = 1.0 - ((z_mid + half_depth) ** 2 / (0.5 * half_depth) ** 2)
+        psi1 = 1.0 - ((x_cell_2D - 0.5 * x_max) ** 4 / (0.5 * x_max) ** 4)
+        psi2 = 1.0 - ((z_mid + half_depth) ** 2 / (half_depth) ** 2)
         psi = psi1 * psi2
 
         ds['tracer1'] = xr.zeros_like(temperature)
         ds['tracer1'].isel(Time=0)[:] = 0.5 * (1 + np.tanh(2 * psi - 1))
-        ds['tracer2'] = tracer2_background * xr.zeros_like(temperature)
-        ds['tracer3'] = tracer3_background * xr.zeros_like(temperature)
+        ds['tracer2'] = tracer2_background * xr.ones_like(temperature)
+        ds['tracer3'] = tracer3_background * xr.ones_like(temperature)
 
         write_netcdf(ds, 'initial_state.nc')
