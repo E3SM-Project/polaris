@@ -89,10 +89,10 @@ class VizCombinedStep(Step):
         )
 
         # Plot each field
-        for field in colormaps:
+        for field, colormap in colormaps.items():
             self.logger.info(f'Plotting field: {field}')
             data = ds_data[field].values[valid_mask]
-            self._plot_field(vertices, tris, data, field, colormaps[field])
+            self._plot_field(vertices, tris, data, field, colormap)
 
     @staticmethod
     def _load_trimesh_geometry(exodus_path, valid_mask):

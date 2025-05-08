@@ -820,8 +820,7 @@ class CombineStep(Step):
         # Add remaining Antarctic variables to combined Dataset
         for field in ['ice_draft', 'thickness']:
             combined[field] = bathy_mask * ds_antarctic[field]
-        combined['water_column'] = combined.ice_draft - combined.bathymetry
-        for field in ['bathymetry', 'ice_draft', 'thickness', 'water_column']:
+        for field in ['bathymetry', 'ice_draft', 'thickness']:
             combined[field].attrs['unit'] = 'meters'
 
         # Add masks
@@ -840,6 +839,9 @@ class CombineStep(Step):
         for field, fill_val in fill_vals.items():
             valid = combined[field].notnull()
             combined[field] = combined[field].where(valid, fill_val)
+
+        combined['water_column'] = combined.ice_draft - combined.bathymetry
+        combined['water_column'].attrs['unit'] = 'meters'
 
         # Save combined bathy to NetCDF
         _write_netcdf_with_fill_values(combined, netcdf4_filename)
