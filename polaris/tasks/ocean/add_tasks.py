@@ -15,6 +15,7 @@ from polaris.tasks.ocean.manufactured_solution import (
     add_manufactured_solution_tasks as add_manufactured_solution_tasks,
 )
 from polaris.tasks.ocean.overflow import add_overflow_tasks
+from polaris.tasks.ocean.merry_go_round import add_merry_go_round_tasks
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
 
@@ -37,6 +38,7 @@ def add_ocean_tasks(component):
     add_isomip_plus_tasks(component=component, mesh_type='planar')
     add_manufactured_solution_tasks(component=component)
     add_overflow_tasks(component=component)
+    add_merry_go_round_tasks(component=component)
 
     # single column tasks
     add_single_column_tasks(component=component)

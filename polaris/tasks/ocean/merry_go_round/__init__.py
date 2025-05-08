@@ -1,3 +1,4 @@
+import os
 from math import ceil as ceil
 
 from polaris import Task
@@ -6,18 +7,21 @@ from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
 )
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.merry_go_round.forward import Forward
-from polaris.ocean.tasks.merry_go_round.init import Init
+from polaris.resolution import resolution_to_string
+from polaris.tasks.ocean.merry_go_round.forward import Forward
+from polaris.tasks.ocean.merry_go_round.init import Init
 
 
 def add_merry_go_round_tasks(component):
     basedir = 'planar/merry_go_round'
 
-    package_path = 'polaris.ocean.tasks.merry_go_round'
     config_filename = 'merry_go_round.cfg'
-    config = PolarisConfigParser(filepath=f'{basedir}/{config_filename}')
-    config.add_from_package(package_path, config_filename)
+    filepath = os.path.join(component.name, basedir, config_filename)
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.merry_go_round', config_filename
+    )
 
     component.add_task(
         MerryGoRound(
@@ -69,7 +73,7 @@ class MerryGoRound(Task):
             resolution = get_resolution_for_task(
                 self.config, refinement_factor, refinement=refinement
             )
-            mesh_name = resolution_to_subdir(resolution)
+            mesh_name = resolution_to_string(resolution)
 
             subdir = f'{basedir}/init/{mesh_name}'
             symlink = f'init/{mesh_name}'
