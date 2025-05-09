@@ -35,8 +35,6 @@ class Analysis(ConvergenceAnalysis):
         """
         convergence_vars = [
             {'name': 'tracer1', 'title': 'tracer1', 'zidx': 0},
-            {'name': 'tracer2', 'title': 'tracer2', 'zidx': 0},
-            {'name': 'tracer3', 'title': 'tracer3', 'zidx': 0},
         ]
         super().__init__(
             component=component,
