@@ -7,6 +7,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.mpas import area_for_field, time_index_from_xtime
+from polaris.ocean.model import get_time_interval_string
 from polaris.ocean.resolution import resolution_to_subdir
 from polaris.viz import use_mplstyle
 
@@ -137,7 +138,6 @@ class ConvergenceAnalysis(Step):
                 work_dir_target=f'{init.path}/initial_state.nc')
         if dts is None:
             for resolution in self.resolutions:
-                mesh_name = resolution_to_subdir(resolution)
                 forward = dependencies['forward'][resolution]
                 self.add_input_file(
                     filename=f'{mesh_name}_output.nc',
@@ -145,10 +145,10 @@ class ConvergenceAnalysis(Step):
         else:
             for resolution in self.resolutions:
                 for dt in dts:
-                    mesh_name = resolution_to_subdir(resolution)
                     forward = dependencies['forward'][dt]
+                    time_str = get_time_interval_string(seconds=dt)
                     self.add_input_file(
-                        filename=f'{int(dt)}_output.nc',
+                        filename=f'dt{time_str}s_output.nc',
                         work_dir_target=f'{forward.path}/output.nc')
 
     def run(self):
@@ -183,9 +183,11 @@ class ConvergenceAnalysis(Step):
             dimension, which should be None for variables that don't
 
         dts: list of float, optional
-            Time step for the temporal convergence analysis
-            Note that the first one on the list is the one used for the
-            reference solution used to compute errors
+            Time steps for the temporal convergence analysis
+            The first in the list is used to generate the reference
+            solution used to compute errors
+            Note that setting this implies we are computing convergence
+            in time only, with a fixed spatial resolution
         """
         resolutions = self.resolutions
         logger = self.logger
@@ -361,12 +363,14 @@ class ConvergenceAnalysis(Step):
                                                time=eval_time * s_per_hour,
                                                zidx=zidx)
         else:
-            field_exact = self.exact_solution(mesh_name, variable_name,
-                                              time=eval_time * s_per_hour,
-                                              zidx=zidx, dt=dts[0])
-            field_mpas = self.get_output_field(mesh_name, variable_name,
+            field_exact = self.get_output_field(mesh_name,  # type: ignore
+                                                variable_name,
+                                                time=eval_time * s_per_hour,
+                                                dt=dts[0], zidx=zidx)
+            field_mpas = self.get_output_field(mesh_name,  # type: ignore
+                                               variable_name,
                                                time=eval_time * s_per_hour,
-                                               zidx=zidx, dt=dts[index])
+                                               dt=dts[index], zidx=zidx)
         diff = field_exact - field_mpas
 
         # Only the L2 norm is area-weighted
@@ -382,7 +386,7 @@ class ConvergenceAnalysis(Step):
 
         return error
 
-    def exact_solution(self, mesh_name, field_name, time, zidx=None, dt=None):
+    def exact_solution(self, mesh_name, field_name, time, zidx=None):
         """
         Get the exact solution
 
@@ -404,10 +408,6 @@ class ConvergenceAnalysis(Step):
             The z-index for the vertical level at which to evaluate the exact
             solution
 
-        dt: float, optional
-            If provided, it extracts the numerical solution associated
-            with the first dt in the dt list in the cfg file
-
         Returns
         -------
         solution : xarray.DataArray
@@ -416,20 +416,15 @@ class ConvergenceAnalysis(Step):
             solution for the temporal convergence test
         """
 
-        if dt is None:
-            ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
-            ds_init = ds_init.isel(Time=0)
-            if zidx is not None:
-                ds_init = ds_init.isel(nVertLevels=zidx)
+        ds_init = xr.open_dataset(f'{mesh_name}_init.nc')
+        ds_init = ds_init.isel(Time=0)
+        if zidx is not None:
+            ds_init = ds_init.isel(nVertLevels=zidx)
 
-            return ds_init[field_name]
-        else:
-            ref_soln = self.get_output_field(mesh_name, field_name,
-                                             time, zidx, dt)
-            return ref_soln
+        return ds_init[field_name]
 
     def get_output_field(self, mesh_name, field_name,
-                         time, zidx=None, dt=None):
+                         time, zidx=None):
         """
         Get the model output field at the given time and z index
 
@@ -456,10 +451,7 @@ class ConvergenceAnalysis(Step):
         field_mpas : xarray.DataArray
             model output field
         """
-        if dt is None:
-            ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
-        else:
-            ds_out = xr.open_dataset(f'{int(dt)}_output.nc')
+        ds_out = xr.open_dataset(f'{mesh_name}_output.nc')
 
         tidx = time_index_from_xtime(ds_out.xtime.values, time)
         ds_out = ds_out.isel(Time=tidx)
