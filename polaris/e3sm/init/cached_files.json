@@ -1,0 +1,5 @@
+{
+    "e3sm/init/topo/combine_bedmap3_gebco2023/ne3000.scrip.nc": "topo/combine_bedmap3_gebco2023/ne3000.scrip.250509.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/bedmap3_gebco2023_ne3000.nc": "topo/combine_bedmap3_gebco2023/bedmap3_gebco2023_ne3000.250509.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/ne3000.g": "topo/combine_bedmap3_gebco2023/ne3000.250509.g"
+}

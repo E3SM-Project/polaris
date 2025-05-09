@@ -59,14 +59,16 @@ def update_cache(step_paths, date_string=None, dry_run=False):
         else:
             steps[component] = [step]
 
+    out_filename = f'{component.replace("/", "_")}_cached_files.json'
+
     # now, iterate over cores and steps
     for component in steps:
         database_root = config.get('paths', 'database_root')
         cache_root = f'{database_root}/{component}/polaris_cache'
 
-        package = f'polaris.{component}'
+        package = f'polaris.{component.replace("/", ".")}'
         try:
-            with open(f'{component}_cached_files.json') as data_file:
+            with open(out_filename) as data_file:
                 cached_files = json.load(data_file)
         except FileNotFoundError:
             # we don't have a local version of the file yet, let's see if
@@ -86,14 +88,14 @@ def update_cache(step_paths, date_string=None, dry_run=False):
 
             for output in step.outputs:
                 output = os.path.basename(output)
-                out_filename = os.path.join(step_path, output)
+                dest_filename = os.path.join(step_path, output)
                 # remove the component from the file path
-                target = out_filename[len(component) + 1 :]
+                target = dest_filename[len(component) + 1 :]
                 path, ext = os.path.splitext(target)
                 target = f'{path}.{date_string}{ext}'
-                cached_files[out_filename] = target
+                cached_files[dest_filename] = target
 
-                print(out_filename)
+                print(dest_filename)
                 print(f'  ==> {target}')
                 output_path = f'{cache_root}/{target}'
                 print(f'  copy to: {output_path}')
@@ -104,9 +106,8 @@ def update_cache(step_paths, date_string=None, dry_run=False):
                         os.makedirs(directory)
                     except FileExistsError:
                         pass
-                    shutil.copyfile(out_filename, output_path)
+                    shutil.copyfile(dest_filename, output_path)
 
-        out_filename = f'{component}_cached_files.json'
         with open(out_filename, 'w') as data_file:
             json.dump(cached_files, data_file, indent=4)
 

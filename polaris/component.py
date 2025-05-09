@@ -132,7 +132,7 @@ class Component:
     def _read_cached_files(self):
         """Read in the dictionary of cached files from cached_files.json"""
 
-        package = f'polaris.{self.name}'
+        package = f'polaris.{self.name.replace("/", ".")}'
         filename = 'cached_files.json'
         try:
             pkg_file = imp_res.files(package).joinpath(filename)
