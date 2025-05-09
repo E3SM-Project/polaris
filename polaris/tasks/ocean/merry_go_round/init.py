@@ -80,12 +80,12 @@ class Init(OceanIOStep):
             nonperiodic_x=True,
             nonperiodic_y=False,
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
+        write_netcdf(ds_mesh, 'base_mesh.nc')
         write_netcdf(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
