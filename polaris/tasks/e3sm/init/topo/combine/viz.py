@@ -21,7 +21,7 @@ class VizCombinedStep(Step):
 
     """
 
-    def __init__(self, component, combine_step):
+    def __init__(self, component, config, combine_step):
         """
         Create a new step
 
@@ -29,6 +29,9 @@ class VizCombinedStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs
+
+        config : polaris.config.PolarisConfigParser
+            The config options for the step
 
         combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
             The combine step to use for visualization
@@ -41,6 +44,7 @@ class VizCombinedStep(Step):
             min_cpus_per_task=1,
         )
         self.combine_step = combine_step
+        self.set_shared_config(config, link='combine_topo.cfg')
 
     def setup(self):
         """

@@ -35,14 +35,12 @@ class CombineTask(Task):
             name=name,
             subdir=subdir,
         )
-        self.config.add_from_package(
-            'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
-        )
-        steps = get_combine_topo_steps(
+        steps, config = get_combine_topo_steps(
             component=component,
             cached=False,
             include_viz=True,
             low_res=low_res,
         )
+        self.set_shared_config(config, link='combine_topo.cfg')
         for step in steps:
             self.add_step(step)

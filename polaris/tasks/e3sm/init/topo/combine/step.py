@@ -9,7 +9,6 @@ import xarray as xr
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
-from polaris.config import PolarisConfigParser
 from polaris.parallel import run_command
 from polaris.step import Step
 
@@ -72,7 +71,7 @@ class CombineStep(Step):
         )
         return os.path.join('topo', subdir)
 
-    def __init__(self, component, low_res=False):
+    def __init__(self, component, config, low_res=False):
         """
         Create a new step
 
@@ -80,6 +79,9 @@ class CombineStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
+
+        config : polaris.config.PolarisConfigParser
+            The shared config options for the step
 
         low_res : bool, optional
             Whether to use the low resolution configuration options
@@ -102,19 +104,8 @@ class CombineStep(Step):
         self.dst_scrip_filename = None
         self.exodus_filename = None
 
-        # add default config options for combining topo -- since this is a
-        # shared step, they need to be defined separately from any task this
-        # may be added to
-        config_filename = 'combine_topo.cfg'
-        filepath = os.path.join(component.name, subdir, config_filename)
-        config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package(
-            'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
-        )
-        if low_res:
-            config.add_from_package(
-                'polaris.tasks.e3sm.init.topo.combine', 'combine_low_res.cfg'
-            )
+        # Set the config options for this step.  Since the shared config
+        # file is in the step's work directory, we don't need a symlink
         self.set_shared_config(config)
 
     def setup(self):
