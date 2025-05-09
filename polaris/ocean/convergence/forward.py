@@ -89,7 +89,6 @@ class ConvergenceForward(OceanModelStep):
         if graph_path is None:
             graph_path = mesh.path
         self.add_input_file(
-            filename='graph.info',
             work_dir_target=f'{graph_path}/{graph_filename}')
 
         self.add_output_file(filename=output_filename,
