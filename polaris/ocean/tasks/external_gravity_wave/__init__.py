@@ -85,14 +85,12 @@ class ExternalGravityWave(Task):
         else:
             prefix = 'qu'
 
-        subdir = f'spherical/{prefix}/ext_grav_wav'
-        name = f'{prefix}_ext_grav_wav'
         if use_lts:
-            subdir += '_local_time_step'
-            name += '_local_time_step'
+            dt_type = 'local'
         else:
-            subdir += '_global_time_step'
-            name += '_global_time_step'
+            dt_type = 'global'
+        subdir = f'spherical/{prefix}/ext_grav_wav_{dt_type}_time_step'
+        name = f'{prefix}_ext_grav_wav_{dt_type}_time_step'
         link = None
 
         super().__init__(component=component, name=name, subdir=subdir)
@@ -159,7 +157,7 @@ class ExternalGravityWave(Task):
         if use_lts:
             name += '_local_time_step'
         else:
-            name += 'global_time_step'
+            name += '_global_time_step'
         subdir = f'{ext_grav_wave_dir}/init/{mesh_name}'
         symlink = None
         if subdir in component.steps:
@@ -202,7 +200,7 @@ class ExternalGravityWave(Task):
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
             else:
-                dt_step_name = name + f'_{int(dt)}s'
+                dt_step_name = f'{name}_{int(dt)}s'
                 forward_step = Forward(component=component,
                                        name=dt_step_name, subdir=subdir,
                                        resolution=resolution,

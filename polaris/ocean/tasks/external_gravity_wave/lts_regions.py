@@ -71,7 +71,7 @@ class LTSRegions(Step):
         """
         config = self.config
 
-        section = config['gaussian_bump']
+        section = config['external_gravity_wave']
         lat_center = section.getfloat('lat_center')
         lon_center = section.getfloat('lon_center')
 
@@ -82,6 +82,7 @@ class LTSRegions(Step):
                    num_interface_adjacent=10,
                    lat_center=lat_center,
                    lon_center=lon_center,
+                   fine_region_radius=np.pi / 4,
                    logger=self.logger,
                    use_progress_bar=use_progress_bar)
 
@@ -89,6 +90,7 @@ class LTSRegions(Step):
 def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
                num_interface_adjacent,
                lat_center, lon_center,
+               fine_region_radius,
                logger, use_progress_bar):
 
     # read in mesh data
@@ -101,139 +103,14 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
     lat_cell = ds['latCell']
     lon_cell = ds['lonCell']
 
-    # start by setting all cells to coarse
-    lts_rgn = [2] * n_cells
-
-    # check each cell, if in the fine region, label as fine
-    logger.info('Labeling fine cells...')
-    center_pt = Point(lat_center, lon_center)
-    for icell in range(0, n_cells):
-        cell_pt = Point(lat_cell[icell], lon_cell[icell])
-        if distance(cell_pt, center_pt) < np.pi / 4:
-            lts_rgn[icell] = 1
-
-    # first layer of cells with label 5
-    changed_cells = [[], []]  # type: ignore [var-annotated]
-    for iedge in range(0, n_edges):
-        cell1 = cells_on_edge[iedge, 0] - 1
-        cell2 = cells_on_edge[iedge, 1] - 1
-
-        if (cell1 != -1 and cell2 != -1):
-            if (lts_rgn[cell1] == 1 and lts_rgn[cell2] == 2):
-
-                lts_rgn[cell1] = 5
-                changed_cells[0].append(cell1)
-
-            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 1):
-
-                lts_rgn[cell2] = 5
-                changed_cells[0].append(cell2)
-
-    border_cells = changed_cells[0]
-
-    # num_interface_adjacent - 1 layers of cells with label 5
-    # only looping over cells changed during loop for previous layer
-    logger.info('Labeling interface-adjacent fine cells...')
-    for i in range(0, num_interface_adjacent - 1):
-        changed_cells[(i + 1) % 2] = []
-
-        for icell in changed_cells[i % 2]:
-            edges = edges_on_cell[icell]
-            for iedge in edges:
-                if iedge != 0:
-                    cell1 = cells_on_edge[iedge - 1, 0] - 1
-                    cell2 = cells_on_edge[iedge - 1, 1] - 1
-
-                    if (cell1 != -1 and cell2 != -1):
-                        if (lts_rgn[cell1] == 5 and lts_rgn[cell2] == 1):
-
-                            lts_rgn[cell2] = 5
-                            changed_cells[(i + 1) % 2].append(cell2)
-
-                        elif (lts_rgn[cell1] == 1 and lts_rgn[cell2] == 5):
-
-                            lts_rgn[cell1] = 5
-                            changed_cells[(i + 1) % 2].append(cell1)
-
-    changed_cells[0] = border_cells
-
-    # num_interface layers of interface region with label 4
-    logger.info('Labeling interface cells...')
-    for i in range(0, num_interface):
-        changed_cells[(i + 1) % 2] = []
-
-        for icell in changed_cells[i % 2]:
-            edges = edges_on_cell[icell]
-            for iedge in edges:
-                if iedge != 0:
-                    cell1 = cells_on_edge[iedge - 1, 0] - 1
-                    cell2 = cells_on_edge[iedge - 1, 1] - 1
-
-                    if (cell1 != -1 and cell2 != -1):
-                        # for the first layer, need to check neighbors are
-                        # 5 and 2
-                        # for further layers, need to check neighbors are
-                        # 3 and 2
-                        if (i == 0):
-                            if (lts_rgn[cell1] == 5 and lts_rgn[cell2] == 2):
-
-                                lts_rgn[cell2] = 3
-                                changed_cells[(i + 1) % 2].append(cell2)
-
-                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 5):
-
-                                lts_rgn[cell1] = 3
-                                changed_cells[(i + 1) % 2].append(cell1)
-
-                        else:
-                            if (lts_rgn[cell1] == 3 and lts_rgn[cell2] == 2):
-
-                                lts_rgn[cell2] = 3
-                                changed_cells[(i + 1) % 2].append(cell2)
-
-                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 3):
-
-                                lts_rgn[cell1] = 3
-                                changed_cells[(i + 1) % 2].append(cell1)
-
-    changed_cells[0] = changed_cells[num_interface % 2]
-
-    # num_interface layers of interface region with label 3
-    for i in range(0, num_interface):
-        changed_cells[(i + 1) % 2] = []
-
-        for icell in changed_cells[i % 2]:
-            edges = edges_on_cell[icell]
-            for iedge in edges:
-                if iedge != 0:
-                    cell1 = cells_on_edge[iedge - 1, 0] - 1
-                    cell2 = cells_on_edge[iedge - 1, 1] - 1
-
-                    if (cell1 != -1 and cell2 != -1):
-                        # for the first layer, need to check neighbors are
-                        # 3 and 2
-                        # for further layers, need to check neighbors are
-                        # 4 and 2
-                        if (i == 0):
-                            if (lts_rgn[cell1] == 3 and lts_rgn[cell2] == 2):
-
-                                lts_rgn[cell2] = 4
-                                changed_cells[(i + 1) % 2].append(cell2)
-
-                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 3):
-
-                                lts_rgn[cell1] = 4
-                                changed_cells[(i + 1) % 2].append(cell1)
-                        else:
-                            if (lts_rgn[cell1] == 4 and lts_rgn[cell2] == 2):
-
-                                lts_rgn[cell2] = 4
-                                changed_cells[(i + 1) % 2].append(cell2)
-
-                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 4):
-
-                                lts_rgn[cell1] = 4
-                                changed_cells[(i + 1) % 2].append(cell1)
+    lts_rgn = label_fine_region(n_cells, lat_cell, lon_cell,
+                                lat_center, lon_center,
+                                fine_region_radius,
+                                logger)
+    lts_rgn = label_interface_regions(lts_rgn, n_edges,
+                                      num_interface, num_interface_adjacent,
+                                      cells_on_edge, edges_on_cell,
+                                      logger)
 
     # create lts_mesh.nc
 
@@ -322,3 +199,151 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
 
     with open('lts_mesh_info.txt', 'w') as f:
         f.write(txt)
+
+
+def label_fine_region(n_cells, lat_cell, lon_cell,  # noqa: C901
+                      lat_center, lon_center,
+                      fine_region_radius,
+                      logger):
+
+    # start by setting all cells to coarse
+    lts_rgn = [2] * n_cells
+
+    # check each cell, if in the fine region, label as fine
+    logger.info('Labeling fine cells...')
+    center_pt = Point(lat_center, lon_center)
+    for icell in range(0, n_cells):
+        cell_pt = Point(lat_cell[icell], lon_cell[icell])
+        if distance(cell_pt, center_pt) < fine_region_radius:
+            lts_rgn[icell] = 1
+
+    return lts_rgn
+
+
+def label_interface_regions(lts_rgn, n_edges,  # noqa: C901
+                            num_interface, num_interface_adjacent,
+                            cells_on_edge, edges_on_cell,
+                            logger):
+    # first layer of cells with label 5
+    logger.info('Labeling interface-adjacent fine cells...')
+    changed_cells = [[], []]  # type: ignore [var-annotated]
+    for iedge in range(0, n_edges):
+        cell1 = cells_on_edge[iedge, 0] - 1
+        cell2 = cells_on_edge[iedge, 1] - 1
+
+        if (cell1 != -1 and cell2 != -1):
+            if (lts_rgn[cell1] == 1 and lts_rgn[cell2] == 2):
+
+                lts_rgn[cell1] = 5
+                changed_cells[0].append(cell1)
+
+            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 1):
+
+                lts_rgn[cell2] = 5
+                changed_cells[0].append(cell2)
+
+    border_cells = changed_cells[0]
+
+    # num_interface_adjacent - 1 layers of cells with label 5
+    # only looping over cells changed during loop for previous layer
+    for i in range(0, num_interface_adjacent - 1):
+        changed_cells[(i + 1) % 2] = []
+
+        for icell in changed_cells[i % 2]:
+            edges = edges_on_cell[icell]
+            for iedge in edges:
+                if iedge != 0:
+                    cell1 = cells_on_edge[iedge - 1, 0] - 1
+                    cell2 = cells_on_edge[iedge - 1, 1] - 1
+
+                    if (cell1 != -1 and cell2 != -1):
+                        if (lts_rgn[cell1] == 5 and lts_rgn[cell2] == 1):
+
+                            lts_rgn[cell2] = 5
+                            changed_cells[(i + 1) % 2].append(cell2)
+
+                        elif (lts_rgn[cell1] == 1 and lts_rgn[cell2] == 5):
+
+                            lts_rgn[cell1] = 5
+                            changed_cells[(i + 1) % 2].append(cell1)
+
+    changed_cells[0] = border_cells
+
+    # num_interface layers of interface region with label 4
+    logger.info('Labeling interface cells...')
+    for i in range(0, num_interface):
+        changed_cells[(i + 1) % 2] = []
+
+        for icell in changed_cells[i % 2]:
+            edges = edges_on_cell[icell]
+            for iedge in edges:
+                if iedge != 0:
+                    cell1 = cells_on_edge[iedge - 1, 0] - 1
+                    cell2 = cells_on_edge[iedge - 1, 1] - 1
+
+                    if (cell1 != -1 and cell2 != -1):
+                        # for the first layer, need to check neighbors are
+                        # 5 and 2
+                        # for further layers, need to check neighbors are
+                        # 3 and 2
+                        if (i == 0):
+                            if (lts_rgn[cell1] == 5 and lts_rgn[cell2] == 2):
+
+                                lts_rgn[cell2] = 3
+                                changed_cells[(i + 1) % 2].append(cell2)
+
+                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 5):
+
+                                lts_rgn[cell1] = 3
+                                changed_cells[(i + 1) % 2].append(cell1)
+
+                        else:
+                            if (lts_rgn[cell1] == 3 and lts_rgn[cell2] == 2):
+                                lts_rgn[cell2] = 3
+                                changed_cells[(i + 1) % 2].append(cell2)
+
+                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 3):
+
+                                lts_rgn[cell1] = 3
+                                changed_cells[(i + 1) % 2].append(cell1)
+
+    changed_cells[0] = changed_cells[num_interface % 2]
+
+    # num_interface layers of interface region with label 3
+    for i in range(0, num_interface):
+        changed_cells[(i + 1) % 2] = []
+
+        for icell in changed_cells[i % 2]:
+            edges = edges_on_cell[icell]
+            for iedge in edges:
+                if iedge != 0:
+                    cell1 = cells_on_edge[iedge - 1, 0] - 1
+                    cell2 = cells_on_edge[iedge - 1, 1] - 1
+
+                    if (cell1 != -1 and cell2 != -1):
+                        # for the first layer, need to check neighbors are
+                        # 3 and 2
+                        # for further layers, need to check neighbors are
+                        # 4 and 2
+                        if (i == 0):
+                            if (lts_rgn[cell1] == 3 and lts_rgn[cell2] == 2):
+
+                                lts_rgn[cell2] = 4
+                                changed_cells[(i + 1) % 2].append(cell2)
+
+                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 3):
+
+                                lts_rgn[cell1] = 4
+                                changed_cells[(i + 1) % 2].append(cell1)
+                        else:
+                            if (lts_rgn[cell1] == 4 and lts_rgn[cell2] == 2):
+
+                                lts_rgn[cell2] = 4
+                                changed_cells[(i + 1) % 2].append(cell2)
+
+                            elif (lts_rgn[cell1] == 2 and lts_rgn[cell2] == 4):
+
+                                lts_rgn[cell1] = 4
+                                changed_cells[(i + 1) % 2].append(cell1)
+
+    return lts_rgn

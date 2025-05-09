@@ -46,7 +46,7 @@ class Init(Step):
         """
         config = self.config
 
-        section = config['gaussian_bump']
+        section = config['external_gravity_wave']
         temperature = section.getfloat('temperature')
         salinity = section.getfloat('salinity')
         lat_center = section.getfloat('lat_center')
@@ -67,7 +67,7 @@ class Init(Step):
 
         init_vertical_coord(config, ds)
 
-        temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
+        temperature_array = temperature * xr.ones_like(latCell)
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
