@@ -269,12 +269,13 @@ seaice/api
 ### Uniform Spherical Base Mesh Step
 
 ```{eval-rst}
-.. currentmodule:: polaris.mesh.add_step
+.. currentmodule:: polaris.mesh.base
 
 .. autosummary::
    :toctree: generated/
 
    add_uniform_spherical_base_mesh_step
+   get_base_mesh_steps
 ```
 
 ### model_step

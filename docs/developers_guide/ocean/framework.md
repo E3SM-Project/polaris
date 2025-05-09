@@ -206,7 +206,7 @@ created with {py:class}`polaris.mesh.IcosahedralMeshStep`.  In general, the
 `icos` meshes only support a fixed set of resolutions described in
 {ref}`dev-spherical-meshes`.
 
-The function {py:func}`polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()`
+The function {py:func}`polaris.mesh.base.add_uniform_spherical_base_mesh_step()`
 returns a step for for a spherical `qu` or `icos` mesh of a given resolution
 (in km).  The step can be shared between tasks.
 
