@@ -70,6 +70,7 @@ developers_guide/quick_start
 developers_guide/overview
 developers_guide/command_line
 developers_guide/organization/index
+developers_guide/e3sm/init/index
 developers_guide/mesh/index
 developers_guide/ocean/index
 developers_guide/seaice/index

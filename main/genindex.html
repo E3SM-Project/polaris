@@ -58,6 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Sea ice component</a></li>
@@ -168,6 +169,12 @@
         <li><a href="developers_guide/generated/polaris.Step.html#polaris.Step.__init__">(polaris.Step method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.Task.html#polaris.Task.__init__">(polaris.Task method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__">(polaris.tasks.e3sm.init.topo.combine.CombineStep method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask.__init__">(polaris.tasks.e3sm.init.topo.combine.CombineTask method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__">(polaris.tasks.e3sm.init.topo.combine.VizCombinedStep method)</a>
 </li>
         <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask.__init__">(polaris.tasks.mesh.base.BaseMeshTask method)</a>
 </li>
@@ -332,6 +339,8 @@
 </li>
       <li><a href="developers_guide/generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency">add_dependency() (polaris.Step method)</a>
 </li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html#polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks">add_e3sm_init_tasks() (in module polaris.tasks.e3sm.init.add_tasks)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.add_geostrophic_tasks.html#polaris.tasks.ocean.geostrophic.add_geostrophic_tasks">add_geostrophic_tasks() (in module polaris.tasks.ocean.geostrophic)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks.html#polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks">add_ice_shelf_2d_tasks() (in module polaris.tasks.ocean.ice_shelf_2d)</a>
@@ -356,14 +365,14 @@
 </li>
       <li><a href="developers_guide/seaice/generated/polaris.tasks.seaice.add_tasks.add_seaice_tasks.html#polaris.tasks.seaice.add_tasks.add_seaice_tasks">add_seaice_tasks() (in module polaris.tasks.seaice.add_tasks)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.single_column.add_single_column_tasks.html#polaris.tasks.ocean.single_column.add_single_column_tasks">add_single_column_tasks() (in module polaris.tasks.ocean.single_column)</a>
 
       <ul>
         <li><a href="developers_guide/seaice/generated/polaris.tasks.seaice.single_column.add_single_column_tasks.html#polaris.tasks.seaice.single_column.add_single_column_tasks">(in module polaris.tasks.seaice.single_column)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.add_sphere_transport_tasks.html#polaris.tasks.ocean.sphere_transport.add_sphere_transport_tasks">add_sphere_transport_tasks() (in module polaris.tasks.ocean.sphere_transport)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.Component.add_step.html#polaris.Component.add_step">add_step() (polaris.Component method)</a>
@@ -430,6 +439,10 @@
 </li>
       <li><a href="developers_guide/generated/polaris.job.clean_up_whitespace.html#polaris.job.clean_up_whitespace">clean_up_whitespace() (in module polaris.job)</a>
 </li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep">CombineStep (class in polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask">CombineTask (class in polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables">compare_variables() (in module polaris.validate)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.complete_step_run.html#polaris.run.complete_step_run">complete_step_run() (in module polaris.run)</a>
@@ -466,10 +479,10 @@
       </ul></li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step">compute_max_time_step() (in module polaris.tasks.ocean.barotropic_gyre.forward)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">compute_min_max_level_cell() (in module polaris.ocean.vertical.zlevel)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">compute_min_max_level_cell() (in module polaris.ocean.vertical.zlevel)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny">compute_planar_hex_nx_ny() (in module polaris.mesh.planar)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">compute_rpe() (in module polaris.ocean.rpe)</a>
@@ -496,6 +509,8 @@
 
       <ul>
         <li><a href="developers_guide/generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources">(polaris.Step method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources">(polaris.tasks.e3sm.init.topo.combine.CombineStep method)</a>
 </li>
       </ul></li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.convergence_parameters">convergence_parameters() (polaris.ocean.convergence.analysis.ConvergenceAnalysis method)</a>
@@ -645,6 +660,8 @@
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.get_resolution_for_task.html#polaris.ocean.convergence.get_resolution_for_task">get_resolution_for_task() (in module polaris.ocean.convergence)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.job.get_slurm_options.html#polaris.job.get_slurm_options">get_slurm_options() (in module polaris.job)</a>
+</li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir">get_subdir() (polaris.tasks.e3sm.init.topo.combine.CombineStep static method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions">get_subdivisions() (polaris.mesh.IcosahedralMeshStep static method)</a>
 </li>
@@ -883,6 +900,10 @@
 </li>
         <li><a href="developers_guide/generated/polaris.Step.run.html#polaris.Step.run">(polaris.Step method)</a>
 </li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.run.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.run">(polaris.tasks.e3sm.init.topo.combine.CombineStep method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.run.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.run">(polaris.tasks.e3sm.init.topo.combine.VizCombinedStep method)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.init.Init.run.html#polaris.tasks.ocean.baroclinic_channel.init.Init.run">(polaris.tasks.ocean.baroclinic_channel.init.Init method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.run.html#polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis.run">(polaris.tasks.ocean.baroclinic_channel.rpe.analysis.Analysis method)</a>
@@ -994,6 +1015,10 @@
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup">(polaris.ocean.model.OceanModelStep method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.Step.setup.html#polaris.Step.setup">(polaris.Step method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.setup.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.setup">(polaris.tasks.e3sm.init.topo.combine.CombineStep method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup">(polaris.tasks.e3sm.init.topo.combine.VizCombinedStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.init.Init.setup.html#polaris.tasks.ocean.baroclinic_channel.init.Init.setup">(polaris.tasks.ocean.baroclinic_channel.init.Init method)</a>
 </li>
@@ -1124,6 +1149,10 @@
         <li><a href="developers_guide/seaice/generated/polaris.tasks.seaice.single_column.standard_physics.viz.Viz.html#polaris.tasks.seaice.single_column.standard_physics.viz.Viz">(class in polaris.tasks.seaice.single_column.standard_physics.viz)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep">VizCombinedStep (class in polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
   </ul></td>
 </tr></table>
 

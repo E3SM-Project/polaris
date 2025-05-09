@@ -1,0 +1,42 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CombineStep
+================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autoclass:: CombineStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CombineStep.__init__
+      ~CombineStep.add_dependency
+      ~CombineStep.add_input_file
+      ~CombineStep.add_output_file
+      ~CombineStep.constrain_resources
+      ~CombineStep.get_subdir
+      ~CombineStep.process_inputs_and_outputs
+      ~CombineStep.run
+      ~CombineStep.runtime_setup
+      ~CombineStep.set_resources
+      ~CombineStep.set_shared_config
+      ~CombineStep.setup
+      ~CombineStep.validate_baselines
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CombineStep.ANTARCTIC
+      ~CombineStep.DATASETS
+      ~CombineStep.GLOBAL
+   
+   
