@@ -37,7 +37,6 @@ class CombineTask(Task):
         )
         steps, config = get_combine_topo_steps(
             component=component,
-            cached=False,
             include_viz=True,
             low_res=low_res,
         )
