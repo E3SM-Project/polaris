@@ -9,13 +9,9 @@ omega:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
   debug:
-    config_disable_thick_all_tend: false
-    config_disable_thick_hadv: false
     config_disable_thick_vadv: true
     config_disable_thick_sflux: true
-    config_disable_vel_all_tend: false
     config_disable_vel_coriolis: true
-    config_disable_vel_pgrad: false
     config_disable_vel_hmix: true
     config_disable_vel_surface_stress: true
     config_disable_vel_explicit_bottom_drag: true
