@@ -97,3 +97,4 @@ class MappingFileStep(Step):
                 )
 
         remapper.build_map(logger=self.logger)
+        remapper.map_filename = os.path.abspath(remapper.map_filename)
