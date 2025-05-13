@@ -1,5 +1,4 @@
 import os
-import pathlib
 
 import numpy as np
 import xarray as xr
@@ -154,8 +153,6 @@ class RemapTopoStep(Step):
             return
 
         self._create_target_scrip_file()
-        self._partition_scrip_file('source.scrip.nc')
-        self._partition_scrip_file('target.scrip.nc')
         self._create_weights()
         self._remap_to_target()
         self._modify_remapped_bathymetry()
@@ -193,6 +190,7 @@ class RemapTopoStep(Step):
         """
         logger = self.logger
         logger.info('Create source SCRIP file')
+        netcdf4_filename = 'target.scrip.netcdf4.nc'
 
         mesh_name = self.base_mesh_step.mesh_name
 
@@ -210,41 +208,19 @@ class RemapTopoStep(Step):
             mesh_name=mesh_name,
         )
         descriptor.to_scrip(
-            'target.scrip.nc',
+            netcdf4_filename,
             expand_dist=expand_distance,
             expand_factor=expand_factor,
         )
 
-        logger.info('  Done.')
-
-    def _partition_scrip_file(self, in_filename):
-        """
-        Partition SCRIP file for parallel mbtempest use
-        """
-        logger = self.logger
-        logger.info('Partition SCRIP file')
-
-        stem = pathlib.Path(in_filename).stem
-        h5m_filename = f'{stem}.h5m'
-        part_filename = f'{stem}.p{self.ntasks}.h5m'
-
-        # Convert source SCRIP to mbtempest
+        # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
+        # so we will use ncks to convert
         args = [
-            'mbconvert',
-            '-B',
-            in_filename,
-            h5m_filename,
-        ]
-        check_call(args, logger)
-
-        # Partition source SCRIP
-        args = [
-            'mbpart',
-            f'{self.ntasks}',
-            '-z',
-            'RCB',
-            h5m_filename,
-            part_filename,
+            'ncks',
+            '-O',
+            '-5',
+            netcdf4_filename,
+            'target.scrip.nc',
         ]
         check_call(args, logger)
 
@@ -264,9 +240,9 @@ class RemapTopoStep(Step):
             '--type',
             '5',
             '--load',
-            f'source.scrip.p{self.ntasks}.h5m',
+            'source.scrip.nc',
             '--load',
-            f'target.scrip.p{self.ntasks}.h5m',
+            'target.scrip.nc',
             '--file',
             f'map_source_to_target_{method}.nc',
             '--weights',
