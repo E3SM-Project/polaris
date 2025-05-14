@@ -82,7 +82,11 @@ def get_timestep_for_task(config, refinement_factor, refinement='both'):
     section = config['convergence_forward']
     time_integrator = section.get('time_integrator')
     # dt is proportional to resolution: default 30 seconds per km
-    if time_integrator == 'RK4':
+    if (
+        time_integrator == 'RK4'
+        or time_integrator == 'LTS'
+        or time_integrator == 'FB_LTS'
+    ):
         dt_per_km = section.getfloat('rk4_dt_per_km')
         btr_timestep = 0.0
     else:
