@@ -28,10 +28,11 @@ class Forward(OceanModelStep):
     """
     def __init__(self, component, resolution, init, name='forward',
                  subdir=None, indir=None, ntasks=None, min_tasks=None,
-                 openmp_threads=1, time_integrator='rk4', damping_coeff=None,
+                 openmp_threads=1, damping_coeff=None,
                  coord_type='sigma', forcing_type='tidal_cycle',
                  drag_type='constant_and_rayleigh', baroclinic=False,
-                 method='ramp', run_time_steps=None):
+                 method='ramp', run_time_steps=None,
+                 graph_target='graph.info'):
         """
         Create a new task
 
@@ -92,55 +93,33 @@ class Forward(OceanModelStep):
                 raise ValueError('Damping coefficient must be specified with '
                                  f'drag type {drag_type}')
 
+        self.damping_coeff = damping_coeff
+        self.drag_type = drag_type
         self.baroclinic = baroclinic
+        self.coord_type = coord_type
+        self.forcing_type = forcing_type
+        self.method = method
         self.resolution = resolution
         self.run_time_steps = run_time_steps
+        self.yaml_filename = 'forward.yaml'
         super().__init__(component=component, name=name, subdir=subdir,
                          indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads)
+                         openmp_threads=openmp_threads,
+                         graph_target=graph_target)
+
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
+        if self.coord_type == 'single_layer':
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+        if self.baroclinic:
+            self.add_yaml_file('polaris.ocean.tasks.drying_slope',
+                               'baroclinic.yaml')
+        self.add_yaml_file('polaris.ocean.tasks.drying_slope',
+                           self.yaml_filename)
 
         self.add_input_file(filename='initial_state.nc',
                             work_dir_target=f'{init.path}/initial_state.nc')
-        self.add_input_file(filename='graph.info',
-                            work_dir_target=f'{init.path}/culled_graph.info')
         self.add_input_file(filename='forcing.nc',
                             work_dir_target=f'{init.path}/forcing.nc')
-
-        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
-        self.add_yaml_file('polaris.ocean.tasks.drying_slope',
-                           'forward.yaml')
-
-        options = dict()
-        if coord_type == 'single_layer':
-            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
-            options['config_disable_thick_sflux'] = True
-            options['config_disable_vel_hmix'] = True
-
-        if method == 'ramp':
-            options['config_zero_drying_velocity_ramp'] = True
-
-        options['config_implicit_bottom_drag_type'] = drag_type
-        # for drag types not specified here, defaults are used or given in
-        # forward.yaml
-        if drag_type == 'constant':
-            options['config_implicit_constant_bottom_drag_coeff'] = \
-                3.0e-3   # type: ignore[assignment]
-        elif drag_type == 'constant_and_rayleigh':
-            # update the damping coefficient to the requested value *after*
-            # loading forward.yaml
-            options['config_Rayleigh_damping_coeff'] = damping_coeff
-
-        if baroclinic:
-            self.add_yaml_file('polaris.ocean.tasks.drying_slope',
-                               'baroclinic.yaml')
-
-        forcing_dict = {'tidal_cycle': 'monochromatic',
-                        'linear_drying': 'linear'}
-
-        options['config_tidal_forcing_model'] = \
-            forcing_dict[forcing_type]   # type: ignore[assignment]
-        self.add_model_config_options(options=options)
 
         self.add_output_file(
             filename='output.nc',
@@ -184,48 +163,78 @@ class Forward(OceanModelStep):
         """
         super().dynamic_model_config(at_setup)
 
-        config = self.config
-
-        options = dict()
-
-        # dt is proportional to resolution: default 30 seconds per km
-        section = config['drying_slope']
-        time_integrator = section.get('time_integrator')
-        options['config_time_integrator'] = time_integrator
-
-        if time_integrator == 'RK4':
-            dt_per_km = section.getfloat('rk4_dt_per_km')
-        if time_integrator == 'split_explicit':
-            dt_per_km = section.getfloat('split_dt_per_km')
-            # btr_dt is also proportional to resolution
-            btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')
-            btr_dt = btr_dt_per_km * self.resolution
-            options['config_btr_dt'] = \
-                time.strftime('%H:%M:%S', time.gmtime(btr_dt))
-            self.btr_dt = btr_dt
-        dt = dt_per_km * self.resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(dt))
-        self.dt = dt
-
-        if self.run_time_steps is not None:
-            options['run_duration'] = time.strftime(
-                '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
-
         if self.baroclinic:
             section = self.config['vertical_grid']
             vert_levels = section.getint('vert_levels')
             section = self.config['drying_slope_baroclinic']
+            time_integrator = section.get('time_integrator')
             thin_film_thickness = section.getfloat('min_column_thickness') / \
                 vert_levels
         else:
             section = self.config['drying_slope_barotropic']
+            time_integrator = section.get('time_integrator')
             thin_film_thickness = section.getfloat('thin_film_thickness')
-        options['config_drying_min_cell_height'] = thin_film_thickness
-        options['config_zero_drying_velocity_ramp_hmin'] = \
-            thin_film_thickness
-        options['config_zero_drying_velocity_ramp_hmax'] = \
-            thin_film_thickness * 10.
 
-        self.add_model_config_options(options=options)
+        # dt is proportional to resolution: default 30 seconds per km
+        section = self.config['drying_slope']
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        elif time_integrator == 'split_explicit':
+            dt_per_km = section.getfloat('split_dt_per_km')
+            # btr_dt is also proportional to resolution
+            btr_dt_per_km = section.getfloat('btr_dt_per_km')
+            btr_dt = btr_dt_per_km * self.resolution
+            self.btr_dt = btr_dt
+        else:
+            print(f'Time integrator {time_integrator} not supported')
+        btr_dt_str = time.strftime('%H:%M:%S', time.gmtime(self.btr_dt))
+
+        dt = dt_per_km * self.resolution
+        # https://stackoverflow.com/a/1384565/7728169
+        dt_str = time.strftime('%H:%M:%S', time.gmtime(dt))
+        self.dt = dt
+
+        if self.run_time_steps is not None:
+            run_duration_str = time.strftime(
+                '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
+        else:
+            run_duration_str = '0000_12:00:01'
+
+        replacements = dict(
+            time_integrator=time_integrator,
+            dt=dt_str,
+            btr_dt=btr_dt_str,
+            run_duration=run_duration_str,
+            hmin=f'{thin_film_thickness}',
+            ramp_hmin=f'{thin_film_thickness}',
+            ramp_hmax=f'{1.}',
+        )
+
+        mpas_options = dict()
+        if self.method == 'ramp':
+            mpas_options['config_zero_drying_velocity_ramp'] = True
+
+        mpas_options['config_implicit_bottom_drag_type'] = self.drag_type
+        # for drag types not specified here, defaults are used or given in
+        # forward.yaml
+        if self.drag_type == 'constant':
+            mpas_options['config_implicit_constant_bottom_drag_coeff'] = \
+                3.0e-3   # type: ignore[assignment]
+        elif self.drag_type == 'constant_and_rayleigh':
+            # update the damping coefficient to the requested value *after*
+            # loading forward.yaml
+            mpas_options['config_Rayleigh_damping_coeff'] = self.damping_coeff
+
+        forcing_dict = {'tidal_cycle': 'monochromatic',
+                        'linear_drying': 'linear'}
+
+        mpas_options['config_tidal_forcing_model'] = \
+            forcing_dict[self.forcing_type]   # type: ignore[assignment]
+
+        print(mpas_options)
+        self.add_model_config_options(options=mpas_options,
+                                      config_model='mpas-ocean')
+        print(replacements)
+        self.add_yaml_file('polaris.ocean.tasks.drying_slope',
+                           self.yaml_filename,
+                           template_replacements=replacements)

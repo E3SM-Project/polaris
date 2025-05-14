@@ -110,7 +110,6 @@ def add_drying_slope_tasks(component):
             baroclinic = Baroclinic(component=component, resolution=resolution,
                                     init=init, subdir=f'{indir}/{method}',
                                     coord_type=coord_type, method=method,
-                                    forcing_type=forcing_type,
-                                    time_integrator='split_explicit')
+                                    forcing_type=forcing_type)
             baroclinic.set_shared_config(config, link=config_filename)
             component.add_task(baroclinic)
