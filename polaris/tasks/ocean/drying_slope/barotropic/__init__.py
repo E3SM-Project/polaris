@@ -1,10 +1,7 @@
-from numpy import ceil
-
 from polaris import Task
-from polaris.ocean.resolution import resolution_to_subdir
-from polaris.ocean.tasks.drying_slope.forward import Forward
-from polaris.ocean.tasks.drying_slope.init import Init
-from polaris.ocean.tasks.drying_slope.viz import Viz
+from polaris.resolution import resolution_to_string
+from polaris.tasks.ocean.drying_slope.forward import Forward
+from polaris.tasks.ocean.drying_slope.viz import Viz
 
 
 class Barotropic(Task):
@@ -23,10 +20,17 @@ class Barotropic(Task):
         The damping coefficient for the rayleigh drag option
     """
 
-    def __init__(self, component, resolution, init, subdir,
-                 coord_type='sigma',
-                 drag_type='constant_and_rayleigh', forcing_type='tidal_cycle',
-                 method='ramp'):
+    def __init__(
+        self,
+        component,
+        resolution,
+        init,
+        subdir,
+        coord_type='sigma',
+        drag_type='constant_and_rayleigh',
+        forcing_type='tidal_cycle',
+        method='ramp',
+    ):
         """
         Create the test case
 
@@ -38,7 +42,7 @@ class Barotropic(Task):
         resolution : float
             The resolution of the test case in km
 
-        init : polaris.ocean.tasks.drying_slope.init.Init
+        init : polaris.tasks.ocean.drying_slope.init.Init
             A shared step for creating the initial state
 
         subdir : str
@@ -57,7 +61,7 @@ class Barotropic(Task):
         drag_type : str, optional
             The bottom drag type to apply as a namelist option
         """
-        mesh_name = resolution_to_subdir(resolution)
+        mesh_name = resolution_to_string(resolution)
         name = f'barotropic_{method}_{mesh_name}'
         if drag_type == 'loglaw':
             name = f'{name}_{drag_type}'
@@ -76,33 +80,51 @@ class Barotropic(Task):
                     symlink = step_name
                 else:
                     forward_step = Forward(
-                        component=component, init=init,
+                        component=component,
+                        init=init,
                         subdir=f'{subdir}/{step_name}',
                         ntasks=None,
-                        min_tasks=None, openmp_threads=1,
+                        min_tasks=None,
+                        openmp_threads=1,
                         name=f'{step_name}_{mesh_name}',
                         resolution=resolution,
-                        forcing_type=forcing_type, coord_type=coord_type,
+                        forcing_type=forcing_type,
+                        coord_type=coord_type,
                         drag_type=drag_type,
-                        damping_coeff=damping_coeff, baroclinic=False,
+                        damping_coeff=damping_coeff,
+                        baroclinic=False,
                         method=method,
-                        graph_target=f'{init.path}/culled_graph.info')
+                        graph_target=f'{init.path}/culled_graph.info',
+                    )
                     symlink = None
                 self.add_step(forward_step, symlink=symlink)
         else:
             self.damping_coeffs = []
             forward_step = Forward(
-                component=component, init=init, indir=subdir, ntasks=None,
-                min_tasks=None, openmp_threads=1, resolution=resolution,
-                forcing_type=forcing_type, coord_type=coord_type,
+                component=component,
+                init=init,
+                indir=subdir,
+                ntasks=None,
+                min_tasks=None,
+                openmp_threads=1,
+                resolution=resolution,
+                forcing_type=forcing_type,
+                coord_type=coord_type,
                 drag_type=drag_type,
-                damping_coeff=1.0e-4, baroclinic=False,
-                method=method)
+                damping_coeff=1.0e-4,
+                baroclinic=False,
+                method=method,
+            )
             self.add_step(forward_step)
         self.add_step(
-            Viz(component=component, indir=subdir,
+            Viz(
+                component=component,
+                indir=subdir,
                 damping_coeffs=self.damping_coeffs,
-                baroclinic=False, forcing_type=forcing_type))
+                baroclinic=False,
+                forcing_type=forcing_type,
+            )
+        )
 
     # def validate(self):
     #     """

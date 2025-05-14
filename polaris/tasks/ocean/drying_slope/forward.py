@@ -26,13 +26,27 @@ class Forward(OceanModelStep):
     run_time_steps : int or None
         Number of time steps to run for
     """
-    def __init__(self, component, resolution, init, name='forward',
-                 subdir=None, indir=None, ntasks=None, min_tasks=None,
-                 openmp_threads=1, damping_coeff=None,
-                 coord_type='sigma', forcing_type='tidal_cycle',
-                 drag_type='constant_and_rayleigh', baroclinic=False,
-                 method='ramp', run_time_steps=None,
-                 graph_target='graph.info'):
+
+    def __init__(
+        self,
+        component,
+        resolution,
+        init,
+        name='forward',
+        subdir=None,
+        indir=None,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=1,
+        damping_coeff=None,
+        coord_type='sigma',
+        forcing_type='tidal_cycle',
+        drag_type='constant_and_rayleigh',
+        baroclinic=False,
+        method='ramp',
+        run_time_steps=None,
+        graph_target='graph.info',
+    ):
         """
         Create a new task
 
@@ -87,11 +101,15 @@ class Forward(OceanModelStep):
         """
         if drag_type == 'constant_and_rayleigh':
             if coord_type == 'single_layer':
-                raise ValueError(f'Drag type {drag_type} is not supported '
-                                 f'with coordinate type {coord_type}')
+                raise ValueError(
+                    f'Drag type {drag_type} is not supported '
+                    f'with coordinate type {coord_type}'
+                )
             if damping_coeff is None:
-                raise ValueError('Damping coefficient must be specified with '
-                                 f'drag type {drag_type}')
+                raise ValueError(
+                    'Damping coefficient must be specified with '
+                    f'drag type {drag_type}'
+                )
 
         self.damping_coeff = damping_coeff
         self.drag_type = drag_type
@@ -102,29 +120,45 @@ class Forward(OceanModelStep):
         self.resolution = resolution
         self.run_time_steps = run_time_steps
         self.yaml_filename = 'forward.yaml'
-        super().__init__(component=component, name=name, subdir=subdir,
-                         indir=indir, ntasks=ntasks, min_tasks=min_tasks,
-                         openmp_threads=openmp_threads,
-                         graph_target=graph_target)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            indir=indir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
+            openmp_threads=openmp_threads,
+            graph_target=graph_target,
+        )
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
         if self.coord_type == 'single_layer':
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
         if self.baroclinic:
-            self.add_yaml_file('polaris.ocean.tasks.drying_slope',
-                               'baroclinic.yaml')
-        self.add_yaml_file('polaris.ocean.tasks.drying_slope',
-                           self.yaml_filename)
+            self.add_yaml_file(
+                'polaris.ocean.tasks.drying_slope', 'baroclinic.yaml'
+            )
+        self.add_yaml_file(
+            'polaris.ocean.tasks.drying_slope', self.yaml_filename
+        )
 
-        self.add_input_file(filename='initial_state.nc',
-                            work_dir_target=f'{init.path}/initial_state.nc')
-        self.add_input_file(filename='forcing.nc',
-                            work_dir_target=f'{init.path}/forcing.nc')
+        self.add_input_file(
+            filename='initial_state.nc',
+            work_dir_target=f'{init.path}/initial_state.nc',
+        )
+        self.add_input_file(
+            filename='forcing.nc', work_dir_target=f'{init.path}/forcing.nc'
+        )
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness',
-                           'normalVelocity'])
+            validate_vars=[
+                'temperature',
+                'salinity',
+                'layerThickness',
+                'normalVelocity',
+            ],
+        )
 
         self.dt = None
         self.btr_dt = None
@@ -168,8 +202,9 @@ class Forward(OceanModelStep):
             vert_levels = section.getint('vert_levels')
             section = self.config['drying_slope_baroclinic']
             time_integrator = section.get('time_integrator')
-            thin_film_thickness = section.getfloat('min_column_thickness') / \
-                vert_levels
+            thin_film_thickness = (
+                section.getfloat('min_column_thickness') / vert_levels
+            )
         else:
             section = self.config['drying_slope_barotropic']
             time_integrator = section.get('time_integrator')
@@ -196,7 +231,8 @@ class Forward(OceanModelStep):
 
         if self.run_time_steps is not None:
             run_duration_str = time.strftime(
-                '%H:%M:%S', time.gmtime(dt * self.run_time_steps))
+                '%H:%M:%S', time.gmtime(dt * self.run_time_steps)
+            )
         else:
             run_duration_str = '0000_12:00:01'
 
@@ -207,7 +243,7 @@ class Forward(OceanModelStep):
             run_duration=run_duration_str,
             hmin=f'{thin_film_thickness}',
             ramp_hmin=f'{thin_film_thickness}',
-            ramp_hmax=f'{1.}',
+            ramp_hmax=f'{1.0}',
         )
 
         mpas_options = dict()
@@ -218,23 +254,28 @@ class Forward(OceanModelStep):
         # for drag types not specified here, defaults are used or given in
         # forward.yaml
         if self.drag_type == 'constant':
-            mpas_options['config_implicit_constant_bottom_drag_coeff'] = \
-                3.0e-3   # type: ignore[assignment]
+            mpas_options['config_implicit_constant_bottom_drag_coeff'] = 3.0e-3  # type: ignore[assignment]
         elif self.drag_type == 'constant_and_rayleigh':
             # update the damping coefficient to the requested value *after*
             # loading forward.yaml
             mpas_options['config_Rayleigh_damping_coeff'] = self.damping_coeff
 
-        forcing_dict = {'tidal_cycle': 'monochromatic',
-                        'linear_drying': 'linear'}
+        forcing_dict = {
+            'tidal_cycle': 'monochromatic',
+            'linear_drying': 'linear',
+        }
 
-        mpas_options['config_tidal_forcing_model'] = \
-            forcing_dict[self.forcing_type]   # type: ignore[assignment]
+        mpas_options['config_tidal_forcing_model'] = forcing_dict[
+            self.forcing_type
+        ]  # type: ignore[assignment]
 
         print(mpas_options)
-        self.add_model_config_options(options=mpas_options,
-                                      config_model='mpas-ocean')
+        self.add_model_config_options(
+            options=mpas_options, config_model='mpas-ocean'
+        )
         print(replacements)
-        self.add_yaml_file('polaris.ocean.tasks.drying_slope',
-                           self.yaml_filename,
-                           template_replacements=replacements)
+        self.add_yaml_file(
+            'polaris.ocean.tasks.drying_slope',
+            self.yaml_filename,
+            template_replacements=replacements,
+        )

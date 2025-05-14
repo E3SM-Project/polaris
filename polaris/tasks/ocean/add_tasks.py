@@ -32,7 +32,7 @@ def add_ocean_tasks(component):
     # planar tasks
     add_baroclinic_channel_tasks(component=component)
     add_barotropic_gyre_tasks(component=component)
-    add_drying_slope_tasks(component=self)
+    add_drying_slope_tasks(component=component)
     add_ice_shelf_2d_tasks(component=component)
     add_inertial_gravity_wave_tasks(component=component)
     add_internal_wave_tasks(component=component)

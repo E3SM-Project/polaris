@@ -1,6 +1,6 @@
 from polaris import Task
-from polaris.ocean.tasks.drying_slope.forward import Forward
-from polaris.ocean.tasks.drying_slope.validate import Validate
+from polaris.tasks.ocean.drying_slope.forward import Forward
+from polaris.tasks.ocean.drying_slope.validate import Validate
 
 
 class Decomp(Task):
@@ -9,8 +9,15 @@ class Decomp(Task):
     produces identical results on 1 and 4 cores.
     """
 
-    def __init__(self, component, resolution, indir, init, coord_type='sigma',
-                 method='ramp'):
+    def __init__(
+        self,
+        component,
+        resolution,
+        indir,
+        init,
+        coord_type='sigma',
+        method='ramp',
+    ):
         """
         Create the task
 
@@ -43,11 +50,25 @@ class Decomp(Task):
         for procs in [4, 8]:
             name = f'{procs}proc'
 
-            self.add_step(Forward(
-                component=component, init=init, name=name, indir=self.subdir,
-                ntasks=procs, min_tasks=procs, openmp_threads=1,
-                resolution=resolution, run_time_steps=3, damping_coeff=0.001,
-                coord_type=coord_type, method=method))
+            self.add_step(
+                Forward(
+                    component=component,
+                    init=init,
+                    name=name,
+                    indir=self.subdir,
+                    ntasks=procs,
+                    min_tasks=procs,
+                    openmp_threads=1,
+                    resolution=resolution,
+                    run_time_steps=3,
+                    damping_coeff=0.001,
+                    coord_type=coord_type,
+                    method=method,
+                )
+            )
             subdirs.append(name)
-        self.add_step(Validate(component=component, step_subdirs=subdirs,
-                               indir=self.subdir))
+        self.add_step(
+            Validate(
+                component=component, step_subdirs=subdirs, indir=self.subdir
+            )
+        )
