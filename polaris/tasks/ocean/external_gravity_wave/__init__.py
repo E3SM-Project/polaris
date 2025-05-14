@@ -35,13 +35,10 @@ def add_external_gravity_wave_tasks(component):
         for dt_type in ['global', 'local']:
             egw = 'external_gravity_wave'
             filepath = (
-                f'spherical/{prefix}/{egw}_{dt_type}_timestep/'
-                'egw_{dt_type}_time_step.cfg'
+                f'spherical/{prefix}/{egw}_{dt_type}_time_step/'
+                f'egw_{dt_type}_time_step.cfg'
             )
             config = PolarisConfigParser(filepath=filepath)
-            config.add_from_package(
-                f'polaris.tasks.ocean.{egw}', f'egw_{dt_type}_time_step.cfg'
-            )
             config.add_from_package(
                 'polaris.ocean.convergence', 'convergence.cfg'
             )
@@ -49,6 +46,9 @@ def add_external_gravity_wave_tasks(component):
                 'polaris.ocean.convergence.spherical', 'spherical.cfg'
             )
             config.add_from_package(f'polaris.tasks.ocean.{egw}', f'{egw}.cfg')
+            config.add_from_package(
+                f'polaris.tasks.ocean.{egw}', f'egw_{dt_type}_time_step.cfg'
+            )
             _set_convergence_configs(config, prefix)
 
             for refinement in ['time']:
@@ -252,6 +252,7 @@ class ExternalGravityWave(Task):
                     mesh=base_mesh_step,
                     init=init_step,
                     refinement=refinement,
+                    dt_type=dt_type,
                 )
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)

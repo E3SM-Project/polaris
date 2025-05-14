@@ -21,6 +21,7 @@ class Forward(SphericalConvergenceForward):
         init,
         refinement_factor,
         refinement,
+        dt_type,
         do_restart=False,
     ):
         """
@@ -50,6 +51,9 @@ class Forward(SphericalConvergenceForward):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
 
+        dt_type : str, optional
+            Type of time-stepping to use. One of 'global' or 'local'
+
         do_restart : bool, optional
             Whether this is a restart run
         """
@@ -70,6 +74,13 @@ class Forward(SphericalConvergenceForward):
             refinement=refinement,
         )
         self.do_restart = do_restart
+        self.dt_type = dt_type
+
+        if dt_type == 'local':
+            self.add_yaml_file(
+                'polaris.tasks.ocean.external_gravity_wave',
+                'local_time_step.yaml',
+            )
 
     def setup(self):
         """
