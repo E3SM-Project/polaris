@@ -26,7 +26,7 @@ class Barotropic(Task):
     def __init__(self, component, resolution, init, subdir,
                  coord_type='sigma',
                  drag_type='constant_and_rayleigh', forcing_type='tidal_cycle',
-                 time_integrator='RK4', method='ramp'):
+                 method='ramp'):
         """
         Create the test case
 
@@ -56,9 +56,6 @@ class Barotropic(Task):
 
         drag_type : str, optional
             The bottom drag type to apply as a namelist option
-
-        time_integrator : str, optional
-            The time integration scheme to apply as a namelist option
         """
         mesh_name = resolution_to_subdir(resolution)
         name = f'barotropic_{method}_{mesh_name}'
@@ -86,9 +83,10 @@ class Barotropic(Task):
                         name=f'{step_name}_{mesh_name}',
                         resolution=resolution,
                         forcing_type=forcing_type, coord_type=coord_type,
-                        time_integrator=time_integrator, drag_type=drag_type,
+                        drag_type=drag_type,
                         damping_coeff=damping_coeff, baroclinic=False,
-                        method=method)
+                        method=method,
+                        graph_target=f'{init.path}/culled_graph.info')
                     symlink = None
                 self.add_step(forward_step, symlink=symlink)
         else:
@@ -97,7 +95,7 @@ class Barotropic(Task):
                 component=component, init=init, indir=subdir, ntasks=None,
                 min_tasks=None, openmp_threads=1, resolution=resolution,
                 forcing_type=forcing_type, coord_type=coord_type,
-                time_integrator=time_integrator, drag_type=drag_type,
+                drag_type=drag_type,
                 damping_coeff=1.0e-4, baroclinic=False,
                 method=method)
             self.add_step(forward_step)

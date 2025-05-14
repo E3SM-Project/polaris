@@ -1,10 +1,17 @@
-omega:
+ocean:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+
+mpas-ocean:
   io:
     config_write_output_on_startup: false
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
   cvmix:
     config_use_cvmix: false
-  time_management:
-    config_run_duration: 0000_12:00:01
   tidal_forcing:
     config_use_tidal_forcing: true
     config_use_tidal_forcing_tau: 60.0
@@ -16,15 +23,20 @@ omega:
     config_Rayleigh_damping_depth_variable: true
   wetting_drying:
     config_use_wetting_drying: true
+    config_drying_min_cell_height: {{ hmin }}
     config_prevent_drying: true
     config_zero_drying_velocity: true
-    config_zero_drying_velocity_ramp: true
+    config_zero_drying_velocity_ramp_hmin: {{ ramp_hmin }}
+    config_zero_drying_velocity_ramp_hmax: {{ ramp_hmax }}
     config_verify_not_dry: true
   ALE_vertical_grid:
     config_vert_coord_movement: impermeable_interfaces
     config_ALE_thickness_proportionality: weights_only
   advection:
     config_thickness_flux_type: upwind
+  debug:
+    config_disable_thick_sflux: true
+    config_disable_vel_hmix: true
   streams:
     mesh:
       filename_template: initial_state.nc
@@ -47,6 +59,7 @@ omega:
       - tracers
       - xtime
       - daysSinceStartOfSim
+      - upwindFactor
       - normalVelocity
       - velocityX
       - velocityY
