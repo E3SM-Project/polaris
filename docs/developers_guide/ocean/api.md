@@ -120,6 +120,30 @@
 
 ```
 
+### drying_slope
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.tasks.drying_slope
+
+.. autosummary::
+   :toctree: generated/
+
+   add_drying_slope_tasks
+
+   baroclinic.Baroclinic
+   baroclinic.Baroclinic.configure
+
+   barotropic.Barotropic
+
+   convergence.Convergence
+   convergence.analysis.Analysis
+   convergence.analysis.Analysis.exact_solution
+   convergence.forward.Forward
+   convergence.forward.Forward.compute_cell_count
+   convergence.forward.Forward.dynamic_model_config
+
+   decomp.Decomp
+
 ### geostrophic
 
 ```{eval-rst}
