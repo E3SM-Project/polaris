@@ -15,9 +15,20 @@ class Forward(ConvergenceForward):
     resolution : float
         The resolution of the test case in km
     """
-    def __init__(self, component, name, refinement_factor, subdir, init,
-                 damping_coeff, coord_type, method, refinement='both',
-                 drag_type='constant_and_rayleigh'):
+
+    def __init__(
+        self,
+        component,
+        name,
+        refinement_factor,
+        subdir,
+        init,
+        damping_coeff,
+        coord_type,
+        method,
+        refinement='both',
+        drag_type='constant_and_rayleigh',
+    ):
         """
         Create a new test case
 
@@ -63,16 +74,21 @@ class Forward(ConvergenceForward):
             options['config_Rayleigh_damping_coeff'] = damping_coeff
 
         options['config_tidal_forcing_model'] = 'monochromatic'
-        super().__init__(component=component,
-                         name=name, subdir=subdir,
-                         refinement_factor=refinement_factor,
-                         mesh=init, init=init,
-                         package='polaris.ocean.tasks.drying_slope',
-                         yaml_filename='forward.yaml',
-                         graph_target=f'{init.path}/culled_graph.info',
-                         output_filename='output.nc',
-                         forcing=True, options=options,
-                         validate_vars=['layerThickness', 'normalVelocity'])
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            refinement_factor=refinement_factor,
+            mesh=init,
+            init=init,
+            package='polaris.ocean.tasks.drying_slope',
+            yaml_filename='forward.yaml',
+            graph_target=f'{init.path}/culled_graph.info',
+            output_filename='output.nc',
+            forcing=True,
+            options=options,
+            validate_vars=['layerThickness', 'normalVelocity'],
+        )
 
     def setup(self):
         """
@@ -81,7 +97,8 @@ class Forward(ConvergenceForward):
         super().setup()
         config = self.config
         self.resolution = get_resolution_for_task(
-            config, self.refinement_factor, refinement=self.refinement)
+            config, self.refinement_factor, refinement=self.refinement
+        )
         model = config.get('ocean', 'model')
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
@@ -128,21 +145,21 @@ class Forward(ConvergenceForward):
             # btr_dt is also proportional to resolution
             btr_dt_per_km = config.getfloat('drying_slope', 'btr_dt_per_km')
             btr_dt = btr_dt_per_km * self.resolution
-            options['config_btr_dt'] = \
-                time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+            options['config_btr_dt'] = time.strftime(
+                '%H:%M:%S', time.gmtime(btr_dt)
+            )
             self.btr_dt = btr_dt
         dt = dt_per_km * self.resolution
         # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = \
-            time.strftime('%H:%M:%S', time.gmtime(dt))
+        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
         self.dt = dt
 
         section = self.config['drying_slope_barotropic']
         thin_film_thickness = section.getfloat('thin_film_thickness')
 
         options['config_drying_min_cell_height'] = thin_film_thickness
-        options['config_zero_drying_velocity_ramp_hmin'] = \
-            thin_film_thickness
-        options['config_zero_drying_velocity_ramp_hmax'] = \
-            thin_film_thickness * 10.
+        options['config_zero_drying_velocity_ramp_hmin'] = thin_film_thickness
+        options['config_zero_drying_velocity_ramp_hmax'] = (
+            thin_film_thickness * 10.0
+        )
         self.add_model_config_options(options=options)
