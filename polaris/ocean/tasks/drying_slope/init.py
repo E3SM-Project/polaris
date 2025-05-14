@@ -215,10 +215,26 @@ class Init(Step):
             colorbar_label='PSU', cmap='cmo.haline')
 
         cell_mask = ds.maxLevelCell >= 1
-        plot_horiz_field(ds, ds_mesh, 'salinity',
-                         'initial_salinity.png', field_mask=cell_mask,
-                         show_patch_edges=True, transect_x=x, transect_y=y)
-        edge_mask = ds.maxLevelEdgeBot >= 1
-        plot_horiz_field(ds, ds_mesh, 'normalVelocity',
-                         'initial_velocity.png', field_mask=edge_mask,
-                         show_patch_edges=True, transect_x=x, transect_y=y)
+
+        cellsOnEdge1 = ds_mesh.cellsOnEdge.isel(TWO=0)
+        cellsOnEdge2 = ds_mesh.cellsOnEdge.isel(TWO=1)
+        cell1_is_valid = cell_mask[cellsOnEdge1 - 1].values == 1
+        cell2_is_valid = cell_mask[cellsOnEdge2 - 1].values == 1
+        edge_mask = xr.where(np.logical_and(cell1_is_valid,
+                                            cell2_is_valid),
+                             1, 0)
+
+        plot_horiz_field(ds_mesh,
+                         ds.salinity,
+                         cmap_title='S',
+                         out_file_name='initial_salinity.png',
+                         field_mask=cell_mask,
+                         show_patch_edges=True,
+                         transect_x=x, transect_y=y)
+        plot_horiz_field(ds_mesh,
+                         ds.normalVelocity,
+                         out_file_name='initial_velocity.png',
+                         field_mask=edge_mask,
+                         show_patch_edges=True,
+                         cmap_title='u_{normal}',
+                         transect_x=x, transect_y=y)

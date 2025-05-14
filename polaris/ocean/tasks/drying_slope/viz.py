@@ -117,7 +117,13 @@ class Viz(Step):
 
         ds_mesh = xr.load_dataset('init.nc')
         cell_mask = ds_mesh.maxLevelCell >= 1
-        edge_mask = ds_mesh.maxLevelEdgeBot >= 1
+        cellsOnEdge1 = ds_mesh.cellsOnEdge.isel(TWO=0)
+        cellsOnEdge2 = ds_mesh.cellsOnEdge.isel(TWO=1)
+        cell1_is_valid = cell_mask[cellsOnEdge1 - 1].values == 1
+        cell2_is_valid = cell_mask[cellsOnEdge2 - 1].values == 1
+        edge_mask = xr.where(np.logical_and(cell1_is_valid,
+                                            cell2_is_valid),
+                             1, 0)
 
         out_filenames = []
         if not self.damping_coeffs:
@@ -139,22 +145,37 @@ class Viz(Step):
                 time = simtime.total_seconds()
                 tidx = np.argmin(np.abs(time / s_day - float(atime)))
                 plot_horiz_field(
-                    ds, ds_mesh, 'wettingVelocityFactor',
-                    f'wetting_velocity_factor_horiz_t{tidx:03g}.png',
+                    ds_mesh,
+                    ds.wettingVelocityFactor,
+                    cmap_title=r'$\Phi$',
+                    out_file_name=f'wetting_factor_t{tidx:03g}.png',
                     transect_x=x, transect_y=y,
                     show_patch_edges=True, t_index=tidx,
                     field_mask=edge_mask, vmin=0, vmax=1)
 
+                plot_horiz_field(
+                    ds_mesh,
+                    ds.upwindFactor,
+                    cmap_title=r'$\Psi$',
+                    out_file_name=f'upwind_factor_t{tidx:03g}.png',
+                    transect_x=x, transect_y=y,
+                    show_patch_edges=False, t_index=tidx,
+                    field_mask=edge_mask, vmin=0, vmax=1)
+
                 if self.baroclinic:
                     plot_horiz_field(
-                        ds, ds_mesh, 'wettingVelocityBarotropicSubcycle',
-                        f'wettingVelocityBarotropic_horiz_t{tidx:03g}.png',
+                        ds_mesh,
+                        ds.wettingVelocityBarotropicSubcycle,
+                        cmap_title=r'$\Phi_{btr}$',
+                        out_file_name=f'wetting_barotropic_t{tidx:03g}.png',
                         t_index=tidx, field_mask=edge_mask, vmin=0, vmax=1)
                     self._plot_salinity(tidx=-1, y_distance=45.)
 
                 plot_horiz_field(
-                    ds, ds_mesh, 'ssh',
-                    f'ssh_horiz_t{tidx:03g}.png',
+                    ds_mesh,
+                    ds.ssh,
+                    cmap_title='SSH',
+                    out_file_name=f'ssh_horiz_t{tidx:03g}.png',
                     t_index=tidx, field_mask=cell_mask)
 
     def _plot_transects(self, ds_mesh, ds):
