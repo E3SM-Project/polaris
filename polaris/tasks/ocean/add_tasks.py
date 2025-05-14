@@ -1,6 +1,9 @@
 from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
 from polaris.tasks.ocean.barotropic_gyre import add_barotropic_gyre_tasks
 from polaris.tasks.ocean.cosine_bell import add_cosine_bell_tasks
+from polaris.tasks.ocean.external_gravity_wave import (
+    add_external_gravity_wave_tasks as add_external_gravity_wave_tasks,
+)
 from polaris.tasks.ocean.geostrophic import add_geostrophic_tasks
 from polaris.tasks.ocean.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.tasks.ocean.inertial_gravity_wave import (
@@ -38,6 +41,7 @@ def add_ocean_tasks(component):
 
     # spherical tasks
     add_cosine_bell_tasks(component=component)
+    add_external_gravity_wave_tasks(component=component)
     add_geostrophic_tasks(component=component)
     add_isomip_plus_tasks(component=component, mesh_type='spherical')
     add_sphere_transport_tasks(component=component)

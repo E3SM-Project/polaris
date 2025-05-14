@@ -123,7 +123,7 @@ class ExternalGravityWave(Task):
         egw = 'external_gravity_wave'
         subdir = (
             f'spherical/{prefix}/{egw}_{dt_type}_time_step/'
-            'convergence_{refinement}'
+            f'convergence_{refinement}'
         )
         name = f'{prefix}_{egw}_{dt_type}_time_step_convergence_{refinement}'
         if include_viz:
