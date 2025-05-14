@@ -54,7 +54,7 @@ class Forward(SphericalConvergenceForward):
             Whether this is a restart run
         """
         package = 'polaris.tasks.ocean.external_gravity_wave'
-        validate_vars = ['normalVelocity', 'tracer1']
+        validate_vars = ['normalVelocity', 'layerThickness']
         super().__init__(
             component=component,
             name=name,

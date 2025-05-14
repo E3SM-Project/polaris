@@ -12,13 +12,9 @@ mpas-ocean:
   decomposition:
     config_block_decomp_file_prefix: graph.info.part.
   debug:
-    config_disable_thick_all_tend: true
-    config_disable_thick_hadv: true
     config_disable_thick_vadv: true
     config_disable_thick_sflux: true
-    config_disable_vel_all_tend: true
     config_disable_vel_coriolis: true
-    config_disable_vel_pgrad: true
     config_disable_vel_hmix: true
     config_disable_vel_surface_stress: true
     config_disable_vel_explicit_bottom_drag: true
@@ -29,7 +25,11 @@ mpas-ocean:
     config_disable_tr_sflux: true
     config_disable_tr_nonlocalflux: true
     config_check_ssh_consistency: false
-    config_disable_tr_all_tend: false
+    config_disable_tr_all_tend: true
+  ALE_vertical_grid:
+    config_vert_coord_movement: impermeable_interfaces
+  pressure_gradient:
+    config_pressure_gradient_type: ssh_gradient
   eos:
     config_eos_type: linear
   forcing:
@@ -41,7 +41,7 @@ mpas-ocean:
     config_use_activeTracers: true
     config_use_activeTracers_surface_bulk_forcing: false
   tracer_forcing_debugTracers:
-    config_use_debugTracers: true
+    config_use_debugTracers: false
   AM_mixedLayerDepths:
     config_AM_mixedLayerDepths_enable: false
   streams:
@@ -67,35 +67,3 @@ mpas-ocean:
       - refLayerThickness
       - kineticEnergyCell
       - relativeVorticityCell
-
-Omega:
-  Tendencies:
-    ThicknessFluxTendencyEnable : false
-    PVTendencyEnable : false
-    KETendencyEnable : false
-    SSHTendencyEnable : false
-    VelDiffTendencyEnable: false
-    VelHyperDiffTendencyEnable: false
-    TracerHorzAdvTendencyEnable : true
-    TracerDiffTendencyEnable : false
-    TracerHyperDiffTendencyEnable : false
-  Dimension:
-    NVertLevels: 1
-  IOStreams:
-    InitialState:
-      Filename: init.nc
-      Contents:
-        - State
-        - Tracers
-    History:
-      Filename: output.nc
-      Freq: {{ output_freq }}
-      FreqUnits: seconds
-      IfExists: append
-      # effectively never
-      FileFreq: 9999
-      FileFreqUnits: years
-      Contents:
-        - Tracers
-        - LayerThickness
-        - NormalVelocity
