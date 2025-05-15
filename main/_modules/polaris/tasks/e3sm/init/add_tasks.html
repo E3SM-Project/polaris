@@ -118,7 +118,10 @@
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        the e3sm/init component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">CombineTopoTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span></div>
+    <span class="k">for</span> <span class="n">low_res</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+            <span class="n">CombineTopoTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="n">low_res</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

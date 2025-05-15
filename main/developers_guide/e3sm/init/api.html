@@ -121,11 +121,11 @@
 <h3>topo<a class="headerlink" href="#topo" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component, config[, low_res])</p></td>
 <td><p>A step for combining global and antarctic topography datasets</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.get_subdir</span></code></a>()</p></td>
-<td><p>Get the subdirectory for the step based on the datasets</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.get_subdir</span></code></a>(low_res)</p></td>
+<td><p>Get the subdirectory for the step based on the datasets :param low_res: Whether to use the low resolution configuration options :type low_res: bool, optional</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.setup.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.setup" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.setup</span></code></a>()</p></td>
 <td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
@@ -136,10 +136,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.run.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.run" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.run</span></code></a>()</p></td>
 <td><p>Run this step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask" title="polaris.tasks.e3sm.init.topo.combine.CombineTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineTask</span></code></a>(component)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask" title="polaris.tasks.e3sm.init.topo.combine.CombineTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineTask</span></code></a>(component, low_res)</p></td>
 <td><p>A task for creating the combined topography dataset, used to create the files to be cached for use in all other contexts</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCombinedStep</span></code></a>(component, combine_step)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCombinedStep</span></code></a>(component, config, combine_step)</p></td>
 <td><p>A step for visualizing the combined topography dataset</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCombinedStep.setup</span></code></a>()</p></td>

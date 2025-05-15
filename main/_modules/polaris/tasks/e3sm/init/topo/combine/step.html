@@ -117,7 +117,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectionGridDescriptor</span><span class="p">,</span> <span class="n">get_lat_lon_descriptor</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_command</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
@@ -170,19 +169,24 @@
 <div class="viewcode-block" id="CombineStep.get_subdir">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_subdir</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subdir</span><span class="p">(</span><span class="n">low_res</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the subdirectory for the step based on the datasets</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        low_res : bool, optional</span>
+<span class="sd">            Whether to use the low resolution configuration options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;topo&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;combine_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">ANTARCTIC</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">GLOBAL</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_low_res&#39;</span> <span class="k">if</span> <span class="n">low_res</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;combine_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">ANTARCTIC</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">GLOBAL</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CombineStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -190,11 +194,18 @@
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The shared config options for the step</span>
+
+<span class="sd">        low_res : bool, optional</span>
+<span class="sd">            Whether to use the low resolution configuration options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">antarctic_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ANTARCTIC</span>
         <span class="n">global_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GLOBAL</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">()</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_low_res&#39;</span> <span class="k">if</span> <span class="n">low_res</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(</span><span class="n">low_res</span><span class="o">=</span><span class="n">low_res</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -208,15 +219,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dst_scrip_filename</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># add default config options for combining topo -- since this is a</span>
-        <span class="c1"># shared step, they need to be defined separately from any task this</span>
-        <span class="c1"># may be added to</span>
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;combine_topo.cfg&#39;</span>
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.e3sm.init.topo.combine&#39;</span><span class="p">,</span> <span class="s1">&#39;combine.cfg&#39;</span>
-        <span class="p">)</span>
+        <span class="c1"># Set the config options for this step.  Since the shared config</span>
+        <span class="c1"># file is in the step&#39;s work directory, we don&#39;t need a symlink</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 

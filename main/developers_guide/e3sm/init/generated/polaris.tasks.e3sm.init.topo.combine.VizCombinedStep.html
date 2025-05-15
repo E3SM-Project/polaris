@@ -110,7 +110,7 @@
 <h1>polaris.tasks.e3sm.init.topo.combine.VizCombinedStep<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-combine-vizcombinedstep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.combine.</span></span><span class="sig-name descname"><span class="pre">VizCombinedStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/viz.html#VizCombinedStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.combine.</span></span><span class="sig-name descname"><span class="pre">VizCombinedStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/viz.html#VizCombinedStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep" title="Link to this definition"></a></dt>
 <dd><p>A step for visualizing the combined topography dataset</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
@@ -119,12 +119,13 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/viz.html#VizCombinedStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/viz.html#VizCombinedStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="../../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options for the step</p></li>
 <li><p><strong>combine_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><em>polaris.tasks.e3sm.init.topo.combine.CombineStep</em></a>) – The combine step to use for visualization</p></li>
 </ul>
 </dd>
@@ -134,7 +135,7 @@
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, combine_step)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, config, combine_step)</p></td>
 <td><p>Create a new step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>

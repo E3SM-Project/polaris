@@ -64,7 +64,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">E3SM initial condition (e3sm/init) component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Topography Tasks</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#combine-steps-and-task">Combine Steps and Task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#combine-steps-and-tasks">Combine Steps and Tasks</a></li>
 </ul>
 </li>
 </ul>
@@ -126,12 +126,12 @@ topography data in Polaris. This includes steps for processing, modifying, and
 combining topography datasets to create inputs for E3SM components such as
 MPAS-Ocean. The framework is designed to handle both global and regional
 datasets, supporting various grid types like lat-lon and cubed-sphere grids.</p>
-<section id="combine-steps-and-task">
-<h2>Combine Steps and Task<a class="headerlink" href="#combine-steps-and-task" title="Link to this heading"></a></h2>
+<section id="combine-steps-and-tasks">
+<h2>Combine Steps and Tasks<a class="headerlink" href="#combine-steps-and-tasks" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="../../../../_images/bathymetry_500.png"><img alt="../../../../_images/bathymetry_500.png" class="align-center" src="../../../../_images/bathymetry_500.png" style="width: 500px;" />
 </a>
 <p>Global bathymetry datasets do not typically include the latest datasets around
-Antarctica needed for ice-sheet and ice-shelf modeling.  For this reason, we
+Antarctica needed for ice-sheet and ice-shelf modeling. For this reason, we
 typically combine a global topography dataset north of the Southern Ocean with
 one for Antarctica.</p>
 <div class="admonition note">
@@ -140,7 +140,7 @@ one for Antarctica.</p>
 masked to locations where the bed topography (bathymetry) is below sea level.
 This avoids the risk of interpolated topography resulting in a bed that is
 above sea level in ocean regions when we perform further interpolation of
-the data to an MPAS mesh.  However, a more general topogrpahy data set will
+the data to an MPAS mesh. However, a more general topography dataset will
 likely be needed in the future that accommodates both the ocean and land/river
 components.</p>
 </div>
@@ -156,6 +156,23 @@ topography datasets for reuse in other contexts.</p>
 an optional visualization step that can be added to the workflow to create
 plots of the combined topography dataset. This step is particularly useful for
 debugging or analyzing the combined dataset.</p>
+<section id="high-resolution-and-low-resolution-versions">
+<h3>High-Resolution and Low-Resolution Versions<a class="headerlink" href="#high-resolution-and-low-resolution-versions" title="Link to this heading"></a></h3>
+<p>There are two versions of the combine steps and task:</p>
+<ol class="arabic simple">
+<li><p><strong>Standard (High-Resolution) Version</strong>: This version maps to a
+high-resolution (ne3000, ~1 km) cubed-sphere grid by default, producing
+topogrpahy that is suitable for remapping to standard and high-resolution
+MPAS meshes (~60 km and finer).</p></li>
+<li><p><strong>Low-Resolution Version</strong>: This version uses a coarser ne120 (~25 km) grid
+for faster remapping to coarse-resolution MPAS meshes (e.g., Icos240). It is
+designed to reduce computational cost while still providing adequate accuracy
+for low-resolution simulations used for regression testing rather than
+science.</p></li>
+</ol>
+<p>The low-resolution version can be selected by setting the <code class="docutils literal notranslate"><span class="pre">low_res</span></code> parameter
+to <code class="docutils literal notranslate"><span class="pre">True</span></code> when creating the <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> or <code class="docutils literal notranslate"><span class="pre">CombineTask</span></code>.</p>
+</section>
 <section id="key-features">
 <h3>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h3>
 <ul class="simple">
@@ -184,6 +201,8 @@ the configuration file. Key options include:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>: Number of MPI tasks for remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: Remapping method (e.g., <code class="docutils literal notranslate"><span class="pre">bilinear</span></code>).</p></li>
 </ul>
+<p>For the low-resolution version, additional configuration options are provided
+in the <code class="docutils literal notranslate"><span class="pre">combine_low_res.cfg</span></code> file.</p>
 </section>
 <section id="workflow">
 <h3>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h3>
@@ -196,7 +215,8 @@ necessary variables and attributes.</p></li>
 and weight generation.</p></li>
 <li><p><strong>Blending</strong>: The datasets are blended across the specified latitude range.</p></li>
 <li><p><strong>Output</strong>: The combined dataset is saved in NetCDF format.</p></li>
-<li><p><strong>Optional Field Plotting</strong>: Each field in the dataset is rasterized and saved as an image with a colorbar.</p></li>
+<li><p><strong>Optional Field Plotting</strong>: Each field in the dataset is rasterized and
+saved as an image with a colorbar.</p></li>
 </ol>
 </section>
 <section id="example-usage">
@@ -205,13 +225,12 @@ and weight generation.</p></li>
 task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 
-
 <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
-<span class="n">subdir</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">()</span>
+<span class="n">subdir</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(</span><span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 <span class="n">task</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 </pre></div>
@@ -219,7 +238,7 @@ task:</p>
 <p>To create a <code class="docutils literal notranslate"><span class="pre">CombineTask</span></code> for caching combined datasets:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineTask</span>
 
-<span class="n">combine_task</span> <span class="o">=</span> <span class="n">CombineTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">my_component</span><span class="p">)</span>
+<span class="n">combine_task</span> <span class="o">=</span> <span class="n">CombineTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">my_component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">my_component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">combine_task</span><span class="p">)</span>
 </pre></div>
 </div>
