@@ -21,6 +21,7 @@ class RemapTopoTask(Task):
         component,
         base_mesh_step,
         combine_topo_step,
+        low_res,
         smoothing=False,
         include_viz=False,
     ):
@@ -38,6 +39,11 @@ class RemapTopoTask(Task):
         combine_topo_step : polaris.tasks.e3sm.init.topo.CombineStep
             The step for combining global and Antarctic topography on a cubed
             sphere grid
+
+        low_res : bool
+            Whether the base mesh is low resolution (120km or coarser), so that
+            a set of config options for low resolution and a lower resolution
+            source topography should be used
 
         smoothing : bool, optional
             Whether to create a step with smoothing in addition to the step
@@ -59,6 +65,7 @@ class RemapTopoTask(Task):
             component=component,
             base_mesh_step=base_mesh_step,
             combine_topo_step=combine_topo_step,
+            low_res=low_res,
             smoothing=smoothing,
             include_viz=include_viz,
         )

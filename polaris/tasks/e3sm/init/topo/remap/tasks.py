@@ -11,16 +11,23 @@ def add_remap_topo_tasks(component):
         the e3sm/init component that the tasks will be added to
     """
 
-    combine_topo_steps, _ = get_combine_topo_steps(component=component)
-    combine_topo_step = combine_topo_steps[0]
+    combine_steps = {}
+    for low_res in [False, True]:
+        combine_topo_steps, _ = get_combine_topo_steps(
+            component=component, low_res=low_res
+        )
+        combine_steps[low_res] = combine_topo_steps[0]
 
     base_mesh_steps = get_base_mesh_steps()
 
     for base_mesh_step in base_mesh_steps:
+        res = base_mesh_step.cell_width
+        low_res = res >= 120.0
         task = RemapTopoTask(
             component=component,
             base_mesh_step=base_mesh_step,
-            combine_topo_step=combine_topo_step,
+            combine_topo_step=combine_steps[low_res],
+            low_res=low_res,
             smoothing=True,
             include_viz=True,
         )
