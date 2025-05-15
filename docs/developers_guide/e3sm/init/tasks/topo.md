@@ -6,7 +6,7 @@ combining topography datasets to create inputs for E3SM components such as
 MPAS-Ocean. The framework is designed to handle both global and regional
 datasets, supporting various grid types like lat-lon and cubed-sphere grids.
 
-## Combine Steps and Task
+## Combine Steps and Tasks
 
 ```{image} images/bathymetry_500.png
 :align: center
@@ -14,7 +14,7 @@ datasets, supporting various grid types like lat-lon and cubed-sphere grids.
 ```
 
 Global bathymetry datasets do not typically include the latest datasets around
-Antarctica needed for ice-sheet and ice-shelf modeling.  For this reason, we
+Antarctica needed for ice-sheet and ice-shelf modeling. For this reason, we
 typically combine a global topography dataset north of the Southern Ocean with
 one for Antarctica.
 
@@ -23,7 +23,7 @@ At the moment, the step for combining these datasets provides fields that are
 masked to locations where the bed topography (bathymetry) is below sea level.
 This avoids the risk of interpolated topography resulting in a bed that is
 above sea level in ocean regions when we perform further interpolation of
-the data to an MPAS mesh.  However, a more general topogrpahy data set will
+the data to an MPAS mesh. However, a more general topography dataset will
 likely be needed in the future that accommodates both the ocean and land/river
 components.
 ```
@@ -42,6 +42,24 @@ The {py:class}`polaris.tasks.e3sm.init.topo.combine.VizCombinedStep` step is
 an optional visualization step that can be added to the workflow to create
 plots of the combined topography dataset. This step is particularly useful for
 debugging or analyzing the combined dataset.
+
+### High-Resolution and Low-Resolution Versions
+
+There are two versions of the combine steps and task:
+
+1. **Standard (High-Resolution) Version**: This version maps to a
+   high-resolution (ne3000, ~1 km) cubed-sphere grid by default, producing
+   topogrpahy that is suitable for remapping to standard and high-resolution
+   MPAS meshes (~60 km and finer).
+
+2. **Low-Resolution Version**: This version uses a coarser ne120 (~25 km) grid
+   for faster remapping to coarse-resolution MPAS meshes (e.g., Icos240). It is
+   designed to reduce computational cost while still providing adequate accuracy
+   for low-resolution simulations used for regression testing rather than
+   science.
+
+The low-resolution version can be selected by setting the `low_res` parameter
+to `True` when creating the `CombineStep` or `CombineTask`.
 
 ### Key Features
 
@@ -69,6 +87,9 @@ the configuration file. Key options include:
 - `ntasks` and `min_tasks`: Number of MPI tasks for remapping.
 - `method`: Remapping method (e.g., `bilinear`).
 
+For the low-resolution version, additional configuration options are provided
+in the `combine_low_res.cfg` file.
+
 ### Workflow
 
 1. **Setup**: The step downloads required datasets and sets up input/output
@@ -79,7 +100,8 @@ the configuration file. Key options include:
    and weight generation.
 4. **Blending**: The datasets are blended across the specified latitude range.
 5. **Output**: The combined dataset is saved in NetCDF format.
-8. **Optional Field Plotting**: Each field in the dataset is rasterized and saved as an image with a colorbar.
+6. **Optional Field Plotting**: Each field in the dataset is rasterized and
+   saved as an image with a colorbar.
 
 ### Example Usage
 
@@ -89,13 +111,12 @@ task:
 ```python
 from polaris.tasks.e3sm.init.topo.combine import CombineStep
 
-
 component = task.component
-subdir = CombineStep.get_subdir()
+subdir = CombineStep.get_subdir(low_res=False)
 if subdir in component.steps:
     step = component.steps[subdir]
 else:
-    step = CombineStep(component=component)
+    step = CombineStep(component=component, low_res=False)
     component.add_step(step)
 task.add_step(step)
 ```
@@ -105,7 +126,7 @@ To create a `CombineTask` for caching combined datasets:
 ```python
 from polaris.tasks.e3sm.init.topo.combine import CombineTask
 
-combine_task = CombineTask(component=my_component)
+combine_task = CombineTask(component=my_component, low_res=False)
 my_component.add_task(combine_task)
 ```
 

@@ -9,7 +9,6 @@ import xarray as xr
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
-from polaris.config import PolarisConfigParser
 from polaris.parallel import run_command
 from polaris.step import Step
 
@@ -58,16 +57,21 @@ class CombineStep(Step):
     }
 
     @staticmethod
-    def get_subdir():
+    def get_subdir(low_res):
         """
         Get the subdirectory for the step based on the datasets
+        Parameters
+        ----------
+        low_res : bool, optional
+            Whether to use the low resolution configuration options
         """
-        return os.path.join(
-            'topo',
-            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}',
+        suffix = '_low_res' if low_res else ''
+        subdir = (
+            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}{suffix}'
         )
+        return os.path.join('topo', subdir)
 
-    def __init__(self, component):
+    def __init__(self, component, config, low_res=False):
         """
         Create a new step
 
@@ -75,11 +79,18 @@ class CombineStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
+
+        config : polaris.config.PolarisConfigParser
+            The shared config options for the step
+
+        low_res : bool, optional
+            Whether to use the low resolution configuration options
         """
         antarctic_dataset = self.ANTARCTIC
         global_dataset = self.GLOBAL
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
-        subdir = self.get_subdir()
+        suffix = '_low_res' if low_res else ''
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}{suffix}'
+        subdir = self.get_subdir(low_res=low_res)
         super().__init__(
             component=component,
             name=name,
@@ -93,15 +104,8 @@ class CombineStep(Step):
         self.dst_scrip_filename = None
         self.exodus_filename = None
 
-        # add default config options for combining topo -- since this is a
-        # shared step, they need to be defined separately from any task this
-        # may be added to
-        config_filename = 'combine_topo.cfg'
-        filepath = os.path.join(component.name, subdir, config_filename)
-        config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package(
-            'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
-        )
+        # Set the config options for this step.  Since the shared config
+        # file is in the step's work directory, we don't need a symlink
         self.set_shared_config(config)
 
     def setup(self):

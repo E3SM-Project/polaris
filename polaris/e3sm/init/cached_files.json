@@ -1,5 +1,8 @@
 {
     "e3sm/init/topo/combine_bedmap3_gebco2023/ne3000.scrip.nc": "topo/combine_bedmap3_gebco2023/ne3000.scrip.250509.nc",
     "e3sm/init/topo/combine_bedmap3_gebco2023/bedmap3_gebco2023_ne3000.nc": "topo/combine_bedmap3_gebco2023/bedmap3_gebco2023_ne3000.250509.nc",
-    "e3sm/init/topo/combine_bedmap3_gebco2023/ne3000.g": "topo/combine_bedmap3_gebco2023/ne3000.250509.g"
+    "e3sm/init/topo/combine_bedmap3_gebco2023/ne3000.g": "topo/combine_bedmap3_gebco2023/ne3000.250509.g",
+    "e3sm/init/topo/combine_bedmap3_gebco2023_low_res/ne120.scrip.nc": "topo/combine_bedmap3_gebco2023_low_res/ne120.scrip.250515.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023_low_res/bedmap3_gebco2023_ne120.nc": "topo/combine_bedmap3_gebco2023_low_res/bedmap3_gebco2023_ne120.250515.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023_low_res/ne120.g": "topo/combine_bedmap3_gebco2023_low_res/ne120.250515.g"
 }
