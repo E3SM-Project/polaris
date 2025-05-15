@@ -58,16 +58,21 @@ class CombineStep(Step):
     }
 
     @staticmethod
-    def get_subdir():
+    def get_subdir(low_res):
         """
         Get the subdirectory for the step based on the datasets
+        Parameters
+        ----------
+        low_res : bool, optional
+            Whether to use the low resolution configuration options
         """
-        return os.path.join(
-            'topo',
-            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}',
+        suffix = '_low_res' if low_res else ''
+        subdir = (
+            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}{suffix}'
         )
+        return os.path.join('topo', subdir)
 
-    def __init__(self, component):
+    def __init__(self, component, low_res=False):
         """
         Create a new step
 
@@ -75,11 +80,15 @@ class CombineStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
+
+        low_res : bool, optional
+            Whether to use the low resolution configuration options
         """
         antarctic_dataset = self.ANTARCTIC
         global_dataset = self.GLOBAL
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
-        subdir = self.get_subdir()
+        suffix = '_low_res' if low_res else ''
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}{suffix}'
+        subdir = self.get_subdir(low_res=low_res)
         super().__init__(
             component=component,
             name=name,
@@ -102,6 +111,10 @@ class CombineStep(Step):
         config.add_from_package(
             'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
         )
+        if low_res:
+            config.add_from_package(
+                'polaris.tasks.e3sm.init.topo.combine', 'combine_low_res.cfg'
+            )
         self.set_shared_config(config)
 
     def setup(self):

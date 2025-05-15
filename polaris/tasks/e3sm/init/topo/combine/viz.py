@@ -8,7 +8,6 @@ from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from polaris.step import Step
-from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 
 
 class VizCombinedStep(Step):
@@ -37,7 +36,7 @@ class VizCombinedStep(Step):
         super().__init__(
             component=component,
             name='viz_combine_topo',
-            subdir=os.path.join(CombineStep.get_subdir(), 'viz'),
+            subdir=os.path.join(combine_step.subdir, 'viz'),
             cpus_per_task=128,
             min_cpus_per_task=1,
         )

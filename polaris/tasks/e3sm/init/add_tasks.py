@@ -8,4 +8,7 @@ def add_e3sm_init_tasks(component):
     component : polaris.Component
         the e3sm/init component that the tasks will be added to
     """
-    component.add_task(CombineTopoTask(component=component))
+    for low_res in [False, True]:
+        component.add_task(
+            CombineTopoTask(component=component, low_res=low_res)
+        )
