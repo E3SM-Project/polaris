@@ -3,6 +3,7 @@ import os
 from mpas_tools.logging import check_call
 
 from polaris.parallel.login import LoginSystem
+from polaris.parallel.pbs import PbsSystem
 from polaris.parallel.single_node import SingleNodeSystem
 from polaris.parallel.slurm import SlurmSystem
 
@@ -14,6 +15,8 @@ def _get_system(config):
             system = 'login'
     if system == 'slurm':
         return SlurmSystem(config)
+    elif system == 'pbs':
+        return PbsSystem(config)
     elif system == 'single_node':
         return SingleNodeSystem(config)
     elif system == 'login':
