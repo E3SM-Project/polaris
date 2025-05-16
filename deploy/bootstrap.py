@@ -730,7 +730,15 @@ def _build_jigsaw(options, activate_env, source_path, conda_env_path):
         f'cp -r external/jigsaw/bin/ jigsawpy/_bin && '
         f'cp -r external/jigsaw/lib/ jigsawpy/_lib'
     )
-    check_call(commands, logger=logger)
+
+    # need a clean environment on Aurora because of its gcc module and
+    # should do no harm on other machines
+    clean_env = {
+        'HOME': os.environ['HOME'],
+        'TERM': os.environ.get('TERM', 'xterm'),
+    }
+
+    check_call(commands, env=clean_env, logger=logger)
 
     print('Installing JIGSAW and JIGSAW-Python\n')
     commands = (
