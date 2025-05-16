@@ -26,6 +26,7 @@ logging
 io
 mpas
 model
+parallel
 provenance
 remapping
 validation
