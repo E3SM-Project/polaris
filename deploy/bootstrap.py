@@ -826,13 +826,14 @@ def _build_spack_soft_env(options):  # noqa: C901
         return None
 
     compiler = config.get('deploy', 'software_compiler')
-    if not config.has_option('deploy', f'mpi_{compiler}'):
+    mpi_option = f'mpi_{compiler.replace("-", "_")}'
+    if not config.has_option('deploy', mpi_option):
         raise ValueError(
             f'Machine config file for {machine} is missing '
-            f'mpi_{compiler}, the MPI library for the software '
+            f'{mpi_option}, the MPI library for the software '
             f'compiler.'
         )
-    mpi = config.get('deploy', f'mpi_{compiler}')
+    mpi = config.get('deploy', mpi_option)
 
     if machine is not None:
         _get_spack_base(options)
