@@ -150,9 +150,8 @@ def main():  # noqa: C901
                 commands = (
                     f'source {conda_base}/etc/profile.d/conda.sh && '
                     f'conda activate {conda_env_name} && '
-                    f'conda install -y importlib_resources jinja2'
-                    f'  lxml pyyaml progressbar2 && '
                     f'cd ../build_mache/mache && '
+                    f'conda install -y --file spec-file.txt && '
                     f'python -m pip install --no-deps --no-build-isolation .'
                 )
                 check_call(commands, logger=options['logger'])
@@ -887,14 +886,14 @@ def _build_spack_soft_env(options):  # noqa: C901
         netcdf_fortran = config.get('deploy', 'netcdf_fortran')
         specs.extend(
             [
-                f'"hdf5@{hdf5}+cxx+fortran+hl+mpi+shared"',
-                f'"netcdf-c@{netcdf_c}+mpi~parallel-netcdf"',
-                f'"netcdf-fortran@{netcdf_fortran}"',
+                f'hdf5@{hdf5}+cxx+fortran+hl+mpi+shared',
+                f'netcdf-c@{netcdf_c}+mpi~parallel-netcdf',
+                f'netcdf-fortran@{netcdf_fortran}',
             ]
         )
 
     if esmf != 'None':
-        specs.append(f'"esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio"')
+        specs.append(f'esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio')
 
     yaml_template: str | None = None
     template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
@@ -961,7 +960,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
     specs = list()
 
     if cmake != 'None':
-        specs.append(f'"cmake@{cmake}"')
+        specs.append(f'cmake@{cmake}')
 
     e3sm_hdf5_netcdf = config.getboolean('deploy', 'use_e3sm_hdf5_netcdf')
     if not e3sm_hdf5_netcdf:
@@ -971,36 +970,36 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         pnetcdf = config.get('deploy', 'pnetcdf')
         specs.extend(
             [
-                f'"hdf5@{hdf5}+cxx+fortran+hl+mpi+shared"',
-                f'"netcdf-c@{netcdf_c}+mpi~parallel-netcdf"',
-                f'"netcdf-fortran@{netcdf_fortran}"',
-                f'"parallel-netcdf@{pnetcdf}+cxx+fortran"',
+                f'hdf5@{hdf5}+cxx+fortran+hl+mpi+shared',
+                f'netcdf-c@{netcdf_c}+mpi~parallel-netcdf',
+                f'netcdf-fortran@{netcdf_fortran}',
+                f'parallel-netcdf@{pnetcdf}+cxx+fortran',
             ]
         )
 
     if lapack != 'None':
-        specs.append(f'"netlib-lapack@{lapack}"')
+        specs.append(f'netlib-lapack@{lapack}')
         include_e3sm_lapack = False
     else:
         include_e3sm_lapack = True
     if metis != 'None':
-        specs.append(f'"metis@{metis}+int64+real64~shared"')
+        specs.append(f'metis@{metis}+int64+real64~shared')
     if moab != 'None':
         specs.append(
-            f'"moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest"'
+            f'moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest'
         )
     if parmetis != 'None':
-        specs.append(f'"parmetis@{parmetis}+int64~shared"')
+        specs.append(f'parmetis@{parmetis}+int64~shared')
     if petsc != 'None':
-        specs.append(f'"petsc@{petsc}+mpi+batch"')
+        specs.append(f'petsc@{petsc}+mpi+batch')
 
     if scorpio != 'None':
         specs.append(
-            f'"e3sm-scorpio@{scorpio}+mpi~timing~internal-timing~tools+malloc"'
+            f'e3sm-scorpio@{scorpio}+mpi~timing~internal-timing~tools+malloc'
         )
 
     if albany != 'None':
-        specs.append(f'"albany@{albany}+mpas"')
+        specs.append(f'albany@{albany}+mpas')
 
     yaml_template: str | None = None
     template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
