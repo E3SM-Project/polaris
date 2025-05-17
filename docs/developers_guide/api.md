@@ -327,6 +327,12 @@ seaice/api
    set_cores_per_node
    run_command
    get_parallel_command
+
+   system.ParallelSystem
+   single_node.SingleNodeSystem
+   login.LoginSystem
+   slurm.SlurmSystem
+   pbs.PbsSystem
 ```
 
 ### provenance
