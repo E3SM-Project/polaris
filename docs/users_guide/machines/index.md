@@ -127,6 +127,7 @@ to use the default MPI variant for each compiler on each machine.
 :titlesonly: true
 
 anvil
+aurora
 chicoma
 chrysalis
 compy

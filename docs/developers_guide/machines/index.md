@@ -79,6 +79,10 @@ These are the machines supported by MPAS-Ocean and -Seaice, including the
 +--------------+------------+-----------+-------------------+
 ```
 
+:::{note}
+MPAS components currently do not support Aurora in standalone builds.
+:::
+
 (dev-omega-supported-machines)=
 
 ### Omega Supported Machines
@@ -90,6 +94,8 @@ E3SM default for the given machine an compiler.
 +--------------+------------------+-----------+
 | Machine      | Compiler         | MPI lib.  |
 +==============+==================+===========+
+| aurora       | oneapi-ifx       | mpich     |
++--------------+------------------+-----------+
 | chicoma-cpu  | gnu              | mpich     |
 +--------------+------------------+-----------+
 | chrysalis    | intel            | openmpi   |
