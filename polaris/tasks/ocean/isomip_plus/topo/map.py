@@ -64,13 +64,13 @@ class TopoMap(MappingFileStep):
             subdir=subdir,
             ntasks=128,
             min_tasks=1,
+            method=method,
         )
         if smooth and method != 'conserve':
             raise ValueError(
                 'Smoothing can only be used with the "conserve" mapping method'
             )
         self.mesh_name = mesh_name
-        self.method = method
         self.smooth = smooth
         self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
