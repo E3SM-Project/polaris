@@ -12,6 +12,7 @@ from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.merry_go_round.analysis import Analysis
 from polaris.tasks.ocean.merry_go_round.forward import Forward
 from polaris.tasks.ocean.merry_go_round.init import Init
+from polaris.tasks.ocean.merry_go_round.viz import Viz
 
 
 def add_merry_go_round_tasks(component):
@@ -130,4 +131,17 @@ class MerryGoRound(Task):
                 dependencies=analysis_dependencies,
                 refinement=refinement,
             )
+        )
+        self.add_step(
+            Viz(
+                component=component,
+                dependencies=analysis_dependencies,
+                taskdir=self.subdir,
+                refinement=refinement,
+            ),
+            run_by_default=True,
+        )
+        config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
+        config.add_from_package(
+            'polaris.tasks.ocean.merry_go_round', config_filename
         )
