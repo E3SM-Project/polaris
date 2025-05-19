@@ -24,7 +24,10 @@ class Analysis(ConvergenceAnalysis):
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
-        convergence_vars = [{'name': 'tracer1', 'title': 'tracer1', 'zidx': 0}]
+        convergence_vars = [
+            {'name': 'layerThickness', 'title': 'layerThickness', 'zidx': 0},
+            {'name': 'normalVelocity', 'title': 'normalVelocity', 'zidx': 0},
+        ]
         super().__init__(
             component=component,
             subdir=subdir,
@@ -61,10 +64,22 @@ class Analysis(ConvergenceAnalysis):
             The exact solution with dimension nCells
         """
 
-        if field_name != 'tracer1':
+        if field_name != 'layerThickness' and field_name != 'normalVelocity':
             print(
-                f'Variable {field_name} not available as an analytic '
-                'solution for the cosine_bell test case'
+                f'Variable {field_name} not available as a reference '
+                'solution for the external gravity wave test case'
             )
 
-        return
+        config = self.config
+        refinement_factors = config.getlist(
+            'convergence', 'refinement_factors_time', dtype=float
+        )
+        reference_solution_factor = refinement_factors[-1]
+
+        field_mpas = super().get_output_field(
+            refinement_factor=reference_solution_factor,
+            field_name=field_name,
+            time=time,
+            zidx=zidx,
+        )
+        return field_mpas
