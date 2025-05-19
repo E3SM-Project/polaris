@@ -59,6 +59,12 @@ class Forward(SphericalConvergenceForward):
         """
         package = 'polaris.tasks.ocean.external_gravity_wave'
         validate_vars = ['normalVelocity', 'layerThickness']
+
+        if dt_type == 'local':
+            graph_target = f'{init.path}/graph.info'
+        else:
+            graph_target = f'{mesh.path}/graph.info'
+
         super().__init__(
             component=component,
             name=name,
@@ -69,7 +75,7 @@ class Forward(SphericalConvergenceForward):
             yaml_filename='forward.yaml',
             output_filename='output.nc',
             validate_vars=validate_vars,
-            graph_target=f'{mesh.path}/graph.info',
+            graph_target=graph_target,
             refinement_factor=refinement_factor,
             refinement=refinement,
         )
