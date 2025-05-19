@@ -1,0 +1,25 @@
+﻿polaris.parallel.pbs.PbsSystem
+==============================
+
+.. currentmodule:: polaris.parallel.pbs
+
+.. autoclass:: PbsSystem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PbsSystem.__init__
+      ~PbsSystem.get_available_resources
+      ~PbsSystem.get_parallel_command
+      ~PbsSystem.set_cores_per_node
+   
+   
+
+   
+   
+   

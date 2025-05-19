@@ -164,6 +164,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.set_cores_per_node.html">polaris.parallel.set_cores_per_node</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.run_command.html">polaris.parallel.run_command</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.get_parallel_command.html">polaris.parallel.get_parallel_command</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.system.ParallelSystem.html">polaris.parallel.system.ParallelSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.single_node.SingleNodeSystem.html">polaris.parallel.single_node.SingleNodeSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.login.LoginSystem.html">polaris.parallel.login.LoginSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.slurm.SlurmSystem.html">polaris.parallel.slurm.SlurmSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.pbs.PbsSystem.html">polaris.parallel.pbs.PbsSystem</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#provenance">provenance</a><ul>
@@ -668,16 +673,31 @@ documentation.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.get_available_parallel_resources.html#polaris.parallel.get_available_parallel_resources" title="polaris.parallel.get_available_parallel_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_parallel_resources</span></code></a>(config)</p></td>
-<td><p>Get the number of total cores and nodes available for running steps</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.set_cores_per_node.html#polaris.parallel.set_cores_per_node" title="polaris.parallel.set_cores_per_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cores_per_node</span></code></a>(config, cores_per_node)</p></td>
-<td><p>If the system has Slurm, find out the <code class="docutils literal notranslate"><span class="pre">cpus_per_node</span></code> and set the config option accordingly.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.run_command.html#polaris.parallel.run_command" title="polaris.parallel.run_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_command</span></code></a>(args, cpus_per_task, ntasks, ...)</p></td>
-<td><p>Run a subprocess with the given command-line arguments and resources</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.get_parallel_command.html#polaris.parallel.get_parallel_command" title="polaris.parallel.get_parallel_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parallel_command</span></code></a>(args, cpus_per_task, ...)</p></td>
-<td><p>Run a subprocess with the given command-line arguments and resources</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.system.ParallelSystem.html#polaris.parallel.system.ParallelSystem" title="polaris.parallel.system.ParallelSystem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ParallelSystem</span></code></a>(config)</p></td>
+<td><p>Base class for parallel system resource management.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.single_node.SingleNodeSystem.html#polaris.parallel.single_node.SingleNodeSystem" title="polaris.parallel.single_node.SingleNodeSystem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">single_node.SingleNodeSystem</span></code></a>(config)</p></td>
+<td><p>Resource manager for single-node parallel execution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.login.LoginSystem.html#polaris.parallel.login.LoginSystem" title="polaris.parallel.login.LoginSystem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login.LoginSystem</span></code></a>(config)</p></td>
+<td><p>Resource manager for login nodes (no parallel execution).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.slurm.SlurmSystem.html#polaris.parallel.slurm.SlurmSystem" title="polaris.parallel.slurm.SlurmSystem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slurm.SlurmSystem</span></code></a>(config)</p></td>
+<td><p>SLURM resource manager for parallel jobs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.pbs.PbsSystem.html#polaris.parallel.pbs.PbsSystem" title="polaris.parallel.pbs.PbsSystem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pbs.PbsSystem</span></code></a>(config)</p></td>
+<td><p>PBS resource manager for parallel jobs.</p></td>
 </tr>
 </tbody>
 </table>

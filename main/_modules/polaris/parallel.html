@@ -106,166 +106,54 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.parallel</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel.login</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel.pbs</span><span class="w"> </span><span class="kn">import</span> <span class="n">PbsSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel.single_node</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleNodeSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel.slurm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlurmSystem</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;SLURM_JOB_ID&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="s1">&#39;login&#39;</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SlurmSystem</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PbsSystem</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SingleNodeSystem</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;login&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LoginSystem</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected parallel system: </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_available_parallel_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.get_available_parallel_resources.html#polaris.parallel.get_available_parallel_resources">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_available_parallel_resources</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the number of total cores and nodes available for running steps</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for the test case</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    available_resources : dict</span>
-<span class="sd">        A dictionary containing available resources (cores, tasks, nodes</span>
-<span class="sd">        and cores_per_node)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">parallel_system</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span> <span class="ow">and</span> <span class="s1">&#39;SLURM_JOB_ID&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">parallel_system</span> <span class="o">=</span> <span class="s1">&#39;login&#39;</span>
-
-    <span class="k">if</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
-        <span class="n">job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SLURM_JOB_ID&#39;</span><span class="p">]</span>
-        <span class="n">node</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SLURMD_NODENAME&#39;</span><span class="p">]</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%C&#39;</span><span class="p">]</span>
-        <span class="c1"># get allocated, idle, other and total cores</span>
-        <span class="n">aiot</span> <span class="o">=</span> <span class="n">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-
-        <span class="c1"># we can only use the allocated cores</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aiot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">cores_per_node</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># hmm, no allocated cores so I guess we&#39;ll go with total cores</span>
-            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aiot</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sinfo&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%Z&#39;</span><span class="p">]</span>
-        <span class="n">slurm_threads_per_core</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">):</span>
-            <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;threads_per_core&#39;</span><span class="p">)</span>
-            <span class="c1"># correct for this in allocated_cores, which might not match</span>
-            <span class="n">cores_per_node</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">threads_per_core</span>
-            <span class="p">)</span> <span class="o">//</span> <span class="n">slurm_threads_per_core</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">threads_per_core</span> <span class="o">=</span> <span class="n">slurm_threads_per_core</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheader&#39;</span><span class="p">,</span> <span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;%D&#39;</span><span class="p">]</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="n">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span>
-        <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;login&#39;</span><span class="p">:</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-            <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;login_cores&#39;</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">cores</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">):</span>
-            <span class="n">cores</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">))</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">cores</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected parallel system: </span><span class="si">{</span><span class="n">parallel_system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="n">available_resources</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
-        <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
-        <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
-        <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">mpi_allowed</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">):</span>
-        <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">available_resources</span></div>
+    <span class="k">return</span> <span class="n">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">()</span></div>
 
 
 
 <div class="viewcode-block" id="set_cores_per_node">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.set_cores_per_node.html#polaris.parallel.set_cores_per_node">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_cores_per_node</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    If the system has Slurm, find out the ``cpus_per_node`` and set the config</span>
-<span class="sd">    option accordingly.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parallel_system</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
-        <span class="n">old_cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">old_cores_per_node</span> <span class="o">!=</span> <span class="n">cores_per_node</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Slurm found </span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1"> cpus per node but &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;config from mache was </span><span class="si">{</span><span class="n">old_cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">):</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    <span class="n">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">set_cores_per_node</span><span class="p">(</span><span class="n">cores_per_node</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="run_command">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.run_command.html#polaris.parallel.run_command">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run a subprocess with the given command-line arguments and resources</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : list of str</span>
-<span class="sd">        The command-line arguments to run in parallel</span>
-
-<span class="sd">    cpus_per_task : int</span>
-<span class="sd">        the number of cores per task the process would ideally use.  If</span>
-<span class="sd">        fewer cores per node are available on the system, the substep will</span>
-<span class="sd">        run on all available cores as long as this is not below</span>
-<span class="sd">        ``min_cpus_per_task``</span>
-
-<span class="sd">    ntasks : int</span>
-<span class="sd">        the number of tasks the process would ideally use.  If too few</span>
-<span class="sd">        cores are available on the system to accommodate the number of</span>
-<span class="sd">        tasks and the number of cores per task, the substep will run on</span>
-<span class="sd">        fewer tasks as long as as this is not below ``min_tasks``</span>
-
-<span class="sd">    openmp_threads : int</span>
-<span class="sd">        the number of OpenMP threads to use</span>
-
-<span class="sd">    config : configparser.ConfigParser</span>
-<span class="sd">        Configuration options for the test case</span>
-
-<span class="sd">    logger : logging.Logger</span>
-<span class="sd">        A logger for output from the step</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
-
     <span class="n">env</span><span class="p">[</span><span class="s1">&#39;OMP_NUM_THREADS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="k">if</span> <span class="n">openmp_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads&#39;</span><span class="p">)</span>
-
     <span class="n">command_line_args</span> <span class="o">=</span> <span class="n">get_parallel_command</span><span class="p">(</span>
         <span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">config</span>
     <span class="p">)</span>
@@ -276,65 +164,10 @@
 <div class="viewcode-block" id="get_parallel_command">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.get_parallel_command.html#polaris.parallel.get_parallel_command">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_parallel_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run a subprocess with the given command-line arguments and resources</span>
+    <span class="k">return</span> <span class="n">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">get_parallel_command</span><span class="p">(</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">cpus_per_task</span><span class="p">,</span> <span class="n">ntasks</span>
+    <span class="p">)</span></div>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : list of str</span>
-<span class="sd">        The command-line arguments to run in parallel</span>
-
-<span class="sd">    cpus_per_task : int</span>
-<span class="sd">        the number of cores per task the process would ideally use.  If</span>
-<span class="sd">        fewer cores per node are available on the system, the substep will</span>
-<span class="sd">        run on all available cores as long as this is not below</span>
-<span class="sd">        ``min_cpus_per_task``</span>
-
-<span class="sd">    ntasks : int</span>
-<span class="sd">        the number of tasks the process would ideally use.  If too few</span>
-<span class="sd">        cores are available on the system to accommodate the number of</span>
-<span class="sd">        tasks and the number of cores per task, the substep will run on</span>
-<span class="sd">        fewer tasks as long as as this is not below ``min_tasks``</span>
-
-<span class="sd">    config : configparser.ConfigParser</span>
-<span class="sd">        Configuration options for the test case</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    command_line_args : list</span>
-<span class="sd">        The full parallel command</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parallel_executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;parallel_executable&#39;</span><span class="p">)</span>
-
-    <span class="c1"># split the parallel executable into constituents in case it includes flags</span>
-    <span class="n">command_line_args</span> <span class="o">=</span> <span class="n">parallel_executable</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="n">parallel_system</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="o">*</span> <span class="n">cpus_per_task</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
-        <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;-N&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nodes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">parallel_system</span> <span class="o">==</span> <span class="s1">&#39;single_node&#39;</span><span class="p">:</span>
-        <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected parallel system: </span><span class="si">{</span><span class="n">parallel_system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="n">command_line_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">command_line_args</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">value_str</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">value_str</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_subprocess_int</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">value_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_subprocess_str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">value_int</span>
 </pre></div>
 
            </div>

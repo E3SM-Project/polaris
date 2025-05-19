@@ -1,0 +1,25 @@
+﻿polaris.parallel.slurm.SlurmSystem
+==================================
+
+.. currentmodule:: polaris.parallel.slurm
+
+.. autoclass:: SlurmSystem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SlurmSystem.__init__
+      ~SlurmSystem.get_available_resources
+      ~SlurmSystem.get_parallel_command
+      ~SlurmSystem.set_cores_per_node
+   
+   
+
+   
+   
+   

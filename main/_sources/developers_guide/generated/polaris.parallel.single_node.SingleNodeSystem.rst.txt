@@ -1,0 +1,25 @@
+﻿polaris.parallel.single\_node.SingleNodeSystem
+==============================================
+
+.. currentmodule:: polaris.parallel.single_node
+
+.. autoclass:: SingleNodeSystem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SingleNodeSystem.__init__
+      ~SingleNodeSystem.get_available_resources
+      ~SingleNodeSystem.get_parallel_command
+      ~SingleNodeSystem.set_cores_per_node
+   
+   
+
+   
+   
+   
