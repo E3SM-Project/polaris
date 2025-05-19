@@ -42,6 +42,7 @@ class Analysis(ConvergenceAnalysis):
             dependencies=dependencies,
             convergence_vars=convergence_vars,
             refinement=refinement,
+            mesh_filename='culled_mesh.nc',
         )
         # Note: there is no need to overwrite the default method exact_solution
         # which uses the initial condition
