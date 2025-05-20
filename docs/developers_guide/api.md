@@ -12,6 +12,7 @@ documentation.
 :maxdepth: 1
 :titlesonly: true
 
+e3sm/init/api
 mesh/api
 ocean/api
 seaice/api
