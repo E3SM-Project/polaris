@@ -14,8 +14,7 @@ from polaris.viz import use_mplstyle
 
 class Viz(OceanIOStep):
     """
-    A step for visualizing the output from the manufactured solution
-    test case
+    A step for visualizing the output from the merry-go-round test case
 
     Attributes
     ----------
