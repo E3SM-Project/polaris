@@ -10,6 +10,7 @@ from polaris.ocean.convergence import (
 )
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.merry_go_round.analysis import Analysis
+from polaris.tasks.ocean.merry_go_round.default import Default
 from polaris.tasks.ocean.merry_go_round.forward import Forward
 from polaris.tasks.ocean.merry_go_round.init import Init
 from polaris.tasks.ocean.merry_go_round.viz import Viz
@@ -26,13 +27,29 @@ def add_merry_go_round_tasks(component):
         'polaris.tasks.ocean.merry_go_round', config_filename
     )
 
+    base_resolution = get_resolution_for_task(config, 1.0, refinement='both')
+    base_timestep, _ = get_timestep_for_task(config, 1.0, refinement='both')
+    base_timestep = ceil(base_timestep)
+
     component.add_task(
-        MerryGoRound(
+        Default(
             component=component,
             config=config,
-            refinement='both',
+            resolution=base_resolution,
+            timestep=base_timestep,
+            indir=basedir,
         )
     )
+
+    for refinement in ['space', 'time', 'both']:
+        component.add_task(
+            MerryGoRound(
+                component=component,
+                config=config,
+                basedir=basedir,
+                refinement=refinement,
+            )
+        )
 
 
 class MerryGoRound(Task):
@@ -40,7 +57,7 @@ class MerryGoRound(Task):
     A test group for tracer advection test cases "merry-go-round"
     """
 
-    def __init__(self, component, config, refinement='both'):
+    def __init__(self, component, config, basedir, refinement='both'):
         """
         Create the test case
 
@@ -52,11 +69,14 @@ class MerryGoRound(Task):
         config : polaris.config.PolarisConfigParser
             A shared config parser
 
+        basedir : str
+            The directory from which all steps will decend from. The task
+            ``name`` will be appended to this path
+
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
         name = f'merry_go_round_convergence_{refinement}'
-        basedir = 'planar/merry_go_round'
         subdir = f'{basedir}/convergence_{refinement}/'
         config_filename = 'merry_go_round.cfg'
 
@@ -71,14 +91,13 @@ class MerryGoRound(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = self.config.getlist(
-            'convergence', option, dtype=float
-        )
+        refinement_factors = config.getlist('convergence', option, dtype=float)
+
         timesteps = list()
         resolutions = list()
         for refinement_factor in refinement_factors:
             resolution = get_resolution_for_task(
-                self.config, refinement_factor, refinement=refinement
+                config, refinement_factor, refinement=refinement
             )
             mesh_name = resolution_to_string(resolution)
 
@@ -93,7 +112,7 @@ class MerryGoRound(Task):
                     name=f'init_{mesh_name}',
                     subdir=subdir,
                 )
-                init_step.set_shared_config(self.config, link=config_filename)
+                init_step.set_shared_config(config, link=config_filename)
             if resolution not in resolutions:
                 self.add_step(init_step, symlink=symlink)
                 resolutions.append(resolution)
