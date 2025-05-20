@@ -151,6 +151,13 @@ class Viz(OceanIOStep):
         time = eval_time * s_per_hour
 
         for i, refinement_factor in enumerate(refinement_factors):
+            timestep, _ = get_timestep_for_task(
+                config, refinement_factor, refinement=self.refinement
+            )
+            resolution = get_resolution_for_task(
+                config, refinement_factor, refinement=self.refinement
+            )
+
             ds_mesh = self.open_model_dataset(
                 f'mesh_r{refinement_factor:02g}.nc'
             )
@@ -218,6 +225,21 @@ class Viz(OceanIOStep):
                 X, Z, tracer_error.values.T, cmap='cmo.curl', norm=error_norm
             )
 
+            axes[i, 0].annotate(
+                (
+                    f'$\\Delta z$={dz:g}m\n'
+                    f'$\\Delta x$={resolution * 1e3:g}m \n'
+                    f'$\\Delta t$={timestep}s'
+                ),
+                xy=(0, 0.5),
+                xytext=(-axes[i, 0].yaxis.labelpad - 5, 0),
+                xycoords=axes[i, 0].yaxis.label,
+                textcoords='offset points',
+                size='large',
+                ha='right',
+                va='center',
+            )
+
         fig.colorbar(
             c0, label='Numerical solution', ax=axes[:, 0], location='top'
         )
@@ -230,27 +252,5 @@ class Viz(OceanIOStep):
             ax=axes[:, 2],
             location='top',
         )
-
-        pad = 5
-        for ax, refinement_factor in zip(
-            axes[:, 0], refinement_factors, strict=False
-        ):
-            timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
-
-            ax.annotate(
-                f'{resolution * 1e3:g}m\n{timestep}s',
-                xy=(0, 0.5),
-                xytext=(-ax.yaxis.labelpad - pad, 0),
-                xycoords=ax.yaxis.label,
-                textcoords='offset points',
-                size='large',
-                ha='right',
-                va='center',
-            )
 
         fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
