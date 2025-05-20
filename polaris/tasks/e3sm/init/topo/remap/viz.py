@@ -58,6 +58,15 @@ class VizRemappedTopoStep(Step):
         config = self.config
         mesh_name = self.mesh_name
 
+        if self.smoothing:
+            section = config['remap_topography']
+            expand_distance = section.getfloat('expand_distance')
+            expand_factor = section.getfloat('expand_factor')
+
+            if expand_distance == 0.0 and expand_factor == 1.0:
+                # we're not smoothing so no need to do viz either
+                return
+
         fields = [
             'bed_elevation',
             'landIceThkObserved',
