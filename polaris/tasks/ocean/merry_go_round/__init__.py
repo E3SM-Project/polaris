@@ -144,14 +144,6 @@ class MerryGoRound(Task):
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
         self.add_step(
-            Analysis(
-                component=component,
-                subdir=f'{self.subdir}/analysis',
-                dependencies=analysis_dependencies,
-                refinement=refinement,
-            )
-        )
-        self.add_step(
             Viz(
                 component=component,
                 dependencies=analysis_dependencies,
@@ -159,6 +151,14 @@ class MerryGoRound(Task):
                 refinement=refinement,
             ),
             run_by_default=True,
+        )
+        self.add_step(
+            Analysis(
+                component=component,
+                subdir=f'{self.subdir}/analysis',
+                dependencies=analysis_dependencies,
+                refinement=refinement,
+            )
         )
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
