@@ -1,0 +1,46 @@
+﻿polaris.ocean.ice\_shelf.SshForward
+===================================
+
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. autoclass:: SshForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SshForward.__init__
+      ~SshForward.add_dependency
+      ~SshForward.add_input_file
+      ~SshForward.add_model_config_options
+      ~SshForward.add_namelist_file
+      ~SshForward.add_output_file
+      ~SshForward.add_streams_file
+      ~SshForward.add_yaml_file
+      ~SshForward.compute_cell_count
+      ~SshForward.constrain_resources
+      ~SshForward.dynamic_model_config
+      ~SshForward.map_yaml_configs
+      ~SshForward.map_yaml_options
+      ~SshForward.map_yaml_streams
+      ~SshForward.map_yaml_to_namelist
+      ~SshForward.partition
+      ~SshForward.process_inputs_and_outputs
+      ~SshForward.run
+      ~SshForward.runtime_setup
+      ~SshForward.set_model_resources
+      ~SshForward.set_resources
+      ~SshForward.set_shared_config
+      ~SshForward.setup
+      ~SshForward.update_namelist_pio
+      ~SshForward.validate_baselines
+   
+   
+
+   
+   
+   

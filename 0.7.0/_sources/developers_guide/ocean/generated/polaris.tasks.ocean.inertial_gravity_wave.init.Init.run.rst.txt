@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.inertial\_gravity\_wave.init.Init.run
+=========================================================
+
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave.init
+
+.. automethod:: Init.run

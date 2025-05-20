@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.mesh.add_step</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.mesh.add_step</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.mesh.add_step</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
+    <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">mesh_component</span>
+
+
+<div class="viewcode-block" id="add_uniform_spherical_base_mesh_step">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html#polaris.mesh.add_step.add_uniform_spherical_base_mesh_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_uniform_spherical_base_mesh_step</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a shared step for creating spherical base mesh with the given</span>
+<span class="sd">    resolution to the mesh component (if one has not already been added)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolution : float</span>
+<span class="sd">        The resolution in km of the mesh</span>
+
+<span class="sd">    icosahedral : bool</span>
+<span class="sd">        Whether the mesh is a subdivided icosahedral mesh, as opposed to</span>
+<span class="sd">        a quasi-uniform</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    base_mesh : polaris.Step</span>
+<span class="sd">        The base mesh step</span>
+
+<span class="sd">    res_str : str</span>
+<span class="sd">        The resolution of the mesh as a string (e.g. &#39;240km&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_component</span>
+    <span class="n">res_str</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_base_mesh_</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/base_mesh/</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
+            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">IcosahedralMeshStep</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># add default config options for spherical meshes</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span>
+        <span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+        <span class="n">base_mesh</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">res_str</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

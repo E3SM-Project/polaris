@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.ice_shelf_2d.viz</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../ice_shelf_2d.html">polaris.tasks.ocean.ice_shelf_2d</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.ice_shelf_2d.viz</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.ice_shelf_2d.viz</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.viz.transect</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_transect</span><span class="p">,</span> <span class="n">plot_transect</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_mask_to_edge_mask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
+
+
+<div class="viewcode-block" id="Viz">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for visualizing a cross-section and horizontal planes through the</span>
+<span class="sd">    ice shelf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Viz.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``viz`` will be appended</span>
+
+<span class="sd">        mesh: polaris.Step</span>
+<span class="sd">            The step used to produce the mesh</span>
+
+<span class="sd">        init: polaris.Step</span>
+<span class="sd">            The step used to produce the initial condition</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;adjusted_init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/init.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;land_ice_fluxes.nc&#39;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/land_ice_fluxes.nc&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Viz.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.run.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_adj_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;adjusted_init.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_ice</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;land_ice_fluxes.nc&#39;</span><span class="p">)</span>
+
+        <span class="n">x_mid</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="n">y_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">x_mid</span><span class="p">,</span> <span class="n">x_mid</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,))</span>
+
+        <span class="c1"># Plot the time series of max velocity</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">umax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityX</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityY</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.0e9</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">umax</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Velocity (m/s)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;velocity_max_t.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">ds_horiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_ds</span><span class="p">(</span>
+            <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_ice</span><span class="p">,</span> <span class="n">ds_adj_init</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">time_index</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">vmin_del_ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delSsh</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_del_ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delSsh</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_del_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delLandIcePressure</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmin_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmin_salt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_salt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_uv</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityX</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityY</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">time_index</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Plot the initial time</span>
+        <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;temperature_section_init.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_temp</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_temp</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^{\circ}$C&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;salinity_section_init.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_salt</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_salt</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.haline&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Plot water column thickness horizontal ds_init</span>
+        <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;columnThickness&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;H_horiz_init.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">time_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Plot the final state</span>
+        <span class="n">ds_horiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_ds</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">ds_ice</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span>
+        <span class="p">)</span>
+        <span class="n">vmin_del_ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delSsh</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_del_ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delSsh</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">vmax_del_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds_horiz</span><span class="o">.</span><span class="n">delLandIcePressure</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="c1"># Plot water column thickness horizontal</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;columnThickness&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;H_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;landIceFreshwaterFlux&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;melt_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;wettingVelocityFactor&#39;</span> <span class="ow">in</span> <span class="n">ds_horiz</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">plot_horiz_field</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;wettingVelocityFactor&#39;</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s1">&#39;wet_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.ice&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># Plot difference in ssh</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;delSsh&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;del_ssh_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_del_ssh</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_del_ssh</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Plot difference in land ice pressure</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds_horiz</span><span class="p">[</span><span class="s1">&#39;delLandIcePressure&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;del_land_ice_pressure_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_del_p</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_del_p</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Plot transects</span>
+        <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityX&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;u_surf_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
+            <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityX&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;u_bot_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
+            <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityY&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;v_surf_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
+            <span class="n">z_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityY&#39;</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s1">&#39;v_bot_horiz_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">t_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
+            <span class="n">z_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">cmap_title</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityX</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;u_section_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;x-velocity&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityY</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;v_section_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;y-velocity&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_uv</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;temperature_section_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_temp</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_temp</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^{\circ}$C&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plot_transect</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="p">,</span>
+            <span class="n">mpas_field</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;salinity_section_t</span><span class="si">{</span><span class="n">time_index</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin_salt</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax_salt</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.haline&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_ice</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;columnThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;landIceFreshwaterFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_ice</span><span class="o">.</span><span class="n">landIceFreshwaterFlux</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">Time</span><span class="o">=</span><span class="n">time_index</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;delSsh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">ssh</span> <span class="o">-</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;delLandIcePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_ice</span><span class="o">.</span><span class="n">landIcePressure</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">Time</span><span class="o">=</span><span class="n">time_index</span>
+        <span class="p">)</span> <span class="o">-</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">landIcePressure</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_out</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

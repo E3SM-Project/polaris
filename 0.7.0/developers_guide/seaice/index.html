@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sea ice component</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tasks" href="tasks/index.html" />
+    <link rel="prev" title="MPAS-Ocean" href="../ocean/models/mpas_ocean.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sea ice component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="framework.html">Sea ice framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas_seaice.html">Supported Model: MPAS-Seaice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sea ice component</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/seaice/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="sea-ice-component">
+<span id="dev-seaice"></span><h1>Sea ice component<a class="headerlink" href="#sea-ice-component" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component currently consists of single column tests.  The
+component has the following config options as follows:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for MPAS-Seaice</span>
+
+<span class="c1"># The paths section points polaris to external paths</span>
+<span class="k">[paths]</span>
+
+<span class="c1"># the relative or absolute path to the root of a branch where MPAS-Seaice</span>
+<span class="c1"># has been built</span>
+<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:polaris_branch}/e3sm_submodules/E3SM-Project/components/mpas-seaice</span>
+
+<span class="c1"># The namelists section defines paths to example_compact namelists that will</span>
+<span class="c1"># be used to generate specific namelists. By default, these point to the</span>
+<span class="c1"># forward and init namelists in the default_inputs directory after a successful</span>
+<span class="c1"># build of the seaice model.  Change these in a custom config file if you need</span>
+<span class="c1"># a different location.</span>
+<span class="k">[namelists]</span>
+<span class="na">forward</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/default_inputs/namelist.seaice</span>
+
+<span class="c1"># The streams section defines paths to example_compact streams files that will</span>
+<span class="c1"># be used to generate specific streams files. By default, these point to the</span>
+<span class="c1"># forward and init streams files in the default_inputs directory after a</span>
+<span class="c1"># successful build of the seaice model. Change these in a custom config file if</span>
+<span class="c1"># you need a different location.</span>
+<span class="k">[streams]</span>
+<span class="na">forward</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/default_inputs/streams.seaice</span>
+
+<span class="c1"># The registry section points to a post-processed registry file that can</span>
+<span class="c1"># be used to identify the types (var, var_array, var_struct) of variables in</span>
+<span class="c1"># a stream</span>
+<span class="k">[registry]</span>
+<span class="na">processed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/src/Registry_processed.xml</span>
+
+<span class="c1"># The executables section defines paths to required executables. These</span>
+<span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
+<span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
+<span class="c1"># to the MPAS-Seaice executable by default.</span>
+<span class="k">[executables]</span>
+<span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/seaice_model</span>
+</pre></div>
+</div>
+<p>The default location for MPAS-Seaice is in the
+<a class="reference external" href="https://git-scm.com/book/en/v2/Git-Tools-Submodules">git submodule</a>
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project</span></code> in the directory <code class="docutils literal notranslate"><span class="pre">components/mpas-seaice</span></code>.  The
+submodule  may not point to the latest MPAS-Seaice code in on the E3SM
+<a class="reference external" href="https://github.com/E3SM-Project/E3SM/tree/master">master</a>
+branch but the plan is to update the submodule frequently.  The current version
+of the submodule should always be guaranteed to be compatible with the
+corresponding version of polaris.</p>
+<p>To make sure the code in the submodule has been cloned and is up-to-date, you
+should run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
+</pre></div>
+</div>
+<p>in the base directory of your local clone of the polaris repo.  Then, you can
+<code class="docutils literal notranslate"><span class="pre">cd</span></code> into the component’s directory (e.g.
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project/components/mpas-seaice</span></code>) and build the code as
+appropriate for whichever of the <a class="reference internal" href="../../users_guide/machines/index.html#machines"><span class="std std-ref">Machines</span></a> you are using.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tasks/index.html">Tasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tasks/single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Sea ice framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpas_seaice.html">Supported Model: MPAS-Seaice</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../ocean/models/mpas_ocean.html" class="btn btn-neutral float-left" title="MPAS-Ocean" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tasks/index.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

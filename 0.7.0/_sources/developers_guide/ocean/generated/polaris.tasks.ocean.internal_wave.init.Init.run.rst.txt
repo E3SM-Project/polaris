@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.internal\_wave.init.Init.run
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.internal_wave.init
+
+.. automethod:: Init.run

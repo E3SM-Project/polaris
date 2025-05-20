@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh Framework</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ocean component" href="../ocean/index.html" />
+    <link rel="prev" title="Base Mesh Task" href="tasks/base.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mesh Framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spherical-meshes">Spherical Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#planar-meshes">Planar Meshes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uniform-planar-meshes">Uniform planar meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#general-planar-meshes">General planar meshes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Mesh component</a></li>
+      <li class="breadcrumb-item active">Mesh Framework</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/mesh/framework.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mesh-framework">
+<span id="dev-mesh-framework"></span><h1>Mesh Framework<a class="headerlink" href="#mesh-framework" title="Link to this heading"></a></h1>
+<section id="spherical-meshes">
+<span id="dev-spherical-meshes"></span><h2>Spherical Meshes<a class="headerlink" href="#spherical-meshes" title="Link to this heading"></a></h2>
+<p>Tasks that use global, spherical meshes can add either
+<a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> or
+<a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a> in order to creating a base mesh,
+using <a class="reference external" href="https://github.com/dengwirda/jigsaw">JIGSAW</a>.  Alternatively, they can
+use <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> as the base class
+for creating a more complex mesh by overriding the
+<a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon()</span></code></a>
+method.</p>
+<p>A developer can also customize the options data structure passed on to JIGSAW
+either by modifying the <code class="docutils literal notranslate"><span class="pre">opts</span></code> attribute of either of these classes or by
+overriding the <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh()</span></code></a>
+or <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh()</span></code></a>
+methods.</p>
+<p>Icosahedral meshes will be significantly more uniform and smooth in cell size
+than quasi-uniform spherical meshes.  On the other hand, icosahedral meshes are
+restricted to resolutions that are an integer number of subdivisions of an
+icosahedron.  The following table shows the approximate resolution of a mesh
+with a given number of subdivisions:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>subdivisions</p></th>
+<th class="head"><p>cell width (km)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>240</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>120</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>60</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>7.5</p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>3.8</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>1.9</p></td>
+</tr>
+<tr class="row-even"><td><p>13</p></td>
+<td><p>0.94</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following config options are associated with spherical meshes:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options related to spherical meshes</span>
+<span class="k">[spherical_mesh]</span>
+
+<span class="c1"># for icosahedral meshes, whether to use cell_width to determine the number of</span>
+<span class="c1"># subdivisions or to use subdivisions directly</span>
+<span class="na">icosahedral_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cell_width</span>
+
+<span class="c1"># output file names</span>
+<span class="na">jigsaw_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.msh</span>
+<span class="na">jigsaw_geom_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">geom.msh</span>
+<span class="na">jigsaw_jcfg_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">opts.jig</span>
+<span class="na">jigsaw_hfun_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">spac.msh</span>
+<span class="na">triangles_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh_triangles.nc</span>
+<span class="na">mpas_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">base_mesh.nc</span>
+
+<span class="c1"># options related to writing out and plotting cell widths</span>
+<span class="na">plot_cell_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">cell_width_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cellWidthVsLatLon.nc</span>
+<span class="na">cell_width_image_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cellWidthGlobal.png</span>
+<span class="na">cell_width_colormap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;3Wbgy5&#39;</span>
+
+<span class="c1"># whether to add the mesh density to the file</span>
+<span class="na">add_mesh_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># convert the mesh to vtk format for visualization</span>
+<span class="na">convert_to_vtk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># the subdirectory for the vtk output</span>
+<span class="na">vtk_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">base_mesh_vtk</span>
+
+<span class="c1"># whether to extract the vtk output in lat/lon space, rather than on the sphere</span>
+<span class="na">vtk_lat_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+</section>
+<section id="planar-meshes">
+<span id="dev-planar-meshes"></span><h2>Planar Meshes<a class="headerlink" href="#planar-meshes" title="Link to this heading"></a></h2>
+<p>So far, there is not support for creating planar meshes in the polaris
+framework.  But there are helpful functions for creating both
+<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_creation.html#uniform-planar-meshes">uniform hexagonal meshes</a>
+and <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_creation.html#planar-meshes">more general planar meshes</a>
+using the <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/index.html">mpas_tools</a>
+package.</p>
+<section id="uniform-planar-meshes">
+<h3>Uniform planar meshes<a class="headerlink" href="#uniform-planar-meshes" title="Link to this heading"></a></h3>
+<p>You can build a uniform planar mesh in a step by calling
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  The mesh is defined
+by the number of cells in the x and y directions (<code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>), the
+resolution <code class="docutils literal notranslate"><span class="pre">dc</span></code> in km (<code class="docutils literal notranslate"><span class="pre">dc</span></code> is the distance between adjacent cell centers),
+and some (admittedly oddly named) parameters for determining which directions
+(if any) are periodic, <code class="docutils literal notranslate"><span class="pre">nonperiodic_x</span></code> and <code class="docutils literal notranslate"><span class="pre">nonperiodic_y</span></code>.</p>
+<p>There are a few considerations for determining <code class="docutils literal notranslate"><span class="pre">nx</span></code> and <code class="docutils literal notranslate"><span class="pre">ny</span></code>. There is a
+framework level function <a class="reference internal" href="../generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.planar.compute_planar_hex_nx_ny()</span></code></a>
+to take care of this for you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+
+
+<span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>What follows is an explanation of the subtleties that are accounted for in that
+function. Typically, we need at least 4 grid cells in each direction for
+MPAS-Ocean to be well behaved, and similar restrictions may apply to other
+components.  Second, <code class="docutils literal notranslate"><span class="pre">ny</span></code> needs to be an even number because of the staggering
+of the hexagons used to create the mesh.  (We typically also use even numbers
+for <code class="docutils literal notranslate"><span class="pre">nx</span></code> but that is not strictly necessary.)</p>
+<p>Another important consideration is that the physical size of the mesh in the x
+direction is <code class="docutils literal notranslate"><span class="pre">lx</span> <span class="pre">=</span> <span class="pre">nx</span> <span class="pre">*</span> <span class="pre">dc</span></code>.  However, the physical extent in the y direction
+is <code class="docutils literal notranslate"><span class="pre">ly</span> <span class="pre">=</span> <span class="pre">(np.sqrt(3)</span> <span class="pre">/</span> <span class="pre">2)</span> <span class="pre">*</span> <span class="pre">ny</span> <span class="pre">*</span> <span class="pre">dc</span></code> because of the staggering of the hexagons
+in that direction.  As a result, if you know the desired domain size <code class="docutils literal notranslate"><span class="pre">ly</span></code>,
+you need to compute the number of cells in that direction including an extra
+factor of <code class="docutils literal notranslate"><span class="pre">2.</span> <span class="pre">/</span> <span class="pre">np.sqrt(3)</span></code>, as in this example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+
+<span class="n">lx</span> <span class="o">=</span> <span class="mf">500e3</span>
+<span class="n">ly</span> <span class="o">=</span> <span class="mf">160e3</span>
+<span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span>
+
+<span class="n">nx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">lx</span> <span class="o">/</span> <span class="n">dc</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="c1"># factor of 2/sqrt(3) because of hexagonal mesh</span>
+<span class="n">ny</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ly</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">/</span> <span class="n">dc</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="general-planar-meshes">
+<h3>General planar meshes<a class="headerlink" href="#general-planar-meshes" title="Link to this heading"></a></h3>
+<p>One way to create a more general planar mesh is by calling
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.mesh.creation.build_mesh.build_planar_mesh.html#mpas_tools.mesh.creation.build_mesh.build_planar_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.mesh.creation.build_mesh.build_planar_mesh()</span></code></a>, which uses
+JIGSAW to build a mesh with variable resolution.  See
+<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_creation.html#planar-meshes">Planar Meshes</a>
+for more details.  We plan to create framework-level steps for planar meshes
+similar to <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> and
+<a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a> in the not too distant future.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tasks/base.html" class="btn btn-neutral float-left" title="Base Mesh Task" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../ocean/index.html" class="btn btn-neutral float-right" title="Ocean component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

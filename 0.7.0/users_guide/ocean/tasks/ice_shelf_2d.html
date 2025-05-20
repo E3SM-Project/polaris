@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ice shelf 2d</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="inertial gravity wave" href="inertial_gravity_wave.html" />
+    <link rel="prev" title="divergent 2-d" href="divergent_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ice shelf 2d</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-with-restart">default_with_restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tidal-forcing">default_tidal_forcing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">ice shelf 2d</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/ice_shelf_2d.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="ice-shelf-2d">
+<span id="ocean-ice-shelf-2d"></span><h1>ice shelf 2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code> tasks describe a series of very simplified ice-shelf test
+cases where topography and initial conditions only vary in the y direction.
+The Coriolis parameter <code class="docutils literal notranslate"><span class="pre">f</span></code> is zero.  This makes the test case quasi-two-
+dimensional, with negligible variability in x.</p>
+<p>Polaris includes three test cases, a default case, a restart case, and the
+default case with visualization. Each case includes an <code class="docutils literal notranslate"><span class="pre">init</span></code> step to set up
+the mesh and initial condition, a series of <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps (see
+<a class="reference internal" href="../framework/ice_shelf.html#ocean-ssh-adjustment"><span class="std std-ref">SSH adjustment steps</span></a>), and a forward step. Some cases include additional
+steps, described below.</p>
+<p>All test cases include a relatively strenuous, iterative process to
+dynamically adjust <code class="docutils literal notranslate"><span class="pre">landIcePressure</span></code> or <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to be compatible with one
+another in the <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps. In this test case, we perform 10
+iterations of adjustment, enough that changes in pressure should be quite
+small compared to those in the first iteration. Reducing the number of
+iterations will make the test case run more quickly at the risk of
+having longer-lived transients at the beginning of the simulation.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to ssh adjustment steps</span>
+<span class="k">[ssh_adjustment]</span>
+
+<span class="c1"># Number of ssh adjustment iterations</span>
+<span class="na">iterations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+
+<span class="c1"># Output interval for the ssh adjustment phase in hours</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Run duration of each ssh adjustment phase in hours</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Whether to adjust land ice pressure or SSH</span>
+<span class="na">adjust_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">land_ice_pressure</span>
+
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
+</pre></div>
+</div>
+<p>If a baseline run of the test case was provided for comparison, we perform
+validation of both the prognostic variables (layer thickness, velocity,
+temperature and salinity) and a large number of variables associated with
+freshwater and heat fluxes under ice shelves.</p>
+<p>Frazil-ice formation is not included in the <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps but is
+included in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step of this test case.</p>
+</section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The test case currently supports only 5-km horizontal resolution. The x
+direction is periodic and only 10 cells wide, whereas the y direction has
+solid boundaries and is 44 cells long.  These dimensions are set in the config
+file by <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>The conceptual overlying ice shelf is described by a piecewise linear function.
+The config options <code class="docutils literal notranslate"><span class="pre">y1</span></code>, <code class="docutils literal notranslate"><span class="pre">y2</span></code>, and <code class="docutils literal notranslate"><span class="pre">y3</span></code> dictate the inflection points in the
+piecewise function and <code class="docutils literal notranslate"><span class="pre">y1_water_column_thickness</span></code> and
+<code class="docutils literal notranslate"><span class="pre">y2_water_column_thickness</span></code> dictate the water column thickness at those
+locations. The water column thickness at <code class="docutils literal notranslate"><span class="pre">y3</span></code> is always equal to the bottom
+depth, indicating the ice shelf front location. By default, the ice shelf
+depresses the sea surface height by as much as
+1040 m (leaving a 10-m water column) for the first 30 km in y.  Over the next
+30 km, it rises to 200 m, then fairly abruptly to zero over the next 15 km,
+where it remains for the second half of the domain.  The ice shelf occupies
+these first 75 km of the domain: fluxes from ice-shelf melting are only applied
+in this region.</p>
+<a class="reference internal image-reference" href="../../../_images/ice_shelf_2d.png"><img alt="../../../_images/ice_shelf_2d.png" class="align-center" src="../../../_images/ice_shelf_2d.png" style="width: 500px;" />
+</a>
+<p>The geometry does not represent a particularly realistic ice-shelf cavity but
+it is a quick and useful test of the parameterization of land-ice melt fluxes
+and of frazil formation below ice shelves.</p>
+<p>Two vertical coordinates, <code class="docutils literal notranslate"><span class="pre">z-star</span></code> and <code class="docutils literal notranslate"><span class="pre">z-level</span></code>, are available. In each case,
+there are 50 vertical levels given by the config option <code class="docutils literal notranslate"><span class="pre">vert_levels</span></code>. In the
+open ocean, each level is 40 m thick.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">50</span>
+
+<span class="c1"># The minimum number of vertical levels</span>
+<span class="na">min_vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-star</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">partial</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># The minimum layer thickness in m</span>
+<span class="na">min_layer_thickness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The initial temperature for the whole domain is constant (1 degree Celsius),
+while salinity varies linearly with depth from 34.5 PSU at the sea surface
+to 34.7 PSU at the sea floor, which is at a constant at 2000 m depth. These
+initial conditions can be modified with config options <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">surface_salinity</span></code>, and <code class="docutils literal notranslate"><span class="pre">bottom_salinity</span></code></p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>The time step is determined by the config options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> so that the time
+step is proportional to the resolution. By default, a 10 km-resolution test
+has a time step of 5 min. Run duration will be specified for each test case.
+Run duration will be discussed for individual test cases.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for 2D ice-shelf testcases</span>
+<span class="k">[ice_shelf_2d]</span>
+
+<span class="c1"># width of domain in km</span>
+<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">50</span>
+
+<span class="c1"># length of domain in km</span>
+<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">190</span>
+
+<span class="c1"># How the land ice pressure at y&lt;y1 is determined</span>
+<span class="na">y0_land_ice_height_above_floatation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.</span>
+
+<span class="c1"># Temperature of the surface in the northern half of the domain</span>
+<span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Salinity of the water in the entire domain</span>
+<span class="na">surface_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">34.5</span>
+
+<span class="c1"># Salinity of the water in the entire domain</span>
+<span class="na">bottom_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">34.7</span>
+
+<span class="c1"># Coriolis parameter</span>
+<span class="na">coriolis_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.</span>
+
+<span class="c1"># GL location in y in km</span>
+<span class="na">y1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># ice shelf inflection point in y in km</span>
+<span class="na">y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">90.0</span>
+
+<span class="c1"># ice shelf front location in y in km</span>
+<span class="na">y3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">90.0</span>
+
+<span class="c1"># Vertical thickness of ocean sub-ice cavity at GL</span>
+<span class="na">y1_water_column_thickness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+
+<span class="c1"># Vertical thickness of water column thickness at y2</span>
+<span class="na">y2_water_column_thickness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1050.0</span>
+</pre></div>
+</div>
+<p>You can modify the horizontal mesh, vertical grid, geometry, and initial
+temperature and salinity of the test case by altering these options.</p>
+</section>
+<section id="default">
+<span id="ocean-ice-shelf-2d-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/${RES}/default</span></code> is the default version of the
+ice shelf 2-d test case for a short (10 min) test run and validation of
+prognostic variables for regression testing.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id6">
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>The time step is configured by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:rk4_dt_per_km</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:split_dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:btr_dt_per_km</span></code>
+depending on the time integration scheme given by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d:time_integrator</span></code>.
+The run duration is determined by the config option <code class="docutils literal notranslate"><span class="pre">forward_run_duration</span></code> and
+is 10 minutes by default.</p>
+</section>
+<section id="id7">
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> for config options used by all <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code>
+test cases.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options specific to the ice_shelf_2d/default case</span>
+<span class="k">[ice_shelf_2d_default]</span>
+
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
+
+<span class="c1"># Run duration of the forward step in minutes</span>
+<span class="na">forward_run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+</pre></div>
+</div>
+</section>
+<section id="cores">
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
+<p>The number of processors is hard-coded to be 4 for this case.</p>
+</section>
+</section>
+<section id="default-with-restart">
+<h2>default_with_restart<a class="headerlink" href="#default-with-restart" title="Link to this heading"></a></h2>
+<section id="id8">
+<h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/$RES/default/with_restart</span></code> runs a short (10 min)
+integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">forward</span></code> step), saving a restart
+file every time step.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart</span></code> step) is performed
+from the restart file 5 minutes into the simulation.
+Prognostic variables, variables related to
+sub-ice-shelf fluxes, and variables related to frazil formation are compared
+between the “full” and “restart” runs at minute 10 of the simulation to
+make sure they are bit-for-bit identical.</p>
+</section>
+<section id="id9">
+<h3>mesh<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id10">
+<h3>vertical grid<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id11">
+<h3>initial conditions<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id12">
+<h3>forcing<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id13">
+<h3>time step and run duration<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>The time step is the same as <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>. The full run is
+ten minutes as given by <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default:forward_run_duration</span></code>
+and the restart run is half the duration of the full run.</p>
+</section>
+<section id="id14">
+<h3>config options<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> and .</p>
+</section>
+<section id="id15">
+<h3>cores<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
+</section>
+</section>
+<section id="default-tidal-forcing">
+<h2>default_tidal_forcing<a class="headerlink" href="#default-tidal-forcing" title="Link to this heading"></a></h2>
+<section id="id16">
+<h3>description<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/5km/default</span></code> is the default version of the
+ice shelf 2-d test case for a short (10 min) test run and validation of
+prognostic variables for regression testing.</p>
+</section>
+<section id="id17">
+<h3>mesh<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id18">
+<h3>vertical grid<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id19">
+<h3>initial conditions<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>.</p>
+</section>
+<section id="id20">
+<h3>forcing<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<p>This test has tidal forcing at the open ocean boundary in the y-dimension. The
+amplitude and period of the tidal forcing are set at test case set-up to be 1 m
+and 10 days, respectively, but may be changed by the user in the namelist at
+runtime.</p>
+</section>
+<section id="id21">
+<h3>time step and run duration<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<p>Determined by config options in the <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d_default_tidal_forcing</span></code>
+section described below.</p>
+</section>
+<section id="id22">
+<h3>config options<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> for config options used by all <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code>
+test cases.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options specific to the ice_shelf_2d/default_tidal_forcing case</span>
+<span class="k">[ice_shelf_2d_default_tidal_forcing]</span>
+
+<span class="na">_tidal_forcing# Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># Run duration of the forward step in days</span>
+<span class="na">forward_run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+
+<span class="c1"># Time step in seconds as a function of resolution</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+</pre></div>
+</div>
+</section>
+<section id="id23">
+<h3>cores<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="divergent_2d.html" class="btn btn-neutral float-left" title="divergent 2-d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inertial_gravity_wave.html" class="btn btn-neutral float-right" title="inertial gravity wave" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

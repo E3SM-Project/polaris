@@ -1,0 +1,45 @@
+﻿polaris.ModelStep
+=================
+
+.. currentmodule:: polaris
+
+.. autoclass:: ModelStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ModelStep.__init__
+      ~ModelStep.add_dependency
+      ~ModelStep.add_input_file
+      ~ModelStep.add_model_config_options
+      ~ModelStep.add_namelist_file
+      ~ModelStep.add_output_file
+      ~ModelStep.add_streams_file
+      ~ModelStep.add_yaml_file
+      ~ModelStep.constrain_resources
+      ~ModelStep.dynamic_model_config
+      ~ModelStep.map_yaml_configs
+      ~ModelStep.map_yaml_options
+      ~ModelStep.map_yaml_streams
+      ~ModelStep.map_yaml_to_namelist
+      ~ModelStep.partition
+      ~ModelStep.process_inputs_and_outputs
+      ~ModelStep.run
+      ~ModelStep.runtime_setup
+      ~ModelStep.set_model_resources
+      ~ModelStep.set_resources
+      ~ModelStep.set_shared_config
+      ~ModelStep.setup
+      ~ModelStep.update_namelist_pio
+      ~ModelStep.validate_baselines
+   
+   
+
+   
+   
+   

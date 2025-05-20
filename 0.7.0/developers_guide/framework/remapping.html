@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remapping</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Validation" href="validation.html" />
+    <link rel="prev" title="Provenance" href="provenance.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Remapping</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/remapping.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="remapping">
+<span id="dev-remapping"></span><h1>Remapping<a class="headerlink" href="#remapping" title="Link to this heading"></a></h1>
+<p>It is frequently useful when working with observational datasets or
+visualizing MPAS data to remap between different global or regional grids and
+meshes.  The <a class="reference external" href="https://mpas-dev.github.io/pyremap/stable/">pyremap</a> provides
+capabilities for making mapping files (which contain the weights needed to
+interpolate between meshes) and using them to remap files or
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.  Polaris provides a step for producing
+such a mapping file.  Under the hood, <code class="docutils literal notranslate"><span class="pre">pyremap</span></code> uses the
+<a class="reference external" href="https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node3.html#SECTION03020000000000000000">ESMF_RegridWeightGen</a>
+or <a class="reference external" href="https://sigma.mcs.anl.gov/moab/offline-remapping-workflow-with-mbtempest/">mbtempest</a>
+tools, which use MPI parallelism.  To better support task parallelism, it is
+best to have each MPI task be a separate polaris step.  For this reason, we
+provide <a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> to perform remapping.</p>
+<p>A remapping step can be added to a task either by creating a
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> object directly or by creating a
+step that descends from the class.  Here is an example of using
+<code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> directly to remap data from a WOA 2023 lon-lat grid to an
+MPAS mesh. This could happen in the task’s <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> or <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
+method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingFileStep</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTestCase</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">MappingFileStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;make_map&#39;</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+                               <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">)</span>
+        <span class="c1"># add required config options related to mapping</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;mapping.cfg&#39;</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;my_test_case.cfg&#39;</span><span class="p">)</span>
+
+        <span class="c1"># indicate the the mesh from another step is an input to this step</span>
+        <span class="c1"># note: the target is relative to the step, not the task.</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;woa23_decav_0.25_extrap.20230414.nc&#39;</span><span class="p">,</span>
+                            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;initial_condition_database&#39;</span><span class="p">)</span>
+
+        <span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../mesh/mesh.nc&#39;</span><span class="p">)</span>
+
+        <span class="c1"># you need to specify what type of source and destination mesh you</span>
+        <span class="c1"># will use</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">src_from_lon_lat</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span> <span class="n">lon_var</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">lat_var</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">dst_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="s1">&#39;QU60&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is an example of creating a subclass to remap from an MPAS mesh to a
+global lon-lat grid with a given resolution.  This is more convenient when you
+want to use config options to allow users to customize the step.  Note that
+you have to set a source and destination grid before calling
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.run()</span></code></a>.  In the example, the
+resolution of the lon-lat grid and the remapping method will be set using the
+config options provided while setting up the polaris task.  We call the
+<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods of the <code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute in the <code class="docutils literal notranslate"><span class="pre">run()</span></code>
+method to make sure we pick up any changes to the config options that a user
+might have made before running the task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingFileStep</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">VizMap</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">ntasks</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../mesh/mesh.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">]</span>
+        <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlon&#39;</span><span class="p">)</span>
+        <span class="n">dlat</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dlat&#39;</span><span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remap_method&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">src_from_mpas</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>It is important that the task that the step belongs to includes the required
+config options related to mapping.  This could be accomplished either by
+calling:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;mapping.cfg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or by including the corresponding config options in the task’s config file:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options related to creating mapping files</span>
+<span class="k">[mapping]</span>
+
+<span class="c1"># The tool to use for creating mapping files: esmf or moab</span>
+<span class="na">map_tool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">moab</span>
+</pre></div>
+</div>
+<p>Whether you create a <code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> object directly or create a subclass,
+you will need to call one of the <code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute’s <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> methods to
+set up the source mesh or grid and one of the <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> to configure the
+destination.  Expect for lon-lat grids, you will need to provide a name for
+the mesh or grid, typically describing its resolution and perhaps its extent
+and the region covered.</p>
+<p>In nearly all situations, creating the mapping file is only one step in the
+workflow. After that, the mapping file will be used to remap data between
+the meshes or grids.  Steps that want to do this remapping need to have
+the <code class="docutils literal notranslate"><span class="pre">MappingFileStep</span></code> (or its subclass) as a dependency (see
+<a class="reference internal" href="../organization/steps.html#dev-step-dependencies"><span class="std std-ref">Adding other steps as dependencies</span></a>).</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="provenance.html" class="btn btn-neutral float-left" title="Provenance" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="validation.html" class="btn btn-neutral float-right" title="Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

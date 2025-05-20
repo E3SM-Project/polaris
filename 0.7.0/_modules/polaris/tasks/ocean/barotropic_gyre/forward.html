@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.barotropic_gyre.forward</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../barotropic_gyre.html">polaris.tasks.ocean.barotropic_gyre</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.barotropic_gyre.forward</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.barotropic_gyre.forward</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">floor</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
+
+
+<div class="viewcode-block" id="Forward">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for performing forward ocean component runs as part of barotropic</span>
+<span class="sd">    gyre tasks.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolution : float</span>
+<span class="sd">        The resolution of the task in km</span>
+
+<span class="sd">    dt : float</span>
+<span class="sd">        The model time step in seconds</span>
+
+<span class="sd">    run_time_steps : int or None</span>
+<span class="sd">        Number of time steps to run for</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Forward.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">graph_target</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            the name of the task</span>
+
+<span class="sd">        subdir : str, optional</span>
+<span class="sd">            the subdirectory for the step.  If neither this nor ``indir``</span>
+<span class="sd">             are provided, the directory is the ``name``</span>
+
+<span class="sd">        indir : str, optional</span>
+<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
+
+<span class="sd">        ntasks : int, optional</span>
+<span class="sd">            the number of tasks the step would ideally use.  If fewer tasks</span>
+<span class="sd">            are available on the system, the step will run on all available</span>
+<span class="sd">            tasks as long as this is not below ``min_tasks``</span>
+
+<span class="sd">        min_tasks : int, optional</span>
+<span class="sd">            the number of tasks the step requires.  If the system has fewer</span>
+<span class="sd">            than this number of tasks, the step will fail</span>
+
+<span class="sd">        openmp_threads : int, optional</span>
+<span class="sd">            the number of OpenMP threads the step will use</span>
+
+<span class="sd">        run_time_steps : int or None</span>
+<span class="sd">            Number of time steps to run for</span>
+
+<span class="sd">        graph_target : str, optional</span>
+<span class="sd">            The graph file name (relative to the base work directory).</span>
+<span class="sd">            If none, it will be created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">=</span> <span class="n">run_time_steps</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># make sure output is double precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/forcing.nc&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.barotropic_gyre&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="s1">&#39;forward.yaml&#39;</span></div>
+
+
+<div class="viewcode-block" id="Forward.compute_cell_count">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
+<span class="sd">        resources</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cell_count : int or None</span>
+<span class="sd">            The approximate number of cells in the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">]</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+        <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
+        <span class="k">return</span> <span class="n">cell_count</span></div>
+
+
+<div class="viewcode-block" id="Forward.dynamic_model_config">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
+<span class="sd">        options or template replacements that need to be set both during step</span>
+<span class="sd">        setup and at runtime</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        at_setup : bool</span>
+<span class="sd">            Whether this method is being run during setup of the step, as</span>
+<span class="sd">            opposed to at runtime</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;single_layer.yaml&#39;</span><span class="p">)</span>
+
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;nu_2&#39;</span><span class="p">)</span>
+        <span class="n">rho_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;rho_0&#39;</span><span class="p">)</span>
+
+        <span class="n">dt_max</span> <span class="o">=</span> <span class="n">compute_max_time_step</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">dt_max</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+        <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="n">dt_str</span><span class="p">,</span> <span class="s1">&#39;config_density0&#39;</span><span class="p">:</span> <span class="n">rho_0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">run_duration</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+            <span class="n">stop_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="s1">&#39;0000_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stop_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0004-01-01_00:00:00&#39;</span><span class="p">)</span>
+            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;0000-01-00_00:00:00&#39;</span><span class="p">)</span>
+
+        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">dt</span><span class="o">=</span><span class="n">dt_str</span><span class="p">,</span>
+            <span class="n">stop_time</span><span class="o">=</span><span class="n">stop_time_str</span><span class="p">,</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
+            <span class="n">nu</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nu</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># make sure output is double precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="compute_max_time_step">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_max_time_step</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the approximate maximum time step for stability</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Config options for test case</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dt_max : float</span>
+<span class="sd">        The approximate maximum time step for stability</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">u_max</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># m/s</span>
+    <span class="n">stability_parameter_max</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+    <span class="n">f_0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;f_0&#39;</span><span class="p">)</span>
+    <span class="n">dt_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+        <span class="n">stability_parameter_max</span> <span class="o">*</span> <span class="n">resolution</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_max</span><span class="p">),</span>
+        <span class="n">stability_parameter_max</span> <span class="o">/</span> <span class="n">f_0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dt_max</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

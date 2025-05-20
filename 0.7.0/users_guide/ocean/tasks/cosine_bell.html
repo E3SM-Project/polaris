@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cosine bell</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="geostrophic" href="geostrophic.html" />
+    <link rel="prev" title="correlated tracers 2-d" href="correlated_tracers_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cosine bell</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">cosine bell</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/cosine_bell.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
+<span id="ocean-cosine-bell"></span><h1>cosine bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*/with_viz</span></code> tasks
+implement the Cosine Bell test case as first described in
+<a class="reference external" href="https://doi.org/10.1016/S0021-9991(05)80016-6">Williamson et al. 1992</a>
+but using the variant from Sec. 3a of
+<a class="reference external" href="https://doi.org/10.1175/MWR-D-10-05056.1">Skamarock and Gassmann</a>.  A flow
+field representing solid-body rotation transports a bell-shaped perturbation
+in a tracer <span class="math notranslate nohighlight">\(\psi\)</span> once around the sphere, returning to its initial location.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> task is a convergence test with time step varying
+proportionately to cell size, while <code class="docutils literal notranslate"><span class="pre">convergence_time</span></code> and <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code>
+vary only the time step and the cell size, respectively. The result of the
+<code class="docutils literal notranslate"><span class="pre">analysis</span></code> step of each task is a plot like the following showing convergence
+as a function of the cell size and/or the time step:</p>
+<a class="reference internal image-reference" href="../../../_images/cosine_bell_convergence.png"><img alt="../../../_images/cosine_bell_convergence.png" class="align-center" src="../../../_images/cosine_bell_convergence.png" style="width: 500px;" />
+</a>
+<p>The <code class="docutils literal notranslate"><span class="pre">with_viz</span></code> variant also includes visualization of the initial
+and final state on a lat-lon grid for each resolution.  The visualization is
+not included in the other versions of the task in order to not slow down
+regression testing.</p>
+<p>Another task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/decomp</span></code>, performs two runs of the Cosine Bell
+test at coarse resolution, once with 12 and once with 24 cores, to verify the
+bit-for-bit identical results for tracer advection across different core
+counts.</p>
+<p>A final task, <code class="docutils literal notranslate"><span class="pre">cosine_bell/restart</span></code>, performs two time steps of the Cosine Bell
+test at coarse resolution, then performs reruns the second time step,
+as a restart run to verify the bit-for-bit restart capability for tracer
+advection.</p>
+</section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support both MPAS-Ocean and Omega.</p>
+</section>
+<section id="mesh">
+<span id="ocean-cosine-bell-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
+are also variants to test convergence in space, time, or both space and time
+as well as the restart test. In addition, the tests can be set up with or
+without the viz step. Thus, there are 14 variants of the task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">decomp</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_space</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_time</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">convergence_both</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">decomp</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">restart</span>
+</pre></div>
+</div>
+<p>The default resolutions used in the task depends on the mesh type.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are 60, 120, 240, 480 km, as determined
+by the following config options. See <a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for more
+details.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># The base resolution for the icosahedral mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">icos_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60.</span>
+
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
+<span class="na">icos_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8., 4., 2., 1.</span>
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
+</pre></div>
+</div>
+<p>For the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are 60, 90, 120, 150, 180, 210, 240 km as
+determined by the following config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># The base resolution for the quasi-uniform mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">qu_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.</span>
+
+<span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
+<span class="na">qu_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.</span>
+</pre></div>
+</div>
+<p>To alter the resolutions used in the convergence tasks, you will need to create
+your own config file (or add a <code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section to a config file
+if you’re already using one).  The resolutions are a comma-separated list of
+the resolution of the mesh in km.  If you specify a different list
+before setting up <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>, steps will be generated with the requested
+resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code> in the
+task’s config file in the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code>
+meshes, make sure you use a resolution close to those listed in
+<a class="reference internal" href="../../../developers_guide/mesh/framework.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each resolution will be rounded to the nearest
+allowed icosahedral resolution.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps are shared with other tasks so they are not housed in
+the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> work directory.  Instead, they are in work directories like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+</pre></div>
+</div>
+<p>For convenience, there are symlinks inside of the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> work directories, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">with_viz</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">with_viz</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+</pre></div>
+</div>
+</section>
+<section id="vertical-grid">
+<span id="ocean-cosine-bell-vertical"></span><h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>This task only exercises the shallow water dynamics. As such, a single
+vertical level may be used. The bottom depth is constant and the
+results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-level</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The initial bell is defined by any passive tracer <span class="math notranslate nohighlight">\(\psi\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\psi =
+    \begin{cases}
+        \left( \psi_0/2 \right) \left[ 1 + \cos(\pi r/R )\right] &amp;
+            \text{if } r &lt; R \\
+        0 &amp; \text{if } r \ge R
+    \end{cases}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\psi_0 = 1\)</span>, the bell radius <span class="math notranslate nohighlight">\(R = a/3\)</span>, and <span class="math notranslate nohighlight">\(a\)</span> is the radius of the
+sphere. <code class="docutils literal notranslate"><span class="pre">psi_0</span></code> and <code class="docutils literal notranslate"><span class="pre">radius</span></code>, <span class="math notranslate nohighlight">\(R\)</span>, are given as config options and may be
+altered by the user. In the <code class="docutils literal notranslate"><span class="pre">init</span></code> step we assign <code class="docutils literal notranslate"><span class="pre">debug_tracers_1</span></code>
+to <span class="math notranslate nohighlight">\(\psi\)</span>.</p>
+<a class="reference internal image-reference" href="../../../_images/cosine_bell_init.png"><img alt="../../../_images/cosine_bell_init.png" class="align-center" src="../../../_images/cosine_bell_init.png" style="width: 500px;" />
+</a>
+<p>The initial velocity is equatorial:</p>
+<div class="math notranslate nohighlight">
+\[
+u_0 = 2 \pi a/ \tau
+\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\tau\)</span> is the time it takes to transit the equator. The default is 24
+days, and can be altered by the user using the config option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code>.</p>
+<p>Temperature and salinity are not evolved in this task and are given
+constant values determined by config options <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
+<p>The Coriolis parameters <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code>, and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> do not need to be
+specified for a global mesh and are initialized as zeros.</p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>N/A. This case is run with all velocity tendencies disabled so the velocity
+field remains at the initial velocity <span class="math notranslate nohighlight">\(u_0\)</span>.</p>
+</section>
+<section id="time-step-and-run-duration">
+<span id="ocean-cosine-bell-time-step"></span><h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
+for forward integration is determined by multiplying the resolution by a config
+option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are the
+period for advection to make a full rotation around the globe, 24 days:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence forward steps</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># Run duration in hours</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># Output interval in hours</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">${cosine_bell:vel_pd}</span></code> means that the same value is used as in the
+option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> in section <code class="docutils literal notranslate"><span class="pre">[cosine_bell]</span></code>, see below.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> config options include:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for cosine bell convergence test case</span>
+<span class="k">[cosine_bell]</span>
+
+<span class="c1"># the constant temperature of the domain</span>
+<span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># the constant salinity of the domain</span>
+<span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># the central latitude (rad) of the cosine bell</span>
+<span class="na">lat_center</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># the central longitude (rad) of the cosine bell</span>
+<span class="na">lon_center</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.14159265</span>
+
+<span class="c1"># the radius (m) of cosine bell</span>
+<span class="na">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2123666.6667</span>
+
+<span class="c1"># hill max of tracer</span>
+<span class="na">psi0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># time (hours) for bell to transit equator once</span>
+<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">576.0</span>
+
+<span class="c1"># convergence threshold below which the test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
+
+
+<span class="c1"># options for visualization for the cosine bell convergence test case</span>
+<span class="k">[cosine_bell_viz]</span>
+
+<span class="c1"># visualization latitude and longitude resolution</span>
+<span class="na">dlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="na">dlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># remapping method (&#39;bilinear&#39;, &#39;neareststod&#39;, &#39;conserve&#39;)</span>
+<span class="na">remap_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">conserve</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+
+<span class="c1"># We could provide colorbar tick marks but we&#39;ll leave the defaults</span>
+<span class="c1"># colorbar_ticks = np.linspace(0., 1., 9)</span>
+</pre></div>
+</div>
+<p>The 7 options from <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> are used to control properties of
+the cosine bell and the rest of the sphere, as well as the advection.</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">convergence_thresh</span></code> is a threshold for determining
+when the convergence rates are not above a minimum convergence rate.</p>
+<p>The options in the <code class="docutils literal notranslate"><span class="pre">cosine_bell_viz</span></code> section are used in visualizing the
+initial and final states on a lon-lat grid for <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks.</p>
+<p>By default, the convergence analysis step analyzes convergence after the
+cosine bell has circulated the globe once. It also computes the L2 norm. Both
+of these config options can be changed here:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in days)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:vel_pd}</span>
+
+<span class="c1"># Convergence threshold below which a test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cosine_bell:convergence_thresh}</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+</pre></div>
+</div>
+</section>
+<section id="cores">
+<span id="ocean-cosine-bell-cores"></span><h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
+and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
+respectively. This ensures that the number of cells per core is roughly
+constant across the different resolutions in the convergence study.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="correlated_tracers_2d.html" class="btn btn-neutral float-left" title="correlated tracers 2-d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geostrophic.html" class="btn btn-neutral float-right" title="geostrophic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

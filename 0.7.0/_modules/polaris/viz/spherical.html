@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.viz.spherical</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.viz.spherical</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.viz.spherical</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cols</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mosaic</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1.inset_locator</span><span class="w"> </span><span class="kn">import</span> <span class="n">inset_axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap.descriptor.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_extrap_corner</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+
+
+<div class="viewcode-block" id="plot_global_mpas_field">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_global_mpas_field</span><span class="p">(</span>
+    <span class="n">mesh_filename</span><span class="p">,</span>
+    <span class="n">da</span><span class="p">,</span>
+    <span class="n">out_filename</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">colormap_section</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">central_longitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">patch_edge_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots a data set as a longitude-latitude map</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        A filename containing the MPAS mesh</span>
+
+<span class="sd">    da : xarray.DataArray</span>
+<span class="sd">        The horizontal field to plot</span>
+
+<span class="sd">    out_filename : str</span>
+<span class="sd">        The image file name to be written</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options to use for colormap settings</span>
+
+<span class="sd">    colormap_section : str</span>
+<span class="sd">        The name of a section in the config options. Options must include:</span>
+
+<span class="sd">        colormap_name</span>
+<span class="sd">            The name of the colormap</span>
+
+<span class="sd">        norm_type</span>
+<span class="sd">            The norm: {&#39;linear&#39;, &#39;log&#39;}</span>
+
+<span class="sd">    title : str, optional</span>
+<span class="sd">        The subtitle of the plot</span>
+
+<span class="sd">    plot_land : bool</span>
+<span class="sd">        Whether to plot continents over the data</span>
+
+<span class="sd">    colorbar_label : str, optional</span>
+<span class="sd">        Label on the colorbar</span>
+
+<span class="sd">    central_longitude : float, optional</span>
+<span class="sd">        The longitude of the center of the plot</span>
+
+<span class="sd">    figsize : tuple, optional</span>
+<span class="sd">        The size of the figure in inches</span>
+
+<span class="sd">    dpi : int, optional</span>
+<span class="sd">        Dots per inch for the output plot</span>
+
+<span class="sd">    patch_edge_color : str, optional</span>
+<span class="sd">        The color of patch edges (if not the same as the face)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">use_mplstyle</span><span class="p">()</span>
+
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">()</span>
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">)</span>
+
+    <span class="n">mesh_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span>
+        <span class="n">mesh_ds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">use_latlon</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">subplot_kw</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
+
+    <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">_setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
+
+    <span class="n">pcolor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;face&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.2</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">patch_edge_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">&#39;edgecolors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patch_edge_color</span>
+
+    <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span>
+        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span>
+    <span class="p">)</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_land</span><span class="p">:</span>
+        <span class="n">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+        <span class="n">pc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_global_lat_lon_field">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_global_lat_lon_field</span><span class="p">(</span>
+    <span class="n">lon</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">,</span>
+    <span class="n">data_array</span><span class="p">,</span>
+    <span class="n">out_filename</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">colormap_section</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots a data set as a longitude-latitude map</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon : numpy.ndarray</span>
+<span class="sd">        1D longitude coordinate</span>
+
+<span class="sd">    lat : numpy.ndarray</span>
+<span class="sd">        1D latitude coordinate</span>
+
+<span class="sd">    data_array : numpy.ndarray</span>
+<span class="sd">        2D data array to plot</span>
+
+<span class="sd">    out_filename : str</span>
+<span class="sd">        The image file name to be written</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options to use for colormap settings</span>
+
+<span class="sd">    colormap_section : str</span>
+<span class="sd">        The name of a section in the config options. Options must include:</span>
+
+<span class="sd">        colormap_name</span>
+<span class="sd">            The name of the colormap</span>
+
+<span class="sd">        norm_type</span>
+<span class="sd">            The norm: {&#39;symlog&#39;, &#39;log&#39;, &#39;linear&#39;}</span>
+
+<span class="sd">        norm_args</span>
+<span class="sd">            A dict of arguments to pass to the norm</span>
+
+<span class="sd">        It may also include:</span>
+
+<span class="sd">        colorbar_ticks</span>
+<span class="sd">            An array of values where ticks should be placed</span>
+
+<span class="sd">    title : str, optional</span>
+<span class="sd">        The subtitle of the plot</span>
+
+<span class="sd">    plot_land : bool</span>
+<span class="sd">        Whether to plot continents over the data</span>
+
+<span class="sd">    colorbar_label : str, optional</span>
+<span class="sd">        Label on the colorbar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">use_mplstyle</span><span class="p">()</span>
+
+    <span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nlon</span><span class="p">:</span>
+        <span class="n">lon_corner</span> <span class="o">=</span> <span class="n">interp_extrap_corner</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nlon</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">lon_corner</span> <span class="o">=</span> <span class="n">lon</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unexpected length of lon </span><span class="si">{</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">. Should &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;be either </span><span class="si">{</span><span class="n">nlon</span><span class="si">}</span><span class="s1"> or </span><span class="si">{</span><span class="n">nlon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nlat</span><span class="p">:</span>
+        <span class="n">lat_corner</span> <span class="o">=</span> <span class="n">interp_extrap_corner</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">lat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nlat</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">lat_corner</span> <span class="o">=</span> <span class="n">lat</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unexpected length of lat </span><span class="si">{</span><span class="n">lat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">. Should &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;be either </span><span class="si">{</span><span class="n">nlat</span><span class="si">}</span><span class="s1"> or </span><span class="si">{</span><span class="n">nlat</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+    <span class="n">dpi</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
+
+    <span class="n">subplots</span> <span class="o">=</span> <span class="p">[</span><span class="mi">111</span><span class="p">]</span>
+    <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+    <span class="n">central_longitude</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lon_corner</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">lon_corner</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">)</span>
+
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">lon_corner</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon_corner</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">lat_corner</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lat_corner</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">_setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">subplots</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">)</span>
+
+    <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span>
+        <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">plotHandle</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+        <span class="n">lon_corner</span><span class="p">,</span>
+        <span class="n">lat_corner</span><span class="p">,</span>
+        <span class="n">data_array</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+        <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_land</span><span class="p">:</span>
+        <span class="n">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="n">cax</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="s1">&#39;3%&#39;</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="s1">&#39;60%&#39;</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center right&#39;</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">borderpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plotHandle</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">colorbar_label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+        <span class="n">out_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="s1">&#39;figure&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span>
+    <span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set up a colormap from the registry</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options for the test case, including a section for</span>
+<span class="sd">        the colormap</span>
+
+<span class="sd">    colormap_section : str</span>
+<span class="sd">        The name of a section in the config options. Options must include:</span>
+
+<span class="sd">        colormap_name</span>
+<span class="sd">            The name of the colormap</span>
+
+<span class="sd">        norm_type</span>
+<span class="sd">            The norm: {&#39;symlog&#39;, &#39;log&#39;, &#39;linear&#39;}</span>
+
+<span class="sd">        norm_args</span>
+<span class="sd">            A dict of arguments to pass to the norm</span>
+
+<span class="sd">        It may also include:</span>
+
+<span class="sd">        colorbar_ticks</span>
+<span class="sd">            An array of values where ticks should be placed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    colormap : str</span>
+<span class="sd">        the name of the new colormap</span>
+
+<span class="sd">    norm : matplotlib.colors.Normalize</span>
+<span class="sd">        a matplotlib norm object used to normalize the colormap</span>
+
+<span class="sd">    ticks : list of float</span>
+<span class="sd">        is an array of values where ticks should be placed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">))</span>
+
+    <span class="n">norm_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_type&#39;</span><span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_args&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;symlog&#39;</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">SymLogNorm</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unsupported norm type </span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s1"> in section </span><span class="si">{</span><span class="n">colormap_section</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span>
+            <span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colorbar_ticks&#39;</span><span class="p">,</span> <span class="n">use_numpyfunc</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoOptionError</span><span class="p">:</span>
+        <span class="n">ticks</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">):</span>
+        <span class="n">under_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">)</span>
+        <span class="n">colormap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">under_color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">):</span>
+        <span class="n">over_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">)</span>
+        <span class="n">colormap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">over_color</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ice_shelves</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">land_color</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">]</span>
+    <span class="n">water_color</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span>
+
+    <span class="n">land_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
+        <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;land&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">lakes_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
+        <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lakes&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="n">water_color</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">land_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ice_shelves</span><span class="p">:</span>
+        <span class="n">ice_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
+            <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;antarctic_ice_shelves_polys&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">ice_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">lakes_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.7.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
