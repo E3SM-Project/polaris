@@ -67,11 +67,15 @@ class Init(OceanIOStep):
         if not (vert_coord == 'z-level' or vert_coord == 'sigma'):
             raise ValueError('Vertical coordinate {vert_coord} not supported')
 
+        # get reference resolution and number of layers
+        ref_nz = config.getint('vertical_grid', 'vert_levels')
+        ref_dc = config.getfloat('convergence', 'base_resolution') * 1e3
+
         dc = self.resolution * 1e3
         lx = section.getfloat('lx')
         ly = section.getfloat('ly')
         nx, ny = compute_planar_hex_nx_ny(lx, ly, self.resolution)
-        nz = int(50 / (dc / 5))
+        nz = int(ref_nz / (dc / ref_dc))
 
         ds_mesh = make_planar_hex_mesh(
             nx=nx,
@@ -129,8 +133,8 @@ class Init(OceanIOStep):
         # Initialize normalVelocity
         z_mid_edge = z_mid.isel(nCells=ds.cellsOnEdge - 1).mean('TWO')
 
-        x_one_quarters = 0.75 * x_min + 0.25 * x_max
-        x_three_quarters = 0.25 * x_min + 0.75 * x_max
+        x_one_quarters = x_min + 0.25 * (x_max - x_min)
+        x_three_quarters = x_min + 0.75 * (x_max - x_min)
         x_cell_on_edge = ds.xCell.isel(nCells=ds.cellsOnEdge - 1)
 
         condition_1 = (x_cell_on_edge > x_three_quarters).all('TWO')
