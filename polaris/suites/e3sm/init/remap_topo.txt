@@ -1,0 +1,10 @@
+e3sm/init/Icos480km/topo/remap/task
+e3sm/init/Icos240km/topo/remap/task
+e3sm/init/Icos120km/topo/remap/task
+e3sm/init/Icos60km/topo/remap/task
+e3sm/init/Icos30km/topo/remap/task
+e3sm/init/QU480km/topo/remap/task
+e3sm/init/QU240km/topo/remap/task
+e3sm/init/QU120km/topo/remap/task
+e3sm/init/QU60km/topo/remap/task
+e3sm/init/QU30km/topo/remap/task
