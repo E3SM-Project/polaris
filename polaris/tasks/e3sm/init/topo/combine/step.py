@@ -132,16 +132,16 @@ class CombineStep(Step):
         antarctic_filename = self.DATASETS[antarctic_dataset]['filename']
         global_filename = self.DATASETS[global_dataset]['filename']
 
-        # Add bathymetry data input files
+        # Add topography data input files
         self.add_input_file(
             filename=antarctic_filename,
             target=antarctic_filename,
-            database='bathymetry',
+            database='topo',
         )
         self.add_input_file(
             filename=global_filename,
             target=global_filename,
-            database='bathymetry',
+            database='topo',
         )
         self._set_res_and_outputs(update=False)
 
@@ -327,8 +327,8 @@ class CombineStep(Step):
         ).astype(float)
 
         # Add new variables and apply ocean mask
-        bedmachine['bathymetry'] = bedmachine.bed
-        bedmachine['thickness'] = bedmachine.thickness
+        bedmachine['base_elevation'] = bedmachine.bed
+        bedmachine['ice_thickness'] = bedmachine.thickness
         bedmachine['ice_draft'] = bedmachine.surface - bedmachine.thickness
         bedmachine.ice_draft.attrs['units'] = 'meters'
         bedmachine['ice_mask'] = ice_mask
@@ -338,9 +338,9 @@ class CombineStep(Step):
 
         # Remove all other variables
         varlist = [
-            'bathymetry',
+            'base_elevation',
             'ice_draft',
-            'thickness',
+            'ice_thickness',
             'ice_mask',
             'grounded_mask',
             'ocean_mask',
@@ -374,8 +374,8 @@ class CombineStep(Step):
         ).astype(float)
 
         # Add new variables and apply ocean mask
-        bedmap3['bathymetry'] = bedmap3.bed_topography
-        bedmap3['thickness'] = bedmap3.ice_thickness
+        bedmap3['base_elevation'] = bedmap3.bed_topography
+        bedmap3['ice_thickness'] = bedmap3.ice_thickness
         bedmap3['ice_draft'] = (
             bedmap3.surface_topography - bedmap3.ice_thickness
         )
@@ -387,9 +387,9 @@ class CombineStep(Step):
 
         # Remove all other variables
         varlist = [
-            'bathymetry',
+            'base_elevation',
             'ice_draft',
-            'thickness',
+            'ice_thickness',
             'ice_mask',
             'grounded_mask',
             'ocean_mask',
@@ -408,7 +408,7 @@ class CombineStep(Step):
         Parameters
         ----------
         global_filename : str
-            name of the source global bathymetry file
+            name of the source global topography file
         lon_tile : int
             tile number along lon dim
         lat_tile : int
@@ -706,16 +706,16 @@ class CombineStep(Step):
                     remapped_filename,
                 )
 
-                # Add tile to remapped global bathymetry
+                # Add tile to remapped global topography
                 logger.info(f'    adding {remapped_filename}')
-                bathy = xr.open_dataset(remapped_filename).elevation
-                bathy = bathy.where(bathy.notnull(), 0.0)
-                if 'bathymetry' in global_remapped:
-                    global_remapped['bathymetry'] = (
-                        global_remapped.bathymetry + bathy
+                elevation = xr.open_dataset(remapped_filename).elevation
+                elevation = elevation.where(elevation.notnull(), 0.0)
+                if 'elevation' in global_remapped:
+                    global_remapped['elevation'] = (
+                        global_remapped.elevation + elevation
                     )
                 else:
-                    global_remapped['bathymetry'] = bathy
+                    global_remapped['elevation'] = elevation
 
         # Write tile to netCDF
         logger.info(f'    writing {out_filename}')
@@ -783,9 +783,10 @@ class CombineStep(Step):
 
         # Load and mask global dataset
         ds_global = xr.open_dataset(global_filename)
-        global_bathy = ds_global.bathymetry
-        global_bathy = global_bathy.where(global_bathy.notnull(), 0.0)
-        global_bathy = global_bathy.where(global_bathy < 0.0, 0.0)
+        global_elevation = ds_global.elevation
+        global_elevation = global_elevation.where(
+            global_elevation.notnull(), 0.0
+        )
 
         # Load and mask Antarctic dataset
         ds_antarctic = xr.open_dataset(antarctic_filename)
@@ -795,12 +796,11 @@ class CombineStep(Step):
         renorm_mask = denom >= renorm_thresh
         denom = xr.where(renorm_mask, denom, 1.0)
         vars = [
-            'bathymetry',
-            'thickness',
+            'base_elevation',
+            'ice_thickness',
             'ice_draft',
             'ice_mask',
             'grounded_mask',
-            'ocean_mask',
         ]
 
         for var in vars:
@@ -808,44 +808,37 @@ class CombineStep(Step):
             ds_antarctic[var] = (ds_antarctic[var] / denom).where(renorm_mask)
             ds_antarctic[var].attrs = attrs
 
-        ant_bathy = ds_antarctic.bathymetry
+        ant_bathy = ds_antarctic.base_elevation
         ant_bathy = ant_bathy.where(ant_bathy.notnull(), 0.0)
-        ant_bathy = ant_bathy.where(ant_bathy < 0.0, 0.0)
 
         # Blend data sets into combined data set
         combined = xr.Dataset()
         alpha = (ds_global.lat - latmin) / (latmax - latmin)
         alpha = np.maximum(np.minimum(alpha, 1.0), 0.0)
-        combined['bathymetry'] = (
-            alpha * global_bathy + (1.0 - alpha) * ant_bathy
+        combined['base_elevation'] = (
+            alpha * global_elevation + (1.0 - alpha) * ant_bathy
         )
-        bathy_mask = xr.where(combined.bathymetry < 0.0, 1.0, 0.0)
 
         # Add remaining Antarctic variables to combined Dataset
-        for field in ['ice_draft', 'thickness']:
-            combined[field] = bathy_mask * ds_antarctic[field]
-        for field in ['bathymetry', 'ice_draft', 'thickness']:
+        for field in ['ice_draft', 'ice_thickness']:
+            combined[field] = ds_antarctic[field]
+        for field in ['base_elevation', 'ice_draft', 'ice_thickness']:
             combined[field].attrs['unit'] = 'meters'
 
         # Add masks
-        combined['bathymetry_mask'] = bathy_mask
-        for field in ['ice_mask', 'grounded_mask', 'ocean_mask']:
+        for field in ['ice_mask', 'grounded_mask']:
             combined[field] = ds_antarctic[field]
 
         # Add fill values
         fill_vals = {
             'ice_draft': 0.0,
-            'thickness': 0.0,
+            'ice_thickness': 0.0,
             'ice_mask': 0.0,
             'grounded_mask': 0.0,
-            'ocean_mask': bathy_mask,
         }
         for field, fill_val in fill_vals.items():
             valid = combined[field].notnull()
             combined[field] = combined[field].where(valid, fill_val)
-
-        combined['water_column'] = combined.ice_draft - combined.bathymetry
-        combined['water_column'].attrs['unit'] = 'meters'
 
         # Save combined bathy to NetCDF
         _write_netcdf_with_fill_values(combined, netcdf4_filename)
