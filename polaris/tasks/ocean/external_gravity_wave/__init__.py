@@ -23,7 +23,6 @@ from polaris.tasks.ocean.external_gravity_wave.init import Init as Init
 from polaris.tasks.ocean.external_gravity_wave.lts_regions import (
     LTSRegions as LTSRegions,
 )
-from polaris.tasks.ocean.external_gravity_wave.viz import Viz as Viz
 
 
 def add_external_gravity_wave_tasks(component):
@@ -54,17 +53,15 @@ def add_external_gravity_wave_tasks(component):
             )
             _set_convergence_configs(config, prefix)
 
-            for include_viz in [False, True]:
-                component.add_task(
-                    ExternalGravityWave(
-                        component=component,
-                        config=config,
-                        prefix=prefix,
-                        include_viz=include_viz,
-                        refinement='time',
-                        dt_type=dt_type,
-                    )
+            component.add_task(
+                ExternalGravityWave(
+                    component=component,
+                    config=config,
+                    prefix=prefix,
+                    refinement='time',
+                    dt_type=dt_type,
                 )
+            )
 
 
 class ExternalGravityWave(Task):
@@ -82,9 +79,6 @@ class ExternalGravityWave(Task):
         The prefix on the mesh name, step names and a subdirectory in the
         work directory indicating the mesh type ('icos': uniform or
         'qu': less regular JIGSAW meshes)
-
-    include_viz : bool
-        Include VizMap and Viz steps for each resolution
     """
 
     def __init__(
@@ -92,7 +86,6 @@ class ExternalGravityWave(Task):
         component,
         config,
         prefix,
-        include_viz,
         refinement='both',
         dt_type='global',
     ):
@@ -112,9 +105,6 @@ class ExternalGravityWave(Task):
             work directory indicating the mesh type ('icos': uniform or
             'qu': less regular JIGSAW meshes)
 
-        include_viz : bool
-            Include VizMap and Viz steps for each resolution
-
         refinement : str, optional
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
@@ -128,14 +118,10 @@ class ExternalGravityWave(Task):
             f'convergence_{refinement}'
         )
         name = f'{prefix}_{egw}_{dt_type}_time_step_convergence_{refinement}'
-        if include_viz:
-            subdir = f'{subdir}/with_viz'
-            name = f'{name}_with_viz'
         link = 'external_gravity_wave.cfg'
         super().__init__(component=component, name=name, subdir=subdir)
         self.refinement = refinement
         self.prefix = prefix
-        self.include_viz = include_viz
         self.dt_type = dt_type
 
         self.set_shared_config(config, link=link)
@@ -303,24 +289,6 @@ class ExternalGravityWave(Task):
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
-            if self.include_viz:
-                name = f'{prefix}_viz_{mesh_name}_{timestep}s'
-                subdir = f'{case_dir}/viz/{mesh_name}_{timestep}s'
-                if subdir in component.steps:
-                    viz_step = component.steps[subdir]
-                else:
-                    viz_step = Viz(
-                        component=component,
-                        name=name,
-                        subdir=subdir,
-                        base_mesh=base_mesh_step,
-                        init=init_step,
-                        forward=forward_step,
-                        mesh_name=mesh_name,
-                    )
-                    viz_step.set_shared_config(config, link=config_filename)
-                self.add_step(viz_step)
-
         subdir = f'{case_dir}/convergence_{refinement}/analysis'
         if subdir in component.steps:
             step = component.steps[subdir]
@@ -335,11 +303,7 @@ class ExternalGravityWave(Task):
                 ref_solution_factor=ref_solution_factor,
             )
             step.set_shared_config(config, link=config_filename)
-        if self.include_viz:
-            symlink = f'analysis_{refinement}'
-            self.add_step(step, symlink=symlink)
-        else:
-            self.add_step(step)
+        self.add_step(step)
 
 
 def _set_convergence_configs(config, prefix):
