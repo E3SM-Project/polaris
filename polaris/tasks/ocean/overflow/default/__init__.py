@@ -37,4 +37,6 @@ class Default(Task):
             indir=self.subdir,
         )
         self.add_step(forward_step)
-        self.add_step(Viz(component=component, indir=indir))
+        self.add_step(
+            Viz(component=component, indir=indir), run_by_default=False
+        )
