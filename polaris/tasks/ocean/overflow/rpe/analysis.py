@@ -6,7 +6,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris import Step
 from polaris.ocean.rpe import compute_rpe
-from polaris.viz import plot_horiz_field, use_mplstyle
+from polaris.viz import use_mplstyle
 
 
 class Analysis(Step):
@@ -96,33 +96,7 @@ class Analysis(Step):
         ds_mesh = xr.open_dataset(mesh_filename)
         ds_init = xr.open_dataset(init_filename)
 
-        fig, axes = plt.subplots(
-            1, sim_count, figsize=(3 * sim_count, 5.0), constrained_layout=True
-        )
         time = section.getfloat('plot_time')
-
-        for row_index, nu in enumerate(nus):
-            ax = axes[row_index]
-            ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
-            ds = ds.isel(nVertLevels=0)
-            times = ds.daysSinceStartOfSim.values
-            time_index = np.argmin(np.abs(times - time))
-
-            cell_mask = ds_init.maxLevelCell >= 1
-            plot_horiz_field(
-                ds_mesh,
-                ds['temperature'],
-                ax=ax,
-                cmap='cmo.thermal',
-                t_index=time_index,
-                vmin=min_temp,
-                vmax=max_temp,
-                cmap_title='SST (C)',
-                field_mask=cell_mask,
-            )
-            ax.set_title(f'day {times[time_index]:g}, $\\nu_h=${nu:g}')
-
-        plt.savefig(output_filename)
 
         fig, axes = plt.subplots(
             1,

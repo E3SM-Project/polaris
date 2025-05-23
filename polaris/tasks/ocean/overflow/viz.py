@@ -4,7 +4,6 @@ import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris import Step
-from polaris.viz import plot_horiz_field
 
 
 class Viz(Step):
@@ -41,7 +40,6 @@ class Viz(Step):
         ds_mesh = xr.load_dataset('mesh.nc')
         ds_init = xr.load_dataset('init.nc')
         ds = xr.load_dataset('output.nc')
-        cell_mask = ds_init.maxLevelCell >= 1
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
@@ -80,19 +78,6 @@ class Viz(Step):
             color_start_and_end=True,
         )
 
-        plot_horiz_field(
-            ds_mesh,
-            ds_init['temperature'],
-            'init_temperature.png',
-            t_index=t_index,
-            vmin=vmin,
-            vmax=vmax,
-            cmap='cmo.thermal',
-            field_mask=cell_mask,
-            transect_x=x,
-            transect_y=y,
-        )
-
         t_index = ds.sizes['Time'] - 1
         ds_transect = compute_transect(
             x=x,
@@ -117,17 +102,4 @@ class Viz(Step):
             cmap='cmo.thermal',
             colorbar_label=r'$^\circ$C',
             color_start_and_end=True,
-        )
-
-        plot_horiz_field(
-            ds_mesh,
-            ds['temperature'],
-            'final_temperature.png',
-            t_index=t_index,
-            vmin=vmin,
-            vmax=vmax,
-            cmap='cmo.thermal',
-            field_mask=cell_mask,
-            transect_x=x,
-            transect_y=y,
         )
