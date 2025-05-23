@@ -1,5 +1,4 @@
 import math
-import os
 
 import netCDF4 as nc
 import numpy as np
@@ -10,8 +9,6 @@ from shapely import distance
 from shapely.geometry import Point
 
 from polaris.step import Step
-
-# from shapely.geometry.polygon import Polygon
 
 
 class LTSRegions(Step):
@@ -35,7 +32,6 @@ class LTSRegions(Step):
             The test case this step belongs to
 
         init_step :
-            compass.ocean.tests.dam_break.initial_state.InitialState
             The initial state step containing input files to this step
 
         name : str, optional
@@ -58,13 +54,16 @@ class LTSRegions(Step):
         """
         super().setup()
 
-        init_path = self.init_step.path
-        tgt1 = os.path.join(init_path, 'initial_state.nc')
-        self.add_input_file(filename='init.nc', work_dir_target=tgt1)
+        init_step = self.init_step
 
-        tgt2 = os.path.join(init_path, 'graph.info')
         self.add_input_file(
-            filename='pre_lts_graph.info', work_dir_target=tgt2
+            filename='init.nc',
+            work_dir_target=f'{init_step.path}/initial_state.nc',
+        )
+
+        self.add_input_file(
+            filename='pre_lts_graph.info',
+            work_dir_target=f'{init_step.path}/graph.info',
         )
 
     def run(self):
@@ -222,10 +221,10 @@ def label_mesh(
         f.write(txt)
 
 
-def label_fine_region(
+def label_fine_region(  # noqa: C901
     n_cells,
     lat_cell,
-    lon_cell,  # noqa: C901
+    lon_cell,
     lat_center,
     lon_center,
     fine_region_radius,

@@ -11,8 +11,8 @@ class Analysis(ConvergenceAnalysis):
         component,
         subdir,
         dependencies,
+        ref_solution_factor,
         refinement='both',
-        ref_solution_factor=None,
     ):
         """
         Create the step
@@ -27,6 +27,10 @@ class Analysis(ConvergenceAnalysis):
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step
+
+        ref_solution_factor : float
+            The refinement factor at which the reference solution
+            is calculated
 
         refinement : str, optional
             Whether to refine in space, time or both space and time

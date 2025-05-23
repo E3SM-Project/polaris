@@ -154,7 +154,10 @@ class ExternalGravityWave(Task):
         if refinement == 'time':
             option = 'refinement_factors_time'
         else:
-            option = 'refinement_factors_space'
+            raise ValueError(
+                f'refinement {refinement} not supported for the '
+                'external gravity wave case'
+            )
 
         _set_convergence_configs(config, prefix)
 

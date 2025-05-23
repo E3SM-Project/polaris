@@ -117,9 +117,6 @@ class ReferenceForward(OceanModelStep):
 
     dt : float
         The model time step in seconds
-
-    btr_dt : float
-        The model barotropic time step in seconds
     """
 
     def __init__(
