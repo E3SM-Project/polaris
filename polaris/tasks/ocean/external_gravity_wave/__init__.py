@@ -16,6 +16,9 @@ from polaris.tasks.ocean.external_gravity_wave.analysis import (
 from polaris.tasks.ocean.external_gravity_wave.forward import (
     Forward as Forward,
 )
+from polaris.tasks.ocean.external_gravity_wave.forward import (
+    ReferenceForward as ReferenceForward,
+)
 from polaris.tasks.ocean.external_gravity_wave.init import Init as Init
 from polaris.tasks.ocean.external_gravity_wave.lts_regions import (
     LTSRegions as LTSRegions,
@@ -51,18 +54,17 @@ def add_external_gravity_wave_tasks(component):
             )
             _set_convergence_configs(config, prefix)
 
-            for refinement in ['time']:
-                for include_viz in [False, True]:
-                    component.add_task(
-                        ExternalGravityWave(
-                            component=component,
-                            config=config,
-                            prefix=prefix,
-                            include_viz=include_viz,
-                            refinement=refinement,
-                            dt_type=dt_type,
-                        )
+            for include_viz in [False, True]:
+                component.add_task(
+                    ExternalGravityWave(
+                        component=component,
+                        config=config,
+                        prefix=prefix,
+                        include_viz=include_viz,
+                        refinement='time',
+                        dt_type=dt_type,
                     )
+                )
 
 
 class ExternalGravityWave(Task):
@@ -171,6 +173,10 @@ class ExternalGravityWave(Task):
         _set_convergence_configs(config, prefix)
 
         refinement_factors = config.getlist('convergence', option, dtype=float)
+        ref_solution_factor = self.config.getfloat(
+            'convergence',
+            'ref_soln_refinement_factor_time',
+        )
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -189,48 +195,87 @@ class ExternalGravityWave(Task):
             f'spherical/{prefix}/external_gravity_wave_{dt_type}_time_step'
         )
 
-        for refinement_factor in refinement_factors:
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=refinement
-            )
+        resolution = get_resolution_for_task(
+            config, refinement_factors[0], refinement=refinement
+        )
 
-            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
-                resolution, icosahedral=(prefix == 'icos')
-            )
-            analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
+        base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
+            resolution, icosahedral=(prefix == 'icos')
+        )
 
-            name = f'{prefix}_init_{mesh_name}'
-            subdir = f'{case_dir}/init/{mesh_name}'
+        name = f'{prefix}_init_{mesh_name}'
+        subdir = f'{case_dir}/init/{mesh_name}'
+        if subdir in component.steps:
+            init_step = component.steps[subdir]
+        else:
+            init_step = Init(
+                component=component,
+                name=name,
+                subdir=subdir,
+                base_mesh=base_mesh_step,
+            )
+            init_step.set_shared_config(config, link=config_filename)
+
+        if dt_type == 'local':
+            name = f'{prefix}_init_lts_{mesh_name}'
+            subdir = f'{case_dir}/init_lts/{mesh_name}'
             if subdir in component.steps:
-                init_step = component.steps[subdir]
+                lts_step = component.steps[subdir]
             else:
-                init_step = Init(
-                    component=component,
-                    name=name,
-                    subdir=subdir,
-                    base_mesh=base_mesh_step,
+                lts_step = LTSRegions(
+                    component, init_step, name=name, subdir=subdir
                 )
-                init_step.set_shared_config(config, link=config_filename)
-            analysis_dependencies['init'][refinement_factor] = init_step
+                lts_step.set_shared_config(config, link=config_filename)
 
+        if resolution not in resolutions:
+            self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
+            self.add_step(init_step, symlink=f'init/{mesh_name}')
             if dt_type == 'local':
-                name = f'{prefix}_init_lts_{mesh_name}'
-                subdir = f'{case_dir}/init_lts/{mesh_name}'
-                if subdir in component.steps:
-                    lts_step = component.steps[subdir]
-                else:
-                    lts_step = LTSRegions(
-                        component, init_step, name=name, subdir=subdir
-                    )
-                    lts_step.set_shared_config(config, link=config_filename)
+                self.add_step(lts_step, symlink=f'init_lts/{mesh_name}')
+                init_step = lts_step
+            resolutions.append(resolution)
 
-            if resolution not in resolutions:
-                self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
-                self.add_step(init_step, symlink=f'init/{mesh_name}')
-                if dt_type == 'local':
-                    self.add_step(lts_step, symlink=f'init_lts/{mesh_name}')
-                    init_step = lts_step
-                resolutions.append(resolution)
+        section = config['convergence_forward']
+        time_integrator = section.get('time_integrator')
+        # dt is proportional to resolution: default 30 seconds per km
+        if (
+            time_integrator == 'RK4'
+            or time_integrator == 'LTS'
+            or time_integrator == 'FB_LTS'
+        ):
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        else:
+            dt_per_km = section.getfloat('split_dt_per_km')
+
+        dt = dt_per_km * ref_solution_factor * resolution
+        timestep = ceil(dt)
+        subdir = f'{case_dir}/forward/{mesh_name}_{timestep}s'
+        symlink = f'forward/{mesh_name}_{timestep}s'
+        if subdir in component.steps:
+            ref_forward_step = component.steps[subdir]
+        else:
+            name = f'{prefix}_forward_{mesh_name}_{timestep}s'
+            ref_forward_step = ReferenceForward(
+                component=component,
+                resolution=resolution,
+                name=name,
+                subdir=subdir,
+                mesh=base_mesh_step,
+                init=init_step,
+                dt_type=dt_type,
+                dt=dt,
+            )
+            ref_forward_step.set_shared_config(config, link=config_filename)
+        self.add_step(ref_forward_step, symlink=symlink)
+        analysis_dependencies['mesh'][ref_solution_factor] = base_mesh_step
+        analysis_dependencies['init'][ref_solution_factor] = init_step
+        analysis_dependencies['forward'][ref_solution_factor] = (
+            ref_forward_step
+        )
+
+        for refinement_factor in refinement_factors:
+            analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
+            analysis_dependencies['init'][refinement_factor] = init_step
 
             timestep, _ = get_timestep_for_task(
                 config, refinement_factor, refinement=refinement
@@ -287,6 +332,7 @@ class ExternalGravityWave(Task):
                 subdir=subdir,
                 dependencies=analysis_dependencies,
                 refinement=refinement,
+                ref_solution_factor=ref_solution_factor,
             )
             step.set_shared_config(config, link=config_filename)
         if self.include_viz:

@@ -6,7 +6,14 @@ class Analysis(ConvergenceAnalysis):
     A step for analyzing the output from the external gravity wave test case
     """
 
-    def __init__(self, component, subdir, dependencies, refinement='both'):
+    def __init__(
+        self,
+        component,
+        subdir,
+        dependencies,
+        refinement='both',
+        ref_solution_factor=None,
+    ):
         """
         Create the step
 
@@ -35,6 +42,24 @@ class Analysis(ConvergenceAnalysis):
             convergence_vars=convergence_vars,
             refinement=refinement,
         )
+
+        base_mesh = dependencies['mesh'][ref_solution_factor]
+        init = dependencies['init'][ref_solution_factor]
+        forward = dependencies['forward'][ref_solution_factor]
+        self.add_input_file(
+            filename=f'mesh_r{ref_solution_factor:02g}.nc',
+            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+        )
+        self.add_input_file(
+            filename=f'init_r{ref_solution_factor:02g}.nc',
+            work_dir_target=f'{init.path}/initial_state.nc',
+        )
+        self.add_input_file(
+            filename=f'output_r{ref_solution_factor:02g}.nc',
+            work_dir_target=f'{forward.path}/output.nc',
+        )
+
+        self.ref_solution_factor = ref_solution_factor
 
     def exact_solution(self, refinement_factor, field_name, time, zidx=None):
         """
@@ -70,14 +95,8 @@ class Analysis(ConvergenceAnalysis):
                 'solution for the external gravity wave test case'
             )
 
-        config = self.config
-        refinement_factors = config.getlist(
-            'convergence', 'refinement_factors_time', dtype=float
-        )
-        reference_solution_factor = refinement_factors[-1]
-
         field_mpas = super().get_output_field(
-            refinement_factor=reference_solution_factor,
+            refinement_factor=self.ref_solution_factor,
             field_name=field_name,
             time=time,
             zidx=zidx,
