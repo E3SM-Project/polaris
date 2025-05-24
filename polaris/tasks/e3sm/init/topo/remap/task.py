@@ -55,7 +55,7 @@ class RemapTopoTask(Task):
             Whether to include visualization steps
         """
         mesh_name = base_mesh_step.mesh_name
-        subdir = os.path.join(mesh_name, 'topo', 'remap', 'task')
+        subdir = os.path.join(mesh_name, 'topo', 'remap')
         super().__init__(
             component=component,
             name=f'{mesh_name}_topo_remap_task',
