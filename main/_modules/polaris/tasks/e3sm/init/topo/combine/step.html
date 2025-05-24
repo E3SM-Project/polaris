@@ -250,16 +250,16 @@
         <span class="n">antarctic_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATASETS</span><span class="p">[</span><span class="n">antarctic_dataset</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
         <span class="n">global_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATASETS</span><span class="p">[</span><span class="n">global_dataset</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
 
-        <span class="c1"># Add bathymetry data input files</span>
+        <span class="c1"># Add topography data input files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">antarctic_filename</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="n">antarctic_filename</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">global_filename</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="n">global_filename</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_res_and_outputs</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -452,8 +452,8 @@
         <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="c1"># Add new variables and apply ocean mask</span>
-        <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">bed</span>
-        <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">thickness</span>
+        <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">bed</span>
+        <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;ice_thickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">thickness</span>
         <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;ice_draft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">surface</span> <span class="o">-</span> <span class="n">bedmachine</span><span class="o">.</span><span class="n">thickness</span>
         <span class="n">bedmachine</span><span class="o">.</span><span class="n">ice_draft</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;meters&#39;</span>
         <span class="n">bedmachine</span><span class="p">[</span><span class="s1">&#39;ice_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ice_mask</span>
@@ -463,9 +463,9 @@
 
         <span class="c1"># Remove all other variables</span>
         <span class="n">varlist</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;base_elevation&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;thickness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ocean_mask&#39;</span><span class="p">,</span>
@@ -499,8 +499,8 @@
         <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="c1"># Add new variables and apply ocean mask</span>
-        <span class="n">bedmap3</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmap3</span><span class="o">.</span><span class="n">bed_topography</span>
-        <span class="n">bedmap3</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmap3</span><span class="o">.</span><span class="n">ice_thickness</span>
+        <span class="n">bedmap3</span><span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmap3</span><span class="o">.</span><span class="n">bed_topography</span>
+        <span class="n">bedmap3</span><span class="p">[</span><span class="s1">&#39;ice_thickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bedmap3</span><span class="o">.</span><span class="n">ice_thickness</span>
         <span class="n">bedmap3</span><span class="p">[</span><span class="s1">&#39;ice_draft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">bedmap3</span><span class="o">.</span><span class="n">surface_topography</span> <span class="o">-</span> <span class="n">bedmap3</span><span class="o">.</span><span class="n">ice_thickness</span>
         <span class="p">)</span>
@@ -512,9 +512,9 @@
 
         <span class="c1"># Remove all other variables</span>
         <span class="n">varlist</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;base_elevation&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;thickness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ocean_mask&#39;</span><span class="p">,</span>
@@ -533,7 +533,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        global_filename : str</span>
-<span class="sd">            name of the source global bathymetry file</span>
+<span class="sd">            name of the source global topography file</span>
 <span class="sd">        lon_tile : int</span>
 <span class="sd">            tile number along lon dim</span>
 <span class="sd">        lat_tile : int</span>
@@ -831,16 +831,16 @@
                     <span class="n">remapped_filename</span><span class="p">,</span>
                 <span class="p">)</span>
 
-                <span class="c1"># Add tile to remapped global bathymetry</span>
+                <span class="c1"># Add tile to remapped global topography</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    adding </span><span class="si">{</span><span class="n">remapped_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">bathy</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">remapped_filename</span><span class="p">)</span><span class="o">.</span><span class="n">elevation</span>
-                <span class="n">bathy</span> <span class="o">=</span> <span class="n">bathy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bathy</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s1">&#39;bathymetry&#39;</span> <span class="ow">in</span> <span class="n">global_remapped</span><span class="p">:</span>
-                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">global_remapped</span><span class="o">.</span><span class="n">bathymetry</span> <span class="o">+</span> <span class="n">bathy</span>
+                <span class="n">elevation</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">remapped_filename</span><span class="p">)</span><span class="o">.</span><span class="n">elevation</span>
+                <span class="n">elevation</span> <span class="o">=</span> <span class="n">elevation</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elevation</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;elevation&#39;</span> <span class="ow">in</span> <span class="n">global_remapped</span><span class="p">:</span>
+                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">global_remapped</span><span class="o">.</span><span class="n">elevation</span> <span class="o">+</span> <span class="n">elevation</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bathy</span>
+                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elevation</span>
 
         <span class="c1"># Write tile to netCDF</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    writing </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -908,9 +908,10 @@
 
         <span class="c1"># Load and mask global dataset</span>
         <span class="n">ds_global</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">global_filename</span><span class="p">)</span>
-        <span class="n">global_bathy</span> <span class="o">=</span> <span class="n">ds_global</span><span class="o">.</span><span class="n">bathymetry</span>
-        <span class="n">global_bathy</span> <span class="o">=</span> <span class="n">global_bathy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">global_bathy</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">global_bathy</span> <span class="o">=</span> <span class="n">global_bathy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">global_bathy</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">global_elevation</span> <span class="o">=</span> <span class="n">ds_global</span><span class="o">.</span><span class="n">elevation</span>
+        <span class="n">global_elevation</span> <span class="o">=</span> <span class="n">global_elevation</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">global_elevation</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span>
+        <span class="p">)</span>
 
         <span class="c1"># Load and mask Antarctic dataset</span>
         <span class="n">ds_antarctic</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">antarctic_filename</span><span class="p">)</span>
@@ -920,12 +921,11 @@
         <span class="n">renorm_mask</span> <span class="o">=</span> <span class="n">denom</span> <span class="o">&gt;=</span> <span class="n">renorm_thresh</span>
         <span class="n">denom</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">renorm_mask</span><span class="p">,</span> <span class="n">denom</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;thickness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;base_elevation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ocean_mask&#39;</span><span class="p">,</span>
         <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
@@ -933,44 +933,37 @@
             <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_antarctic</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">renorm_mask</span><span class="p">)</span>
             <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
 
-        <span class="n">ant_bathy</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="o">.</span><span class="n">bathymetry</span>
+        <span class="n">ant_bathy</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="o">.</span><span class="n">base_elevation</span>
         <span class="n">ant_bathy</span> <span class="o">=</span> <span class="n">ant_bathy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ant_bathy</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">ant_bathy</span> <span class="o">=</span> <span class="n">ant_bathy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ant_bathy</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="c1"># Blend data sets into combined data set</span>
         <span class="n">combined</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_global</span><span class="o">.</span><span class="n">lat</span> <span class="o">-</span> <span class="n">latmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">latmax</span> <span class="o">-</span> <span class="n">latmin</span><span class="p">)</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">alpha</span> <span class="o">*</span> <span class="n">global_bathy</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">ant_bathy</span>
+        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">alpha</span> <span class="o">*</span> <span class="n">global_elevation</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">ant_bathy</span>
         <span class="p">)</span>
-        <span class="n">bathy_mask</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">combined</span><span class="o">.</span><span class="n">bathymetry</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="c1"># Add remaining Antarctic variables to combined Dataset</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">]:</span>
-            <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">bathy_mask</span> <span class="o">*</span> <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">,</span> <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span> <span class="s1">&#39;ice_thickness&#39;</span><span class="p">]:</span>
+            <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">,</span> <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span> <span class="s1">&#39;ice_thickness&#39;</span><span class="p">]:</span>
             <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;meters&#39;</span>
 
         <span class="c1"># Add masks</span>
-        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;bathymetry_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bathy_mask</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span> <span class="s1">&#39;grounded_mask&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_mask&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span> <span class="s1">&#39;grounded_mask&#39;</span><span class="p">]:</span>
             <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
 
         <span class="c1"># Add fill values</span>
         <span class="n">fill_vals</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="s1">&#39;ocean_mask&#39;</span><span class="p">:</span> <span class="n">bathy_mask</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fill_val</span> <span class="ow">in</span> <span class="n">fill_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
             <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">fill_val</span><span class="p">)</span>
-
-        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;water_column&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">ice_draft</span> <span class="o">-</span> <span class="n">combined</span><span class="o">.</span><span class="n">bathymetry</span>
-        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;water_column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;meters&#39;</span>
 
         <span class="c1"># Save combined bathy to NetCDF</span>
         <span class="n">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">netcdf4_filename</span><span class="p">)</span>

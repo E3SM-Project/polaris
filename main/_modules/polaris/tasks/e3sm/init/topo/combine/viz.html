@@ -189,20 +189,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">colormaps</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;bathymetry&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.ice_r&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;base_elevation&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep_r&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.ice_r&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep_r&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;bathymetry_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ocean_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;water_column&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">ds_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">)</span>
 
         <span class="c1"># Use one field to define the valid mask (they all share indexing)</span>
-        <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds_data</span><span class="p">[</span><span class="s1">&#39;bathymetry&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds_data</span><span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
         <span class="c1"># Build mesh only once</span>
         <span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_trimesh_geometry</span><span class="p">(</span>

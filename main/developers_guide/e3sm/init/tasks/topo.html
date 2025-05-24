@@ -130,20 +130,10 @@ datasets, supporting various grid types like lat-lon and cubed-sphere grids.</p>
 <h2>Combine Steps and Tasks<a class="headerlink" href="#combine-steps-and-tasks" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="../../../../_images/bathymetry_500.png"><img alt="../../../../_images/bathymetry_500.png" class="align-center" src="../../../../_images/bathymetry_500.png" style="width: 500px;" />
 </a>
-<p>Global bathymetry datasets do not typically include the latest datasets around
-Antarctica needed for ice-sheet and ice-shelf modeling. For this reason, we
-typically combine a global topography dataset north of the Southern Ocean with
-one for Antarctica.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>At the moment, the step for combining these datasets provides fields that are
-masked to locations where the bed topography (bathymetry) is below sea level.
-This avoids the risk of interpolated topography resulting in a bed that is
-above sea level in ocean regions when we perform further interpolation of
-the data to an MPAS mesh. However, a more general topography dataset will
-likely be needed in the future that accommodates both the ocean and land/river
-components.</p>
-</div>
+<p>Global datasets of base elevation (land surface elevation and ocean bathymetry)
+do not typically include the latest datasets around Antarctica needed for
+ice-sheet and ice-shelf modeling. For this reason, we typically combine a
+global topography dataset north of the Southern Ocean with one for Antarctica.</p>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineStep</span></code></a> step is a key
 component of the topography framework. It is responsible for combining global
 and Antarctic topography datasets into a single dataset suitable for use in
@@ -186,7 +176,7 @@ latitude range.</p></li>
 <li><p><strong>Output</strong>: Produces combined topography datasets with consistent variables
 and attributes.</p></li>
 <li><p><strong>Visualization</strong>: Generates rasterized images of various fields (e.g.,
-bathymetry, ice draft) using the <code class="docutils literal notranslate"><span class="pre">datashader</span></code> library.</p></li>
+base elevation, ice draft) using the <code class="docutils literal notranslate"><span class="pre">datashader</span></code> library.</p></li>
 </ul>
 </section>
 <section id="configuration-options">
@@ -200,6 +190,8 @@ the configuration file. Key options include:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">latmin</span></code> and <code class="docutils literal notranslate"><span class="pre">latmax</span></code>: Latitude range for blending datasets.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>: Number of MPI tasks for remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: Remapping method (e.g., <code class="docutils literal notranslate"><span class="pre">bilinear</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lat_tiles</span></code> and <code class="docutils literal notranslate"><span class="pre">lon_tiles</span></code>: Number of tiles to split the global dataset for parallel remapping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">renorm_thresh</span></code>: Threshold for renormalizing Antarctic variables during blending.</p></li>
 </ul>
 <p>For the low-resolution version, additional configuration options are provided
 in the <code class="docutils literal notranslate"><span class="pre">combine_low_res.cfg</span></code> file.</p>
