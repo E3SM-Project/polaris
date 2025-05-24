@@ -13,20 +13,10 @@ datasets, supporting various grid types like lat-lon and cubed-sphere grids.
 :width: 500 px
 ```
 
-Global bathymetry datasets do not typically include the latest datasets around
-Antarctica needed for ice-sheet and ice-shelf modeling. For this reason, we
-typically combine a global topography dataset north of the Southern Ocean with
-one for Antarctica.
-
-```{note}
-At the moment, the step for combining these datasets provides fields that are
-masked to locations where the bed topography (bathymetry) is below sea level.
-This avoids the risk of interpolated topography resulting in a bed that is
-above sea level in ocean regions when we perform further interpolation of
-the data to an MPAS mesh. However, a more general topography dataset will
-likely be needed in the future that accommodates both the ocean and land/river
-components.
-```
+Global datasets of base elevation (land surface elevation and ocean bathymetry)
+do not typically include the latest datasets around Antarctica needed for
+ice-sheet and ice-shelf modeling. For this reason, we typically combine a
+global topography dataset north of the Southern Ocean with one for Antarctica.
 
 The {py:class}`polaris.tasks.e3sm.init.topo.combine.CombineStep` step is a key
 component of the topography framework. It is responsible for combining global
@@ -73,7 +63,7 @@ to `True` when creating the `CombineStep` or `CombineTask`.
 - **Output**: Produces combined topography datasets with consistent variables
   and attributes.
 - **Visualization**: Generates rasterized images of various fields (e.g.,
-  bathymetry, ice draft) using the `datashader` library.
+  base elevation, ice draft) using the `datashader` library.
 
 ### Configuration Options
 
@@ -86,6 +76,8 @@ the configuration file. Key options include:
 - `latmin` and `latmax`: Latitude range for blending datasets.
 - `ntasks` and `min_tasks`: Number of MPI tasks for remapping.
 - `method`: Remapping method (e.g., `bilinear`).
+- `lat_tiles` and `lon_tiles`: Number of tiles to split the global dataset for parallel remapping.
+- `renorm_thresh`: Threshold for renormalizing Antarctic variables during blending.
 
 For the low-resolution version, additional configuration options are provided
 in the `combine_low_res.cfg` file.

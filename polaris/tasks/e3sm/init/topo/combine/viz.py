@@ -71,20 +71,17 @@ class VizCombinedStep(Step):
         """
 
         colormaps = {
-            'bathymetry': 'cmo.deep_r',
-            'thickness': 'cmo.ice_r',
+            'base_elevation': 'cmo.deep_r',
+            'ice_thickness': 'cmo.ice_r',
             'ice_draft': 'cmo.deep_r',
             'ice_mask': 'cmo.amp_r',
-            'bathymetry_mask': 'cmo.amp_r',
             'grounded_mask': 'cmo.amp_r',
-            'ocean_mask': 'cmo.amp_r',
-            'water_column': 'cmo.deep',
         }
 
         ds_data = xr.open_dataset('topography.nc')
 
         # Use one field to define the valid mask (they all share indexing)
-        valid_mask = np.isfinite(ds_data['bathymetry'].values)
+        valid_mask = np.isfinite(ds_data['base_elevation'].values)
 
         # Build mesh only once
         vertices, tris = self._load_trimesh_geometry(
