@@ -25,6 +25,7 @@ def plot_global_mpas_field(
     figsize=(8, 4.5),
     dpi=200,
     patch_edge_color=None,
+    descriptor=None,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -72,6 +73,15 @@ def plot_global_mpas_field(
 
     patch_edge_color : str, optional
         The color of patch edges (if not the same as the face)
+
+    descriptor : mosaic.Descriptor, optional
+        Descriptor from a previous call to ``plot_global_mpas_field()``
+
+    Returns
+    -------
+    descriptor : mosaic.Descriptor
+        For reuse with future plots. Patches are cached, so the Descriptor only
+        needs to be created once per mesh file.
     """
 
     use_mplstyle()
@@ -80,9 +90,13 @@ def plot_global_mpas_field(
     projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
 
     mesh_ds = xr.open_dataset(mesh_filename)
-    descriptor = mosaic.Descriptor(
-        mesh_ds, projection=projection, transform=transform, use_latlon=True
-    )
+    if descriptor is None:
+        descriptor = mosaic.Descriptor(
+            mesh_ds,
+            projection=projection,
+            transform=transform,
+            use_latlon=True,
+        )
 
     fig, ax = plt.subplots(
         figsize=figsize,
