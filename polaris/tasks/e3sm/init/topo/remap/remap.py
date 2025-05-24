@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from pyremap import MpasCellMeshDescriptor
@@ -14,8 +13,8 @@ from polaris.parallel import run_command
 
 class RemapTopoStep(Step):
     """
-    A step for remapping bathymetry and ice-shelf topography from a
-    cubed-sphere grid to a global MPAS base mesh.
+    A step for remapping topography data such as base elevation and ice sheet
+    properites from a cubed-sphere grid to a global MPAS base mesh.
 
     Note: This step cannot descend from
     {py:class}`polaris.remap.MappingFileStep` because the soruce mesh is a
@@ -30,11 +29,21 @@ class RemapTopoStep(Step):
         The step for combining global and Antarctic topography on a cubed
         sphere grid
 
+    mask_topo_step : polaris.tasks.e3sm.init.topo.MaskTopoStep
+        The step that applies a mask to a global topography dataset on a cubed
+        sphere grid
+
     smoothing : bool, optional
         Whether smoothing will be applied as part of the remapping
 
     unsmoothed_topo : polaris.tasks.e3sm.init.topo.RemapTopoStep, optional
         A step with unsmoothed topography
+
+    expand_distance : float or xarray.DataArray
+        The distance to expand the topography mask
+
+    expand_factor : float or xarray.DataArray
+        The factor to expand the topography mask
     """
 
     def __init__(
@@ -43,6 +52,7 @@ class RemapTopoStep(Step):
         config,
         base_mesh_step,
         combine_topo_step,
+        mask_topo_step,
         name,
         subdir,
         smoothing=False,
@@ -66,6 +76,10 @@ class RemapTopoStep(Step):
             The step for combining global and Antarctic topography on a cubed
             sphere grid
 
+        mask_topo_step : polaris.tasks.e3sm.init.topo.MaskTopoStep
+            The step that applies a mask to a global topography dataset on a
+            cubed sphere grid
+
         name : str
             the name of the step
 
@@ -83,12 +97,15 @@ class RemapTopoStep(Step):
         )
         self.base_mesh_step = base_mesh_step
         self.combine_topo_step = combine_topo_step
+        self.mask_topo_step = mask_topo_step
         self.smoothing = smoothing
         self.unsmoothed_topo = unsmoothed_topo
 
         self.set_shared_config(config, link='remap_topo.cfg')
 
         self.add_output_file(filename='topography_remapped.nc')
+        self.expand_distance = 0.0
+        self.expand_factor = 1.0
 
     def setup(self):
         """
@@ -109,13 +126,13 @@ class RemapTopoStep(Step):
 
         combine_topo_step = self.combine_topo_step
         src_scrip_filename = combine_topo_step.dst_scrip_filename
-        topo_filename = combine_topo_step.combined_filename
+
+        masked_topo_step = self.mask_topo_step
+        topo_filename = 'topography_masked.nc'
 
         self.add_input_file(
             filename='topography.nc',
-            work_dir_target=os.path.join(
-                combine_topo_step.path, topo_filename
-            ),
+            work_dir_target=os.path.join(masked_topo_step.path, topo_filename),
         )
         self.add_input_file(
             filename='source.scrip.nc',
@@ -143,46 +160,89 @@ class RemapTopoStep(Step):
         self.min_tasks = section.getint('min_tasks')
         super().constrain_resources(available_resources)
 
-    def run(self):
+    def define_smoothing(self, ds_unsmoothed):
         """
-        Run this step of the test case
-        """
-        super().run()
-        if self._symlink_unsmoothed():
-            # we symlinked to the unsmoothed topography and we're done!
-            return
+        Define smoothing ``expand_distance`` and ``expand_factor`` fields.
+        Derived classes should override this method to create spatially
+        varying smoothing fields.  An ``expand_distance`` of 0.0 and an
+        ``expand_factor`` of 1.0 will not smooth the topography
 
-        self._create_target_scrip_file()
-        self._create_weights()
-        self._remap_to_target()
-        self._modify_remapped_bathymetry()
+        The default implementation returns constant values from the config
+        file.
 
-    def _symlink_unsmoothed(self):
-        """
-        If we are smoothing but no smoothing was actually requested, symlink
-        to the unsmoothed topography
-        """
-        if not self.smoothing or self.unsmoothed_topo is None:
-            # there's no unsmoothed topogrpahy yet
-            return False
+        Parameters
+        ----------
+        ds_unsmoothed : polaris.tasks.e3sm.init.topo.RemapTopoStep
+            The step with unsmoothed topography
 
+        Returns
+        -------
+        expand_distance : xarray.DataArray or float
+            The distance to expand the topography mask, same shape as
+            fields in ``ds_unsmoothed`` if not constant
+
+        expand_factor : xarray.DataArray or float
+            The factor to expand the topography mask, same shape as
+            fields in ``ds_unsmoothed`` if not constant
+        """
         config = self.config
         section = config['remap_topography']
         expand_distance = section.getfloat('expand_distance')
         expand_factor = section.getfloat('expand_factor')
 
-        if expand_distance != 0.0 or expand_factor != 1.0:
-            # we're doing some smoothing!
-            return False
+        return expand_distance, expand_factor
 
-        # we already have unsmoothed topography and we're not doing
-        # smoothing so we can just symlink the unsmoothed results
-        out_filename = 'topography_remapped.nc'
-        unsmoothed_path = self.unsmoothed_topo.work_dir
-        target = os.path.join(unsmoothed_path, out_filename)
-        symlink(target, out_filename)
+    def run(self):
+        """
+        Run this step of the test case
+        """
+        super().run()
+        remapping_done = self._setup_smoothing()
 
-        return True
+        if not remapping_done:
+            self._create_target_scrip_file()
+            self._create_weights()
+            self._remap_to_target()
+            self._renormalize_remapped_topo()
+
+    def _setup_smoothing(self):
+        """
+        If we are smoothing but no smoothing was actually requested, symlink
+        to the unsmoothed topography
+
+        Returns
+        -------
+        remapping_done : bool
+            Whether unsmooth remapping was already done and no smoothing is
+            needed, meaning no remapping is required
+        """
+        if self.smoothing and self.unsmoothed_topo is not None:
+            unsmoothed_filename = 'topography_unsmoothed.nc'
+            target_filename = 'topography_remapped.nc'
+            unsmoothed_path = self.unsmoothed_topo.work_dir
+            target = os.path.join(unsmoothed_path, target_filename)
+            symlink(target, unsmoothed_filename)
+
+            ds_unsmoothed = xr.open_dataset(unsmoothed_filename)
+            self.expand_distance, self.expand_factor = self.define_smoothing(
+                ds_unsmoothed
+            )
+
+            if self.expand_distance == 0.0 and self.expand_factor == 1.0:
+                # we already have unsmoothed topography and we're not doing
+                # smoothing so we can just symlink the unsmoothed results
+                symlink(unsmoothed_filename, target_filename)
+
+                remapping_done = True
+
+            else:
+                # this is the smoothed step and we want to do some smoothing
+                remapping_done = False
+        else:
+            # this is the unsmoothed steps so we need to remap
+            remapping_done = False
+
+        return remapping_done
 
     def _create_target_scrip_file(self):
         """
@@ -194,23 +254,14 @@ class RemapTopoStep(Step):
 
         mesh_name = self.base_mesh_step.mesh_name
 
-        if self.smoothing:
-            config = self.config
-            section = config['remap_topography']
-            expand_distance = section.getfloat('expand_distance')
-            expand_factor = section.getfloat('expand_factor')
-        else:
-            expand_distance = 0.0
-            expand_factor = 1.0
-
         descriptor = MpasCellMeshDescriptor(
             filename='base_mesh.nc',
             mesh_name=mesh_name,
         )
         descriptor.to_scrip(
             netcdf4_filename,
-            expand_dist=expand_distance,
-            expand_factor=expand_factor,
+            expand_dist=self.expand_distance,
+            expand_factor=self.expand_factor,
         )
 
         # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
@@ -264,7 +315,7 @@ class RemapTopoStep(Step):
 
     def _remap_to_target(self):
         """
-        Remap combined bathymetry onto MPAS target mesh
+        Remap topography onto MPAS target mesh
         """
         logger = self.logger
         logger.info('Remap to target')
@@ -284,69 +335,67 @@ class RemapTopoStep(Step):
 
         logger.info('  Done.')
 
-    def _modify_remapped_bathymetry(self):
+    def _renormalize_remapped_topo(self):
         """
-        Modify remapped bathymetry
+        Renormalize the topography by the ocean and land fractions
         """
         logger = self.logger
-        logger.info('Modify remapped bathymetry')
+        logger.info('Renormalize remapped topography')
 
         config = self.config
         section = config['remap_topography']
         renorm_threshold = section.getfloat('renorm_threshold')
-        ice_density = section.getfloat('ice_density')
-        ocean_density = constants['SHR_CONST_RHOSW']
-        g = constants['SHR_CONST_G']
 
         ds_in = xr.open_dataset('topography_ncremap.nc')
         ds_in = ds_in.rename({'ncol': 'nCells'})
 
-        ds_out = xr.Dataset()
-        rename = {
-            'bathymetry': 'bed_elevation',
-            'thickness': 'landIceThkObserved',
-            'ice_mask': 'landIceFracObserved',
-            'grounded_mask': 'landIceGroundedFracObserved',
-            'ocean_mask': 'oceanFracObserved',
-            'bathymetry_mask': 'bathyFracObserved',
-        }
-        for in_var, out_var in rename.items():
-            ds_out[out_var] = ds_in[in_var]
-
-        ds_out['landIceFloatingFracObserved'] = (
-            ds_out.landIceFracObserved - ds_out.landIceGroundedFracObserved
-        )
-
-        # Make sure fractions don't exceed 1
-        varNames = [
-            'landIceFracObserved',
-            'landIceGroundedFracObserved',
-            'landIceFloatingFracObserved',
-            'oceanFracObserved',
-            'bathyFracObserved',
+        drop_vars = [
+            'lat',
+            'lon',
+            'lat_vertices',
+            'lon_vertices',
+            'area',
+            'x',
+            'y',
         ]
-        for var in varNames:
-            ds_out[var] = np.minimum(ds_out[var], 1.0)
+        ds_in = ds_in.drop_vars(drop_vars)
 
-        # Renormalize elevation variables
-        norm = ds_out.bathyFracObserved
-        valid = norm > renorm_threshold
-        for var in ['bed_elevation', 'landIceThkObserved']:
-            ds_out[var] = xr.where(valid, ds_out[var] / norm, 0.0)
+        masks = {}
+        norms = {}
 
-        thickness = ds_out.landIceThkObserved
-        bed = ds_out.bed_elevation
-        flotation_thickness = -(ocean_density / ice_density) * bed
-        # not allowed to be thicker than the flotation thickness
-        thickness = np.minimum(thickness, flotation_thickness)
-        ds_out['landIceThkObserved'] = thickness
-        ds_out['landIcePressureObserved'] = ice_density * g * thickness
+        ds_out = xr.Dataset()
 
-        # compute the ice draft to be consistent with the land ice pressure
-        # and using E3SM's density of seawater
-        ds_out['landIceDraftObserved'] = (
-            -(ice_density / ocean_density) * thickness
-        )
+        for prefix in ['land', 'ocean']:
+            fraction = ds_in[f'{prefix}_mask']
+            # fraction should not exceed 1.0
+            fraction = np.minimum(fraction, 1.0)
+            ds_out[f'{prefix}_frac'] = fraction
+            mask = fraction > renorm_threshold
+            norm = xr.where(mask, 1.0 / fraction, 0.0)
+            masks[prefix] = mask
+            norms[prefix] = norm
+
+        for var in ds_in.data_vars:
+            if var.endswith('mask'):
+                # let's call it a fraction ("frac") after remapping
+                var_out = f'{var[:-4]}frac'
+                # don't renormalize the fractional variables
+                # but make sure they do not exceed 1.0
+                ds_out[var_out] = np.minimum(ds_in[var], 1.0)
+            elif 'masked' in var:
+                # a masked variable that isn't a fraction, so we need to
+                # renormalize it
+                prefix = var.split('_')[0]
+                var_out = var
+                ds_out[var_out] = norms[prefix] * ds_in[var].where(
+                    masks[prefix]
+                )
+            else:
+                # not a mask or masked variable, so we just copy it
+                var_out = var
+                ds_out[var_out] = ds_in[var]
+
+            ds_out[var_out].attrs = ds_in[var].attrs
 
         write_netcdf(ds_out, 'topography_remapped.nc')
 
