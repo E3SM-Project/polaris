@@ -14,8 +14,8 @@ class VizRemappedTopoStep(Step):
     mesh_name : str
         The name of the mesh
 
-    smoothing : bool
-        Whether the topography was smoothed
+    remap_step : polaris.tasks.e3sm.init.topo.remap.step.RemapTopoStep
+        The step for remapping the topography to the MPAS mesh
     """
 
     def __init__(self, component, name, subdir, remap_step):
@@ -48,48 +48,44 @@ class VizRemappedTopoStep(Step):
             work_dir_target=f'{remap_step.path}/topography_remapped.nc',
         )
         self.mesh_name = base_mesh_step.mesh_name
-        self.smoothing = remap_step.smoothing
+        self.remap_step = remap_step
         self.set_shared_config(config, link='remap_topo.cfg')
 
     def run(self):
         """
         Run this step of the test case
         """
+        remapping_done = self.remap_step.do_remapping
+
+        if not remapping_done:
+            # if the remapping step was not run, then we don't have
+            # a remapped topography file to plot
+            return
+
+        logger = self.logger
         config = self.config
         mesh_name = self.mesh_name
 
-        if self.smoothing:
-            section = config['remap_topography']
-            expand_distance = section.getfloat('expand_distance')
-            expand_factor = section.getfloat('expand_factor')
-
-            if expand_distance == 0.0 and expand_factor == 1.0:
-                # we're not smoothing so no need to do viz either
-                return
-
-        fields = [
-            'bed_elevation',
-            'landIceThkObserved',
-            'landIcePressureObserved',
-            'landIceDraftObserved',
-            'landIceFracObserved',
-            'bathyFracObserved',
-            'landIceGroundedFracObserved',
-            'oceanFracObserved',
-        ]
         ds = xr.open_dataset('topography.nc')
 
-        for field in fields:
-            if self.smoothing:
+        for field in ds.data_vars:
+            logger.info(f'Plotting {field}')
+            if self.remap_step.smoothing:
                 title = f'{mesh_name} {field} smoothed'
             else:
                 title = f'{mesh_name} {field}'
+
+            if field.endswith('frac'):
+                section = 'viz_remapped_topo_frac'
+            else:
+                section = f'viz_remapped_topo_{field}'
+
             plot_global_mpas_field(
                 mesh_filename='mesh.nc',
                 da=ds[field],
                 out_filename=f'{field}.png',
                 config=config,
-                colormap_section=f'viz_remapped_topo_{field}',
+                colormap_section=section,
                 title=title,
                 plot_land=False,
                 central_longitude=180.0,

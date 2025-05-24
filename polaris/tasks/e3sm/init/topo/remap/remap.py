@@ -44,6 +44,10 @@ class RemapTopoStep(Step):
 
     expand_factor : float or xarray.DataArray
         The factor to expand the topography mask
+
+    do_remapping : bool
+        Whether to remap the topography.  If False, the step will symlink
+        to the unsmoothed topography file.
     """
 
     def __init__(
@@ -106,6 +110,7 @@ class RemapTopoStep(Step):
         self.add_output_file(filename='topography_remapped.nc')
         self.expand_distance = 0.0
         self.expand_factor = 1.0
+        self.do_remapping = True
 
     def setup(self):
         """
@@ -197,9 +202,9 @@ class RemapTopoStep(Step):
         Run this step of the test case
         """
         super().run()
-        remapping_done = self._setup_smoothing()
+        self._setup_smoothing()
 
-        if not remapping_done:
+        if self.do_remapping:
             self._create_target_scrip_file()
             self._create_weights()
             self._remap_to_target()
@@ -209,12 +214,6 @@ class RemapTopoStep(Step):
         """
         If we are smoothing but no smoothing was actually requested, symlink
         to the unsmoothed topography
-
-        Returns
-        -------
-        remapping_done : bool
-            Whether unsmooth remapping was already done and no smoothing is
-            needed, meaning no remapping is required
         """
         if self.smoothing and self.unsmoothed_topo is not None:
             unsmoothed_filename = 'topography_unsmoothed.nc'
@@ -233,16 +232,7 @@ class RemapTopoStep(Step):
                 # smoothing so we can just symlink the unsmoothed results
                 symlink(unsmoothed_filename, target_filename)
 
-                remapping_done = True
-
-            else:
-                # this is the smoothed step and we want to do some smoothing
-                remapping_done = False
-        else:
-            # this is the unsmoothed steps so we need to remap
-            remapping_done = False
-
-        return remapping_done
+                self.do_remapping = False
 
     def _create_target_scrip_file(self):
         """
