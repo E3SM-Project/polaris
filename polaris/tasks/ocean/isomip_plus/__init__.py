@@ -110,7 +110,10 @@ def _get_shared_steps(
         )
     else:
         base_mesh = SphericalMesh(
-            component=component, cell_width=resolution, subdir=subdir
+            component=component,
+            cell_width=resolution,
+            subdir=subdir,
+            mesh_name=mesh_name,
         )
         base_mesh.set_shared_config(config, link='isomip_plus_topo.cfg')
 

@@ -145,3 +145,53 @@ For more details, refer to the source code of the
 Since this step is expensive and time-consuming to run, most tasks will
 want to use cached outputs from this step rather than running it in full.
 ```
+
+## Remapping Topography to MPAS Base Meshes
+
+The `e3sm/init` component includes a workflow for remapping combined topography
+datasets to MPAS base meshes at a range of resolutions. This process ensures
+that bathymetry, land-ice thickness, and related fields are accurately mapped
+from the cubed-sphere grid onto the unstructured MPAS mesh used in E3SM
+simulations.
+
+The remapping workflow can be run on its own using the
+{py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoTask` and associated
+steps. For each supported MPAS base mesh (e.g., Icos480km, QU60km), a remapping
+task is created that:
+
+- Computes a mapping file between the combined topography grid and the MPAS
+  mesh.
+- Remaps all relevant topography fields (e.g., bed elevation, land-ice
+  thickness, ocean fraction) to the MPAS mesh.
+- Optionally applies smoothing to the topography fields, controlled by
+  configuration options.
+- Optionally generates visualizations of the remapped fields for quality
+  control.
+
+This approach allows for consistent and reproducible topography across a suite of MPAS meshes, supporting both high- and low-resolution configurations.
+
+### Example: Ocean Fraction on Icos480km Mesh
+
+Below is an example of the ocean fraction field (`oceanFracObserved`) remapped
+to the Icos480km MPAS mesh:
+
+```{image} images/icos_480_ocean_frac.png
+:align: center
+:width: 500 px
+:alt: Ocean fraction remapped to Icos480km MPAS mesh
+```
+
+This field indicates the fraction of each MPAS cell that is covered by ocean
+after remapping, which is important for subsequent steps such as mesh culling
+and mask generation.
+
+### Configuration and Customization
+
+Remapping options, including smoothing parameters and the number of MPI tasks,
+are controlled via the `[remap_topography]` section in the configuration file.
+The workflow supports both unsmoothed and smoothed topography, and can generate
+visualizations for each remapped field.
+
+For more details, see the source code for
+{py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoTask` and related steps,
+as well as the configuration files `remap.cfg` and `remap_low_res.cfg`.

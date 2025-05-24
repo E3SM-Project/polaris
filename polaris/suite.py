@@ -62,7 +62,7 @@ def setup_suite(
     """
 
     text = (
-        imp_res.files(f'polaris.suites.{component}')
+        imp_res.files(f'polaris.suites.{component.replace("/", ".")}')
         .joinpath(f'{suite_name}.txt')
         .read_text()
     )

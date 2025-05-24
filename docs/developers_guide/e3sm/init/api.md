@@ -13,6 +13,8 @@
 
 ### topo
 
+#### combine
+
 ```{eval-rst}
 .. currentmodule:: polaris.tasks.e3sm.init.topo.combine
 
@@ -28,4 +30,21 @@
    VizCombinedStep
    VizCombinedStep.setup
    VizCombinedStep.run
+```
+
+#### remap
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. autosummary::
+   :toctree: generated/
+
+   RemapTopoStep
+   RemapTopoStep.setup
+   RemapTopoStep.constrain_resources
+   RemapTopoStep.run
+   RemapTopoTask
+   VizRemappedTopoStep
+   VizRemappedTopoStep.run
 ```
