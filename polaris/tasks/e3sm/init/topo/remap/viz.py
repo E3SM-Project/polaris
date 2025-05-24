@@ -68,6 +68,8 @@ class VizRemappedTopoStep(Step):
 
         ds = xr.open_dataset('topography.nc')
 
+        descriptor = None
+
         for field in ds.data_vars:
             logger.info(f'Plotting {field}')
             if self.remap_step.smoothing:
@@ -80,7 +82,7 @@ class VizRemappedTopoStep(Step):
             else:
                 section = f'viz_remapped_topo_{field}'
 
-            plot_global_mpas_field(
+            descriptor = plot_global_mpas_field(
                 mesh_filename='mesh.nc',
                 da=ds[field],
                 out_filename=f'{field}.png',
@@ -89,4 +91,5 @@ class VizRemappedTopoStep(Step):
                 title=title,
                 plot_land=False,
                 central_longitude=180.0,
+                descriptor=descriptor,
             )
