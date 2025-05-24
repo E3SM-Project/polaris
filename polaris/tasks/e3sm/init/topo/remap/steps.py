@@ -2,11 +2,12 @@ import os
 
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
-from polaris.tasks.e3sm.init.topo.remap.step import RemapTopoStep
+from polaris.tasks.e3sm.init.topo.remap.mask import MaskTopoStep
+from polaris.tasks.e3sm.init.topo.remap.remap import RemapTopoStep
 from polaris.tasks.e3sm.init.topo.remap.viz import VizRemappedTopoStep
 
 
-def get_remap_topo_steps(
+def get_default_remap_topo_steps(
     component,
     base_mesh_step,
     combine_topo_step,
@@ -71,6 +72,17 @@ def get_remap_topo_steps(
         )
     steps: list[Step] = []
 
+    step_name = 'mask_topo'
+    subdir = os.path.join(mesh_name, 'topo', 'remap', 'mask')
+    mask_step = MaskTopoStep(
+        component=component,
+        config=config,
+        combine_topo_step=combine_topo_step,
+        name=step_name,
+        subdir=subdir,
+    )
+    steps.append(mask_step)
+
     if smoothing:
         suffixes = ['unsmoothed', 'smoothed']
     else:
@@ -84,6 +96,7 @@ def get_remap_topo_steps(
             component=component,
             config=config,
             base_mesh_step=base_mesh_step,
+            mask_topo_step=mask_step,
             combine_topo_step=combine_topo_step,
             name=step_name,
             subdir=subdir,

@@ -1,7 +1,9 @@
 import os
 
 from polaris.task import Task
-from polaris.tasks.e3sm.init.topo.remap.steps import get_remap_topo_steps
+from polaris.tasks.e3sm.init.topo.remap.steps import (
+    get_default_remap_topo_steps,
+)
 
 
 class RemapTopoTask(Task):
@@ -61,7 +63,7 @@ class RemapTopoTask(Task):
         )
         self.add_step(base_mesh_step)
         self.add_step(combine_topo_step)
-        steps, config = get_remap_topo_steps(
+        steps, config = get_default_remap_topo_steps(
             component=component,
             base_mesh_step=base_mesh_step,
             combine_topo_step=combine_topo_step,
