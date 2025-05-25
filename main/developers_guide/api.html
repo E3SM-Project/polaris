@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="mesh" href="mesh/api.html" />
+    <link rel="next" title="e3sm/init" href="e3sm/init/api.html" />
     <link rel="prev" title="Deploying a new spack environment" href="deploying_spack.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -74,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="deploying_spack.html">Deploying a new spack environment</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#components">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="e3sm/init/api.html">e3sm/init</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mesh/api.html">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ocean/api.html">ocean</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seaice/api.html">seaice</a></li>
@@ -139,7 +140,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#uniform-spherical-base-mesh-step">Uniform Spherical Base Mesh Step</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html">polaris.mesh.add_step.add_uniform_spherical_base_mesh_step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.base.add_uniform_spherical_base_mesh_step.html">polaris.mesh.base.add_uniform_spherical_base_mesh_step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.base.get_base_mesh_steps.html">polaris.mesh.base.get_base_mesh_steps</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#model-step">model_step</a><ul>
@@ -259,6 +261,7 @@ documentation.</p>
 <h2>Components<a class="headerlink" href="#components" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="e3sm/init/api.html">e3sm/init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh/api.html">mesh</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/api.html">ocean</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/api.html">seaice</a></li>
@@ -617,8 +620,11 @@ documentation.</p>
 <h3>Uniform Spherical Base Mesh Step<a class="headerlink" href="#uniform-spherical-base-mesh-step" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html#polaris.mesh.add_step.add_uniform_spherical_base_mesh_step" title="polaris.mesh.add_step.add_uniform_spherical_base_mesh_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_uniform_spherical_base_mesh_step</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.base.add_uniform_spherical_base_mesh_step.html#polaris.mesh.base.add_uniform_spherical_base_mesh_step" title="polaris.mesh.base.add_uniform_spherical_base_mesh_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_uniform_spherical_base_mesh_step</span></code></a>(...)</p></td>
 <td><p>Add a shared step for creating spherical base mesh with the given resolution to the mesh component (if one has not already been added)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps" title="polaris.mesh.base.get_base_mesh_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_base_mesh_steps</span></code></a>()</p></td>
+<td><p>Get a list of supported base mesh steps from the mesh component</p></td>
 </tr>
 </tbody>
 </table>
@@ -816,7 +822,7 @@ documentation.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="deploying_spack.html" class="btn btn-neutral float-left" title="Deploying a new spack environment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="mesh/api.html" class="btn btn-neutral float-right" title="mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="e3sm/init/api.html" class="btn btn-neutral float-right" title="e3sm/init" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

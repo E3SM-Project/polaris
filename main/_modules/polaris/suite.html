@@ -172,7 +172,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.txt&#39;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
     <span class="p">)</span>

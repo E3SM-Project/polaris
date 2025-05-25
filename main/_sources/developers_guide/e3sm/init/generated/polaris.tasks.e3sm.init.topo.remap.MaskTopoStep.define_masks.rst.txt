@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define\_masks
+=============================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. automethod:: MaskTopoStep.define_masks

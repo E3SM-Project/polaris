@@ -108,7 +108,7 @@
   <h1>Source code for polaris.tasks.mesh.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.add_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_base_mesh_steps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 
 
@@ -121,14 +121,10 @@
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        the mesh component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">icosahedral</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">]:</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="n">BaseMeshTask</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
+    <span class="n">base_mesh_steps</span> <span class="o">=</span> <span class="n">get_base_mesh_steps</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">base_mesh_step</span> <span class="ow">in</span> <span class="n">base_mesh_steps</span><span class="p">:</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">BaseMeshTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
 
 
 
@@ -141,7 +137,7 @@
 
 <div class="viewcode-block" id="BaseMeshTask.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the base mesh task</span>
 
@@ -150,18 +146,10 @@
 <span class="sd">        component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
 
-<span class="sd">        resolution : float</span>
-<span class="sd">            The resolution in km of the mesh</span>
+<span class="sd">        base_mesh_step : polaris.mesh.spherical.BaseMeshStep</span>
+<span class="sd">            The base mesh step to use for this task</span>
 
-<span class="sd">        icosahedral : bool</span>
-<span class="sd">            Whether the mesh is a subdivided icosahedral mesh, as opposed to</span>
-<span class="sd">            a quasi-uniform mesh</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
-            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-            <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
-        <span class="p">)</span>
-
         <span class="c1"># We will take the unusual step of putting the task in a subdirectory</span>
         <span class="c1"># of the step because most folks will just run the step directly</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">&#39;task&#39;</span><span class="p">)</span>
@@ -169,7 +157,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">link</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">)</span></div>
 </div>

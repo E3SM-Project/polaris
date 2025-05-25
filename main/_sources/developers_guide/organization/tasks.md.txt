@@ -206,7 +206,7 @@ to demonstrate how to make full use of {ref}`dev-code-sharing` in a task:
 from typing import Dict
 
 from polaris import Step, Task
-from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
+from polaris.mesh.base import add_uniform_spherical_base_mesh_step
 from polaris.tasks.ocean.cosine_bell.analysis import Analysis
 from polaris.tasks.ocean.cosine_bell.forward import Forward
 from polaris.tasks.ocean.cosine_bell.init import Init
@@ -353,7 +353,7 @@ example above, whether the mesh is icosahedral or quasi-uniform is an argument
 `global_convergence/icos/cosine_bell` or `global_convergence/qu/cosine_bell`.
 
 The task imports a function --
-{py:func}`polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()` --
+{py:func}`polaris.mesh.base.add_uniform_spherical_base_mesh_step()` --
 and classes --
 {py:class}`polaris.mesh.spherical.IcosahedralMeshStep`,
 {py:class}`polaris.mesh.spherical.QuasiUniformSphericalMeshStep`,

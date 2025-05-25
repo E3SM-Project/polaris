@@ -289,7 +289,7 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.add_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.cosine_bell.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
@@ -435,7 +435,7 @@ example above, whether the mesh is icosahedral or quasi-uniform is an argument
 (<code class="docutils literal notranslate"><span class="pre">self.icosahedral</span></code>) and also used to define a unique subdirectory:
 <code class="docutils literal notranslate"><span class="pre">global_convergence/icos/cosine_bell</span></code> or <code class="docutils literal notranslate"><span class="pre">global_convergence/qu/cosine_bell</span></code>.</p>
 <p>The task imports a function –
-<a class="reference internal" href="../generated/polaris.mesh.add_step.add_uniform_spherical_base_mesh_step.html#polaris.mesh.add_step.add_uniform_spherical_base_mesh_step" title="polaris.mesh.add_step.add_uniform_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.add_step.add_uniform_spherical_base_mesh_step()</span></code></a> –
+<a class="reference internal" href="../generated/polaris.mesh.base.add_uniform_spherical_base_mesh_step.html#polaris.mesh.base.add_uniform_spherical_base_mesh_step" title="polaris.mesh.base.add_uniform_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.add_uniform_spherical_base_mesh_step()</span></code></a> –
 and classes –
 <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.spherical.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.IcosahedralMeshStep</span></code></a>,
 <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.spherical.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.QuasiUniformSphericalMeshStep</span></code></a>,

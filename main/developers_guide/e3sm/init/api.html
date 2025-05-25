@@ -19,6 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks" href="generated/polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html" />
+    <link rel="prev" title="API reference" href="../../api.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -54,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
@@ -70,7 +72,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deploying_spack.html">Deploying a new spack environment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../api.html#components">Components</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">e3sm/init</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html">polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../mesh/api.html">mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ocean/api.html">ocean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../seaice/api.html">seaice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api.html#polaris-framework">polaris framework</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -96,6 +112,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
       <li class="breadcrumb-item active">e3sm/init</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/developers_guide/e3sm/init/api.md.txt" rel="nofollow"> View page source</a>
@@ -119,6 +136,8 @@
 <h2>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h2>
 <section id="topo">
 <h3>topo<a class="headerlink" href="#topo" title="Link to this heading"></a></h3>
+<section id="combine">
+<h4>combine<a class="headerlink" href="#combine" title="Link to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component, config[, low_res])</p></td>
@@ -151,13 +170,63 @@
 </tbody>
 </table>
 </section>
+<section id="remap">
+<h4>remap<a class="headerlink" href="#remap" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep</span></code></a>(component, config, ...)</p></td>
+<td><p>A step to mask the global topograph dataset for ocean and land regions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory and set input files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define_masks.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define_masks" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep.define_masks</span></code></a>(ds)</p></td>
+<td><p>Override in subclasses to return an ocean and a land mask array with the same shape as <code class="docutils literal notranslate"><span class="pre">ds.base_elevation</span></code> and other topogrpahy fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep.run</span></code></a>()</p></td>
+<td><p>Run the step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep</span></code></a>(component, config, ...[, ...])</p></td>
+<td><p>A step for remapping topography data such as base elevation and ice sheet properites from a cubed-sphere grid to a global MPAS base mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.define_smoothing</span></code></a>(ds_unsmoothed)</p></td>
+<td><p>Define smoothing <code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code> fields.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoTask.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoTask" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoTask</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>A task for remapping a topography dataset to a global MPAS mesh first without smoothing and then optionally with smoothing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.html#polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep" title="polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRemappedTopoStep</span></code></a>(component, name, subdir, ...)</p></td>
+<td><p>A step for plotting fields from a remapped topography dataset</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRemappedTopoStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../api.html" class="btn btn-neutral float-left" title="API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
