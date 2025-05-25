@@ -1,5 +1,5 @@
 from polaris import Task
-from polaris.mesh.add_step import add_uniform_spherical_base_mesh_step
+from polaris.mesh.base import add_uniform_spherical_base_mesh_step
 from polaris.ocean.convergence import get_resolution_for_task
 from polaris.tasks.ocean.cosine_bell.forward import Forward
 from polaris.tasks.ocean.cosine_bell.init import Init

@@ -117,8 +117,6 @@ def setup_tasks(
 
     provenance.write(work_dir, tasks, config=basic_config)
 
-    _expand_and_mark_cached_steps(tasks, cached_steps)
-
     if clean:
         print('')
         print('Cleaning task and step work directories:')
@@ -135,6 +133,10 @@ def setup_tasks(
         copy_executable,
         model,
     )
+
+    # do this after _setup_configs() in case tasks mark additional steps
+    # as cached in their configure() methods
+    _expand_and_mark_cached_steps(tasks, cached_steps)
 
     print('Setting up tasks:')
     for path, task in tasks.items():
@@ -416,6 +418,10 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
         for step_name in cached_steps[path]:
             task.steps[step_name].cached = True
 
+        for step_name, step in task.steps.items():
+            if step.cached and step_name not in cached_steps[path]:
+                cached_steps[path].append(step_name)
+
 
 def _setup_configs(
     component,
@@ -608,6 +614,8 @@ def _get_required_cores(tasks):
     for task in tasks.values():
         for step_name in task.steps_to_run:
             step = task.steps[step_name]
+            if step.cached:
+                continue
             if step.ntasks is None:
                 raise ValueError(
                     f'The number of tasks (ntasks) was never set for '

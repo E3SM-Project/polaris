@@ -24,9 +24,12 @@ class SphericalBaseStep(Step):
     ----------
     opts : jigsawpy.jigsaw_jig_t
         JIGSAW options for creating the mesh
+
+    mesh_name : str
+        The name of the mesh
     """
 
-    def __init__(self, component, name, subdir):
+    def __init__(self, component, name, subdir, mesh_name='mesh'):
         """
         Create a new step
 
@@ -40,11 +43,15 @@ class SphericalBaseStep(Step):
 
         subdir : {str, None}
             the subdirectory for the step.  The default is ``name``
+
+        mesh_name : str, optional
+            The name of the mesh
         """
         super().__init__(component=component, name=name, subdir=subdir)
 
         # setup files for JIGSAW
         self.opts = jigsawpy.jigsaw_jig_t()
+        self.mesh_name = mesh_name
 
     def save_and_plot_cell_width(self, lon, lat, cell_width):
         """
@@ -209,7 +216,12 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
     """
 
     def __init__(
-        self, component, name='base_mesh', subdir=None, cell_width=None
+        self,
+        component,
+        name='base_mesh',
+        subdir=None,
+        cell_width=None,
+        mesh_name='mesh',
     ):
         """
         Create a new step
@@ -227,8 +239,13 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
 
         cell_width : float, optional
             The approximate cell width in km of the mesh if constant resolution
+
+        mesh_name : str, optional
+            The name of the mesh
         """
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(
+            component=component, name=name, subdir=subdir, mesh_name=mesh_name
+        )
         self.cell_width = cell_width
 
         # build mesh via JIGSAW!
@@ -356,6 +373,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         subdir=None,
         cell_width=None,
         subdivisions=None,
+        mesh_name='mesh',
     ):
         """
         Create a new step
@@ -376,8 +394,13 @@ class IcosahedralMeshStep(SphericalBaseStep):
 
         subdivisions : int, optional
             The number of subdivisions of the icosahedral mesh to perform
+
+        mesh_name : str, optional
+            The name of the mesh
         """
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(
+            component=component, name=name, subdir=subdir, mesh_name=mesh_name
+        )
 
         # run as a subprocess so output goes to a log file
         self.run_as_subprocess = True
