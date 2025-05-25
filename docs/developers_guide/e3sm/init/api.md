@@ -40,9 +40,16 @@
 .. autosummary::
    :toctree: generated/
 
+   MaskTopoStep
+   MaskTopoStep.setup
+   MaskTopoStep.constrain_resources
+   MaskTopoStep.define_masks
+   MaskTopoStep.run
+
    RemapTopoStep
    RemapTopoStep.setup
    RemapTopoStep.constrain_resources
+   RemapTopoStep.define_smoothing
    RemapTopoStep.run
    RemapTopoTask
    VizRemappedTopoStep
