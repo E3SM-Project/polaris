@@ -84,26 +84,24 @@ class InertialGravityWave(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = self.config.getlist(
-            'convergence', option, dtype=float
-        )
+        refinement_factors = config.getlist('convergence', option, dtype=float)
         timesteps = list()
         resolutions = list()
         for refinement_factor in refinement_factors:
             resolution = get_resolution_for_task(
-                self.config, refinement_factor, refinement=refinement
+                config, refinement_factor, refinement=refinement
             )
             mesh_name = resolution_to_string(resolution)
 
             subdir = f'{basedir}/init/{mesh_name}'
             symlink = f'init/{mesh_name}'
-            if subdir in component.steps:
-                init_step = component.steps[subdir]
-            else:
-                init_step = Init(
-                    component=component, resolution=resolution, subdir=subdir
-                )
-                init_step.set_shared_config(self.config, link=config_filename)
+            init_step = component.get_or_create_shared_step(
+                step_cls=Init,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                resolution=resolution,
+            )
             if resolution not in resolutions:
                 self.add_step(init_step, symlink=symlink)
                 resolutions.append(resolution)
@@ -116,41 +114,41 @@ class InertialGravityWave(Task):
 
             subdir = f'{basedir}/forward/{mesh_name}_{timestep}s'
             symlink = f'forward/{mesh_name}_{timestep}s'
-            if subdir in component.steps:
-                forward_step = component.steps[subdir]
-            else:
-                forward_step = Forward(
-                    component=component,
-                    refinement=refinement,
-                    refinement_factor=refinement_factor,
-                    name=f'forward_{mesh_name}_{timestep}s',
-                    subdir=subdir,
-                    init=init_step,
-                )
-                forward_step.set_shared_config(config, link=config_filename)
+            forward_step = component.get_or_create_shared_step(
+                step_cls=Forward,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                refinement=refinement,
+                refinement_factor=refinement_factor,
+                name=f'forward_{mesh_name}_{timestep}s',
+                init=init_step,
+            )
             self.add_step(forward_step, symlink=symlink)
 
             analysis_dependencies['mesh'][refinement_factor] = init_step
             analysis_dependencies['init'][refinement_factor] = init_step
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
-        self.add_step(
-            Analysis(
-                component=component,
-                subdir=f'{self.subdir}/analysis',
-                refinement=refinement,
-                dependencies=analysis_dependencies,
-            )
+        analysis_step = component.get_or_create_shared_step(
+            step_cls=Analysis,
+            subdir=f'{self.subdir}/analysis',
+            config=config,
+            config_filename=config_filename,
+            refinement=refinement,
+            dependencies=analysis_dependencies,
         )
-        self.add_step(
-            Viz(
-                component=component,
-                taskdir=self.subdir,
-                refinement=refinement,
-                dependencies=analysis_dependencies,
-            ),
-            run_by_default=False,
+        self.add_step(analysis_step)
+        subdir = f'{self.subdir}/viz'
+        viz_step = component.get_or_create_shared_step(
+            step_cls=Viz,
+            subdir=subdir,
+            config=config,
+            config_filename=config_filename,
+            refinement=refinement,
+            dependencies=analysis_dependencies,
         )
+        self.add_step(viz_step, run_by_default=False)
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
             'polaris.tasks.ocean.inertial_gravity_wave', config_filename
