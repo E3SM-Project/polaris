@@ -192,16 +192,14 @@ class CosineBell(Task):
 
             name = f'{prefix}_init_{mesh_name}'
             subdir = f'{case_dir}/init/{mesh_name}'
-            if subdir in component.steps:
-                init_step = component.steps[subdir]
-            else:
-                init_step = Init(
-                    component=component,
-                    name=name,
-                    subdir=subdir,
-                    base_mesh=base_mesh_step,
-                )
-                init_step.set_shared_config(config, link=config_filename)
+            init_step = component.get_or_create_shared_step(
+                step_cls=Init,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                name=name,
+                base_mesh=base_mesh_step,
+            )
             analysis_dependencies['init'][refinement_factor] = init_step
 
             if resolution not in resolutions:
@@ -217,54 +215,49 @@ class CosineBell(Task):
 
             subdir = f'{case_dir}/forward/{mesh_name}_{timestep}s'
             symlink = f'forward/{mesh_name}_{timestep}s'
-            if subdir in component.steps:
-                forward_step = component.steps[subdir]
-            else:
-                name = f'{prefix}_forward_{mesh_name}_{timestep}s'
-                forward_step = Forward(
-                    component=component,
-                    name=name,
-                    subdir=subdir,
-                    refinement_factor=refinement_factor,
-                    mesh=base_mesh_step,
-                    init=init_step,
-                    refinement=refinement,
-                )
-                forward_step.set_shared_config(config, link=config_filename)
+            name = f'{prefix}_forward_{mesh_name}_{timestep}s'
+            forward_step = component.get_or_create_shared_step(
+                step_cls=Forward,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                name=name,
+                refinement_factor=refinement_factor,
+                mesh=base_mesh_step,
+                init=init_step,
+                refinement=refinement,
+            )
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
             if self.include_viz:
                 name = f'{prefix}_viz_{mesh_name}_{timestep}s'
                 subdir = f'{case_dir}/viz/{mesh_name}_{timestep}s'
-                if subdir in component.steps:
-                    viz_step = component.steps[subdir]
-                else:
-                    viz_step = Viz(
-                        component=component,
-                        name=name,
-                        subdir=subdir,
-                        base_mesh=base_mesh_step,
-                        init=init_step,
-                        forward=forward_step,
-                        mesh_name=mesh_name,
-                    )
-                    viz_step.set_shared_config(config, link=config_filename)
+                viz_step = component.get_or_create_shared_step(
+                    step_cls=Viz,
+                    subdir=subdir,
+                    config=config,
+                    config_filename=config_filename,
+                    name=name,
+                    base_mesh=base_mesh_step,
+                    init=init_step,
+                    forward=forward_step,
+                    mesh_name=mesh_name,
+                )
                 self.add_step(viz_step)
 
         subdir = f'{case_dir}/convergence_{refinement}/analysis'
-        if subdir in component.steps:
-            step = component.steps[subdir]
-            step.resolutions = resolutions
-            step.dependencies_dict = analysis_dependencies
-        else:
-            step = Analysis(
-                component=component,
-                subdir=subdir,
-                dependencies=analysis_dependencies,
-                refinement=refinement,
-            )
-            step.set_shared_config(config, link=config_filename)
+        step = component.get_or_create_shared_step(
+            step_cls=Analysis,
+            subdir=subdir,
+            config=config,
+            config_filename=config_filename,
+            dependencies=analysis_dependencies,
+            refinement=refinement,
+        )
+        # set these in case they have been updated since the step was created
+        step.resolutions = resolutions
+        step.dependencies_dict = analysis_dependencies
         if self.include_viz:
             symlink = f'analysis_{refinement}'
             self.add_step(step, symlink=symlink)
