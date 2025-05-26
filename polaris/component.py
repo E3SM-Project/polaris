@@ -129,6 +129,43 @@ class Component:
         """
         pass
 
+    def get_or_create_shared_step(
+        self, step_cls, subdir, config, config_filename=None, **kwargs
+    ):
+        """
+        Get a shared step from the component if it exists, otherwise create and
+        add it.
+
+        Parameters
+        ----------
+        step_cls : type
+            The class of the step to create if it doesn't exist
+
+        subdir : str
+            The subdirectory for the step
+
+        config : polaris.config.PolarisConfigParser
+            The shared config options for this step
+
+        config_filename : str
+            the name of the symlink to the shared configuration file in this
+            step
+
+        kwargs : dict
+            Arguments to pass to the step constructor
+
+        Returns
+        -------
+        step : polaris.Step
+            The shared step instance
+        """
+        if subdir in self.steps:
+            return self.steps[subdir]
+        step = step_cls(component=self, subdir=subdir, **kwargs)
+        step.set_shared_config(config, link=config_filename)
+        self.add_step(step)
+        return step
+
     def _read_cached_files(self):
         """Read in the dictionary of cached files from cached_files.json"""
 
