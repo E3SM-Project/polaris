@@ -103,7 +103,7 @@ class MixingAnalysis(Step):
         section = config[self.case_name]
         eval_time = section.getfloat('mixing_evaluation_time')
         s_per_day = 86400.0
-        zidx = 1
+        zidx = 0
         nrows = int(ceil(len(resolutions) / 2))
         use_mplstyle()
         fig, axes = plt.subplots(

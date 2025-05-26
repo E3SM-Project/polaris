@@ -101,7 +101,7 @@ class FilamentAnalysis(Step):
         section = config[self.case_name]
         eval_time = section.getfloat('filament_evaluation_time')
         s_per_day = 86400.0
-        zidx = 1
+        zidx = 0
         variable_name = 'tracer2'
         num_tau = 21
         filament_tau = np.linspace(0, 1, num_tau)
