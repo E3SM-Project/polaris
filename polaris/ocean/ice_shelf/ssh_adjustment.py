@@ -14,7 +14,12 @@ class SshAdjustment(Step):
     """
 
     def __init__(
-        self, component, mesh_filename, forward, indir=None, name='ssh_adjust'
+        self,
+        component,
+        mesh_filename,
+        forward,
+        subdir,
+        name='ssh_adjust',
     ):
         """
         Create the step
@@ -30,15 +35,13 @@ class SshAdjustment(Step):
         forward: polaris.Step
             the step that produced the state which will be adjusted
 
-        indir : str, optional
-            the directory the step is in, to which ``name`` will be appended
+        subdir : str
+            the subdirectory for the step
 
         name : str, optional
             the name of this step
         """
-        super().__init__(
-            component=component, name=name, indir=f'{indir}/ssh_adjustment'
-        )
+        super().__init__(component=component, name=name, subdir=subdir)
 
         self.add_input_file(
             filename='final.nc', work_dir_target=f'{forward.path}/output.nc'

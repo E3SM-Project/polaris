@@ -74,9 +74,6 @@ class IceShelfTask(Task):
 
         Parameters
         ----------
-        config : polaris.config.PolarisConfigParser
-            The configuration for this task
-
         mesh_filename : str
             the mesh filename (relative to the base work directory)
 
@@ -86,6 +83,9 @@ class IceShelfTask(Task):
         init_filename : str
             the initial condition filename (relative to the base work
             directory)
+
+        config : polaris.config.PolarisConfigParser
+            The configuration for this task
 
         config_filename : str
             the configuration filename
@@ -106,13 +106,13 @@ class IceShelfTask(Task):
 
         Returns
         -------
-        shared_step : polaris.Step
+        final_step : polaris.Step
             the final ssh_adjustment step that produces the input to the next
             forward step
         """
         min_resolution = self.min_resolution
         component = self.component
-        indir = self.sshdir
+        sshdir = self.sshdir
 
         num_iterations = config.getint('ssh_adjustment', 'iterations')
 
@@ -121,50 +121,45 @@ class IceShelfTask(Task):
         current_init_filename = init_filename
         for iteration in range(num_iterations):
             name = f'ssh_forward_{iteration}'
-            subdir = f'{indir}/ssh_adjustment/{name}'
-            if subdir in component.steps:
-                shared_step = component.steps[subdir]
-            else:
-                ssh_forward = ForwardStep(
-                    component=component,
-                    min_resolution=min_resolution,
-                    indir=indir,
-                    graph_target=graph_target,
-                    init_filename=current_init_filename,
-                    name=name,
-                    package=package,
-                    yaml_filename=yaml_filename,
-                    yaml_replacements=yaml_replacements,
-                )
-                ssh_forward.set_shared_config(config, link=config_filename)
-                shared_step = ssh_forward
-            if indir == self.subdir:
+            subdir = f'{sshdir}/ssh_adjustment/{name}'
+            ssh_forward = component.get_or_create_shared_step(
+                step_cls=ForwardStep,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                min_resolution=min_resolution,
+                init_filename=current_init_filename,
+                graph_target=graph_target,
+                name=name,
+                package=package,
+                yaml_filename=yaml_filename,
+                yaml_replacements=yaml_replacements,
+            )
+            if sshdir == self.subdir:
                 symlink = None
             else:
                 symlink = f'ssh_adjustment/{name}'
-            self.add_step(shared_step, symlink=symlink)
+            self.add_step(ssh_forward, symlink=symlink)
 
             name = f'ssh_adjust_{iteration}'
-            subdir = f'{indir}/ssh_adjustment/{name}'
-            if subdir in component.steps:
-                shared_step = component.steps[subdir]
-            else:
-                ssh_adjust = SshAdjustment(
-                    component=component,
-                    indir=indir,
-                    name=name,
-                    mesh_filename=mesh_filename,
-                    forward=ssh_forward,
-                )
-                ssh_adjust.set_shared_config(config, link=config_filename)
-                shared_step = ssh_adjust
-            if indir == self.subdir:
+            subdir = f'{sshdir}/ssh_adjustment/{name}'
+            ssh_adjust = component.get_or_create_shared_step(
+                step_cls=SshAdjustment,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                mesh_filename=mesh_filename,
+                forward=ssh_forward,
+                name=name,
+            )
+            if sshdir == self.subdir:
                 symlink = None
             else:
                 symlink = f'ssh_adjustment/{name}'
-            self.add_step(shared_step, symlink=symlink)
+            self.add_step(ssh_adjust, symlink=symlink)
             # for the next iteration, ssh_forward is run from the adjusted
             # initial state (the output of ssh_adustment)
-            current_init_filename = f'{shared_step.path}/output.nc'
+            current_init_filename = f'{ssh_adjust.path}/output.nc'
+            final_step = ssh_adjust
 
-        return shared_step
+        return final_step

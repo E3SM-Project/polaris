@@ -28,12 +28,11 @@ class SshForward(OceanModelStep):
         min_resolution,
         init_filename,
         graph_target,
+        subdir,
         name='ssh_forward',
-        subdir=None,
         package=None,
         yaml_filename='ssh_forward.yaml',
         yaml_replacements=None,
-        indir=None,
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
@@ -56,12 +55,11 @@ class SshForward(OceanModelStep):
         graph_target: str
             the graph filename (relative to the base work directory)
 
+        subdir : str
+            the subdirectory for the step
+
         name : str, optional
             the name of the task
-
-        subdir : str, optional
-            the subdirectory for the step.  If neither this nor ``indir``
-             are provided, the directory is the ``name``
 
         package : str, optional
             where ssh_forward steps will derive their configuration
@@ -72,9 +70,6 @@ class SshForward(OceanModelStep):
         yaml_replacements : Dict, optional
             key, string combinations for templated replacements in the yaml
             file
-
-        indir : str, optional
-            the directory the step is in, to which ``name`` will be appended
 
         ntasks : int, optional
             the number of tasks the step would ideally use.  If fewer tasks
@@ -92,7 +87,6 @@ class SshForward(OceanModelStep):
             component=component,
             name=name,
             subdir=subdir,
-            indir=f'{indir}/ssh_adjustment',
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
