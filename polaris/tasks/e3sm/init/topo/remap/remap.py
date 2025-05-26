@@ -53,7 +53,6 @@ class RemapTopoStep(Step):
     def __init__(
         self,
         component,
-        config,
         base_mesh_step,
         combine_topo_step,
         mask_topo_step,
@@ -69,9 +68,6 @@ class RemapTopoStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        config : polaris.config.PolarisConfigParser
-            The configuration options for the step
 
         base_mesh_step : polaris.mesh.spherical.SphericalBaseStep
             The base mesh step containing input files to this step
@@ -104,8 +100,6 @@ class RemapTopoStep(Step):
         self.mask_topo_step = mask_topo_step
         self.smoothing = smoothing
         self.unsmoothed_topo = unsmoothed_topo
-
-        self.set_shared_config(config, link='remap_topo.cfg')
 
         self.add_output_file(filename='topography_remapped.nc')
         self.expand_distance = 0.0
