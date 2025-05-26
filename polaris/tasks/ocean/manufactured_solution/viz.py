@@ -46,7 +46,7 @@ class Viz(OceanIOStep):
         space and time
     """
 
-    def __init__(self, component, dependencies, taskdir, refinement='both'):
+    def __init__(self, component, dependencies, subdir, refinement='both'):
         """
         Create the step
 
@@ -75,14 +75,14 @@ class Viz(OceanIOStep):
                     attribute `path`, the path to `forward.nc` of that
                     resolution
 
-        taskdir : str
-            The subdirectory that the task belongs to
+        subdir : str
+            The subdirectory for this step in the component's work directory
 
         refinement : str, optional
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-        super().__init__(component=component, name='viz', indir=taskdir)
+        super().__init__(component=component, name='viz', subdir=subdir)
         self.dependencies_dict = dependencies
         self.refinement = refinement
         self.add_output_file('comparison.png')
