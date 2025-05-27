@@ -2,6 +2,7 @@ import os
 
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
+from polaris.tasks.e3sm.init.topo.cull.cull import CullMeshStep
 from polaris.tasks.e3sm.init.topo.cull.mask import CullMaskStep
 
 
@@ -61,5 +62,18 @@ def get_default_cull_topo_steps(
         name=step_name,
     )
     steps.append(cull_mask_step)
+
+    step_name = 'cull_mesh'
+    subdir = os.path.join(mesh_name, 'topo', 'cull', 'mesh')
+    cull_mesh_step = component.get_or_create_shared_step(
+        step_cls=CullMeshStep,
+        subdir=subdir,
+        config=config,
+        config_filename=config_filename,
+        base_mesh_step=base_mesh_step,
+        cull_mask_step=cull_mask_step,
+        name=step_name,
+    )
+    steps.append(cull_mesh_step)
 
     return steps, config
