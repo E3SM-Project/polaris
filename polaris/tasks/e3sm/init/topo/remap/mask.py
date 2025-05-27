@@ -82,20 +82,28 @@ class MaskTopoStep(Step):
         land_mask : xarray.DataArray
             The mask array with the same shape as the topography fields
         """
+        config = self.config
+        section = config['mask_topography']
+        ocean_includes_grounded_ice = section.getboolean(
+            'ocean_includes_grounded_ice'
+        )
         # Default implementation
         base_elevation = ds.base_elevation
         ice_mask = ds.ice_mask
-        grounded_mask = ds.grounded_mask
 
         below_sea_level = (base_elevation < 0.0).astype(float)
         above_sea_level = 1.0 - below_sea_level
-        not_grounded = 1.0 - grounded_mask
 
         # above sea level or below sea leve but part of Antarcica
         land_mask = above_sea_level + below_sea_level * ice_mask
 
-        # below sea level and not under grounded Antarctic ice
-        ocean_mask = below_sea_level * not_grounded
+        if ocean_includes_grounded_ice:
+            ocean_mask = below_sea_level
+        else:
+            grounded_mask = ds.grounded_mask
+            not_grounded = 1.0 - grounded_mask
+            # below sea level and not under grounded Antarctic ice
+            ocean_mask = below_sea_level * not_grounded
 
         return ocean_mask, land_mask
 
