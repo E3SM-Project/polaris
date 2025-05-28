@@ -44,36 +44,31 @@ def add_uniform_spherical_base_mesh_step(resolution, icosahedral):
     name = f'{prefix}_base_mesh_{res_str}'
     subdir = f'spherical/{prefix}/base_mesh/{res_str}'
 
-    if subdir in component.steps:
-        base_mesh = component.steps[subdir]
+    config_filename = f'{name}.cfg'
 
-    else:
-        if icosahedral:
-            base_mesh = IcosahedralMeshStep(
-                component=component,
-                name=name,
-                subdir=subdir,
-                cell_width=resolution,
-                mesh_name=mesh_name,
-            )
-        else:
-            base_mesh = QuasiUniformSphericalMeshStep(
-                component=component,
-                name=name,
-                subdir=subdir,
-                cell_width=resolution,
-                mesh_name=mesh_name,
-            )
+    filepath = os.path.join(component.name, subdir, config_filename)
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.mesh', 'spherical.cfg')
 
-        # add default config options for spherical meshes
-        config_filename = f'{base_mesh.name}.cfg'
-        filepath = os.path.join(
-            component.name, base_mesh.subdir, config_filename
+    if icosahedral:
+        base_mesh = component.get_or_create_shared_step(
+            step_cls=IcosahedralMeshStep,
+            subdir=subdir,
+            config=config,
+            config_filename=config_filename,
+            name=name,
+            cell_width=resolution,
+            mesh_name=mesh_name,
         )
-        config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package('polaris.mesh', 'spherical.cfg')
-        base_mesh.set_shared_config(config)
-
-        component.add_step(base_mesh)
+    else:
+        base_mesh = component.get_or_create_shared_step(
+            step_cls=QuasiUniformSphericalMeshStep,
+            subdir=subdir,
+            config=config,
+            config_filename=config_filename,
+            name=name,
+            cell_width=resolution,
+            mesh_name=mesh_name,
+        )
 
     return base_mesh, res_str

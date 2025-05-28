@@ -37,7 +37,6 @@ class VizRemappedTopoStep(Step):
             The step for remapping the topography to the MPAS mesh
         """
         base_mesh_step = remap_step.base_mesh_step
-        config = remap_step.config
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
@@ -49,7 +48,6 @@ class VizRemappedTopoStep(Step):
         )
         self.mesh_name = base_mesh_step.mesh_name
         self.remap_step = remap_step
-        self.set_shared_config(config, link='remap_topo.cfg')
 
     def run(self):
         """

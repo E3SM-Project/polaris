@@ -224,17 +224,15 @@ class SphereTransport(Task):
                 symlink = f'init/{mesh_name}'
             else:
                 symlink = None
-            if subdir in component.steps:
-                init_step = component.steps[subdir]
-            else:
-                init_step = Init(
-                    component=component,
-                    name=name,
-                    subdir=subdir,
-                    base_mesh=base_mesh_step,
-                    case_name=case_name,
-                )
-                init_step.set_shared_config(config, link=config_filename)
+            init_step = component.get_or_create_shared_step(
+                step_cls=Init,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                name=name,
+                base_mesh=base_mesh_step,
+                case_name=case_name,
+            )
             analysis_dependencies['init'][refinement_factor] = init_step
             self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
             self.add_step(init_step, symlink=symlink)
@@ -252,20 +250,18 @@ class SphereTransport(Task):
                 symlink = f'forward/{mesh_name}_{timestep}s'
             else:
                 symlink = None
-            if subdir in component.steps:
-                forward_step = component.steps[subdir]
-            else:
-                forward_step = Forward(
-                    component=component,
-                    name=name,
-                    subdir=subdir,
-                    base_mesh=base_mesh_step,
-                    init=init_step,
-                    case_name=case_name,
-                    refinement_factor=refinement_factor,
-                    refinement=refinement,
-                )
-                forward_step.set_shared_config(config, link=config_filename)
+            forward_step = component.get_or_create_shared_step(
+                step_cls=Forward,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                name=name,
+                base_mesh=base_mesh_step,
+                init=init_step,
+                case_name=case_name,
+                refinement_factor=refinement_factor,
+                refinement=refinement,
+            )
             self.add_step(forward_step, symlink=symlink)
             analysis_dependencies['forward'][refinement_factor] = forward_step
 
@@ -273,37 +269,36 @@ class SphereTransport(Task):
                 with_viz_dir = f'{sph_trans_dir}/with_viz'
                 name = f'{prefix}_viz_{mesh_name}_{timestep}s'
                 subdir = f'{with_viz_dir}/viz/{mesh_name}_{timestep}s'
-                step = Viz(
-                    component=component,
-                    name=name,
+                viz_step = component.get_or_create_shared_step(
+                    step_cls=Viz,
                     subdir=subdir,
+                    config=config,
+                    config_filename=config_filename,
+                    name=name,
                     base_mesh=base_mesh_step,
                     init=init_step,
                     forward=forward_step,
                     mesh_name=mesh_name,
                 )
-                step.set_shared_config(config, link=config_filename)
-                self.add_step(step)
+                self.add_step(viz_step)
 
         subdir = f'{sph_trans_dir}/analysis/{refinement}'
         if self.include_viz:
             symlink = f'analysis_{refinement}'
         else:
             symlink = None
-        if subdir in component.steps:
-            step = component.steps[subdir]
-            step.resolutions = resolutions
-            step.dependencies_dict = analysis_dependencies
-        else:
-            step = Analysis(
-                component=component,
-                subdir=subdir,
-                case_name=case_name,
-                dependencies=analysis_dependencies,
-                refinement=refinement,
-            )
-            step.set_shared_config(config, link=config_filename)
-        self.add_step(step, symlink=symlink)
+        analysis_step = component.get_or_create_shared_step(
+            step_cls=Analysis,
+            subdir=subdir,
+            config=config,
+            config_filename=config_filename,
+            case_name=case_name,
+            dependencies=analysis_dependencies,
+            refinement=refinement,
+        )
+        analysis_step.resolutions = resolutions
+        analysis_step.dependencies_dict = analysis_dependencies
+        self.add_step(analysis_step, symlink=symlink)
 
         if case_name == 'correlated_tracers_2d':
             subdir = f'{sph_trans_dir}/mixing_analysis'
@@ -311,20 +306,18 @@ class SphereTransport(Task):
                 symlink = 'mixing_analysis'
             else:
                 symlink = None
-            if subdir in component.steps:
-                step = component.steps[subdir]
-            else:
-                step = MixingAnalysis(
-                    component=component,
-                    icosahedral=icosahedral,
-                    subdir=subdir,
-                    refinement_factors=refinement_factors,
-                    case_name=case_name,
-                    dependencies=analysis_dependencies,
-                    refinement=refinement,
-                )
-            step.set_shared_config(config, link=config_filename)
-            self.add_step(step, symlink=symlink)
+            mixing_step = component.get_or_create_shared_step(
+                step_cls=MixingAnalysis,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                icosahedral=icosahedral,
+                refinement_factors=refinement_factors,
+                case_name=case_name,
+                dependencies=analysis_dependencies,
+                refinement=refinement,
+            )
+            self.add_step(mixing_step, symlink=symlink)
 
         if case_name == 'nondivergent_2d':
             subdir = f'{sph_trans_dir}/filament_analysis'
@@ -332,17 +325,15 @@ class SphereTransport(Task):
                 symlink = 'filament_analysis'
             else:
                 symlink = None
-            if subdir in component.steps:
-                step = component.steps[subdir]
-            else:
-                step = FilamentAnalysis(
-                    component=component,
-                    refinement_factors=refinement_factors,
-                    icosahedral=icosahedral,
-                    subdir=subdir,
-                    case_name=case_name,
-                    dependencies=analysis_dependencies,
-                    refinement=refinement,
-                )
-            step.set_shared_config(config, link=config_filename)
-            self.add_step(step, symlink=symlink)
+            filament_step = component.get_or_create_shared_step(
+                step_cls=FilamentAnalysis,
+                subdir=subdir,
+                config=config,
+                config_filename=config_filename,
+                refinement_factors=refinement_factors,
+                icosahedral=icosahedral,
+                case_name=case_name,
+                dependencies=analysis_dependencies,
+                refinement=refinement,
+            )
+            self.add_step(filament_step, symlink=symlink)

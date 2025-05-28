@@ -71,7 +71,7 @@ class CombineStep(Step):
         )
         return os.path.join('topo', subdir)
 
-    def __init__(self, component, config, low_res=False):
+    def __init__(self, component, subdir, low_res=False):
         """
         Create a new step
 
@@ -80,8 +80,8 @@ class CombineStep(Step):
         component : polaris.Component
             The component the step belongs to
 
-        config : polaris.config.PolarisConfigParser
-            The shared config options for the step
+        subdir : str
+            The subdirectory within the component's work directory
 
         low_res : bool, optional
             Whether to use the low resolution configuration options
@@ -90,7 +90,6 @@ class CombineStep(Step):
         global_dataset = self.GLOBAL
         suffix = '_low_res' if low_res else ''
         name = f'combine_topo_{antarctic_dataset}_{global_dataset}{suffix}'
-        subdir = self.get_subdir(low_res=low_res)
         super().__init__(
             component=component,
             name=name,
@@ -103,10 +102,6 @@ class CombineStep(Step):
         self.combined_filename = None
         self.dst_scrip_filename = None
         self.exodus_filename = None
-
-        # Set the config options for this step.  Since the shared config
-        # file is in the step's work directory, we don't need a symlink
-        self.set_shared_config(config)
 
     def setup(self):
         """

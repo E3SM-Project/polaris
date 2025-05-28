@@ -74,12 +74,13 @@ def get_default_remap_topo_steps(
 
     step_name = 'mask_topo'
     subdir = os.path.join(mesh_name, 'topo', 'remap', 'mask')
-    mask_step = MaskTopoStep(
-        component=component,
+    mask_step = component.get_or_create_shared_step(
+        step_cls=MaskTopoStep,
+        subdir=subdir,
         config=config,
+        config_filename=config_filename,
         combine_topo_step=combine_topo_step,
         name=step_name,
-        subdir=subdir,
     )
     steps.append(mask_step)
 
@@ -92,32 +93,34 @@ def get_default_remap_topo_steps(
     for suffix in suffixes:
         step_name = f'remap_{suffix}'
         subdir = os.path.join(mesh_name, 'topo', 'remap', suffix)
-        remap_step = RemapTopoStep(
-            component=component,
+        remap_step = component.get_or_create_shared_step(
+            step_cls=RemapTopoStep,
+            subdir=subdir,
             config=config,
+            config_filename=config_filename,
             base_mesh_step=base_mesh_step,
             mask_topo_step=mask_step,
             combine_topo_step=combine_topo_step,
             name=step_name,
-            subdir=subdir,
             smoothing=(suffix == 'smoothed'),
             unsmoothed_topo=unsmoothed_topo,
         )
+
         if suffix == 'unsmoothed':
             unsmoothed_topo = remap_step
-        component.add_step(remap_step)
         steps.append(remap_step)
 
         if include_viz:
             step_name = f'viz_remapped_{suffix}'
             subdir = os.path.join(str(subdir), 'viz')
-            viz_step = VizRemappedTopoStep(
-                component=component,
-                name=step_name,
+            viz_step = component.get_or_create_shared_step(
+                step_cls=VizRemappedTopoStep,
                 subdir=subdir,
+                config=config,
+                config_filename=config_filename,
                 remap_step=remap_step,
+                name=step_name,
             )
-            component.add_step(viz_step)
             steps.append(viz_step)
 
     return steps, config

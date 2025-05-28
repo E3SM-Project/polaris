@@ -48,20 +48,25 @@ def get_combine_topo_steps(component, include_viz=False, low_res=False):
         )
 
     steps = []
-    if subdir in component.steps:
-        combine_step = component.steps[subdir]
-    else:
-        combine_step = CombineStep(
-            component=component, config=config, low_res=low_res
-        )
-        component.add_step(combine_step)
+    # no config_filename is needed here since the shared config file is
+    # in this steps work directory
+    combine_step = component.get_or_create_shared_step(
+        step_cls=CombineStep,
+        subdir=subdir,
+        config=config,
+        low_res=low_res,
+    )
     steps.append(combine_step)
 
     if include_viz:
-        viz_step = VizCombinedStep(
-            component=component, config=config, combine_step=combine_step
+        subdir = os.path.join(combine_step.subdir, 'viz')
+        viz_step = component.get_or_create_shared_step(
+            step_cls=VizCombinedStep,
+            subdir=subdir,
+            config=config,
+            config_filename='combine_topo.cfg',
+            combine_step=combine_step,
         )
-        component.add_step(viz_step)
         steps.append(viz_step)
 
     return steps, config

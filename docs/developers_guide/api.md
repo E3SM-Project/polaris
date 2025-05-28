@@ -125,6 +125,7 @@ seaice/api
    Component.add_step
    Component.remove_step
    Component.add_config
+   Component.get_or_create_shared_step
 ```
 
 #### Task

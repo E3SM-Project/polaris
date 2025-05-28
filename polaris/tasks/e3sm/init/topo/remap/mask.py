@@ -16,7 +16,7 @@ class MaskTopoStep(Step):
         sphere grid
     """
 
-    def __init__(self, component, config, combine_topo_step, name, subdir):
+    def __init__(self, component, combine_topo_step, name, subdir):
         """
         Create a new step
 
@@ -24,9 +24,6 @@ class MaskTopoStep(Step):
         ----------
         component : polaris.Component
             The component the step belongs to
-
-        config : polaris.config.PolarisConfigParser
-            The configuration options for the step
 
         combine_topo_step : polaris.tasks.e3sm.init.topo.CombineStep
             The step for combining global and Antarctic topography on a cubed

@@ -48,7 +48,7 @@ class Viz(Step):
         space and time
     """
 
-    def __init__(self, component, taskdir, dependencies, refinement='both'):
+    def __init__(self, component, subdir, dependencies, refinement='both'):
         """
         Create the step
 
@@ -57,8 +57,8 @@ class Viz(Step):
         component : polaris.Component
             The component the step belongs to
 
-        taskdir : str
-            The subdirectory that the task belongs to
+        subdir : str
+            The subdirectory for this step in the component's work directory
 
         dependencies : dict of dict of polaris.Steps
             The dependencies of this step must be given as separate keys in the
@@ -84,7 +84,7 @@ class Viz(Step):
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
         """
-        super().__init__(component=component, name='viz', indir=taskdir)
+        super().__init__(component=component, name='viz', subdir=subdir)
         self.dependencies_dict = dependencies
         self.refinement = refinement
 
