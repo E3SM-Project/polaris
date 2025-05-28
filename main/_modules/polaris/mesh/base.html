@@ -120,9 +120,15 @@
 <span class="sd">    base_mesh_steps : list of polaris.mesh.spherical.BaseMeshStep</span>
 <span class="sd">        All supported base mesh steps in the mesh component</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resolutions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+    <span class="p">}</span>
+
     <span class="n">base_mesh_steps</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">icosahedral</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">res_list</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">icosahedral</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span>
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">res_list</span><span class="p">:</span>
             <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
                 <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                 <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
