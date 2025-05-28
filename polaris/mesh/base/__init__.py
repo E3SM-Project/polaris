@@ -10,9 +10,15 @@ def get_base_mesh_steps():
     base_mesh_steps : list of polaris.mesh.spherical.BaseMeshStep
         All supported base mesh steps in the mesh component
     """
+    resolutions = {
+        'icos': [480.0, 240.0, 120.0, 60.0, 30.0],
+        'qu': [480.0, 240.0, 210.0, 180.0, 150.0, 120.0, 90.0, 60.0, 30.0],
+    }
+
     base_mesh_steps = []
-    for icosahedral in [True, False]:
-        for resolution in [480.0, 240.0, 120.0, 60.0, 30.0]:
+    for prefix, res_list in resolutions.items():
+        icosahedral = prefix == 'icos'
+        for resolution in res_list:
             base_mesh_step, _ = add_uniform_spherical_base_mesh_step(
                 resolution=resolution,
                 icosahedral=icosahedral,
