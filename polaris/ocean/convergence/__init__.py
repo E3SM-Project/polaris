@@ -85,6 +85,12 @@ def get_timestep_for_task(config, refinement_factor, refinement='both'):
     if time_integrator == 'RK4':
         dt_per_km = section.getfloat('rk4_dt_per_km')
         btr_timestep = 0.0
+    elif time_integrator == 'LTS':
+        dt_per_km = section.getfloat('lts_dt_per_km')
+        btr_timestep = 0.0
+    elif time_integrator == 'FB_LTS':
+        dt_per_km = section.getfloat('fblts_dt_per_km')
+        btr_timestep = 0.0
     else:
         dt_per_km = section.getfloat('split_dt_per_km')
         btr_dt_per_km = section.getfloat('btr_dt_per_km')

@@ -1,0 +1,16 @@
+ocean:
+  time_integration:
+    config_number_of_time_levels: 5
+  lts:
+    config_dt_scaling_LTS: 4
+  streams:
+    ltsregion:
+      type: input
+      filename_template: init.nc
+      filename_interval: none
+      input_interval: initial_only
+      contents:
+      - LTSRegion
+    output:
+      contents:
+      - LTSRegion

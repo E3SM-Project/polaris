@@ -257,8 +257,12 @@ class ConvergenceAnalysis(OceanIOStep):
         error_title = error_dict[error_type]
 
         ax = fig.add_subplot(111)
-        ax.loglog(resolutions, order1, '--k', label='first order', alpha=0.3)
-        ax.loglog(resolutions, order2, 'k', label='second order', alpha=0.3)
+        ax.loglog(
+            refinement_array, order1, '--k', label='first order', alpha=0.3
+        )
+        ax.loglog(
+            refinement_array, order2, 'k', label='second order', alpha=0.3
+        )
         ax.loglog(
             refinement_array,
             fit,
