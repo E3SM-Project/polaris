@@ -344,17 +344,15 @@
                 <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                    <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
-                    <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+                <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;base_mesh/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
@@ -372,20 +370,18 @@
                 <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                    <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
-                    <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
-                    <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
-                    <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
-                    <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Forward</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+                <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
+                <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
@@ -393,37 +389,36 @@
                 <span class="n">with_viz_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sph_trans_dir</span><span class="si">}</span><span class="s1">/with_viz&#39;</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_viz_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
                 <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">with_viz_dir</span><span class="si">}</span><span class="s1">/viz/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">Viz</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                    <span class="n">step_cls</span><span class="o">=</span><span class="n">Viz</span><span class="p">,</span>
                     <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
                     <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
                     <span class="n">forward</span><span class="o">=</span><span class="n">forward_step</span><span class="p">,</span>
                     <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_step</span><span class="p">)</span>
 
         <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sph_trans_dir</span><span class="si">}</span><span class="s1">/analysis/</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;analysis_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">analysis_dependencies</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="n">Analysis</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
-                <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
-                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+        <span class="n">analysis_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">Analysis</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
+            <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
+            <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">analysis_step</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
+        <span class="n">analysis_step</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">analysis_dependencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">analysis_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sph_trans_dir</span><span class="si">}</span><span class="s1">/mixing_analysis&#39;</span>
@@ -431,20 +426,18 @@
                 <span class="n">symlink</span> <span class="o">=</span> <span class="s1">&#39;mixing_analysis&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">MixingAnalysis</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                    <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
-                    <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
-                    <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
-                    <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+            <span class="n">mixing_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">MixingAnalysis</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
+                <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
+                <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
+                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">mixing_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;nondivergent_2d&#39;</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sph_trans_dir</span><span class="si">}</span><span class="s1">/filament_analysis&#39;</span>
@@ -452,20 +445,18 @@
                 <span class="n">symlink</span> <span class="o">=</span> <span class="s1">&#39;filament_analysis&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">FilamentAnalysis</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
-                    <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                    <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
-                    <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
-                    <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
+            <span class="n">filament_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">FilamentAnalysis</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
+                <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+                <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">,</span>
+                <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
+                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">filament_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
 
 </pre></div>
 

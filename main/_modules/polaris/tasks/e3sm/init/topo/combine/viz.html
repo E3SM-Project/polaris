@@ -133,7 +133,7 @@
 
 <div class="viewcode-block" id="VizCombinedStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">combine_step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">combine_step</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -142,21 +142,21 @@
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs</span>
 
-<span class="sd">        config : polaris.config.PolarisConfigParser</span>
-<span class="sd">            The config options for the step</span>
-
 <span class="sd">        combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep</span>
 <span class="sd">            The combine step to use for visualization</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for this step within the component&#39;s work</span>
+<span class="sd">            directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_combine_topo&#39;</span><span class="p">,</span>
-            <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span><span class="p">),</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span> <span class="o">=</span> <span class="n">combine_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;combine_topo.cfg&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span> <span class="o">=</span> <span class="n">combine_step</span></div>
 
 
 <div class="viewcode-block" id="VizCombinedStep.setup">

@@ -12,6 +12,36 @@ all steps in a task but certain tasks may prefer to have steps that are not run
 by default (e.g. a long forward simulation or optional visualization) but which
 are available for a user to manually alter and then run on their own.
 
+(dev-shared-steps)=
+
+## Shared steps
+
+Some steps are shared between multiple tasks to avoid redundant computation and
+to ensure consistency of results. Shared steps are created at the highest
+directory level common to all tasks that use them. To facilitate this, the
+`Component` class provides the method
+{py:method}`polaris.Component.get_or_create_shared_step()`.
+
+This function checks if a step already exists in a component's `steps`
+dictionary under a given subdirectory. If it does, it returns the existing
+step; otherwise, it creates the step, sets its shared configuration, adds it to
+the component, and returns it. This ensures that each shared step is only
+created and set up once, even if multiple tasks reference it.
+
+**Example usage:**
+```python
+
+shared_step = component.get_or_create_shared_step(
+    step_cls=InitStep,
+    subdir="init",
+    config=config,
+    config_filename="init.cfg"
+)
+```
+
+See the [design document on shared steps](../../design_docs/shared_steps.md)
+for more details about the motivation and implementation.
+
 A step is defined by a class that descends from {py:class}`polaris.Step`.
 The child class must override the constructor and must also either override the
 {py:meth}`polaris.Step.run()` method or define the `args` attribute.  It will
@@ -1016,14 +1046,10 @@ More details on cached outputs are available in the compass design document
 ### Adding other steps as dependencies
 
 In some circumstances, it is not feasible to know the output filenames at
-when a step gets set up.  For example, the filename may depend on config
-options that a user could change before running the step.  Or the filename
+when a step gets set up.  For example, the filename may depend on a
+config options that a user could change before running the step.  Or the filename
 could depend on data read in from files or computed at runtime.  In such
-circumstances, it is not feasible to specify the output filename with
-{py:meth}`polaris.Step.add_output_file()`.  Nor can other steps that depend
-on that output file as an input use {py:meth}`polaris.Step.add_input_file()`.
-
-Under these circumstances, it is useful to be able to specify that a step
+circumstances, it is useful to be able to specify that a step
 is a dependency of another (dependent) step.  This is accomplished by passing
 the  dependency to the step's {py:meth}`polaris.Step.add_dependency()` method
 either during the creation of the dependent step, within the `configure()`
@@ -1031,7 +1057,8 @@ method of the parent task, or in the `setup()` method of the dependent
 step.  The dependency does not need to belong to the task, it can be a shared
 step, but it should be a step in any tasks that also use the dependent step.
 This is because the dependent step will fail to run if the dependency has not
-run.
+run. See {ref}`dev-shared-steps` above for more information on creating
+and using shared steps.
 
 When a step is added as a dependency, after it runs, its state will be stored
 in a pickle file (see {ref}`dev-setup`) that contains any modifications to its

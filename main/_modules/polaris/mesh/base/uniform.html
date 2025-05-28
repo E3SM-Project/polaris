@@ -155,37 +155,32 @@
     <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_base_mesh_</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/base_mesh/</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
 
-    <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
 
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">IcosahedralMeshStep</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-            <span class="p">)</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
 
-        <span class="c1"># add default config options for spherical meshes</span>
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">base_mesh</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span>
+    <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
+        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">IcosahedralMeshStep</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
-        <span class="n">base_mesh</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">res_str</span></div>
 

@@ -3,17 +3,17 @@
 # cosine_bell
 
 In most cases, the {py:class}`polaris.tasks.ocean.cosine_bell.CosineBell`
-test performs a series of 24-day runs that advect a bell-shaped tracer blob
-around the sphere.  The resolution of the sphere varies (by default, between
-60 and 240 km).  Advected results are compared with a known exact solution to
-determine the rate of convergence.
+task performs a series of runs that advect a bell-shaped tracer blob
+around the sphere. The mesh resolution and time step are varied according to
+the refinement type (`space`, `time`, or `both`). Advected results are compared
+with a known exact solution to determine the rate of convergence.
 
 There is also a restart test, described below, that performs only two time
 steps of the test to verify the exact restart capability.
 
 ## framework
 
-The config options for the `cosine_bell` tests are described in
+The config options for the `cosine_bell` tasks are described in
 {ref}`ocean-cosine-bell` in the User's Guide.
 
 Additionally, the test uses a `forward.yaml` file with a few common
@@ -39,8 +39,7 @@ tracer distributed in a cosine-bell shape.
 The class {py:class}`polaris.tasks.ocean.cosine_bell.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
 and defines a step for running MPAS-Ocean from an initial condition produced in
-an `init` step. See {ref}`dev-ocean-convergence` for some relevant
-discussion of the parent class. The time step is determined from the resolution
+an `init` step. The time step is determined from the resolution
 based on the `dt_per_km` config option in the `[convergence_forward]`
 section.  Other model config options are taken from `forward.yaml`.
 
@@ -80,16 +79,32 @@ colormap_name = viridis
 # the type of norm used in the colormap
 norm_type = linear
 
-# colorbar limits
-colorbar_limits = 0.0, 1.0
+# A dictionary with keywords for the norm
+norm_args = {'vmin': 0., 'vmax': 1.}
 ```
 
 See {ref}`dev-visualization-global` for more details.
 
+## Task structure and shared steps
+
+The {py:class}`CosineBell` task is constructed to support multiple refinement
+types (`space`, `time`, or `both`) and optionally includes visualization steps.
+It uses shared steps for the base mesh, initial condition, and forward runs
+across different tasks and resolutions. The steps are organized as follows:
+
+- For each refinement factor (resolution/time step), a shared base mesh step is created.
+- An initial condition step is created for each mesh.
+- A forward step is created for each mesh and time step.
+- If visualization is enabled, a viz step is created for each mesh/time step.
+- An analysis step is created to compare results across all refinement factors.
+
+Symlinks are created within the task's work directory to make shared steps
+discoverable and to avoid redundant computation.
+
 ## decomp
 
 The class {py:class}`polaris.tasks.ocean.cosine_bell.decomp.Decomp` defines
-a decomposition test across core counts.  It runs Cosine Bell test at coarse
+a decomposition test across core counts.  It runs the Cosine Bell test at coarse
 resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
 for tracer advection across different core counts.
 
@@ -97,7 +112,7 @@ for tracer advection across different core counts.
 
 The {py:class}`polaris.tasks.ocean.cosine_bell.restart.Restart` class defines
 a restart check that performs two time steps of the Cosine Bell test at coarse
-resolution, then performs reruns the second time step, as a restart run to
+resolution, then performs the second time step again as a restart run to
 verify the bit-for-bit restart capability for tracer advection.
 
 ### restart_step

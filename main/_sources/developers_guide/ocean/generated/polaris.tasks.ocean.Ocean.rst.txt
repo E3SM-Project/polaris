@@ -18,6 +18,7 @@
       ~Ocean.add_step
       ~Ocean.add_task
       ~Ocean.configure
+      ~Ocean.get_or_create_shared_step
       ~Ocean.remove_step
    
    

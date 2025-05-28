@@ -70,6 +70,7 @@
 <li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">cosine_bell</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#task-structure-and-shared-steps">Task structure and shared steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#decomp">decomp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 </ul>
@@ -138,15 +139,15 @@
   <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
 <span id="dev-ocean-cosine-bell"></span><h1>cosine_bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
 <p>In most cases, the <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell" title="polaris.tasks.ocean.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.CosineBell</span></code></a>
-test performs a series of 24-day runs that advect a bell-shaped tracer blob
-around the sphere.  The resolution of the sphere varies (by default, between
-60 and 240 km).  Advected results are compared with a known exact solution to
-determine the rate of convergence.</p>
+task performs a series of runs that advect a bell-shaped tracer blob
+around the sphere. The mesh resolution and time step are varied according to
+the refinement type (<code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code>, or <code class="docutils literal notranslate"><span class="pre">both</span></code>). Advected results are compared
+with a known exact solution to determine the rate of convergence.</p>
 <p>There is also a restart test, described below, that performs only two time
 steps of the test to verify the exact restart capability.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
-<p>The config options for the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> tests are described in
+<p>The config options for the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> tasks are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/cosine_bell.html#ocean-cosine-bell"><span class="std std-ref">cosine bell</span></a> in the User’s Guide.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common
 model config options related to drag and default horizontal and
@@ -170,8 +171,7 @@ tracer distributed in a cosine-bell shape.</p>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward" title="polaris.tasks.ocean.cosine_bell.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.forward.Forward</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
 and defines a step for running MPAS-Ocean from an initial condition produced in
-an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
-discussion of the parent class. The time step is determined from the resolution
+an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The time step is determined from the resolution
 based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[convergence_forward]</span></code>
 section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
 </section>
@@ -208,17 +208,33 @@ each resolution.  The colormap is controlled by these options:</p>
 <span class="c1"># the type of norm used in the colormap</span>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
-<span class="c1"># colorbar limits</span>
-<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 1.0</span>
+<span class="c1"># A dictionary with keywords for the norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details.</p>
 </section>
 </section>
+<section id="task-structure-and-shared-steps">
+<h2>Task structure and shared steps<a class="headerlink" href="#task-structure-and-shared-steps" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">CosineBell</span></code> task is constructed to support multiple refinement
+types (<code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code>, or <code class="docutils literal notranslate"><span class="pre">both</span></code>) and optionally includes visualization steps.
+It uses shared steps for the base mesh, initial condition, and forward runs
+across different tasks and resolutions. The steps are organized as follows:</p>
+<ul class="simple">
+<li><p>For each refinement factor (resolution/time step), a shared base mesh step is created.</p></li>
+<li><p>An initial condition step is created for each mesh.</p></li>
+<li><p>A forward step is created for each mesh and time step.</p></li>
+<li><p>If visualization is enabled, a viz step is created for each mesh/time step.</p></li>
+<li><p>An analysis step is created to compare results across all refinement factors.</p></li>
+</ul>
+<p>Symlinks are created within the task’s work directory to make shared steps
+discoverable and to avoid redundant computation.</p>
+</section>
 <section id="decomp">
 <h2>decomp<a class="headerlink" href="#decomp" title="Link to this heading"></a></h2>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.decomp.Decomp.html#polaris.tasks.ocean.cosine_bell.decomp.Decomp" title="polaris.tasks.ocean.cosine_bell.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.decomp.Decomp</span></code></a> defines
-a decomposition test across core counts.  It runs Cosine Bell test at coarse
+a decomposition test across core counts.  It runs the Cosine Bell test at coarse
 resolution once each on 12 and 24 cores to verify bit-for-bit reproducibility
 for tracer advection across different core counts.</p>
 </section>
@@ -226,7 +242,7 @@ for tracer advection across different core counts.</p>
 <h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.restart.Restart.html#polaris.tasks.ocean.cosine_bell.restart.Restart" title="polaris.tasks.ocean.cosine_bell.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.restart.Restart</span></code></a> class defines
 a restart check that performs two time steps of the Cosine Bell test at coarse
-resolution, then performs reruns the second time step, as a restart run to
+resolution, then performs the second time step again as a restart run to
 verify the bit-for-bit restart capability for tracer advection.</p>
 <section id="restart-step">
 <h3>restart_step<a class="headerlink" href="#restart-step" title="Link to this heading"></a></h3>

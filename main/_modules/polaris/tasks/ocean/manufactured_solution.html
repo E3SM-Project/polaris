@@ -232,29 +232,25 @@
             <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
-        <span class="p">)</span>
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">timesteps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
             <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span>
             <span class="p">)</span>
             <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
 
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
                 <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
@@ -267,20 +263,18 @@
 
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">basedir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s1">/forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
             <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
-            <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-                    <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">,</span>
-                    <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-                    <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
-                    <span class="n">del2</span><span class="o">=</span><span class="n">del2</span><span class="p">,</span>
-                    <span class="n">del4</span><span class="o">=</span><span class="n">del4</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Forward</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
+                <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+                <span class="n">del2</span><span class="o">=</span><span class="n">del2</span><span class="p">,</span>
+                <span class="n">del4</span><span class="o">=</span><span class="n">del4</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
 
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
@@ -288,18 +282,22 @@
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Analysis</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Analysis</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/analysis&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
                 <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
                 <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Viz</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">Viz</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/viz&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
                 <span class="n">dependencies</span><span class="o">=</span><span class="n">analysis_dependencies</span><span class="p">,</span>
-                <span class="n">taskdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
                 <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>

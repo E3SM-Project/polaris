@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="categories_of_tasks.html">Categories of tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared-steps">Shared steps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#setup">setup()</a></li>
@@ -147,11 +148,36 @@ task should be inside of that task’s work directory. Typically, a user will ru
 all steps in a task but certain tasks may prefer to have steps that are not run
 by default (e.g. a long forward simulation or optional visualization) but which
 are available for a user to manually alter and then run on their own.</p>
+<section id="shared-steps">
+<span id="dev-shared-steps"></span><h2>Shared steps<a class="headerlink" href="#shared-steps" title="Link to this heading"></a></h2>
+<p>Some steps are shared between multiple tasks to avoid redundant computation and
+to ensure consistency of results. Shared steps are created at the highest
+directory level common to all tasks that use them. To facilitate this, the
+<code class="docutils literal notranslate"><span class="pre">Component</span></code> class provides the method
+.</p>
+<p>This function checks if a step already exists in a component’s <code class="docutils literal notranslate"><span class="pre">steps</span></code>
+dictionary under a given subdirectory. If it does, it returns the existing
+step; otherwise, it creates the step, sets its shared configuration, adds it to
+the component, and returns it. This ensures that each shared step is only
+created and set up once, even if multiple tasks reference it.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">shared_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+    <span class="n">step_cls</span><span class="o">=</span><span class="n">InitStep</span><span class="p">,</span>
+    <span class="n">subdir</span><span class="o">=</span><span class="s2">&quot;init&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">config_filename</span><span class="o">=</span><span class="s2">&quot;init.cfg&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="../../design_docs/shared_steps.html"><span class="std std-doc">design document on shared steps</span></a>
+for more details about the motivation and implementation.</p>
 <p>A step is defined by a class that descends from <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.
 The child class must override the constructor and must also either override the
 <a class="reference internal" href="../generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code></a> method or define the <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute.  It will
 sometimes also wish to override the <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method,
 described below.</p>
+</section>
 <section id="step-attributes">
 <span id="dev-step-attributes"></span><h2>Step attributes<a class="headerlink" href="#step-attributes" title="Link to this heading"></a></h2>
 <p>As was the case for tasks, the base class <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
@@ -997,13 +1023,10 @@ recommended.</p>
 <section id="adding-other-steps-as-dependencies">
 <span id="dev-step-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Link to this heading"></a></h3>
 <p>In some circumstances, it is not feasible to know the output filenames at
-when a step gets set up.  For example, the filename may depend on config
-options that a user could change before running the step.  Or the filename
+when a step gets set up.  For example, the filename may depend on a
+config options that a user could change before running the step.  Or the filename
 could depend on data read in from files or computed at runtime.  In such
-circumstances, it is not feasible to specify the output filename with
-<a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.  Nor can other steps that depend
-on that output file as an input use <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a>.</p>
-<p>Under these circumstances, it is useful to be able to specify that a step
+circumstances, it is useful to be able to specify that a step
 is a dependency of another (dependent) step.  This is accomplished by passing
 the  dependency to the step’s <a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> method
 either during the creation of the dependent step, within the <code class="docutils literal notranslate"><span class="pre">configure()</span></code>
@@ -1011,7 +1034,8 @@ method of the parent task, or in the <code class="docutils literal notranslate">
 step.  The dependency does not need to belong to the task, it can be a shared
 step, but it should be a step in any tasks that also use the dependent step.
 This is because the dependent step will fail to run if the dependency has not
-run.</p>
+run. See <a class="reference internal" href="#dev-shared-steps"><span class="std std-ref">Shared steps</span></a> above for more information on creating
+and using shared steps.</p>
 <p>When a step is added as a dependency, after it runs, its state will be stored
 in a pickle file (see <a class="reference internal" href="../framework/commands.html#dev-setup"><span class="std std-ref">setup module</span></a>) that contains any modifications to its
 state during the run.  When the dependent step is run, the the state of

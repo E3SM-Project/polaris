@@ -433,7 +433,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.init.Init.run.html#polaris.tasks.ocean.inertial_gravity_wave.init.Init.run" title="polaris.tasks.ocean.inertial_gravity_wave.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, taskdir, dependencies[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, subdir, dependencies[, ...])</p></td>
 <td><p>A step for visualizing the output from the inertial gravity wave test case</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run.html#polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run" title="polaris.tasks.ocean.inertial_gravity_wave.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
@@ -528,7 +528,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.init.Init.setup.html#polaris.tasks.ocean.manufactured_solution.init.Init.setup" title="polaris.tasks.ocean.manufactured_solution.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
 <td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.html#polaris.tasks.ocean.manufactured_solution.viz.Viz" title="polaris.tasks.ocean.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.html#polaris.tasks.ocean.manufactured_solution.viz.Viz" title="polaris.tasks.ocean.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, subdir[, ...])</p></td>
 <td><p>A step for visualizing the output from the manufactured solution test case</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.run.html#polaris.tasks.ocean.manufactured_solution.viz.Viz.run" title="polaris.tasks.ocean.manufactured_solution.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
@@ -689,7 +689,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps.html#polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps" title="polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IceShelfTask.setup_ssh_adjustment_steps</span></code></a>(...)</p></td>
 <td><p>Setup ssh_forward and ssh_adjustment steps for all iterations</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.SshAdjustment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SshAdjustment</span></code></a>(component, mesh_filename, forward)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.SshAdjustment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SshAdjustment</span></code></a>(component, mesh_filename, ...)</p></td>
 <td><p>A step for iteratively adjusting the pressure from the weight of the ice shelf to match the sea-surface height as part of ice-shelf 2D test cases</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.run.html#polaris.ocean.ice_shelf.SshAdjustment.run" title="polaris.ocean.ice_shelf.SshAdjustment.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SshAdjustment.run</span></code></a>()</p></td>

@@ -165,7 +165,6 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">,</span>
         <span class="n">base_mesh_step</span><span class="p">,</span>
         <span class="n">combine_topo_step</span><span class="p">,</span>
         <span class="n">mask_topo_step</span><span class="p">,</span>
@@ -181,9 +180,6 @@
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
-
-<span class="sd">        config : polaris.config.PolarisConfigParser</span>
-<span class="sd">            The configuration options for the step</span>
 
 <span class="sd">        base_mesh_step : polaris.mesh.spherical.SphericalBaseStep</span>
 <span class="sd">            The base mesh step containing input files to this step</span>
@@ -216,8 +212,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mask_topo_step</span> <span class="o">=</span> <span class="n">mask_topo_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span> <span class="o">=</span> <span class="n">unsmoothed_topo</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;remap_topo.cfg&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography_remapped.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="mf">0.0</span>

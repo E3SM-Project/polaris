@@ -18,6 +18,7 @@
       ~Component.add_step
       ~Component.add_task
       ~Component.configure
+      ~Component.get_or_create_shared_step
       ~Component.remove_step
    
    
