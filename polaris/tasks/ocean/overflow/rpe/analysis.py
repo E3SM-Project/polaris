@@ -105,7 +105,6 @@ class Analysis(Step):
             figsize=(3 * sim_count, 5.0),
             constrained_layout=True,
         )
-        fig.suptitle(f'day {time}')
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
         y_mid = ds_mesh.yCell.median().values
@@ -117,6 +116,7 @@ class Analysis(Step):
             ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
             times = ds.daysSinceStartOfSim.values
             time_index = np.argmin(np.abs(times - time))
+            time = times[time_index]
             ds_transect = compute_transect(
                 x=x,
                 y=y,
@@ -136,7 +136,7 @@ class Analysis(Step):
                 ds_transect,
                 mpas_field=ds.temperature.isel(Time=time_index),
                 ax=ax,
-                title='temperature',
+                title='temperature at {time:.2f} days',
                 interface_color='grey',
                 vmin=min_temp,
                 vmax=max_temp,
