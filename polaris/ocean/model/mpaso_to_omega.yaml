@@ -68,6 +68,21 @@ config:
     config_mom_del4: ViscDel4
 
 - section:
+    forcing: Tendencies
+  options:
+    config_use_bulk_wind_stress: WindForcingTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_vel_explicit_bottom_drag: BottomDragTendencyEnable
+
+- section:
+    bottom_drag: Tendencies
+  options:
+    config_explicit_bottom_drag_coeff: BottomDragCoeff
+
+- section:
     manufactured_solution: ManufacturedSolution
   options:
     config_manufactured_solution_wavelength_x: WavelengthX
