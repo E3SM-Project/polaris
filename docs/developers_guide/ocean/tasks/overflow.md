@@ -67,7 +67,7 @@ file, and the `analysis` step.
 
 ### analysis
 
-The {py:class}`polaris.tasks.ocean.overflow.analysis.Analysis`
+The {py:class}`polaris.tasks.ocean.overflow.rpe.analysis.Analysis`
 computes the Resting Potential Energy (RPE). This step also produces a
 figure with RPE time evolution for each forward run and a figure with each of
 the forward run's transects at the `plot_time` designated in the config file.
