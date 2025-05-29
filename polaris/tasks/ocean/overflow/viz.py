@@ -75,7 +75,7 @@ class Viz(Step):
             vmax=vmax,
             cmap='cmo.thermal',
             colorbar_label=r'$^\circ$C',
-            color_start_and_end=True,
+            color_start_and_end=False,
         )
 
         t_index = ds.sizes['Time'] - 1
@@ -101,5 +101,5 @@ class Viz(Step):
             vmax=vmax,
             cmap='cmo.thermal',
             colorbar_label=r'$^\circ$C',
-            color_start_and_end=True,
+            color_start_and_end=False,
         )
