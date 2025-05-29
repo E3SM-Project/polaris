@@ -6,10 +6,11 @@ def compute_density(config, temperature, salinity):
 
 
 def _compute_linear_density(config, temperature, salinity):
-    alpha = config.getfloat('ocean', 'eos_linear_alpha')
-    beta = config.getfloat('ocean', 'eos_linear_beta')
-    rhoref = config.getfloat('ocean', 'eos_linear_rhoref')
-    Tref = config.getfloat('ocean', 'eos_linear_Tref')
-    Sref = config.getfloat('ocean', 'eos_linear_Sref')
+    section = config['ocean']
+    alpha = section.getfloat('eos_linear_alpha')
+    beta = section.getfloat('eos_linear_beta')
+    rhoref = section.getfloat('eos_linear_rhoref')
+    Tref = section.getfloat('eos_linear_Tref')
+    Sref = section.getfloat('eos_linear_Sref')
     density = rhoref + -alpha * (temperature - Tref) + beta * (salinity - Sref)
     return density
