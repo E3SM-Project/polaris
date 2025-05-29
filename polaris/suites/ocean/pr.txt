@@ -7,6 +7,7 @@ ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
 # ocean/planar/manufactured_solution/convergence_both
+ocean/planar/overflow/default
 ocean/single_column/cvmix
 ocean/single_column/ideal_age
 ocean/spherical/icos/cosine_bell/decomp

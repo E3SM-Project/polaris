@@ -260,6 +260,37 @@
    viz.Viz.run
 ```
 
+### overflow
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.overflow
+
+.. autosummary::
+   :toctree: generated/
+
+   add_overflow_tasks
+
+   default.Default
+
+   forward.Forward
+   forward.Forward.dynamic_model_config
+   forward.Forward.compute_cell_count
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   rpe.Rpe
+   rpe.Rpe.configure
+
+   rpe.analysis.Analysis
+   rpe.analysis.Analysis.run
+   
+   viz.Viz
+   viz.Viz.run
+   
+```
+
 ### single_column
 
 ```{eval-rst}
