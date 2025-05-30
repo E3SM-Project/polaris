@@ -18,8 +18,12 @@ git submodule update --init e3sm_submodules/Omega
 
 cd {{ omega_base_dir }}
 
-git submodule update --init --recursive externals/YAKL externals/ekat \
-    externals/scorpio cime
+git submodule update --init --recursive \
+    externals/YAKL \
+    externals/ekat \
+    externals/scorpio \
+    externals/cpptrace \
+    cime
 
 cd ${cwd}
 
