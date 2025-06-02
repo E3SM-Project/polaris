@@ -5,8 +5,6 @@
 {%- endif %}
 #PBS -l select={{ nodes }}{% if gpus_per_node != '' %}:ngpus={{ gpus_per_node }}{% endif %}
 #PBS -l walltime={{ wall_time }}
-#PBS -o {{ job_name }}.o$PBS_JOBID
-#PBS -e {{ job_name }}.e$PBS_JOBID
 #PBS -V
 {%- if queue != '' %}
 #PBS -q {{ queue }}
@@ -16,5 +14,4 @@
 {%- endif %}
 
 cd $PBS_O_WORKDIR
-source load_polaris_env.sh
-polaris serial {{suite}}
+{{ run_command }}
