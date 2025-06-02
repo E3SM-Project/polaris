@@ -33,7 +33,7 @@ def add_external_gravity_wave_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for prefix, _single_refinement in [('icos', 8.0), ('qu', 2.0)]:
+    for prefix in ['icos', 'qu']:
         for dt_type in ['global', 'local']:
             egw = 'external_gravity_wave'
             filepath = (
@@ -322,5 +322,5 @@ def _set_convergence_configs(config, prefix):
             'spherical_convergence', f'{prefix}_base_resolution'
         )
         config.set(
-            'convergence', 'base_resolution', value=f'{base_resolution:03g}'
+            'convergence', 'base_resolution', value=f'{base_resolution:g}'
         )

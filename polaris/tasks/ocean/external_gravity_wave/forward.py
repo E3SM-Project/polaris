@@ -8,11 +8,6 @@ class Forward(SphericalConvergenceForward):
     """
     A step for performing forward ocean component runs as part of the external
     gravity wave test case
-
-    Attributes
-    ----------
-    do_restart : bool
-        Whether this is a restart run
     """
 
     def __init__(
@@ -25,7 +20,6 @@ class Forward(SphericalConvergenceForward):
         refinement_factor,
         refinement,
         dt_type,
-        do_restart=False,
     ):
         """
         Create a new step
@@ -56,9 +50,6 @@ class Forward(SphericalConvergenceForward):
 
         dt_type : str, optional
             Type of time-stepping to use. One of 'global' or 'local'
-
-        do_restart : bool, optional
-            Whether this is a restart run
         """
         package = 'polaris.tasks.ocean.external_gravity_wave'
         validate_vars = ['normalVelocity', 'layerThickness']
@@ -82,7 +73,6 @@ class Forward(SphericalConvergenceForward):
             refinement_factor=refinement_factor,
             refinement=refinement,
         )
-        self.do_restart = do_restart
         self.dt_type = dt_type
 
         if dt_type == 'local':
@@ -90,7 +80,6 @@ class Forward(SphericalConvergenceForward):
                 'polaris.tasks.ocean.external_gravity_wave',
                 'local_time_step.yaml',
             )
-
 
 
 class ReferenceForward(OceanModelStep):
