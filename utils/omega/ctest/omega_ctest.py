@@ -8,7 +8,7 @@ from jinja2 import Template
 
 from polaris.config import PolarisConfigParser
 from polaris.io import download, update_permissions
-from polaris.job import clean_up_whitespace, get_slurm_options
+from polaris.job import write_job_script
 
 
 def make_build_script(
@@ -83,8 +83,6 @@ def make_build_script(
         nersc_host=nersc_host,
     )
 
-    script = clean_up_whitespace(script)
-
     build_omega_dir = os.path.abspath('build_omega')
     os.makedirs(build_omega_dir, exist_ok=True)
 
@@ -132,79 +130,27 @@ def download_meshes(config):
     return download_targets
 
 
-def write_job_script(config, machine, compiler, account, submit):
+def write_omega_ctest_job_script(config, machine, compiler, nodes=1):
     """
-    Write a job script for running the build script
+    Write a job script for running Omega CTest using the generalized template.
     """
-
-    if account is None:
-        if config.has_option('parallel', 'account'):
-            account = config.get('parallel', 'account')
-        else:
-            account = ''
-
-    nodes = 1
-
-    partition, qos, constraint, gpus_per_node, _ = get_slurm_options(
-        config, machine, nodes
-    )
-
-    wall_time = '0:15:00'
-
-    # see if we can find a debug partition
-    if config.has_option('parallel', 'partitions'):
-        partition_list = config.getlist('parallel', 'partitions')
-        for partition_local in partition_list:
-            if 'debug' in partition_local:
-                partition = partition_local
-                break
-
-    # see if we can find a debug qos
-    if config.has_option('parallel', 'qos'):
-        qos_list = config.getlist('parallel', 'qos')
-        for qos_local in qos_list:
-            if 'debug' in qos_local:
-                qos = qos_local
-                break
-
-    job_name = f'omega_ctest_{machine}_{compiler}'
-
-    this_dir = os.path.realpath(
-        os.path.join(os.getcwd(), os.path.dirname(__file__))
-    )
-    template_filename = os.path.join(this_dir, 'job_script.template')
-
-    with open(template_filename, 'r', encoding='utf-8') as f:
-        template = Template(f.read())
-
-    build_dir = os.path.abspath(
-        os.path.join('build_omega', f'build_{machine}_{compiler}')
-    )
-
-    script = template.render(
-        job_name=job_name,
-        account=account,
-        nodes=f'{nodes}',
-        wall_time=wall_time,
-        qos=qos,
-        partition=partition,
-        constraint=constraint,
-        gpus_per_node=gpus_per_node,
-        build_dir=build_dir,
-    )
-    script = clean_up_whitespace(script)
-
     build_omega_dir = os.path.abspath('build_omega')
-    script_filename = f'job_build_and_ctest_omega_{machine}_{compiler}.sh'
-    script_filename = os.path.join(build_omega_dir, script_filename)
+    build_dir = os.path.join(build_omega_dir, f'build_{machine}_{compiler}')
 
-    with open(script_filename, 'w', encoding='utf-8') as f:
-        f.write(script)
+    run_command = f'cd {build_dir}\n./omega_ctest.sh'
 
-    if submit:
-        args = ['sbatch', script_filename]
-        print(f'\nRunning:\n   {" ".join(args)}\n')
-        subprocess.run(args=args, check=True)
+    job_script_filename = f'job_build_and_ctest_omega_{machine}_{compiler}.sh'
+    job_script_filename = os.path.join(build_omega_dir, job_script_filename)
+
+    write_job_script(
+        config=config,
+        machine=machine,
+        nodes=nodes,
+        work_dir=build_dir,
+        script_filename=job_script_filename,
+        run_command=run_command,
+    )
+    return job_script_filename
 
 
 def main():
@@ -298,13 +244,19 @@ def main():
         f'env -i HOME="$HOME" bash -l {script_filename}', shell=True
     )
 
-    write_job_script(
+    if account is not None:
+        config.set('parallel', 'account', account)
+
+    job_script_filename = write_omega_ctest_job_script(
         config=config,
         machine=machine,
         compiler=compiler,
-        account=account,
-        submit=submit,
     )
+
+    if submit:
+        cmd = ['sbatch', job_script_filename]
+        print(f'\nRunning:\n   {" ".join(cmd)}\n')
+        subprocess.run(args=cmd, check=True)
 
 
 if __name__ == '__main__':
