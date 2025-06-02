@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N {{ job_name }}
+{%- if account != '' %}
+#PBS -A {{ account }}
+{%- endif %}
+#PBS -l select={{ nodes }}{% if gpus_per_node != '' %}:ngpus={{ gpus_per_node }}{% endif %}
+#PBS -l walltime={{ wall_time }}
+#PBS -o {{ job_name }}.o$PBS_JOBID
+#PBS -e {{ job_name }}.e$PBS_JOBID
+#PBS -V
+{%- if queue != '' %}
+#PBS -q {{ queue }}
+{%- endif %}
+{%- if constraint != '' %}
+#PBS -l {{ constraint }}
+{%- endif %}
+
+cd $PBS_O_WORKDIR
+source load_polaris_env.sh
+polaris serial {{suite}}

@@ -38,44 +38,63 @@ def write_job_script(
         account = ''
 
     cores_per_node = config.getint('parallel', 'cores_per_node')
-
-    # as a rule of thumb, let's do the geometric mean between min and target
     cores = np.sqrt(target_cores * min_cores)
     nodes = int(np.ceil(cores / cores_per_node))
 
-    partition, qos, constraint, gpus_per_node, wall_time = get_slurm_options(
-        config, machine, nodes
+    # Determine parallel system type
+    system = (
+        config.get('parallel', 'system')
+        if config.has_option('parallel', 'system')
+        else 'single_node'
     )
+
+    render_kwargs: dict[str, str] = {}
+
+    if system == 'slurm':
+        partition, qos, constraint, gpus_per_node, wall_time = (
+            get_slurm_options(config, machine, nodes)
+        )
+        template_name = 'job_script.slurm.template'
+        render_kwargs.update(
+            partition=partition,
+            qos=qos,
+            constraint=constraint,
+            gpus_per_node=gpus_per_node,
+            wall_time=wall_time,
+        )
+    elif system == 'pbs':
+        queue, constraint, gpus_per_node, wall_time = get_pbs_options(
+            config, machine, nodes
+        )
+        template_name = 'job_script.pbs.template'
+        render_kwargs.update(
+            queue=queue,
+            constraint=constraint,
+            gpus_per_node=gpus_per_node,
+            wall_time=wall_time,
+        )
+    else:
+        # Do not write a job script for other systems
+        return
 
     job_name = config.get('job', 'job_name')
     if job_name == '<<<default>>>':
-        if suite == '':
-            job_name = 'polaris'
-        else:
-            job_name = f'polaris_{suite}'
+        job_name = f'polaris{f"_{suite}" if suite else ""}'
 
     template = Template(
-        imp_res.files('polaris.job')
-        .joinpath('job_script.template')
-        .read_text()
+        imp_res.files('polaris.job').joinpath(template_name).read_text()
     )
 
-    text = template.render(
+    render_kwargs.update(
         job_name=job_name,
         account=account,
         nodes=f'{nodes}',
-        wall_time=wall_time,
-        qos=qos,
-        partition=partition,
-        constraint=constraint,
-        gpus_per_node=gpus_per_node,
         suite=suite,
     )
+
+    text = template.render(**render_kwargs)
     text = clean_up_whitespace(text)
-    if suite == '':
-        script_filename = 'job_script.sh'
-    else:
-        script_filename = f'job_script.{suite}.sh'
+    script_filename = f'job_script{f".{suite}" if suite else ""}.sh'
     script_filename = os.path.join(work_dir, script_filename)
     with open(script_filename, 'w') as handle:
         handle.write(text)
@@ -83,57 +102,120 @@ def write_job_script(
 
 def get_slurm_options(config, machine, nodes):
     """
-    Get Slurm options
+    Get Slurm options for job submission.
 
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
-        Config options
+        Configuration options for this test case, a combination of user configs
+        and the defaults for the machine and component.
 
     machine : str
-        Name of the machine
+        The name of the machine.
 
     nodes : int
-        Number of nodes
+        The number of nodes required for the job.
 
     Returns
     -------
     partition : str
-        Slurm partition
+        The partition to use for the job.
 
     qos : str
-        Slurm quality of service
+        The quality of service to use for the job.
 
     constraint : str
-        Slurm constraint
+        Any constraints to use for the job.
 
     gpus_per_node : str
-        The numer of GPUs per node (if any)
+        The number of GPUs per node to request.
 
     wall_time : str
-        Slurm wall time
+        The wall time to request for the job.
     """
+    partition, qos, constraint, gpus_per_node, wall_time = _get_job_options(
+        config, machine, nodes, key='partition', list_key='partitions'
+    )
+    return partition, qos, constraint, gpus_per_node, wall_time
 
-    partition = config.get('job', 'partition')
-    if partition == '<<<default>>>':
-        if machine == 'anvil':
+
+def get_pbs_options(config, machine, nodes):
+    """
+    Get PBS options for job submission.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options for this test case, a combination of user configs
+        and the defaults for the machine and component.
+
+    machine : str
+        The name of the machine.
+
+    nodes : int
+        The number of nodes required for the job.
+
+    Returns
+    -------
+    queue : str
+        The queue to use for the job.
+
+    constraint : str
+        Any constraints to use for the job.
+
+    gpus_per_node : str
+        The number of GPUs per node to request.
+
+    wall_time : str
+        The wall time to request for the job.
+    """
+    queue, _, constraint, gpus_per_node, wall_time = _get_job_options(
+        config, machine, nodes, key='queue', list_key='queues'
+    )
+    return queue, constraint, gpus_per_node, wall_time
+
+
+def _get_job_options(config, machine, nodes, key, list_key):
+    """
+    Helper to get job options for slurm or pbs
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+    machine : str
+    nodes : int
+    key : str
+        'partition' for slurm, 'queue' for pbs
+    list_key : str
+        'partitions' for slurm, 'queues' for pbs
+
+    Returns
+    -------
+    key_value : str
+    qos : str
+    constraint : str
+    gpus_per_node : str
+    wall_time : str
+    """
+    key_value = config.get('job', key)
+    if key_value == '<<<default>>>':
+        if machine == 'anvil' and key == 'partition':
             # choose the partition based on the number of nodes
             if nodes <= 5:
-                partition = 'acme-small'
+                key_value = 'acme-small'
             elif nodes <= 60:
-                partition = 'acme-medium'
+                key_value = 'acme-medium'
             else:
-                partition = 'acme-large'
-        elif config.has_option('parallel', 'partitions'):
+                key_value = 'acme-large'
+        elif config.has_option('parallel', list_key):
             # get the first, which is the default
-            partition = config.getlist('parallel', 'partitions')[0]
+            key_value = config.getlist('parallel', list_key)[0]
         else:
-            partition = ''
+            key_value = ''
 
     qos = config.get('job', 'qos')
     if qos == '<<<default>>>':
         if config.has_option('parallel', 'qos'):
-            # get the first, which is the default
             qos = config.getlist('parallel', 'qos')[0]
         else:
             qos = ''
@@ -141,7 +223,6 @@ def get_slurm_options(config, machine, nodes):
     constraint = config.get('job', 'constraint')
     if constraint == '<<<default>>>':
         if config.has_option('parallel', 'constraints'):
-            # get the first, which is the default
             constraint = config.getlist('parallel', 'constraints')[0]
         else:
             constraint = ''
@@ -153,7 +234,7 @@ def get_slurm_options(config, machine, nodes):
 
     wall_time = config.get('job', 'wall_time')
 
-    return partition, qos, constraint, gpus_per_node, wall_time
+    return key_value, qos, constraint, gpus_per_node, wall_time
 
 
 def clean_up_whitespace(text):
