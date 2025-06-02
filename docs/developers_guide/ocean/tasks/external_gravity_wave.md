@@ -22,14 +22,14 @@ time-stepping schemes (`LTS` and `FB_LTS`) that employ a operator splitting
 in which tendency terms other than those above are advanced with
 a first-order error. As a result, this task helps to show that these local
 time-stepping schemes are achieving the correct theoretical order of
-convergence is said splitting was not used.
+convergence if said splitting was not used.
 
 To calculate errors, the task runs the case once at a small time-step
 to generate a reference solution.
 
 ## framework
 
-The config options for the `external_graivty_wave` tests are described in
+The config options for the `external_gravity_wave` tests are described in
 {ref}`ocean-external-gravity-wave` in the User's Guide.
 
 ### base_mesh
@@ -60,13 +60,13 @@ an `init` step. See {ref}`dev-ocean-convergence` for some relevant
 discussion of the parent class.
 
 Additionally, the class
-{py:class}`polaris.tasks.ocean.external_graivty_wave.forward.ReferenceForward`
+{py:class}`polaris.tasks.ocean.external_gravity_wave.forward.ReferenceForward`
 descends directly from {py:class}`polaris.ocean.model.OceanModelStep`.
 This is done to create a forward step to generate the reference solution
 independent of the rest of the convergence framework.
 
 The time steps are determined from the resolution
-based on the `dt_per_km` config option in the `[convergence_forward]`
+based on the `{time_integrator}_dt_per_km` config option in the `[convergence_forward]`
 section.  Other model config options are taken from `forward.yaml`.
 
 ## analysis

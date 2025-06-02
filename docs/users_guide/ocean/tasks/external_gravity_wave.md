@@ -83,7 +83,7 @@ qu_refinement_factors = 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.
 To alter the resolutions used in the convergence tasks, you will need to create
 your own config file (or add a `spherical_convergence` section to a config file
 if you're already using one).  If you specify a different resolution
-before setting up `external_graivty_wave`, steps will be generated with
+before setting up `external_gravity_wave`, steps will be generated with
 the requested resolution (if you alter `icos_resolutions` or `qu_resolutions`
 in the task's config file in the work directory, nothing will happen).
 For `icos` meshes, make sure you use a resolution close to those listed in
@@ -144,8 +144,7 @@ and `lon_center` as config options.
 
 ## forcing
 
-This case run with all momentum equation terms disabled save the pressure
-gradient term.
+N/A
 
 (ocean-external-graivty-wave-time-step)=
 ## time step and run duration

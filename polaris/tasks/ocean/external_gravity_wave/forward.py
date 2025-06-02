@@ -104,8 +104,8 @@ class Forward(SphericalConvergenceForward):
 
 class ReferenceForward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel tasks.
+    A step for performing forward ocean component runs as part of external
+    gravity wave tasks.
 
     Attributes
     ----------
