@@ -16,5 +16,4 @@
 {%- endif %}
 
 cd $PBS_O_WORKDIR
-source load_polaris_env.sh
-polaris serial {{suite}}
+{{ run_command }}

@@ -6,7 +6,15 @@ from jinja2 import Template as Template
 
 
 def write_job_script(
-    config, machine, target_cores, min_cores, work_dir, suite=''
+    config,
+    machine,
+    work_dir,
+    nodes=None,
+    target_cores=None,
+    min_cores=None,
+    suite='',
+    script_filename=None,
+    run_command=None,
 ):
     """
 
@@ -19,17 +27,31 @@ def write_job_script(
     machine : {str, None}
         The name of the machine
 
-    target_cores : int
-        The target number of cores for the job to use
-
-    min_cores : int
-        The minimum number of cores for the job to use
-
     work_dir : str
         The work directory where the job script should be written
 
+    nodes : int, optional
+        The number of nodes for the job. If not provided, it will be
+        calculated based on ``target_cores`` and ``min_cores``.
+
+    target_cores : int, optional
+        The target number of cores for the job to use if ``nodes`` not
+        provided
+
+    min_cores : int, optional
+        The minimum number of cores for the job to use if ``nodes`` not
+        provided
+
     suite : str, optional
         The name of the suite
+
+    script_filename : str, optional
+        The name of the job script file to write. If not provided, defaults to
+        'job_script.sh' or 'job_script.{suite}.sh' if suite is specified.
+
+    run_command : str, optional
+        The command(s) to run in the job script. If not provided, defaults to
+        'polaris serial {{suite}}'.
     """
 
     if config.has_option('parallel', 'account'):
@@ -37,9 +59,15 @@ def write_job_script(
     else:
         account = ''
 
-    cores_per_node = config.getint('parallel', 'cores_per_node')
-    cores = np.sqrt(target_cores * min_cores)
-    nodes = int(np.ceil(cores / cores_per_node))
+    if nodes is None:
+        if target_cores is None or min_cores is None:
+            raise ValueError(
+                'If nodes is not provided, both target_cores and min_cores '
+                'must be provided.'
+            )
+        cores_per_node = config.getint('parallel', 'cores_per_node')
+        cores = np.sqrt(target_cores * min_cores)
+        nodes = int(np.ceil(cores / cores_per_node))
 
     # Determine parallel system type
     system = (
@@ -85,16 +113,22 @@ def write_job_script(
         imp_res.files('polaris.job').joinpath(template_name).read_text()
     )
 
+    if run_command is None:
+        run_command = f'polaris serial {suite}' if suite else 'polaris serial'
+        run_command = f'source load_polaris_env.sh\n{run_command}'
+
     render_kwargs.update(
         job_name=job_name,
         account=account,
         nodes=f'{nodes}',
         suite=suite,
+        run_command=run_command,
     )
 
     text = template.render(**render_kwargs)
-    script_filename = f'job_script{f".{suite}" if suite else ""}.sh'
-    script_filename = os.path.join(work_dir, script_filename)
+    if script_filename is None:
+        script_filename = f'job_script{f".{suite}" if suite else ""}.sh'
+        script_filename = os.path.join(work_dir, script_filename)
     with open(script_filename, 'w') as handle:
         handle.write(text)
 
