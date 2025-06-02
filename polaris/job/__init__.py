@@ -93,7 +93,6 @@ def write_job_script(
     )
 
     text = template.render(**render_kwargs)
-    text = clean_up_whitespace(text)
     script_filename = f'job_script{f".{suite}" if suite else ""}.sh'
     script_filename = os.path.join(work_dir, script_filename)
     with open(script_filename, 'w') as handle:
@@ -235,40 +234,3 @@ def _get_job_options(config, machine, nodes, key, list_key):
     wall_time = config.get('job', 'wall_time')
 
     return key_value, qos, constraint, gpus_per_node, wall_time
-
-
-def clean_up_whitespace(text):
-    """
-    Clean up whitespace after jinja templating
-
-    Parameters
-    ----------
-    text : str
-        Text to clean up
-
-    Returns
-    -------
-    text : str
-        Text with extra blank lines removed
-    """
-    prev_line = None
-    lines = text.split('\n')
-    trimmed = list()
-    # remove extra blank lines
-    for line in lines:
-        if line != '' or prev_line != '':
-            trimmed.append(line)
-            prev_line = line
-
-    line = ''
-    lines = list()
-    # remove blank lines between comments
-    for next_line in trimmed:
-        if line != '' or not next_line.startswith('#'):
-            lines.append(line)
-        line = next_line
-
-    # add the last line that we missed and an extra blank line
-    lines.extend([trimmed[-1], ''])
-    text = '\n'.join(lines)
-    return text
